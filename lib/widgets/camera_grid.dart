@@ -102,9 +102,9 @@ class _CameraGridState extends State<CameraGrid> {
           shrinkWrap: true,
           crossAxisCount: 2,
           childAspectRatio: kCameraTileWidth / kCameraTileHeight,
-          mainAxisSpacing: 8.0,
-          crossAxisSpacing: 8.0,
-          padding: const EdgeInsets.all(8.0),
+          mainAxisSpacing: kCameraTileMargin,
+          crossAxisSpacing: kCameraTileMargin,
+          padding: const EdgeInsets.all(kCameraTileMargin),
           onReorder: (int oldIndex, int newIndex) {
             setState(() {
               final e = players.removeAt(oldIndex);

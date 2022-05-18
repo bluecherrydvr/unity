@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
 import 'package:bluecherry_client/widgets/camera_grid.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/__prototyping__.dart';
 
 Future<void> main() async {
@@ -34,9 +35,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: createTheme(),
       home: const MyHomePage(title: 'Bluecherry Client'),
     );
   }
@@ -54,6 +53,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: CameraGrid(server: kServer));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('BlueCherry Client'),
+      ),
+      body: const CameraGrid(server: kServer),
+    );
   }
 }

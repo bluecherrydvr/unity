@@ -23,6 +23,7 @@ const kCameraTileWidth = 640.0;
 /// Used as frame buffer size in [CameraTile], and calculating aspect ratio.
 const kCameraTileHeight = 360.0;
 
+/// Margin between & around a [CameraTile].
 const kCameraTileMargin = 16.0;
 
 /// Default libVLC flags used while rendering the video output.

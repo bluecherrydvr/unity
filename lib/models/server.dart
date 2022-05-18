@@ -21,8 +21,6 @@ import 'package:bluecherry_client/models/camera.dart';
 
 /// A [Server] added by a user.
 ///
-/// TODO: Add more attributes as required.
-///
 class Server {
   final String ip;
   final int port;

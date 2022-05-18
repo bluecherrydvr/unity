@@ -21,8 +21,9 @@ import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
 import 'package:bluecherry_client/models/camera.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 
-class CameraTile extends StatelessWidget {
+class CameraTile extends StatefulWidget {
   final Camera camera;
 
   /// Taking [Player] as [Widget] argument to avoid disposition responsiblity & [Player] recreations due to UI re-draw.
@@ -40,17 +41,129 @@ class CameraTile extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => CameraTileState();
+}
+
+class CameraTileState extends State<CameraTile> {
+  bool hover = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        hover = false;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 4.0,
-      margin: EdgeInsets.zero,
-      key: PageStorageKey(camera.uri.hashCode),
-      child: Video(
-        player: player,
-        width: width,
-        height: height,
-        showControls: false,
+    return MouseRegion(
+      onEnter: (e) {
+        setState(() {
+          hover = true;
+        });
+      },
+      onExit: (e) {
+        setState(() {
+          hover = false;
+        });
+      },
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 4.0,
+        margin: EdgeInsets.zero,
+        key: PageStorageKey(widget.camera.uri.hashCode),
+        child: Stack(
+          children: [
+            AnimatedScale(
+              scale: hover ? 1.05 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: Video(
+                player: widget.player,
+                showControls: false,
+              ),
+            ),
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: hover ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: Container(
+                  width: widget.width,
+                  height: widget.height,
+                  alignment: Alignment.bottomLeft,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7),
+                      ],
+                      stops: const [0.0, 0.8],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  child: AnimatedSlide(
+                    offset: Offset(0, hover ? 0.0 : 1.0),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 24.0,
+                          ),
+                          const SizedBox(width: 16.0),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.camera.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline1
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 18.0,
+                                    ),
+                              ),
+                              Text(
+                                widget.camera.uri,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    ?.copyWith(
+                                      color: Colors.white70,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          // TODO: missing implementation.
+                          Text(
+                            '25 FPS',
+                            style:
+                                Theme.of(context).textTheme.headline2?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,0 +1,34 @@
+name: Bluecherry Client Flutter
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_windows:
+    name: Bluecherry Client Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - run: flutter config --enable-windows-desktop
+      - run: flutter pub get
+      - run: flutter build windows
+      - run: cp -r build/windows/runner/Release bluecherry-client-windows-exe
+      - run: tar.exe -a -c -f bluecherry-client-windows-exe.zip bluecherry-client-windows-exe
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "vnext"
+          files: |
+            bluecherry-client-windows-exe.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

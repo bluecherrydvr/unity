@@ -29,12 +29,11 @@ class Server {
   final String login;
   final String password;
 
-  final List<Device> devices;
-
+  List<Device> devices = [];
   final String? serverUUID;
   final String? cookie;
 
-  const Server(
+  Server(
     this.ip,
     this.port,
     this.login,

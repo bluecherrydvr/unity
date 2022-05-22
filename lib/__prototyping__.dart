@@ -22,15 +22,15 @@
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 
-const kServer = Server(
+final server = Server(
   '7007cams.bluecherry.app',
   7001,
   'admin',
   'bluecherry',
   [
-    Device('Garage', 'live/6', true, 640, 480),
-    Device('Pool', 'live/7', true, 640, 480),
-    Device('Trampoline', 'live/8', true, 640, 480),
-    Device('Under Deck', 'live/9', true, 640, 480),
+    const Device('Garage', 'live/6', true, 640, 480),
+    const Device('Pool', 'live/7', true, 640, 480),
+    const Device('Trampoline', 'live/8', true, 640, 480),
+    const Device('Under Deck', 'live/9', true, 640, 480),
   ],
 );

@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: const DeviceGrid(server: kServer),
+      body: DeviceGrid(server: server),
     );
   }
 }

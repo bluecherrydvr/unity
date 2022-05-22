@@ -37,6 +37,8 @@ dependencies:
     git:
       url: https://github.com/alexmercerind/reorderable_grid_view.git
       ref: master
+  http: ^0.13.4
+  xml2json: ^5.3.2
 
 dependency_overrides:
   dart_vlc_ffi:

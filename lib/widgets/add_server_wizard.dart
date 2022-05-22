@@ -58,38 +58,41 @@ class _AddServerWizardState extends State<AddServerWizard> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/images/icon.png',
-                                    height: 168.0,
-                                    width: 168.0,
-                                    fit: BoxFit.contain,
-                                  ),
-                                  const SizedBox(width: 24.0),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('project_name'.tr(),
+                            Material(
+                              elevation: 4.0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(24.0),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/icon.png',
+                                      height: 168.0,
+                                      width: 168.0,
+                                      fit: BoxFit.contain,
+                                    ),
+                                    const SizedBox(width: 24.0),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('project_name'.tr(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline1
+                                                ?.copyWith(
+                                                  fontSize: 36.0,
+                                                )),
+                                        const SizedBox(height: 4.0),
+                                        Text(
+                                          'project_description'.tr(),
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline1
-                                              ?.copyWith(
-                                                fontSize: 36.0,
-                                              )),
-                                      const SizedBox(height: 4.0),
-                                      Text(
-                                        'project_description'.tr(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline3,
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                              .headline3,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             Padding(
@@ -97,31 +100,39 @@ class _AddServerWizardState extends State<AddServerWizard> {
                               child: Row(
                                 children: [
                                   const Spacer(),
-                                  InkWell(
-                                    onTap: () {},
-                                    child: Text(
-                                      'website'.tr(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline3
-                                          ?.copyWith(
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () {},
+                                      child: Text(
+                                        'website'.tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline3
+                                            ?.copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .primary),
+                                                  .primary,
+                                            ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 16.0),
-                                  InkWell(
-                                    onTap: () {},
-                                    child: Text(
-                                      'purchase'.tr(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline3
-                                          ?.copyWith(
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () {},
+                                      child: Text(
+                                        'purchase'.tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline3
+                                            ?.copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .primary),
+                                                  .primary,
+                                            ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8.0),
@@ -443,18 +454,44 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                     const SizedBox(height: 16.0),
                                     Align(
                                       alignment: Alignment.bottomRight,
-                                      child: FloatingActionButton(
-                                        onPressed: () {
-                                          controller.nextPage(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            curve: Curves.easeInOut,
-                                          );
-                                        },
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        child: const Icon(Icons.check),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          MaterialButton(
+                                            onPressed: () {
+                                              controller.nextPage(
+                                                duration: const Duration(
+                                                  milliseconds: 300,
+                                                ),
+                                                curve: Curves.easeInOut,
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'skip'.tr().toUpperCase(),
+                                              ),
+                                            ),
+                                            textColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                          MaterialButton(
+                                            onPressed: () {},
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'finish'.tr().toUpperCase(),
+                                              ),
+                                            ),
+                                            textColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],

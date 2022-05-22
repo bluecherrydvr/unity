@@ -17,40 +17,74 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/models/camera.dart';
+import 'package:bluecherry_client/models/device.dart';
 
 /// A [Server] added by a user.
 ///
 class Server {
   final String ip;
   final int port;
+  final int rtspPort;
 
-  final String username;
+  final String login;
   final String password;
 
-  final List<Camera> cameras;
+  final List<Device> devices;
+
+  final String? serverUUID;
+  final String? cookie;
 
   const Server(
     this.ip,
     this.port,
-    this.username,
+    this.login,
     this.password,
-    this.cameras,
-  );
+    this.devices, {
+    this.rtspPort = 7002,
+    this.serverUUID,
+    this.cookie,
+  });
 
   @override
-  String toString() => 'Server($ip, $port, $username, $password, $cameras)';
+  String toString() => 'Server($ip, $port, $login, $password, $devices)';
 
   @override
   bool operator ==(dynamic other) {
     return other is Server &&
         ip == other.ip &&
         port == other.port &&
-        username == other.username &&
-        password == other.password;
+        login == other.login &&
+        password == other.password &&
+        rtspPort == other.rtspPort;
   }
 
   @override
   int get hashCode =>
-      ip.hashCode ^ port.hashCode ^ username.hashCode ^ password.hashCode;
+      ip.hashCode ^
+      port.hashCode ^
+      login.hashCode ^
+      password.hashCode ^
+      rtspPort.hashCode;
+
+  Server copyWith({
+    String? ip,
+    int? port,
+    int? rtspPort,
+    String? login,
+    String? password,
+    List<Device>? devices,
+    String? serverUUID,
+    String? cookie,
+  }) {
+    return Server(
+      ip ?? this.ip,
+      port ?? this.port,
+      login ?? this.login,
+      password ?? this.password,
+      devices ?? this.devices,
+      rtspPort: rtspPort ?? this.rtspPort,
+      serverUUID: serverUUID ?? this.serverUUID,
+      cookie: cookie ?? this.cookie,
+    );
+  }
 }

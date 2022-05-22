@@ -19,18 +19,18 @@
 
 // TODO: Remove this data after prototyping is complete.
 
-import 'package:bluecherry_client/models/camera.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 
 const kServer = Server(
   '7007cams.bluecherry.app',
-  7002,
+  7001,
   'admin',
   'bluecherry',
   [
-    Camera('Garage', 'live/6'),
-    Camera('Pool', 'live/7'),
-    Camera('Trampoline', 'live/8'),
-    Camera('Under Deck', 'live/9'),
+    Device('Garage', 'live/6', true, 640, 480),
+    Device('Pool', 'live/7', true, 640, 480),
+    Device('Trampoline', 'live/8', true, 640, 480),
+    Device('Under Deck', 'live/9', true, 640, 480),
   ],
 );

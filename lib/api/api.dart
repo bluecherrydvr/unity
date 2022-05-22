@@ -18,18 +18,20 @@
  */
 
 import 'dart:convert';
-import 'package:bluecherry_client/models/device.dart';
 import 'package:http/http.dart';
+import 'package:flutter/rendering.dart';
 import 'package:xml2json/xml2json.dart';
 
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 
-abstract class API {
+class API {
   /// Checks details of a [server] entered by the user.
   /// If the attributes present in [Server] are correct, then the
   /// returned object will have [Server.serverUUID] & [Server.cookie]
-  /// present in it.
-  static Future<Server> checkServerCredentials(Server server) async {
+  /// present in it otherwise `null`.
+  Future<Server> checkServerCredentials(Server server) async {
     try {
       final uri =
           Uri.https('${server.ip}:${server.port}', '/ajax/loginapp.php');
@@ -40,16 +42,16 @@ abstract class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      print(body);
-      print(response.headers);
+      debugPrint(body.toString());
+      debugPrint(response.headers.toString());
       final json = jsonDecode(body);
       return server.copyWith(
         serverUUID: json['server_uuid'],
         cookie: response.headers['set-cookie'],
       );
     } catch (exception, stacktrace) {
-      print(exception.toString());
-      print(stacktrace.toString());
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
     }
     return server;
   }
@@ -57,7 +59,7 @@ abstract class API {
   /// Gets [Device] devices present on the [server] after login.
   /// Returns `true` if it is a success or `false` if it failed.
   /// The found [Device] devices are saved in [Server.devices].
-  static Future<bool> getDevices(Server server) async {
+  Future<bool> getDevices(Server server) async {
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
@@ -90,9 +92,52 @@ abstract class API {
       );
       return true;
     } catch (exception, stacktrace) {
-      print(exception.toString());
-      print(stacktrace.toString());
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
     }
     return false;
+  }
+
+  Future<Iterable<Event>> getEvents(
+    Server server, {
+    int limit = 50,
+  }) async {
+    try {
+      assert(server.serverUUID != null && server.cookie != null);
+      final response = await get(
+        Uri.https(
+          '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '/events/',
+          {
+            'XML': '1',
+            'limit': '$limit',
+          },
+        ),
+        headers: {
+          'Cookie': server.cookie!,
+        },
+      );
+      final parser = Xml2Json();
+      parser.parse(response.body);
+      return jsonDecode(parser.toParkerWithAttrs())['feed']['entry']
+          .map(
+            (e) => Event(
+              server,
+              int.parse(e['id']['_raw']),
+              e['title'],
+              DateTime.parse(e['published']),
+              DateTime.parse(e['updated']),
+              e['category'],
+              int.parse(e['content']['_media_id']),
+              Duration(milliseconds: int.parse(e['content']['_media_size'])),
+              Uri.parse(e['content']['value']),
+            ),
+          )
+          .cast<Event>();
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
+    return <Event>[];
   }
 }

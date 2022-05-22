@@ -23,7 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 ThemeData createTheme({
-  Color color = const Color(0xFF3d64f4),
+  Color color = const Color(0xff3949ab),
+  Color accent = const Color(0xffff4081),
   ThemeMode themeMode = ThemeMode.light,
 }) {
   bool isLight = themeMode == ThemeMode.light;
@@ -33,52 +34,52 @@ ThemeData createTheme({
       /// Leading tile widgets text theme.
       headline1: TextStyle(
         color: isLight ? Colors.black : Colors.white,
-        fontSize: 16.0,
+        fontSize: 18.0,
         fontWeight: FontWeight.w600,
       ),
 
       /// [AlbumTile] text theme.
       headline2: TextStyle(
         color: isLight ? Colors.black : Colors.white,
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.w600,
       ),
       headline3: TextStyle(
         color: isLight
             ? Colors.black.withOpacity(0.87)
             : Colors.white.withOpacity(0.87),
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.normal,
       ),
       headline4: TextStyle(
         color: isLight ? Colors.black : Colors.white,
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.normal,
       ),
       headline5: TextStyle(
         color: isLight
             ? Colors.black.withOpacity(0.87)
             : Colors.white.withOpacity(0.87),
-        fontSize: 12.0,
+        fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       subtitle1: TextStyle(
         color: isLight ? Colors.black : Colors.white,
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.w600,
       ),
       bodyText2: TextStyle(
         color: isLight
             ? Colors.black.withOpacity(0.87)
             : Colors.white.withOpacity(0.87),
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.normal,
       ),
       caption: TextStyle(
         color: isLight
             ? Colors.black.withOpacity(0.87)
             : Colors.white.withOpacity(0.87),
-        fontSize: 14.0,
+        fontSize: 16.0,
         fontWeight: FontWeight.normal,
       ),
     );
@@ -123,17 +124,17 @@ ThemeData createTheme({
             backgroundColor: color,
             disabledColor: color.withOpacity(0.2),
             selectedColor: color,
-            secondarySelectedColor: color,
+            secondarySelectedColor: accent,
             padding: EdgeInsets.zero,
             labelStyle: const TextStyle(
               color: Colors.white,
-              fontSize: 14.0,
+              fontSize: 16.0,
               fontWeight: FontWeight.normal,
               fontFamily: 'Inter',
             ),
             secondaryLabelStyle: const TextStyle(
               color: Colors.white,
-              fontSize: 14.0,
+              fontSize: 16.0,
               fontWeight: FontWeight.normal,
               fontFamily: 'Inter',
             ),
@@ -183,7 +184,7 @@ ThemeData createTheme({
         color: isLight ? Colors.white : Colors.black,
       ),
     ),
-    cardColor: isLight ? Colors.white : const Color(0xFF202020),
+    cardColor: isLight ? Colors.white : const Color(0xFF242424),
     backgroundColor: color.withOpacity(0.24),
     dividerColor: isLight ? Colors.black12 : Colors.white24,
     disabledColor: isLight ? Colors.black38 : Colors.white38,
@@ -236,12 +237,13 @@ ThemeData createTheme({
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     colorScheme: ColorScheme.fromSwatch().copyWith(
-      secondary: color,
+      primary: color,
+      secondary: accent,
       brightness: isLight ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
       textStyle: TextStyle(
-        fontSize: 12.0,
+        fontSize: 14.0,
         color: isLight ? Colors.white : Colors.black,
       ),
       decoration: Platform.isWindows || Platform.isLinux || Platform.isMacOS

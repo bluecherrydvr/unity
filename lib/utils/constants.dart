@@ -17,14 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Used as frame buffer size in [CameraTile], and calculating aspect ratio.
-const kCameraTileWidth = 640.0;
+/// Used as frame buffer size in [DeviceTile], and calculating aspect ratio.
+const kDeviceTileWidth = 640.0;
 
-/// Used as frame buffer size in [CameraTile], and calculating aspect ratio.
-const kCameraTileHeight = 360.0;
+/// Used as frame buffer size in [DeviceTile], and calculating aspect ratio.
+const kDeviceTileHeight = 360.0;
 
-/// Margin between & around a [CameraTile].
-const kCameraTileMargin = 16.0;
+/// Margin between & around a [DeviceTile].
+const kDeviceTileMargin = 16.0;
 
 /// Default libVLC flags used while rendering the video output.
 const kLibVLCFlags = [

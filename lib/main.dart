@@ -20,7 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
-import 'package:bluecherry_client/widgets/camera_grid.dart';
+import 'package:bluecherry_client/widgets/device_grid.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/__prototyping__.dart';
 
@@ -54,10 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BlueCherry Client'),
-      ),
-      body: const CameraGrid(server: kServer),
+      appBar: AppBar(),
+      body: const DeviceGrid(server: kServer),
     );
   }
 }

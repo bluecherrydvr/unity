@@ -18,13 +18,12 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+import 'package:dart_vlc/dart_vlc.dart' hide Device;
 
-import 'package:bluecherry_client/models/camera.dart';
-import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/models/device.dart';
 
-class CameraTile extends StatefulWidget {
-  final Camera camera;
+class DeviceTile extends StatefulWidget {
+  final Device device;
 
   /// Taking [Player] as [Widget] argument to avoid disposition responsiblity & [Player] recreations due to UI re-draw.
   final Player player;
@@ -32,19 +31,19 @@ class CameraTile extends StatefulWidget {
   final double width;
   final double height;
 
-  const CameraTile({
+  const DeviceTile({
     Key? key,
-    required this.camera,
+    required this.device,
     required this.player,
     this.width = 640.0,
     this.height = 360.0,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => CameraTileState();
+  State<StatefulWidget> createState() => DeviceTileState();
 }
 
-class CameraTileState extends State<CameraTile> {
+class DeviceTileState extends State<DeviceTile> {
   bool hover = true;
 
   @override
@@ -74,7 +73,7 @@ class CameraTileState extends State<CameraTile> {
         clipBehavior: Clip.antiAlias,
         elevation: 4.0,
         margin: EdgeInsets.zero,
-        key: PageStorageKey(widget.camera.uri.hashCode),
+        key: PageStorageKey(widget.device.uri.hashCode),
         child: Stack(
           children: [
             AnimatedScale(
@@ -126,7 +125,7 @@ class CameraTileState extends State<CameraTile> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.camera.name,
+                                widget.device.name,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline1
@@ -136,7 +135,7 @@ class CameraTileState extends State<CameraTile> {
                                     ),
                               ),
                               Text(
-                                widget.camera.uri,
+                                widget.device.uri,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline3

@@ -24,16 +24,16 @@ import 'package:flutter/gestures.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
-import 'package:bluecherry_client/widgets/camera_tile.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 
-/// A draggable grid view showing [CameraTile]s to the user.
-class CameraGrid extends StatefulWidget {
+/// A draggable grid view showing [DeviceTile]s to the user.
+class DeviceGrid extends StatefulWidget {
   final double width;
   final double height;
   final Server server;
-  const CameraGrid({
+  const DeviceGrid({
     Key? key,
     required this.server,
     this.width = double.infinity,
@@ -41,41 +41,41 @@ class CameraGrid extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CameraGrid> createState() => _CameraGridState();
+  State<DeviceGrid> createState() => _DeviceGridState();
 }
 
-class _CameraGridState extends State<CameraGrid> {
+class _DeviceGridState extends State<DeviceGrid> {
   final List<Player> players = <Player>[];
-  final List<CameraTile> tiles = <CameraTile>[];
+  final List<DeviceTile> tiles = <DeviceTile>[];
 
   @override
   void initState() {
     super.initState();
-    for (final camera in widget.server.cameras) {
+    for (final device in widget.server.devices) {
       players.add(Player(
         id: Random().nextInt(1 << 16),
         // Clamp to reasonable [VideoDimensions], if [widget.width] and
         // [widget.height] is passed. Avoids redundant CPU load caused by libvlc
         // 3.0 pixel buffer based video callbacks.
         videoDimensions: const VideoDimensions(
-          kCameraTileWidth ~/ 1,
-          kCameraTileHeight ~/ 1,
+          kDeviceTileWidth ~/ 1,
+          kDeviceTileHeight ~/ 1,
         ),
         commandlineArguments: kLibVLCFlags +
             [
-              '--rtsp-user=${widget.server.username}',
+              '--rtsp-user=${widget.server.login}',
               '--rtsp-pwd=${widget.server.password}',
             ],
       )..open(
-          Media.network(camera.streamURL(widget.server)),
+          Media.network(device.streamURL(widget.server)),
         ));
       tiles.add(
-        CameraTile(
-          key: ValueKey(camera.hashCode),
-          camera: camera,
+        DeviceTile(
+          key: ValueKey(device.hashCode),
+          device: device,
           player: players.last,
-          width: kCameraTileWidth,
-          height: kCameraTileHeight,
+          width: kDeviceTileWidth,
+          height: kDeviceTileHeight,
         ),
       );
     }
@@ -101,10 +101,10 @@ class _CameraGridState extends State<CameraGrid> {
         child: ReorderableGridView.count(
           shrinkWrap: true,
           crossAxisCount: 2,
-          childAspectRatio: kCameraTileWidth / kCameraTileHeight,
-          mainAxisSpacing: kCameraTileMargin,
-          crossAxisSpacing: kCameraTileMargin,
-          padding: const EdgeInsets.all(kCameraTileMargin),
+          childAspectRatio: kDeviceTileWidth / kDeviceTileHeight,
+          mainAxisSpacing: kDeviceTileMargin,
+          crossAxisSpacing: kDeviceTileMargin,
+          padding: const EdgeInsets.all(kDeviceTileMargin),
           onReorder: (int oldIndex, int newIndex) {
             setState(() {
               final e = players.removeAt(oldIndex);

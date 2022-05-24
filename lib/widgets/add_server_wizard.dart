@@ -17,6 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/__prototyping__.dart';
+import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 
@@ -30,6 +34,7 @@ class AddServerWizard extends StatefulWidget {
 }
 
 class _AddServerWizardState extends State<AddServerWizard> {
+  Server? server;
   final PageController controller = PageController();
 
   @override
@@ -121,7 +126,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8.0),
+                          const SizedBox(width: 16.0),
                         ],
                       ),
                     ),
@@ -174,6 +179,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                               ?.copyWith(
                                                   color: Colors.white
                                                       .withOpacity(0.87)),
+                                          textAlign: TextAlign.justify,
                                         ),
                                       ],
                                     ),
@@ -208,9 +214,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                 ),
                 ConfigureDVRServerScreen(
                   controller: controller,
+                  setServer: setServer,
                 ),
                 LetsGoScreen(
                   controller: controller,
+                  getServer: getServer,
                 ),
               ],
             ),
@@ -219,13 +227,21 @@ class _AddServerWizardState extends State<AddServerWizard> {
       ),
     );
   }
+
+  void setServer(Server server) => setState(() {
+        this.server = server;
+      });
+
+  Server? getServer() => server;
 }
 
 class ConfigureDVRServerScreen extends StatefulWidget {
   final PageController controller;
+  final void Function(Server) setServer;
   const ConfigureDVRServerScreen({
     Key? key,
     required this.controller,
+    required this.setServer,
   }) : super(key: key);
 
   @override
@@ -233,13 +249,38 @@ class ConfigureDVRServerScreen extends StatefulWidget {
       _ConfigureDVRServerScreenState();
 }
 
-class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
+class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController controller = ScrollController();
+  final List<TextEditingController> textEditingControllers = [
+    TextEditingController(),
+    TextEditingController(text: kDefaultPort.toString()),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+  bool savePassword = true;
+  bool nameTextFieldEverFocused = false;
+  bool connectAutomaticallyAtStartup = true;
   bool elevated = true;
+  bool disableFinishButton = false;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  String getServerHostname(String text) => (text.startsWith('http')
+          ? (text.split('//')..removeAt(0)).join('//')
+          : text)
+      .split('/')
+      .first;
 
   @override
   void initState() {
     super.initState();
+    textEditingControllers[0].addListener(() {
+      if (!nameTextFieldEverFocused) {
+        textEditingControllers[2].text =
+            getServerHostname(textEditingControllers[0].text);
+      }
+    });
     controller.addListener(() {
       if (controller.offset == 0.0 && !elevated) {
         setState(() {
@@ -255,6 +296,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final view = ListView(
       controller: controller,
       padding: isDesktop
@@ -295,6 +337,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           elevation: 4.0,
           margin: const EdgeInsets.all(16.0),
           child: Form(
+            key: formKey,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -304,6 +347,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       Expanded(
                         flex: 5,
                         child: TextFormField(
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'error_text_field'
+                                  .tr(args: ['hostname'.tr()]);
+                            }
+                            return null;
+                          },
+                          controller: textEditingControllers[0],
                           autofocus: true,
                           keyboardType: TextInputType.url,
                           style: Theme.of(context).textTheme.headline3,
@@ -317,6 +368,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       Expanded(
                         flex: 2,
                         child: TextFormField(
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'error_text_field'.tr(args: ['port'.tr()]);
+                            }
+                            return null;
+                          },
+                          controller: textEditingControllers[1],
                           autofocus: true,
                           keyboardType: TextInputType.number,
                           style: Theme.of(context).textTheme.headline3,
@@ -330,6 +388,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'error_text_field'.tr(args: ['name'.tr()]);
+                      }
+                      return null;
+                    },
+                    onTap: () => nameTextFieldEverFocused = true,
+                    controller: textEditingControllers[2],
                     textCapitalization: TextCapitalization.words,
                     keyboardType: TextInputType.name,
                     style: Theme.of(context).textTheme.headline3,
@@ -343,6 +409,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'error_text_field'
+                                  .tr(args: ['username'.tr()]);
+                            }
+                            return null;
+                          },
+                          controller: textEditingControllers[3],
                           keyboardType: TextInputType.none,
                           style: Theme.of(context).textTheme.headline3,
                           decoration: InputDecoration(
@@ -353,7 +427,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       ),
                       const SizedBox(width: 16.0),
                       MaterialButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          textEditingControllers[3].text = kDefaultUsername;
+                          textEditingControllers[4].text = kDefaultPassword;
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
@@ -369,6 +446,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'error_text_field'
+                                  .tr(args: ['password'.tr()]);
+                            }
+                            return null;
+                          },
+                          controller: textEditingControllers[4],
                           obscureText: true,
                           keyboardType: TextInputType.none,
                           style: Theme.of(context).textTheme.headline3,
@@ -380,8 +465,12 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       ),
                       const SizedBox(width: 16.0),
                       Checkbox(
-                        value: true,
-                        onChanged: (_) {},
+                        value: savePassword,
+                        onChanged: (value) {
+                          setState(() {
+                            savePassword = value!;
+                          });
+                        },
                       ),
                       Text(
                         'save_password'.tr(),
@@ -396,8 +485,12 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   Row(
                     children: [
                       Checkbox(
-                        value: true,
-                        onChanged: (_) {},
+                        value: connectAutomaticallyAtStartup,
+                        onChanged: (value) {
+                          setState(() {
+                            connectAutomaticallyAtStartup = value!;
+                          });
+                        },
                       ),
                       Text(
                         'connect_automatically_at_startup'.tr(),
@@ -431,7 +524,75 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           textColor: Theme.of(context).colorScheme.secondary,
                         ),
                         MaterialButton(
-                          onPressed: () {},
+                          onPressed: disableFinishButton
+                              ? null
+                              : () async {
+                                  if (formKey.currentState?.validate() ??
+                                      false) {
+                                    setState(() {
+                                      disableFinishButton = true;
+                                    });
+                                    final server = await API.instance
+                                        .checkServerCredentials(
+                                      Server(
+                                        textEditingControllers[2].text,
+                                        getServerHostname(
+                                            textEditingControllers[0].text),
+                                        int.parse(
+                                            textEditingControllers[1].text),
+                                        textEditingControllers[3].text,
+                                        textEditingControllers[4].text,
+                                        [],
+                                        savePassword: savePassword,
+                                        connectAutomaticallyAtStartup:
+                                            connectAutomaticallyAtStartup,
+                                      ),
+                                    );
+                                    if (server.serverUUID != null &&
+                                        server.cookie != null) {
+                                      widget.setServer(server);
+                                      widget.controller.nextPage(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('error'.tr()),
+                                          content: Text(
+                                            'server_not_added_error'
+                                                .tr(args: [server.name]),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline3,
+                                          ),
+                                          actions: [
+                                            MaterialButton(
+                                              onPressed: Navigator.of(context)
+                                                  .maybePop,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  'ok'.tr().toUpperCase(),
+                                                ),
+                                              ),
+                                              textColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                    setState(() {
+                                      disableFinishButton = false;
+                                    });
+                                  }
+                                },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
@@ -473,13 +634,18 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     }
     return view;
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class LetsGoScreen extends StatefulWidget {
   final PageController controller;
+  final Server? Function() getServer;
   const LetsGoScreen({
     Key? key,
     required this.controller,
+    required this.getServer,
   }) : super(key: key);
 
   @override
@@ -544,9 +710,33 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             ),
           ),
         ),
+        if (widget.getServer() != null) ...[
+          const SizedBox(height: 8.0),
+          Card(
+            elevation: 4.0,
+            color: Color.alphaBlend(
+              Colors.green.withOpacity(0.2),
+              Theme.of(context).cardColor,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check,
+                    color: Colors.green.shade400,
+                  ),
+                  const SizedBox(width: 16.0),
+                  Text('server_added'.tr(args: [widget.getServer()!.name]))
+                ],
+              ),
+            ),
+          ),
+        ],
         Card(
           elevation: 4.0,
-          margin: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -573,6 +763,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             ),
           ),
         ),
+        const SizedBox(height: 8.0),
       ],
     );
     if (isDesktop) {
@@ -583,15 +774,17 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             elevation: elevated ? 0.0 : 4.0,
             color: Theme.of(context).appBarTheme.backgroundColor,
             title: 'lets_go'.tr(),
-            leading: NavigatorPopButton(
-              color: Colors.white,
-              onTap: () {
-                widget.controller.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
-            ),
+            leading: widget.getServer() != null
+                ? const SizedBox.shrink()
+                : NavigatorPopButton(
+                    color: Colors.white,
+                    onTap: () {
+                      widget.controller.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                  ),
           ),
         ],
       );

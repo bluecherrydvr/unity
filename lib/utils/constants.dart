@@ -38,3 +38,6 @@ const kLibVLCFlags = [
   '--rtsp-frame-buffer-size=500000',
   '--realrtsp-caching=150',
 ];
+
+const kDefaultUsername = 'Admin';
+const kDefaultPassword = 'bluecherry';

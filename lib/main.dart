@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return const Scaffold(
       body: Center(
         child: SizedBox(
-          height: 560.0,
+          height: 600.0,
           width: 960.0,
           child: Card(
             elevation: 4.0,

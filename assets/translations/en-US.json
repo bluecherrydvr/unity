@@ -24,5 +24,10 @@
   "tip_0": "Cameras are shown on left. You can double-click or drag the camera into the live area to view it.",
   "tip_1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
   "tip_2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
-  "tip_3": "Click the events icon to open the event browser and watch or save recordings."
+  "tip_3": "Click the events icon to open the event browser and watch or save recordings.",
+  "error_text_field": "{} is not entered.",
+  "server_added": "{} has been added.",
+  "server_not_added_error": "{} could not be added. Please check the entered details.",
+  "error": "Error",
+  "ok": "OK"
 }

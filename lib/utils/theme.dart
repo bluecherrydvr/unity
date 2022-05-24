@@ -22,10 +22,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-ThemeData createTheme(
-    {Color color = const Color(0xff3949ab),
-    Color accent = const Color(0xffff4081),
-    ThemeMode themeMode = ThemeMode.dark}) {
+ThemeData createTheme({
+  Color color = const Color(0xff3949ab),
+  Color accent = const Color(0xffff4081),
+  ThemeMode themeMode = ThemeMode.light,
+}) {
   bool isLight = themeMode == ThemeMode.light;
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {

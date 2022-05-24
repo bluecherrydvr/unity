@@ -39,5 +39,6 @@ const kLibVLCFlags = [
   '--realrtsp-caching=150',
 ];
 
+const kDefaultPort = 7001;
 const kDefaultUsername = 'Admin';
 const kDefaultPassword = 'bluecherry';

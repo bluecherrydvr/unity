@@ -22,18 +22,22 @@ import 'package:bluecherry_client/models/device.dart';
 /// A [Server] added by a user.
 ///
 class Server {
+  final String name;
   final String ip;
   final int port;
   final int rtspPort;
 
   final String login;
   final String password;
+  final bool savePassword;
+  final bool connectAutomaticallyAtStartup;
 
   List<Device> devices = [];
   final String? serverUUID;
   final String? cookie;
 
   Server(
+    this.name,
     this.ip,
     this.port,
     this.login,
@@ -42,10 +46,13 @@ class Server {
     this.rtspPort = 7002,
     this.serverUUID,
     this.cookie,
+    this.savePassword = false,
+    this.connectAutomaticallyAtStartup = true,
   });
 
   @override
-  String toString() => 'Server($ip, $port, $login, $password, $devices)';
+  String toString() =>
+      'Server($name, $ip, $port, $rtspPort, $login, $password, $devices, $serverUUID, $cookie)';
 
   @override
   bool operator ==(dynamic other) {
@@ -66,6 +73,7 @@ class Server {
       rtspPort.hashCode;
 
   Server copyWith({
+    String? name,
     String? ip,
     int? port,
     int? rtspPort,
@@ -76,6 +84,7 @@ class Server {
     String? cookie,
   }) {
     return Server(
+      name ?? this.name,
       ip ?? this.ip,
       port ?? this.port,
       login ?? this.login,

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/server.dart';
 
 final server = Server(
   '7007cams.bluecherry.app',
+  '7007cams.bluecherry.app',
   7001,
   'admin',
   'bluecherry',

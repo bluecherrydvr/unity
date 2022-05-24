@@ -70,7 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: SizedBox(
           height: 560.0,
           width: 960.0,
-          child: AddServerWizard(),
+          child: Card(
+            elevation: 4.0,
+            clipBehavior: Clip.antiAlias,
+            child: AddServerWizard(),
+          ),
         ),
       ),
     );

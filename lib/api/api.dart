@@ -27,6 +27,8 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 
 class API {
+  static final API instance = API();
+
   /// Checks details of a [server] entered by the user.
   /// If the attributes present in [Server] are correct, then the
   /// returned object will have [Server.serverUUID] & [Server.cookie]

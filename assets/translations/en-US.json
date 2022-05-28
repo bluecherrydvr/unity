@@ -1,6 +1,6 @@
 {
   "welcome": "Welcome",
-  "welcome_description": "Welcome to the Bluecherry Surveillance DVR! This wizard will help you connect to your DVR server and get started.",
+  "welcome_description": "Welcome to the Bluecherry Surveillance DVR!\nThis wizard will help you connect to your DVR server and get started.",
   "configure": "Configure a DVR Server",
   "configure_description": "Setup a connection to your remote DVR server. You can connect to any number of servers, from anywhere in the world.",
   "hostname": "Hostname",

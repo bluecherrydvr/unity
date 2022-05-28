@@ -83,4 +83,20 @@ class Device {
         resolutionX ?? this.resolutionX,
         resolutionY ?? this.resolutionY,
       );
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'uri': uri,
+        'status': status,
+        'resolutionX': resolutionX,
+        'resolutionY': resolutionY,
+      };
+
+  factory Device.fromJson(Map<String, dynamic> json) => Device(
+        json['name'],
+        json['uri'],
+        json['status'],
+        json['resolutionX'],
+        json['resolutionY'],
+      );
 }

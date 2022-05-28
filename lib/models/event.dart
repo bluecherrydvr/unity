@@ -93,4 +93,27 @@ class Event {
         mediaDuration ?? this.mediaDuration,
         mediaURL ?? this.mediaURL,
       );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'published': published.toIso8601String(),
+        'updated': updated.toIso8601String(),
+        'category': category,
+        'mediaID': mediaID,
+        'mediaDuration': mediaDuration.inMilliseconds,
+        'mediaURL': mediaURL.toString(),
+      };
+
+  factory Event.fromJson(Map<String, dynamic> json) => Event(
+        Server.fromJson(json['server']),
+        json['id'],
+        json['title'],
+        DateTime.parse(json['published']),
+        DateTime.parse(json['updated']),
+        json['category'],
+        json['mediaID'],
+        Duration(milliseconds: json['mediaDuration']),
+        Uri.parse(json['mediaURL']),
+      );
 }

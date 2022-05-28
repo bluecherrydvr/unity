@@ -95,4 +95,28 @@ class Server {
       cookie: cookie ?? this.cookie,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'ip': ip,
+        'port': port,
+        'rtspPort': rtspPort,
+        'login': login,
+        'password': password,
+        'devices': devices,
+        'serverUUID': serverUUID,
+        'cookie': cookie,
+      };
+
+  factory Server.fromJson(Map<String, dynamic> json) => Server(
+        json['name'],
+        json['ip'],
+        json['port'],
+        json['login'],
+        json['password'],
+        json['devices'].map((e) => Device.fromJson(e)).toList(),
+        rtspPort: json['rtspPort'],
+        serverUUID: json['serverUUID'],
+        cookie: json['cookie'],
+      );
 }

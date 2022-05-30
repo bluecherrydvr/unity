@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/__prototyping__.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -48,169 +47,157 @@ class _AddServerWizardState extends State<AddServerWizard> {
               controller: controller,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      color: Theme.of(context).cardColor,
-                      padding: const EdgeInsets.all(24.0),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/icon.png',
-                            height: 168.0,
-                            width: 168.0,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(width: 24.0),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('project_name'.tr(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.copyWith(
-                                          fontSize: 36.0,
-                                        )),
-                                const SizedBox(height: 4.0),
-                                Text(
-                                  'project_description'.tr(),
-                                  style: Theme.of(context).textTheme.headline3,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      color: Theme.of(context).cardColor,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          const Spacer(),
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: Text(
-                                'website'.tr(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: Text(
-                                'purchase'.tr(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ClipRect(
-                        child: Stack(
+                Padding(
+                  padding: MediaQuery.of(context).padding,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        color: Theme.of(context).cardColor,
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Positioned.fill(
-                              child: Image.asset(
-                                'assets/images/background.webp',
-                                fit: BoxFit.cover,
-                                width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.height,
-                              ),
+                            Image.asset(
+                              'assets/images/icon.png',
+                              height: 124.0,
+                              width: 124.0,
+                              fit: BoxFit.contain,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 12.0,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                      left: 24.0,
-                                      top: 8.0,
-                                      bottom: 8.0,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'welcome'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline1
-                                              ?.copyWith(
-                                                fontSize: 24.0,
-                                                color: Colors.white,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          'welcome_description'.tr(),
+                            const SizedBox(height: 24.0),
+                            Text(
+                              'project_name'.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline1
+                                  ?.copyWith(
+                                    fontSize: 36.0,
+                                  ),
+                            ),
+                            const SizedBox(height: 4.0),
+                            Text(
+                              'project_description'.tr(),
+                              style: Theme.of(context).textTheme.headline3,
+                            ),
+                            const SizedBox(height: 16.0),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                color: Theme.of(context).cardColor,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    const Spacer(),
+                                    MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: Text(
+                                          'website'.tr(),
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline3
                                               ?.copyWith(
-                                                  color: Colors.white
-                                                      .withOpacity(0.87)),
-                                          textAlign: TextAlign.justify,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: FloatingActionButton(
-                                        onPressed: () {
-                                          controller.nextPage(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            curve: Curves.easeInOut,
-                                          );
-                                        },
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        child: const Icon(Icons.arrow_forward),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 16.0),
+                                    MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: Text(
+                                          'purchase'.tr(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline3
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: ClipRect(
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Image.asset(
+                                  'assets/images/background.webp',
+                                  fit: BoxFit.cover,
+                                  width: MediaQuery.of(context).size.width,
+                                  height: MediaQuery.of(context).size.height,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'welcome'.tr(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline1
+                                          ?.copyWith(
+                                            fontSize: 24.0,
+                                            color: Colors.white,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8.0),
+                                    Text(
+                                      'welcome_description'.tr(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline3
+                                          ?.copyWith(
+                                              color: Colors.white
+                                                  .withOpacity(0.87)),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: FloatingActionButton(
+                                          onPressed: () {
+                                            controller.nextPage(
+                                              duration: const Duration(
+                                                  milliseconds: 300),
+                                              curve: Curves.easeInOut,
+                                            );
+                                          },
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          child:
+                                              const Icon(Icons.arrow_forward),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 ConfigureDVRServerScreen(
                   controller: controller,
@@ -249,8 +236,7 @@ class ConfigureDVRServerScreen extends StatefulWidget {
       _ConfigureDVRServerScreenState();
 }
 
-class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
-    with AutomaticKeepAliveClientMixin {
+class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final ScrollController controller = ScrollController();
   final List<TextEditingController> textEditingControllers = [
     TextEditingController(),
@@ -296,7 +282,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final view = ListView(
       controller: controller,
       padding: isDesktop
@@ -343,6 +328,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
               child: Column(
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         flex: 5,
@@ -406,6 +392,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                   ),
                   const SizedBox(height: 16.0),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: TextFormField(
@@ -417,7 +404,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                             return null;
                           },
                           controller: textEditingControllers[3],
-                          keyboardType: TextInputType.none,
                           style: Theme.of(context).textTheme.headline3,
                           decoration: InputDecoration(
                             label: Text('username'.tr()),
@@ -425,24 +411,44 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16.0),
-                      MaterialButton(
-                        onPressed: () {
-                          textEditingControllers[3].text = kDefaultUsername;
-                          textEditingControllers[4].text = kDefaultPassword;
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                      SizedBox(
+                        width: isDesktop ? 16.0 : 8.0,
+                      ),
+                      if (isDesktop)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: MaterialButton(
+                            onPressed: () {
+                              textEditingControllers[3].text = kDefaultUsername;
+                              textEditingControllers[4].text = kDefaultPassword;
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'use_default'.tr().toUpperCase(),
+                              ),
+                            ),
+                            textColor: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: MaterialButton(
+                          onPressed: () {
+                            textEditingControllers[3].text = kDefaultUsername;
+                            textEditingControllers[4].text = kDefaultPassword;
+                          },
                           child: Text(
                             'use_default'.tr().toUpperCase(),
                           ),
+                          textColor: Theme.of(context).colorScheme.secondary,
                         ),
-                        textColor: Theme.of(context).colorScheme.secondary,
                       ),
                     ],
                   ),
                   const SizedBox(height: 16.0),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: TextFormField(
@@ -455,7 +461,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                           },
                           controller: textEditingControllers[4],
                           obscureText: true,
-                          keyboardType: TextInputType.none,
                           style: Theme.of(context).textTheme.headline3,
                           decoration: InputDecoration(
                             label: Text('password'.tr()),
@@ -464,19 +469,27 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                         ),
                       ),
                       const SizedBox(width: 16.0),
-                      Checkbox(
-                        value: savePassword,
-                        onChanged: (value) {
-                          setState(() {
-                            savePassword = value!;
-                          });
-                        },
-                      ),
-                      Text(
-                        'save_password'.tr(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headline3,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: savePassword,
+                              onChanged: (value) {
+                                setState(() {
+                                  savePassword = value!;
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 4.0),
+                            Text(
+                              'save_password'.tr(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.headline3,
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 16.0),
                     ],
@@ -492,6 +505,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                           });
                         },
                       ),
+                      const SizedBox(width: 4.0),
                       Text(
                         'connect_automatically_at_startup'.tr(),
                         maxLines: 2,
@@ -507,14 +521,16 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         MaterialButton(
-                          onPressed: () {
-                            widget.controller.nextPage(
-                              duration: const Duration(
-                                milliseconds: 300,
-                              ),
-                              curve: Curves.easeInOut,
-                            );
-                          },
+                          onPressed: disableFinishButton
+                              ? null
+                              : () {
+                                  widget.controller.nextPage(
+                                    duration: const Duration(
+                                      milliseconds: 300,
+                                    ),
+                                    curve: Curves.easeInOut,
+                                  );
+                                },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
@@ -632,11 +648,32 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen>
         ],
       );
     }
-    return view;
+    return WillPopScope(
+      child: Scaffold(
+          appBar: AppBar(
+            leading: NavigatorPopButton(
+              color: Colors.white,
+              onTap: () {
+                widget.controller.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+                FocusScope.of(context).unfocus();
+              },
+            ),
+            elevation: elevated ? 0.0 : 4.0,
+            title: Text('configure'.tr()),
+          ),
+          body: view),
+      onWillPop: () {
+        widget.controller.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return Future.sync(() => false);
+      },
+    );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class LetsGoScreen extends StatefulWidget {
@@ -710,8 +747,8 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             ),
           ),
         ),
-        if (widget.getServer() != null) ...[
-          const SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
+        if (widget.getServer() != null)
           Card(
             elevation: 4.0,
             color: Color.alphaBlend(
@@ -733,7 +770,6 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               ),
             ),
           ),
-        ],
         Card(
           elevation: 4.0,
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -789,19 +825,44 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
         ],
       );
     }
-    return Scaffold(
-      body: body,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          widget.controller.nextPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: const Icon(Icons.check),
+    return WillPopScope(
+      child: Scaffold(
+        appBar: isMobile
+            ? AppBar(
+                leading: NavigatorPopButton(
+                  color: Colors.white,
+                  onTap: () {
+                    widget.controller.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+                title: Text('lets_go'.tr()),
+                elevation: elevated ? 0.0 : 4.0,
+              )
+            : null,
+        body: body,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            widget.controller.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          child: const Icon(Icons.check),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      onWillPop: () {
+        widget.controller.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return Future.sync(() => false);
+      },
     );
   }
 }

@@ -24,7 +24,7 @@ const kDeviceTileWidth = 640.0;
 const kDeviceTileHeight = 360.0;
 
 /// Margin between & around a [DeviceTile].
-const kDeviceTileMargin = 16.0;
+const kDeviceTileMargin = 8.0;
 
 /// Default libVLC flags used while rendering the video output.
 const kLibVLCFlags = [

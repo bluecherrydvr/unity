@@ -21,8 +21,9 @@ import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'package:bluecherry_client/widgets/add_server_wizard.dart';
+import 'package:bluecherry_client/widgets/device_grid.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/__prototyping__.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,18 +66,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: SizedBox(
-          height: 600.0,
-          width: 960.0,
-          child: Card(
-            elevation: 4.0,
-            clipBehavior: Clip.antiAlias,
-            child: AddServerWizard(),
-          ),
-        ),
-      ),
+    return Scaffold(
+      body: MobileDeviceGrid(server: server),
     );
   }
 }

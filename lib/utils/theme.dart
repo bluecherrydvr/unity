@@ -97,7 +97,7 @@ ThemeData createTheme({
       ),
       headline3: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.54),
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
       headline4: TextStyle(
@@ -211,11 +211,6 @@ ThemeData createTheme({
       actionsIconTheme: IconThemeData(
         color: isLight ? Colors.black54 : Colors.white54,
         size: 24.0,
-      ),
-      titleTextStyle: TextStyle(
-        color: isLight ? Colors.black : Colors.white,
-        fontSize: 16.0,
-        fontWeight: FontWeight.w600,
       ),
     ),
     iconTheme: IconThemeData(

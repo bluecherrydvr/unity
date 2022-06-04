@@ -55,11 +55,13 @@ class DeviceTileState extends State<DeviceTile> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        hover = false;
+    if (isDesktop) {
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          hover = false;
+        });
       });
-    });
+    }
   }
 
   @override
@@ -134,7 +136,12 @@ class DeviceTileState extends State<DeviceTile> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        widget.device.name,
+                                        widget.device.name
+                                            .split(' ')
+                                            .map((e) =>
+                                                e[0].toUpperCase() +
+                                                e.substring(1))
+                                            .join(' '),
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline1
@@ -221,7 +228,118 @@ class DeviceTileState extends State<DeviceTile> {
                                           strokeWidth: 4.4,
                                         ),
                                       )
-                                    : const SizedBox.shrink(),
+                                    : hover
+                                        ? TweenAnimationBuilder(
+                                            tween: Tween<double>(
+                                              begin: 0.0,
+                                              end: hover ? 1.0 : 0.0,
+                                            ),
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            builder: (context, value, child) =>
+                                                Center(
+                                              child: Opacity(
+                                                opacity: value as double,
+                                                child: IconButton(
+                                                  splashRadius: 20.0,
+                                                  onPressed: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Scaffold(
+                                                          appBar: AppBar(
+                                                            title: Text(widget
+                                                                .device.name
+                                                                .split(' ')
+                                                                .map((e) =>
+                                                                    e[0].toUpperCase() +
+                                                                    e.substring(
+                                                                        1))
+                                                                .join(' ')),
+                                                          ),
+                                                          body: FijkView(
+                                                            player: widget
+                                                                .ijkPlayer!,
+                                                            color: Colors.black,
+                                                            fit: FijkFit.fill,
+                                                            panelBuilder:
+                                                                (player,
+                                                                        _,
+                                                                        ___,
+                                                                        ____,
+                                                                        _____) =>
+                                                                    Scaffold(
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              body: player
+                                                                          .value
+                                                                          .exception
+                                                                          .message !=
+                                                                      null
+                                                                  ? Center(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.center,
+                                                                        children: [
+                                                                          const Icon(
+                                                                            Icons.warning,
+                                                                            color:
+                                                                                Colors.white70,
+                                                                            size:
+                                                                                32.0,
+                                                                          ),
+                                                                          const SizedBox(
+                                                                              height: 8.0),
+                                                                          Text(
+                                                                            player.value.exception.message!.toLowerCase(),
+                                                                            style:
+                                                                                const TextStyle(
+                                                                              color: Colors.white70,
+                                                                              fontSize: 12.0,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    )
+                                                                  : [
+                                                                      FijkState
+                                                                          .idle,
+                                                                      FijkState
+                                                                          .asyncPreparing,
+                                                                    ].contains(
+                                                                          player
+                                                                              .state)
+                                                                      ? const Center(
+                                                                          child:
+                                                                              CircularProgressIndicator(
+                                                                            valueColor:
+                                                                                AlwaysStoppedAnimation(Colors.white),
+                                                                            strokeWidth:
+                                                                                4.4,
+                                                                          ),
+                                                                        )
+                                                                      : const SizedBox
+                                                                          .shrink(),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.fullscreen,
+                                                    color: Colors.white70,
+                                                    size: 32.0,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox.shrink(),
                           ),
                         ),
                   Positioned(
@@ -252,7 +370,11 @@ class DeviceTileState extends State<DeviceTile> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.device.name,
+                                    widget.device.name
+                                        .split(' ')
+                                        .map((e) =>
+                                            e[0].toUpperCase() + e.substring(1))
+                                        .join(' '),
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline1

@@ -18,6 +18,7 @@
  */
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 
@@ -47,11 +48,105 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    // null-check.
     device ??= MobileViewProvider.instance.devices[widget.tab]![widget.index];
     return device != null
-        ? DeviceTile(
-            device: device!,
-            ijkPlayer: widget.players[device],
+        ? Material(
+            child: Stack(
+              children: [
+                DeviceTile(
+                  device: device!,
+                  ijkPlayer: widget.players[device],
+                ),
+                Positioned(
+                  top: 0.0,
+                  left: 0.0,
+                  right: 0.0,
+                  child: Container(
+                    height: 48.0,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black38,
+                          Colors.transparent,
+                        ],
+                        begin: Alignment(1.0, 1.0),
+                        end: Alignment(1.0, 1.0),
+                        stops: [
+                          0.0,
+                          1.0,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                PopupMenuButton(
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
+                  ),
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem(
+                      onTap: () {
+                        MobileViewProvider.instance
+                            .remove(widget.tab, widget.index);
+                        widget.players[device]?.release();
+                        widget.players[device]?.dispose();
+                        widget.players.remove(device);
+                      },
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          child: const Icon(Icons.close),
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Theme.of(context).iconTheme.color,
+                        ),
+                        title: Text('remove_camera'.tr()),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () async {
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const DeviceSelectorScreen(),
+                          ),
+                        );
+                        if (result is Device) {
+                          widget.players[device]?.release();
+                          widget.players[device]?.dispose();
+                          widget.players.remove(device);
+                          debugPrint(result.toString());
+                          debugPrint(result.streamURL(
+                              ServersProvider.instance.servers.first));
+                          widget.players[result] = FijkPlayer()
+                            ..setDataSource(
+                              result.streamURL(
+                                /// TODO: Currently only single server is implemented.
+                                ServersProvider.instance.servers.first,
+                              ),
+                              autoPlay: true,
+                            )
+                            ..setVolume(0.0)
+                            ..setSpeed(1.0);
+                          MobileViewProvider.instance
+                              .edit(widget.tab, widget.index, result);
+                        }
+                      },
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          child: const Icon(Icons.replay),
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Theme.of(context).iconTheme.color,
+                        ),
+                        title: Text('replace_camera'.tr()),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              alignment: Alignment.topRight,
+            ),
           )
         : SizedBox(
             width: double.infinity,
@@ -93,6 +188,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector>
                   child: const Icon(
                     Icons.add,
                     size: 36.0,
+                    color: Colors.white,
                   ),
                 ),
               ),

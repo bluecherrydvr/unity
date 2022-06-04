@@ -43,6 +43,8 @@ dependencies:
   fijkplayer: ^0.10.1
   status_bar_control: ^3.2.1
   animations: ^2.0.3
+  shared_preferences: ^2.0.15
+  provider: ^6.0.3
 
 dependency_overrides:
   dart_vlc_ffi:

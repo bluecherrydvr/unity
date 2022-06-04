@@ -18,6 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -38,7 +39,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
     final server = ServersProvider.instance.servers.first;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select a camera to screen'),
+        title: Text('select_a_camera'.tr()),
       ),
       body: FutureBuilder(
         future: (() async => server.devices.isEmpty
@@ -60,7 +61,9 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                     isThreeLine: true,
                     title: Text(server.devices[index].name),
                     subtitle: Text([
-                      server.devices[index].status ? 'Online' : 'Offline',
+                      server.devices[index].status
+                          ? 'online'.tr()
+                          : 'offline'.tr(),
                       server.devices[index].uri,
                       '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}\n${server.name}',
                     ].join(' • ')),

@@ -29,5 +29,10 @@
   "server_added": "{} has been added.",
   "server_not_added_error": "{} could not be added. Please check the entered details.",
   "error": "Error",
-  "ok": "OK"
+  "ok": "OK",
+  "remove_camera": "Remove Camera",
+  "replace_camera": "Replace Camera",
+  "select_a_camera": "Select a camera to screen",
+  "online": "Online",
+  "offline": "Offline"
 }

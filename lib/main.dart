@@ -18,17 +18,27 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/device_grid.dart';
 import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/__prototyping__.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await MobileViewProvider.ensureInitialized();
+  await ServersProvider.ensureInitialized();
   await DartVLC.initialize();
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en', 'US')],
@@ -49,15 +59,13 @@ class MyApp extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       theme: createTheme(),
-      home: const MyHomePage(title: 'Bluecherry Client'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -66,8 +74,16 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: MobileDeviceGrid(server: server),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => MobileViewProvider.instance,
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ServersProvider.instance,
+        ),
+      ],
+      builder: (context, child) => MobileDeviceGrid(),
     );
   }
 }

@@ -84,10 +84,10 @@ class API {
             .map(
               (e) => Device(
                 e['device_name'],
-                '/live/${e['id']}',
+                'live/${e['id']}',
                 e['status'] == 'OK',
-                e['horizontal_resolution'],
-                e['vertical_resolution'],
+                e['resolutionX'] == null ? null : int.parse(e['resolutionX']),
+                e['resolutionX'] == null ? null : int.parse(e['resolutionY']),
               ),
             )
             .cast<Device>(),

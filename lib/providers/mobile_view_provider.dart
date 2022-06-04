@@ -89,6 +89,20 @@ class MobileViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
+  /// Removes a camera [Device] from the layout & updates cache.
+  Future<void> remove(int tab, int index) {
+    devices[tab]![index] = null;
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Replaces the existing camera [Device] with [device] in the layout & updates cache.
+  Future<void> replace(int tab, int index, Device? device) {
+    devices[tab]![index] = device;
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
   /// Sets [current] mobile view tab.
   Future<void> setTab(int value) async {
     tab = value;

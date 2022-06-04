@@ -50,16 +50,23 @@ class ServersProvider extends ChangeNotifier {
     }
   }
 
+  /// Adds a new [Server] to the cache.
   Future<void> add(Server server) {
+    // Prevent duplicates.
+    if (servers.contains(server)) {
+      return Future.value(null);
+    }
     servers.add(server);
     return _save();
   }
 
+  /// Removes a [Server] from the cache.
   Future<void> remove(Server server) {
     servers.remove(server);
     return _save();
   }
 
+  /// Save currently added [Server]s to `package:shared_preferences` cache.
   Future<void> _save() async {
     final instance = await SharedPreferences.getInstance();
     await instance.setString(
@@ -69,6 +76,7 @@ class ServersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Restore currently added [Server]s from `package:shared_preferences` cache.
   Future<void> _restore() async {
     final instance = await SharedPreferences.getInstance();
     servers = jsonDecode(instance.getString(kSharedPreferencesServers)!)

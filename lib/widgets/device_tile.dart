@@ -176,104 +176,106 @@ class DeviceTileState extends State<DeviceTile> {
             child: ClipRect(
               child: Stack(
                 children: [
-                  FijkView(
-                    player: widget.ijkPlayer!,
-                    color: Colors.black,
-                    fit: FijkFit.fill,
-                    panelBuilder: (player, _, ___, ____, _____) =>
-                        player.value.exception.message != null
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.warning,
-                                      color: Colors.white70,
-                                      size: 32.0,
-                                    ),
-                                    const SizedBox(height: 8.0),
-                                    Text(
-                                      player.value.exception.message!
-                                          .toLowerCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : [
-                                FijkState.idle,
-                                FijkState.asyncPreparing,
-                              ].contains(player.state)
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor:
-                                          AlwaysStoppedAnimation(Colors.white),
-                                      strokeWidth: 4.4,
+                  widget.ijkPlayer == null
+                      ? const SizedBox.shrink()
+                      : FijkView(
+                          player: widget.ijkPlayer!,
+                          color: Colors.black,
+                          fit: FijkFit.fill,
+                          panelBuilder: (player, _, ___, ____, _____) =>
+                              Scaffold(
+                            backgroundColor: Colors.transparent,
+                            body: player.value.exception.message != null
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.warning,
+                                          color: Colors.white70,
+                                          size: 32.0,
+                                        ),
+                                        const SizedBox(height: 8.0),
+                                        Text(
+                                          player.value.exception.message!
+                                              .toLowerCase(),
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   )
-                                : const SizedBox.shrink(),
-                  ),
+                                : [
+                                    FijkState.idle,
+                                    FijkState.asyncPreparing,
+                                  ].contains(player.state)
+                                    ? const Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation(
+                                              Colors.white),
+                                          strokeWidth: 4.4,
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
+                          ),
+                        ),
                   Positioned(
                     bottom: 0.0,
                     left: 0.0,
                     right: 0.0,
-                    child: AnimatedOpacity(
-                      opacity: hover ? 1.0 : 0.0,
+                    child: AnimatedSlide(
+                      offset: Offset(0, hover ? 0.0 : 1.0),
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       child: Container(
-                        height: 56.0,
+                        height: 48.0,
                         alignment: Alignment.centerRight,
                         color: Colors.black26,
-                        child: AnimatedSlide(
-                          offset: Offset(0, hover ? 0.0 : 1.0),
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 16.0),
-                              const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                                size: 20.0,
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16.0),
+                            const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20.0,
+                            ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.device.name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline1
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontSize: 14.0,
+                                        ),
+                                  ),
+                                  Text(
+                                    widget.device.uri,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline3
+                                        ?.copyWith(
+                                          color: Colors.white70,
+                                          fontSize: 10.0,
+                                        ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 16.0),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.device.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.copyWith(
-                                            color: Colors.white,
-                                            fontSize: 16.0,
-                                          ),
-                                    ),
-                                    Text(
-                                      widget.device.uri,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline3
-                                          ?.copyWith(
-                                            color: Colors.white70,
-                                            fontSize: 12.0,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16.0),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 16.0),
+                          ],
                         ),
                       ),
                     ),

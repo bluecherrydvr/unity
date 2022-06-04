@@ -204,12 +204,12 @@ ThemeData createTheme({
         statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
       ),
       elevation: 4.0,
-      iconTheme: IconThemeData(
-        color: isLight ? Colors.black54 : Colors.white54,
+      iconTheme: const IconThemeData(
+        color: Colors.white,
         size: 24.0,
       ),
-      actionsIconTheme: IconThemeData(
-        color: isLight ? Colors.black54 : Colors.white54,
+      actionsIconTheme: const IconThemeData(
+        color: Colors.white,
         size: 24.0,
       ),
     ),
@@ -231,16 +231,10 @@ ThemeData createTheme({
       brightness: isLight ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
-      textStyle: TextStyle(
-        fontSize: 12.0,
-        color: isLight ? Colors.white : Colors.black,
+      decoration: BoxDecoration(
+        color: isLight ? Colors.black : Colors.white,
+        borderRadius: BorderRadius.circular(4.0),
       ),
-      decoration: Platform.isWindows || Platform.isLinux || Platform.isMacOS
-          ? BoxDecoration(
-              color: isLight ? Colors.black : Colors.white,
-              borderRadius: BorderRadius.circular(4.0),
-            )
-          : null,
       verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
           ? 36.0
           : null,

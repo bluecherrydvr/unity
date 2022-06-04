@@ -17,13 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/material.dart';
-
-import 'package:easy_localization/easy_localization.dart';
 
 class AddServerWizard extends StatefulWidget {
   const AddServerWizard({Key? key}) : super(key: key);
@@ -38,180 +40,201 @@ class _AddServerWizardState extends State<AddServerWizard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned.fill(
-            child: PageView(
-              controller: controller,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                Padding(
-                  padding: MediaQuery.of(context).padding,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        color: Theme.of(context).cardColor,
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              'assets/images/icon.png',
-                              height: 124.0,
-                              width: 124.0,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 24.0),
-                            Text(
-                              'project_name'.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline1
-                                  ?.copyWith(
-                                    fontSize: 36.0,
-                                  ),
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              'project_description'.tr(),
-                              style: Theme.of(context).textTheme.headline3,
-                            ),
-                            const SizedBox(height: 16.0),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                color: Theme.of(context).cardColor,
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    const Spacer(),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: Text(
-                                          'website'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline3
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16.0),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: Text(
-                                          'purchase'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline3
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ClipRect(
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: Image.asset(
-                                  'assets/images/background.webp',
-                                  fit: BoxFit.cover,
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'welcome'.tr(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.copyWith(
-                                            fontSize: 24.0,
-                                            color: Colors.white,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8.0),
-                                    Text(
-                                      'welcome_description'.tr(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline3
-                                          ?.copyWith(
-                                              color: Colors.white
-                                                  .withOpacity(0.87)),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: FloatingActionButton(
-                                          onPressed: () {
-                                            controller.nextPage(
-                                              duration: const Duration(
-                                                  milliseconds: 300),
-                                              curve: Curves.easeInOut,
-                                            );
-                                          },
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          child:
-                                              const Icon(Icons.arrow_forward),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      child: Scaffold(
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: PageView(
+                controller: controller,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.asset(
+                            'assets/images/background.webp',
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
                         ),
-                      ),
-                    ],
+                        Container(
+                          alignment: Alignment.center,
+                          child: Card(
+                            elevation: 4.0,
+                            clipBehavior: Clip.antiAlias,
+                            margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 32.0) +
+                                MediaQuery.of(context).padding,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/icon.png',
+                                        height: 124.0,
+                                        width: 124.0,
+                                        fit: BoxFit.contain,
+                                      ),
+                                      const SizedBox(height: 24.0),
+                                      Text(
+                                        'project_name'.tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline1
+                                            ?.copyWith(
+                                              fontSize: 36.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 4.0),
+                                      Text(
+                                        'project_description'.tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5,
+                                      ),
+                                      const SizedBox(height: 16.0),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                          color: Theme.of(context).cardColor,
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            children: [
+                                              const Spacer(),
+                                              MouseRegion(
+                                                cursor:
+                                                    SystemMouseCursors.click,
+                                                child: GestureDetector(
+                                                  onTap: () {},
+                                                  child: Text(
+                                                    'website'.tr(),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline3
+                                                        ?.copyWith(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16.0),
+                                              MouseRegion(
+                                                cursor:
+                                                    SystemMouseCursors.click,
+                                                child: GestureDetector(
+                                                  onTap: () {},
+                                                  child: Text(
+                                                    'purchase'.tr(),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline3
+                                                        ?.copyWith(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const Divider(thickness: 1.0),
+                                      const SizedBox(height: 16.0),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'welcome'.tr(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline1
+                                                ?.copyWith(
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 8.0),
+                                          Text(
+                                            'welcome_description'.tr(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline5,
+                                            textAlign: TextAlign.justify,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16.0),
+                                Material(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  child: InkWell(
+                                    onTap: () {
+                                      controller.nextPage(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: double.infinity,
+                                      height: 56.0,
+                                      child: Text(
+                                        'lets_go'.tr().toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ConfigureDVRServerScreen(
-                  controller: controller,
-                  setServer: setServer,
-                ),
-                LetsGoScreen(
-                  controller: controller,
-                  getServer: getServer,
-                ),
-              ],
+                  ConfigureDVRServerScreen(
+                    controller: controller,
+                    setServer: setServer,
+                    getServer: getServer,
+                  ),
+                  LetsGoScreen(
+                    controller: controller,
+                    getServer: getServer,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+      value: SystemUiOverlayStyle.dark,
     );
   }
 
@@ -225,10 +248,12 @@ class _AddServerWizardState extends State<AddServerWizard> {
 class ConfigureDVRServerScreen extends StatefulWidget {
   final PageController controller;
   final void Function(Server) setServer;
+  final Server? Function() getServer;
   const ConfigureDVRServerScreen({
     Key? key,
     required this.controller,
     required this.setServer,
+    required this.getServer,
   }) : super(key: key);
 
   @override
@@ -272,7 +297,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         setState(() {
           elevated = true;
         });
-      } else if (controller.offset != 0.0 && elevated) {
+      } else if (elevated) {
         setState(() {
           elevated = false;
         });
@@ -468,7 +493,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16.0),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Row(
@@ -481,7 +505,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 4.0),
                             Text(
                               'save_password'.tr(),
                               maxLines: 2,
@@ -505,7 +528,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           });
                         },
                       ),
-                      const SizedBox(width: 4.0),
                       Text(
                         'connect_automatically_at_startup'.tr(),
                         maxLines: 2,
@@ -564,9 +586,12 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                             connectAutomaticallyAtStartup,
                                       ),
                                     );
+                                    FocusScope.of(context).unfocus();
                                     if (server.serverUUID != null &&
                                         server.cookie != null) {
                                       widget.setServer(server);
+                                      await ServersProvider.instance
+                                          .add(server);
                                       widget.controller.nextPage(
                                         duration: const Duration(
                                           milliseconds: 300,
@@ -662,15 +687,20 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               },
             ),
             elevation: elevated ? 0.0 : 4.0,
-            title: Text('configure'.tr()),
+            title: Text(
+              'configure'.tr(),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
           ),
           body: view),
       onWillPop: () {
-        widget.controller.previousPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        return Future.sync(() => false);
+        if (widget.getServer() == null) {
+          widget.controller.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+        return Future.value(false);
       },
     );
   }
@@ -701,7 +731,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
         setState(() {
           elevated = true;
         });
-      } else if (controller.offset != 0.0 && elevated) {
+      } else if (elevated) {
         setState(() {
           elevated = false;
         });
@@ -829,17 +859,22 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
       child: Scaffold(
         appBar: isMobile
             ? AppBar(
-                leading: NavigatorPopButton(
-                  color: Colors.white,
-                  onTap: () {
-                    widget.controller.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                    FocusScope.of(context).unfocus();
-                  },
+                leading: widget.getServer() != null
+                    ? null
+                    : NavigatorPopButton(
+                        color: Colors.white,
+                        onTap: () {
+                          widget.controller.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                          FocusScope.of(context).unfocus();
+                        },
+                      ),
+                title: Text(
+                  'lets_go'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                title: Text('lets_go'.tr()),
                 elevation: elevated ? 0.0 : 4.0,
               )
             : null,
@@ -857,11 +892,13 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
       onWillPop: () {
-        widget.controller.previousPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        return Future.sync(() => false);
+        // if (widget.getServer() == null) {
+        //   widget.controller.previousPage(
+        //     duration: const Duration(milliseconds: 300),
+        //     curve: Curves.easeInOut,
+        //   );
+        // }
+        return Future.value(false);
       },
     );
   }

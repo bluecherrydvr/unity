@@ -88,6 +88,7 @@ class API {
                 e['status'] == 'OK',
                 e['resolutionX'] == null ? null : int.parse(e['resolutionX']),
                 e['resolutionX'] == null ? null : int.parse(e['resolutionY']),
+                server,
               ),
             )
             .cast<Device>(),

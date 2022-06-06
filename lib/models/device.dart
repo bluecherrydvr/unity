@@ -48,7 +48,7 @@ class Device {
     this.server,
   );
 
-  String streamURL(Server server) =>
+  String get streamURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
 
   @override
@@ -95,7 +95,7 @@ class Device {
         'status': status,
         'resolutionX': resolutionX,
         'resolutionY': resolutionY,
-        'server': server.toJson(),
+        'server': server.toJson(devices: false),
       };
 
   factory Device.fromJson(Map<String, dynamic> json) => Device(

@@ -96,14 +96,17 @@ class Server {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({
+    bool devices = true,
+  }) =>
+      {
         'name': name,
         'ip': ip,
         'port': port,
         'rtspPort': rtspPort,
         'login': login,
         'password': password,
-        'devices': devices,
+        'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
         'serverUUID': serverUUID,
         'cookie': cookie,
       };

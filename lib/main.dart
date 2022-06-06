@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
           create: (context) => ServersProvider.instance,
         ),
       ],
-      builder: (context, child) => MobileDeviceGrid(),
+      builder: (context, child) => const MobileDeviceGrid(),
     );
   }
 }

@@ -18,8 +18,8 @@
  */
 
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
+import 'package:fijkplayer/fijkplayer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bluecherry_client/models/device.dart';
@@ -53,8 +53,16 @@ class MobileViewProvider extends ChangeNotifier {
     4: <Device?>[null, null, null, null],
   };
 
+  /// Instances of video players corresponding to a particular [Device].
+  ///
+  /// This avoids redundantly creating new video player instance if a [Device]
+  /// is already present in the camera grid on the screen or allows to use
+  /// existing instance when switching tab (if common camera [Device] tile exists).
+  ///
+  final Map<Device, FijkPlayer> players = {};
+
   /// Current [tab].
-  /// 4 corresponds to 2x2, 2 corresponds to 2x1 & 1 corresponds to 1x1.
+  /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
   int tab = 4;
 
   /// Layout for [current] [tab].
@@ -67,62 +75,121 @@ class MobileViewProvider extends ChangeNotifier {
       await _save();
     } else {
       await _restore();
+      // Create video player instances for the device tiles already present in the view (restored from cache).
+      for (final device in current) {
+        if (device != null) {
+          players[device] = _getFijkPlayer(device);
+        }
+      }
     }
-  }
-
-  /// Edits a particular device tile in a particular [DeviceGrid] tab.
-  Future<void> edit(
-    int tab,
-    int index,
-    Device? device,
-  ) {
-    devices[tab]![index] = device;
-    return _save();
   }
 
   /// Moves a device tile from [initial] position to [end] position inside a [tab].
   /// Used for re-ordering camera [DeviceTile]s when dragging.
-  Future<void> move(int tab, int initial, int end) {
+  Future<void> reorder(int tab, int initial, int end) {
     devices[tab]!.insert(end, devices[tab]!.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();
     return _save(notifyListeners: false);
   }
 
-  /// Removes a camera [Device] from the layout & updates cache.
+  /// Sets [current] mobile view tab.
+  Future<void> setTab(int value) async {
+    // Prevent redundant calls.
+    if (value == tab) {
+      return;
+    }
+    // [Device]s present in the new tab.
+    final items = devices[value]!;
+    // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
+    for (final device in items) {
+      if (!players.keys.contains(device) && device != null) {
+        players[device] = _getFijkPlayer(device);
+      }
+    }
+    // Remove & dispose the video player instances that will not be used in this new tab.
+    players.removeWhere((key, value) {
+      final result = items.contains(key);
+      if (!result) {
+        value.release();
+        value.dispose();
+      }
+      return !result;
+    });
+    tab = value;
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Removes a [Device] tile from the camera grid, at specified [tab] [index].
   Future<void> remove(int tab, int index) {
+    final device = devices[tab]![index];
+    int count = 0;
+    for (final element in devices[tab]!) {
+      if (element == device) count++;
+    }
+    debugPrint(devices[tab]!.toString());
+    debugPrint(count.toString());
+    // Only dispose if it was the only instance available.
+    // If some other tile exists showing same camera device, then don't dispose the video player controller.
+    if (count == 1) {
+      players[device]?.release();
+      players[device]?.dispose();
+      players.remove(device);
+    }
+    // Remove.
     devices[tab]![index] = null;
     notifyListeners();
     return _save(notifyListeners: false);
   }
 
-  /// Replaces the existing camera [Device] with [device] in the layout & updates cache.
-  Future<void> replace(int tab, int index, Device? device) {
+  /// Adds a new camera [device] tile in a [tab], at specified index.
+  Future<void> add(int tab, int index, Device device) {
+    // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
+    if (!devices[tab]!.contains(device)) {
+      debugPrint(device.toString());
+      debugPrint(device.streamURL);
+      players[device] = _getFijkPlayer(device);
+    }
     devices[tab]![index] = device;
     notifyListeners();
     return _save(notifyListeners: false);
   }
 
-  /// Sets [current] mobile view tab.
-  Future<void> setTab(int value) async {
-    tab = value;
-    return _save();
+  /// Replaces a [Device] tile from the camera grid, at specified [tab] [index] with passed [device].
+  Future<void> replace(int tab, int index, Device device) {
+    final device = devices[tab]![index];
+    int count = 0;
+    for (final element in devices[tab]!) {
+      if (element == device) count++;
+    }
+    // Only dispose if it was the only instance available.
+    // If some other tile exists showing same camera device, then don't dispose the video player controller.
+    if (count == 1) {
+      players[device]?.release();
+      players[device]?.dispose();
+      players.remove(device);
+    }
+    // Save the new [device] at the position.
+    devices[tab]![index] = device;
+    notifyListeners();
+    return _save(notifyListeners: false);
   }
 
   /// Saves current layout/order of [Device]s to cache using `package:shared_preferences`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
     final instance = await SharedPreferences.getInstance();
+    final data = devices.map(
+      (key, value) => MapEntry(
+        key.toString(),
+        value.map((e) => e?.toJson()).toList().cast<Map<String, dynamic>?>(),
+      ),
+    );
+    debugPrint(data.toString());
     await instance.setString(
       kSharedPreferencesMobileView,
-      jsonEncode(
-        devices.map(
-          (key, value) => MapEntry(
-            key.toString(),
-            value.map((e) => e?.toJson()).toList(),
-          ),
-        ),
-      ),
+      jsonEncode(data),
     );
     await instance.setInt(
       kSharedPreferencesMobileViewTab,
@@ -134,7 +201,7 @@ class MobileViewProvider extends ChangeNotifier {
   }
 
   /// Restores current layout/order of [Device]s from `package:shared_preferences` cache.
-  Future<void> _restore() async {
+  Future<void> _restore({bool notifyListeners = true}) async {
     final instance = await SharedPreferences.getInstance();
     devices = jsonDecode(instance.getString(kSharedPreferencesMobileView)!)
         .map(
@@ -148,7 +215,22 @@ class MobileViewProvider extends ChangeNotifier {
         )
         .cast<int, List<Device?>>();
     tab = instance.getInt(kSharedPreferencesMobileViewTab)!;
-    notifyListeners();
+    if (notifyListeners) {
+      this.notifyListeners();
+    }
+  }
+
+  /// Helper method to create a video player with required configuration for a [Device].
+  FijkPlayer _getFijkPlayer(Device device) {
+    final player = FijkPlayer()
+      ..setDataSource(
+        device.streamURL,
+        autoPlay: true,
+      )
+      ..setVolume(0.0)
+      ..setSpeed(1.0);
+
+    return player;
   }
 
   @override

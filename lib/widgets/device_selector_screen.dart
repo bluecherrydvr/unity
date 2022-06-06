@@ -37,18 +37,12 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   @override
   void initState() {
     super.initState();
-    StatusBarControl.setHidden(
-      false,
-      animation: StatusBarAnimation.SLIDE,
-    );
+    StatusBarControl.setHidden(false);
   }
 
   @override
   void dispose() {
-    StatusBarControl.setHidden(
-      true,
-      animation: StatusBarAnimation.SLIDE,
-    );
+    StatusBarControl.setHidden(true);
     super.dispose();
   }
 

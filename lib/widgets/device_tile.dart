@@ -266,104 +266,20 @@ class DeviceTileState extends State<DeviceTile> {
                                                   splashRadius: 20.0,
                                                   onPressed: () async {
                                                     StatusBarControl.setHidden(
-                                                      false,
-                                                      animation:
-                                                          StatusBarAnimation
-                                                              .SLIDE,
-                                                    );
+                                                        false);
                                                     await Navigator.of(context)
                                                         .push(
                                                       MaterialPageRoute(
                                                         builder: (context) =>
-                                                            Scaffold(
-                                                          appBar: AppBar(
-                                                            title: Text(widget
-                                                                .device.name
-                                                                .split(' ')
-                                                                .map((e) =>
-                                                                    e[0].toUpperCase() +
-                                                                    e.substring(
-                                                                        1))
-                                                                .join(' ')),
-                                                          ),
-                                                          body: FijkView(
-                                                            player: widget
-                                                                .ijkPlayer!,
-                                                            color: Colors.black,
-                                                            fit: FijkFit.fill,
-                                                            panelBuilder:
-                                                                (player,
-                                                                        _,
-                                                                        ___,
-                                                                        ____,
-                                                                        _____) =>
-                                                                    Scaffold(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              body: player
-                                                                          .value
-                                                                          .exception
-                                                                          .message !=
-                                                                      null
-                                                                  ? Center(
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.center,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.center,
-                                                                        children: [
-                                                                          const Icon(
-                                                                            Icons.warning,
-                                                                            color:
-                                                                                Colors.white70,
-                                                                            size:
-                                                                                32.0,
-                                                                          ),
-                                                                          const SizedBox(
-                                                                              height: 8.0),
-                                                                          Text(
-                                                                            player.value.exception.message!.toLowerCase(),
-                                                                            style:
-                                                                                const TextStyle(
-                                                                              color: Colors.white70,
-                                                                              fontSize: 12.0,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    )
-                                                                  : [
-                                                                      FijkState
-                                                                          .idle,
-                                                                      FijkState
-                                                                          .asyncPreparing,
-                                                                    ].contains(
-                                                                          player
-                                                                              .state)
-                                                                      ? const Center(
-                                                                          child:
-                                                                              CircularProgressIndicator(
-                                                                            valueColor:
-                                                                                AlwaysStoppedAnimation(Colors.white),
-                                                                            strokeWidth:
-                                                                                4.4,
-                                                                          ),
-                                                                        )
-                                                                      : const SizedBox
-                                                                          .shrink(),
-                                                            ),
-                                                          ),
+                                                            DeviceFullscreenViewer(
+                                                          device: widget.device,
+                                                          ijkPlayer:
+                                                              widget.ijkPlayer,
                                                         ),
                                                       ),
                                                     );
                                                     StatusBarControl.setHidden(
-                                                      true,
-                                                      animation:
-                                                          StatusBarAnimation
-                                                              .SLIDE,
-                                                    );
+                                                        true);
                                                   },
                                                   icon: const Icon(
                                                     Icons.fullscreen,
@@ -441,5 +357,126 @@ class DeviceTileState extends State<DeviceTile> {
               ),
             ),
           );
+  }
+}
+
+class DeviceFullscreenViewer extends StatefulWidget {
+  final Device device;
+  final FijkPlayer? ijkPlayer;
+  const DeviceFullscreenViewer({
+    Key? key,
+    required this.device,
+    required this.ijkPlayer,
+  }) : super(key: key);
+
+  @override
+  State<DeviceFullscreenViewer> createState() => _DeviceFullscreenViewerState();
+}
+
+class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
+  FijkState? state;
+  FijkFit fit = FijkFit.contain;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.ijkPlayer?.addListener(ijkPlayerListener);
+  }
+
+  @override
+  void dispose() {
+    widget.ijkPlayer?.removeListener(ijkPlayerListener);
+    super.dispose();
+  }
+
+  void ijkPlayerListener() {
+    if (widget.ijkPlayer?.state != state) {
+      state = widget.ijkPlayer?.state;
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: NavigatorPopButton(
+          color: Theme.of(context).appBarTheme.iconTheme?.color,
+        ),
+        title: Text(widget.device.name
+            .split(' ')
+            .map((e) => e[0].toUpperCase() + e.substring(1))
+            .join(' ')),
+        actions: [
+          IconButton(
+            splashRadius: 20.0,
+            onPressed: () {
+              setState(() {
+                fit = fit == FijkFit.fill ? FijkFit.contain : FijkFit.fill;
+              });
+            },
+            icon: Icon(
+              fit == FijkFit.fill ? Icons.aspect_ratio : Icons.fit_screen,
+            ),
+          ),
+          IconButton(
+            splashRadius: 20.0,
+            onPressed: () async {
+              await widget.ijkPlayer?.reset();
+              await widget.ijkPlayer?.setDataSource(
+                widget.device.streamURL,
+                autoPlay: true,
+              );
+              await widget.ijkPlayer?.setVolume(0.0);
+              await widget.ijkPlayer?.setSpeed(1.0);
+            },
+            icon: const Icon(Icons.replay),
+          ),
+        ],
+      ),
+      body: InteractiveViewer(
+        child: FijkView(
+          player: widget.ijkPlayer!,
+          color: Colors.black,
+          fit: fit,
+          panelBuilder: (player, _, ___, ____, _____) => Scaffold(
+            backgroundColor: Colors.transparent,
+            body: player.value.exception.message != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.warning,
+                          color: Colors.white70,
+                          size: 32.0,
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          player.value.exception.message!.toLowerCase(),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : [
+                    FijkState.idle,
+                    FijkState.asyncPreparing,
+                  ].contains(player.state)
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                          strokeWidth: 4.4,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
   }
 }

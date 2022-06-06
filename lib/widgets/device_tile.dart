@@ -51,6 +51,7 @@ class DeviceTile extends StatefulWidget {
 
 class DeviceTileState extends State<DeviceTile> {
   bool hover = false;
+  FijkState? state;
 
   @override
   void initState() {
@@ -61,6 +62,22 @@ class DeviceTileState extends State<DeviceTile> {
           hover = false;
         });
       });
+    }
+    if (isMobile) {
+      widget.ijkPlayer!.addListener(ijkPlayerListener);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.ijkPlayer!.removeListener(ijkPlayerListener);
+    super.dispose();
+  }
+
+  void ijkPlayerListener() {
+    if (widget.ijkPlayer?.state != state) {
+      state = widget.ijkPlayer?.state;
+      setState(() {});
     }
   }
 
@@ -184,7 +201,11 @@ class DeviceTileState extends State<DeviceTile> {
               child: Stack(
                 children: [
                   widget.ijkPlayer == null
-                      ? const SizedBox.shrink()
+                      ? Container(
+                          color: Colors.black,
+                          width: double.infinity,
+                          height: double.infinity,
+                        )
                       : FijkView(
                           player: widget.ijkPlayer!,
                           color: Colors.black,

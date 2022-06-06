@@ -16,12 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:fijkplayer/fijkplayer.dart';
+import 'package:easy_localization/easy_localization.dart';
 
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/device_tile.dart';
@@ -29,71 +27,96 @@ import 'package:bluecherry_client/widgets/device_tile.dart';
 class DeviceTileSelector extends StatefulWidget {
   final int tab;
   final int index;
-  final Map<Device, FijkPlayer> players;
+
   const DeviceTileSelector({
     Key? key,
     required this.tab,
     required this.index,
-    required this.players,
   }) : super(key: key);
 
   @override
   State<DeviceTileSelector> createState() => _DeviceTileSelectorState();
 }
 
-class _DeviceTileSelectorState extends State<DeviceTileSelector>
-    with AutomaticKeepAliveClientMixin {
+class _DeviceTileSelectorState extends State<DeviceTileSelector> {
   Device? device;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    // null-check.
-    device ??= MobileViewProvider.instance.devices[widget.tab]![widget.index];
+    final view = MobileViewProvider.instance;
+    device ??= view.devices[widget.tab]![widget.index];
     return device != null
         ? Material(
             child: Stack(
               children: [
                 DeviceTile(
                   device: device!,
-                  ijkPlayer: widget.players[device],
+                  ijkPlayer: view.players[device],
                 ),
                 Positioned(
                   top: 0.0,
-                  left: 0.0,
                   right: 0.0,
                   child: Container(
-                    height: 48.0,
+                    height: 72.0,
+                    width: 72.0,
                     decoration: const BoxDecoration(
+                      color: Colors.black,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.black38,
+                          Colors.black54,
                           Colors.transparent,
                         ],
-                        begin: Alignment(1.0, 1.0),
-                        end: Alignment(1.0, 1.0),
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
                         stops: [
                           0.0,
-                          1.0,
+                          0.6,
                         ],
                       ),
                     ),
                   ),
                 ),
-                PopupMenuButton(
+                PopupMenuButton<int>(
+                  elevation: 4.0,
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 0:
+                        {
+                          view.remove(widget.tab, widget.index);
+                          if (mounted) {
+                            setState(() {
+                              device = null;
+                            });
+                          }
+                          break;
+                        }
+                      case 1:
+                        {
+                          final result = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const DeviceSelectorScreen(),
+                            ),
+                          );
+                          if (result is Device) {
+                            view.replace(widget.tab, widget.index, result);
+                            if (mounted) {
+                              setState(() {
+                                device = result;
+                              });
+                            }
+                          }
+                          break;
+                        }
+                    }
+                  },
                   icon: const Icon(
                     Icons.more_vert,
                     color: Colors.white,
                   ),
-                  itemBuilder: (BuildContext context) => [
+                  itemBuilder: (_) => [
                     PopupMenuItem(
-                      onTap: () {
-                        MobileViewProvider.instance
-                            .remove(widget.tab, widget.index);
-                        widget.players[device]?.release();
-                        widget.players[device]?.dispose();
-                        widget.players.remove(device);
-                      },
+                      value: 0,
                       padding: EdgeInsets.zero,
                       child: ListTile(
                         leading: CircleAvatar(
@@ -105,33 +128,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector>
                       ),
                     ),
                     PopupMenuItem(
-                      onTap: () async {
-                        final result = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const DeviceSelectorScreen(),
-                          ),
-                        );
-                        if (result is Device) {
-                          widget.players[device]?.release();
-                          widget.players[device]?.dispose();
-                          widget.players.remove(device);
-                          debugPrint(result.toString());
-                          debugPrint(result.streamURL(
-                              ServersProvider.instance.servers.first));
-                          widget.players[result] = FijkPlayer()
-                            ..setDataSource(
-                              result.streamURL(
-                                /// TODO: Currently only single server is implemented.
-                                ServersProvider.instance.servers.first,
-                              ),
-                              autoPlay: true,
-                            )
-                            ..setVolume(0.0)
-                            ..setSpeed(1.0);
-                          MobileViewProvider.instance
-                              .edit(widget.tab, widget.index, result);
-                        }
-                      },
+                      value: 1,
                       padding: EdgeInsets.zero,
                       child: ListTile(
                         leading: CircleAvatar(
@@ -163,24 +160,12 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector>
                     ),
                   );
                   if (result is Device) {
-                    debugPrint(result.toString());
-                    debugPrint(result
-                        .streamURL(ServersProvider.instance.servers.first));
-                    widget.players[result] = FijkPlayer()
-                      ..setDataSource(
-                        result.streamURL(
-                          /// TODO: Currently only single server is implemented.
-                          ServersProvider.instance.servers.first,
-                        ),
-                        autoPlay: true,
-                      )
-                      ..setVolume(0.0)
-                      ..setSpeed(1.0);
-                    MobileViewProvider.instance
-                        .edit(widget.tab, widget.index, result);
-                    setState(() {
-                      device = result;
-                    });
+                    view.add(widget.tab, widget.index, result);
+                    if (mounted) {
+                      setState(() {
+                        device = result;
+                      });
+                    }
                   }
                 },
                 child: Container(
@@ -195,7 +180,4 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector>
             ),
           );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

@@ -27,7 +27,7 @@ class Device {
   /// [Uri] to the RTSP stream associated with the device.
   final String uri;
 
-  /// `true` [status] indicates that device device is working correctly.
+  /// `true` [status] indicates that device device is working correctly or is `Online`.
   final bool status;
 
   /// Horizontal resolution of the device device.
@@ -36,12 +36,16 @@ class Device {
   /// Vertical resolution of the device device.
   final int? resolutionY;
 
+  /// Reference to the [Server], to which this camera [Device] belongs.
+  final Server server;
+
   const Device(
     this.name,
     this.uri,
     this.status,
     this.resolutionX,
     this.resolutionY,
+    this.server,
   );
 
   String streamURL(Server server) =>
@@ -56,7 +60,6 @@ class Device {
     return other is Device &&
         name == other.name &&
         uri == other.uri &&
-        status == other.status &&
         resolutionX == other.resolutionX &&
         resolutionY == other.resolutionY;
   }
@@ -75,6 +78,7 @@ class Device {
     bool? status,
     int? resolutionX,
     int? resolutionY,
+    Server? server,
   }) =>
       Device(
         name ?? this.name,
@@ -82,6 +86,7 @@ class Device {
         status ?? this.status,
         resolutionX ?? this.resolutionX,
         resolutionY ?? this.resolutionY,
+        server ?? this.server,
       );
 
   Map<String, dynamic> toJson() => {
@@ -90,6 +95,7 @@ class Device {
         'status': status,
         'resolutionX': resolutionX,
         'resolutionY': resolutionY,
+        'server': server.toJson(),
       };
 
   factory Device.fromJson(Map<String, dynamic> json) => Device(
@@ -98,5 +104,6 @@ class Device {
         json['status'],
         json['resolutionX'],
         json['resolutionY'],
+        Server.fromJson(json['server']),
       );
 }

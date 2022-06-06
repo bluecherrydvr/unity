@@ -108,6 +108,10 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                           }
                           break;
                         }
+                      case 2:
+                        {
+                          view.reload(widget.tab, widget.index);
+                        }
                     }
                   },
                   icon: const Icon(
@@ -115,31 +119,32 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                     color: Colors.white,
                   ),
                   itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: 0,
-                      padding: EdgeInsets.zero,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: const Icon(Icons.close),
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Theme.of(context).iconTheme.color,
+                    'remove_camera',
+                    'replace_camera',
+                    'reload_camera',
+                  ]
+                      .asMap()
+                      .entries
+                      .map(
+                        (e) => PopupMenuItem(
+                          value: e.key,
+                          padding: EdgeInsets.zero,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Icon(<int, IconData>{
+                                0: Icons.close_outlined,
+                                1: Icons.add_outlined,
+                                2: Icons.replay_outlined,
+                              }[e.key]!),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor:
+                                  Theme.of(context).iconTheme.color,
+                            ),
+                            title: Text(e.value.tr()),
+                          ),
                         ),
-                        title: Text('remove_camera'.tr()),
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 1,
-                      padding: EdgeInsets.zero,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: const Icon(Icons.replay),
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Theme.of(context).iconTheme.color,
-                        ),
-                        title: Text('replace_camera'.tr()),
-                      ),
-                    ),
-                  ],
+                      )
+                      .toList(),
                 ),
               ],
               alignment: Alignment.topRight,

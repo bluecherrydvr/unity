@@ -176,6 +176,21 @@ class MobileViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
+  /// Reloads a camera [Device] tile from the camera grid, at specified [tab] [index].
+  /// e.g. in response to a network error etc.
+  Future<void> reload(int tab, int index) async {
+    final device = devices[tab]![index]!;
+    await players[device]?.reset();
+    await players[device]?.setDataSource(
+      device.streamURL,
+      autoPlay: true,
+    );
+    await players[device]?.setVolume(0.0);
+    await players[device]?.setSpeed(1.0);
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
   /// Saves current layout/order of [Device]s to cache using `package:shared_preferences`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {

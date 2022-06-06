@@ -24,6 +24,7 @@ import 'package:fijkplayer/fijkplayer.dart';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 class DeviceTile extends StatefulWidget {
   final Device device;
@@ -229,7 +230,7 @@ class DeviceTileState extends State<DeviceTile> {
                                         const SizedBox(height: 8.0),
                                         Text(
                                           player.value.exception.message!
-                                              .toLowerCase(),
+                                              .toUpperCase(),
                                           style: const TextStyle(
                                             color: Colors.white70,
                                             fontSize: 12.0,
@@ -263,8 +264,15 @@ class DeviceTileState extends State<DeviceTile> {
                                                 opacity: value as double,
                                                 child: IconButton(
                                                   splashRadius: 20.0,
-                                                  onPressed: () {
-                                                    Navigator.of(context).push(
+                                                  onPressed: () async {
+                                                    StatusBarControl.setHidden(
+                                                      false,
+                                                      animation:
+                                                          StatusBarAnimation
+                                                              .SLIDE,
+                                                    );
+                                                    await Navigator.of(context)
+                                                        .push(
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             Scaffold(
@@ -349,6 +357,12 @@ class DeviceTileState extends State<DeviceTile> {
                                                           ),
                                                         ),
                                                       ),
+                                                    );
+                                                    StatusBarControl.setHidden(
+                                                      true,
+                                                      animation:
+                                                          StatusBarAnimation
+                                                              .SLIDE,
                                                     );
                                                   },
                                                   icon: const Icon(

@@ -231,11 +231,24 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                                     height: 40.0,
                                     width: 40.0,
                                     alignment: Alignment.center,
-                                    child: Text(
-                                      e.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
+                                    child: Container(
+                                      height: 28.0,
+                                      width: 28.0,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        e.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(14.0),
                                       ),
                                     ),
                                   ),

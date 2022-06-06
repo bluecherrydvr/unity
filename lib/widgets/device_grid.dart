@@ -20,22 +20,19 @@
 import 'dart:math';
 
 import 'package:animations/animations.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
-import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
+import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 
 /// A draggable grid view showing [DeviceTile]s to the user.
@@ -78,7 +75,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 '--rtsp-pwd=${widget.server.password}',
               ],
         )..open(
-            Media.network(device.streamURL(widget.server)),
+            Media.network(device.streamURL),
           ));
         tiles.add(
           DeviceTile(
@@ -118,21 +115,12 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           crossAxisSpacing: kDeviceTileMargin,
           padding: const EdgeInsets.all(kDeviceTileMargin),
           onReorder: (int oldIndex, int newIndex) {
-            if (isDesktop) {
-              setState(() {
-                final e = players.removeAt(oldIndex);
-                players.insert(newIndex, e);
-                final f = tiles.removeAt(oldIndex);
-                tiles.insert(newIndex, f);
-              });
-            } else {
-              setState(() {
-                final e = players.removeAt(oldIndex);
-                players.insert(newIndex, e);
-                final f = tiles.removeAt(oldIndex);
-                tiles.insert(newIndex, f);
-              });
-            }
+            setState(() {
+              final e = players.removeAt(oldIndex);
+              players.insert(newIndex, e);
+              final f = tiles.removeAt(oldIndex);
+              tiles.insert(newIndex, f);
+            });
           },
           children: tiles,
           dragStartBehavior: DragStartBehavior.start,
@@ -155,12 +143,10 @@ class MobileDeviceGrid extends StatefulWidget {
 }
 
 class _MobileDeviceGridState extends State<MobileDeviceGrid> {
-  /// For sharing instance of [FijkPlayer] between the various camera tabs & prevent redundant buffering.
-  Map<Device, FijkPlayer> players = {};
-
   @override
   void initState() {
     super.initState();
+    // Switch to landscape mode & hide the status bar.
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -169,58 +155,11 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
       true,
       animation: StatusBarAnimation.SLIDE,
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<MobileViewProvider>(context, listen: false);
-
-      /// TODO: Currently only single server is implemented.
-      final server = ServersProvider.instance.servers.first;
-      for (final device in provider.current) {
-        if (device != null) {
-          players[device] = FijkPlayer()
-            ..setDataSource(
-              device.streamURL(server),
-              autoPlay: true,
-            )
-            ..setVolume(0.0)
-            ..setSpeed(1.0);
-        }
-      }
-    });
-  }
-
-  void switchView(int value) {
-    final provider = Provider.of<MobileViewProvider>(context, listen: false);
-    if (provider.tab == value) {
-      return;
-    }
-    final devices = provider.devices[value]!;
-
-    /// TODO: Currently only single server is implemented.
-    final server = ServersProvider.instance.servers.first;
-    for (final device in devices) {
-      if (!players.keys.contains(device) && device != null) {
-        players[device] = FijkPlayer()
-          ..setDataSource(
-            device.streamURL(server),
-            autoPlay: true,
-          )
-          ..setVolume(0.0)
-          ..setSpeed(1.0);
-      }
-    }
-    players.removeWhere((key, value) {
-      final result = devices.contains(key);
-      if (!result) {
-        value.release();
-        value.dispose();
-      }
-      return !result;
-    });
-    provider.setTab(value);
   }
 
   @override
   void dispose() {
+    // Restore default configuration for status bar & screen orientation.
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -243,26 +182,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 : Expanded(
                     child: PageTransitionSwitcher(
                       child: {
-                        4: () => MobileDeviceGrid4(players: players),
-                        2: () => MobileDeviceGrid2(players: players),
-                        1: () {
-                          return Material(
-                            color: Colors.black,
-                            child: Padding(
-                              padding: MediaQuery.of(context).padding,
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.add,
-                                    size: 36.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        4: () => const _MobileDeviceGridChild(tab: 4),
+                        2: () => const _MobileDeviceGridChild(tab: 2),
+                        1: () => const _MobileDeviceGridChild(tab: 1),
                       }[view.tab]!(),
                       transitionBuilder:
                           (child, primaryAnimation, secondaryAnimation) =>
@@ -331,7 +253,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                             width: 48.0,
                             alignment: Alignment.centerRight,
                             child: IconButton(
-                              onPressed: () => switchView(e),
+                              onPressed: () => view.setTab(e),
                               icon: child,
                             ),
                           );
@@ -347,28 +269,24 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   }
 }
 
-class MobileDeviceGrid4 extends StatefulWidget {
-  final Map<Device, FijkPlayer> players;
-  const MobileDeviceGrid4({
+class _MobileDeviceGridChild extends StatelessWidget {
+  final int tab;
+  const _MobileDeviceGridChild({
     Key? key,
-    required this.players,
+    required this.tab,
   }) : super(key: key);
 
   @override
-  State<MobileDeviceGrid4> createState() => _MobileDeviceGrid4State();
-}
-
-class _MobileDeviceGrid4State extends State<MobileDeviceGrid4> {
-  @override
   Widget build(BuildContext context) {
     return Consumer<MobileViewProvider>(builder: (context, view, _) {
-      final children = view.devices[4]!
-          .map((e) => DeviceTileSelector(
-                players: widget.players,
-                key: ValueKey(Random().nextInt(1 << 32)),
-                index: view.devices[4]!.indexOf(e),
-                tab: 4,
-              ))
+      if (tab == 1) {
+        return const DeviceTileSelector(key: ValueKey('1^0'), index: 0, tab: 1);
+      }
+      final children = view.devices[tab]!
+          .asMap()
+          .keys
+          .map((e) =>
+              DeviceTileSelector(key: ValueKey('$tab^$e'), index: e, tab: tab))
           .toList();
       return Container(
         color: Colors.black,
@@ -377,67 +295,27 @@ class _MobileDeviceGrid4State extends State<MobileDeviceGrid4> {
         child: ReorderableGridView.count(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          crossAxisCount: 2,
-          childAspectRatio: (MediaQuery.of(context).size.width -
-                  MediaQuery.of(context).padding.horizontal) /
-              (MediaQuery.of(context).size.height -
-                  kBottomBarHeight -
-                  MediaQuery.of(context).padding.vertical),
+          crossAxisCount: <int, int>{
+            4: 2,
+            2: 2,
+          }[tab]!,
+          childAspectRatio: <int, double>{
+            4: (MediaQuery.of(context).size.width -
+                    MediaQuery.of(context).padding.horizontal) /
+                (MediaQuery.of(context).size.height -
+                    kBottomBarHeight -
+                    MediaQuery.of(context).padding.bottom),
+            2: (MediaQuery.of(context).size.width -
+                    MediaQuery.of(context).padding.horizontal) *
+                0.5 /
+                (MediaQuery.of(context).size.height -
+                    kBottomBarHeight -
+                    MediaQuery.of(context).padding.bottom),
+          }[tab]!,
           mainAxisSpacing: 0.0,
           crossAxisSpacing: 0.0,
           padding: EdgeInsets.zero,
-          onReorder: (int oldIndex, int newIndex) =>
-              MobileViewProvider.instance.move(4, oldIndex, newIndex),
-          children: children,
-          dragStartBehavior: DragStartBehavior.start,
-        ),
-      );
-    });
-  }
-}
-
-class MobileDeviceGrid2 extends StatefulWidget {
-  final Map<Device, FijkPlayer> players;
-  const MobileDeviceGrid2({
-    Key? key,
-    required this.players,
-  }) : super(key: key);
-
-  @override
-  _MobileDeviceGrid2State createState() => _MobileDeviceGrid2State();
-}
-
-class _MobileDeviceGrid2State extends State<MobileDeviceGrid2> {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<MobileViewProvider>(builder: (context, view, _) {
-      final children = view.devices[2]!
-          .map((e) => DeviceTileSelector(
-                players: widget.players,
-                key: ValueKey(Random().nextInt(1 << 32)),
-                index: view.devices[2]!.indexOf(e),
-                tab: 2,
-              ))
-          .toList();
-      return Container(
-        color: Colors.black,
-        height: double.infinity,
-        width: double.infinity,
-        child: ReorderableGridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          crossAxisCount: 2,
-          childAspectRatio: (MediaQuery.of(context).size.width -
-                  MediaQuery.of(context).padding.horizontal) *
-              0.5 /
-              (MediaQuery.of(context).size.height -
-                  kBottomBarHeight -
-                  MediaQuery.of(context).padding.vertical),
-          mainAxisSpacing: 0.0,
-          crossAxisSpacing: 0.0,
-          padding: EdgeInsets.zero,
-          onReorder: (int oldIndex, int newIndex) =>
-              MobileViewProvider.instance.move(2, oldIndex, newIndex),
+          onReorder: (initial, end) => view.reorder(tab, initial, end),
           children: children,
           dragStartBehavior: DragStartBehavior.start,
         ),

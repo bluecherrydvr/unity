@@ -19,6 +19,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -34,6 +35,24 @@ class DeviceSelectorScreen extends StatefulWidget {
 
 class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   @override
+  void initState() {
+    super.initState();
+    StatusBarControl.setHidden(
+      false,
+      animation: StatusBarAnimation.SLIDE,
+    );
+  }
+
+  @override
+  void dispose() {
+    StatusBarControl.setHidden(
+      true,
+      animation: StatusBarAnimation.SLIDE,
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     /// TODO: Currently only single server is implemented.
     final server = ServersProvider.instance.servers.first;
@@ -43,9 +62,8 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
       ),
       body: FutureBuilder(
         future: (() async => server.devices.isEmpty
-            ? API.instance.getDevices(
-                await API.instance.checkServerCredentials(server),
-              )
+            ? API.instance
+                .getDevices(await API.instance.checkServerCredentials(server))
             : true)(),
         builder: (context, snapshot) {
           return snapshot.hasData
@@ -59,7 +77,12 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                       foregroundColor: Theme.of(context).iconTheme.color,
                     ),
                     isThreeLine: true,
-                    title: Text(server.devices[index].name),
+                    title: Text(
+                      server.devices[index].name
+                          .split(' ')
+                          .map((e) => e[0].toUpperCase() + e.substring(1))
+                          .join(' '),
+                    ),
                     subtitle: Text([
                       server.devices[index].status
                           ? 'online'.tr()

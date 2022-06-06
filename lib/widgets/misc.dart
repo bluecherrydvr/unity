@@ -45,7 +45,7 @@ class NavigatorPopButton extends StatelessWidget {
             width: 40.0,
             child: Icon(
               Icons.arrow_back,
-              size: 20.0,
+              size: 24.0,
               color: color,
             ),
           ),

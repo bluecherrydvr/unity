@@ -115,7 +115,10 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                             }(),
                     )
                   : const Center(
-                      child: CircularProgressIndicator(),
+                      child: SizedBox(
+                        height: 72.0,
+                        child: CircularProgressIndicator(),
+                      ),
                     );
             },
           );

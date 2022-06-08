@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -278,4 +279,73 @@ class DesktopTitleBar extends StatelessWidget {
   //           ? Colors.white.withOpacity(0.04)
   //           : Colors.black.withOpacity(0.04),
   //     );
+}
+
+// ignore: must_be_immutable
+class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
+  GestureDetectorWithReducedDoubleTapTime({
+    Key? key,
+    required this.child,
+    required this.onTap,
+    required this.onDoubleTap,
+    this.doubleTapTime = const Duration(milliseconds: 100),
+  }) : super(key: key);
+
+  final Widget child;
+  final GestureTapCallback onTap;
+  final GestureTapCallback onDoubleTap;
+  final Duration doubleTapTime;
+
+  Timer doubleTapTimer = Timer(const Duration(milliseconds: 100), () {});
+  bool isPressed = false;
+  bool isSingleTap = false;
+  bool isDoubleTap = false;
+
+  void _doubleTapTimerElapsed() {
+    if (isPressed) {
+      isSingleTap = true;
+    } else {
+      onTap();
+    }
+  }
+
+  void _onTap() {
+    isPressed = false;
+    if (isSingleTap) {
+      isSingleTap = false;
+      onTap();
+    }
+    if (isDoubleTap) {
+      isDoubleTap = false;
+      onDoubleTap();
+    }
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    isPressed = true;
+    if (doubleTapTimer.isActive) {
+      isDoubleTap = true;
+      doubleTapTimer.cancel();
+    } else {
+      doubleTapTimer = Timer(doubleTapTime, _doubleTapTimerElapsed);
+    }
+  }
+
+  void _onTapCancel() {
+    isPressed = isSingleTap = isDoubleTap = false;
+    if (doubleTapTimer.isActive) {
+      doubleTapTimer.cancel();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      key: key,
+      child: child,
+      onTap: _onTap,
+      onTapDown: _onTapDown,
+      onTapCancel: _onTapCancel,
+    );
+  }
 }

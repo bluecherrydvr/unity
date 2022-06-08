@@ -161,7 +161,7 @@ class DeviceTileState extends State<DeviceTile> {
                                   },
                                   icon: const Icon(
                                     Icons.fullscreen,
-                                    color: Colors.white70,
+                                    color: Colors.white,
                                     size: 32.0,
                                   ),
                                 ),
@@ -285,12 +285,21 @@ class DeviceTileState extends State<DeviceTile> {
               ),
             ),
           )
-        : GestureDetector(
+        : GestureDetectorWithReducedDoubleTapTime(
             onTap: () {
               setState(() {
                 hover = !hover;
               });
             },
+            // Fullscreen on double-tap.
+            onDoubleTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => DeviceFullscreenViewer(
+                  device: widget.device,
+                  ijkPlayer: ijkPlayer,
+                ),
+              ),
+            ),
             child: ClipRect(
               child: Stack(
                 children: [

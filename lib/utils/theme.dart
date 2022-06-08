@@ -212,6 +212,10 @@ ThemeData createTheme({
         color: Colors.white,
         size: 24.0,
       ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18.0,
+        color: Colors.white,
+      ),
     ),
     iconTheme: IconThemeData(
       color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),

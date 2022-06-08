@@ -136,7 +136,12 @@ class API {
               e['category'],
               int.parse(e['content']['_media_id']),
               Duration(milliseconds: int.parse(e['content']['_media_size'])),
-              Uri.parse(e['content']['value']),
+              Uri.parse(
+                e['content']['value'].replaceAll(
+                  'https://',
+                  'https://${server.login}:${Uri.encodeComponent(server.password)}@',
+                ),
+              ),
             ),
           )
           .cast<Event>();

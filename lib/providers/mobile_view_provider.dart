@@ -53,6 +53,15 @@ class MobileViewProvider extends ChangeNotifier {
     4: <Device?>[null, null, null, null],
   };
 
+  /// This map keeps the `bool`s to indicate whether the hover details of a [Device] is shown or not.
+  /// The positioning corresponds to the [devices].
+  /// This is important because camera [Device] tiles lose state upon reorder.
+  Map<int, List<bool>> hoverStates = {
+    1: <bool>[false],
+    2: <bool>[false, false],
+    4: <bool>[false, false, false, false],
+  };
+
   /// Instances of video players corresponding to a particular [Device].
   ///
   /// This avoids redundantly creating new video player instance if a [Device]
@@ -88,6 +97,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// Used for re-ordering camera [DeviceTile]s when dragging.
   Future<void> reorder(int tab, int initial, int end) {
     devices[tab]!.insert(end, devices[tab]!.removeAt(initial));
+    hoverStates[tab]!.insert(end, hoverStates[tab]!.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();
     return _save(notifyListeners: false);

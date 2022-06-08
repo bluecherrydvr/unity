@@ -28,6 +28,8 @@ import 'package:bluecherry_client/widgets/misc.dart';
 
 class DeviceTile extends StatefulWidget {
   final Device device;
+  final int tab;
+  final int index;
 
   /// Taking [Player] as [Widget] argument to avoid disposition responsiblity & [Player] recreations due to UI re-draw.
   final Player? libvlcPlayer;
@@ -38,6 +40,8 @@ class DeviceTile extends StatefulWidget {
   const DeviceTile({
     Key? key,
     required this.device,
+    required this.tab,
+    required this.index,
     this.libvlcPlayer,
     this.width = 640.0,
     this.height = 360.0,
@@ -48,7 +52,6 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  bool hover = false;
   FijkPlayer? ijkPlayer;
   FijkState? ijkState;
 
@@ -59,7 +62,8 @@ class DeviceTileState extends State<DeviceTile> {
     if (isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
         setState(() {
-          hover = false;
+          MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
+              false;
         });
       });
     }
@@ -82,6 +86,12 @@ class DeviceTileState extends State<DeviceTile> {
       setState(() {});
     }
   }
+
+  bool get hover =>
+      MobileViewProvider.instance.hoverStates[widget.tab]![widget.index];
+  set hover(bool value) =>
+      MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
+          value;
 
   Widget get ijkView {
     return StatefulBuilder(

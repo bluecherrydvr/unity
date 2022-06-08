@@ -84,6 +84,8 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
             libvlcPlayer: players.last,
             width: kDeviceTileWidth,
             height: kDeviceTileHeight,
+            tab: -1,
+            index: -1,
           ),
         );
       }

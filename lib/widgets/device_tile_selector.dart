@@ -48,7 +48,11 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
             child: Stack(
               children: [
                 // No longer passing reference to [FijkPlayer].
-                DeviceTile(device: device),
+                DeviceTile(
+                  device: device,
+                  tab: widget.tab,
+                  index: widget.index,
+                ),
                 Positioned(
                   top: 0.0,
                   right: 0.0,

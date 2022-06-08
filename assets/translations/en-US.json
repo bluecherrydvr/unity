@@ -35,5 +35,12 @@
   "reload_camera": "Reload Camera",
   "select_a_camera": "Select a camera to screen",
   "online": "Online",
-  "offline": "Offline"
+  "offline": "Offline",
+  "event_browser": "Event Browser",
+  "last_update": "Last Update",
+  "settings": "Settings",
+  "theme": "Theme",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark"
 }

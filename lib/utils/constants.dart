@@ -30,7 +30,6 @@ const kDeviceTileMargin = 16.0;
 const kLibVLCFlags = [
   '--no-audio',
   '--rtsp-tcp',
-  '--network-caching=150',
   '--network-caching=0',
   '--rtsp-caching=150',
   '--no-stats',

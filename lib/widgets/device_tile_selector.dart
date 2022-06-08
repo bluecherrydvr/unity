@@ -39,20 +39,16 @@ class DeviceTileSelector extends StatefulWidget {
 }
 
 class _DeviceTileSelectorState extends State<DeviceTileSelector> {
-  Device? device;
-
   @override
   Widget build(BuildContext context) {
     final view = MobileViewProvider.instance;
-    device ??= view.devices[widget.tab]![widget.index];
+    final device = view.devices[widget.tab]![widget.index];
     return device != null
         ? Material(
             child: Stack(
               children: [
-                DeviceTile(
-                  device: device!,
-                  ijkPlayer: view.players[device],
-                ),
+                // No longer passing reference to [FijkPlayer].
+                DeviceTile(device: device),
                 Positioned(
                   top: 0.0,
                   right: 0.0,
@@ -84,9 +80,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                         {
                           view.remove(widget.tab, widget.index);
                           if (mounted) {
-                            setState(() {
-                              device = null;
-                            });
+                            setState(() {});
                           }
                           break;
                         }
@@ -101,9 +95,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                           if (result is Device) {
                             view.replace(widget.tab, widget.index, result);
                             if (mounted) {
-                              setState(() {
-                                device = result;
-                              });
+                              setState(() {});
                             }
                           }
                           break;
@@ -167,9 +159,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                   if (result is Device) {
                     view.add(widget.tab, widget.index, result);
                     if (mounted) {
-                      setState(() {
-                        device = result;
-                      });
+                      setState(() {});
                     }
                   }
                 },

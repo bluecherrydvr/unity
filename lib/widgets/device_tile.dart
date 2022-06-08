@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:fijkplayer/fijkplayer.dart';
 
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
@@ -31,8 +32,6 @@ class DeviceTile extends StatefulWidget {
   /// Taking [Player] as [Widget] argument to avoid disposition responsiblity & [Player] recreations due to UI re-draw.
   final Player? libvlcPlayer;
 
-  /// Taking [FijkPlayer] as [Widget] argument to avoid disposition responsiblity & [FijkPlayer] recreations due to UI re-draw.
-  final FijkPlayer? ijkPlayer;
   final double width;
   final double height;
 
@@ -40,7 +39,6 @@ class DeviceTile extends StatefulWidget {
     Key? key,
     required this.device,
     this.libvlcPlayer,
-    this.ijkPlayer,
     this.width = 640.0,
     this.height = 360.0,
   }) : super(key: key);
@@ -51,11 +49,13 @@ class DeviceTile extends StatefulWidget {
 
 class DeviceTileState extends State<DeviceTile> {
   bool hover = false;
-  FijkState? state;
+  FijkPlayer? ijkPlayer;
+  FijkState? ijkState;
 
   @override
   void initState() {
     super.initState();
+    ijkPlayer = MobileViewProvider.instance.players[widget.device];
     if (isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
         setState(() {
@@ -64,21 +64,105 @@ class DeviceTileState extends State<DeviceTile> {
       });
     }
     if (isMobile) {
-      widget.ijkPlayer!.addListener(ijkPlayerListener);
+      ijkPlayer?.addListener(ijkPlayerListener);
     }
   }
 
   @override
   void dispose() {
-    widget.ijkPlayer!.removeListener(ijkPlayerListener);
+    if (isMobile) {
+      ijkPlayer?.removeListener(ijkPlayerListener);
+    }
     super.dispose();
   }
 
   void ijkPlayerListener() {
-    if (widget.ijkPlayer?.state != state) {
-      state = widget.ijkPlayer?.state;
+    if (ijkPlayer?.state != ijkState) {
+      ijkState = ijkPlayer?.state;
       setState(() {});
     }
+  }
+
+  Widget get ijkView {
+    return StatefulBuilder(
+      builder: (context, _) {
+        ijkPlayer = MobileViewProvider.instance.players[widget.device];
+        debugPrint('${widget.device} ${ijkPlayer?.dataSource.toString()}');
+        return FijkView(
+          player: ijkPlayer!,
+          color: Colors.black,
+          fit: FijkFit.fill,
+          panelBuilder: (player, _, ___, ____, _____) => Material(
+            color: Colors.transparent,
+            child: player.value.exception.message != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.warning,
+                          color: Colors.white70,
+                          size: 32.0,
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          player.value.exception.message!.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : [
+                    FijkState.idle,
+                    FijkState.asyncPreparing,
+                  ].contains(player.state)
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                          strokeWidth: 4.4,
+                        ),
+                      )
+                    : hover
+                        ? TweenAnimationBuilder(
+                            tween: Tween<double>(
+                              begin: 0.0,
+                              end: hover ? 1.0 : 0.0,
+                            ),
+                            duration: const Duration(milliseconds: 300),
+                            builder: (context, value, child) => Center(
+                              child: Opacity(
+                                opacity: value as double,
+                                child: IconButton(
+                                  splashRadius: 20.0,
+                                  onPressed: () async {
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DeviceFullscreenViewer(
+                                          device: widget.device,
+                                          ijkPlayer: ijkPlayer,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.fullscreen,
+                                    color: Colors.white70,
+                                    size: 32.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -200,94 +284,13 @@ class DeviceTileState extends State<DeviceTile> {
             child: ClipRect(
               child: Stack(
                 children: [
-                  widget.ijkPlayer == null
+                  ijkPlayer == null
                       ? Container(
                           color: Colors.black,
                           width: double.infinity,
                           height: double.infinity,
                         )
-                      : FijkView(
-                          player: widget.ijkPlayer!,
-                          color: Colors.black,
-                          fit: FijkFit.fill,
-                          panelBuilder: (player, _, ___, ____, _____) =>
-                              Scaffold(
-                            backgroundColor: Colors.transparent,
-                            body: player.value.exception.message != null
-                                ? Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.warning,
-                                          color: Colors.white70,
-                                          size: 32.0,
-                                        ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          player.value.exception.message!
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : [
-                                    FijkState.idle,
-                                    FijkState.asyncPreparing,
-                                  ].contains(player.state)
-                                    ? const Center(
-                                        child: CircularProgressIndicator(
-                                          valueColor: AlwaysStoppedAnimation(
-                                              Colors.white),
-                                          strokeWidth: 4.4,
-                                        ),
-                                      )
-                                    : hover
-                                        ? TweenAnimationBuilder(
-                                            tween: Tween<double>(
-                                              begin: 0.0,
-                                              end: hover ? 1.0 : 0.0,
-                                            ),
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            builder: (context, value, child) =>
-                                                Center(
-                                              child: Opacity(
-                                                opacity: value as double,
-                                                child: IconButton(
-                                                  splashRadius: 20.0,
-                                                  onPressed: () async {
-                                                    await Navigator.of(context)
-                                                        .push(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            DeviceFullscreenViewer(
-                                                          device: widget.device,
-                                                          ijkPlayer:
-                                                              widget.ijkPlayer,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.fullscreen,
-                                                    color: Colors.white70,
-                                                    size: 32.0,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
-                          ),
-                        ),
+                      : ijkView,
                   Positioned(
                     bottom: 0.0,
                     left: 0.0,
@@ -370,7 +373,7 @@ class DeviceFullscreenViewer extends StatefulWidget {
 
 class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
   bool overlay = false;
-  FijkState? state;
+  FijkState? fijkState;
   FijkFit fit = FijkFit.contain;
 
   @override
@@ -386,9 +389,9 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
   }
 
   void ijkPlayerListener() {
-    debugPrint(state.toString());
-    if (widget.ijkPlayer?.state != state) {
-      state = widget.ijkPlayer?.state;
+    debugPrint(fijkState.toString());
+    if (widget.ijkPlayer?.state != fijkState) {
+      fijkState = widget.ijkPlayer?.state;
       setState(() {});
     }
   }

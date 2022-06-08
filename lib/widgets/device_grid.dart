@@ -293,13 +293,22 @@ class _MobileDeviceGridChild extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MobileViewProvider>(builder: (context, view, _) {
       if (tab == 1) {
-        return const DeviceTileSelector(key: ValueKey('1^0'), index: 0, tab: 1);
+        return DeviceTileSelector(
+          key: ValueKey(Random().nextInt(1 << 32)),
+          index: 0,
+          tab: 1,
+        );
       }
       final children = view.devices[tab]!
           .asMap()
           .keys
-          .map((e) =>
-              DeviceTileSelector(key: ValueKey('$tab^$e'), index: e, tab: tab))
+          .map(
+            (e) => DeviceTileSelector(
+              key: ValueKey(Random().nextInt(1 << 32)),
+              index: e,
+              tab: tab,
+            ),
+          )
           .toList();
       return Container(
         color: Colors.black,

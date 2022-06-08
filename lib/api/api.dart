@@ -91,7 +91,10 @@ class API {
                 server,
               ),
             )
-            .cast<Device>(),
+            .toList()
+            .cast<Device>()
+          // cause `online` devies to show on top.
+          ..sort((a, b) => a.status ? 0 : 1),
       );
       return true;
     } catch (exception, stacktrace) {

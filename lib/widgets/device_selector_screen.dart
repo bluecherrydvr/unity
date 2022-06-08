@@ -48,50 +48,77 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    /// TODO: Currently only single server is implemented.
-    final server = ServersProvider.instance.servers.first;
     return Scaffold(
       appBar: AppBar(
         title: Text('select_a_camera'.tr()),
       ),
-      body: FutureBuilder(
-        future: (() async => server.devices.isEmpty
-            ? API.instance
-                .getDevices(await API.instance.checkServerCredentials(server))
-            : true)(),
-        builder: (context, snapshot) {
-          return snapshot.hasData
-              ? ListView.builder(
-                  itemCount: server.devices.length,
-                  itemBuilder: (context, index) => ListTile(
-                    enabled: server.devices[index].status,
-                    leading: CircleAvatar(
-                      child: const Icon(Icons.camera_alt),
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Theme.of(context).iconTheme.color,
-                    ),
-                    isThreeLine: true,
-                    title: Text(
-                      server.devices[index].name
-                          .split(' ')
-                          .map((e) => e[0].toUpperCase() + e.substring(1))
-                          .join(' '),
-                    ),
-                    subtitle: Text([
-                      server.devices[index].status
-                          ? 'online'.tr()
-                          : 'offline'.tr(),
-                      server.devices[index].uri,
-                      '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}\n${server.name}',
-                    ].join(' • ')),
-                    onTap: () {
-                      Navigator.of(context).pop(server.devices[index]);
-                    },
-                  ),
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                );
+      body: ListView.builder(
+        itemCount: ServersProvider.instance.servers.length,
+        itemBuilder: (context, i) {
+          final server = ServersProvider.instance.servers[i];
+          return FutureBuilder(
+            future: (() async => server.devices.isEmpty
+                ? API.instance.getDevices(
+                    await API.instance.checkServerCredentials(server))
+                : true)(),
+            builder: (context, snapshot) {
+              return snapshot.hasData
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: server.devices.length + 1,
+                      itemBuilder: (context, index) => index == 0
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24.0,
+                                vertical: 16.0,
+                              ),
+                              child: Text(
+                                server.name.toUpperCase(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .overline
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            )
+                          : () {
+                              index--;
+                              return ListTile(
+                                enabled: server.devices[index].status,
+                                leading: CircleAvatar(
+                                  child: const Icon(Icons.camera_alt),
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor:
+                                      Theme.of(context).iconTheme.color,
+                                ),
+                                title: Text(
+                                  server.devices[index].name
+                                      .split(' ')
+                                      .map((e) =>
+                                          e[0].toUpperCase() + e.substring(1))
+                                      .join(' '),
+                                ),
+                                subtitle: Text([
+                                  server.devices[index].status
+                                      ? 'online'.tr()
+                                      : 'offline'.tr(),
+                                  server.devices[index].uri,
+                                  '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                                ].join(' • ')),
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(server.devices[index]);
+                                },
+                              );
+                            }(),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    );
+            },
+          );
         },
       ),
     );

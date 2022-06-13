@@ -131,8 +131,12 @@ class API {
               server,
               int.parse(e['id']['_raw']),
               e['title'],
-              DateTime.parse(e['published']),
-              DateTime.parse(e['updated']),
+              e['published'] == null
+                  ? DateTime.now()
+                  : DateTime.parse(e['published']),
+              e['updated'] == null
+                  ? DateTime.now()
+                  : DateTime.parse(e['updated']),
               e['category'],
               int.parse(e['content']['_media_id']),
               Duration(milliseconds: int.parse(e['content']['_media_size'])),

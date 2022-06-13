@@ -87,7 +87,7 @@ class MobileViewProvider extends ChangeNotifier {
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in current) {
         if (device != null) {
-          players[device] = _getVideoPlayerController(device);
+          players[device] = getVideoPlayerController(device);
         }
       }
     }
@@ -114,7 +114,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
     for (final device in items) {
       if (!players.keys.contains(device) && device != null) {
-        players[device] = _getVideoPlayerController(device);
+        players[device] = getVideoPlayerController(device);
       }
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
@@ -159,7 +159,7 @@ class MobileViewProvider extends ChangeNotifier {
     if (!devices[tab]!.contains(device)) {
       debugPrint(device.toString());
       debugPrint(device.streamURL);
-      players[device] = _getVideoPlayerController(device);
+      players[device] = getVideoPlayerController(device);
     }
     devices[tab]![index] = device;
     notifyListeners();
@@ -246,7 +246,7 @@ class MobileViewProvider extends ChangeNotifier {
   }
 
   /// Helper method to create a video player with required configuration for a [Device].
-  FijkPlayer _getVideoPlayerController(Device device) {
+  FijkPlayer getVideoPlayerController(Device device) {
     final player = FijkPlayer()
       ..setDataSource(
         device.streamURL,

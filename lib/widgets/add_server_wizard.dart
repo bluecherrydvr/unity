@@ -879,7 +879,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               )
             : null,
         body: body,
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             widget.controller.nextPage(
               duration: const Duration(milliseconds: 300),
@@ -887,7 +887,8 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             );
           },
           backgroundColor: Theme.of(context).colorScheme.secondary,
-          child: const Icon(Icons.check),
+          label: Text('finish'.tr().toUpperCase()),
+          icon: const Icon(Icons.check),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),

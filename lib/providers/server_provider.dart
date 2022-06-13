@@ -38,6 +38,8 @@ class ServersProvider extends ChangeNotifier {
     return instance;
   }
 
+  bool get serverAdded => servers.isNotEmpty;
+
   List<Server> servers = <Server>[];
 
   /// Called by [ensureInitialized].

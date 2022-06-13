@@ -254,12 +254,7 @@ class MobileViewProvider extends ChangeNotifier {
       )
       ..setVolume(0.0)
       ..setSpeed(1.0)
-      ..setOption(
-        FijkOption.playerCategory,
-        "packet-buffering",
-        "0",
-      );
-
+      ..setOption(FijkOption.playerCategory, 'packet-buffering', '0');
     return player;
   }
 

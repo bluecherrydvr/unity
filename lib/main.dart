@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -58,7 +59,8 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      theme: createTheme(),
+      theme: createTheme(themeMode: ThemeMode.light),
+      darkTheme: createTheme(themeMode: ThemeMode.dark),
       home: const MyHomePage(),
     );
   }
@@ -83,7 +85,9 @@ class _MyHomePageState extends State<MyHomePage> {
           create: (context) => ServersProvider.instance,
         ),
       ],
-      builder: (context, child) => const MobileDeviceGrid(),
+      builder: (context, child) => ServersProvider.instance.serverAdded
+          ? const DeviceGrid()
+          : const AddServerWizard(),
     );
   }
 }

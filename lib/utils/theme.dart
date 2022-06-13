@@ -194,7 +194,7 @@ ThemeData createTheme({
           isLight ? Colors.black54 : Colors.white.withOpacity(0.67),
     ),
     popupMenuTheme: PopupMenuThemeData(
-      elevation: 2.0,
+      elevation: 4.0,
       color: isLight ? Colors.white : const Color(0xFF292929),
     ),
     appBarTheme: AppBarTheme(

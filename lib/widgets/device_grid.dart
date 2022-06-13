@@ -35,6 +35,21 @@ import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 
+class DeviceGrid extends StatelessWidget {
+  const DeviceGrid({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (isDesktop) {
+      // TODO: missing implementation.
+      // WIP: [DesktopDeviceGrid].
+      throw Exception('[DeviceGrid] is not supported on desktop.');
+    } else {
+      return const MobileDeviceGrid();
+    }
+  }
+}
+
 /// A draggable grid view showing [DeviceTile]s to the user.
 class DesktopDeviceGrid extends StatefulWidget {
   final Server server;
@@ -133,7 +148,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   }
 }
 
-const double kBottomBarHeight = 48.0;
+const double kMobileBottomBarHeight = 48.0;
 
 class MobileDeviceGrid extends StatefulWidget {
   const MobileDeviceGrid({
@@ -207,7 +222,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
               child: Material(
                 color: Theme.of(context).primaryColor,
                 child: Container(
-                  height: kBottomBarHeight,
+                  height: kMobileBottomBarHeight,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   width: MediaQuery.of(context).size.width,
                   child: Row(
@@ -303,11 +318,11 @@ class _MobileDeviceGridChild extends StatelessWidget {
       }
       final children = view.devices[tab]!
           .asMap()
-          .keys
+          .entries
           .map(
             (e) => DeviceTileSelector(
-              key: ValueKey(Random().nextInt(1 << 32)),
-              index: e,
+              key: ValueKey(e.value),
+              index: e.key,
               tab: tab,
             ),
           )
@@ -327,13 +342,13 @@ class _MobileDeviceGridChild extends StatelessWidget {
             4: (MediaQuery.of(context).size.width -
                     MediaQuery.of(context).padding.horizontal) /
                 (MediaQuery.of(context).size.height -
-                    kBottomBarHeight -
+                    kMobileBottomBarHeight -
                     MediaQuery.of(context).padding.bottom),
             2: (MediaQuery.of(context).size.width -
                     MediaQuery.of(context).padding.horizontal) *
                 0.5 /
                 (MediaQuery.of(context).size.height -
-                    kBottomBarHeight -
+                    kMobileBottomBarHeight -
                     MediaQuery.of(context).padding.bottom),
           }[tab]!,
           mainAxisSpacing: 0.0,

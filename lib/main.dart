@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +25,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/device_grid.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 

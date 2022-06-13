@@ -47,5 +47,6 @@
   "events_browser": "Events Browser",
   "add_server": "Add Server",
   "settings": "Settings",
-  "no_servers_added": "No servers added."
+  "no_servers_added": "No servers added.",
+  "press_back_again_to_exit": "Press back button again to exit"
 }

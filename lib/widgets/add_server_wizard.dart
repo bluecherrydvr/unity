@@ -829,7 +829,8 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ...List.generate(4, (index) => 'tip_$index'.tr()).map(
+                ...List.generate(kInAppTipsCount, (index) => 'tip_$index'.tr())
+                    .map(
                   (e) => Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 8.0,

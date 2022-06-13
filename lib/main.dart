@@ -20,6 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
@@ -67,6 +68,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  DateTime? timeout;
+
+  Future<bool> onWillPop() {
+    DateTime now = DateTime.now();
+    if (timeout == null ||
+        now.difference(timeout ?? now) > const Duration(seconds: 2)) {
+      timeout = now;
+      Fluttertoast.showToast(msg: 'press_back_again_to_exit'.tr());
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -78,7 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
           create: (context) => ServersProvider.instance,
         ),
       ],
-      builder: (context, child) => const Home(),
+      builder: (context, child) => WillPopScope(
+        onWillPop: onWillPop,
+        child: const Home(),
+      ),
     );
   }
 }

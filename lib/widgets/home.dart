@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/widgets/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:animations/animations.dart';
@@ -170,6 +171,7 @@ class _MobileHomeState extends State<MobileHome> {
           AddServerWizard(
             onFinish: () => setState(() => tab = 0),
           ),
+          const Settings(),
         ][tab],
         transitionBuilder: (child, animation, secondaryAnimation) =>
             FadeThroughTransition(

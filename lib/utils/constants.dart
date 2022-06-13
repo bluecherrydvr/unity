@@ -17,6 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// Default port used in Bluecherry DVR server.
+const kDefaultPort = 7001;
+
+/// Default username used in Bluecherry DVR server.
+const kDefaultUsername = 'Admin';
+
+/// Default password used in Bluecherry DVR server.
+const kDefaultPassword = 'bluecherry';
+
+/// Number of tips present in the app.
+const kInAppTipsCount = 4;
+
+/// Keys used for storing data in cache using `package:shared_preferences`.
+
+const kSharedPreferencesServers = 'servers';
+const kSharedPreferencesMobileView = 'mobile_view';
+const kSharedPreferencesMobileViewTab = 'mobile_view_current_tab';
+
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;
 
@@ -26,7 +44,7 @@ const kDeviceTileHeight = 360.0;
 /// Margin between & around a [DeviceTile]. Only relevant on desktop.
 const kDeviceTileMargin = 16.0;
 
-/// Default libVLC flags used while rendering the video output.
+/// Default libVLC flags used while rendering the video output. Only relevant on desktop.
 const kLibVLCFlags = [
   '--no-audio',
   '--rtsp-tcp',
@@ -37,18 +55,3 @@ const kLibVLCFlags = [
   '--rtsp-frame-buffer-size=500000',
   '--realrtsp-caching=150',
 ];
-
-/// Default port used in Bluecherry DVR server.
-const kDefaultPort = 7001;
-
-/// Default username used in Bluecherry DVR server.
-const kDefaultUsername = 'Admin';
-
-/// Default password used in Bluecherry DVR server.
-const kDefaultPassword = 'bluecherry';
-
-/// Keys used for storing data in cache using `package:shared_preferences`.
-
-const kSharedPreferencesServers = 'servers';
-const kSharedPreferencesMobileView = 'mobile_view';
-const kSharedPreferencesMobileViewTab = 'mobile_view_current_tab';

@@ -23,11 +23,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 ThemeData createTheme({
-  Color color = const Color(0xff3949ab),
-  Color accent = const Color(0xffff4081),
   ThemeMode themeMode = ThemeMode.light,
 }) {
   bool isLight = themeMode == ThemeMode.light;
+  final color = isLight ? Colors.indigo : Colors.indigo.shade500;
+  const accent = Color(0xffff4081);
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     textTheme = TextTheme(
@@ -87,32 +87,32 @@ ThemeData createTheme({
     textTheme = TextTheme(
       headline1: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black87 : Colors.white,
         fontSize: 18.0,
       ),
       headline2: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black87 : Colors.white,
         fontSize: 16.0,
       ),
       headline3: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.54),
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 14.0,
       ),
       headline4: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black87 : Colors.white,
         fontSize: 14.0,
       ),
       headline5: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.54),
+        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.87),
         fontSize: 14.0,
       ),
       headline6: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black87 : Colors.white,
         fontSize: 18.0,
       ),
     );
@@ -170,6 +170,8 @@ ThemeData createTheme({
         },
       ),
     ),
+    buttonTheme: ButtonThemeData(
+        disabledColor: isLight ? Colors.black12 : Colors.white24),
     splashFactory: InkRipple.splashFactory,
     primaryColorLight: color,
     primaryColor: color,
@@ -182,6 +184,18 @@ ThemeData createTheme({
       actionTextColor: color,
       contentTextStyle: textTheme.headline4?.copyWith(
         color: isLight ? Colors.white : Colors.black,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      enabledBorder: OutlineInputBorder(
+        borderSide:
+            BorderSide(color: isLight ? Colors.black26 : Colors.white24),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: color,
+          width: 2.0,
+        ),
       ),
     ),
     cardColor: isLight ? Colors.white : const Color(0xFF242424),
@@ -197,11 +211,14 @@ ThemeData createTheme({
       elevation: 4.0,
       color: isLight ? Colors.white : const Color(0xFF292929),
     ),
+    drawerTheme: DrawerThemeData(
+      backgroundColor: isLight ? Colors.white : const Color(0xFF141414),
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: color,
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: isLight ? Colors.white12 : Colors.black12,
-        statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: Colors.white12,
+        statusBarIconBrightness: Brightness.light,
       ),
       elevation: 4.0,
       iconTheme: const IconThemeData(

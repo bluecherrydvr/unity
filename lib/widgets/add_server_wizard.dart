@@ -61,6 +61,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
         statusBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
           alignment: Alignment.center,
           children: [
@@ -694,6 +695,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     }
     return WillPopScope(
       child: Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             leading: NavigatorPopButton(
               color: Colors.white,
@@ -879,6 +881,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
     }
     return WillPopScope(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: isMobile
             ? AppBar(
                 leading: widget.getServer() != null

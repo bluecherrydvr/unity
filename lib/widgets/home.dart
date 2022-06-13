@@ -63,16 +63,6 @@ class _MobileHomeState extends State<MobileHome> {
   };
 
   @override
-  void initState() {
-    super.initState();
-    // Switch to landscape mode & hide the status bar.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -165,15 +155,13 @@ class _MobileHomeState extends State<MobileHome> {
       ),
       body: PageTransitionSwitcher(
         duration: const Duration(milliseconds: 300),
-        child: [
-          const DeviceGrid(),
-          const DirectCameraScreen(),
-          const EventsScreen(),
-          AddServerWizard(
-            onFinish: () => setState(() => tab = 0),
-          ),
-          const Settings(),
-        ][tab],
+        child: <int, Widget Function()>{
+          0: () => const DeviceGrid(),
+          1: () => const DirectCameraScreen(),
+          2: () => const EventsScreen(),
+          3: () => AddServerWizard(onFinish: () => setState(() => tab = 0)),
+          4: () => const Settings(),
+        }[tab]!(),
         transitionBuilder: (child, animation, secondaryAnimation) =>
             FadeThroughTransition(
           child: child,

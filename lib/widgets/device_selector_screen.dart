@@ -52,79 +52,102 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
       appBar: AppBar(
         title: Text('select_a_camera'.tr()),
       ),
-      body: ListView.builder(
-        itemCount: ServersProvider.instance.servers.length,
-        itemBuilder: (context, i) {
-          final server = ServersProvider.instance.servers[i];
-          return FutureBuilder(
-            future: (() async => server.devices.isEmpty
-                ? API.instance.getDevices(
-                    await API.instance.checkServerCredentials(server))
-                : true)(),
-            builder: (context, snapshot) {
-              return snapshot.hasData
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: server.devices.length + 1,
-                      itemBuilder: (context, index) => index == 0
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24.0,
-                                vertical: 16.0,
-                              ),
-                              child: Text(
-                                server.name.toUpperCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .overline
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w500,
+      body: ServersProvider.instance.servers.isEmpty
+          ? Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.dns,
+                    size: 72.0,
+                    color: Theme.of(context).iconTheme.color?.withOpacity(0.8),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    'no_servers_added'.tr(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        ?.copyWith(fontSize: 16.0),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              itemCount: ServersProvider.instance.servers.length,
+              itemBuilder: (context, i) {
+                final server = ServersProvider.instance.servers[i];
+                return FutureBuilder(
+                  future: (() async => server.devices.isEmpty
+                      ? API.instance.getDevices(
+                          await API.instance.checkServerCredentials(server))
+                      : true)(),
+                  builder: (context, snapshot) {
+                    return snapshot.hasData
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: server.devices.length + 1,
+                            itemBuilder: (context, index) => index == 0
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24.0,
+                                      vertical: 16.0,
                                     ),
-                              ),
-                            )
-                          : () {
-                              index--;
-                              return ListTile(
-                                enabled: server.devices[index].status,
-                                leading: CircleAvatar(
-                                  child: const Icon(Icons.camera_alt),
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor:
-                                      Theme.of(context).iconTheme.color,
-                                ),
-                                title: Text(
-                                  server.devices[index].name
-                                      .split(' ')
-                                      .map((e) =>
-                                          e[0].toUpperCase() + e.substring(1))
-                                      .join(' '),
-                                ),
-                                subtitle: Text([
-                                  server.devices[index].status
-                                      ? 'online'.tr()
-                                      : 'offline'.tr(),
-                                  server.devices[index].uri,
-                                  '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                ].join(' • ')),
-                                onTap: () {
-                                  Navigator.of(context)
-                                      .pop(server.devices[index]);
-                                },
-                              );
-                            }(),
-                    )
-                  : Center(
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 72.0,
-                        child: const CircularProgressIndicator(),
-                      ),
-                    );
-            },
-          );
-        },
-      ),
+                                    child: Text(
+                                      server.name.toUpperCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .overline
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                  )
+                                : () {
+                                    index--;
+                                    return ListTile(
+                                      enabled: server.devices[index].status,
+                                      leading: CircleAvatar(
+                                        child: const Icon(Icons.camera_alt),
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor:
+                                            Theme.of(context).iconTheme.color,
+                                      ),
+                                      title: Text(
+                                        server.devices[index].name
+                                            .split(' ')
+                                            .map((e) =>
+                                                e[0].toUpperCase() +
+                                                e.substring(1))
+                                            .join(' '),
+                                      ),
+                                      subtitle: Text([
+                                        server.devices[index].status
+                                            ? 'online'.tr()
+                                            : 'offline'.tr(),
+                                        server.devices[index].uri,
+                                        '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                                      ].join(' • ')),
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .pop(server.devices[index]);
+                                      },
+                                    );
+                                  }(),
+                          )
+                        : Center(
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 156.0,
+                              child: const CircularProgressIndicator(),
+                            ),
+                          );
+                  },
+                );
+              },
+            ),
     );
   }
 }

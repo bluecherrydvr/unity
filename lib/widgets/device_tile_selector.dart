@@ -77,6 +77,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                   ),
                 ),
                 PopupMenuButton<int>(
+                  tooltip: '',
                   elevation: 4.0,
                   onSelected: (value) async {
                     switch (value) {

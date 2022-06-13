@@ -26,9 +26,14 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 class AddServerWizard extends StatefulWidget {
-  const AddServerWizard({Key? key}) : super(key: key);
+  final VoidCallback onFinish;
+  const AddServerWizard({
+    Key? key,
+    required this.onFinish,
+  }) : super(key: key);
 
   @override
   State<AddServerWizard> createState() => _AddServerWizardState();
@@ -39,8 +44,22 @@ class _AddServerWizardState extends State<AddServerWizard> {
   final PageController controller = PageController();
 
   @override
+  void initState() {
+    super.initState();
+    StatusBarControl.setHidden(false);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.white12,
+        statusBarIconBrightness: Brightness.light,
+      ),
       child: Scaffold(
         body: Stack(
           alignment: Alignment.center,
@@ -227,6 +246,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                   LetsGoScreen(
                     controller: controller,
                     getServer: getServer,
+                    onFinish: widget.onFinish,
                   ),
                 ],
               ),
@@ -234,7 +254,6 @@ class _AddServerWizardState extends State<AddServerWizard> {
           ],
         ),
       ),
-      value: SystemUiOverlayStyle.dark,
     );
   }
 
@@ -709,10 +728,12 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 class LetsGoScreen extends StatefulWidget {
   final PageController controller;
   final Server? Function() getServer;
+  final VoidCallback onFinish;
   const LetsGoScreen({
     Key? key,
     required this.controller,
     required this.getServer,
+    required this.onFinish,
   }) : super(key: key);
 
   @override
@@ -881,10 +902,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
         body: body,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            widget.controller.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
+            widget.onFinish.call();
           },
           backgroundColor: Theme.of(context).colorScheme.secondary,
           label: Text('finish'.tr().toUpperCase()),

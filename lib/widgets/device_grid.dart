@@ -168,23 +168,12 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    StatusBarControl.setHidden(
-      true,
-      animation: StatusBarAnimation.SLIDE,
-    );
+    StatusBarControl.setHidden(true);
   }
 
   @override
   void dispose() {
-    // Restore default configuration for status bar & screen orientation.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    StatusBarControl.setHidden(
-      false,
-      animation: StatusBarAnimation.SLIDE,
-    );
+    StatusBarControl.setHidden(false);
     super.dispose();
   }
 
@@ -228,7 +217,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   child: Row(
                     children: <Widget>[
                           IconButton(
-                            onPressed: () {},
+                            onPressed: Scaffold.of(context).openDrawer,
                             icon: const Icon(Icons.menu),
                             iconSize: 18.0,
                             color: Colors.white,
@@ -321,7 +310,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
           .entries
           .map(
             (e) => DeviceTileSelector(
-              key: ValueKey(e.value),
+              key: ValueKey(e.value ?? Random().nextInt(1 << 32)),
               index: e.key,
               tab: tab,
             ),

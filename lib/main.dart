@@ -18,15 +18,13 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/widgets/add_server_wizard.dart';
-import 'package:bluecherry_client/widgets/device_grid.dart';
+import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 
 Future<void> main() async {
@@ -35,11 +33,6 @@ Future<void> main() async {
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
   await DartVLC.initialize();
-
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en', 'US')],
@@ -85,9 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
           create: (context) => ServersProvider.instance,
         ),
       ],
-      builder: (context, child) => ServersProvider.instance.serverAdded
-          ? const DeviceGrid()
-          : const AddServerWizard(),
+      builder: (context, child) => const Home(),
     );
   }
 }

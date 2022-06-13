@@ -19,16 +19,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/api/api.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:fijkplayer_skin/fijkplayer_skin.dart';
 import 'package:fijkplayer_skin/schema.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/api/api.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({Key? key}) : super(key: key);
@@ -44,6 +45,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await fetch();
       setState(() {
@@ -69,86 +71,120 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          splashRadius: 20.0,
+          onPressed: Scaffold.of(context).openDrawer,
+        ),
         title: Text('event_browser'.tr()),
       ),
-      body: RefreshIndicator(
-        onRefresh: fetch,
-        child: ListView(
-          children: ServersProvider.instance.servers
-              .map(
-                (e) => ExpansionTile(
-                  initiallyExpanded:
-                      ServersProvider.instance.servers.length.compareTo(1) == 0,
-                  maintainState: true,
-                  leading: CircleAvatar(
-                    child: Icon(
-                      Icons.language,
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-                    backgroundColor: Colors.transparent,
+      body: ServersProvider.instance.servers.isEmpty
+          ? Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.dns,
+                    size: 72.0,
+                    color: Theme.of(context).iconTheme.color?.withOpacity(0.8),
                   ),
-                  title: Text(
-                    e.name,
+                  const SizedBox(height: 8.0),
+                  Text(
+                    'no_servers_added'.tr(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        ?.copyWith(fontSize: 16.0),
                   ),
-                  subtitle: e.name != e.ip
-                      ? Text(
-                          e.ip,
-                        )
-                      : null,
-                  children: isFirstTimeLoading
-                      ? <Widget>[
-                          const SizedBox(
-                            height: 96.0,
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        ]
-                      : events[e]!
-                          .map(
-                            (event) => ListTile(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        EventPlayerScreen(event: event),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: fetch,
+              child: ListView(
+                children: ServersProvider.instance.servers
+                    .map(
+                      (e) => ExpansionTile(
+                        initiallyExpanded: ServersProvider
+                                .instance.servers.length
+                                .compareTo(1) ==
+                            0,
+                        maintainState: true,
+                        leading: CircleAvatar(
+                          child: Icon(
+                            Icons.language,
+                            color: Theme.of(context).iconTheme.color,
+                          ),
+                          backgroundColor: Colors.transparent,
+                        ),
+                        title: Text(
+                          e.name,
+                        ),
+                        subtitle: e.name != e.ip
+                            ? Text(
+                                e.ip,
+                              )
+                            : null,
+                        children: isFirstTimeLoading
+                            ? <Widget>[
+                                const SizedBox(
+                                  height: 96.0,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                );
-                              },
-                              title: Text(
-                                event.title
-                                    .split('device')
-                                    .last
-                                    .trim()
-                                    .split(' ')
-                                    .map((e) => e.isEmpty
-                                        ? ''
-                                        : e[0].toUpperCase() + e.substring(1))
-                                    .join(' '),
-                              ),
-                              subtitle: Text(
-                                [
-                                  event.title.split('event on').first.trim(),
-                                  DateFormat.yMMMEd('en_US')
-                                      .add_jms()
-                                      .format(event.updated),
-                                ].join(' • '),
-                              ),
-                              leading: CircleAvatar(
-                                child: Icon(
-                                  Icons.warning,
-                                  color: Theme.of(context).iconTheme.color,
-                                ),
-                                backgroundColor: Colors.transparent,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+                                )
+                              ]
+                            : events[e]!
+                                .map(
+                                  (event) => ListTile(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EventPlayerScreen(event: event),
+                                        ),
+                                      );
+                                    },
+                                    title: Text(
+                                      event.title
+                                          .split('device')
+                                          .last
+                                          .trim()
+                                          .split(' ')
+                                          .map((e) => e.isEmpty
+                                              ? ''
+                                              : e[0].toUpperCase() +
+                                                  e.substring(1))
+                                          .join(' '),
+                                    ),
+                                    subtitle: Text(
+                                      [
+                                        event.title
+                                            .split('event on')
+                                            .first
+                                            .trim(),
+                                        DateFormat.yMMMEd('en_US')
+                                            .add_jms()
+                                            .format(event.updated),
+                                      ].join(' • '),
+                                    ),
+                                    leading: CircleAvatar(
+                                      child: Icon(
+                                        Icons.warning,
+                                        color:
+                                            Theme.of(context).iconTheme.color,
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
     );
   }
 }

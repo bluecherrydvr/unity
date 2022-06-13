@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_windows:
-    name: Bluecherry Client Windows
-    runs-on: windows-latest
+  build_android:
+    name: Bluecherry Client Android
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -17,11 +17,26 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - run: flutter config --enable-windows-desktop
+      # - name: Create Key Store
+      #   id: create_key_store
+      #   uses: timheuer/base64-to-file@v1
+      #   with:
+      #     fileName: "keystore.pfx"
+      #     encodedString: ${{ secrets.KEY_STORE }}
+      # - name: Create Key Properties
+      #   id: create_key_properties
+      #   uses: timheuer/base64-to-file@v1
+      #   with:
+      #     fileName: "key.properties"
+      #     encodedString: ${{ secrets.KEY_PROPERTIES }}
+      # - run: cp "${{ steps.create_key_store.outputs.filePath }}" android/app/keystore.jks
+      # - run: cp "${{ steps.create_key_properties.outputs.filePath }}" android/key.properties
+      - run: flutter pub upgrade
       - run: flutter pub get
-      - run: flutter build windows
-      - run: cp -r build/windows/runner/Release bluecherry-client-windows-exe
-      - run: tar.exe -a -c -f bluecherry-client-windows-exe.zip bluecherry-client-windows-exe
+      - run: flutter build apk --verbose
+      - run: cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk bluecherry-arm64-v8a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-armeabi-v7a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-x86_64-release.apk
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -30,5 +45,36 @@ jobs:
           body: ""
           tag_name: "vnext"
           files: |
-            bluecherry-client-windows-exe.zip
-          token: ${{ secrets.GITHUB_TOKEN }}
+            bluecherry-arm64-v8a-release.apk
+            bluecherry-armeabi-v7a-release.apk
+            bluecherry-x86_64-release.apk
+          token: ${{ secrets.ACCESS_TOKEN }}
+
+  # Desktop implementations needs work.
+  #
+  # build_windows:
+  #   name: Bluecherry Client Windows
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         submodules: recursive
+  #     - uses: subosito/flutter-action@v1
+  #       with:
+  #         channel: "stable"
+  #     - run: flutter config --enable-windows-desktop
+  #     - run: flutter pub get
+  #     - run: flutter build windows
+  #     - run: cp -r build/windows/runner/Release bluecherry-client-windows-exe
+  #     - run: tar.exe -a -c -f bluecherry-client-windows-exe.zip bluecherry-client-windows-exe
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         draft: true
+  #         prerelease: false
+  #         body: ""
+  #         tag_name: "vnext"
+  #         files: |
+  #           bluecherry-client-windows-exe.zip
+  #         token: ${{ secrets.GITHUB_TOKEN }}

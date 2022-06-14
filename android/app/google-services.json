@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "566924157760",
+    "project_id": "bluecherry-dvr",
+    "storage_bucket": "bluecherry-dvr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566924157760:android:823c30ce3f3d6a4d15d0a5",
+        "android_client_info": {
+          "package_name": "com.bluecherrydvr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "566924157760-9qarhvcpgcd5gtqn40seeouu5qb7prj2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bluecherrydvr",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "566924157760-jqg9tcd8hlfaidu842m26c5nf7p53nud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLw0MR-tHFO2XjkGazNB5u29x0rfrn4QY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566924157760-jqg9tcd8hlfaidu842m26c5nf7p53nud.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

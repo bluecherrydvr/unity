@@ -48,6 +48,8 @@ dependencies:
   intl: ^0.17.0
   fijkplayer_skin: ^2.2.8
   fluttertoast: ^8.0.9
+  firebase_core: ^1.17.1
+  firebase_messaging: ^11.4.1
 
 dependency_overrides:
   dart_vlc_ffi:

@@ -27,6 +27,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/firebase_options.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 
 const channel = AndroidNotificationChannel(
   'com.bluecherrydvr',
@@ -40,7 +41,7 @@ const channel = AndroidNotificationChannel(
 final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 /// Callbacks received from the [FirebaseMessaging] instance.
-Future<void> firebaseMessagingHandler(RemoteMessage message) async {
+Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint(message.toMap().toString());
   final notification = FlutterLocalNotificationsPlugin();
@@ -50,12 +51,13 @@ Future<void> firebaseMessagingHandler(RemoteMessage message) async {
       ?.createNotificationChannel(channel);
   notification.show(
     message.data.hashCode,
-    message.data['eventType'],
-    '${message.data['deviceId']} • ${message.data['deviceName']}',
+    getEventNameFromID(message.data['eventType']),
+    '${message.data['deviceName']}',
     NotificationDetails(
       android: AndroidNotificationDetails(
         channel.id,
         channel.name,
+        icon: 'drawable/ic_stat_linked_camera',
       ),
     ),
   );
@@ -70,17 +72,18 @@ abstract class FirebaseConfiguration {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingHandler);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint(message.toMap().toString());
       flutterLocalNotificationsPlugin.show(
         message.data.hashCode,
-        message.data['eventType'],
-        '${message.data['deviceId']} • ${message.data['deviceName']}',
+        getEventNameFromID(message.data['eventType']),
+        '${message.data['deviceName']}',
         NotificationDetails(
           android: AndroidNotificationDetails(
             channel.id,
             channel.name,
+            icon: 'drawable/ic_stat_linked_camera',
           ),
         ),
       );

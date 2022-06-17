@@ -29,6 +29,7 @@ import 'package:status_bar_control/status_bar_control.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/device_tile.dart';
@@ -305,17 +306,23 @@ class _MobileDeviceGridChild extends StatelessWidget {
           tab: 1,
         );
       }
-      final children = view.devices[tab]!
-          .asMap()
-          .entries
-          .map(
-            (e) => DeviceTileSelector(
-              key: ValueKey(e.value ?? Random().nextInt(1 << 32)),
-              index: e.key,
-              tab: tab,
-            ),
-          )
-          .toList();
+      // Since, multiple tiles showing same camera can exist in a same tab.
+      // This [Map] is used for assigning unique [ValueKey] to each.
+      final counts = <Device?, int>{};
+      for (final device in view.devices[tab]!) {
+        counts[device] = !counts.containsKey(device) ? 1 : counts[device]! + 1;
+      }
+      final children = view.devices[tab]!.asMap().entries.map(
+        (e) {
+          counts[e.value] = counts[e.value]! - 1;
+          debugPrint('${e.value}.${counts[e.value]}');
+          return DeviceTileSelector(
+            key: ValueKey('${e.value}.${counts[e.value]}'),
+            index: e.key,
+            tab: tab,
+          );
+        },
+      ).toList();
       return Container(
         color: Colors.black,
         height: double.infinity,

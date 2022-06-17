@@ -25,7 +25,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 
-/// This [Provider] saves/provides the current camera [Device] layout/order for the [DeviceGrid] on mobile.
+/// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
+///
+/// **The idea is to:**
+///
+/// - Have same video player instance (and multiple viewports) for a same device. See [players].
+/// - Effectively manage the layout of the [DeviceGrid] on mobile. See [devices].
+/// - Prevent redundant re-initialization of video players when switching tabs (if common a [Device] is present across tabs or same camera is added twice).
+///
 class MobileViewProvider extends ChangeNotifier {
   /// `late` initialized [MobileViewProvider] instance.
   static late final MobileViewProvider instance;

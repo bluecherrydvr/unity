@@ -22,10 +22,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 
-/// This [Provider] saves/provides the currently added [Server]s by the user.
+/// This class manages & saves (caching) the currently added [Server]s by the user.
+///
 class ServersProvider extends ChangeNotifier {
   /// `late` initialized [ServersProvider] instance.
   static late final ServersProvider instance;
@@ -53,19 +55,37 @@ class ServersProvider extends ChangeNotifier {
   }
 
   /// Adds a new [Server] to the cache.
-  Future<void> add(Server server) {
+  /// Also registers the Firebase Messaging token for the server, to receive the notifications.
+  Future<void> add(Server server) async {
     // Prevent duplicates.
     if (servers.contains(server)) {
       return Future.value(null);
     }
     servers.add(server);
-    return _save();
+    await _save();
+    // Register notification token.
+    try {
+      final instance = await SharedPreferences.getInstance();
+      final notificationToken = instance.getString(
+        kSharedPreferencesNotificationToken,
+      );
+      assert(
+        notificationToken != null,
+        "[kSharedPreferencesNotificationToken] is null.",
+      );
+      await API.instance.registerNotificationToken(server, notificationToken!);
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
   }
 
   /// Removes a [Server] from the cache.
-  Future<void> remove(Server server) {
+  /// Also un-registers the Firebase Messaging token for the server, to stop receiving the notifications.
+  Future<void> remove(Server server) async {
     servers.remove(server);
-    return _save();
+    await _save();
+    await API.instance.unregisterNotificationToken(server);
   }
 
   /// Save currently added [Server]s to `package:shared_preferences` cache.

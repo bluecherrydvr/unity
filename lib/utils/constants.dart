@@ -34,6 +34,7 @@ const kInAppTipsCount = 4;
 const kSharedPreferencesServers = 'servers';
 const kSharedPreferencesMobileView = 'mobile_view';
 const kSharedPreferencesMobileViewTab = 'mobile_view_current_tab';
+const kSharedPreferencesNotificationToken = 'notification_token';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

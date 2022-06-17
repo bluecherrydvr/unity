@@ -25,6 +25,7 @@ import 'package:xml2json/xml2json.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 
 class API {
   static final API instance = API();
@@ -104,6 +105,9 @@ class API {
     return false;
   }
 
+  /// Gets [Event]s present on the [server] after login.
+  /// [limit] defines the number of events to be fetched.
+  ///
   Future<Iterable<Event>> getEvents(
     Server server, {
     int limit = 50,
@@ -154,5 +158,102 @@ class API {
       debugPrint(stacktrace.toString());
     }
     return <Event>[];
+  }
+
+  /// Returns the notification API endpoint.
+  ///
+  /// Returns the endpoint as [String] if the request was successful, otherwise returns `null`.
+  ///
+  Future<String?> getNotificationAPIEndpoint(Server server) async {
+    try {
+      assert(server.serverUUID != null && server.cookie != null);
+      final response = await get(
+        Uri.https(
+          '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '/mobile-app-config.json',
+        ),
+        headers: {
+          'Cookie': server.cookie!,
+        },
+      );
+      final body = jsonDecode(response.body);
+      return body['notification_api_endpoint'];
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
+    return null;
+  }
+
+  /// Registers notification [token] for a [server], so that the notifications can be received with the help of Firebase Messaging.
+  /// Returns `true` if it is a success or `false` if it failed.
+  ///
+  Future<bool> registerNotificationToken(Server server, String token) async {
+    try {
+      final uri = await getNotificationAPIEndpoint(server);
+      final clientID = await clientUUID;
+      assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
+      assert(clientID != null, '[clientUUID] returned null.');
+      assert(server.serverUUID != null, '[server.serverUUID] is null.');
+      final response = await post(
+        Uri.parse(uri! + 'store-token'),
+        headers: {
+          'Cookie': server.cookie!,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'client_id': clientID,
+            'server_id': server.serverUUID,
+            'token': token,
+          },
+        ),
+      );
+      debugPrint({
+        'client_id': clientID,
+        'server_id': server.serverUUID,
+        'token': token,
+      }.toString());
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.body);
+      return true;
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+      return false;
+    }
+  }
+
+  /// Unregisters notification [token] for a [server], so that the notifications from Firebase Messaging can be stopped.
+  /// Returns `true` if it is a success or `false` if it failed.
+  ///
+  Future<bool> unregisterNotificationToken(Server server) async {
+    try {
+      final uri = await getNotificationAPIEndpoint(server);
+      final clientID = await clientUUID;
+      assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
+      assert(clientID != null, '[clientUUID] returned null.');
+      assert(server.serverUUID != null, '[server.serverUUID] is null.');
+      final response = await post(
+        Uri.parse(uri! + 'remove-token'),
+        headers: {
+          'Cookie': server.cookie!,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'client_id': clientID,
+            'server_id': server.serverUUID,
+          },
+        ),
+      );
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.body);
+      return true;
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+      return false;
+    }
   }
 }

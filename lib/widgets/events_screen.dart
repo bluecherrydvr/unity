@@ -47,7 +47,12 @@ class _EventsScreenState extends State<EventsScreen> {
     super.initState();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await fetch();
+      try {
+        await fetch();
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+      }
       setState(() {
         isFirstTimeLoading = false;
       });

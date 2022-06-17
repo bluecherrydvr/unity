@@ -1,4 +1,4 @@
-package com.bluecherrydvr.bluecherry_client
+package com.bluecherrydvr
 
 import io.flutter.embedding.android.FlutterActivity
 

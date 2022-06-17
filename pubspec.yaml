@@ -50,6 +50,8 @@ dependencies:
   fluttertoast: ^8.0.9
   firebase_core: ^1.17.1
   firebase_messaging: ^11.4.1
+  flutter_local_notifications: ^9.6.0
+  device_info_plus: ^3.2.4
 
 dependency_overrides:
   dart_vlc_ffi:

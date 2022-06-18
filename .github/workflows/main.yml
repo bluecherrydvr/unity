@@ -2,7 +2,7 @@ name: Bluecherry Client Flutter
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,6 +17,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
+      # TODO: Signing Android application.
       # - name: Create Key Store
       #   id: create_key_store
       #   uses: timheuer/base64-to-file@v1
@@ -34,9 +35,9 @@ jobs:
       - run: flutter pub upgrade
       - run: flutter pub get
       - run: flutter build apk --verbose --split-per-abi
-      - run: cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk bluecherry-arm64-v8a-release.apk
-      - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-armeabi-v7a-release.apk
-      - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-x86_64-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk bluecherry-android-arm64-v8a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-android-armeabi-v7a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-android-x86_64-release.apk
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -45,12 +46,12 @@ jobs:
           body: ""
           tag_name: "vnext"
           files: |
-            bluecherry-arm64-v8a-release.apk
-            bluecherry-armeabi-v7a-release.apk
-            bluecherry-x86_64-release.apk
+            bluecherry-android-arm64-v8a-release.apk
+            bluecherry-android-armeabi-v7a-release.apk
+            bluecherry-android-x86_64-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Desktop implementations needs work.
+  # TODO: Desktop implementations needs work. Adaptive UI, as the current desktop client.
   #
   # build_windows:
   #   name: Bluecherry Client Windows

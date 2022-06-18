@@ -356,7 +356,7 @@ class _ServerTileState extends State<ServerTile> {
                   'remove_server_description'.tr(
                     args: [widget.server.name],
                   ),
-                  style: Theme.of(context).textTheme.headline3,
+                  style: Theme.of(context).textTheme.headline4,
                   textAlign: TextAlign.start,
                 ),
                 actions: [

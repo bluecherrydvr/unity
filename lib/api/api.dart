@@ -256,4 +256,13 @@ class API {
       return false;
     }
   }
+
+  /// Returns thumbnail for an [eventID], if it exists on the server. Otherwise returns `null`.
+  Future<String?> getThumbnail(String eventID) async {
+    try {} catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+      return null;
+    }
+  }
 }

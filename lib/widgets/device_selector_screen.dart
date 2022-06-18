@@ -19,7 +19,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -34,18 +33,6 @@ class DeviceSelectorScreen extends StatefulWidget {
 }
 
 class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
-  @override
-  void initState() {
-    super.initState();
-    StatusBarControl.setHidden(false);
-  }
-
-  @override
-  void dispose() {
-    StatusBarControl.setHidden(true);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

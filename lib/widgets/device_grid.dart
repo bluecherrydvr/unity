@@ -23,9 +23,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 import 'package:bluecherry_client/models/server.dart';
@@ -161,23 +159,6 @@ class MobileDeviceGrid extends StatefulWidget {
 }
 
 class _MobileDeviceGridState extends State<MobileDeviceGrid> {
-  @override
-  void initState() {
-    super.initState();
-    // Switch to landscape mode & hide the status bar.
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    StatusBarControl.setHidden(true);
-  }
-
-  @override
-  void dispose() {
-    StatusBarControl.setHidden(false);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<MobileViewProvider>(

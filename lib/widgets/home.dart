@@ -19,6 +19,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -29,6 +30,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -73,6 +75,37 @@ class _MobileHomeState extends State<MobileHome> {
       return Future.value(false);
     }
     return Future.value(true);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (tab == 0) {
+        await StatusBarControl.setHidden(true);
+        await StatusBarControl.setStyle(
+          Theme.of(context).brightness == Brightness.light
+              ? StatusBarStyle.DARK_CONTENT
+              : StatusBarStyle.LIGHT_CONTENT,
+        );
+        await SystemChrome.setPreferredOrientations(
+          [
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ],
+        );
+      } else if (tab != 0) {
+        await StatusBarControl.setHidden(false);
+        await StatusBarControl.setStyle(
+          Theme.of(context).brightness == Brightness.light
+              ? StatusBarStyle.DARK_CONTENT
+              : StatusBarStyle.LIGHT_CONTENT,
+        );
+        await SystemChrome.setPreferredOrientations(
+          DeviceOrientation.values,
+        );
+      }
+    });
   }
 
   @override
@@ -139,16 +172,39 @@ class _MobileHomeState extends State<MobileHome> {
                         height: 56.0,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8.0),
-                          onTap: () {
+                          onTap: () async {
+                            if (index == 0 && tab != 0) {
+                              await StatusBarControl.setHidden(true);
+                              await StatusBarControl.setStyle(
+                                Theme.of(context).brightness == Brightness.light
+                                    ? StatusBarStyle.DARK_CONTENT
+                                    : StatusBarStyle.LIGHT_CONTENT,
+                              );
+                              await SystemChrome.setPreferredOrientations(
+                                [
+                                  DeviceOrientation.landscapeLeft,
+                                  DeviceOrientation.landscapeRight,
+                                ],
+                              );
+                            } else if (index != 0 && tab == 0) {
+                              await StatusBarControl.setHidden(false);
+                              await StatusBarControl.setStyle(
+                                Theme.of(context).brightness == Brightness.light
+                                    ? StatusBarStyle.DARK_CONTENT
+                                    : StatusBarStyle.LIGHT_CONTENT,
+                              );
+                              await SystemChrome.setPreferredOrientations(
+                                DeviceOrientation.values,
+                              );
+                            }
+                            await Future.delayed(
+                                const Duration(milliseconds: 200));
+                            Navigator.of(context).pop();
                             if (tab != index) {
                               setState(() {
                                 tab = index;
                               });
                             }
-                            Future.delayed(
-                              const Duration(milliseconds: 200),
-                              Navigator.of(context).pop,
-                            );
                           },
                           child: Container(
                             decoration: BoxDecoration(

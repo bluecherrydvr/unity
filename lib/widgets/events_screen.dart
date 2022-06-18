@@ -19,6 +19,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -45,7 +46,6 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await fetch();
@@ -53,9 +53,11 @@ class _EventsScreenState extends State<EventsScreen> {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());
       }
-      setState(() {
-        isFirstTimeLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isFirstTimeLoading = false;
+        });
+      }
     });
   }
 
@@ -108,6 +110,7 @@ class _EventsScreenState extends State<EventsScreen> {
           : RefreshIndicator(
               onRefresh: fetch,
               child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: ServersProvider.instance.servers
                     .map(
                       (e) => ExpansionTile(
@@ -169,10 +172,19 @@ class _EventsScreenState extends State<EventsScreen> {
                                             .split('event on')
                                             .first
                                             .trim(),
-                                        DateFormat.yMMMEd('en_US')
-                                            .add_jms()
-                                            .format(event.updated),
+                                        DateFormat(
+                                              SettingsProvider
+                                                  .instance.dateFormat.pattern,
+                                            ).format(event.updated) +
+                                            ' ' +
+                                            DateFormat(
+                                              SettingsProvider
+                                                  .instance.timeFormat.pattern,
+                                            )
+                                                .format(event.updated)
+                                                .toUpperCase(),
                                       ].join(' • '),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     leading: CircleAvatar(
                                       child: Icon(

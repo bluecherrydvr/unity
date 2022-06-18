@@ -231,7 +231,23 @@ class _MobileHomeState extends State<MobileHome> {
             0: () => const DeviceGrid(),
             1: () => const DirectCameraScreen(),
             2: () => const EventsScreen(),
-            3: () => AddServerWizard(onFinish: () => setState(() => tab = 0)),
+            3: () => AddServerWizard(
+                  onFinish: () async {
+                    setState(() => tab = 0);
+                    await StatusBarControl.setHidden(true);
+                    await StatusBarControl.setStyle(
+                      Theme.of(context).brightness == Brightness.light
+                          ? StatusBarStyle.DARK_CONTENT
+                          : StatusBarStyle.LIGHT_CONTENT,
+                    );
+                    await SystemChrome.setPreferredOrientations(
+                      [
+                        DeviceOrientation.landscapeLeft,
+                        DeviceOrientation.landscapeRight,
+                      ],
+                    );
+                  },
+                ),
             4: () => const Settings(),
           }[tab]!(),
           transitionBuilder: (child, animation, secondaryAnimation) =>

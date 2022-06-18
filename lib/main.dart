@@ -23,9 +23,11 @@ import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 
 Future<void> main() async {
@@ -33,11 +35,12 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
+  await SettingsProvider.ensureInitialized();
   await FirebaseConfiguration.ensureInitialized();
   await DartVLC.initialize();
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en', 'US')],
+      supportedLocales: kSupportedLocales,
       path: 'assets/translations',
       fallbackLocale: const Locale('en', 'US'),
       child: const MyApp(),
@@ -50,13 +53,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      theme: createTheme(themeMode: ThemeMode.light),
-      darkTheme: createTheme(themeMode: ThemeMode.dark),
-      home: const MyHomePage(),
+    return ChangeNotifierProvider(
+      create: (context) => SettingsProvider.instance,
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) => MaterialApp(
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          themeMode: settings.themeMode,
+          theme: createTheme(themeMode: ThemeMode.light),
+          darkTheme: createTheme(themeMode: ThemeMode.dark),
+          home: const MyHomePage(),
+        ),
+      ),
     );
   }
 }

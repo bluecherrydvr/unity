@@ -48,5 +48,15 @@
   "add_server": "Add Server",
   "settings": "Settings",
   "no_servers_added": "No servers added.",
-  "press_back_again_to_exit": "Press back button again to exit"
+  "press_back_again_to_exit": "Press back button again to exit",
+  "servers": "Servers",
+  "date_format": "Date Format",
+  "time_format": "Time Format",
+  "n_devices": "{} devices",
+  "remove": "Remove ?",
+  "remove_server_description": "{} will be removed from the application. You'll not be able to view cameras from this server & will no longer receive notifications.",
+  "yes": "Yes",
+  "no": "No",
+  "version": "Version",
+  "version_text": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved."
 }

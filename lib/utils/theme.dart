@@ -18,9 +18,9 @@
  */
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 ThemeData createTheme({
   ThemeMode themeMode = ThemeMode.light,
@@ -87,36 +87,34 @@ ThemeData createTheme({
     textTheme = TextTheme(
       headline1: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white,
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 18.0,
       ),
       headline2: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white,
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 16.0,
       ),
       headline3: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
       headline4: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white,
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 14.0,
       ),
       headline5: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.87),
+        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
-      ),
-      headline6: TextStyle(
-        fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white,
-        fontSize: 18.0,
       ),
     );
   }
+  StatusBarControl.setStyle(
+    isLight ? StatusBarStyle.DARK_CONTENT : StatusBarStyle.LIGHT_CONTENT,
+  );
   return ThemeData(
     /// Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
     chipTheme: Platform.isLinux
@@ -176,8 +174,7 @@ ThemeData createTheme({
     primaryColorLight: color,
     primaryColor: color,
     primaryColorDark: color,
-    scaffoldBackgroundColor:
-        isLight ? Colors.grey.shade100 : const Color(0xFF121212),
+    scaffoldBackgroundColor: isLight ? Colors.white : const Color(0xFF121212),
     toggleableActiveColor: color,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: isLight ? const Color(0xFF202020) : Colors.white,
@@ -215,23 +212,25 @@ ThemeData createTheme({
       backgroundColor: isLight ? Colors.white : const Color(0xFF141414),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: color,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.white12,
-        statusBarIconBrightness: Brightness.light,
+      backgroundColor: isLight ? Colors.white : const Color(0xFF202020),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: isLight ? Colors.black12 : Colors.white12,
+        statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
+        statusBarBrightness: isLight ? Brightness.dark : Brightness.light,
       ),
       elevation: 4.0,
-      iconTheme: const IconThemeData(
-        color: Colors.white,
+      iconTheme: IconThemeData(
+        color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
         size: 24.0,
       ),
-      actionsIconTheme: const IconThemeData(
-        color: Colors.white,
+      actionsIconTheme: IconThemeData(
+        color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
         size: 24.0,
       ),
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontSize: 18.0,
-        color: Colors.white,
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        fontWeight: FontWeight.w500,
       ),
     ),
     iconTheme: IconThemeData(

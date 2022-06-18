@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 
 /// This class manages & saves (caching) the currently added [Server]s by the user.
 ///
@@ -85,7 +86,30 @@ class ServersProvider extends ChangeNotifier {
   Future<void> remove(Server server) async {
     servers.remove(server);
     await _save();
-    await API.instance.unregisterNotificationToken(server);
+    // Remove the device camera tiles showing devices from this server.
+    try {
+      final provider = MobileViewProvider.instance;
+      final view = {...provider.devices};
+      for (final tab in view.keys) {
+        final devices = view[tab]!;
+        for (int i = 0; i < devices.length; i++) {
+          final device = devices[i];
+          if (device?.server == server) {
+            await provider.remove(tab, i);
+          }
+        }
+      }
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
+    // Unregister notification token.
+    try {
+      await API.instance.unregisterNotificationToken(server);
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
   }
 
   /// Save currently added [Server]s to `package:shared_preferences` cache.

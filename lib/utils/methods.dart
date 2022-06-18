@@ -31,3 +31,8 @@ Future<String?> get clientUUID async {
   }
   return null;
 }
+
+String getEventNameFromID(String id) => {
+      'device_state': 'Device State Event',
+      'motion_event': 'Motion Event',
+    }[id]!;

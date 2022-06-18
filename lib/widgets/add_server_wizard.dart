@@ -20,13 +20,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
@@ -42,16 +42,6 @@ class AddServerWizard extends StatefulWidget {
 class _AddServerWizardState extends State<AddServerWizard> {
   Server? server;
   final PageController controller = PageController();
-
-  @override
-  void initState() {
-    super.initState();
-    StatusBarControl.setHidden(false);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,12 +127,19 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 cursor:
                                                     SystemMouseCursors.click,
                                                 child: GestureDetector(
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    launchUrl(
+                                                      Uri.https(
+                                                        'www.bluecherry.com',
+                                                        '/',
+                                                      ),
+                                                    );
+                                                  },
                                                   child: Text(
                                                     'website'.tr(),
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .headline3
+                                                        .headline4
                                                         ?.copyWith(
                                                           color:
                                                               Theme.of(context)
@@ -157,12 +154,19 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 cursor:
                                                     SystemMouseCursors.click,
                                                 child: GestureDetector(
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    launchUrl(
+                                                      Uri.https(
+                                                        'www.bluecherry.com',
+                                                        '/product/v3license/',
+                                                      ),
+                                                    );
+                                                  },
                                                   child: Text(
                                                     'purchase'.tr(),
                                                     style: Theme.of(context)
                                                         .textTheme
-                                                        .headline3
+                                                        .headline4
                                                         ?.copyWith(
                                                           color:
                                                               Theme.of(context)
@@ -355,7 +359,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
                         .textTheme
-                        .headline3
+                        .headline4
                         ?.copyWith(color: Colors.white.withOpacity(0.87)),
                   ),
                 ],
@@ -388,7 +392,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           controller: textEditingControllers[0],
                           autofocus: true,
                           keyboardType: TextInputType.url,
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
                             label: Text('hostname'.tr()),
                             border: const OutlineInputBorder(),
@@ -408,7 +412,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           controller: textEditingControllers[1],
                           autofocus: true,
                           keyboardType: TextInputType.number,
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
                             label: Text('port'.tr()),
                             border: const OutlineInputBorder(),
@@ -429,7 +433,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     controller: textEditingControllers[2],
                     textCapitalization: TextCapitalization.words,
                     keyboardType: TextInputType.name,
-                    style: Theme.of(context).textTheme.headline3,
+                    style: Theme.of(context).textTheme.headline4,
                     decoration: InputDecoration(
                       label: Text('name'.tr()),
                       border: const OutlineInputBorder(),
@@ -449,7 +453,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                             return null;
                           },
                           controller: textEditingControllers[3],
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
                             label: Text('username'.tr()),
                             border: const OutlineInputBorder(),
@@ -506,7 +510,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           },
                           controller: textEditingControllers[4],
                           obscureText: true,
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
                             label: Text('password'.tr()),
                             border: const OutlineInputBorder(),
@@ -529,7 +533,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                               'save_password'.tr(),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headline3,
+                              style: Theme.of(context).textTheme.headline4,
                             ),
                           ],
                         ),
@@ -552,7 +556,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         'connect_automatically_at_startup'.tr(),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.headline4,
                       ),
                     ],
                   ),
@@ -628,7 +632,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                                 .tr(args: [server.name]),
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headline3,
+                                                .headline4,
                                           ),
                                           actions: [
                                             MaterialButton(
@@ -707,10 +711,19 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 FocusScope.of(context).unfocus();
               },
             ),
+            backgroundColor: Theme.of(context).primaryColor,
             elevation: elevated ? 0.0 : 4.0,
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.white12,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.light,
+            ),
             title: Text(
               'configure'.tr(),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
           ),
           body: view),
@@ -792,7 +805,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
                         .textTheme
-                        .headline3
+                        .headline4
                         ?.copyWith(color: Colors.white.withOpacity(0.87)),
                   ),
                 ],
@@ -895,9 +908,18 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                           FocusScope.of(context).unfocus();
                         },
                       ),
+                systemOverlayStyle: const SystemUiOverlayStyle(
+                  statusBarColor: Colors.white12,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.light,
+                ),
+                backgroundColor: Theme.of(context).primaryColor,
                 title: Text(
                   'lets_go'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
                 ),
                 elevation: elevated ? 0.0 : 4.0,
               )

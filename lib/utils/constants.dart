@@ -17,6 +17,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/widgets.dart';
+
+/// Locales supported by the application.
+/// See `./assets/translations/*` for the translations.
+const kSupportedLocales = [Locale('en', 'US')];
+
+/// Interpreted as the current application version.
+/// Update the [String]'s value before an update.
+const kAppVersion = 'v0.0.1';
+
 /// Default port used in Bluecherry DVR server.
 const kDefaultPort = 7001;
 
@@ -35,6 +45,9 @@ const kSharedPreferencesServers = 'servers';
 const kSharedPreferencesMobileView = 'mobile_view';
 const kSharedPreferencesMobileViewTab = 'mobile_view_current_tab';
 const kSharedPreferencesNotificationToken = 'notification_token';
+const kSharedPreferencesThemeMode = 'theme_mode';
+const kSharedPreferencesDateFormat = 'date_format';
+const kSharedPreferencesTimeFormat = 'time_format';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

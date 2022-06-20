@@ -17,7 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+import 'dart:math';
+import 'package:http/http.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,25 +46,39 @@ final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  debugPrint(message.toMap().toString());
-  final notification = FlutterLocalNotificationsPlugin();
-  await notification
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-  notification.show(
-    message.data.hashCode,
-    getEventNameFromID(message.data['eventType']),
-    '${message.data['deviceName']}',
-    NotificationDetails(
-      android: AndroidNotificationDetails(
-        channel.id,
-        channel.name,
-        icon: 'drawable/ic_stat_linked_camera',
+  try {
+    await Firebase.initializeApp();
+    debugPrint(message.toMap().toString());
+    final notification = FlutterLocalNotificationsPlugin();
+    await notification
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+    notification.show(
+      Random().nextInt(1 << 32),
+      getEventNameFromID(message.data['eventType']),
+      '${message.data['deviceName']}',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel.id,
+          channel.name,
+          icon: 'drawable/ic_stat_linked_camera',
+        ),
       ),
-    ),
-  );
+    );
+  } catch (exception, stacktrace) {
+    debugPrint(exception.toString());
+    debugPrint(stacktrace.toString());
+  }
+}
+
+Future<String> _downloadAndSaveFile(String url, String fileName) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final filePath = '${directory.path}/$fileName';
+  final response = await get(Uri.parse(url));
+  final file = File(filePath);
+  await file.writeAsBytes(response.bodyBytes);
+  return filePath;
 }
 
 /// Initialize & handle Firebase core & messaging plugins.
@@ -74,19 +92,24 @@ abstract class FirebaseConfiguration {
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint(message.toMap().toString());
-      flutterLocalNotificationsPlugin.show(
-        message.data.hashCode,
-        getEventNameFromID(message.data['eventType']),
-        '${message.data['deviceName']}',
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            icon: 'drawable/ic_stat_linked_camera',
+      try {
+        debugPrint(message.toMap().toString());
+        flutterLocalNotificationsPlugin.show(
+          Random().nextInt(1 << 32),
+          getEventNameFromID(message.data['eventType']),
+          '${message.data['deviceName']}',
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              icon: 'drawable/ic_stat_linked_camera',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+      }
     });
     await FirebaseMessaging.instance.requestPermission(
       alert: true,

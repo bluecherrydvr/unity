@@ -67,7 +67,7 @@ class API {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
         Uri.https(
-          '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/devices.php',
           {
             'XML': '1',
@@ -116,7 +116,7 @@ class API {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
         Uri.https(
-          '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/events/',
           {
             'XML': '1',
@@ -169,7 +169,7 @@ class API {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
         Uri.https(
-          '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/mobile-app-config.json',
         ),
         headers: {
@@ -258,8 +258,19 @@ class API {
   }
 
   /// Returns thumbnail for an [eventID], if it exists on the server. Otherwise returns `null`.
-  Future<String?> getThumbnail(String eventID) async {
-    try {} catch (exception, stacktrace) {
+  Future<String?> getThumbnail(Server server, String eventID) async {
+    try {
+      final uri = Uri.https(
+        '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+        '/media/request.php',
+        {
+          'id': eventID,
+          'mode': 'screenshot',
+        },
+      );
+      final response = await get(uri);
+      return response.statusCode ~/ 100 == 2 ? uri.toString() : null;
+    } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
       return null;

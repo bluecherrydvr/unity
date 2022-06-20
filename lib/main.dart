@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
@@ -32,6 +33,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = DevHttpOverrides();
   await EasyLocalization.ensureInitialized();
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
@@ -46,6 +48,14 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+}
+
+class DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
 }
 
 class MyApp extends StatelessWidget {

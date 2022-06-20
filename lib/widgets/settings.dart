@@ -60,7 +60,7 @@ class _SettingsState extends State<Settings> {
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 12.0,
             ),
             child: Text(
               'servers'.tr().toUpperCase(),
@@ -93,7 +93,7 @@ class _SettingsState extends State<Settings> {
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 12.0,
             ),
             child: Text(
               'theme'.tr().toUpperCase(),
@@ -137,7 +137,7 @@ class _SettingsState extends State<Settings> {
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 12.0,
             ),
             child: Text(
               'date_format'.tr().toUpperCase(),
@@ -187,7 +187,7 @@ class _SettingsState extends State<Settings> {
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 12.0,
             ),
             child: Text(
               'time_format'.tr().toUpperCase(),
@@ -231,7 +231,7 @@ class _SettingsState extends State<Settings> {
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 12.0,
             ),
             child: Text(
               'version'.tr().toUpperCase(),
@@ -248,12 +248,12 @@ class _SettingsState extends State<Settings> {
               children: [
                 Text(
                   kAppVersion,
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
                 Text(
                   'version_text'.tr(),
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
                 MouseRegion(

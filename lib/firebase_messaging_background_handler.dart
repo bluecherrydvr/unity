@@ -55,7 +55,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
     notification.show(
-      Random().nextInt(1 << 32),
+      Random().nextInt((pow(2, 31)) ~/ 1 - 1),
       getEventNameFromID(message.data['eventType']),
       '${message.data['deviceName']}',
       NotificationDetails(
@@ -95,7 +95,7 @@ abstract class FirebaseConfiguration {
       try {
         debugPrint(message.toMap().toString());
         flutterLocalNotificationsPlugin.show(
-          Random().nextInt(1 << 32),
+          Random().nextInt((pow(2, 31)) ~/ 1 - 1),
           getEventNameFromID(message.data['eventType']),
           '${message.data['deviceName']}',
           NotificationDetails(

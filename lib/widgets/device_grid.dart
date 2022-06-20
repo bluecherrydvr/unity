@@ -75,7 +75,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
     if (isDesktop) {
       for (final device in widget.server.devices) {
         players.add(Player(
-          id: Random().nextInt(1 << 16),
+          id: Random().nextInt((pow(2, 16)) ~/ 1 - 1),
           // Clamp to reasonable [VideoDimensions], if [widget.width] and
           // [widget.height] is passed. Avoids redundant CPU load caused by libvlc
           // 3.0 pixel buffer based video callbacks.
@@ -282,7 +282,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
     return Consumer<MobileViewProvider>(builder: (context, view, _) {
       if (tab == 1) {
         return DeviceTileSelector(
-          key: ValueKey(Random().nextInt(1 << 32)),
+          key: ValueKey(Random().nextInt((pow(2, 31)) ~/ 1 - 1)),
           index: 0,
           tab: 1,
         );

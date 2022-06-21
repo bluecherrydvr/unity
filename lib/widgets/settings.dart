@@ -246,6 +246,7 @@ class _SettingsState extends State<Settings> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 8.0),
                 Text(
                   kAppVersion,
                   style: Theme.of(context).textTheme.headline2,
@@ -269,7 +270,7 @@ class _SettingsState extends State<Settings> {
                     },
                     child: Text(
                       'website'.tr(),
-                      style: Theme.of(context).textTheme.headline3?.copyWith(
+                      style: Theme.of(context).textTheme.headline2?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                           ),
                     ),

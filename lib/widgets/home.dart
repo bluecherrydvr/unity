@@ -20,7 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:toast/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/widgets/device_grid.dart';
@@ -71,7 +71,10 @@ class _MobileHomeState extends State<MobileHome> {
     if (timeout == null ||
         now.difference(timeout ?? now) > const Duration(seconds: 2)) {
       timeout = now;
-      Fluttertoast.showToast(msg: 'press_back_again_to_exit'.tr());
+      Toast.show(
+        'press_back_again_to_exit'.tr(),
+        gravity: Toast.bottom,
+      );
       return Future.value(false);
     }
     return Future.value(true);
@@ -81,6 +84,7 @@ class _MobileHomeState extends State<MobileHome> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ToastContext().init(context);
       if (tab == 0) {
         await StatusBarControl.setHidden(true);
         await StatusBarControl.setStyle(

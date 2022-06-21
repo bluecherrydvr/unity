@@ -17,21 +17,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-import 'dart:math';
-import 'package:http/http.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:bluecherry_client/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/firebase_options.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
 
 const channel = AndroidNotificationChannel(
   'com.bluecherrydvr',
@@ -46,40 +47,41 @@ final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
-  try {
-    await Firebase.initializeApp();
-    debugPrint(message.toMap().toString());
-    final notification = FlutterLocalNotificationsPlugin();
-    await notification
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-    notification.show(
-      Random().nextInt((pow(2, 31)) ~/ 1 - 1),
-      getEventNameFromID(message.data['eventType']),
-      '${message.data['deviceName']}',
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          icon: 'drawable/ic_stat_linked_camera',
-        ),
-      ),
-    );
-  } catch (exception, stacktrace) {
-    debugPrint(exception.toString());
-    debugPrint(stacktrace.toString());
-  }
+  await Firebase.initializeApp();
+  debugPrint(message.toMap().toString());
+  // try {
+  // final notification = FlutterLocalNotificationsPlugin();
+  // const initializationSettings = InitializationSettings(
+  //   android: AndroidInitializationSettings('@drawable/ic_stat_linked_camera'),
+  //   iOS: IOSInitializationSettings(),
+  // );
+  // await notification
+  //     .resolvePlatformSpecificImplementation<
+  //         AndroidFlutterLocalNotificationsPlugin>()
+  //     ?.createNotificationChannel(channel);
+  // notification.initialize(
+  //   initializationSettings,
+  //   onSelectNotification: (payload) {},
+  // );
+  // notification.show(
+  //   Random().nextInt((pow(2, 31)) ~/ 1 - 1),
+  //   message.notification?.title ?? '',
+  //   message.notification?.body ?? '',
+  //   NotificationDetails(
+  //     android: AndroidNotificationDetails(
+  //       channel.id,
+  //       channel.name,
+  //       icon: 'drawable/ic_stat_linked_camera',
+  //     ),
+  //   ),
+  // );
+  // } catch (exception, stacktrace) {
+  //   debugPrint(exception.toString());
+  //   debugPrint(stacktrace.toString());
+  // }
 }
 
-Future<String> _downloadAndSaveFile(String url, String fileName) async {
-  final directory = await getApplicationDocumentsDirectory();
-  final filePath = '${directory.path}/$fileName';
-  final response = await get(Uri.parse(url));
-  final file = File(filePath);
-  await file.writeAsBytes(response.bodyBytes);
-  return filePath;
-}
+String? mutex;
 
 /// Initialize & handle Firebase core & messaging plugins.
 ///
@@ -92,24 +94,24 @@ abstract class FirebaseConfiguration {
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      try {
-        debugPrint(message.toMap().toString());
-        flutterLocalNotificationsPlugin.show(
-          Random().nextInt((pow(2, 31)) ~/ 1 - 1),
-          getEventNameFromID(message.data['eventType']),
-          '${message.data['deviceName']}',
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              icon: 'drawable/ic_stat_linked_camera',
-            ),
-          ),
-        );
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
-      }
+      debugPrint(message.toMap().toString());
+      // try {
+      //   flutterLocalNotificationsPlugin.show(
+      //     Random().nextInt((pow(2, 31)) ~/ 1 - 1),
+      //     message.notification?.title ?? '',
+      //     message.notification?.body ?? '',
+      //     NotificationDetails(
+      //       android: AndroidNotificationDetails(
+      //         channel.id,
+      //         channel.name,
+      //         icon: 'drawable/ic_stat_linked_camera',
+      //       ),
+      //     ),
+      //   );
+      // } catch (exception, stacktrace) {
+      //   debugPrint(exception.toString());
+      //   debugPrint(stacktrace.toString());
+      // }
     });
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
@@ -142,6 +144,102 @@ abstract class FirebaseConfiguration {
         }
       },
     );
+    FirebaseMessaging.onMessageOpenedApp.listen((message) async {
+      final eventType = message.data['eventType'];
+      final serverUUID = message.data['serverId'];
+      final id = message.data['deviceId'];
+      final name = message.data['deviceName'];
+      final uri = 'live/$id';
+      // Return if same device is already playing.
+      if (mutex == id || eventType != 'motion_event') {
+        return;
+      }
+      final server = ServersProvider.instance.servers
+          .firstWhere((server) => server.serverUUID == serverUUID);
+      final device = Device(name, uri, true, 0, 0, server);
+      final player =
+          MobileViewProvider.instance.getVideoPlayerController(device);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      StatusBarControl.setHidden(true);
+      if (mutex == null) {
+        mutex = id;
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+            ),
+          ),
+        );
+      } else {
+        mutex = id;
+        await navigatorKey.currentState?.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+            ),
+          ),
+        );
+      }
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      StatusBarControl.setHidden(false);
+      await player.release();
+      await player.release();
+      mutex = null;
+    });
+    FirebaseMessaging.instance.getInitialMessage().then((message) async {
+      if (message != null) {
+        final eventType = message.data['eventType'];
+        final serverUUID = message.data['serverId'];
+        final id = message.data['deviceId'];
+        final name = message.data['deviceName'];
+        final uri = 'live/$id';
+        // Return if same device is already playing.
+        if (mutex == id || eventType != 'motion_event') {
+          return;
+        }
+        final server = ServersProvider.instance.servers
+            .firstWhere((server) => server.serverUUID == serverUUID);
+        final device = Device(name, uri, true, 0, 0, server);
+        final player =
+            MobileViewProvider.instance.getVideoPlayerController(device);
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        StatusBarControl.setHidden(true);
+        if (mutex == null) {
+          mutex = id;
+          await navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => DeviceFullscreenViewer(
+                device: device,
+                ijkPlayer: player,
+              ),
+            ),
+          );
+        } else {
+          mutex = id;
+          await navigatorKey.currentState?.pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => DeviceFullscreenViewer(
+                device: device,
+                ijkPlayer: player,
+              ),
+            ),
+          );
+        }
+        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        StatusBarControl.setHidden(false);
+        await player.release();
+        await player.release();
+        mutex = null;
+      }
+    });
     // Sometimes [FirebaseMessaging.instance.onTokenRefresh] is not getting invoked.
     // Having this as a fallback.
     FirebaseMessaging.instance.getToken().then((token) async {
@@ -149,7 +247,7 @@ abstract class FirebaseConfiguration {
       if (token != null) {
         final instance = await SharedPreferences.getInstance();
         // Do not proceed, if token is already saved.
-        if (instance.containsKey(kSharedPreferencesNotificationToken)) {
+        if (instance.getString(kSharedPreferencesNotificationToken) == token) {
           return;
         }
         await instance.setString(

@@ -25,6 +25,7 @@ import 'package:fijkplayer/fijkplayer.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 class DeviceTile extends StatefulWidget {
   final Device device;
@@ -399,11 +400,25 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
   void initState() {
     super.initState();
     widget.ijkPlayer?.addListener(ijkPlayerListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await StatusBarControl.setHidden(true);
+      await StatusBarControl.setStyle(
+        Theme.of(context).brightness == Brightness.light
+            ? StatusBarStyle.DARK_CONTENT
+            : StatusBarStyle.LIGHT_CONTENT,
+      );
+    });
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     widget.ijkPlayer?.removeListener(ijkPlayerListener);
+    await StatusBarControl.setHidden(false);
+    await StatusBarControl.setStyle(
+      Theme.of(context).brightness == Brightness.light
+          ? StatusBarStyle.DARK_CONTENT
+          : StatusBarStyle.LIGHT_CONTENT,
+    );
     super.dispose();
   }
 

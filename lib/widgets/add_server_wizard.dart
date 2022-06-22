@@ -517,49 +517,49 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: savePassword,
-                              onChanged: (value) {
-                                setState(() {
-                                  savePassword = value!;
-                                });
-                              },
-                            ),
-                            Text(
-                              'save_password'.tr(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headline4,
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(top: 8.0),
+                      //   child: Row(
+                      //     children: [
+                      //       Checkbox(
+                      //         value: savePassword,
+                      //         onChanged: (value) {
+                      //           setState(() {
+                      //             savePassword = value!;
+                      //           });
+                      //         },
+                      //       ),
+                      //       Text(
+                      //         'save_password'.tr(),
+                      //         maxLines: 2,
+                      //         overflow: TextOverflow.ellipsis,
+                      //         style: Theme.of(context).textTheme.headline4,
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(width: 16.0),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: connectAutomaticallyAtStartup,
-                        onChanged: (value) {
-                          setState(() {
-                            connectAutomaticallyAtStartup = value!;
-                          });
-                        },
-                      ),
-                      Text(
-                        'connect_automatically_at_startup'.tr(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headline4,
-                      ),
-                    ],
-                  ),
+                  // const SizedBox(height: 16.0),
+                  // Row(
+                  //   children: [
+                  //     Checkbox(
+                  //       value: connectAutomaticallyAtStartup,
+                  //       onChanged: (value) {
+                  //         setState(() {
+                  //           connectAutomaticallyAtStartup = value!;
+                  //         });
+                  //       },
+                  //     ),
+                  //     Text(
+                  //       'connect_automatically_at_startup'.tr(),
+                  //       maxLines: 2,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       style: Theme.of(context).textTheme.headline4,
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 16.0),
                   Align(
                     alignment: Alignment.bottomRight,

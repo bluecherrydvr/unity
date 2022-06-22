@@ -21,7 +21,6 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:fijkplayer_skin/fijkplayer_skin.dart';
 import 'package:fijkplayer_skin/schema.dart';

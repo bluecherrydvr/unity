@@ -257,22 +257,21 @@ class _SettingsState extends State<Settings> {
                   style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () {
-                      launchUrl(
-                        Uri.https(
-                          'www.bluecherry.com',
-                          '/',
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'website'.tr(),
-                      style: Theme.of(context).textTheme.headline2?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                MaterialButton(
+                  onPressed: () {
+                    launchUrl(
+                      Uri.https(
+                        'www.bluecherry.com',
+                        '/',
+                      ),
+                    );
+                  },
+                  padding: EdgeInsets.zero,
+                  minWidth: 0.0,
+                  child: Text(
+                    'website'.tr().toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),

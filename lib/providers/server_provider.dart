@@ -36,8 +36,13 @@ class ServersProvider extends ChangeNotifier {
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:shared_preferences` method-calls. Called before [runApp].
   static Future<ServersProvider> ensureInitialized() async {
-    instance = ServersProvider();
-    await instance.initialize();
+    try {
+      instance = ServersProvider();
+      await instance.initialize();
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
     return instance;
   }
 

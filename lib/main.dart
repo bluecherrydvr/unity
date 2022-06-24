@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -42,6 +43,11 @@ Future<void> main() async {
   await SettingsProvider.ensureInitialized();
   await FirebaseConfiguration.ensureInitialized();
   await DartVLC.initialize();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    systemNavigationBarDividerColor: Colors.black,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
   runApp(
     EasyLocalization(
       supportedLocales: kSupportedLocales,

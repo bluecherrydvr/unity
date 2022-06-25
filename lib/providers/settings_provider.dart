@@ -32,11 +32,13 @@ class SettingsProvider extends ChangeNotifier {
   static const _kDefaultThemeMode = ThemeMode.system;
   static const _kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const _kDefaultTimeFormat = 'hh:mm a';
+  static final _defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
+  DateTime get snoozedUntil => _snoozedUntil;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -63,15 +65,32 @@ class SettingsProvider extends ChangeNotifier {
     });
   }
 
+  set snoozedUntil(DateTime value) {
+    _snoozedUntil = value;
+    notifyListeners();
+    SharedPreferences.getInstance().then((instance) {
+      instance.setString(
+        kSharedPreferencesSnoozedUntil,
+        value.toIso8601String(),
+      );
+    });
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
+  late DateTime _snoozedUntil;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:shared_preferences` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
-    instance = SettingsProvider();
-    await instance.initialize();
+    try {
+      instance = SettingsProvider();
+      await instance.initialize();
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
     return instance;
   }
 
@@ -99,6 +118,13 @@ class SettingsProvider extends ChangeNotifier {
       );
     } else {
       _timeFormat = DateFormat(_kDefaultTimeFormat, 'en_US');
+    }
+    if (sharedPreferences.containsKey(kSharedPreferencesSnoozedUntil)) {
+      _snoozedUntil = DateTime.parse(
+        sharedPreferences.getString(kSharedPreferencesSnoozedUntil)!,
+      );
+    } else {
+      _snoozedUntil = _defaultSnoozedUntil;
     }
   }
 

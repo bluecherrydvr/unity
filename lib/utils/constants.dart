@@ -48,6 +48,7 @@ const kSharedPreferencesNotificationToken = 'notification_token';
 const kSharedPreferencesThemeMode = 'theme_mode';
 const kSharedPreferencesDateFormat = 'date_format';
 const kSharedPreferencesTimeFormat = 'time_format';
+const kSharedPreferencesSnoozedUntil = 'snoozed_until';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

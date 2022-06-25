@@ -17,8 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:fijkplayer/fijkplayer.dart';
 
@@ -381,10 +383,12 @@ class DeviceTileState extends State<DeviceTile> {
 class DeviceFullscreenViewer extends StatefulWidget {
   final Device device;
   final FijkPlayer? ijkPlayer;
+  final bool restoreStatusBarStyleOnDispose;
   const DeviceFullscreenViewer({
     Key? key,
     required this.device,
     required this.ijkPlayer,
+    this.restoreStatusBarStyleOnDispose = false,
   }) : super(key: key);
 
   @override
@@ -395,30 +399,39 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
   bool overlay = false;
   FijkState? fijkState;
   FijkFit fit = FijkFit.contain;
+  Brightness? brightness;
 
   @override
   void initState() {
     super.initState();
     widget.ijkPlayer?.addListener(ijkPlayerListener);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      brightness = Theme.of(context).brightness;
       await StatusBarControl.setHidden(true);
       await StatusBarControl.setStyle(
-        Theme.of(context).brightness == Brightness.light
+        brightness == Brightness.light
             ? StatusBarStyle.DARK_CONTENT
             : StatusBarStyle.LIGHT_CONTENT,
       );
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
     });
   }
 
   @override
   void dispose() async {
     widget.ijkPlayer?.removeListener(ijkPlayerListener);
-    await StatusBarControl.setHidden(false);
-    await StatusBarControl.setStyle(
-      Theme.of(context).brightness == Brightness.light
-          ? StatusBarStyle.DARK_CONTENT
-          : StatusBarStyle.LIGHT_CONTENT,
-    );
+    if (widget.restoreStatusBarStyleOnDispose) {
+      await StatusBarControl.setHidden(false);
+      await StatusBarControl.setStyle(
+        brightness == Brightness.light
+            ? StatusBarStyle.DARK_CONTENT
+            : StatusBarStyle.LIGHT_CONTENT,
+      );
+      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    }
     super.dispose();
   }
 
@@ -494,89 +507,50 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
               offset: Offset(0, overlay ? 0.0 : -1.0),
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
-              child: Material(
-                elevation: 4.0,
-                color: Colors.transparent,
-                child: Container(
-                  height: 56.0,
-                  alignment: Alignment.centerRight,
-                  color: Colors.black38,
-                  child: Row(
+              child: AppBar(
+                backgroundColor: Colors.black38,
+                title: Text(
+                  widget.device.name
+                      .split(' ')
+                      .map((e) => e[0].toUpperCase() + e.substring(1))
+                      .join(' '),
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                centerTitle: Platform.isIOS,
+                actions: [
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      const SizedBox(width: 16.0),
-                      NavigatorPopButton(
-                        color: Theme.of(context).appBarTheme.iconTheme?.color,
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.device.name
-                                  .split(' ')
-                                  .map((e) =>
-                                      e[0].toUpperCase() + e.substring(1))
-                                  .join(' '),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline1
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
+                      if (fit == FijkFit.fill)
+                        Container(
+                          width: 36.0,
+                          height: 36.0,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.white54,
+                              width: 1.6,
                             ),
-                            Text(
-                              widget.device.uri,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(
-                                    color: Colors.white70,
-                                    fontSize: 12.0,
-                                  ),
-                            ),
-                          ],
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
+                        ),
+                      IconButton(
+                        splashRadius: 20.0,
+                        onPressed: () {
+                          setState(() {
+                            fit = fit == FijkFit.fill
+                                ? FijkFit.contain
+                                : FijkFit.fill;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.aspect_ratio,
+                          color: Colors.white54,
                         ),
                       ),
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          if (fit == FijkFit.fill)
-                            Container(
-                              width: 36.0,
-                              height: 36.0,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 1.6,
-                                ),
-                                borderRadius: BorderRadius.circular(18.0),
-                              ),
-                            ),
-                          IconButton(
-                            splashRadius: 20.0,
-                            onPressed: () {
-                              setState(() {
-                                fit = fit == FijkFit.fill
-                                    ? FijkFit.contain
-                                    : FijkFit.fill;
-                              });
-                            },
-                            icon: const Icon(
-                              Icons.aspect_ratio,
-                              color: Colors.white,
-                              size: 20.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 16.0),
                     ],
                   ),
-                ),
+                  const SizedBox(width: 16.0),
+                ],
               ),
             ),
           ),

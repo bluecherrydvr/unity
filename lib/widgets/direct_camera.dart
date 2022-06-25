@@ -133,6 +133,8 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                                 DeviceFullscreenViewer(
                                               device: server.devices[index],
                                               ijkPlayer: player,
+                                              restoreStatusBarStyleOnDispose:
+                                                  true,
                                             ),
                                           ),
                                         );

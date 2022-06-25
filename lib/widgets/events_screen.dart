@@ -40,7 +40,7 @@ class EventsScreen extends StatefulWidget {
 
 class _EventsScreenState extends State<EventsScreen> {
   bool isFirstTimeLoading = true;
-  final Map<Server, Iterable<Event>> events = {};
+  final Map<Server, List<Event>> events = {};
 
   @override
   void initState() {
@@ -63,9 +63,10 @@ class _EventsScreenState extends State<EventsScreen> {
   Future<void> fetch() async {
     for (final server in ServersProvider.instance.servers) {
       try {
-        events[server] = await API.instance.getEvents(
+        final iterable = await API.instance.getEvents(
           await API.instance.checkServerCredentials(server),
         );
+        events[server] = iterable.toList().cast<Event>();
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());

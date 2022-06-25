@@ -26,7 +26,7 @@ ThemeData createTheme({
   ThemeMode themeMode = ThemeMode.light,
 }) {
   bool isLight = themeMode == ThemeMode.light;
-  final color = isLight ? Colors.indigo : Colors.indigo.shade500;
+  final color = isLight ? Colors.indigo : Colors.indigo.shade400;
   const accent = Color(0xffff4081);
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
@@ -116,7 +116,9 @@ ThemeData createTheme({
     isLight ? StatusBarStyle.DARK_CONTENT : StatusBarStyle.LIGHT_CONTENT,
   );
   return ThemeData(
-    /// Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
+    // ignore: deprecated_member_use
+    androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+    // Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
     chipTheme: Platform.isLinux
         ? ChipThemeData(
             backgroundColor: color,

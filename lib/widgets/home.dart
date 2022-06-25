@@ -121,6 +121,7 @@ class _MobileHomeState extends State<MobileHome> {
         resizeToAvoidBottomInset: false,
         drawer: Drawer(
           child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
             children: [
               // DrawerHeader(

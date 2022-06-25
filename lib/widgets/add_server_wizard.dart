@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -130,9 +132,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                   onTap: () {
                                                     launchUrl(
                                                       Uri.https(
-                                                        'www.bluecherry.com',
+                                                        'www.bluecherrydvr.com',
                                                         '/',
                                                       ),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
                                                     );
                                                   },
                                                   child: Text(
@@ -157,9 +161,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                   onTap: () {
                                                     launchUrl(
                                                       Uri.https(
-                                                        'www.bluecherry.com',
+                                                        'www.bluecherrydvr.com',
                                                         '/product/v3license/',
                                                       ),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
                                                     );
                                                   },
                                                   child: Text(
@@ -350,7 +356,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 right: 16.0,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: Platform.isIOS
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8.0),
                   Text(
@@ -796,7 +804,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 right: 16.0,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: Platform.isIOS
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8.0),
                   Text(

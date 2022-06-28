@@ -21,7 +21,9 @@ import 'package:flutter/widgets.dart';
 
 /// Locales supported by the application.
 /// See `./assets/translations/*` for the translations.
-const kSupportedLocales = [Locale('en', 'US')];
+const kSupportedLocales = [
+  Locale('en', 'US'),
+];
 
 /// Interpreted as the current application version.
 /// Update the [String]'s value before an update.
@@ -36,9 +38,6 @@ const kDefaultUsername = 'Admin';
 /// Default password used in Bluecherry DVR server.
 const kDefaultPassword = 'bluecherry';
 
-/// Number of tips present in the app.
-const kInAppTipsCount = 4;
-
 /// Keys used for storing data in cache using `package:shared_preferences`.
 
 const kSharedPreferencesServers = 'servers';
@@ -49,6 +48,7 @@ const kSharedPreferencesThemeMode = 'theme_mode';
 const kSharedPreferencesDateFormat = 'date_format';
 const kSharedPreferencesTimeFormat = 'time_format';
 const kSharedPreferencesSnoozedUntil = 'snoozed_until';
+const kSharedPreferencesNotificationClickAction = 'notification_click_action';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

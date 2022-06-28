@@ -29,16 +29,20 @@ class SettingsProvider extends ChangeNotifier {
   /// `late` initialized [ServersProvider] instance.
   static late final SettingsProvider instance;
 
-  static const _kDefaultThemeMode = ThemeMode.system;
-  static const _kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
-  static const _kDefaultTimeFormat = 'hh:mm a';
-  static final _defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
+  static const kDefaultThemeMode = ThemeMode.system;
+  static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
+  static const kDefaultTimeFormat = 'hh:mm a';
+  static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
+  static const kDefaultNotificationClickAction =
+      NotificationClickAction.showFullscreenCamera;
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
   DateTime get snoozedUntil => _snoozedUntil;
+  NotificationClickAction get notificationClickAction =>
+      _notificationClickAction;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -76,10 +80,19 @@ class SettingsProvider extends ChangeNotifier {
     });
   }
 
+  set notificationClickAction(NotificationClickAction value) {
+    _notificationClickAction = value;
+    notifyListeners();
+    SharedPreferences.getInstance().then((instance) {
+      instance.setInt(kSharedPreferencesNotificationClickAction, value.index);
+    });
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
+  late NotificationClickAction _notificationClickAction;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:shared_preferences` method-calls. Called before [runApp].
@@ -101,7 +114,7 @@ class SettingsProvider extends ChangeNotifier {
       _themeMode = ThemeMode
           .values[sharedPreferences.getInt(kSharedPreferencesThemeMode)!];
     } else {
-      _themeMode = _kDefaultThemeMode;
+      _themeMode = kDefaultThemeMode;
     }
     if (sharedPreferences.containsKey(kSharedPreferencesDateFormat)) {
       _dateFormat = DateFormat(
@@ -109,7 +122,7 @@ class SettingsProvider extends ChangeNotifier {
         'en_US',
       );
     } else {
-      _dateFormat = DateFormat(_kDefaultDateFormat, 'en_US');
+      _dateFormat = DateFormat(kDefaultDateFormat, 'en_US');
     }
     if (sharedPreferences.containsKey(kSharedPreferencesTimeFormat)) {
       _timeFormat = DateFormat(
@@ -117,18 +130,30 @@ class SettingsProvider extends ChangeNotifier {
         'en_US',
       );
     } else {
-      _timeFormat = DateFormat(_kDefaultTimeFormat, 'en_US');
+      _timeFormat = DateFormat(kDefaultTimeFormat, 'en_US');
     }
     if (sharedPreferences.containsKey(kSharedPreferencesSnoozedUntil)) {
       _snoozedUntil = DateTime.parse(
         sharedPreferences.getString(kSharedPreferencesSnoozedUntil)!,
       );
     } else {
-      _snoozedUntil = _defaultSnoozedUntil;
+      _snoozedUntil = defaultSnoozedUntil;
+    }
+    if (sharedPreferences
+        .containsKey(kSharedPreferencesNotificationClickAction)) {
+      _notificationClickAction = NotificationClickAction.values[
+          sharedPreferences.getInt(kSharedPreferencesNotificationClickAction)!];
+    } else {
+      _notificationClickAction = kDefaultNotificationClickAction;
     }
   }
 
   @override
   // ignore: must_call_super
   void dispose() {}
+}
+
+enum NotificationClickAction {
+  showFullscreenCamera,
+  showEventsScreen,
 }

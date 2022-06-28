@@ -19,68 +19,28 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/firebase_options.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/models/device.dart';
 
 import 'package:bluecherry_client/main.dart';
-
-// final eventType = message.data['eventType'];
-// final serverUUID = message.data['serverId'];
-// final id = message.data['deviceId'];
-// final name = message.data['deviceName'];
-// final uri = 'live/$id';
-// // Return if same device is already playing.
-// if (mutex == id || eventType != 'motion_event') {
-//   return;
-// }
-// final server = ServersProvider.instance.servers
-//     .firstWhere((server) => server.serverUUID == serverUUID);
-// final device = Device(name, uri, true, 0, 0, server);
-// final player =
-//     MobileViewProvider.instance.getVideoPlayerController(device);
-// SystemChrome.setPreferredOrientations([
-//   DeviceOrientation.landscapeLeft,
-//   DeviceOrientation.landscapeRight,
-// ]);
-// StatusBarControl.setHidden(true);
-// if (mutex == null) {
-//   mutex = id;
-//   await navigatorKey.currentState?.push(
-//     MaterialPageRoute(
-//       builder: (context) => DeviceFullscreenViewer(
-//         device: device,
-//         ijkPlayer: player,
-//       ),
-//     ),
-//   );
-// } else {
-//   mutex = id;
-//   await navigatorKey.currentState?.pushReplacement(
-//     MaterialPageRoute(
-//       builder: (context) => DeviceFullscreenViewer(
-//         device: device,
-//         ijkPlayer: player,
-//       ),
-//     ),
-//   );
-// }
-// SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-// StatusBarControl.setHidden(false);
-// await player.release();
-// await player.release();
-// mutex = null;
 
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
@@ -88,6 +48,13 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   HttpOverrides.global = DevHttpOverrides();
   await EasyLocalization.ensureInitialized();
   await ServersProvider.ensureInitialized();
+  await SettingsProvider.ensureInitialized();
+  if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+    debugPrint(
+      'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
+    );
+    return;
+  }
   debugPrint(message.toMap().toString());
   try {
     await AwesomeNotifications().initialize(
@@ -105,6 +72,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
     final eventType = message.data['eventType'];
     final name = message.data['deviceName'];
     final serverUUID = message.data['serverId'];
+    final id = message.data['deviceId'];
     if (!['motion_event', 'device_state'].contains(eventType)) {
       return;
     }
@@ -129,15 +97,15 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       ),
       actionButtons: [
         NotificationActionButton(
-          label: '15 minutes',
+          label: 'snooze_15'.tr(),
           key: 'snooze_15',
         ),
         NotificationActionButton(
-          label: '30 minutes',
+          label: 'snooze_30'.tr(),
           key: 'snooze_30',
         ),
         NotificationActionButton(
-          label: '1 hour',
+          label: 'snooze_60'.tr(),
           key: 'snooze_60',
         ),
       ],
@@ -151,18 +119,16 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       );
       final event = events.firstWhere(
         (event) {
-          debugPrint(
-              '${event.title.split('device').last.trim().toLowerCase()} == ${name.toLowerCase()}');
-          return event.title.split('device').last.trim().toLowerCase() ==
-              name.toLowerCase();
+          debugPrint('$id == ${event.deviceID}');
+          return id == event.deviceID.toString();
         },
       );
       final thumbnail =
-          'https://admin:bluecherry@7007cams.bluecherry.app:7001/media/request.php?id=128690&mode=screenshot';
+          await API.instance.getThumbnail(server, event.id.toString());
+      debugPrint(thumbnail);
       if (thumbnail != null) {
-        final path = await _downloadAndSaveFile(thumbnail);
+        final path = await _downloadAndSaveFile(thumbnail, event.id.toString());
         debugPrint(path);
-        await AwesomeNotifications().dismiss(key);
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: key,
@@ -209,17 +175,94 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   }
 }
 
-Future<void> _backgroundActionStreamReceiver(ReceivedAction action) async {
+Future<void> _backgroundClickAction(ReceivedAction action) async {
+  await Firebase.initializeApp();
+  HttpOverrides.global = DevHttpOverrides();
+  await EasyLocalization.ensureInitialized();
+  await ServersProvider.ensureInitialized();
+  await SettingsProvider.ensureInitialized();
   debugPrint(action.toString());
+  // Notification action buttons were not pressed.
+  if (action.buttonKeyPressed.isEmpty) {
+    debugPrint('action.buttonKeyPressed.isEmpty');
+    final eventType = action.payload!['eventType'];
+    final serverUUID = action.payload!['serverId'];
+    final id = action.payload!['deviceId'];
+    final name = action.payload!['deviceName'];
+    // Return if same device is already playing or unknown event type is detected.
+    if (_mutex == id || !['motion_event', 'device_state'].contains(eventType)) {
+      return;
+    }
+    final server = ServersProvider.instance.servers
+        .firstWhere((server) => server.serverUUID == serverUUID);
+    final device = Device(name!, 'live/$id', true, 0, 0, server);
+    final player = MobileViewProvider.instance.getVideoPlayerController(device);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    StatusBarControl.setHidden(true);
+    // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
+    // Thus, push a new route.
+    if (_mutex == null) {
+      _mutex = id;
+      await navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => DeviceFullscreenViewer(
+            device: device,
+            ijkPlayer: player,
+            restoreStatusBarStyleOnDispose: true,
+          ),
+        ),
+      );
+    }
+    // A [DeviceFullscreenViewer] route is likely pushed before due to notification click into the navigator.
+    // Thus, replace the existing route.
+    else {
+      _mutex = id;
+      navigatorKey.currentState?.pop();
+      await Future.delayed(const Duration(seconds: 1));
+      await navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => DeviceFullscreenViewer(
+            device: device,
+            ijkPlayer: player,
+            restoreStatusBarStyleOnDispose: true,
+          ),
+        ),
+      );
+    }
+    await player.release();
+    await player.release();
+    _mutex = null;
+  }
+  // Any of the snooze buttons were pressed.
+  else {
+    debugPrint('action.buttonKeyPressed.isNotEmpty');
+    final duration = Duration(
+      minutes: {
+        'snooze_15': 15,
+        'snooze_30': 30,
+        'snooze_60': 60,
+      }[action.buttonKeyPressed]!,
+    );
+    SettingsProvider.instance.snoozedUntil = DateTime.now().add(duration);
+    if (action.id != null) {
+      AwesomeNotifications().dismiss(action.id!);
+    }
+  }
 }
 
-Future<String> _downloadAndSaveFile(String url) async {
+Future<String> _downloadAndSaveFile(String url, String eventID) async {
   final directory = await getExternalStorageDirectory();
-  final filePath = '${directory?.path}/${Random().nextInt(1 << 32)}.png';
-  final response = await get(Uri.parse(url));
+  final filePath = '${directory?.path}/$eventID.png';
   final file = File(filePath);
-  await file.create(recursive: true);
-  await file.writeAsBytes(response.bodyBytes);
+  // Download the event thumbnail only if it doesn't exist already.
+  if (!await file.exists()) {
+    final response = await get(Uri.parse(url));
+    await file.create(recursive: true);
+    await file.writeAsBytes(response.bodyBytes);
+  }
   debugPrint('file://$filePath');
   return 'file://$filePath';
 }
@@ -235,11 +278,18 @@ abstract class FirebaseConfiguration {
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+        debugPrint(
+          'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
+        );
+        return;
+      }
       debugPrint(message.toMap().toString());
       try {
         final eventType = message.data['eventType'];
         final name = message.data['deviceName'];
         final serverUUID = message.data['serverId'];
+        final id = message.data['deviceId'];
         if (!['motion_event', 'device_state'].contains(eventType)) {
           return;
         }
@@ -264,15 +314,15 @@ abstract class FirebaseConfiguration {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: '15 minutes',
+              label: 'snooze_15'.tr(),
               key: 'snooze_15',
             ),
             NotificationActionButton(
-              label: '30 minutes',
+              label: 'snooze_30'.tr(),
               key: 'snooze_30',
             ),
             NotificationActionButton(
-              label: '1 hour',
+              label: 'snooze_60'.tr(),
               key: 'snooze_60',
             ),
           ],
@@ -286,18 +336,16 @@ abstract class FirebaseConfiguration {
           );
           final event = events.firstWhere(
             (event) {
-              debugPrint(
-                  '${event.title.split('device').last.trim().toLowerCase()} == ${name.toLowerCase()}');
-              return event.title.split('device').last.trim().toLowerCase() ==
-                  name.toLowerCase();
+              debugPrint('$id == ${event.deviceID}');
+              return id == event.deviceID.toString();
             },
           );
           final thumbnail =
-              'https://admin:bluecherry@7007cams.bluecherry.app:7001/media/request.php?id=128690&mode=screenshot';
+              await API.instance.getThumbnail(server, event.id.toString());
+          debugPrint(thumbnail);
           if (thumbnail != null) {
-            final path = await _downloadAndSaveFile(thumbnail);
-            debugPrint(path);
-            await AwesomeNotifications().dismiss(key);
+            final path =
+                await _downloadAndSaveFile(thumbnail, event.id.toString());
             await AwesomeNotifications().createNotification(
               content: NotificationContent(
                 id: key,
@@ -358,7 +406,7 @@ abstract class FirebaseConfiguration {
           ledColor: Colors.white,
         )
       ],
-      backgroundClickAction: _backgroundActionStreamReceiver,
+      backgroundClickAction: _backgroundClickAction,
       debug: true,
     );
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
@@ -367,7 +415,7 @@ abstract class FirebaseConfiguration {
       }
     });
     AwesomeNotifications().actionStream.listen((action) {
-      debugPrint(action.toString());
+      _backgroundClickAction(action);
     });
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
@@ -415,3 +463,5 @@ abstract class FirebaseConfiguration {
     });
   }
 }
+
+String? _mutex;

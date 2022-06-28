@@ -58,5 +58,15 @@
   "yes": "Yes",
   "no": "No",
   "version": "Version",
-  "version_text": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved."
+  "version_text": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
+  "snooze_15": "15 minutes",
+  "snooze_30": "30 minutes",
+  "snooze_60": "1 hour",
+  "miscellaneous": "Miscellaneous",
+  "snooze_notifications": "Snooze Notifications",
+  "not_snoozed": "Not snoozing.",
+  "snoozed_until": "Snoozed until {}.",
+  "notification_click_action": "Notification Click Action",
+  "show_fullscreen_camera": "Show fullscreen camera.",
+  "show_events_screen": "Show events screen."
 }

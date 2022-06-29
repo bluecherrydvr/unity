@@ -349,3 +349,67 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
     );
   }
 }
+
+// I'm tired of buggy implementation in
+class CorrectedListTile extends StatelessWidget {
+  final void Function()? onTap;
+  final IconData iconData;
+  final String title;
+  final String? subtitle;
+  final double? height;
+  const CorrectedListTile({
+    Key? key,
+    required this.iconData,
+    required this.title,
+    this.subtitle,
+    this.onTap,
+    this.height,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: height ?? 88.0,
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 16.0),
+              alignment: Alignment.center,
+              width: 40.0,
+              height: 40.0,
+              child: Icon(iconData),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.subtitle1,
+                  ),
+                  if (subtitle != null) const SizedBox(height: 4.0),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                            color: Theme.of(context).textTheme.caption?.color,
+                          ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}

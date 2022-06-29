@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/server.dart';
 class Event {
   final Server server;
   final int id;
+  final int deviceID;
   final String title;
   final DateTime published;
   final DateTime updated;
@@ -34,6 +35,7 @@ class Event {
   Event(
     this.server,
     this.id,
+    this.deviceID,
     this.title,
     this.published,
     this.updated,
@@ -47,6 +49,7 @@ class Event {
   bool operator ==(dynamic other) {
     return other is Event &&
         id == other.id &&
+        deviceID == other.deviceID &&
         title == other.title &&
         published == other.published &&
         updated == other.updated &&
@@ -59,6 +62,7 @@ class Event {
   @override
   int get hashCode =>
       id.hashCode ^
+      deviceID.hashCode ^
       title.hashCode ^
       published.hashCode ^
       updated.hashCode ^
@@ -69,11 +73,12 @@ class Event {
 
   @override
   String toString() =>
-      'Event($id, $title, $published, $updated, $category, $mediaID, $mediaDuration, $mediaURL)';
+      'Event($id, $deviceID, $title, $published, $updated, $category, $mediaID, $mediaDuration, $mediaURL)';
 
   Event copyWith(
     Server? server,
     int? id,
+    int? deviceID,
     String? title,
     DateTime? published,
     DateTime? updated,
@@ -84,6 +89,7 @@ class Event {
   ) =>
       Event(
         server ?? this.server,
+        deviceID ?? this.deviceID,
         id ?? this.id,
         title ?? this.title,
         published ?? this.published,
@@ -96,6 +102,7 @@ class Event {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'deviceID': deviceID,
         'title': title,
         'published': published.toIso8601String(),
         'updated': updated.toIso8601String(),
@@ -107,6 +114,7 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) => Event(
         Server.fromJson(json['server']),
+        json['deviceID'],
         json['id'],
         json['title'],
         DateTime.parse(json['published']),

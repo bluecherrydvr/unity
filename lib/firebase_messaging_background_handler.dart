@@ -20,65 +20,269 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:status_bar_control/status_bar_control.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/firebase_options.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/events_screen.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/models/device.dart';
 
-const channel = AndroidNotificationChannel(
-  'com.bluecherrydvr',
-  'Bluecherry Client',
-  importance: Importance.high,
-  playSound: true,
-  showBadge: true,
-  enableLights: true,
-);
-
-final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+import 'package:bluecherry_client/main.dart';
 
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
-  try {
-    await Firebase.initializeApp();
-    debugPrint(message.toMap().toString());
-    final notification = FlutterLocalNotificationsPlugin();
-    await notification
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-    notification.show(
-      Random().nextInt((pow(2, 31)) ~/ 1 - 1),
-      getEventNameFromID(message.data['eventType']),
-      '${message.data['deviceName']}',
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          icon: 'drawable/ic_stat_linked_camera',
-        ),
-      ),
+  await Firebase.initializeApp();
+  HttpOverrides.global = DevHttpOverrides();
+  await EasyLocalization.ensureInitialized();
+  await ServersProvider.ensureInitialized();
+  await SettingsProvider.ensureInitialized();
+  if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+    debugPrint(
+      'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
     );
+    return;
+  }
+  debugPrint(message.toMap().toString());
+  try {
+    await AwesomeNotifications().initialize(
+      'resource://drawable/ic_stat_linked_camera',
+      [
+        NotificationChannel(
+          channelKey: 'com.bluecherrydvr',
+          channelName: 'Bluecherry DVR',
+          channelDescription: 'Bluecherry DVR Notifications',
+          ledColor: Colors.white,
+        )
+      ],
+      debug: true,
+    );
+    final eventType = message.data['eventType'];
+    final name = message.data['deviceName'];
+    final serverUUID = message.data['serverId'];
+    final id = message.data['deviceId'];
+    if (!['motion_event', 'device_state'].contains(eventType)) {
+      return;
+    }
+    final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: key,
+        color: const Color.fromRGBO(92, 107, 192, 1),
+        channelKey: 'com.bluecherrydvr',
+        title: getEventNameFromID(eventType),
+        body: name,
+        displayOnBackground: true,
+        displayOnForeground: true,
+        payload: message.data
+            .map<String, String>(
+              (key, value) => MapEntry(
+                key,
+                value.toString(),
+              ),
+            )
+            .cast(),
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          label: 'snooze_15'.tr(),
+          key: 'snooze_15',
+        ),
+        NotificationActionButton(
+          label: 'snooze_30'.tr(),
+          key: 'snooze_30',
+        ),
+        NotificationActionButton(
+          label: 'snooze_60'.tr(),
+          key: 'snooze_60',
+        ),
+      ],
+    );
+    try {
+      final server = ServersProvider.instance.servers
+          .firstWhere((server) => server.serverUUID == serverUUID);
+      final events = await API.instance.getEvents(
+        await API.instance.checkServerCredentials(server),
+        limit: 10,
+      );
+      final event = events.firstWhere(
+        (event) {
+          debugPrint('$id == ${event.deviceID}');
+          return id == event.deviceID.toString();
+        },
+      );
+      final thumbnail =
+          await API.instance.getThumbnail(server, event.id.toString());
+      debugPrint(thumbnail);
+      if (thumbnail != null) {
+        final path = await _downloadAndSaveFile(thumbnail, event.id.toString());
+        debugPrint(path);
+        await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: key,
+            color: const Color.fromRGBO(92, 107, 192, 1),
+            channelKey: 'com.bluecherrydvr',
+            bigPicture: path,
+            title: getEventNameFromID(eventType),
+            body: name,
+            displayOnBackground: true,
+            displayOnForeground: true,
+            payload: message.data
+                .map<String, String>(
+                  (key, value) => MapEntry(
+                    key,
+                    value.toString(),
+                  ),
+                )
+                .cast(),
+            notificationLayout: NotificationLayout.BigPicture,
+          ),
+          actionButtons: [
+            NotificationActionButton(
+              label: 'snooze_15'.tr(),
+              key: 'snooze_15',
+            ),
+            NotificationActionButton(
+              label: 'snooze_30'.tr(),
+              key: 'snooze_30',
+            ),
+            NotificationActionButton(
+              label: 'snooze_60'.tr(),
+              key: 'snooze_60',
+            ),
+          ],
+        );
+      }
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
   } catch (exception, stacktrace) {
     debugPrint(exception.toString());
     debugPrint(stacktrace.toString());
   }
 }
 
-Future<String> _downloadAndSaveFile(String url, String fileName) async {
-  final directory = await getApplicationDocumentsDirectory();
-  final filePath = '${directory.path}/$fileName';
-  final response = await get(Uri.parse(url));
+Future<void> _backgroundClickAction(ReceivedAction action) async {
+  await Firebase.initializeApp();
+  HttpOverrides.global = DevHttpOverrides();
+  await EasyLocalization.ensureInitialized();
+  await ServersProvider.ensureInitialized();
+  await SettingsProvider.ensureInitialized();
+  debugPrint(action.toString());
+  // Notification action buttons were not pressed.
+  if (action.buttonKeyPressed.isEmpty) {
+    debugPrint('action.buttonKeyPressed.isEmpty');
+    // Fetch device & server details to show the [DeviceFullscreenViewer].
+    if (SettingsProvider.instance.notificationClickAction ==
+        NotificationClickAction.showFullscreenCamera) {
+      final eventType = action.payload!['eventType'];
+      final serverUUID = action.payload!['serverId'];
+      final id = action.payload!['deviceId'];
+      final name = action.payload!['deviceName'];
+      // Return if same device is already playing or unknown event type is detected.
+      if (_mutex == id ||
+          !['motion_event', 'device_state'].contains(eventType)) {
+        return;
+      }
+      final server = ServersProvider.instance.servers
+          .firstWhere((server) => server.serverUUID == serverUUID);
+      final device = Device(name!, 'live/$id', true, 0, 0, server);
+      final player =
+          MobileViewProvider.instance.getVideoPlayerController(device);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      StatusBarControl.setHidden(true);
+      // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
+      // Thus, push a new route.
+      if (_mutex == null) {
+        _mutex = id;
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+              restoreStatusBarStyleOnDispose: true,
+            ),
+          ),
+        );
+        _mutex = null;
+      }
+      // A [DeviceFullscreenViewer] route is likely pushed before due to notification click into the navigator.
+      // Thus, replace the existing route.
+      else {
+        navigatorKey.currentState?.pop();
+        await Future.delayed(const Duration(seconds: 1));
+        _mutex = id;
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+              restoreStatusBarStyleOnDispose: true,
+            ),
+          ),
+        );
+        _mutex = null;
+      }
+      await player.release();
+      await player.release();
+    } else {
+      if (_mutex == null) {
+        _mutex = 'events_screen';
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => const EventsScreen(),
+          ),
+        );
+        _mutex = null;
+      }
+    }
+  }
+  // Any of the snooze buttons were pressed.
+  else {
+    debugPrint('action.buttonKeyPressed.isNotEmpty');
+    final duration = Duration(
+      minutes: {
+        'snooze_15': 15,
+        'snooze_30': 30,
+        'snooze_60': 60,
+      }[action.buttonKeyPressed]!,
+    );
+    SettingsProvider.instance.snoozedUntil = DateTime.now().add(duration);
+    if (action.id != null) {
+      AwesomeNotifications().dismiss(action.id!);
+    }
+  }
+}
+
+Future<String> _downloadAndSaveFile(String url, String eventID) async {
+  final directory = await getExternalStorageDirectory();
+  final filePath = '${directory?.path}/$eventID.png';
   final file = File(filePath);
-  await file.writeAsBytes(response.bodyBytes);
-  return filePath;
+  // Download the event thumbnail only if it doesn't exist already.
+  if (!await file.exists()) {
+    final response = await get(Uri.parse(url));
+    await file.create(recursive: true);
+    await file.writeAsBytes(response.bodyBytes);
+  }
+  debugPrint('file://$filePath');
+  return 'file://$filePath';
 }
 
 /// Initialize & handle Firebase core & messaging plugins.
@@ -91,21 +295,115 @@ abstract class FirebaseConfiguration {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      try {
-        debugPrint(message.toMap().toString());
-        flutterLocalNotificationsPlugin.show(
-          Random().nextInt((pow(2, 31)) ~/ 1 - 1),
-          getEventNameFromID(message.data['eventType']),
-          '${message.data['deviceName']}',
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              icon: 'drawable/ic_stat_linked_camera',
-            ),
-          ),
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+        debugPrint(
+          'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
         );
+        return;
+      }
+      debugPrint(message.toMap().toString());
+      try {
+        final eventType = message.data['eventType'];
+        final name = message.data['deviceName'];
+        final serverUUID = message.data['serverId'];
+        final id = message.data['deviceId'];
+        if (!['motion_event', 'device_state'].contains(eventType)) {
+          return;
+        }
+        final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
+        AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: key,
+            color: const Color.fromRGBO(92, 107, 192, 1),
+            channelKey: 'com.bluecherrydvr',
+            title: getEventNameFromID(eventType),
+            body: name,
+            displayOnBackground: true,
+            displayOnForeground: true,
+            payload: message.data
+                .map<String, String>(
+                  (key, value) => MapEntry(
+                    key,
+                    value.toString(),
+                  ),
+                )
+                .cast(),
+          ),
+          actionButtons: [
+            NotificationActionButton(
+              label: 'snooze_15'.tr(),
+              key: 'snooze_15',
+            ),
+            NotificationActionButton(
+              label: 'snooze_30'.tr(),
+              key: 'snooze_30',
+            ),
+            NotificationActionButton(
+              label: 'snooze_60'.tr(),
+              key: 'snooze_60',
+            ),
+          ],
+        );
+        try {
+          final server = ServersProvider.instance.servers
+              .firstWhere((server) => server.serverUUID == serverUUID);
+          final events = await API.instance.getEvents(
+            await API.instance.checkServerCredentials(server),
+            limit: 10,
+          );
+          final event = events.firstWhere(
+            (event) {
+              debugPrint('$id == ${event.deviceID}');
+              return id == event.deviceID.toString();
+            },
+          );
+          final thumbnail =
+              await API.instance.getThumbnail(server, event.id.toString());
+          debugPrint(thumbnail);
+          if (thumbnail != null) {
+            final path =
+                await _downloadAndSaveFile(thumbnail, event.id.toString());
+            await AwesomeNotifications().createNotification(
+              content: NotificationContent(
+                id: key,
+                color: const Color.fromRGBO(92, 107, 192, 1),
+                channelKey: 'com.bluecherrydvr',
+                bigPicture: path,
+                title: getEventNameFromID(eventType),
+                body: name,
+                displayOnBackground: true,
+                displayOnForeground: true,
+                payload: message.data
+                    .map<String, String>(
+                      (key, value) => MapEntry(
+                        key,
+                        value.toString(),
+                      ),
+                    )
+                    .cast(),
+                notificationLayout: NotificationLayout.BigPicture,
+              ),
+              actionButtons: [
+                NotificationActionButton(
+                  label: '15 minutes',
+                  key: 'snooze_15',
+                ),
+                NotificationActionButton(
+                  label: '30 minutes',
+                  key: 'snooze_30',
+                ),
+                NotificationActionButton(
+                  label: '1 hour',
+                  key: 'snooze_60',
+                ),
+              ],
+            );
+          }
+        } catch (exception, stacktrace) {
+          debugPrint(exception.toString());
+          debugPrint(stacktrace.toString());
+        }
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());
@@ -116,10 +414,27 @@ abstract class FirebaseConfiguration {
       badge: true,
       sound: true,
     );
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await AwesomeNotifications().initialize(
+      'resource://drawable/ic_stat_linked_camera',
+      [
+        NotificationChannel(
+          channelKey: 'com.bluecherrydvr',
+          channelName: 'Bluecherry DVR',
+          channelDescription: 'Bluecherry DVR Notifications',
+          ledColor: Colors.white,
+        )
+      ],
+      backgroundClickAction: _backgroundClickAction,
+      debug: true,
+    );
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
+    AwesomeNotifications().actionStream.listen((action) {
+      _backgroundClickAction(action);
+    });
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
@@ -149,7 +464,7 @@ abstract class FirebaseConfiguration {
       if (token != null) {
         final instance = await SharedPreferences.getInstance();
         // Do not proceed, if token is already saved.
-        if (instance.containsKey(kSharedPreferencesNotificationToken)) {
+        if (instance.getString(kSharedPreferencesNotificationToken) == token) {
           return;
         }
         await instance.setString(
@@ -166,3 +481,5 @@ abstract class FirebaseConfiguration {
     });
   }
 }
+
+String? _mutex;

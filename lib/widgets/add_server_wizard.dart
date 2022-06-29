@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -130,9 +132,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                   onTap: () {
                                                     launchUrl(
                                                       Uri.https(
-                                                        'www.bluecherry.com',
+                                                        'www.bluecherrydvr.com',
                                                         '/',
                                                       ),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
                                                     );
                                                   },
                                                   child: Text(
@@ -157,9 +161,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                   onTap: () {
                                                     launchUrl(
                                                       Uri.https(
-                                                        'www.bluecherry.com',
+                                                        'www.bluecherrydvr.com',
                                                         '/product/v3license/',
                                                       ),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
                                                     );
                                                   },
                                                   child: Text(
@@ -350,7 +356,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 right: 16.0,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: Platform.isIOS
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8.0),
                   Text(
@@ -517,49 +525,49 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: savePassword,
-                              onChanged: (value) {
-                                setState(() {
-                                  savePassword = value!;
-                                });
-                              },
-                            ),
-                            Text(
-                              'save_password'.tr(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headline4,
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(top: 8.0),
+                      //   child: Row(
+                      //     children: [
+                      //       Checkbox(
+                      //         value: savePassword,
+                      //         onChanged: (value) {
+                      //           setState(() {
+                      //             savePassword = value!;
+                      //           });
+                      //         },
+                      //       ),
+                      //       Text(
+                      //         'save_password'.tr(),
+                      //         maxLines: 2,
+                      //         overflow: TextOverflow.ellipsis,
+                      //         style: Theme.of(context).textTheme.headline4,
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(width: 16.0),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: connectAutomaticallyAtStartup,
-                        onChanged: (value) {
-                          setState(() {
-                            connectAutomaticallyAtStartup = value!;
-                          });
-                        },
-                      ),
-                      Text(
-                        'connect_automatically_at_startup'.tr(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headline4,
-                      ),
-                    ],
-                  ),
+                  // const SizedBox(height: 16.0),
+                  // Row(
+                  //   children: [
+                  //     Checkbox(
+                  //       value: connectAutomaticallyAtStartup,
+                  //       onChanged: (value) {
+                  //         setState(() {
+                  //           connectAutomaticallyAtStartup = value!;
+                  //         });
+                  //       },
+                  //     ),
+                  //     Text(
+                  //       'connect_automatically_at_startup'.tr(),
+                  //       maxLines: 2,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       style: Theme.of(context).textTheme.headline4,
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 16.0),
                   Align(
                     alignment: Alignment.bottomRight,
@@ -796,7 +804,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 right: 16.0,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: Platform.isIOS
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8.0),
                   Text(
@@ -844,8 +854,10 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ...List.generate(kInAppTipsCount, (index) => 'tip_$index'.tr())
-                    .map(
+                ...List.generate(
+                  int.parse('tip_count'.tr()),
+                  (index) => 'tip_$index'.tr(),
+                ).map(
                   (e) => Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 8.0,

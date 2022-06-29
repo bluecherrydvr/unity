@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -131,6 +132,127 @@ class _SettingsState extends State<Settings> {
                     ),
                   )
                   .toList(),
+            ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 12.0,
+            ),
+            child: Text(
+              'miscellaneous'.tr().toUpperCase(),
+              style: Theme.of(context).textTheme.overline?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+            ),
+          ),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, _) => Column(
+              children: [
+                CorrectedListTile(
+                  iconData: Icons.message,
+                  onTap: () async {
+                    if (settings.snoozedUntil.isAfter(DateTime.now())) {
+                      settings.snoozedUntil =
+                          SettingsProvider.defaultSnoozedUntil;
+                    } else {
+                      final timeOfDay = await showTimePicker(
+                        context: context,
+                        helpText:
+                            'snooze_notifications_until'.tr().toUpperCase(),
+                        initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+                        useRootNavigator: false,
+                        builder: (_, child) => Theme.of(context).brightness ==
+                                Brightness.dark
+                            ? Theme(
+                                data: ThemeData.dark().copyWith(
+                                  primaryColor: Theme.of(context).primaryColor,
+                                  colorScheme: ColorScheme.fromSwatch(
+                                    primarySwatch: Colors.indigo,
+                                    brightness: Brightness.dark,
+                                  ),
+                                  dialogTheme: const DialogTheme(
+                                    backgroundColor: Colors.black,
+                                  ),
+                                  scaffoldBackgroundColor: Colors.black,
+                                ),
+                                child: TimePickerTheme(
+                                  data: const TimePickerThemeData(
+                                    backgroundColor: Color(0xFF191919),
+                                  ),
+                                  child: child!,
+                                ),
+                              )
+                            : child!,
+                      );
+                      if (timeOfDay != null) {
+                        settings.snoozedUntil = DateTime(
+                          DateTime.now().year,
+                          DateTime.now().month,
+                          DateTime.now().day,
+                          timeOfDay.hour,
+                          timeOfDay.minute,
+                        );
+                      }
+                    }
+                  },
+                  title: 'snooze_notifications'.tr(),
+                  height: 72.0,
+                  subtitle: settings.snoozedUntil.isAfter(DateTime.now())
+                      ? 'snoozed_until'.tr(
+                          args: [
+                            [
+                              if (settings.snoozedUntil
+                                      .difference(DateTime.now()) >
+                                  const Duration(hours: 24))
+                                SettingsProvider.instance.dateFormat
+                                    .format(settings.snoozedUntil),
+                              SettingsProvider.instance.timeFormat
+                                  .format(settings.snoozedUntil),
+                            ].join(' '),
+                          ],
+                        )
+                      : 'not_snoozed'.tr(),
+                ),
+                ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.beenhere_rounded),
+                  ),
+                  title: Text('notification_click_action'.tr()),
+                  textColor: Theme.of(context).textTheme.bodyText1?.color,
+                  subtitle: Text(
+                    settings.notificationClickAction.str(),
+                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                          color: Theme.of(context).textTheme.caption?.color,
+                        ),
+                  ),
+                  children: NotificationClickAction.values
+                      .map(
+                        (e) => ListTile(
+                          onTap: () {
+                            settings.notificationClickAction = e;
+                          },
+                          trailing: Radio(
+                            value: e,
+                            groupValue: settings.notificationClickAction,
+                            onChanged: (value) {
+                              settings.notificationClickAction = e;
+                            },
+                          ),
+                          title: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child:
+                                Text(e.str().substring(0, e.str().length - 1)),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
           ),
           const Divider(),
@@ -257,22 +379,21 @@ class _SettingsState extends State<Settings> {
                   style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () {
-                      launchUrl(
-                        Uri.https(
-                          'www.bluecherry.com',
-                          '/',
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'website'.tr(),
-                      style: Theme.of(context).textTheme.headline2?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                MaterialButton(
+                  onPressed: () {
+                    launchUrl(
+                      Uri.https(
+                        'www.bluecherry.com',
+                        '/',
+                      ),
+                    );
+                  },
+                  padding: EdgeInsets.zero,
+                  minWidth: 0.0,
+                  child: Text(
+                    'website'.tr().toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -389,4 +510,12 @@ class _ServerTileState extends State<ServerTile> {
       ),
     );
   }
+}
+
+extension on NotificationClickAction {
+  String str() => {
+        NotificationClickAction.showFullscreenCamera:
+            'show_fullscreen_camera'.tr(),
+        NotificationClickAction.showEventsScreen: 'show_events_screen'.tr(),
+      }[this]!;
 }

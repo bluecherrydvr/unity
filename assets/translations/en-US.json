@@ -21,6 +21,7 @@
   "project_description": "Powerful Video Surveillance Software",
   "website": "Website",
   "purchase": "Purchase",
+  "tip_count": "4",
   "tip_0": "Cameras are shown on left. You can double-click or drag the camera into the live area to view it.",
   "tip_1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
   "tip_2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
@@ -58,5 +59,16 @@
   "yes": "Yes",
   "no": "No",
   "version": "Version",
-  "version_text": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved."
+  "version_text": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
+  "snooze_15": "15 minutes",
+  "snooze_30": "30 minutes",
+  "snooze_60": "1 hour",
+  "miscellaneous": "Miscellaneous",
+  "snooze_notifications": "Snooze Notifications",
+  "not_snoozed": "Not snoozing.",
+  "snooze_notifications_until": "Snooze notifications until",
+  "snoozed_until": "Snoozed until {}.",
+  "notification_click_action": "Notification Click Action",
+  "show_fullscreen_camera": "Show fullscreen camera.",
+  "show_events_screen": "Show events screen."
 }

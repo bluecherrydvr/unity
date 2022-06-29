@@ -18,14 +18,12 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/api/api.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
 class DirectCameraScreen extends StatefulWidget {
   const DirectCameraScreen({Key? key}) : super(key: key);
@@ -35,12 +33,6 @@ class DirectCameraScreen extends StatefulWidget {
 }
 
 class _DirectCameraScreenState extends State<DirectCameraScreen> {
-  @override
-  void initState() {
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,25 +127,19 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                             .instance
                                             .getVideoPlayerController(
                                                 server.devices[index]);
-                                        SystemChrome.setPreferredOrientations([
-                                          DeviceOrientation.landscapeLeft,
-                                          DeviceOrientation.landscapeRight,
-                                        ]);
-                                        StatusBarControl.setHidden(true);
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 DeviceFullscreenViewer(
                                               device: server.devices[index],
                                               ijkPlayer: player,
+                                              restoreStatusBarStyleOnDispose:
+                                                  true,
                                             ),
                                           ),
                                         );
                                         await player.release();
                                         await player.release();
-                                        SystemChrome.setPreferredOrientations(
-                                            DeviceOrientation.values);
-                                        StatusBarControl.setHidden(false);
                                       },
                                     );
                                   }(),

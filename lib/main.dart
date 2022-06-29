@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -31,6 +32,8 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DevHttpOverrides();
@@ -40,6 +43,11 @@ Future<void> main() async {
   await SettingsProvider.ensureInitialized();
   await FirebaseConfiguration.ensureInitialized();
   await DartVLC.initialize();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    systemNavigationBarDividerColor: Colors.black,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
   runApp(
     EasyLocalization(
       supportedLocales: kSupportedLocales,
@@ -67,6 +75,7 @@ class MyApp extends StatelessWidget {
       create: (context) => SettingsProvider.instance,
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
+          navigatorKey: navigatorKey,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,

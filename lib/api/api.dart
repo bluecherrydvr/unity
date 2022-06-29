@@ -129,25 +129,28 @@ class API {
       );
       final parser = Xml2Json();
       parser.parse(response.body);
-      return jsonDecode(parser.toParkerWithAttrs())['feed']['entry']
+      return jsonDecode(parser.toGData())['feed']['entry']
           .map(
             (e) => Event(
               server,
-              int.parse(e['id']['_raw']),
-              e['title'],
-              e['published'] == null
+              int.parse(e['id']['raw']),
+              int.parse(e['category']['term'].split('/').first),
+              e['title']['\$t'],
+              e['published'] == null || e['published']['\$t'] == null
                   ? DateTime.now()
-                  : DateTime.parse(e['published']),
-              e['updated'] == null
+                  : DateTime.parse(e['published']['\$t']),
+              e['updated'] == null || e['updated']['\$t'] == null
                   ? DateTime.now()
-                  : DateTime.parse(e['updated']),
-              e['category'],
-              int.parse(e['content']['_media_id']),
-              Duration(milliseconds: int.parse(e['content']['_media_size'])),
+                  : DateTime.parse(e['updated']['\$t']),
+              e['category']['term'],
+              int.parse(e['content']['media_id']),
+              Duration(
+                milliseconds: int.tryParse(e['content']['media_size']) ?? 0,
+              ),
               Uri.parse(
-                e['content']['value'].replaceAll(
+                e['content']['\$t'].replaceAll(
                   'https://',
-                  'https://${server.login}:${Uri.encodeComponent(server.password)}@',
+                  'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
                 ),
               ),
             ),
@@ -269,7 +272,7 @@ class API {
         },
       );
       final response = await get(uri);
-      return response.statusCode ~/ 100 == 2 ? uri.toString() : null;
+      return response.statusCode ~/ 100 == 2 /* OK */ ? uri.toString() : null;
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

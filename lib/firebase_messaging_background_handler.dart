@@ -35,6 +35,7 @@ import 'package:bluecherry_client/firebase_options.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/events_screen.dart';
 import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -151,15 +152,15 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: '15 minutes',
+              label: 'snooze_15'.tr(),
               key: 'snooze_15',
             ),
             NotificationActionButton(
-              label: '30 minutes',
+              label: 'snooze_30'.tr(),
               key: 'snooze_30',
             ),
             NotificationActionButton(
-              label: '1 hour',
+              label: 'snooze_60'.tr(),
               key: 'snooze_60',
             ),
           ],
@@ -185,56 +186,73 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   // Notification action buttons were not pressed.
   if (action.buttonKeyPressed.isEmpty) {
     debugPrint('action.buttonKeyPressed.isEmpty');
-    final eventType = action.payload!['eventType'];
-    final serverUUID = action.payload!['serverId'];
-    final id = action.payload!['deviceId'];
-    final name = action.payload!['deviceName'];
-    // Return if same device is already playing or unknown event type is detected.
-    if (_mutex == id || !['motion_event', 'device_state'].contains(eventType)) {
-      return;
-    }
-    final server = ServersProvider.instance.servers
-        .firstWhere((server) => server.serverUUID == serverUUID);
-    final device = Device(name!, 'live/$id', true, 0, 0, server);
-    final player = MobileViewProvider.instance.getVideoPlayerController(device);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    StatusBarControl.setHidden(true);
-    // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
-    // Thus, push a new route.
-    if (_mutex == null) {
-      _mutex = id;
-      await navigatorKey.currentState?.push(
-        MaterialPageRoute(
-          builder: (context) => DeviceFullscreenViewer(
-            device: device,
-            ijkPlayer: player,
-            restoreStatusBarStyleOnDispose: true,
+    // Fetch device & server details to show the [DeviceFullscreenViewer].
+    if (SettingsProvider.instance.notificationClickAction ==
+        NotificationClickAction.showFullscreenCamera) {
+      final eventType = action.payload!['eventType'];
+      final serverUUID = action.payload!['serverId'];
+      final id = action.payload!['deviceId'];
+      final name = action.payload!['deviceName'];
+      // Return if same device is already playing or unknown event type is detected.
+      if (_mutex == id ||
+          !['motion_event', 'device_state'].contains(eventType)) {
+        return;
+      }
+      final server = ServersProvider.instance.servers
+          .firstWhere((server) => server.serverUUID == serverUUID);
+      final device = Device(name!, 'live/$id', true, 0, 0, server);
+      final player =
+          MobileViewProvider.instance.getVideoPlayerController(device);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      StatusBarControl.setHidden(true);
+      // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
+      // Thus, push a new route.
+      if (_mutex == null) {
+        _mutex = id;
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+              restoreStatusBarStyleOnDispose: true,
+            ),
           ),
-        ),
-      );
-    }
-    // A [DeviceFullscreenViewer] route is likely pushed before due to notification click into the navigator.
-    // Thus, replace the existing route.
-    else {
-      _mutex = id;
-      navigatorKey.currentState?.pop();
-      await Future.delayed(const Duration(seconds: 1));
-      await navigatorKey.currentState?.push(
-        MaterialPageRoute(
-          builder: (context) => DeviceFullscreenViewer(
-            device: device,
-            ijkPlayer: player,
-            restoreStatusBarStyleOnDispose: true,
+        );
+        _mutex = null;
+      }
+      // A [DeviceFullscreenViewer] route is likely pushed before due to notification click into the navigator.
+      // Thus, replace the existing route.
+      else {
+        navigatorKey.currentState?.pop();
+        await Future.delayed(const Duration(seconds: 1));
+        _mutex = id;
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: device,
+              ijkPlayer: player,
+              restoreStatusBarStyleOnDispose: true,
+            ),
           ),
-        ),
-      );
+        );
+        _mutex = null;
+      }
+      await player.release();
+      await player.release();
+    } else {
+      if (_mutex == null) {
+        _mutex = 'events_screen';
+        await navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => const EventsScreen(),
+          ),
+        );
+        _mutex = null;
+      }
     }
-    await player.release();
-    await player.release();
-    _mutex = null;
   }
   // Any of the snooze buttons were pressed.
   else {

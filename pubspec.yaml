@@ -29,10 +29,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dart_vlc:
-    git:
-      url: https://github.com/alexmercerind/dart_vlc.git
-      ref: master
+  dart_vlc: ^0.3.0
   reorderable_grid_view:
     git:
       url: https://github.com/alexmercerind/reorderable_grid_view.git

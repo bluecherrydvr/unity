@@ -438,7 +438,9 @@ class _ServerTileState extends State<ServerTile> {
           await API.instance.getDevices(
             await API.instance.checkServerCredentials(widget.server),
           );
-          setState(() {});
+          if (mounted) {
+            setState(() {});
+          }
         },
       );
     }

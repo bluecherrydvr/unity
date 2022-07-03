@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
@@ -37,12 +38,13 @@ final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DevHttpOverrides();
+  await Hive.initFlutter();
+  await DartVLC.initialize();
   await EasyLocalization.ensureInitialized();
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   await FirebaseConfiguration.ensureInitialized();
-  await DartVLC.initialize();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.black,
     systemNavigationBarDividerColor: Colors.black,
@@ -71,6 +73,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.setLocale(EasyLocalization.of(context)!.locale);
     return ChangeNotifierProvider(
       create: (context) => SettingsProvider.instance,
       child: Consumer<SettingsProvider>(

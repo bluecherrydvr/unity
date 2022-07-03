@@ -20,7 +20,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
@@ -34,7 +34,7 @@ class ServersProvider extends ChangeNotifier {
   static late final ServersProvider instance;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
-  /// `package:shared_preferences` method-calls. Called before [runApp].
+  /// `package:hive` method-calls. Called before [runApp].
   static Future<ServersProvider> ensureInitialized() async {
     try {
       instance = ServersProvider();
@@ -52,8 +52,8 @@ class ServersProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    if (!sharedPreferences.containsKey(kSharedPreferencesServers)) {
+    final hive = await Hive.openBox('hive');
+    if (!hive.containsKey(kHiveServers)) {
       await _save();
     } else {
       await _restore();
@@ -71,14 +71,9 @@ class ServersProvider extends ChangeNotifier {
     await _save();
     // Register notification token.
     try {
-      final instance = await SharedPreferences.getInstance();
-      final notificationToken = instance.getString(
-        kSharedPreferencesNotificationToken,
-      );
-      assert(
-        notificationToken != null,
-        "[kSharedPreferencesNotificationToken] is null.",
-      );
+      final instance = await Hive.openBox('hive');
+      final notificationToken = instance.get(kHiveNotificationToken);
+      assert(notificationToken != null, "[kHiveNotificationToken] is null.");
       await API.instance.registerNotificationToken(server, notificationToken!);
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
@@ -117,20 +112,20 @@ class ServersProvider extends ChangeNotifier {
     }
   }
 
-  /// Save currently added [Server]s to `package:shared_preferences` cache.
+  /// Save currently added [Server]s to `package:hive` cache.
   Future<void> _save() async {
-    final instance = await SharedPreferences.getInstance();
-    await instance.setString(
-      kSharedPreferencesServers,
+    final instance = await Hive.openBox('hive');
+    await instance.put(
+      kHiveServers,
       jsonEncode(servers.map((e) => e.toJson()).toList()),
     );
     notifyListeners();
   }
 
-  /// Restore currently added [Server]s from `package:shared_preferences` cache.
+  /// Restore currently added [Server]s from `package:hive` cache.
   Future<void> _restore() async {
-    final instance = await SharedPreferences.getInstance();
-    servers = jsonDecode(instance.getString(kSharedPreferencesServers)!)
+    final instance = await Hive.openBox('hive');
+    servers = jsonDecode(instance.get(kHiveServers)!)
         .map((e) => Server.fromJson(e))
         .toList()
         .cast<Server>();

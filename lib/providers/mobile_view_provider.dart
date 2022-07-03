@@ -20,10 +20,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:fijkplayer/fijkplayer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -38,7 +38,7 @@ class MobileViewProvider extends ChangeNotifier {
   static late final MobileViewProvider instance;
 
   /// Initializes the [MobileViewProvider] instance & fetches state from `async`
-  /// `package:shared_preferences` method-calls. Called before [runApp].
+  /// `package:hive` method-calls. Called before [runApp].
   static Future<MobileViewProvider> ensureInitialized() async {
     instance = MobileViewProvider();
     await instance.initialize();
@@ -86,8 +86,8 @@ class MobileViewProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    if (!sharedPreferences.containsKey(kSharedPreferencesMobileView)) {
+    final hive = await Hive.openBox('hive');
+    if (!hive.containsKey(kHiveMobileView)) {
       await _save();
     } else {
       await _restore();
@@ -208,10 +208,10 @@ class MobileViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Saves current layout/order of [Device]s to cache using `package:shared_preferences`.
+  /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await SharedPreferences.getInstance();
+    final instance = await Hive.openBox('hive');
     final data = devices.map(
       (key, value) => MapEntry(
         key.toString(),
@@ -219,12 +219,12 @@ class MobileViewProvider extends ChangeNotifier {
       ),
     );
     debugPrint(data.toString());
-    await instance.setString(
-      kSharedPreferencesMobileView,
+    await instance.put(
+      kHiveMobileView,
       jsonEncode(data),
     );
-    await instance.setInt(
-      kSharedPreferencesMobileViewTab,
+    await instance.put(
+      kHiveMobileViewTab,
       tab,
     );
     if (notifyListeners) {
@@ -232,10 +232,10 @@ class MobileViewProvider extends ChangeNotifier {
     }
   }
 
-  /// Restores current layout/order of [Device]s from `package:shared_preferences` cache.
+  /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await SharedPreferences.getInstance();
-    devices = jsonDecode(instance.getString(kSharedPreferencesMobileView)!)
+    final instance = await Hive.openBox('hive');
+    devices = jsonDecode(instance.get(kHiveMobileView)!)
         .map(
           (key, value) => MapEntry<int, List<Device?>>(
             int.parse(key),
@@ -246,7 +246,7 @@ class MobileViewProvider extends ChangeNotifier {
           ),
         )
         .cast<int, List<Device?>>();
-    tab = instance.getInt(kSharedPreferencesMobileViewTab)!;
+    tab = instance.get(kHiveMobileViewTab)!;
     if (notifyListeners) {
       this.notifyListeners();
     }

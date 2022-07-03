@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:bluecherry_client/utils/constants.dart';
 
@@ -48,33 +48,33 @@ class SettingsProvider extends ChangeNotifier {
   set themeMode(ThemeMode value) {
     _themeMode = value;
     notifyListeners();
-    SharedPreferences.getInstance().then((instance) {
-      instance.setInt(kSharedPreferencesThemeMode, value.index);
+    Hive.openBox('hive').then((instance) {
+      instance.put(kHiveThemeMode, value.index);
     });
   }
 
   set dateFormat(DateFormat value) {
     _dateFormat = value;
     notifyListeners();
-    SharedPreferences.getInstance().then((instance) {
-      instance.setString(kSharedPreferencesDateFormat, value.pattern!);
+    Hive.openBox('hive').then((instance) {
+      instance.put(kHiveDateFormat, value.pattern!);
     });
   }
 
   set timeFormat(DateFormat value) {
     _timeFormat = value;
     notifyListeners();
-    SharedPreferences.getInstance().then((instance) {
-      instance.setString(kSharedPreferencesTimeFormat, value.pattern!);
+    Hive.openBox('hive').then((instance) {
+      instance.put(kHiveTimeFormat, value.pattern!);
     });
   }
 
   set snoozedUntil(DateTime value) {
     _snoozedUntil = value;
     notifyListeners();
-    SharedPreferences.getInstance().then((instance) {
-      instance.setString(
-        kSharedPreferencesSnoozedUntil,
+    Hive.openBox('hive').then((instance) {
+      instance.put(
+        kHiveSnoozedUntil,
         value.toIso8601String(),
       );
     });
@@ -83,8 +83,11 @@ class SettingsProvider extends ChangeNotifier {
   set notificationClickAction(NotificationClickAction value) {
     _notificationClickAction = value;
     notifyListeners();
-    SharedPreferences.getInstance().then((instance) {
-      instance.setInt(kSharedPreferencesNotificationClickAction, value.index);
+    Hive.openBox('hive').then((instance) {
+      instance.put(
+        kHiveNotificationClickAction,
+        value.index,
+      );
     });
   }
 
@@ -95,7 +98,7 @@ class SettingsProvider extends ChangeNotifier {
   late NotificationClickAction _notificationClickAction;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
-  /// `package:shared_preferences` method-calls. Called before [runApp].
+  /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
     try {
       instance = SettingsProvider();
@@ -109,40 +112,38 @@ class SettingsProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.containsKey(kSharedPreferencesThemeMode)) {
-      _themeMode = ThemeMode
-          .values[sharedPreferences.getInt(kSharedPreferencesThemeMode)!];
+    final hive = await Hive.openBox('hive');
+    if (hive.containsKey(kHiveThemeMode)) {
+      _themeMode = ThemeMode.values[hive.get(kHiveThemeMode)!];
     } else {
       _themeMode = kDefaultThemeMode;
     }
-    if (sharedPreferences.containsKey(kSharedPreferencesDateFormat)) {
+    if (hive.containsKey(kHiveDateFormat)) {
       _dateFormat = DateFormat(
-        sharedPreferences.getString(kSharedPreferencesDateFormat)!,
+        hive.get(kHiveDateFormat)!,
         'en_US',
       );
     } else {
       _dateFormat = DateFormat(kDefaultDateFormat, 'en_US');
     }
-    if (sharedPreferences.containsKey(kSharedPreferencesTimeFormat)) {
+    if (hive.containsKey(kHiveTimeFormat)) {
       _timeFormat = DateFormat(
-        sharedPreferences.getString(kSharedPreferencesTimeFormat)!,
+        hive.get(kHiveTimeFormat)!,
         'en_US',
       );
     } else {
       _timeFormat = DateFormat(kDefaultTimeFormat, 'en_US');
     }
-    if (sharedPreferences.containsKey(kSharedPreferencesSnoozedUntil)) {
+    if (hive.containsKey(kHiveSnoozedUntil)) {
       _snoozedUntil = DateTime.parse(
-        sharedPreferences.getString(kSharedPreferencesSnoozedUntil)!,
+        hive.get(kHiveSnoozedUntil)!,
       );
     } else {
       _snoozedUntil = defaultSnoozedUntil;
     }
-    if (sharedPreferences
-        .containsKey(kSharedPreferencesNotificationClickAction)) {
-      _notificationClickAction = NotificationClickAction.values[
-          sharedPreferences.getInt(kSharedPreferencesNotificationClickAction)!];
+    if (hive.containsKey(kHiveNotificationClickAction)) {
+      _notificationClickAction = NotificationClickAction
+          .values[hive.get(kHiveNotificationClickAction)!];
     } else {
       _notificationClickAction = kDefaultNotificationClickAction;
     }

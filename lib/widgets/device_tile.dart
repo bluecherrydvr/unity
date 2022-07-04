@@ -23,11 +23,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:fijkplayer/fijkplayer.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:status_bar_control/status_bar_control.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 
 class DeviceTile extends StatefulWidget {
   final Device device;
@@ -413,7 +414,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
             ? StatusBarStyle.DARK_CONTENT
             : StatusBarStyle.LIGHT_CONTENT,
       );
-      await SystemChrome.setPreferredOrientations([
+      setDevicePreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
@@ -430,7 +431,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
             ? StatusBarStyle.DARK_CONTENT
             : StatusBarStyle.LIGHT_CONTENT,
       );
-      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      restoreLastDevicePreferredOrientations();
     }
     super.dispose();
   }
@@ -474,7 +475,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
                               ),
                               const SizedBox(height: 8.0),
                               Text(
-                                player.value.exception.message!.toLowerCase(),
+                                player.value.exception.message!.toUpperCase(),
                                 style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12.0,

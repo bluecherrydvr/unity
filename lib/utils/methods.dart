@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 Future<String?> get clientUUID async {
@@ -36,3 +37,20 @@ String getEventNameFromID(String id) => {
       'device_state': 'Device State Event',
       'motion_event': 'Motion Event',
     }[id]!;
+
+bool isValidEventType(String? eventType) =>
+    ['motion_event', 'device_state'].contains(eventType);
+
+Future<void> setDevicePreferredOrientations(
+  List<DeviceOrientation> orientations,
+) {
+  _orientations.add(orientations);
+  return SystemChrome.setPreferredOrientations(orientations);
+}
+
+Future<void> restoreLastDevicePreferredOrientations() async {
+  _orientations.removeLast();
+  await SystemChrome.setPreferredOrientations(_orientations.last);
+}
+
+final List<List<DeviceOrientation>> _orientations = [];

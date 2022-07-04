@@ -38,17 +38,17 @@ const kDefaultUsername = 'Admin';
 /// Default password used in Bluecherry DVR server.
 const kDefaultPassword = 'bluecherry';
 
-/// Keys used for storing data in cache using `package:shared_preferences`.
+/// Keys used for storing data in cache using `package:hive`.
 
-const kSharedPreferencesServers = 'servers';
-const kSharedPreferencesMobileView = 'mobile_view';
-const kSharedPreferencesMobileViewTab = 'mobile_view_current_tab';
-const kSharedPreferencesNotificationToken = 'notification_token';
-const kSharedPreferencesThemeMode = 'theme_mode';
-const kSharedPreferencesDateFormat = 'date_format';
-const kSharedPreferencesTimeFormat = 'time_format';
-const kSharedPreferencesSnoozedUntil = 'snoozed_until';
-const kSharedPreferencesNotificationClickAction = 'notification_click_action';
+const kHiveServers = 'servers';
+const kHiveMobileView = 'mobile_view';
+const kHiveMobileViewTab = 'mobile_view_current_tab';
+const kHiveNotificationToken = 'notification_token';
+const kHiveThemeMode = 'theme_mode';
+const kHiveDateFormat = 'date_format';
+const kHiveTimeFormat = 'time_format';
+const kHiveSnoozedUntil = 'snoozed_until';
+const kHiveNotificationClickAction = 'notification_click_action';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

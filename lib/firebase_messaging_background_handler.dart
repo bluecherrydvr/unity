@@ -1,3 +1,5 @@
+// ignore_for_file: implementation_imports
+
 /*
  * This file is a part of Bluecherry Client (https://https://github.com/bluecherrydvr/bluecherry_client).
  *
@@ -21,14 +23,15 @@ import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+// https://github.com/aissat/easy_localization/issues/210
+import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/src/localization.dart';
+import 'package:easy_localization/src/easy_localization_controller.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/firebase_options.dart';
@@ -47,7 +50,8 @@ import 'package:bluecherry_client/main.dart';
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await EasyLocalization.ensureInitialized();
+  await loadEazyLocalization();
+  await Hive.initFlutter();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
@@ -74,7 +78,8 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
     final name = message.data['deviceName'];
     final serverUUID = message.data['serverId'];
     final id = message.data['deviceId'];
-    if (!['motion_event', 'device_state'].contains(eventType)) {
+    final state = message.data['state'];
+    if (!isValidEventType(eventType)) {
       return;
     }
     final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
@@ -84,7 +89,10 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
         color: const Color.fromRGBO(92, 107, 192, 1),
         channelKey: 'com.bluecherrydvr',
         title: getEventNameFromID(eventType),
-        body: name,
+        body: [
+          name,
+          if (state != null) state,
+        ].join(' • '),
         displayOnBackground: true,
         displayOnForeground: true,
         payload: message.data
@@ -98,16 +106,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       ),
       actionButtons: [
         NotificationActionButton(
-          label: 'snooze_15'.tr(),
+          label: L.tr('snooze_15'),
           key: 'snooze_15',
+          actionType: ActionType.SilentAction,
         ),
         NotificationActionButton(
-          label: 'snooze_30'.tr(),
+          label: L.tr('snooze_30'),
           key: 'snooze_30',
+          actionType: ActionType.SilentAction,
         ),
         NotificationActionButton(
-          label: 'snooze_60'.tr(),
+          label: L.tr('snooze_60'),
           key: 'snooze_60',
+          actionType: ActionType.SilentAction,
         ),
       ],
     );
@@ -137,7 +148,10 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
             channelKey: 'com.bluecherrydvr',
             bigPicture: path,
             title: getEventNameFromID(eventType),
-            body: name,
+            body: [
+              name,
+              if (state != null) state,
+            ].join(' • '),
             displayOnBackground: true,
             displayOnForeground: true,
             payload: message.data
@@ -152,16 +166,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: 'snooze_15'.tr(),
+              label: L.tr('snooze_15'),
               key: 'snooze_15',
+              actionType: ActionType.SilentAction,
             ),
             NotificationActionButton(
-              label: 'snooze_30'.tr(),
+              label: L.tr('snooze_30'),
               key: 'snooze_30',
+              actionType: ActionType.SilentAction,
             ),
             NotificationActionButton(
-              label: 'snooze_60'.tr(),
+              label: L.tr('snooze_60'),
               key: 'snooze_60',
+              actionType: ActionType.SilentAction,
             ),
           ],
         );
@@ -177,9 +194,11 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
 }
 
 Future<void> _backgroundClickAction(ReceivedAction action) async {
+  await Future.delayed(const Duration(seconds: 1));
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await EasyLocalization.ensureInitialized();
+  await loadEazyLocalization();
+  await Hive.initFlutter();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   debugPrint(action.toString());
@@ -194,8 +213,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       final id = action.payload!['deviceId'];
       final name = action.payload!['deviceName'];
       // Return if same device is already playing or unknown event type is detected.
-      if (_mutex == id ||
-          !['motion_event', 'device_state'].contains(eventType)) {
+      if (_mutex == id || !isValidEventType(eventType)) {
         return;
       }
       final server = ServersProvider.instance.servers
@@ -203,11 +221,6 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       final device = Device(name!, 'live/$id', true, 0, 0, server);
       final player =
           MobileViewProvider.instance.getVideoPlayerController(device);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      StatusBarControl.setHidden(true);
       // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
       // Thus, push a new route.
       if (_mutex == null) {
@@ -264,6 +277,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         'snooze_60': 60,
       }[action.buttonKeyPressed]!,
     );
+    debugPrint(DateTime.now().add(duration).toString());
     SettingsProvider.instance.snoozedUntil = DateTime.now().add(duration);
     if (action.id != null) {
       AwesomeNotifications().dismiss(action.id!);
@@ -308,7 +322,8 @@ abstract class FirebaseConfiguration {
         final name = message.data['deviceName'];
         final serverUUID = message.data['serverId'];
         final id = message.data['deviceId'];
-        if (!['motion_event', 'device_state'].contains(eventType)) {
+        final state = message.data['state'];
+        if (!isValidEventType(eventType)) {
           return;
         }
         final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
@@ -318,7 +333,10 @@ abstract class FirebaseConfiguration {
             color: const Color.fromRGBO(92, 107, 192, 1),
             channelKey: 'com.bluecherrydvr',
             title: getEventNameFromID(eventType),
-            body: name,
+            body: [
+              name,
+              if (state != null) state,
+            ].join(' • '),
             displayOnBackground: true,
             displayOnForeground: true,
             payload: message.data
@@ -332,16 +350,19 @@ abstract class FirebaseConfiguration {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: 'snooze_15'.tr(),
+              label: L.tr('snooze_15'),
               key: 'snooze_15',
+              actionType: ActionType.SilentAction,
             ),
             NotificationActionButton(
-              label: 'snooze_30'.tr(),
+              label: L.tr('snooze_30'),
               key: 'snooze_30',
+              actionType: ActionType.SilentAction,
             ),
             NotificationActionButton(
-              label: 'snooze_60'.tr(),
+              label: L.tr('snooze_60'),
               key: 'snooze_60',
+              actionType: ActionType.SilentAction,
             ),
           ],
         );
@@ -371,7 +392,10 @@ abstract class FirebaseConfiguration {
                 channelKey: 'com.bluecherrydvr',
                 bigPicture: path,
                 title: getEventNameFromID(eventType),
-                body: name,
+                body: [
+                  name,
+                  if (state != null) state,
+                ].join(' • '),
                 displayOnBackground: true,
                 displayOnForeground: true,
                 payload: message.data
@@ -388,14 +412,17 @@ abstract class FirebaseConfiguration {
                 NotificationActionButton(
                   label: '15 minutes',
                   key: 'snooze_15',
+                  actionType: ActionType.SilentAction,
                 ),
                 NotificationActionButton(
                   label: '30 minutes',
                   key: 'snooze_30',
+                  actionType: ActionType.SilentAction,
                 ),
                 NotificationActionButton(
                   label: '1 hour',
                   key: 'snooze_60',
+                  actionType: ActionType.SilentAction,
                 ),
               ],
             );
@@ -424,7 +451,6 @@ abstract class FirebaseConfiguration {
           ledColor: Colors.white,
         )
       ],
-      backgroundClickAction: _backgroundClickAction,
       debug: true,
     );
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
@@ -432,9 +458,9 @@ abstract class FirebaseConfiguration {
         AwesomeNotifications().requestPermissionToSendNotifications();
       }
     });
-    AwesomeNotifications().actionStream.listen((action) {
-      _backgroundClickAction(action);
-    });
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: _backgroundClickAction,
+    );
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
@@ -444,9 +470,9 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.onTokenRefresh.listen(
       (token) async {
         debugPrint('[FirebaseMessaging.instance.onTokenRefresh]: $token');
-        final instance = await SharedPreferences.getInstance();
-        await instance.setString(
-          kSharedPreferencesNotificationToken,
+        final hive = await Hive.openBox('hive');
+        await hive.put(
+          kHiveNotificationToken,
           token,
         );
         for (final server in ServersProvider.instance.servers) {
@@ -462,13 +488,13 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.getToken().then((token) async {
       debugPrint('[FirebaseMessaging.instance.getToken]: $token');
       if (token != null) {
-        final instance = await SharedPreferences.getInstance();
+        final hive = await Hive.openBox('hive');
         // Do not proceed, if token is already saved.
-        if (instance.getString(kSharedPreferencesNotificationToken) == token) {
+        if (hive.get(kHiveNotificationToken) == token) {
           return;
         }
-        await instance.setString(
-          kSharedPreferencesNotificationToken,
+        await hive.put(
+          kHiveNotificationToken,
           token,
         );
         for (final server in ServersProvider.instance.servers) {
@@ -482,4 +508,25 @@ abstract class FirebaseConfiguration {
   }
 }
 
+Future<void> loadEazyLocalization() async {
+  await EasyLocalizationController.initEasyLocation();
+  final controller = EasyLocalizationController(
+    saveLocale: true,
+    fallbackLocale: const Locale('en', 'US'),
+    supportedLocales: kSupportedLocales,
+    assetLoader: const RootBundleAssetLoader(),
+    useOnlyLangCode: false,
+    useFallbackTranslations: true,
+    path: 'assets/translations',
+    onLoadError: (FlutterError e) {},
+  );
+  await controller.loadTranslations();
+  Localization.load(
+    controller.locale,
+    translations: controller.translations,
+    fallbackTranslations: controller.fallbackTranslations,
+  );
+}
+
 String? _mutex;
+final Localization L = Localization.instance;

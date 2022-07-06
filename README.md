@@ -13,6 +13,48 @@
 - [iOS](#)
 - [Android](#)
 
+## Screenshots
+
+<table>
+  <tr>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177609508-3af6c12b-4579-4c05-813b-6607973ab665.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177609575-fde660f3-ab03-4d8a-bfd7-a97542e4ed8c.jpg"></img>
+    </td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177609733-07d7fdd2-24bb-4977-98b4-8d04d4425950.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177609754-0f993bd7-bf11-43ba-8d88-5c25cf6c4a01.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177609742-57d93982-8b85-4ea8-b172-9f131a701459.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177610286-43e8b910-a44c-40f8-a773-4f7752fa360d.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177610405-7b528cb2-e24d-4fda-85c9-b68cfd2bb0cc.jpg"></img>
+    </td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177611699-21f16db0-04a6-4fd4-a1d9-e961dce3f40e.jpg"></img>
+    </td>
+    <td>
+      <img src="https://user-images.githubusercontent.com/28951144/177611704-0c79353e-f8fe-43b5-b63d-188d25325df2.jpg"></img>
+    </td>
+  </tr>
+</table>
+
 ## Features
 
 - Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
@@ -30,6 +72,14 @@
   - [ ] Windows
   - [ ] Linux
   - [ ] macOS
+
+## Videos
+
+_[delay is caused by slow internet]_
+
+https://user-images.githubusercontent.com/28951144/177611903-4b172c4f-be49-4ac3-8c1e-1997c6921274.mp4
+
+https://user-images.githubusercontent.com/28951144/177610848-52ecb25a-105a-45c3-91fd-7f5ac690c48f.mp4
 
 ## Translate
 
@@ -57,7 +107,7 @@ Let's say, we're adding French (`fr-FR`) translation.
 
 Send us details about any issues you discover [in the issues](https://github.com/bluecherrydvr/unity/issues) or [in the forums](https://forums.bluecherrydvr.com/).
 
-## Development
+## Contribute
 
 The code _in-general_ follows OOPs & uses [provider](https://github.com/rrousselGit/provider) for state-management because it is widely known by developers in Flutter community.
 Everything is well-documented (e.g. [this](https://github.com/bluecherrydvr/unity/blob/fce2aad3213298f70e91eb549a71699826e5c6e4/lib/providers/mobile_view_provider.dart#L28-L35)) & other little quirks/tweaks at places are also noted.

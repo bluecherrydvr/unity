@@ -209,6 +209,7 @@ class API {
             'client_id': clientID,
             'server_id': server.serverUUID,
             'token': token,
+            'disable_payload_notification': true,
           },
         ),
       );
@@ -216,6 +217,7 @@ class API {
         'client_id': clientID,
         'server_id': server.serverUUID,
         'token': token,
+        'disable_payload_notification': true,
       }.toString());
       debugPrint(response.statusCode.toString());
       debugPrint(response.body);

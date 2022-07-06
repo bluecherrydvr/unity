@@ -194,6 +194,7 @@ class DeviceTileState extends State<DeviceTile> {
               });
             },
             child: Card(
+              color: Colors.transparent,
               clipBehavior: Clip.antiAlias,
               elevation: 4.0,
               margin: EdgeInsets.zero,

@@ -46,6 +46,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
     final device = view.devices[widget.tab]![widget.index];
     return device != null
         ? Material(
+            color: Colors.black,
             child: Stack(
               children: [
                 // No longer passing reference to [FijkPlayer].

@@ -224,41 +224,46 @@ class _SettingsState extends State<Settings> {
                         )
                       : 'not_snoozed'.tr(),
                 ),
-                ExpansionTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                    child: const Icon(Icons.beenhere_rounded),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
                   ),
-                  title: Text('notification_click_action'.tr()),
-                  textColor: Theme.of(context).textTheme.bodyText1?.color,
-                  subtitle: Text(
-                    settings.notificationClickAction.str(),
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                          color: Theme.of(context).textTheme.caption?.color,
-                        ),
-                  ),
-                  children: NotificationClickAction.values
-                      .map(
-                        (e) => ListTile(
-                          onTap: () {
-                            settings.notificationClickAction = e;
-                          },
-                          trailing: Radio(
-                            value: e,
-                            groupValue: settings.notificationClickAction,
-                            onChanged: (value) {
+                  child: ExpansionTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Theme.of(context).iconTheme.color,
+                      child: const Icon(Icons.beenhere_rounded),
+                    ),
+                    title: Text('notification_click_action'.tr()),
+                    textColor: Theme.of(context).textTheme.bodyText1?.color,
+                    subtitle: Text(
+                      settings.notificationClickAction.str(),
+                      style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                            color: Theme.of(context).textTheme.caption?.color,
+                          ),
+                    ),
+                    children: NotificationClickAction.values
+                        .map(
+                          (e) => ListTile(
+                            onTap: () {
                               settings.notificationClickAction = e;
                             },
+                            trailing: Radio(
+                              value: e,
+                              groupValue: settings.notificationClickAction,
+                              onChanged: (value) {
+                                settings.notificationClickAction = e;
+                              },
+                            ),
+                            title: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(
+                                  e.str().substring(0, e.str().length - 1)),
+                            ),
                           ),
-                          title: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child:
-                                Text(e.str().substring(0, e.str().length - 1)),
-                          ),
-                        ),
-                      )
-                      .toList(),
+                        )
+                        .toList(),
+                  ),
                 ),
               ],
             ),

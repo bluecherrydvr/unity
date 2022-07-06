@@ -707,7 +707,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     }
     return WillPopScope(
       child: Scaffold(
-          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             leading: NavigatorPopButton(
               color: Colors.white,

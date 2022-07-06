@@ -106,19 +106,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       ),
       actionButtons: [
         NotificationActionButton(
-          label: L.tr('snooze_15'),
+          label: L.tr('snooze_15').toUpperCase(),
           key: 'snooze_15',
-          actionType: ActionType.SilentAction,
+          actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
-          label: L.tr('snooze_30'),
+          label: L.tr('snooze_30').toUpperCase(),
           key: 'snooze_30',
-          actionType: ActionType.SilentAction,
+          actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
-          label: L.tr('snooze_60'),
+          label: L.tr('snooze_60').toUpperCase(),
           key: 'snooze_60',
-          actionType: ActionType.SilentAction,
+          actionType: ActionType.SilentBackgroundAction,
         ),
       ],
     );
@@ -166,19 +166,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: L.tr('snooze_15'),
+              label: L.tr('snooze_15').toUpperCase(),
               key: 'snooze_15',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
-              label: L.tr('snooze_30'),
+              label: L.tr('snooze_30').toUpperCase(),
               key: 'snooze_30',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
-              label: L.tr('snooze_60'),
+              label: L.tr('snooze_60').toUpperCase(),
               key: 'snooze_60',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
           ],
         );
@@ -350,19 +350,19 @@ abstract class FirebaseConfiguration {
           ),
           actionButtons: [
             NotificationActionButton(
-              label: L.tr('snooze_15'),
+              label: L.tr('snooze_15').toUpperCase(),
               key: 'snooze_15',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
-              label: L.tr('snooze_30'),
+              label: L.tr('snooze_30').toUpperCase(),
               key: 'snooze_30',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
-              label: L.tr('snooze_60'),
+              label: L.tr('snooze_60').toUpperCase(),
               key: 'snooze_60',
-              actionType: ActionType.SilentAction,
+              actionType: ActionType.SilentBackgroundAction,
             ),
           ],
         );
@@ -410,19 +410,19 @@ abstract class FirebaseConfiguration {
               ),
               actionButtons: [
                 NotificationActionButton(
-                  label: '15 minutes',
+                  label: '15 minutes'.toUpperCase(),
                   key: 'snooze_15',
-                  actionType: ActionType.SilentAction,
+                  actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
-                  label: '30 minutes',
+                  label: '30 minutes'.toUpperCase(),
                   key: 'snooze_30',
-                  actionType: ActionType.SilentAction,
+                  actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
-                  label: '1 hour',
+                  label: '1 hour'.toUpperCase(),
                   key: 'snooze_60',
-                  actionType: ActionType.SilentAction,
+                  actionType: ActionType.SilentBackgroundAction,
                 ),
               ],
             );

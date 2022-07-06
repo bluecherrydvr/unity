@@ -110,8 +110,15 @@ class SettingsProvider extends ChangeNotifier {
     return instance;
   }
 
+  Future<void> reload() => initialize();
+
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
+    // NOTE: The notification action button click calls are from another isolate.
+    // i.e. the state of [Hive] [Box] is not reloaded/reflected immediately in the UI after changing the snooze time from that isolate.
+    // To circumvent this, we are closing all the existing opened [Hive] [Box]es and re-opening them again. This fetches the latest data.
+    // Though, changes are still not instant.
+    await Hive.close();
     final hive = await Hive.openBox('hive');
     if (hive.containsKey(kHiveThemeMode)) {
       _themeMode = ThemeMode.values[hive.get(kHiveThemeMode)!];
@@ -147,6 +154,7 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _notificationClickAction = kDefaultNotificationClickAction;
     }
+    notifyListeners();
   }
 
   @override

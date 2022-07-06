@@ -38,6 +38,14 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SettingsProvider.instance.reload();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -4,6 +4,10 @@
 
 **Bluecherry DVR client to run across range of devices.**
 
+<a href="https://www.bluecherrydvr.com/">Website</a> •
+<a href="https://www.bluecherrydvr.com/product/v3license/">Purchase</a> •
+<a href="https://www.bluecherrydvr.com/chat/">Chat</a>
+
 [work-in-progress]
 
 ## Download
@@ -75,11 +79,11 @@
 
 ## Videos
 
-_[delay is caused by slow internet]_
+_[demo data & footage is shown]_
 
-https://user-images.githubusercontent.com/28951144/177611903-4b172c4f-be49-4ac3-8c1e-1997c6921274.mp4
+https://user-images.githubusercontent.com/28951144/177617726-8a08d71b-7830-4628-823a-1a039ed48cd8.mp4
 
-https://user-images.githubusercontent.com/28951144/177610848-52ecb25a-105a-45c3-91fd-7f5ac690c48f.mp4
+https://user-images.githubusercontent.com/28951144/177617785-fa81d120-6eac-44b1-bf92-ddbc32451d39.mp4
 
 ## Translate
 

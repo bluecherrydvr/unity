@@ -21,10 +21,8 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:http/http.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -34,6 +32,7 @@ import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/easy_localization_controller.dart';
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_options.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -41,7 +40,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/events_screen.dart';
 import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/models/device.dart';
 
 import 'package:bluecherry_client/main.dart';
@@ -79,7 +77,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
     final serverUUID = message.data['serverId'];
     final id = message.data['deviceId'];
     final state = message.data['state'];
-    if (!isValidEventType(eventType)) {
+    if (!APIHelpers.isValidEventType(eventType)) {
       return;
     }
     final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
@@ -88,7 +86,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
         id: key,
         color: const Color.fromRGBO(92, 107, 192, 1),
         channelKey: 'com.bluecherrydvr',
-        title: getEventNameFromID(eventType),
+        title: APIHelpers.getEventNameFromID(eventType),
         body: [
           name,
           if (state != null) state,
@@ -125,29 +123,17 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
     try {
       final server = ServersProvider.instance.servers
           .firstWhere((server) => server.serverUUID == serverUUID);
-      final events = await API.instance.getEvents(
-        await API.instance.checkServerCredentials(server),
-        limit: 10,
-      );
-      final event = events.firstWhere(
-        (event) {
-          debugPrint('$id == ${event.deviceID}');
-          return id == event.deviceID.toString();
-        },
-      );
       final thumbnail =
-          await API.instance.getThumbnail(server, event.id.toString());
+          await APIHelpers.getLatestThumbnailForDeviceID(server, id);
       debugPrint(thumbnail);
       if (thumbnail != null) {
-        final path = await _downloadAndSaveFile(thumbnail, event.id.toString());
-        debugPrint(path);
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: key,
             color: const Color.fromRGBO(92, 107, 192, 1),
             channelKey: 'com.bluecherrydvr',
-            bigPicture: path,
-            title: getEventNameFromID(eventType),
+            bigPicture: thumbnail,
+            title: APIHelpers.getEventNameFromID(eventType),
             body: [
               name,
               if (state != null) state,
@@ -213,7 +199,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       final id = action.payload!['deviceId'];
       final name = action.payload!['deviceName'];
       // Return if same device is already playing or unknown event type is detected.
-      if (_mutex == id || !isValidEventType(eventType)) {
+      if (_mutex == id || !APIHelpers.isValidEventType(eventType)) {
         return;
       }
       final server = ServersProvider.instance.servers
@@ -285,20 +271,6 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   }
 }
 
-Future<String> _downloadAndSaveFile(String url, String eventID) async {
-  final directory = await getExternalStorageDirectory();
-  final filePath = '${directory?.path}/$eventID.png';
-  final file = File(filePath);
-  // Download the event thumbnail only if it doesn't exist already.
-  if (!await file.exists()) {
-    final response = await get(Uri.parse(url));
-    await file.create(recursive: true);
-    await file.writeAsBytes(response.bodyBytes);
-  }
-  debugPrint('file://$filePath');
-  return 'file://$filePath';
-}
-
 /// Initialize & handle Firebase core & messaging plugins.
 ///
 /// Saves entry point of application from getting unnecessarily cluttered.
@@ -323,7 +295,7 @@ abstract class FirebaseConfiguration {
         final serverUUID = message.data['serverId'];
         final id = message.data['deviceId'];
         final state = message.data['state'];
-        if (!isValidEventType(eventType)) {
+        if (!APIHelpers.isValidEventType(eventType)) {
           return;
         }
         final key = Random().nextInt(pow(2, 8) ~/ 1 - 1);
@@ -332,7 +304,7 @@ abstract class FirebaseConfiguration {
             id: key,
             color: const Color.fromRGBO(92, 107, 192, 1),
             channelKey: 'com.bluecherrydvr',
-            title: getEventNameFromID(eventType),
+            title: APIHelpers.getEventNameFromID(eventType),
             body: [
               name,
               if (state != null) state,
@@ -369,29 +341,17 @@ abstract class FirebaseConfiguration {
         try {
           final server = ServersProvider.instance.servers
               .firstWhere((server) => server.serverUUID == serverUUID);
-          final events = await API.instance.getEvents(
-            await API.instance.checkServerCredentials(server),
-            limit: 10,
-          );
-          final event = events.firstWhere(
-            (event) {
-              debugPrint('$id == ${event.deviceID}');
-              return id == event.deviceID.toString();
-            },
-          );
           final thumbnail =
-              await API.instance.getThumbnail(server, event.id.toString());
+              await APIHelpers.getLatestThumbnailForDeviceID(server, id);
           debugPrint(thumbnail);
           if (thumbnail != null) {
-            final path =
-                await _downloadAndSaveFile(thumbnail, event.id.toString());
             await AwesomeNotifications().createNotification(
               content: NotificationContent(
                 id: key,
                 color: const Color.fromRGBO(92, 107, 192, 1),
                 channelKey: 'com.bluecherrydvr',
-                bigPicture: path,
-                title: getEventNameFromID(eventType),
+                bigPicture: thumbnail,
+                title: APIHelpers.getEventNameFromID(eventType),
                 body: [
                   name,
                   if (state != null) state,

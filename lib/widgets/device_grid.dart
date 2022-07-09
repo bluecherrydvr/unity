@@ -296,9 +296,11 @@ class _MobileDeviceGridChild extends StatelessWidget {
       final children = view.devices[tab]!.asMap().entries.map(
         (e) {
           counts[e.value] = counts[e.value]! - 1;
-          debugPrint('${e.value}.${counts[e.value]}');
+          debugPrint(
+              '${e.value}.${e.value?.server.serverUUID}.${counts[e.value]}');
           return DeviceTileSelector(
-            key: ValueKey('${e.value}.${counts[e.value]}'),
+            key: ValueKey(
+                '${e.value}.${e.value?.server.serverUUID}.${counts[e.value]}'),
             index: e.key,
             tab: tab,
           );

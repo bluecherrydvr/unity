@@ -25,7 +25,7 @@ import 'package:xml2json/xml2json.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/api/api_helpers.dart';
 
 class API {
   static final API instance = API();
@@ -194,7 +194,7 @@ class API {
   Future<bool> registerNotificationToken(Server server, String token) async {
     try {
       final uri = await getNotificationAPIEndpoint(server);
-      final clientID = await clientUUID;
+      final clientID = await APIHelpers.clientUUID;
       assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
@@ -235,7 +235,7 @@ class API {
   Future<bool> unregisterNotificationToken(Server server) async {
     try {
       final uri = await getNotificationAPIEndpoint(server);
-      final clientID = await clientUUID;
+      final clientID = await APIHelpers.clientUUID;
       assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
@@ -259,26 +259,6 @@ class API {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
       return false;
-    }
-  }
-
-  /// Returns thumbnail for an [eventID], if it exists on the server. Otherwise returns `null`.
-  Future<String?> getThumbnail(Server server, String eventID) async {
-    try {
-      final uri = Uri.https(
-        '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-        '/media/request.php',
-        {
-          'id': eventID,
-          'mode': 'screenshot',
-        },
-      );
-      final response = await get(uri);
-      return response.statusCode ~/ 100 == 2 /* OK */ ? uri.toString() : null;
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-      return null;
     }
   }
 }

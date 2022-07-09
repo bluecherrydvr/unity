@@ -14,8 +14,8 @@
 
 <!-- TODO: Add links. -->
 
-- [iOS](#)
-- [Android](#)
+- iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
+- [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
 
 ## Screenshots
 

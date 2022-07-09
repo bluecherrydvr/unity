@@ -17,29 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-
-Future<String?> get clientUUID async {
-  final instance = DeviceInfoPlugin();
-  if (Platform.isIOS) {
-    final ios = await instance.iosInfo;
-    return ios.identifierForVendor;
-  } else if (Platform.isAndroid) {
-    final androidDeviceInfo = await instance.androidInfo;
-    return androidDeviceInfo.androidId;
-  }
-  return null;
-}
-
-String getEventNameFromID(String id) => {
-      'device_state': 'Device State Event',
-      'motion_event': 'Motion Event',
-    }[id]!;
-
-bool isValidEventType(String? eventType) =>
-    ['motion_event', 'device_state'].contains(eventType);
 
 Future<void> setDevicePreferredOrientations(
   List<DeviceOrientation> orientations,

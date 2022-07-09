@@ -131,7 +131,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     launchUrl(
-                                                      Uri.http(
+                                                      Uri.https(
                                                         'www.bluecherrydvr.com',
                                                         '/',
                                                       ),
@@ -160,7 +160,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     launchUrl(
-                                                      Uri.http(
+                                                      Uri.https(
                                                         'www.bluecherrydvr.com',
                                                         '/product/v3license/',
                                                       ),

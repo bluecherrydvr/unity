@@ -36,7 +36,8 @@ class API {
   /// present in it otherwise `null`.
   Future<Server> checkServerCredentials(Server server) async {
     try {
-      final uri = Uri.http('${server.ip}:${server.port}', '/ajax/loginapp.php');
+      final uri =
+          Uri.https('${server.ip}:${server.port}', '/ajax/loginapp.php');
       final request = MultipartRequest('POST', uri)
         ..fields.addAll({
           'login': server.login,
@@ -65,7 +66,7 @@ class API {
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
-        Uri.http(
+        Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/devices.php',
           {
@@ -114,7 +115,7 @@ class API {
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
-        Uri.http(
+        Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/events/',
           {
@@ -147,15 +148,10 @@ class API {
                 milliseconds: int.tryParse(e['content']['media_size']) ?? 0,
               ),
               Uri.parse(
-                e['content']['\$t']
-                    .replaceAll(
-                      'https://',
-                      'http://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                    )
-                    .replaceAll(
-                      'http://',
-                      'http://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                    ),
+                e['content']['\$t'].replaceAll(
+                  'https://',
+                  'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                ),
               ),
             ),
           )
@@ -175,7 +171,7 @@ class API {
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
-        Uri.http(
+        Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/mobile-app-config.json',
         ),

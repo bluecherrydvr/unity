@@ -78,7 +78,7 @@ abstract class APIHelpers {
     debugPrint(events.map((e) => e.id).toList().toString());
     Future<String?> getThumbnailForMediaID(int mediaID) async {
       try {
-        final uri = Uri.http(
+        final uri = Uri.https(
           '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/media/request.php',
           {

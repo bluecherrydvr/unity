@@ -395,7 +395,7 @@ class _SettingsState extends State<Settings> {
                 MaterialButton(
                   onPressed: () {
                     launchUrl(
-                      Uri.http(
+                      Uri.https(
                         'www.bluecherry.com',
                         '/',
                       ),

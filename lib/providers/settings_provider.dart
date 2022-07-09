@@ -107,6 +107,7 @@ class SettingsProvider extends ChangeNotifier {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+    await instance.reload();
     return instance;
   }
 

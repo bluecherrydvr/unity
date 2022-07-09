@@ -1,5 +1,5 @@
 /*
- * This file is a part of Bluecherry Client (https://https://github.com/bluecherrydvr/bluecherry_client).
+ * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
  * Copyright 2022 Bluecherry, LLC
  *
@@ -78,7 +78,7 @@ abstract class APIHelpers {
     debugPrint(events.map((e) => e.id).toList().toString());
     Future<String?> getThumbnailForMediaID(int mediaID) async {
       try {
-        final uri = Uri.https(
+        final uri = Uri.http(
           '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/media/request.php',
           {

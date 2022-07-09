@@ -1,7 +1,7 @@
 // ignore_for_file: overridden_fields
 
 /*
- * This file is a part of Bluecherry Client (https://https://github.com/bluecherrydvr/bluecherry_client).
+ * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
  * Copyright 2022 Bluecherry, LLC
  *

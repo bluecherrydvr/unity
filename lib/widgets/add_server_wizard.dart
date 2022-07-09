@@ -1,5 +1,5 @@
 /*
- * This file is a part of Bluecherry Client (https://https://github.com/bluecherrydvr/bluecherry_client).
+ * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
  * Copyright 2022 Bluecherry, LLC
  *
@@ -131,7 +131,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     launchUrl(
-                                                      Uri.https(
+                                                      Uri.http(
                                                         'www.bluecherrydvr.com',
                                                         '/',
                                                       ),
@@ -160,7 +160,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     launchUrl(
-                                                      Uri.https(
+                                                      Uri.http(
                                                         'www.bluecherrydvr.com',
                                                         '/product/v3license/',
                                                       ),

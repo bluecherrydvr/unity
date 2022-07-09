@@ -39,7 +39,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = DevHttpOverrides();
   await Hive.initFlutter();
-  await DartVLC.initialize();
   await EasyLocalization.ensureInitialized();
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();

@@ -79,7 +79,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                             elevation: 4.0,
                             clipBehavior: Clip.antiAlias,
                             margin: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 32.0) +
+                                    horizontal: 16.0, vertical: 16.0) +
                                 MediaQuery.of(context).padding,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -208,7 +208,6 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5,
-                                            textAlign: TextAlign.justify,
                                           ),
                                         ],
                                       ),
@@ -840,7 +839,10 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                     color: Colors.green.shade400,
                   ),
                   const SizedBox(width: 16.0),
-                  Text('server_added'.tr(args: [widget.getServer()!.name]))
+                  Expanded(
+                    child: Text(
+                        'server_added'.tr(args: [widget.getServer()!.name])),
+                  ),
                 ],
               ),
             ),

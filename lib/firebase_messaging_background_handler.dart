@@ -104,16 +104,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       ),
       actionButtons: [
         NotificationActionButton(
+          showInCompactView: true,
           label: L.tr('snooze_15').toUpperCase(),
           key: 'snooze_15',
           actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
+          showInCompactView: true,
           label: L.tr('snooze_30').toUpperCase(),
           key: 'snooze_30',
           actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
+          showInCompactView: true,
           label: L.tr('snooze_60').toUpperCase(),
           key: 'snooze_60',
           actionType: ActionType.SilentBackgroundAction,
@@ -152,16 +155,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           ),
           actionButtons: [
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_15').toUpperCase(),
               key: 'snooze_15',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_30').toUpperCase(),
               key: 'snooze_30',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_60').toUpperCase(),
               key: 'snooze_60',
               actionType: ActionType.SilentBackgroundAction,
@@ -322,16 +328,19 @@ abstract class FirebaseConfiguration {
           ),
           actionButtons: [
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_15').toUpperCase(),
               key: 'snooze_15',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_30').toUpperCase(),
               key: 'snooze_30',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
+              showInCompactView: true,
               label: L.tr('snooze_60').toUpperCase(),
               key: 'snooze_60',
               actionType: ActionType.SilentBackgroundAction,
@@ -370,16 +379,19 @@ abstract class FirebaseConfiguration {
               ),
               actionButtons: [
                 NotificationActionButton(
+                  showInCompactView: true,
                   label: '15 minutes'.toUpperCase(),
                   key: 'snooze_15',
                   actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
+                  showInCompactView: true,
                   label: '30 minutes'.toUpperCase(),
                   key: 'snooze_30',
                   actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
+                  showInCompactView: true,
                   label: '1 hour'.toUpperCase(),
                   key: 'snooze_60',
                   actionType: ActionType.SilentBackgroundAction,

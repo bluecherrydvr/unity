@@ -46,7 +46,9 @@
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true />
 		<key>CFBundleLocalizations</key>
-		<string>en</string>
+		<array>
+			<string>en</string>
+		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false />
 		<key>LSApplicationQueriesSchemes</key>

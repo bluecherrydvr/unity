@@ -77,7 +77,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).servers,
+              AppLocalizations.of(context).servers.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -112,7 +112,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).theme,
+              AppLocalizations.of(context).theme.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -160,7 +160,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).miscellaneous,
+              AppLocalizations.of(context).miscellaneous.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -286,7 +286,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).dateFormat,
+              AppLocalizations.of(context).dateFormat.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -336,7 +336,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).timeFormat,
+              AppLocalizations.of(context).timeFormat.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -380,7 +380,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              AppLocalizations.of(context).version,
+              AppLocalizations.of(context).version.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,

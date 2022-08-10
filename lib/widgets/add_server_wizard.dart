@@ -237,7 +237,9 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       width: double.infinity,
                                       height: 56.0,
                                       child: Text(
-                                        AppLocalizations.of(context).letsGo,
+                                        AppLocalizations.of(context)
+                                            .letsGo
+                                            .toUpperCase(),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.0,
@@ -517,23 +519,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       SizedBox(
                         width: isDesktop ? 16.0 : 8.0,
                       ),
-                      if (isDesktop)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: MaterialButton(
-                            onPressed: () {
-                              textEditingControllers[3].text = kDefaultUsername;
-                              textEditingControllers[4].text = kDefaultPassword;
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                AppLocalizations.of(context).useDefault,
-                              ),
-                            ),
-                            textColor: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: MaterialButton(
@@ -542,7 +527,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                             textEditingControllers[4].text = kDefaultPassword;
                           },
                           child: Text(
-                            AppLocalizations.of(context).useDefault,
+                            AppLocalizations.of(context)
+                                .useDefault
+                                .toUpperCase(),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
                         ),
@@ -636,7 +623,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              AppLocalizations.of(context).skip,
+                              AppLocalizations.of(context).skip.toUpperCase(),
                             ),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
@@ -720,7 +707,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                 },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(AppLocalizations.of(context).finish),
+                            child: Text(
+                              AppLocalizations.of(context).finish.toUpperCase(),
+                            ),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
                         ),
@@ -1041,7 +1030,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             widget.onFinish.call();
           },
           backgroundColor: Theme.of(context).colorScheme.secondary,
-          label: Text(AppLocalizations.of(context).finish),
+          label: Text(AppLocalizations.of(context).finish.toUpperCase()),
           icon: const Icon(Icons.check),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

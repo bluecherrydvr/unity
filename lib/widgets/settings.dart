@@ -519,7 +519,7 @@ class _ServerTileState extends State<ServerTile> {
                   MaterialButton(
                     onPressed: Navigator.of(context).maybePop,
                     child: Text(
-                      AppLocalizations.of(context).no,
+                      AppLocalizations.of(context).no.toUpperCase(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -531,7 +531,7 @@ class _ServerTileState extends State<ServerTile> {
                       Navigator.of(context).maybePop();
                     },
                     child: Text(
-                      AppLocalizations.of(context).yes,
+                      AppLocalizations.of(context).yes.toUpperCase(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),

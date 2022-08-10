@@ -166,6 +166,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                                   e.substring(1))
                                           .join(' '),
                                     ),
+                                    isThreeLine: true,
                                     subtitle: Text(
                                       [
                                         event.title
@@ -183,7 +184,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                             )
                                                 .format(event.updated)
                                                 .toUpperCase(),
-                                      ].join(' • '),
+                                      ].join('\n'),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     leading: CircleAvatar(

@@ -288,7 +288,7 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
     required this.child,
     required this.onTap,
     required this.onDoubleTap,
-    this.doubleTapTime = const Duration(milliseconds: 100),
+    this.doubleTapTime = const Duration(milliseconds: 200),
   }) : super(key: key);
 
   final Widget child;
@@ -296,7 +296,7 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   final GestureTapCallback onDoubleTap;
   final Duration doubleTapTime;
 
-  Timer doubleTapTimer = Timer(const Duration(milliseconds: 100), () {});
+  Timer doubleTapTimer = Timer(const Duration(milliseconds: 200), () {});
   bool isPressed = false;
   bool isSingleTap = false;
   bool isDoubleTap = false;

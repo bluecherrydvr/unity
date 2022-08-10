@@ -415,7 +415,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
             ? StatusBarStyle.DARK_CONTENT
             : StatusBarStyle.LIGHT_CONTENT,
       );
-      setDevicePreferredOrientations([
+      DeviceOrientations.instance.set([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
@@ -432,7 +432,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
             ? StatusBarStyle.DARK_CONTENT
             : StatusBarStyle.LIGHT_CONTENT,
       );
-      restoreLastDevicePreferredOrientations();
+      DeviceOrientations.instance.restoreLast();
     }
     super.dispose();
   }
@@ -518,38 +518,30 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
                       .join(' '),
                   style: const TextStyle(color: Colors.white70),
                 ),
+                leading: IconButton(
+                  onPressed: Navigator.of(context).maybePop,
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white.withOpacity(0.87),
+                  ),
+                ),
                 centerTitle: Platform.isIOS,
                 actions: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (fit == FijkFit.fill)
-                        Container(
-                          width: 36.0,
-                          height: 36.0,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.white54,
-                              width: 1.6,
-                            ),
-                            borderRadius: BorderRadius.circular(18.0),
-                          ),
-                        ),
-                      IconButton(
-                        splashRadius: 20.0,
-                        onPressed: () {
-                          setState(() {
-                            fit = fit == FijkFit.fill
-                                ? FijkFit.contain
-                                : FijkFit.fill;
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.aspect_ratio,
-                          color: Colors.white54,
-                        ),
-                      ),
-                    ],
+                  IconButton(
+                    splashRadius: 20.0,
+                    onPressed: () {
+                      setState(() {
+                        fit = fit == FijkFit.fill
+                            ? FijkFit.contain
+                            : FijkFit.fill;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.aspect_ratio,
+                      color: fit == FijkFit.fill
+                          ? Colors.white.withOpacity(0.87)
+                          : Colors.white.withOpacity(0.54),
+                    ),
                   ),
                   const SizedBox(width: 16.0),
                 ],

@@ -92,8 +92,8 @@ You may provide translations for the application to see it running in your own l
 Let's say, we're adding French (`fr`) translation.
 
 1. Fork the repository & navigate [here](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n).
-2. Create a new file named `intl_fr.arb`.
-3. Add your translations to your new `intl_fr.arb` file in correspondence to existing [English translations](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n/intl_en.arb).
+2. Create a new file named `app_fr.arb`.
+3. Add your translations to your new `app_fr.arb` file in correspondence to existing [English translations](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n/app_en.arb).
 4. Send us a new pull-request. 🎉
 
 ## Bug-Reports

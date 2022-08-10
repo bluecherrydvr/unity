@@ -30,7 +30,11 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  final void Function(int) changeCurrentTab;
+  const Settings({
+    Key? key,
+    required this.changeCurrentTab,
+  }) : super(key: key);
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -80,23 +84,25 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           Consumer<ServersProvider>(
-            builder: (context, serversProvider, _) =>
-                serversProvider.servers.isEmpty
-                    ? Center(
-                        child: Container(
-                          alignment: Alignment.center,
-                          height: 72.0,
-                          child: Text(
-                            'no_servers_added'.tr(),
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                        ),
-                      )
-                    : Column(
-                        children: serversProvider.servers
-                            .map((e) => ServerTile(server: e))
-                            .toList(),
-                      ),
+            builder: (context, serversProvider, _) => Column(
+              children: [
+                ...serversProvider.servers
+                    .map((e) => ServerTile(server: e))
+                    .toList(),
+                ListTile(
+                  leading: CircleAvatar(
+                    child: const Icon(Icons.add),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                  ),
+                  title: Text('add_new_server'.tr()),
+                  onTap: () {
+                    // Go to the "Add Server" tab.
+                    widget.changeCurrentTab.call(3);
+                  },
+                ),
+              ],
+            ),
           ),
           const Divider(),
           Padding(
@@ -258,7 +264,8 @@ class _SettingsState extends State<Settings> {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                  e.str().substring(0, e.str().length - 1)),
+                                e.str(),
+                              ),
                             ),
                           ),
                         )
@@ -442,6 +449,8 @@ class ServerTile extends StatefulWidget {
 }
 
 class _ServerTileState extends State<ServerTile> {
+  bool fetched = false;
+
   @override
   void initState() {
     super.initState();
@@ -452,10 +461,14 @@ class _ServerTileState extends State<ServerTile> {
             await API.instance.checkServerCredentials(widget.server),
           );
           if (mounted) {
-            setState(() {});
+            setState(() {
+              fetched = true;
+            });
           }
         },
       );
+    } else {
+      setState(() => fetched = true);
     }
   }
 
@@ -472,13 +485,16 @@ class _ServerTileState extends State<ServerTile> {
           widget.server.name,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          [
-            if (widget.server.name != widget.server.ip) widget.server.ip,
-            'n_devices'.tr(args: [widget.server.devices.length.toString()]),
-          ].join(' • '),
-          overflow: TextOverflow.ellipsis,
-        ),
+        subtitle: fetched
+            ? Text(
+                [
+                  if (widget.server.name != widget.server.ip) widget.server.ip,
+                  'n_devices'
+                      .tr(args: [widget.server.devices.length.toString()]),
+                ].join(' • '),
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
         trailing: IconButton(
           icon: const Icon(
             Icons.delete,
@@ -498,7 +514,7 @@ class _ServerTileState extends State<ServerTile> {
                 ),
                 actions: [
                   MaterialButton(
-                    onPressed: Navigator.of(context).pop,
+                    onPressed: Navigator.of(context).maybePop,
                     child: Text(
                       'no'.tr().toUpperCase(),
                       style: TextStyle(
@@ -509,6 +525,7 @@ class _ServerTileState extends State<ServerTile> {
                   MaterialButton(
                     onPressed: () {
                       serversProvider.remove(widget.server);
+                      Navigator.of(context).maybePop();
                     },
                     child: Text(
                       'yes'.tr().toUpperCase(),

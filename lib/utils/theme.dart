@@ -172,7 +172,9 @@ ThemeData createTheme({
     ),
     buttonTheme: ButtonThemeData(
         disabledColor: isLight ? Colors.black12 : Colors.white24),
-    splashFactory: InkRipple.splashFactory,
+    splashFactory:
+        Platform.isAndroid ? InkSparkle.splashFactory : InkRipple.splashFactory,
+    highlightColor: Platform.isAndroid ? Colors.transparent : null,
     primaryColorLight: color,
     primaryColor: color,
     primaryColorDark: color,
@@ -222,11 +224,11 @@ ThemeData createTheme({
       ),
       elevation: 4.0,
       iconTheme: IconThemeData(
-        color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
       ),
       actionsIconTheme: IconThemeData(
-        color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
+        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
       ),
       titleTextStyle: TextStyle(

@@ -27,8 +27,23 @@
   "tip2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
   "tip3": "Click the events icon to open the history and watch or save recordings.",
   "errorTextField": "{field} is not entered.",
+  "@errorTextField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "serverAdded": "{serverName} has been added.",
+  "@serverAdded": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
   "serverNotAddedError": "{serverName} could not be added. Please check the entered details.",
+  "@serverNotAddedError": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
   "error": "Error",
   "ok": "OK",
   "removeCamera": "Remove Camera",
@@ -53,8 +68,18 @@
   "dateFormat": "Date Format",
   "timeFormat": "Time Format",
   "nDevices": "{n} devices",
+  "@nDevices": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "remove": "Remove ?",
   "removeServerDescription": "{serverName} will be removed from the application. You'll not be able to view cameras from this server & will no longer receive notifications.",
+  "@removeServerDescription": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
   "yes": "Yes",
   "no": "No",
   "version": "Version",
@@ -67,6 +92,11 @@
   "notSnoozed": "Not snoozing",
   "snoozeNotificationsUntil": "Snooze notifications until",
   "snoozedUntil": "Snoozed until {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {}
+    }
+  },
   "notificationClickAction": "Notification Click Action",
   "showFullscreenCamera": "Show fullscreen camera",
   "showEventsScreen": "Show events history",

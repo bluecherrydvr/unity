@@ -43,7 +43,6 @@ dependencies:
   provider: ^6.0.3
   intl: ^0.17.0
   fijkplayer_skin: ^2.2.8
-  toast: ^0.3.0
   firebase_core: ^1.17.1
   firebase_messaging: 11.2.8
   awesome_notifications: 0.7.0-beta.5

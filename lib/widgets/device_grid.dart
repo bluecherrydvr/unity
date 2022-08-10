@@ -170,9 +170,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 : Expanded(
                     child: PageTransitionSwitcher(
                       child: {
-                        4: () => const _MobileDeviceGridChild(tab: 4),
-                        2: () => const _MobileDeviceGridChild(tab: 2),
                         1: () => const _MobileDeviceGridChild(tab: 1),
+                        2: () => const _MobileDeviceGridChild(tab: 2),
+                        4: () => const _MobileDeviceGridChild(tab: 4),
                       }[view.tab]!(),
                       transitionBuilder:
                           (child, primaryAnimation, secondaryAnimation) =>
@@ -207,7 +207,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                           ),
                           const Spacer(),
                         ] +
-                        [4, 2, 1].map((e) {
+                        [1, 2, 4].map((e) {
                           final child = view.tab == e
                               ? Card(
                                   margin: EdgeInsets.zero,

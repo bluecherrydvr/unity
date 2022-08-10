@@ -189,8 +189,9 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       const Divider(thickness: 1.0),
                                       const SizedBox(height: 16.0),
                                       Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: Platform.isIOS
+                                            ? CrossAxisAlignment.center
+                                            : CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'welcome'.tr(),
@@ -260,6 +261,34 @@ class _AddServerWizardState extends State<AddServerWizard> {
                   ),
                 ],
               ),
+            ),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top,
+                  ),
+                  height: kToolbarHeight + MediaQuery.of(context).padding.top,
+                  alignment: Alignment.topLeft,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 8.0),
+                      IconButton(
+                        splashRadius: 20.0,
+                        onPressed: Scaffold.of(context).openDrawer,
+                        icon: const Icon(
+                          Icons.menu,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              top: 0.0,
+              left: 0.0,
             ),
           ],
         ),
@@ -348,7 +377,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           elevation: elevated ? 4.0 : 0.0,
           child: Container(
             height: 48.0,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
@@ -717,7 +748,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 FocusScope.of(context).unfocus();
               },
             ),
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             elevation: elevated ? 0.0 : 4.0,
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.white12,
@@ -795,7 +828,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           elevation: elevated ? 4.0 : 0.0,
           child: Container(
             height: 48.0,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
@@ -926,7 +961,10 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   statusBarIconBrightness: Brightness.light,
                   statusBarBrightness: Brightness.light,
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).cardColor,
                 title: Text(
                   'lets_go'.tr(),
                   style: const TextStyle(

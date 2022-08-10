@@ -26,10 +26,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-// https://github.com/aissat/easy_localization/issues/210
-import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_localization/src/localization.dart';
-import 'package:easy_localization/src/easy_localization_controller.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
@@ -44,11 +40,17 @@ import 'package:bluecherry_client/models/device.dart';
 
 import 'package:bluecherry_client/main.dart';
 
+/// Notification buttons are not translated.
+final snooze15ButtonLabel =
+    Platform.isIOS ? 'Snooze for 15 minutes' : '15 MINUTES';
+final snooze30ButtonLabel =
+    Platform.isIOS ? 'Snooze for 30 minutes' : '15 MINUTES';
+final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 HOUR';
+
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await loadEazyLocalization();
   await Hive.initFlutter();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
@@ -105,19 +107,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       actionButtons: [
         NotificationActionButton(
           showInCompactView: true,
-          label: L.tr('snooze_15').toUpperCase(),
+          label: snooze15ButtonLabel,
           key: 'snooze_15',
           actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
           showInCompactView: true,
-          label: L.tr('snooze_30').toUpperCase(),
+          label: snooze30ButtonLabel,
           key: 'snooze_30',
           actionType: ActionType.SilentBackgroundAction,
         ),
         NotificationActionButton(
           showInCompactView: true,
-          label: L.tr('snooze_60').toUpperCase(),
+          label: snooze60ButtonLabel,
           key: 'snooze_60',
           actionType: ActionType.SilentBackgroundAction,
         ),
@@ -156,19 +158,19 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           actionButtons: [
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_15').toUpperCase(),
+              label: snooze15ButtonLabel,
               key: 'snooze_15',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_30').toUpperCase(),
+              label: snooze30ButtonLabel,
               key: 'snooze_30',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_60').toUpperCase(),
+              label: snooze60ButtonLabel,
               key: 'snooze_60',
               actionType: ActionType.SilentBackgroundAction,
             ),
@@ -189,7 +191,6 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   await Future.delayed(const Duration(seconds: 1));
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await loadEazyLocalization();
   await Hive.initFlutter();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
@@ -329,19 +330,19 @@ abstract class FirebaseConfiguration {
           actionButtons: [
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_15').toUpperCase(),
+              label: snooze15ButtonLabel,
               key: 'snooze_15',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_30').toUpperCase(),
+              label: snooze30ButtonLabel,
               key: 'snooze_30',
               actionType: ActionType.SilentBackgroundAction,
             ),
             NotificationActionButton(
               showInCompactView: true,
-              label: L.tr('snooze_60').toUpperCase(),
+              label: snooze60ButtonLabel,
               key: 'snooze_60',
               actionType: ActionType.SilentBackgroundAction,
             ),
@@ -480,25 +481,4 @@ abstract class FirebaseConfiguration {
   }
 }
 
-Future<void> loadEazyLocalization() async {
-  await EasyLocalizationController.initEasyLocation();
-  final controller = EasyLocalizationController(
-    saveLocale: true,
-    fallbackLocale: const Locale('en', 'US'),
-    supportedLocales: kSupportedLocales,
-    assetLoader: const RootBundleAssetLoader(),
-    useOnlyLangCode: false,
-    useFallbackTranslations: true,
-    path: 'assets/translations',
-    onLoadError: (FlutterError e) {},
-  );
-  await controller.loadTranslations();
-  Localization.load(
-    controller.locale,
-    translations: controller.translations,
-    fallbackTranslations: controller.fallbackTranslations,
-  );
-}
-
 String? _mutex;
-final Localization L = Localization.instance;

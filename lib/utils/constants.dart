@@ -17,14 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/widgets.dart';
-
-/// Locales supported by the application.
-/// See `./assets/translations/*` for the translations.
-const kSupportedLocales = [
-  Locale('en', 'US'),
-];
-
 /// Interpreted as the current application version.
 /// Update the [String]'s value before an update.
 const kAppVersion = 'v0.0.1';

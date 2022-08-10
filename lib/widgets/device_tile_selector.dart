@@ -18,7 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -118,9 +118,9 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                     color: Colors.white,
                   ),
                   itemBuilder: (_) => [
-                    'remove_camera',
-                    'replace_camera',
-                    'reload_camera',
+                    AppLocalizations.of(context).removeCamera,
+                    AppLocalizations.of(context).replaceCamera,
+                    AppLocalizations.of(context).reloadCamera,
                   ]
                       .asMap()
                       .entries
@@ -139,7 +139,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                               foregroundColor:
                                   Theme.of(context).iconTheme.color,
                             ),
-                            title: Text(e.value.tr()),
+                            title: Text(e.value),
                           ),
                         ),
                       )

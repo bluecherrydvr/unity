@@ -20,7 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/services.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/widgets/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_screen.dart';
@@ -56,13 +56,13 @@ class MobileHome extends StatefulWidget {
 
 class _MobileHomeState extends State<MobileHome> {
   int tab = ServersProvider.instance.serverAdded ? 0 : 3;
-  final Map<IconData, String> drawer = {
-    Icons.window: 'screens',
-    Icons.camera: 'direct_camera',
-    Icons.description: 'event_browser',
-    Icons.dns: 'add_server',
-    Icons.settings: 'settings',
-  };
+  final List<IconData> drawer = [
+    Icons.window,
+    Icons.camera,
+    Icons.description,
+    Icons.dns,
+    Icons.settings,
+  ];
 
   @override
   void initState() {
@@ -135,8 +135,8 @@ class _MobileHomeState extends State<MobileHome> {
               ),
             ),
             const SizedBox(height: 8.0),
-            ...drawer.entries.map((e) {
-              final index = drawer.keys.toList().indexOf(e.key);
+            ...drawer.map((e) {
+              final index = drawer.toList().indexOf(e);
               return Stack(
                 children: [
                   ListTile(
@@ -144,14 +144,21 @@ class _MobileHomeState extends State<MobileHome> {
                     leading: CircleAvatar(
                       backgroundColor: Colors.transparent,
                       child: Icon(
-                        e.key,
+                        e,
                         color: index == tab
                             ? Theme.of(context).primaryColor
                             : Theme.of(context).iconTheme.color,
                       ),
                     ),
                     title: Text(
-                      e.value.tr(),
+                      {
+                        Icons.window: AppLocalizations.of(context).screens,
+                        Icons.camera: AppLocalizations.of(context).directCamera,
+                        Icons.description:
+                            AppLocalizations.of(context).eventBrowser,
+                        Icons.dns: AppLocalizations.of(context).addServer,
+                        Icons.settings: AppLocalizations.of(context).settings,
+                      }[e]!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyText1?.copyWith(

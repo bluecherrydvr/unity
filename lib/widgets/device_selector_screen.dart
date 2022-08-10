@@ -18,7 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -37,7 +37,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('select_a_camera'.tr()),
+        title: Text(AppLocalizations.of(context).selectACamera),
       ),
       body: ServersProvider.instance.servers.isEmpty
           ? Center(
@@ -52,7 +52,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'no_servers_added'.tr(),
+                    AppLocalizations.of(context).noServersAdded,
                     style: Theme.of(context)
                         .textTheme
                         .headline5
@@ -112,8 +112,10 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                                       ),
                                       subtitle: Text([
                                         server.devices[index].status
-                                            ? 'online'.tr()
-                                            : 'offline'.tr(),
+                                            ? AppLocalizations.of(context)
+                                                .online
+                                            : AppLocalizations.of(context)
+                                                .offline,
                                         server.devices[index].uri,
                                         '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
                                       ].join(' • ')),

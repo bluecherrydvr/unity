@@ -19,16 +19,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:fijkplayer_skin/fijkplayer_skin.dart';
 import 'package:fijkplayer_skin/schema.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/api/api.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -83,7 +84,7 @@ class _EventsScreenState extends State<EventsScreen> {
           splashRadius: 20.0,
           onPressed: Scaffold.of(context).openDrawer,
         ),
-        title: Text('event_browser'.tr()),
+        title: Text(AppLocalizations.of(context).eventBrowser),
       ),
       body: ServersProvider.instance.servers.isEmpty
           ? Center(
@@ -98,7 +99,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'no_servers_added'.tr(),
+                    AppLocalizations.of(context).noServersAdded,
                     style: Theme.of(context)
                         .textTheme
                         .headline5

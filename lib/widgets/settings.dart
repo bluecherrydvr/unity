@@ -17,10 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -58,7 +59,7 @@ class _SettingsState extends State<Settings> {
           splashRadius: 20.0,
           onPressed: Scaffold.of(context).openDrawer,
         ),
-        title: Text('settings'.tr()),
+        title: Text(AppLocalizations.of(context).settings),
         // actions: [
         //   IconButton(
         //     icon: const Icon(Icons.info),
@@ -76,7 +77,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'servers'.tr().toUpperCase(),
+              AppLocalizations.of(context).servers,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -95,7 +96,7 @@ class _SettingsState extends State<Settings> {
                     backgroundColor: Colors.transparent,
                     foregroundColor: Theme.of(context).iconTheme.color,
                   ),
-                  title: Text('add_new_server'.tr()),
+                  title: Text(AppLocalizations.of(context).addNewServer),
                   onTap: () {
                     // Go to the "Add Server" tab.
                     widget.changeCurrentTab.call(3);
@@ -111,7 +112,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'theme'.tr().toUpperCase(),
+              AppLocalizations.of(context).theme,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -142,7 +143,11 @@ class _SettingsState extends State<Settings> {
                           settings.themeMode = e;
                         },
                       ),
-                      title: Text(e.name.tr()),
+                      title: Text({
+                        ThemeMode.system: AppLocalizations.of(context).system,
+                        ThemeMode.light: AppLocalizations.of(context).light,
+                        ThemeMode.dark: AppLocalizations.of(context).dark,
+                      }[e]!),
                     ),
                   )
                   .toList(),
@@ -155,7 +160,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'miscellaneous'.tr().toUpperCase(),
+              AppLocalizations.of(context).miscellaneous,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -174,8 +179,8 @@ class _SettingsState extends State<Settings> {
                     } else {
                       final timeOfDay = await showTimePicker(
                         context: context,
-                        helpText:
-                            'snooze_notifications_until'.tr().toUpperCase(),
+                        helpText: AppLocalizations.of(context)
+                            .snoozeNotificationsUntil,
                         initialTime: TimeOfDay.fromDateTime(DateTime.now()),
                         useRootNavigator: false,
                         builder: (_, child) => Theme.of(context).brightness ==
@@ -212,23 +217,21 @@ class _SettingsState extends State<Settings> {
                       }
                     }
                   },
-                  title: 'snooze_notifications'.tr(),
+                  title: AppLocalizations.of(context).snoozeNotifications,
                   height: 72.0,
                   subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                      ? 'snoozed_until'.tr(
-                          args: [
-                            [
-                              if (settings.snoozedUntil
-                                      .difference(DateTime.now()) >
-                                  const Duration(hours: 24))
-                                SettingsProvider.instance.dateFormat
-                                    .format(settings.snoozedUntil),
-                              SettingsProvider.instance.timeFormat
+                      ? AppLocalizations.of(context).snoozedUntil(
+                          [
+                            if (settings.snoozedUntil
+                                    .difference(DateTime.now()) >
+                                const Duration(hours: 24))
+                              SettingsProvider.instance.dateFormat
                                   .format(settings.snoozedUntil),
-                            ].join(' '),
-                          ],
+                            SettingsProvider.instance.timeFormat
+                                .format(settings.snoozedUntil),
+                          ].join(' '),
                         )
-                      : 'not_snoozed'.tr(),
+                      : AppLocalizations.of(context).notSnoozed,
                 ),
                 Theme(
                   data: Theme.of(context).copyWith(
@@ -240,10 +243,11 @@ class _SettingsState extends State<Settings> {
                       foregroundColor: Theme.of(context).iconTheme.color,
                       child: const Icon(Icons.beenhere_rounded),
                     ),
-                    title: Text('notification_click_action'.tr()),
+                    title: Text(
+                        AppLocalizations.of(context).notificationClickAction),
                     textColor: Theme.of(context).textTheme.bodyText1?.color,
                     subtitle: Text(
-                      settings.notificationClickAction.str(),
+                      settings.notificationClickAction.str(context),
                       style: Theme.of(context).textTheme.bodyText2?.copyWith(
                             color: Theme.of(context).textTheme.caption?.color,
                           ),
@@ -264,7 +268,7 @@ class _SettingsState extends State<Settings> {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                e.str(),
+                                e.str(context),
                               ),
                             ),
                           ),
@@ -282,7 +286,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'date_format'.tr().toUpperCase(),
+              AppLocalizations.of(context).dateFormat,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -332,7 +336,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'time_format'.tr().toUpperCase(),
+              AppLocalizations.of(context).timeFormat,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -376,7 +380,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'version'.tr().toUpperCase(),
+              AppLocalizations.of(context).version,
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -395,7 +399,7 @@ class _SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  'version_text'.tr(),
+                  AppLocalizations.of(context).versionText,
                   style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
@@ -411,7 +415,7 @@ class _SettingsState extends State<Settings> {
                   padding: EdgeInsets.zero,
                   minWidth: 0.0,
                   child: Text(
-                    'website'.tr().toUpperCase(),
+                    AppLocalizations.of(context).website,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -489,8 +493,8 @@ class _ServerTileState extends State<ServerTile> {
             ? Text(
                 [
                   if (widget.server.name != widget.server.ip) widget.server.ip,
-                  'n_devices'
-                      .tr(args: [widget.server.devices.length.toString()]),
+                  AppLocalizations.of(context)
+                      .nDevices(widget.server.devices.length),
                 ].join(' • '),
                 overflow: TextOverflow.ellipsis,
               )
@@ -504,11 +508,10 @@ class _ServerTileState extends State<ServerTile> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: Text('remove'.tr()),
+                title: Text(AppLocalizations.of(context).remove),
                 content: Text(
-                  'remove_server_description'.tr(
-                    args: [widget.server.name],
-                  ),
+                  AppLocalizations.of(context)
+                      .removeServerDescription(widget.server.name),
                   style: Theme.of(context).textTheme.headline4,
                   textAlign: TextAlign.start,
                 ),
@@ -516,7 +519,7 @@ class _ServerTileState extends State<ServerTile> {
                   MaterialButton(
                     onPressed: Navigator.of(context).maybePop,
                     child: Text(
-                      'no'.tr().toUpperCase(),
+                      AppLocalizations.of(context).no,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -528,7 +531,7 @@ class _ServerTileState extends State<ServerTile> {
                       Navigator.of(context).maybePop();
                     },
                     child: Text(
-                      'yes'.tr().toUpperCase(),
+                      AppLocalizations.of(context).yes,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -545,9 +548,10 @@ class _ServerTileState extends State<ServerTile> {
 }
 
 extension on NotificationClickAction {
-  String str() => {
+  String str(BuildContext context) => {
         NotificationClickAction.showFullscreenCamera:
-            'show_fullscreen_camera'.tr(),
-        NotificationClickAction.showEventsScreen: 'show_events_screen'.tr(),
+            AppLocalizations.of(context).showFullscreenCamera,
+        NotificationClickAction.showEventsScreen:
+            AppLocalizations.of(context).showEventsScreen,
       }[this]!;
 }

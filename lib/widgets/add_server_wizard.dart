@@ -18,11 +18,10 @@
  */
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
@@ -100,7 +99,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       ),
                                       const SizedBox(height: 24.0),
                                       Text(
-                                        'project_name'.tr(),
+                                        AppLocalizations.of(context)
+                                            .projectName,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline1
@@ -111,7 +111,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       ),
                                       const SizedBox(height: 4.0),
                                       Text(
-                                        'project_description'.tr(),
+                                        AppLocalizations.of(context)
+                                            .projectDescription,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline5,
@@ -140,7 +141,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                     );
                                                   },
                                                   child: Text(
-                                                    'website'.tr(),
+                                                    AppLocalizations.of(context)
+                                                        .website,
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .headline4
@@ -169,7 +171,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                                     );
                                                   },
                                                   child: Text(
-                                                    'purchase'.tr(),
+                                                    AppLocalizations.of(context)
+                                                        .purchase,
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .headline4
@@ -189,11 +192,13 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       const Divider(thickness: 1.0),
                                       const SizedBox(height: 16.0),
                                       Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: Platform.isIOS
+                                            ? CrossAxisAlignment.center
+                                            : CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'welcome'.tr(),
+                                            AppLocalizations.of(context)
+                                                .welcome,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline1
@@ -204,7 +209,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                           ),
                                           const SizedBox(height: 8.0),
                                           Text(
-                                            'welcome_description'.tr(),
+                                            AppLocalizations.of(context)
+                                                .welcomeDescription,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5,
@@ -231,7 +237,9 @@ class _AddServerWizardState extends State<AddServerWizard> {
                                       width: double.infinity,
                                       height: 56.0,
                                       child: Text(
-                                        'lets_go'.tr().toUpperCase(),
+                                        AppLocalizations.of(context)
+                                            .letsGo
+                                            .toUpperCase(),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.0,
@@ -244,6 +252,36 @@ class _AddServerWizardState extends State<AddServerWizard> {
                               ],
                             ),
                           ),
+                        ),
+                        Positioned.fill(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              color: Colors.transparent,
+                              padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).padding.top,
+                              ),
+                              height: kToolbarHeight +
+                                  MediaQuery.of(context).padding.top,
+                              alignment: Alignment.topLeft,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 8.0),
+                                  IconButton(
+                                    splashRadius: 20.0,
+                                    onPressed: Scaffold.of(context).openDrawer,
+                                    icon: const Icon(
+                                      Icons.menu,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          top: 0.0,
+                          left: 0.0,
+                          bottom: MediaQuery.of(context).size.height * 3 / 4,
                         ),
                       ],
                     ),
@@ -348,7 +386,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           elevation: elevated ? 4.0 : 0.0,
           child: Container(
             height: 48.0,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
@@ -361,7 +401,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 children: [
                   const SizedBox(height: 8.0),
                   Text(
-                    'configure_description'.tr(),
+                    AppLocalizations.of(context).configureDescription,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
@@ -391,8 +431,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         child: TextFormField(
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'error_text_field'
-                                  .tr(args: ['hostname'.tr()]);
+                              return AppLocalizations.of(context)
+                                  .errorTextField(
+                                AppLocalizations.of(context).hostname,
+                              );
                             }
                             return null;
                           },
@@ -401,7 +443,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           keyboardType: TextInputType.url,
                           style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
-                            label: Text('hostname'.tr()),
+                            label: Text(AppLocalizations.of(context).hostname),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -412,7 +454,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         child: TextFormField(
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'error_text_field'.tr(args: ['port'.tr()]);
+                              return AppLocalizations.of(context)
+                                  .errorTextField(
+                                AppLocalizations.of(context).port,
+                              );
                             }
                             return null;
                           },
@@ -421,7 +466,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           keyboardType: TextInputType.number,
                           style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
-                            label: Text('port'.tr()),
+                            label: Text(AppLocalizations.of(context).port),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -432,7 +477,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   TextFormField(
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
-                        return 'error_text_field'.tr(args: ['name'.tr()]);
+                        return AppLocalizations.of(context).errorTextField(
+                          AppLocalizations.of(context).name,
+                        );
                       }
                       return null;
                     },
@@ -442,7 +489,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     keyboardType: TextInputType.name,
                     style: Theme.of(context).textTheme.headline4,
                     decoration: InputDecoration(
-                      label: Text('name'.tr()),
+                      label: Text(AppLocalizations.of(context).name),
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -454,15 +501,17 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         child: TextFormField(
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'error_text_field'
-                                  .tr(args: ['username'.tr()]);
+                              return AppLocalizations.of(context)
+                                  .errorTextField(
+                                AppLocalizations.of(context).username,
+                              );
                             }
                             return null;
                           },
                           controller: textEditingControllers[3],
                           style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
-                            label: Text('username'.tr()),
+                            label: Text(AppLocalizations.of(context).username),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -470,23 +519,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       SizedBox(
                         width: isDesktop ? 16.0 : 8.0,
                       ),
-                      if (isDesktop)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: MaterialButton(
-                            onPressed: () {
-                              textEditingControllers[3].text = kDefaultUsername;
-                              textEditingControllers[4].text = kDefaultPassword;
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'use_default'.tr().toUpperCase(),
-                              ),
-                            ),
-                            textColor: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: MaterialButton(
@@ -495,7 +527,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                             textEditingControllers[4].text = kDefaultPassword;
                           },
                           child: Text(
-                            'use_default'.tr().toUpperCase(),
+                            AppLocalizations.of(context)
+                                .useDefault
+                                .toUpperCase(),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
                         ),
@@ -510,8 +544,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         child: TextFormField(
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'error_text_field'
-                                  .tr(args: ['password'.tr()]);
+                              return AppLocalizations.of(context)
+                                  .errorTextField(
+                                AppLocalizations.of(context).password,
+                              );
                             }
                             return null;
                           },
@@ -519,7 +555,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           obscureText: true,
                           style: Theme.of(context).textTheme.headline4,
                           decoration: InputDecoration(
-                            label: Text('password'.tr()),
+                            label: Text(AppLocalizations.of(context).password),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -587,7 +623,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'skip'.tr().toUpperCase(),
+                              AppLocalizations.of(context).skip.toUpperCase(),
                             ),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
@@ -633,10 +669,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                       showDialog(
                                         context: context,
                                         builder: (context) => AlertDialog(
-                                          title: Text('error'.tr()),
+                                          title: Text(
+                                              AppLocalizations.of(context)
+                                                  .error),
                                           content: Text(
-                                            'server_not_added_error'
-                                                .tr(args: [server.name]),
+                                            AppLocalizations.of(context)
+                                                .serverNotAddedError(
+                                                    server.name),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline4,
@@ -649,7 +688,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                                 padding:
                                                     const EdgeInsets.all(8.0),
                                                 child: Text(
-                                                  'ok'.tr().toUpperCase(),
+                                                  AppLocalizations.of(context)
+                                                      .ok,
                                                 ),
                                               ),
                                               textColor: Theme.of(context)
@@ -668,7 +708,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'finish'.tr().toUpperCase(),
+                              AppLocalizations.of(context).finish.toUpperCase(),
                             ),
                           ),
                           textColor: Theme.of(context).colorScheme.secondary,
@@ -690,7 +730,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           DesktopAppBar(
             elevation: elevated ? 0.0 : 4.0,
             color: Theme.of(context).appBarTheme.backgroundColor,
-            title: 'configure'.tr(),
+            title: AppLocalizations.of(context).configure,
             leading: NavigatorPopButton(
               color: Colors.white,
               onTap: () {
@@ -717,7 +757,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 FocusScope.of(context).unfocus();
               },
             ),
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             elevation: elevated ? 0.0 : 4.0,
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.white12,
@@ -725,7 +767,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               statusBarBrightness: Brightness.light,
             ),
             title: Text(
-              'configure'.tr(),
+              AppLocalizations.of(context).configure,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
@@ -795,7 +837,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           elevation: elevated ? 4.0 : 0.0,
           child: Container(
             height: 48.0,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
@@ -808,7 +852,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 children: [
                   const SizedBox(height: 8.0),
                   Text(
-                    'lets_go_description'.tr(),
+                    AppLocalizations.of(context).letsGoDescription,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
@@ -840,8 +884,8 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(
-                    child: Text(
-                        'server_added'.tr(args: [widget.getServer()!.name])),
+                    child: Text(AppLocalizations.of(context)
+                        .serverAdded(widget.getServer()!.name)),
                   ),
                 ],
               ),
@@ -855,24 +899,64 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ...List.generate(
-                  int.parse('tip_count'.tr()),
-                  (index) => 'tip_$index'.tr(),
-                ).map(
-                  (e) => Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(' • '),
-                        const SizedBox(width: 4.0),
-                        Expanded(
-                          child: Text(e),
-                        ),
-                      ],
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(' • '),
+                      const SizedBox(width: 4.0),
+                      Expanded(
+                        child: Text(AppLocalizations.of(context).tip0),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(' • '),
+                      const SizedBox(width: 4.0),
+                      Expanded(
+                        child: Text(AppLocalizations.of(context).tip1),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(' • '),
+                      const SizedBox(width: 4.0),
+                      Expanded(
+                        child: Text(AppLocalizations.of(context).tip2),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(' • '),
+                      const SizedBox(width: 4.0),
+                      Expanded(
+                        child: Text(AppLocalizations.of(context).tip3),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -889,7 +973,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           DesktopAppBar(
             elevation: elevated ? 0.0 : 4.0,
             color: Theme.of(context).appBarTheme.backgroundColor,
-            title: 'lets_go'.tr(),
+            title: AppLocalizations.of(context).letsGo,
             leading: widget.getServer() != null
                 ? const SizedBox.shrink()
                 : NavigatorPopButton(
@@ -926,9 +1010,12 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   statusBarIconBrightness: Brightness.light,
                   statusBarBrightness: Brightness.light,
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).cardColor,
                 title: Text(
-                  'lets_go'.tr(),
+                  AppLocalizations.of(context).letsGo,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
@@ -943,7 +1030,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             widget.onFinish.call();
           },
           backgroundColor: Theme.of(context).colorScheme.secondary,
-          label: Text('finish'.tr().toUpperCase()),
+          label: Text(AppLocalizations.of(context).finish.toUpperCase()),
           icon: const Icon(Icons.check),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

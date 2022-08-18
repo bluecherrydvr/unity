@@ -79,7 +79,7 @@ class MobileViewProvider extends ChangeNotifier {
 
   /// Current [tab].
   /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
-  int tab = 4;
+  int tab = 1;
 
   /// Layout for [current] [tab].
   List<Device?> get current => devices[tab]!;

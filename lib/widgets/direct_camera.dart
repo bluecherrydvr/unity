@@ -18,7 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
@@ -42,7 +42,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
           splashRadius: 20.0,
           onPressed: Scaffold.of(context).openDrawer,
         ),
-        title: Text('direct_camera'.tr()),
+        title: Text(AppLocalizations.of(context).directCamera),
       ),
       body: ServersProvider.instance.servers.isEmpty
           ? Center(
@@ -57,7 +57,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'no_servers_added'.tr(),
+                    AppLocalizations.of(context).noServersAdded,
                     style: Theme.of(context)
                         .textTheme
                         .headline5
@@ -117,8 +117,10 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                       ),
                                       subtitle: Text([
                                         server.devices[index].status
-                                            ? 'online'.tr()
-                                            : 'offline'.tr(),
+                                            ? AppLocalizations.of(context)
+                                                .online
+                                            : AppLocalizations.of(context)
+                                                .offline,
                                         server.devices[index].uri,
                                         '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
                                       ].join(' • ')),

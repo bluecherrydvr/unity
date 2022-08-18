@@ -29,6 +29,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   dart_vlc: ^0.3.0
   reorderable_grid_view:
     git:
@@ -36,14 +38,12 @@ dependencies:
       ref: master
   http: ^0.13.4
   xml2json: ^5.3.2
-  easy_localization: ^3.0.1
   fijkplayer: ^0.10.1
   status_bar_control: ^3.2.1
   animations: ^2.0.3
   provider: ^6.0.3
   intl: ^0.17.0
   fijkplayer_skin: ^2.2.8
-  toast: ^0.3.0
   firebase_core: ^1.17.1
   firebase_messaging: 11.2.8
   awesome_notifications: 0.7.0-beta.5
@@ -81,11 +81,13 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  # The following line ensures that the translations are generated before the
+  # application build using the ARB files provided.
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-    - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -18,17 +18,30 @@
  */
 
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
-Future<void> setDevicePreferredOrientations(
-  List<DeviceOrientation> orientations,
-) {
-  _orientations.add(orientations);
-  return SystemChrome.setPreferredOrientations(orientations);
+/// A helper singleton to set preferred orientation for the app.
+class DeviceOrientations {
+  /// [DeviceOrientations] singleton instance.
+  static final DeviceOrientations instance = DeviceOrientations._();
+
+  /// Private constructor.
+  DeviceOrientations._();
+
+  Future<void> set(
+    List<DeviceOrientation> orientations,
+  ) {
+    _stack.add(orientations);
+    debugPrint(orientations.toString());
+    return SystemChrome.setPreferredOrientations(orientations);
+  }
+
+  Future<void> restoreLast() async {
+    _stack.removeLast();
+    debugPrint(_stack.toString());
+    await SystemChrome.setPreferredOrientations(_stack.last);
+  }
+
+  /// Maintain a stack of the last set of orientations, to switch back to the most recent one.
+  final List<List<DeviceOrientation>> _stack = [];
 }
-
-Future<void> restoreLastDevicePreferredOrientations() async {
-  _orientations.removeLast();
-  await SystemChrome.setPreferredOrientations(_orientations.last);
-}
-
-final List<List<DeviceOrientation>> _orientations = [];

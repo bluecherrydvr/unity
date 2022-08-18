@@ -89,23 +89,12 @@ https://user-images.githubusercontent.com/28951144/177617785-fa81d120-6eac-44b1-
 
 You may provide translations for the application to see it running in your own language. Please follow these steps:
 
-Let's say, we're adding French (`fr-FR`) translation.
+Let's say, we're adding French (`fr`) translation.
 
-1. Fork the repository & navigate [here](https://github.com/bluecherrydvr/unity/tree/main/assets/translations).
-2. Create a new file named `fr-FR.json`.
-3. Add your translations to your new `fr-FR.json` file in correspondence to existing [en-US translations](https://github.com/bluecherrydvr/unity/blob/main/assets/translations/en-US.json).
-4. Add your language [here](https://github.com/bluecherrydvr/unity/blob/fce2aad3213298f70e91eb549a71699826e5c6e4/lib/utils/constants.dart#L26). Example:
-
-```diff
-  const kSupportedLocales = [
-    Locale('en', 'US'),
-+   Locale('fr', 'FR'),
-  ];
-```
-
+1. Fork the repository & navigate [here](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n).
+2. Create a new file named `app_fr.arb`.
+3. Add your translations to your new `app_fr.arb` file in correspondence to existing [English translations](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n/app_en.arb).
 4. Send us a new pull-request. 🎉
-
-**NOTE:** Do not translate the value of `tip_count`.
 
 ## Bug-Reports
 
@@ -159,7 +148,7 @@ lib
 
 Feel free to send any pull-requests to add any features you wish or fix any bugs you notice.
 
-## License 
+## License
 
 [![](https://camo.githubusercontent.com/317e8956b95d7cd7ebdc2a75b836f19dee3c1ae5fa0fce5b277338e648880d4f/68747470733a2f2f7777772e676e752e6f72672f67726170686963732f67706c76332d3132377835312e706e67)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 

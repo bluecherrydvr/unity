@@ -17,10 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -30,7 +31,11 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  final void Function(int) changeCurrentTab;
+  const Settings({
+    Key? key,
+    required this.changeCurrentTab,
+  }) : super(key: key);
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -54,7 +59,7 @@ class _SettingsState extends State<Settings> {
           splashRadius: 20.0,
           onPressed: Scaffold.of(context).openDrawer,
         ),
-        title: Text('settings'.tr()),
+        title: Text(AppLocalizations.of(context).settings),
         // actions: [
         //   IconButton(
         //     icon: const Icon(Icons.info),
@@ -72,7 +77,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'servers'.tr().toUpperCase(),
+              AppLocalizations.of(context).servers.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -80,23 +85,25 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           Consumer<ServersProvider>(
-            builder: (context, serversProvider, _) =>
-                serversProvider.servers.isEmpty
-                    ? Center(
-                        child: Container(
-                          alignment: Alignment.center,
-                          height: 72.0,
-                          child: Text(
-                            'no_servers_added'.tr(),
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                        ),
-                      )
-                    : Column(
-                        children: serversProvider.servers
-                            .map((e) => ServerTile(server: e))
-                            .toList(),
-                      ),
+            builder: (context, serversProvider, _) => Column(
+              children: [
+                ...serversProvider.servers
+                    .map((e) => ServerTile(server: e))
+                    .toList(),
+                ListTile(
+                  leading: CircleAvatar(
+                    child: const Icon(Icons.add),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                  ),
+                  title: Text(AppLocalizations.of(context).addNewServer),
+                  onTap: () {
+                    // Go to the "Add Server" tab.
+                    widget.changeCurrentTab.call(3);
+                  },
+                ),
+              ],
+            ),
           ),
           const Divider(),
           Padding(
@@ -105,7 +112,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'theme'.tr().toUpperCase(),
+              AppLocalizations.of(context).theme.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -136,7 +143,11 @@ class _SettingsState extends State<Settings> {
                           settings.themeMode = e;
                         },
                       ),
-                      title: Text(e.name.tr()),
+                      title: Text({
+                        ThemeMode.system: AppLocalizations.of(context).system,
+                        ThemeMode.light: AppLocalizations.of(context).light,
+                        ThemeMode.dark: AppLocalizations.of(context).dark,
+                      }[e]!),
                     ),
                   )
                   .toList(),
@@ -149,7 +160,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'miscellaneous'.tr().toUpperCase(),
+              AppLocalizations.of(context).miscellaneous.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -168,8 +179,8 @@ class _SettingsState extends State<Settings> {
                     } else {
                       final timeOfDay = await showTimePicker(
                         context: context,
-                        helpText:
-                            'snooze_notifications_until'.tr().toUpperCase(),
+                        helpText: AppLocalizations.of(context)
+                            .snoozeNotificationsUntil,
                         initialTime: TimeOfDay.fromDateTime(DateTime.now()),
                         useRootNavigator: false,
                         builder: (_, child) => Theme.of(context).brightness ==
@@ -206,23 +217,21 @@ class _SettingsState extends State<Settings> {
                       }
                     }
                   },
-                  title: 'snooze_notifications'.tr(),
+                  title: AppLocalizations.of(context).snoozeNotifications,
                   height: 72.0,
                   subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                      ? 'snoozed_until'.tr(
-                          args: [
-                            [
-                              if (settings.snoozedUntil
-                                      .difference(DateTime.now()) >
-                                  const Duration(hours: 24))
-                                SettingsProvider.instance.dateFormat
-                                    .format(settings.snoozedUntil),
-                              SettingsProvider.instance.timeFormat
+                      ? AppLocalizations.of(context).snoozedUntil(
+                          [
+                            if (settings.snoozedUntil
+                                    .difference(DateTime.now()) >
+                                const Duration(hours: 24))
+                              SettingsProvider.instance.dateFormat
                                   .format(settings.snoozedUntil),
-                            ].join(' '),
-                          ],
+                            SettingsProvider.instance.timeFormat
+                                .format(settings.snoozedUntil),
+                          ].join(' '),
                         )
-                      : 'not_snoozed'.tr(),
+                      : AppLocalizations.of(context).notSnoozed,
                 ),
                 Theme(
                   data: Theme.of(context).copyWith(
@@ -234,10 +243,11 @@ class _SettingsState extends State<Settings> {
                       foregroundColor: Theme.of(context).iconTheme.color,
                       child: const Icon(Icons.beenhere_rounded),
                     ),
-                    title: Text('notification_click_action'.tr()),
+                    title: Text(
+                        AppLocalizations.of(context).notificationClickAction),
                     textColor: Theme.of(context).textTheme.bodyText1?.color,
                     subtitle: Text(
-                      settings.notificationClickAction.str(),
+                      settings.notificationClickAction.str(context),
                       style: Theme.of(context).textTheme.bodyText2?.copyWith(
                             color: Theme.of(context).textTheme.caption?.color,
                           ),
@@ -258,7 +268,8 @@ class _SettingsState extends State<Settings> {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                  e.str().substring(0, e.str().length - 1)),
+                                e.str(context),
+                              ),
                             ),
                           ),
                         )
@@ -275,7 +286,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'date_format'.tr().toUpperCase(),
+              AppLocalizations.of(context).dateFormat.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -325,7 +336,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'time_format'.tr().toUpperCase(),
+              AppLocalizations.of(context).timeFormat.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -369,7 +380,7 @@ class _SettingsState extends State<Settings> {
               vertical: 12.0,
             ),
             child: Text(
-              'version'.tr().toUpperCase(),
+              AppLocalizations.of(context).version.toUpperCase(),
               style: Theme.of(context).textTheme.overline?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).iconTheme.color,
@@ -388,7 +399,7 @@ class _SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  'version_text'.tr(),
+                  AppLocalizations.of(context).versionText,
                   style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 8.0),
@@ -404,7 +415,7 @@ class _SettingsState extends State<Settings> {
                   padding: EdgeInsets.zero,
                   minWidth: 0.0,
                   child: Text(
-                    'website'.tr().toUpperCase(),
+                    AppLocalizations.of(context).website,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -442,6 +453,8 @@ class ServerTile extends StatefulWidget {
 }
 
 class _ServerTileState extends State<ServerTile> {
+  bool fetched = false;
+
   @override
   void initState() {
     super.initState();
@@ -452,10 +465,14 @@ class _ServerTileState extends State<ServerTile> {
             await API.instance.checkServerCredentials(widget.server),
           );
           if (mounted) {
-            setState(() {});
+            setState(() {
+              fetched = true;
+            });
           }
         },
       );
+    } else {
+      setState(() => fetched = true);
     }
   }
 
@@ -472,13 +489,16 @@ class _ServerTileState extends State<ServerTile> {
           widget.server.name,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          [
-            if (widget.server.name != widget.server.ip) widget.server.ip,
-            'n_devices'.tr(args: [widget.server.devices.length.toString()]),
-          ].join(' • '),
-          overflow: TextOverflow.ellipsis,
-        ),
+        subtitle: fetched
+            ? Text(
+                [
+                  if (widget.server.name != widget.server.ip) widget.server.ip,
+                  AppLocalizations.of(context)
+                      .nDevices(widget.server.devices.length),
+                ].join(' • '),
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
         trailing: IconButton(
           icon: const Icon(
             Icons.delete,
@@ -488,19 +508,18 @@ class _ServerTileState extends State<ServerTile> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: Text('remove'.tr()),
+                title: Text(AppLocalizations.of(context).remove),
                 content: Text(
-                  'remove_server_description'.tr(
-                    args: [widget.server.name],
-                  ),
+                  AppLocalizations.of(context)
+                      .removeServerDescription(widget.server.name),
                   style: Theme.of(context).textTheme.headline4,
                   textAlign: TextAlign.start,
                 ),
                 actions: [
                   MaterialButton(
-                    onPressed: Navigator.of(context).pop,
+                    onPressed: Navigator.of(context).maybePop,
                     child: Text(
-                      'no'.tr().toUpperCase(),
+                      AppLocalizations.of(context).no.toUpperCase(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -509,9 +528,10 @@ class _ServerTileState extends State<ServerTile> {
                   MaterialButton(
                     onPressed: () {
                       serversProvider.remove(widget.server);
+                      Navigator.of(context).maybePop();
                     },
                     child: Text(
-                      'yes'.tr().toUpperCase(),
+                      AppLocalizations.of(context).yes.toUpperCase(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -528,9 +548,10 @@ class _ServerTileState extends State<ServerTile> {
 }
 
 extension on NotificationClickAction {
-  String str() => {
+  String str(BuildContext context) => {
         NotificationClickAction.showFullscreenCamera:
-            'show_fullscreen_camera'.tr(),
-        NotificationClickAction.showEventsScreen: 'show_events_screen'.tr(),
+            AppLocalizations.of(context).showFullscreenCamera,
+        NotificationClickAction.showEventsScreen:
+            AppLocalizations.of(context).showEventsScreen,
       }[this]!;
 }

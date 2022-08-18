@@ -46,6 +46,7 @@ dependencies:
   fijkplayer_skin: ^2.2.8
   firebase_core: ^1.17.1
   firebase_messaging: 11.2.8
+  intl_utils: ^2.1.0
   awesome_notifications: 0.7.0-beta.5
   device_info_plus: ^3.2.4
   url_launcher: ^6.1.3

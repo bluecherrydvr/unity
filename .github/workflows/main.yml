@@ -32,6 +32,8 @@ jobs:
       #     encodedString: ${{ secrets.KEY_PROPERTIES }}
       # - run: cp "${{ steps.create_key_store.outputs.filePath }}" android/app/keystore.jks
       # - run: cp "${{ steps.create_key_properties.outputs.filePath }}" android/key.properties
+      - run: dart pub global activate intl_utils 2.1.0
+      - run: flutter gen-l10n
       - run: flutter pub upgrade
       - run: flutter pub get
       - run: flutter build apk --verbose --split-per-abi

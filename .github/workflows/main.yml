@@ -16,6 +16,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v1
         with:
+          flutter-version: "3.0.5"
           channel: "stable"
       # TODO: Signing Android application.
       # - name: Create Key Store

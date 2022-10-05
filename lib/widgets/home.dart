@@ -92,7 +92,7 @@ class _MobileHomeState extends State<MobileHome> {
             DeviceOrientation.portraitDown,
           ],
         );
-      } else if ([0, 3].contains(tab)) {
+      } else {
         await StatusBarControl.setHidden(false);
         await StatusBarControl.setStyle(
           getStatusBarStyleFromBrightness(Theme.of(context).brightness),
@@ -177,10 +177,12 @@ class _MobileHomeState extends State<MobileHome> {
                         ),
                         onTap: () async {
                           if (index == 0 && tab != 0) {
+                            debugPrint(index.toString());
                             await StatusBarControl.setHidden(true);
                             await StatusBarControl.setStyle(
                               getStatusBarStyleFromBrightness(
-                                  Theme.of(context).brightness),
+                                Theme.of(context).brightness,
+                              ),
                             );
                             DeviceOrientations.instance.set(
                               [
@@ -189,12 +191,12 @@ class _MobileHomeState extends State<MobileHome> {
                               ],
                             );
                           } else if (index == 3 && tab != 3) {
-                            // Use portrait orientation in "Add Server" tab.
-                            // See #14.
+                            debugPrint(index.toString());
+                            // Use portrait orientation in "Add Server" tab. See #14.
                             await StatusBarControl.setHidden(false);
                             await StatusBarControl.setStyle(
-                              getStatusBarStyleFromBrightness(
-                                  Theme.of(context).brightness),
+                              // Always white status bar style in [AddServerWizard].
+                              StatusBarStyle.LIGHT_CONTENT,
                             );
                             DeviceOrientations.instance.set(
                               [
@@ -204,10 +206,12 @@ class _MobileHomeState extends State<MobileHome> {
                             );
                           } else if (![0, 3].contains(index) &&
                               [0, 3].contains(tab)) {
+                            debugPrint(index.toString());
                             await StatusBarControl.setHidden(false);
                             await StatusBarControl.setStyle(
                               getStatusBarStyleFromBrightness(
-                                  Theme.of(context).brightness),
+                                Theme.of(context).brightness,
+                              ),
                             );
                             DeviceOrientations.instance.set(
                               DeviceOrientation.values,

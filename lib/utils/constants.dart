@@ -19,7 +19,7 @@
 
 /// Interpreted as the current application version.
 /// Update the [String]'s value before an update.
-const kAppVersion = 'v0.0.1';
+const kAppVersion = '0.0.1';
 
 /// Default port used in Bluecherry DVR server.
 const kDefaultPort = 7001;

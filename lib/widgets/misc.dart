@@ -34,23 +34,12 @@ class NavigatorPopButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap ?? Navigator.of(context).pop,
-          borderRadius: BorderRadius.circular(20.0),
-          child: SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: Icon(
-              Icons.arrow_back,
-              size: 24.0,
-              color: color,
-            ),
-          ),
-        ),
+    return IconButton(
+      splashRadius: 22.0,
+      onPressed: onTap ?? Navigator.of(context).pop,
+      icon: Icon(
+        Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+        color: color,
       ),
     );
   }
@@ -409,6 +398,28 @@ class CorrectedListTile extends StatelessWidget {
             const SizedBox(width: 16.0),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class SubHeader extends StatelessWidget {
+  final String text;
+  const SubHeader(this.text, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56.0,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(
+        text.toUpperCase(),
+        style: Theme.of(context).textTheme.overline?.copyWith(
+              color: Theme.of(context).textTheme.headline3?.color,
+              fontSize: 12.0,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }

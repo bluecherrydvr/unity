@@ -50,6 +50,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.white12,
         statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -764,7 +765,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.white12,
               statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
             ),
             title: Text(
               AppLocalizations.of(context).configure,
@@ -884,8 +885,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(
-                    child: Text(AppLocalizations.of(context)
-                        .serverAdded(widget.getServer()!.name)),
+                    child: Text(AppLocalizations.of(context).serverAdded),
                   ),
                 ],
               ),
@@ -1008,7 +1008,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 systemOverlayStyle: const SystemUiOverlayStyle(
                   statusBarColor: Colors.white12,
                   statusBarIconBrightness: Brightness.light,
-                  statusBarBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
                 ),
                 backgroundColor:
                     Theme.of(context).brightness == Brightness.light

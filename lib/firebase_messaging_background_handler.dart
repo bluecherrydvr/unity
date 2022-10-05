@@ -42,10 +42,10 @@ import 'package:bluecherry_client/main.dart';
 
 /// Notification buttons are not translated.
 final snooze15ButtonLabel =
-    Platform.isIOS ? 'Snooze for 15 minutes' : '15 MINUTES';
+    Platform.isIOS ? 'Snooze for 15 minutes' : '15 minutes';
 final snooze30ButtonLabel =
-    Platform.isIOS ? 'Snooze for 30 minutes' : '15 MINUTES';
-final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 HOUR';
+    Platform.isIOS ? 'Snooze for 30 minutes' : '15 minutes';
+final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 hour';
 
 /// Callbacks received from the [FirebaseMessaging] instance.
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {

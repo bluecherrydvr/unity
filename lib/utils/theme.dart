@@ -22,11 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
+import 'package:bluecherry_client/utils/methods.dart';
+
 ThemeData createTheme({
   ThemeMode themeMode = ThemeMode.light,
 }) {
   bool isLight = themeMode == ThemeMode.light;
-  final color = isLight ? Colors.indigo : Colors.indigo.shade400;
+  final color = isLight ? Colors.indigo : Colors.indigoAccent.shade100;
   const accent = Color(0xffff4081);
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
@@ -46,8 +48,8 @@ ThemeData createTheme({
       ),
       headline3: TextStyle(
         color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
+            ? Colors.black.withOpacity(0.54)
+            : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -58,8 +60,8 @@ ThemeData createTheme({
       ),
       headline5: TextStyle(
         color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
+            ? Colors.black.withOpacity(0.54)
+            : Colors.white.withOpacity(0.54),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
@@ -70,15 +72,15 @@ ThemeData createTheme({
       ),
       bodyText2: TextStyle(
         color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
+            ? Colors.black.withOpacity(0.54)
+            : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       caption: TextStyle(
         color: isLight
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
+            ? Colors.black.withOpacity(0.54)
+            : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -112,9 +114,6 @@ ThemeData createTheme({
       ),
     );
   }
-  StatusBarControl.setStyle(
-    isLight ? StatusBarStyle.DARK_CONTENT : StatusBarStyle.LIGHT_CONTENT,
-  );
   return ThemeData(
     // ignore: deprecated_member_use
     androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
@@ -220,7 +219,7 @@ ThemeData createTheme({
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: isLight ? Colors.black12 : Colors.white12,
         statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
-        statusBarBrightness: isLight ? Brightness.dark : Brightness.light,
+        statusBarBrightness: isLight ? Brightness.light : Brightness.dark,
       ),
       elevation: 4.0,
       iconTheme: IconThemeData(

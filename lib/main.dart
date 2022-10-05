@@ -20,16 +20,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:status_bar_control/status_bar_control.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -42,11 +44,21 @@ Future<void> main() async {
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   await FirebaseConfiguration.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black,
-    systemNavigationBarDividerColor: Colors.black,
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
+  // Restore the navigation bar & status bar styling.
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarDividerColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+  StatusBarControl.setStyle(
+    getStatusBarStyleFromBrightness(
+      SettingsProvider.instance.themeMode == ThemeMode.light
+          ? Brightness.dark
+          : Brightness.light,
+    ),
+  );
   runApp(const MyApp());
 }
 

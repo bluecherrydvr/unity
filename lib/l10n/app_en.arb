@@ -32,12 +32,7 @@
       "field": {}
     }
   },
-  "serverAdded": "{serverName} has been added.",
-  "@serverAdded": {
-    "placeholders": {
-      "serverName": {}
-    }
-  },
+  "serverAdded": "Server has been added",
   "serverNotAddedError": "{serverName} could not be added. Please check the entered details.",
   "@serverNotAddedError": {
     "placeholders": {

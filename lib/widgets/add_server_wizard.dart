@@ -885,8 +885,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(
-                    child: Text(AppLocalizations.of(context)
-                        .serverAdded(widget.getServer()!.name)),
+                    child: Text(AppLocalizations.of(context).serverAdded),
                   ),
                 ],
               ),

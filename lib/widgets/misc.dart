@@ -34,23 +34,12 @@ class NavigatorPopButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap ?? Navigator.of(context).pop,
-          borderRadius: BorderRadius.circular(20.0),
-          child: SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: Icon(
-              Icons.arrow_back,
-              size: 24.0,
-              color: color,
-            ),
-          ),
-        ),
+    return IconButton(
+      splashRadius: 22.0,
+      onPressed: onTap ?? Navigator.of(context).pop,
+      icon: Icon(
+        Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+        color: color,
       ),
     );
   }

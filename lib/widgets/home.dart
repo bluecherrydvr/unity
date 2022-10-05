@@ -71,9 +71,7 @@ class _MobileHomeState extends State<MobileHome> {
       if (tab == 0) {
         await StatusBarControl.setHidden(true);
         await StatusBarControl.setStyle(
-          Theme.of(context).brightness == Brightness.light
-              ? StatusBarStyle.DARK_CONTENT
-              : StatusBarStyle.LIGHT_CONTENT,
+          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
         );
         DeviceOrientations.instance.set(
           [
@@ -86,9 +84,7 @@ class _MobileHomeState extends State<MobileHome> {
         // See #14.
         await StatusBarControl.setHidden(false);
         await StatusBarControl.setStyle(
-          Theme.of(context).brightness == Brightness.light
-              ? StatusBarStyle.DARK_CONTENT
-              : StatusBarStyle.LIGHT_CONTENT,
+          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
         );
         DeviceOrientations.instance.set(
           [
@@ -99,9 +95,7 @@ class _MobileHomeState extends State<MobileHome> {
       } else if ([0, 3].contains(tab)) {
         await StatusBarControl.setHidden(false);
         await StatusBarControl.setStyle(
-          Theme.of(context).brightness == Brightness.light
-              ? StatusBarStyle.DARK_CONTENT
-              : StatusBarStyle.LIGHT_CONTENT,
+          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
         );
         DeviceOrientations.instance.set(
           DeviceOrientation.values,
@@ -185,9 +179,8 @@ class _MobileHomeState extends State<MobileHome> {
                           if (index == 0 && tab != 0) {
                             await StatusBarControl.setHidden(true);
                             await StatusBarControl.setStyle(
-                              Theme.of(context).brightness == Brightness.light
-                                  ? StatusBarStyle.DARK_CONTENT
-                                  : StatusBarStyle.LIGHT_CONTENT,
+                              getStatusBarStyleFromBrightness(
+                                  Theme.of(context).brightness),
                             );
                             DeviceOrientations.instance.set(
                               [
@@ -200,9 +193,8 @@ class _MobileHomeState extends State<MobileHome> {
                             // See #14.
                             await StatusBarControl.setHidden(false);
                             await StatusBarControl.setStyle(
-                              Theme.of(context).brightness == Brightness.light
-                                  ? StatusBarStyle.DARK_CONTENT
-                                  : StatusBarStyle.LIGHT_CONTENT,
+                              getStatusBarStyleFromBrightness(
+                                  Theme.of(context).brightness),
                             );
                             DeviceOrientations.instance.set(
                               [
@@ -214,9 +206,8 @@ class _MobileHomeState extends State<MobileHome> {
                               [0, 3].contains(tab)) {
                             await StatusBarControl.setHidden(false);
                             await StatusBarControl.setStyle(
-                              Theme.of(context).brightness == Brightness.light
-                                  ? StatusBarStyle.DARK_CONTENT
-                                  : StatusBarStyle.LIGHT_CONTENT,
+                              getStatusBarStyleFromBrightness(
+                                  Theme.of(context).brightness),
                             );
                             DeviceOrientations.instance.set(
                               DeviceOrientation.values,
@@ -265,9 +256,8 @@ class _MobileHomeState extends State<MobileHome> {
                   setState(() => tab = 0);
                   await StatusBarControl.setHidden(true);
                   await StatusBarControl.setStyle(
-                    Theme.of(context).brightness == Brightness.light
-                        ? StatusBarStyle.DARK_CONTENT
-                        : StatusBarStyle.LIGHT_CONTENT,
+                    getStatusBarStyleFromBrightness(
+                        Theme.of(context).brightness),
                   );
                   await SystemChrome.setPreferredOrientations(
                     [

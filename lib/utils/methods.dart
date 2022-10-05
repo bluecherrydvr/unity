@@ -17,8 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 
 /// A helper singleton to set preferred orientation for the app.
 class DeviceOrientations {
@@ -44,4 +47,17 @@ class DeviceOrientations {
 
   /// Maintain a stack of the last set of orientations, to switch back to the most recent one.
   final List<List<DeviceOrientation>> _stack = [];
+}
+
+/// Gets the correct [StatusBarStyle].
+StatusBarStyle getStatusBarStyleFromBrightness(Brightness brightness) {
+  if (Platform.isIOS) {
+    return brightness == Brightness.light
+        ? StatusBarStyle.DARK_CONTENT
+        : StatusBarStyle.LIGHT_CONTENT;
+  } else {
+    return brightness == Brightness.dark
+        ? StatusBarStyle.DARK_CONTENT
+        : StatusBarStyle.LIGHT_CONTENT;
+  }
 }

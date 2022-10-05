@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
+import 'package:bluecherry_client/utils/methods.dart';
+
 ThemeData createTheme({
   ThemeMode themeMode = ThemeMode.light,
 }) {
@@ -113,7 +115,15 @@ ThemeData createTheme({
     );
   }
   StatusBarControl.setStyle(
-    isLight ? StatusBarStyle.DARK_CONTENT : StatusBarStyle.LIGHT_CONTENT,
+    getStatusBarStyleFromBrightness(
+      Platform.isIOS
+          ? isLight
+              ? Brightness.light
+              : Brightness.dark
+          : isLight
+              ? Brightness.dark
+              : Brightness.light,
+    ),
   );
   return ThemeData(
     // ignore: deprecated_member_use
@@ -220,7 +230,7 @@ ThemeData createTheme({
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: isLight ? Colors.black12 : Colors.white12,
         statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
-        statusBarBrightness: isLight ? Brightness.dark : Brightness.light,
+        statusBarBrightness: isLight ? Brightness.light : Brightness.dark,
       ),
       elevation: 4.0,
       iconTheme: IconThemeData(

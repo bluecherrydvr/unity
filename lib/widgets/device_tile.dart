@@ -411,9 +411,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
       brightness = Theme.of(context).brightness;
       await StatusBarControl.setHidden(true);
       await StatusBarControl.setStyle(
-        brightness == Brightness.light
-            ? StatusBarStyle.DARK_CONTENT
-            : StatusBarStyle.LIGHT_CONTENT,
+        getStatusBarStyleFromBrightness(Theme.of(context).brightness),
       );
       DeviceOrientations.instance.set([
         DeviceOrientation.landscapeLeft,
@@ -425,12 +423,10 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
   @override
   void dispose() async {
     widget.ijkPlayer?.removeListener(ijkPlayerListener);
-    if (widget.restoreStatusBarStyleOnDispose) {
+    if (widget.restoreStatusBarStyleOnDispose && brightness != null) {
       await StatusBarControl.setHidden(false);
       await StatusBarControl.setStyle(
-        brightness == Brightness.light
-            ? StatusBarStyle.DARK_CONTENT
-            : StatusBarStyle.LIGHT_CONTENT,
+        getStatusBarStyleFromBrightness(brightness!),
       );
       DeviceOrientations.instance.restoreLast();
     }

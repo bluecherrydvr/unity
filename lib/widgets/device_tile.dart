@@ -515,9 +515,10 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
                   style: const TextStyle(color: Colors.white70),
                 ),
                 leading: IconButton(
+                  splashRadius: 22.0,
                   onPressed: Navigator.of(context).maybePop,
                   icon: Icon(
-                    Icons.arrow_back,
+                    Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
                     color: Colors.white.withOpacity(0.87),
                   ),
                 ),

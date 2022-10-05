@@ -62,24 +62,11 @@ class _SettingsState extends State<Settings> {
         title: Text(AppLocalizations.of(context).settings),
       ),
       body: SafeArea(
+        bottom: false,
         child: ListView(
           padding: const EdgeInsets.only(bottom: 16.0),
           children: [
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-              ),
-              child: Text(
-                AppLocalizations.of(context).servers.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ),
+            SubHeader(AppLocalizations.of(context).servers),
             Consumer<ServersProvider>(
               builder: (context, serversProvider, _) => Column(
                 children: [
@@ -101,22 +88,14 @@ class _SettingsState extends State<Settings> {
                 ],
               ),
             ),
-            const Divider(),
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-              ),
-              child: Text(
-                AppLocalizations.of(context).theme.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
               ),
             ),
+            SubHeader(AppLocalizations.of(context).theme),
             Consumer<SettingsProvider>(
               builder: (context, settings, _) => Column(
                 children: ThemeMode.values
@@ -151,22 +130,14 @@ class _SettingsState extends State<Settings> {
                     .toList(),
               ),
             ),
-            const Divider(),
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-              ),
-              child: Text(
-                AppLocalizations.of(context).miscellaneous.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
               ),
             ),
+            SubHeader(AppLocalizations.of(context).miscellaneous),
             Consumer<SettingsProvider>(
               builder: (context, settings, _) => Column(
                 children: [
@@ -280,22 +251,14 @@ class _SettingsState extends State<Settings> {
                 ],
               ),
             ),
-            const Divider(),
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-              ),
-              child: Text(
-                AppLocalizations.of(context).dateFormat.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
               ),
             ),
+            SubHeader(AppLocalizations.of(context).dateFormat),
             Consumer<SettingsProvider>(
               builder: (context, settings, _) => Column(
                 children: [
@@ -332,22 +295,14 @@ class _SettingsState extends State<Settings> {
                     .toList(),
               ),
             ),
-            const Divider(),
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-              ),
-              child: Text(
-                AppLocalizations.of(context).timeFormat.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
               ),
             ),
+            SubHeader(AppLocalizations.of(context).timeFormat),
             Consumer<SettingsProvider>(
               builder: (context, settings, _) => Column(
                 children: [
@@ -378,20 +333,14 @@ class _SettingsState extends State<Settings> {
                     .toList(),
               ),
             ),
-            const Divider(),
-            Container(
-              height: 56.0,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                AppLocalizations.of(context).version.toUpperCase(),
-                style: Theme.of(context).textTheme.overline?.copyWith(
-                      color: Theme.of(context).textTheme.headline3?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
               ),
             ),
+            SubHeader(AppLocalizations.of(context).version),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(

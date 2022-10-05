@@ -22,6 +22,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 
 class DeviceSelectorScreen extends StatefulWidget {
   const DeviceSelectorScreen({
@@ -61,81 +62,70 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                 ],
               ),
             )
-          : ListView.builder(
-              itemCount: ServersProvider.instance.servers.length,
-              itemBuilder: (context, i) {
-                final server = ServersProvider.instance.servers[i];
-                return FutureBuilder(
-                  future: (() async => server.devices.isEmpty
-                      ? API.instance.getDevices(
-                          await API.instance.checkServerCredentials(server))
-                      : true)(),
-                  builder: (context, snapshot) {
-                    return snapshot.hasData
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: server.devices.length + 1,
-                            itemBuilder: (context, index) => index == 0
-                                ? Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24.0,
-                                      vertical: 16.0,
-                                    ),
-                                    child: Text(
-                                      server.name.toUpperCase(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .overline
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                  )
-                                : () {
-                                    index--;
-                                    return ListTile(
-                                      enabled: server.devices[index].status,
-                                      leading: CircleAvatar(
-                                        child: const Icon(Icons.camera_alt),
-                                        backgroundColor: Colors.transparent,
-                                        foregroundColor:
-                                            Theme.of(context).iconTheme.color,
-                                      ),
-                                      title: Text(
-                                        server.devices[index].name
-                                            .split(' ')
-                                            .map((e) =>
-                                                e[0].toUpperCase() +
-                                                e.substring(1))
-                                            .join(' '),
-                                      ),
-                                      subtitle: Text([
-                                        server.devices[index].status
-                                            ? AppLocalizations.of(context)
-                                                .online
-                                            : AppLocalizations.of(context)
-                                                .offline,
-                                        server.devices[index].uri,
-                                        '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                      ].join(' • ')),
-                                      onTap: () {
-                                        Navigator.of(context)
-                                            .pop(server.devices[index]);
-                                      },
-                                    );
-                                  }(),
-                          )
-                        : Center(
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: 156.0,
-                              child: const CircularProgressIndicator(),
-                            ),
-                          );
-                  },
-                );
-              },
+          : SafeArea(
+              bottom: false,
+              child: ListView.builder(
+                itemCount: ServersProvider.instance.servers.length,
+                itemBuilder: (context, i) {
+                  final server = ServersProvider.instance.servers[i];
+                  return FutureBuilder(
+                    future: (() async => server.devices.isEmpty
+                        ? API.instance.getDevices(
+                            await API.instance.checkServerCredentials(server))
+                        : true)(),
+                    builder: (context, snapshot) {
+                      return snapshot.hasData
+                          ? ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: server.devices.length + 1,
+                              itemBuilder: (context, index) => index == 0
+                                  ? SubHeader(server.name)
+                                  : () {
+                                      index--;
+                                      return ListTile(
+                                        enabled: server.devices[index].status,
+                                        leading: CircleAvatar(
+                                          child: const Icon(Icons.camera_alt),
+                                          backgroundColor: Colors.transparent,
+                                          foregroundColor:
+                                              Theme.of(context).iconTheme.color,
+                                        ),
+                                        title: Text(
+                                          server.devices[index].name
+                                              .split(' ')
+                                              .map((e) =>
+                                                  e[0].toUpperCase() +
+                                                  e.substring(1))
+                                              .join(' '),
+                                        ),
+                                        subtitle: Text([
+                                          server.devices[index].status
+                                              ? AppLocalizations.of(context)
+                                                  .online
+                                              : AppLocalizations.of(context)
+                                                  .offline,
+                                          server.devices[index].uri,
+                                          '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                                        ].join(' • ')),
+                                        onTap: () {
+                                          Navigator.of(context)
+                                              .pop(server.devices[index]);
+                                        },
+                                      );
+                                    }(),
+                            )
+                          : Center(
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 156.0,
+                                child: const CircularProgressIndicator(),
+                              ),
+                            );
+                    },
+                  );
+                },
+              ),
             ),
     );
   }

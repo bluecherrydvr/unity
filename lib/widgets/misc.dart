@@ -402,3 +402,25 @@ class CorrectedListTile extends StatelessWidget {
     );
   }
 }
+
+class SubHeader extends StatelessWidget {
+  final String text;
+  const SubHeader(this.text, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56.0,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(
+        text.toUpperCase(),
+        style: Theme.of(context).textTheme.overline?.copyWith(
+              color: Theme.of(context).textTheme.headline3?.color,
+              fontSize: 12.0,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+}

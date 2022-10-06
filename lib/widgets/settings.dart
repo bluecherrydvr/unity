@@ -151,7 +151,8 @@ class _SettingsState extends State<Settings> {
                         final timeOfDay = await showTimePicker(
                           context: context,
                           helpText: AppLocalizations.of(context)
-                              .snoozeNotificationsUntil,
+                              .snoozeNotificationsUntil
+                              .toUpperCase(),
                           initialTime: TimeOfDay.fromDateTime(DateTime.now()),
                           useRootNavigator: false,
                           builder: (_, child) =>

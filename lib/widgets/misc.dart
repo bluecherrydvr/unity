@@ -424,3 +424,41 @@ class SubHeader extends StatelessWidget {
     );
   }
 }
+
+class CustomFutureBuilder<T> extends StatefulWidget {
+  final Future<T>? future;
+  final Widget Function(BuildContext) loadingBuilder;
+  final Widget Function(BuildContext, T?) builder;
+  const CustomFutureBuilder({
+    Key? key,
+    required this.future,
+    required this.loadingBuilder,
+    required this.builder,
+  }) : super(key: key);
+
+  @override
+  State<CustomFutureBuilder<T>> createState() => _CustomFutureBuilderState();
+}
+
+class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
+  T? data;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.future?.then((value) {
+        setState(() {
+          data = value;
+        });
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return data == null
+        ? widget.loadingBuilder(context)
+        : widget.builder(context, data);
+  }
+}

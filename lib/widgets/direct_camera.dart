@@ -69,82 +69,108 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
             )
           : SafeArea(
               bottom: false,
-              child: ListView.builder(
-                itemCount: ServersProvider.instance.servers.length,
-                itemBuilder: (context, i) {
-                  final server = ServersProvider.instance.servers[i];
-                  return FutureBuilder(
-                    future: (() async => server.devices.isEmpty
-                        ? API.instance.getDevices(
-                            await API.instance.checkServerCredentials(server))
-                        : true)(),
-                    builder: (context, snapshot) {
-                      return snapshot.hasData
-                          ? ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: server.devices.length + 1,
-                              itemBuilder: (context, index) => index == 0
-                                  ? SubHeader(server.name)
-                                  : () {
-                                      index--;
-                                      return ListTile(
-                                        enabled: server.devices[index].status,
-                                        leading: CircleAvatar(
-                                          child: const Icon(Icons.camera_alt),
-                                          backgroundColor: Colors.transparent,
-                                          foregroundColor:
-                                              Theme.of(context).iconTheme.color,
-                                        ),
-                                        title: Text(
-                                          server.devices[index].name
-                                              .split(' ')
-                                              .map((e) =>
-                                                  e[0].toUpperCase() +
-                                                  e.substring(1))
-                                              .join(' '),
-                                        ),
-                                        subtitle: Text([
-                                          server.devices[index].status
-                                              ? AppLocalizations.of(context)
-                                                  .online
-                                              : AppLocalizations.of(context)
-                                                  .offline,
-                                          server.devices[index].uri,
-                                          '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                        ].join(' • ')),
-                                        onTap: () async {
-                                          final player = MobileViewProvider
-                                              .instance
-                                              .getVideoPlayerController(
-                                                  server.devices[index]);
-                                          await Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DeviceFullscreenViewer(
-                                                device: server.devices[index],
-                                                ijkPlayer: player,
-                                                restoreStatusBarStyleOnDispose:
-                                                    true,
-                                              ),
-                                            ),
-                                          );
-                                          await player.release();
-                                          await player.release();
-                                        },
-                                      );
-                                    }(),
-                            )
-                          : Center(
-                              child: Container(
-                                alignment: Alignment.center,
-                                height: 156.0,
-                                child: const CircularProgressIndicator(),
-                              ),
-                            );
-                    },
-                  );
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  for (final server in ServersProvider.instance.servers) {
+                    try {
+                      await API.instance.getDevices(
+                          await API.instance.checkServerCredentials(server));
+                    } catch (exception, stacktrace) {
+                      debugPrint(exception.toString());
+                      debugPrint(stacktrace.toString());
+                    }
+                  }
+                  setState(() {});
                 },
+                child: ListView.builder(
+                  itemCount: ServersProvider.instance.servers.length,
+                  itemBuilder: (context, i) {
+                    final server = ServersProvider.instance.servers[i];
+                    return CustomFutureBuilder<bool>(
+                      future: (() async {
+                        if (server.devices.isEmpty) {
+                          return API.instance.getDevices(await API.instance
+                              .checkServerCredentials(server));
+                        }
+                        return Future.value(true);
+                      })(),
+                      loadingBuilder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      builder: (context, data) {
+                        return server.devices.isEmpty
+                            ? SizedBox(
+                                height: 72.0,
+                                child: Center(
+                                  child: Text(
+                                    AppLocalizations.of(context).noDevices,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(fontSize: 16.0),
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: server.devices.length + 1,
+                                itemBuilder: (context, index) => index == 0
+                                    ? SubHeader(server.name)
+                                    : () {
+                                        index--;
+                                        return ListTile(
+                                          enabled: server.devices[index].status,
+                                          leading: CircleAvatar(
+                                            child: const Icon(Icons.camera_alt),
+                                            backgroundColor: Colors.transparent,
+                                            foregroundColor: Theme.of(context)
+                                                .iconTheme
+                                                .color,
+                                          ),
+                                          title: Text(
+                                            server.devices[index].name
+                                                .split(' ')
+                                                .map((e) =>
+                                                    e[0].toUpperCase() +
+                                                    e.substring(1))
+                                                .join(' '),
+                                          ),
+                                          subtitle: Text([
+                                            server.devices[index].status
+                                                ? AppLocalizations.of(context)
+                                                    .online
+                                                : AppLocalizations.of(context)
+                                                    .offline,
+                                            server.devices[index].uri,
+                                            '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                                          ].join(' • ')),
+                                          onTap: () async {
+                                            final player = MobileViewProvider
+                                                .instance
+                                                .getVideoPlayerController(
+                                                    server.devices[index]);
+                                            await Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DeviceFullscreenViewer(
+                                                  device: server.devices[index],
+                                                  ijkPlayer: player,
+                                                  restoreStatusBarStyleOnDispose:
+                                                      true,
+                                                ),
+                                              ),
+                                            );
+                                            await player.release();
+                                            await player.release();
+                                          },
+                                        );
+                                      }(),
+                              );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
     );

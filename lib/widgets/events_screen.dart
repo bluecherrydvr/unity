@@ -42,36 +42,39 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   bool isFirstTimeLoading = true;
   final Map<Server, List<Event>> events = {};
+  Map<Server, bool> invalid = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await fetch();
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
-      }
-      if (mounted) {
-        setState(() {
-          isFirstTimeLoading = false;
-        });
-      }
+      await fetch();
     });
   }
 
   Future<void> fetch() async {
-    for (final server in ServersProvider.instance.servers) {
-      try {
-        final iterable = await API.instance.getEvents(
-          await API.instance.checkServerCredentials(server),
-        );
-        events[server] = iterable.toList().cast<Event>();
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
+    try {
+      for (final server in ServersProvider.instance.servers) {
+        try {
+          final iterable = await API.instance.getEvents(
+            await API.instance.checkServerCredentials(server),
+          );
+          events[server] = iterable.toList().cast<Event>();
+          invalid[server] = false;
+        } catch (exception, stacktrace) {
+          debugPrint(exception.toString());
+          debugPrint(stacktrace.toString());
+          invalid[server] = true;
+        }
       }
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
+    if (mounted) {
+      setState(() {
+        isFirstTimeLoading = false;
+      });
     }
   }
 
@@ -144,61 +147,93 @@ class _EventsScreenState extends State<EventsScreen> {
                                   ),
                                 )
                               ]
-                            : events[e]!
-                                .map(
-                                  (event) => ListTile(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EventPlayerScreen(event: event),
+                            : events[e]
+                                    ?.map(
+                                      (event) => ListTile(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EventPlayerScreen(
+                                                      event: event),
+                                            ),
+                                          );
+                                        },
+                                        title: Text(
+                                          event.title
+                                              .split('device')
+                                              .last
+                                              .trim()
+                                              .split(' ')
+                                              .map((e) => e.isEmpty
+                                                  ? ''
+                                                  : e[0].toUpperCase() +
+                                                      e.substring(1))
+                                              .join(' '),
                                         ),
-                                      );
-                                    },
-                                    title: Text(
-                                      event.title
-                                          .split('device')
-                                          .last
-                                          .trim()
-                                          .split(' ')
-                                          .map((e) => e.isEmpty
-                                              ? ''
-                                              : e[0].toUpperCase() +
-                                                  e.substring(1))
-                                          .join(' '),
-                                    ),
-                                    isThreeLine: true,
-                                    subtitle: Text(
-                                      [
-                                        event.title
-                                            .split('event on')
-                                            .first
-                                            .trim(),
-                                        DateFormat(
-                                              SettingsProvider
-                                                  .instance.dateFormat.pattern,
-                                            ).format(event.updated) +
-                                            ' ' +
+                                        isThreeLine: true,
+                                        subtitle: Text(
+                                          [
+                                            event.title
+                                                .split('event on')
+                                                .first
+                                                .trim(),
                                             DateFormat(
-                                              SettingsProvider
-                                                  .instance.timeFormat.pattern,
-                                            )
-                                                .format(event.updated)
-                                                .toUpperCase(),
-                                      ].join('\n'),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    leading: CircleAvatar(
-                                      child: Icon(
-                                        Icons.warning,
-                                        color:
-                                            Theme.of(context).iconTheme.color,
+                                                  SettingsProvider.instance
+                                                      .dateFormat.pattern,
+                                                ).format(event.updated) +
+                                                ' ' +
+                                                DateFormat(
+                                                  SettingsProvider.instance
+                                                      .timeFormat.pattern,
+                                                )
+                                                    .format(event.updated)
+                                                    .toUpperCase(),
+                                          ].join('\n'),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        leading: CircleAvatar(
+                                          child: Icon(
+                                            Icons.warning,
+                                            color: Theme.of(context)
+                                                .iconTheme
+                                                .color,
+                                          ),
+                                          backgroundColor: Colors.transparent,
+                                        ),
                                       ),
-                                      backgroundColor: Colors.transparent,
+                                    )
+                                    .toList() ??
+                                [
+                                  if (invalid[e] ?? true)
+                                    SizedBox(
+                                      height: 72.0,
+                                      child: Center(
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                              .invalidResponse,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline5
+                                              ?.copyWith(fontSize: 16.0),
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    SizedBox(
+                                      height: 72.0,
+                                      child: Center(
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                              .noEventsFound,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline5
+                                              ?.copyWith(fontSize: 16.0),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
+                                ],
                       ),
                     )
                     .toList(),

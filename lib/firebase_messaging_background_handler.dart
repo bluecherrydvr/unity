@@ -377,19 +377,19 @@ abstract class FirebaseConfiguration {
               actionButtons: [
                 NotificationActionButton(
                   showInCompactView: true,
-                  label: '15 minutes'.toUpperCase(),
+                  label: snooze15ButtonLabel,
                   key: 'snooze_15',
                   actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
                   showInCompactView: true,
-                  label: '30 minutes'.toUpperCase(),
+                  label: snooze30ButtonLabel,
                   key: 'snooze_30',
                   actionType: ActionType.SilentBackgroundAction,
                 ),
                 NotificationActionButton(
                   showInCompactView: true,
-                  label: '1 hour'.toUpperCase(),
+                  label: snooze60ButtonLabel,
                   key: 'snooze_60',
                   actionType: ActionType.SilentBackgroundAction,
                 ),

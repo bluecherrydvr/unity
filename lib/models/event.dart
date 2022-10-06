@@ -28,9 +28,9 @@ class Event {
   final DateTime published;
   final DateTime updated;
   final String? category;
-  final int mediaID;
-  final Duration mediaDuration;
-  final Uri mediaURL;
+  final int? mediaID;
+  final Duration? mediaDuration;
+  final Uri? mediaURL;
 
   Event(
     this.server,
@@ -108,7 +108,7 @@ class Event {
         'updated': updated.toIso8601String(),
         'category': category,
         'mediaID': mediaID,
-        'mediaDuration': mediaDuration.inMilliseconds,
+        'mediaDuration': mediaDuration?.inMilliseconds,
         'mediaURL': mediaURL.toString(),
       };
 

@@ -92,6 +92,9 @@
       "time": {}
     }
   },
+  "noDevices": "No devices",
+  "noEventsFound": "No events found",
+  "invalidResponse": "Invalid response received from the server",
   "notificationClickAction": "Notification Click Action",
   "showFullscreenCamera": "Show fullscreen camera",
   "showEventsScreen": "Show events history",

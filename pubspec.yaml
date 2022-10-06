@@ -31,7 +31,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  dart_vlc: ^0.3.0
   reorderable_grid_view:
     git:
       url: https://github.com/alexmercerind/reorderable_grid_view.git
@@ -54,13 +53,6 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   video_thumbnail: ^0.5.0
-
-dependency_overrides:
-  dart_vlc_ffi:
-    git:
-      url: https://github.com/alexmercerind/dart_vlc.git
-      ref: master
-      path: ffi
 
 dev_dependencies:
   flutter_test:

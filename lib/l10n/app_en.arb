@@ -92,6 +92,7 @@
       "time": {}
     }
   },
+  "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
   "noEventsFound": "No events found",
   "invalidResponse": "Invalid response received from the server",

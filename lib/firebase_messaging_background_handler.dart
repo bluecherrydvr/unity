@@ -48,6 +48,7 @@ final snooze30ButtonLabel =
 final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 hour';
 
 /// Callbacks received from the [FirebaseMessaging] instance.
+@pragma("vm:entry-point")
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
@@ -185,6 +186,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   }
 }
 
+@pragma("vm:entry-point")
 Future<void> _backgroundClickAction(ReceivedAction action) async {
   await Future.delayed(const Duration(seconds: 1));
   await Firebase.initializeApp();
@@ -405,11 +407,16 @@ abstract class FirebaseConfiguration {
         debugPrint(stacktrace.toString());
       }
     });
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
     await AwesomeNotifications().initialize(
       'resource://drawable/ic_stat_linked_camera',
       [

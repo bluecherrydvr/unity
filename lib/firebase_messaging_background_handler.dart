@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports
-
 /*
  * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *

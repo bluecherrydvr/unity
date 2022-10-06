@@ -102,8 +102,11 @@ Send us details about any issues you discover [in the issues](https://github.com
 
 ## Contribute
 
-The code _in-general_ follows OOPs & uses [provider](https://github.com/rrousselGit/provider) for state-management because it is widely known by developers in Flutter community.
-Everything is well-documented (e.g. [this](https://github.com/bluecherrydvr/unity/blob/fce2aad3213298f70e91eb549a71699826e5c6e4/lib/providers/mobile_view_provider.dart#L28-L35)) & other little quirks/tweaks at places are also noted.
+The code uses [Provider](https://github.com/rrousselGit/provider) for state-management because it is widely known by Flutter community, doesn't bring any unnecessary complexity to the codebase & is scalable/stable enough.
+
+Most `ChangeNotifier`s are available as singletons, though de-coupled from each other. This is important to handle things like loading app configuration before `runApp`, handling background notification button actions & few other asynchronous operations performed outside the widget tree. By having singletons, we are able to avoid a strict dependency on the `BuildContext` & do certain things in a more performant way.
+
+Everything is well-documented (e.g. [this](https://github.com/bluecherrydvr/unity/blob/fce2aad3213298f70e91eb549a71699826e5c6e4/lib/providers/mobile_view_provider.dart#L28-L35)). Other important comments & work-arounds may be found throughout the code.
 
 Current source tree has following files:
 

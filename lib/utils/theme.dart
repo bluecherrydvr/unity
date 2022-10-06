@@ -20,65 +20,82 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
-import 'package:bluecherry_client/utils/methods.dart';
+const kPrimaryColorLight = Color(0xFF3F51B5);
+const kPrimaryColorDark = Color(0xFF8C9EFF);
+const kAccentColorLight = Color(0xffff4081);
+const kAccentColorDark = Color(0xffff4081);
 
+/// Creates a new [ThemeData] to theme applications's various UI elements & [Widget]s based on the passed [ThemeMode].
+///
+/// This follows the Material Design guidelines. See: https://material.io/
+///
+/// In Material Design, we have a prominent primary color, which is used to color various parts e.g. buttons, app-bars, tabs etc.
+/// And, there is a secondary color called accent color, which is used less frequently and is used to color various parts e.g. floating action buttons, switches etc.
+///
+/// These colors are different for light and dark themes. So, we have two sets of primary and accent colors.
+/// See [kPrimaryColorLight], [kPrimaryColorDark], [kAccentColorLight], [kAccentColorDark].
+///
+/// In general, there are two modes: [ThemeMode.light] and [ThemeMode.dark].
+/// There's also [ThemeMode.system] which makes the app pick the theme based on the system settings.
+///
+/// **NOTE:** [TextTheme]s are significantly tweaked & different for both desktop & mobile platforms.
+///
 ThemeData createTheme({
-  ThemeMode themeMode = ThemeMode.light,
+  required ThemeMode themeMode,
 }) {
-  bool isLight = themeMode == ThemeMode.light;
-  final color = isLight ? Colors.indigo : Colors.indigoAccent.shade100;
-  const accent = Color(0xffff4081);
+  bool light = themeMode == ThemeMode.light;
+  final primary = light ? kPrimaryColorLight : kPrimaryColorDark;
+  final accent = light ? kAccentColorLight : kAccentColorDark;
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     textTheme = TextTheme(
       /// Leading tile widgets text theme.
       headline1: TextStyle(
-        color: isLight ? Colors.black : Colors.white,
+        color: light ? Colors.black : Colors.white,
         fontSize: 16.0,
         fontWeight: FontWeight.w600,
       ),
 
       /// [AlbumTile] text theme.
       headline2: TextStyle(
-        color: isLight ? Colors.black : Colors.white,
+        color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.w600,
       ),
       headline3: TextStyle(
-        color: isLight
+        color: light
             ? Colors.black.withOpacity(0.54)
             : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       headline4: TextStyle(
-        color: isLight ? Colors.black : Colors.white,
+        color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       headline5: TextStyle(
-        color: isLight
+        color: light
             ? Colors.black.withOpacity(0.54)
             : Colors.white.withOpacity(0.54),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
       subtitle1: TextStyle(
-        color: isLight ? Colors.black : Colors.white,
+        color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.w600,
       ),
       bodyText2: TextStyle(
-        color: isLight
+        color: light
             ? Colors.black.withOpacity(0.54)
             : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       caption: TextStyle(
-        color: isLight
+        color: light
             ? Colors.black.withOpacity(0.54)
             : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
@@ -89,27 +106,27 @@ ThemeData createTheme({
     textTheme = TextTheme(
       headline1: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 18.0,
       ),
       headline2: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 16.0,
       ),
       headline3: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.54),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
       headline4: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 14.0,
       ),
       headline5: TextStyle(
         fontWeight: FontWeight.normal,
-        color: isLight ? Colors.black54 : Colors.white.withOpacity(0.54),
+        color: light ? Colors.black54 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
     );
@@ -120,9 +137,9 @@ ThemeData createTheme({
     // Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
     chipTheme: Platform.isLinux
         ? ChipThemeData(
-            backgroundColor: color,
-            disabledColor: color.withOpacity(0.2),
-            selectedColor: color,
+            backgroundColor: primary,
+            disabledColor: primary.withOpacity(0.2),
+            selectedColor: primary,
             secondarySelectedColor: accent,
             padding: EdgeInsets.zero,
             labelStyle: const TextStyle(
@@ -141,16 +158,16 @@ ThemeData createTheme({
           )
         : null,
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: color,
-      selectionColor: color.withOpacity(0.2),
+      cursorColor: primary,
+      selectionColor: primary.withOpacity(0.2),
     ),
     scrollbarTheme: ScrollbarThemeData(
       thumbVisibility: MaterialStateProperty.all(true),
       thickness: MaterialStateProperty.all(8.0),
       trackBorderColor:
-          MaterialStateProperty.all(isLight ? Colors.black12 : Colors.white24),
+          MaterialStateProperty.all(light ? Colors.black12 : Colors.white24),
       trackColor:
-          MaterialStateProperty.all(isLight ? Colors.black12 : Colors.white24),
+          MaterialStateProperty.all(light ? Colors.black12 : Colors.white24),
       crossAxisMargin: 0.0,
       radius: Radius.zero,
       minThumbLength: 96.0,
@@ -162,100 +179,99 @@ ThemeData createTheme({
             MaterialState.focused,
             MaterialState.pressed,
           ].fold(false, (val, el) => val || states.contains(el))) {
-            return isLight ? Colors.black54 : Colors.white54;
+            return light ? Colors.black54 : Colors.white54;
           } else {
-            return isLight ? Colors.black26 : Colors.white24;
+            return light ? Colors.black26 : Colors.white24;
           }
         },
       ),
     ),
-    buttonTheme: ButtonThemeData(
-        disabledColor: isLight ? Colors.black12 : Colors.white24),
+    buttonTheme:
+        ButtonThemeData(disabledColor: light ? Colors.black12 : Colors.white24),
     splashFactory:
         Platform.isAndroid ? InkSparkle.splashFactory : InkRipple.splashFactory,
     highlightColor: Platform.isAndroid ? Colors.transparent : null,
-    primaryColorLight: color,
-    primaryColor: color,
-    primaryColorDark: color,
-    scaffoldBackgroundColor: isLight ? Colors.white : const Color(0xFF121212),
-    toggleableActiveColor: color,
+    primaryColorLight: primary,
+    primaryColor: primary,
+    primaryColorDark: primary,
+    scaffoldBackgroundColor: light ? Colors.white : const Color(0xFF121212),
+    toggleableActiveColor: primary,
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: isLight ? const Color(0xFF202020) : Colors.white,
-      actionTextColor: color,
+      backgroundColor: light ? const Color(0xFF202020) : Colors.white,
+      actionTextColor: primary,
       contentTextStyle: textTheme.headline4?.copyWith(
-        color: isLight ? Colors.white : Colors.black,
+        color: light ? Colors.white : Colors.black,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       enabledBorder: OutlineInputBorder(
-        borderSide:
-            BorderSide(color: isLight ? Colors.black26 : Colors.white24),
+        borderSide: BorderSide(color: light ? Colors.black26 : Colors.white24),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: color,
+          color: primary,
           width: 2.0,
         ),
       ),
     ),
-    cardColor: isLight ? Colors.white : const Color(0xFF242424),
-    backgroundColor: color.withOpacity(0.24),
-    dividerColor: isLight ? Colors.black12 : Colors.white24,
-    disabledColor: isLight ? Colors.black38 : Colors.white38,
+    cardColor: light ? Colors.white : const Color(0xFF242424),
+    backgroundColor: primary.withOpacity(0.24),
+    dividerColor: light ? Colors.black12 : Colors.white24,
+    disabledColor: light ? Colors.black38 : Colors.white38,
     tabBarTheme: TabBarTheme(
-      labelColor: color,
+      labelColor: primary,
       unselectedLabelColor:
-          isLight ? Colors.black54 : Colors.white.withOpacity(0.67),
+          light ? Colors.black54 : Colors.white.withOpacity(0.67),
     ),
     popupMenuTheme: PopupMenuThemeData(
       elevation: 4.0,
-      color: isLight ? Colors.white : const Color(0xFF292929),
+      color: light ? Colors.white : const Color(0xFF292929),
     ),
     drawerTheme: DrawerThemeData(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF141414),
+      backgroundColor: light ? Colors.white : const Color(0xFF141414),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: isLight ? Colors.white : const Color(0xFF202020),
+      backgroundColor: light ? Colors.white : const Color(0xFF202020),
       systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: isLight ? Colors.black12 : Colors.white12,
-        statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
-        statusBarBrightness: isLight ? Brightness.light : Brightness.dark,
+        statusBarColor: light ? Colors.black12 : Colors.white12,
+        statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
+        statusBarBrightness: light ? Brightness.light : Brightness.dark,
       ),
       elevation: 4.0,
       iconTheme: IconThemeData(
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
       ),
       actionsIconTheme: IconThemeData(
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
       ),
       titleTextStyle: TextStyle(
         fontSize: 18.0,
-        color: isLight ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
     ),
     iconTheme: IconThemeData(
-      color: isLight ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
+      color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
       size: 24,
     ),
-    dialogBackgroundColor: isLight ? Colors.white : const Color(0xFF202020),
+    dialogBackgroundColor: light ? Colors.white : const Color(0xFF202020),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: isLight ? color : const Color(0xFF272727),
+      backgroundColor: light ? primary : const Color(0xFF272727),
       selectedItemColor: Colors.white.withOpacity(0.87),
       unselectedItemColor: Colors.white54,
     ),
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     colorScheme: ColorScheme.fromSwatch().copyWith(
-      primary: color,
+      primary: primary,
       secondary: accent,
-      brightness: isLight ? Brightness.light : Brightness.dark,
+      brightness: light ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
-        color: isLight ? Colors.black : Colors.white,
+        color: light ? Colors.black : Colors.white,
         borderRadius: BorderRadius.circular(4.0),
       ),
       verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
@@ -268,11 +284,4 @@ ThemeData createTheme({
     ),
     fontFamily: Platform.isLinux ? 'Inter' : null,
   );
-}
-
-class Accent {
-  final Color light;
-  final Color dark;
-
-  const Accent(this.light, this.dark);
 }

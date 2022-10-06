@@ -361,9 +361,10 @@ class _SettingsState extends State<Settings> {
                     onPressed: () {
                       launchUrl(
                         Uri.https(
-                          'www.bluecherry.com',
+                          'www.bluecherrydvr.com',
                           '/',
                         ),
+                        mode: LaunchMode.externalApplication,
                       );
                     },
                     padding: EdgeInsets.zero,

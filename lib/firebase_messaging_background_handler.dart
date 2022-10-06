@@ -86,7 +86,6 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: key,
-        color: const Color.fromRGBO(92, 107, 192, 1),
         channelKey: 'com.bluecherrydvr',
         title: APIHelpers.getEventNameFromID(eventType),
         body: [
@@ -135,7 +134,6 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: key,
-            color: const Color.fromRGBO(92, 107, 192, 1),
             channelKey: 'com.bluecherrydvr',
             bigPicture: thumbnail,
             title: APIHelpers.getEventNameFromID(eventType),
@@ -309,7 +307,6 @@ abstract class FirebaseConfiguration {
         AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: key,
-            color: const Color.fromRGBO(92, 107, 192, 1),
             channelKey: 'com.bluecherrydvr',
             title: APIHelpers.getEventNameFromID(eventType),
             body: [
@@ -358,7 +355,6 @@ abstract class FirebaseConfiguration {
             await AwesomeNotifications().createNotification(
               content: NotificationContent(
                 id: key,
-                color: const Color.fromRGBO(92, 107, 192, 1),
                 channelKey: 'com.bluecherrydvr',
                 bigPicture: thumbnail,
                 title: APIHelpers.getEventNameFromID(eventType),

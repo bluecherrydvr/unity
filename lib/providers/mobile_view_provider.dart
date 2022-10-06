@@ -174,18 +174,23 @@ class MobileViewProvider extends ChangeNotifier {
   }
 
   /// Replaces a [Device] tile from the camera grid, at specified [tab] [index] with passed [device].
-  Future<void> replace(int tab, int index, Device device) {
-    final device = devices[tab]![index];
+  Future<void> replace(int tab, int index, Device device) async {
+    final current = devices[tab]![index];
     int count = 0;
     for (final element in devices[tab]!) {
-      if (element == device) count++;
+      if (element == current) count++;
     }
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      players[device]?.release();
-      players[device]?.dispose();
-      players.remove(device);
+      await players[current]?.release();
+      players[current]?.dispose();
+      players.remove(current);
+    }
+    if (!devices[tab]!.contains(device)) {
+      debugPrint(device.toString());
+      debugPrint(device.streamURL);
+      players[device] = getVideoPlayerController(device);
     }
     // Save the new [device] at the position.
     devices[tab]![index] = device;

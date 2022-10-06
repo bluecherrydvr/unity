@@ -113,9 +113,11 @@ abstract class APIHelpers {
     final list = events.toList();
     list.removeWhere((element) => element.deviceID.toString() != deviceID);
     for (int i = 0; i < list.length; i++) {
-      final thumbnail = await getThumbnailForMediaID(list[i].mediaID);
-      if (thumbnail != null) {
-        return thumbnail;
+      if (list[i].mediaID != null) {
+        final thumbnail = await getThumbnailForMediaID(list[i].mediaID!);
+        if (thumbnail != null) {
+          return thumbnail;
+        }
       }
     }
     return null;

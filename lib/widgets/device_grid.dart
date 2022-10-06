@@ -19,19 +19,13 @@
 
 import 'dart:io';
 import 'dart:math';
-
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:provider/provider.dart';
+import 'package:animations/animations.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
-import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 
@@ -40,111 +34,8 @@ class DeviceGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktop) {
-      // TODO: missing implementation.
-      // WIP: [DesktopDeviceGrid].
-      throw Exception('[DeviceGrid] is not supported on desktop.');
-    } else {
-      return const MobileDeviceGrid();
-    }
-  }
-}
-
-/// A draggable grid view showing [DeviceTile]s to the user.
-class DesktopDeviceGrid extends StatefulWidget {
-  final Server server;
-  final double width;
-  final double height;
-  const DesktopDeviceGrid({
-    Key? key,
-    required this.server,
-    this.width = double.infinity,
-    this.height = double.infinity,
-  }) : super(key: key);
-
-  @override
-  State<DesktopDeviceGrid> createState() => _DesktopDeviceGridState();
-}
-
-class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
-  final List<Player> players = <Player>[];
-  final List<DeviceTile> tiles = <DeviceTile>[];
-
-  @override
-  void initState() {
-    super.initState();
-    if (isDesktop) {
-      for (final device in widget.server.devices) {
-        players.add(Player(
-          id: Random().nextInt((pow(2, 16)) ~/ 1 - 1),
-          // Clamp to reasonable [VideoDimensions], if [widget.width] and
-          // [widget.height] is passed. Avoids redundant CPU load caused by libvlc
-          // 3.0 pixel buffer based video callbacks.
-          videoDimensions: const VideoDimensions(
-            kDeviceTileWidth ~/ 1,
-            kDeviceTileHeight ~/ 1,
-          ),
-          commandlineArguments: kLibVLCFlags +
-              [
-                '--rtsp-user=${widget.server.login}',
-                '--rtsp-pwd=${widget.server.password}',
-              ],
-        )..open(
-            Media.network(device.streamURL),
-          ));
-        tiles.add(
-          DeviceTile(
-            key: ValueKey(device.hashCode),
-            device: device,
-            libvlcPlayer: players.last,
-            width: kDeviceTileWidth,
-            height: kDeviceTileHeight,
-            tab: -1,
-            index: -1,
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    // Dispose [Player] instance if the [VideoView] is removed from the [Widget]
-    // tree.
-    for (final element in players) {
-      element.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: PageStorage(
-        bucket: PageStorageBucket(),
-        child: ReorderableGridView.count(
-          shrinkWrap: true,
-          crossAxisCount: 2,
-          childAspectRatio: kDeviceTileWidth / kDeviceTileHeight,
-          mainAxisSpacing: kDeviceTileMargin,
-          crossAxisSpacing: kDeviceTileMargin,
-          padding: const EdgeInsets.all(kDeviceTileMargin),
-          onReorder: (int oldIndex, int newIndex) {
-            setState(() {
-              final e = players.removeAt(oldIndex);
-              players.insert(newIndex, e);
-              final f = tiles.removeAt(oldIndex);
-              tiles.insert(newIndex, f);
-            });
-          },
-          children: tiles,
-          dragStartBehavior: DragStartBehavior.start,
-          dragWidgetBuilder: (i, c) => tiles[i],
-        ),
-      ),
-    );
+    return const MobileDeviceGrid();
+    // TODO: Missing desktop implementation.
   }
 }
 

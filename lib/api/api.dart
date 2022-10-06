@@ -129,33 +129,38 @@ class API {
       );
       final parser = Xml2Json();
       parser.parse(response.body);
-      return jsonDecode(parser.toGData())['feed']['entry']
-          .map(
-            (e) => Event(
-              server,
-              int.parse(e['id']['raw']),
-              int.parse(e['category']['term'].split('/').first),
-              e['title']['\$t'],
-              e['published'] == null || e['published']['\$t'] == null
-                  ? DateTime.now()
-                  : DateTime.parse(e['published']['\$t']),
-              e['updated'] == null || e['updated']['\$t'] == null
-                  ? DateTime.now()
-                  : DateTime.parse(e['updated']['\$t']),
-              e['category']['term'],
-              int.parse(e['content']['media_id']),
-              Duration(
-                milliseconds: int.tryParse(e['content']['media_size']) ?? 0,
-              ),
-              Uri.parse(
-                e['content']['\$t'].replaceAll(
-                  'https://',
-                  'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+      return jsonDecode(parser.toGData())['feed']['entry'].map((e) {
+        debugPrint(e.toString());
+        return Event(
+          server,
+          int.parse(e['id']['raw']),
+          int.parse(e['category']['term'].split('/').first),
+          e['title']['\$t'],
+          e['published'] == null || e['published']['\$t'] == null
+              ? DateTime.now()
+              : DateTime.parse(e['published']['\$t']),
+          e['updated'] == null || e['updated']['\$t'] == null
+              ? DateTime.now()
+              : DateTime.parse(e['updated']['\$t']),
+          e['category']['term'],
+          !e.containsKey('content')
+              ? null
+              : int.parse(e['content']['media_id']),
+          !e.containsKey('content')
+              ? null
+              : Duration(
+                  milliseconds: int.tryParse(e['content']['media_size']) ?? 0,
                 ),
-              ),
-            ),
-          )
-          .cast<Event>();
+          !e.containsKey('content')
+              ? null
+              : Uri.parse(
+                  e['content']['\$t'].replaceAll(
+                    'https://',
+                    'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                  ),
+                ),
+        );
+      }).cast<Event>();
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

@@ -431,16 +431,16 @@ class _ServerTileState extends State<ServerTile> {
           widget.server.name,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: fetched
-            ? Text(
-                [
+        subtitle: Text(
+          fetched
+              ? [
                   if (widget.server.name != widget.server.ip) widget.server.ip,
                   AppLocalizations.of(context)
                       .nDevices(widget.server.devices.length),
-                ].join(' • '),
-                overflow: TextOverflow.ellipsis,
-              )
-            : null,
+                ].join(' • ')
+              : AppLocalizations.of(context).gettingDevices,
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: IconButton(
           icon: const Icon(
             Icons.delete,

@@ -395,7 +395,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             child: Container(
               height: 32.0,
               padding: const EdgeInsets.only(left: 16.0),
-              alignment: Alignment.topLeft,
+              alignment: Theme.of(context).appBarTheme.centerTitle ?? false
+                  ? Alignment.topCenter
+                  : Alignment.topLeft,
               child: Text(
                 AppLocalizations.of(context).configureDescription,
                 maxLines: 1,
@@ -436,6 +438,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                               },
                               controller: textEditingControllers[0],
                               autofocus: true,
+                              autocorrect: false,
+                              enableSuggestions: false,
                               keyboardType: TextInputType.url,
                               style: Theme.of(context).textTheme.headline4,
                               decoration: InputDecoration(
@@ -801,7 +805,10 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   child: Container(
                     height: 32.0,
                     padding: const EdgeInsets.only(left: 16.0),
-                    alignment: Alignment.topLeft,
+                    alignment:
+                        Theme.of(context).appBarTheme.centerTitle ?? false
+                            ? Alignment.topCenter
+                            : Alignment.topLeft,
                     child: Text(
                       AppLocalizations.of(context).letsGoDescription,
                       maxLines: 1,

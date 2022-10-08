@@ -65,8 +65,8 @@ ThemeData createTheme({
       ),
       headline3: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.54)
-            : Colors.white.withOpacity(0.54),
+            ? Colors.black.withOpacity(0.70)
+            : Colors.white.withOpacity(0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -77,8 +77,8 @@ ThemeData createTheme({
       ),
       headline5: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.54)
-            : Colors.white.withOpacity(0.54),
+            ? Colors.black.withOpacity(0.70)
+            : Colors.white.withOpacity(0.70),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
@@ -89,15 +89,15 @@ ThemeData createTheme({
       ),
       bodyText2: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.54)
-            : Colors.white.withOpacity(0.54),
+            ? Colors.black.withOpacity(0.70)
+            : Colors.white.withOpacity(0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       caption: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.54)
-            : Colors.white.withOpacity(0.54),
+            ? Colors.black.withOpacity(0.70)
+            : Colors.white.withOpacity(0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -251,6 +251,7 @@ ThemeData createTheme({
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
+      centerTitle: Platform.isIOS,
     ),
     iconTheme: IconThemeData(
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),

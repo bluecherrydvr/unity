@@ -94,8 +94,11 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                         }
                         return Future.value(true);
                       })(),
-                      loadingBuilder: (context) => const Center(
-                        child: CircularProgressIndicator(),
+                      loadingBuilder: (context) => const SizedBox(
+                        height: 96.0,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                       builder: (context, data) {
                         return server.devices.isEmpty

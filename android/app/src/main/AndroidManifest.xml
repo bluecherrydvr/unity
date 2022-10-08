@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bluecherrydvr">
    <application
-        android:label="Bluecherry DVR"
+        android:label="Bluecherry"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

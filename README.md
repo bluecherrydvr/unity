@@ -31,7 +31,7 @@ This project & work under this repository is licensed under [GNU General Public 
 - Direct camera viewer.
 - Consistent & configurable system-aware, light & dark app theme.
 - Configurable in-app date & time format.
-- Event notifications with camera screenshot thumbnail. View any camera or event directly by single notifcation tap.
+- System camera event notifications with screenshot thumbnails.
 - Ability to snooze notifications directly from notification or within the app.
 - Cross-platform. Currently targets mobile platforms. Desktop support coming in future.
   - [x] Android

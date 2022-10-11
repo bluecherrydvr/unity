@@ -271,10 +271,19 @@ ThemeData createTheme({
       brightness: light ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
+      textStyle: Platform.isWindows || Platform.isLinux || Platform.isMacOS
+          ? TextStyle(
+              fontSize: 12.0,
+              color: light ? Colors.white : Colors.black,
+            )
+          : null,
       decoration: BoxDecoration(
         color: light ? Colors.black : Colors.white,
-        borderRadius: BorderRadius.circular(4.0),
+        borderRadius: Platform.isAndroid || Platform.isIOS
+            ? BorderRadius.circular(16.0)
+            : BorderRadius.circular(4.0),
       ),
+      height: Platform.isAndroid || Platform.isIOS ? 32.0 : null,
       verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
           ? 36.0
           : null,

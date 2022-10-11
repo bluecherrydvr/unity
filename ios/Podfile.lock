@@ -93,8 +93,6 @@ PODS:
   - video_thumbnail (0.0.1):
     - Flutter
     - libwebp
-  - wakelock (0.0.1):
-    - Flutter
 
 DEPENDENCIES:
   - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
@@ -108,7 +106,6 @@ DEPENDENCIES:
   - status_bar_control (from `.symlinks/plugins/status_bar_control/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
-  - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 SPEC REPOS:
   trunk:
@@ -148,8 +145,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_thumbnail:
     :path: ".symlinks/plugins/video_thumbnail/ios"
-  wakelock:
-    :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
   awesome_notifications: 04530aafec8dac4635244ed4b4072f4aea6cc938
@@ -175,7 +170,6 @@ SPEC CHECKSUMS:
   status_bar_control: 7c84146799e6a076315cc1550f78ef53aae3e446
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
-  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
 PODFILE CHECKSUM: c13e46c3c62e4a32689ef7c4ce943adb97fc468c
 

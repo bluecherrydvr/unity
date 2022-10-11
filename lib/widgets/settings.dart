@@ -249,6 +249,48 @@ class _SettingsState extends State<Settings> {
                           .toList(),
                     ),
                   ),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Theme.of(context).iconTheme.color,
+                        child: const Icon(Icons.camera_alt),
+                      ),
+                      title: Text(AppLocalizations.of(context).cameraViewFit),
+                      textColor: Theme.of(context).textTheme.bodyText1?.color,
+                      subtitle: Text(
+                        settings.cameraViewFit.str(context),
+                        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                              color: Theme.of(context).textTheme.caption?.color,
+                            ),
+                      ),
+                      children: CameraViewFit.values
+                          .map(
+                            (e) => ListTile(
+                              onTap: () {
+                                settings.cameraViewFit = e;
+                              },
+                              trailing: Radio(
+                                value: e,
+                                groupValue: settings.cameraViewFit,
+                                onChanged: (value) {
+                                  settings.cameraViewFit = e;
+                                },
+                              ),
+                              title: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Text(
+                                  e.str(context),
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -496,5 +538,13 @@ extension on NotificationClickAction {
             AppLocalizations.of(context).showFullscreenCamera,
         NotificationClickAction.showEventsScreen:
             AppLocalizations.of(context).showEventsScreen,
+      }[this]!;
+}
+
+extension on CameraViewFit {
+  String str(BuildContext context) => {
+        CameraViewFit.contain: AppLocalizations.of(context).contain,
+        CameraViewFit.cover: AppLocalizations.of(context).cover,
+        CameraViewFit.fill: AppLocalizations.of(context).fill,
       }[this]!;
 }

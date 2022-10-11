@@ -165,7 +165,6 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                               ),
                                             );
                                             await player.release();
-                                            await player.release();
                                           },
                                         );
                                       }(),

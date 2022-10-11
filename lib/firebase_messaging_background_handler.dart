@@ -244,8 +244,12 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         );
         _mutex = null;
       }
-      await player.release();
-      await player.release();
+      try {
+        await player.release();
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+      }
     } else {
       if (_mutex == null) {
         _mutex = 'events_screen';

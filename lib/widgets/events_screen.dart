@@ -267,7 +267,6 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
   @override
   void dispose() {
     ijkPlayer.release();
-    ijkPlayer.dispose();
     super.dispose();
   }
 

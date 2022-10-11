@@ -92,6 +92,10 @@
       "time": {}
     }
   },
+  "cameraViewFit": "Camera View Fit",
+  "contain": "Contain",
+  "fill": "Fill",
+  "cover": "Cover",
   "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
   "noEventsFound": "No events found",

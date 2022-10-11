@@ -35,6 +35,7 @@ class SettingsProvider extends ChangeNotifier {
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
   static const kDefaultNotificationClickAction =
       NotificationClickAction.showFullscreenCamera;
+  static const kDefaultCameraViewFit = CameraViewFit.contain;
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
@@ -43,6 +44,7 @@ class SettingsProvider extends ChangeNotifier {
   DateTime get snoozedUntil => _snoozedUntil;
   NotificationClickAction get notificationClickAction =>
       _notificationClickAction;
+  CameraViewFit get cameraViewFit => _cameraViewFit;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -91,11 +93,23 @@ class SettingsProvider extends ChangeNotifier {
     });
   }
 
+  set cameraViewFit(CameraViewFit value) {
+    _cameraViewFit = value;
+    notifyListeners();
+    Hive.openBox('hive').then((instance) {
+      instance.put(
+        kHiveCameraViewFit,
+        value.index,
+      );
+    });
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
   late NotificationClickAction _notificationClickAction;
+  late CameraViewFit _cameraViewFit;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -155,6 +169,11 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _notificationClickAction = kDefaultNotificationClickAction;
     }
+    if (hive.containsKey(kHiveCameraViewFit)) {
+      _cameraViewFit = CameraViewFit.values[hive.get(kHiveCameraViewFit)!];
+    } else {
+      _cameraViewFit = kDefaultCameraViewFit;
+    }
     notifyListeners();
   }
 
@@ -166,4 +185,10 @@ class SettingsProvider extends ChangeNotifier {
 enum NotificationClickAction {
   showFullscreenCamera,
   showEventsScreen,
+}
+
+enum CameraViewFit {
+  contain,
+  fill,
+  cover,
 }

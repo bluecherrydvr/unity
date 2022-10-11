@@ -24,6 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -100,7 +101,11 @@ class DeviceTileState extends State<DeviceTile> {
         return FijkView(
           player: ijkPlayer!,
           color: Colors.black,
-          fit: FijkFit.fill,
+          fit: {
+            CameraViewFit.contain: FijkFit.contain,
+            CameraViewFit.fill: FijkFit.fill,
+            CameraViewFit.cover: FijkFit.cover,
+          }[SettingsProvider.instance.cameraViewFit]!,
           panelBuilder: (player, _, ___, ____, _____) => Material(
             color: Colors.transparent,
             child: player.value.exception.message != null

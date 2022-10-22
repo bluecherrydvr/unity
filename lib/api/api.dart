@@ -252,7 +252,7 @@ class API {
         },
         body: jsonEncode(
           {
-            'client_id': clientID,
+            'client_id': '${clientID}_flutter',
             'server_id': server.serverUUID,
           },
         ),

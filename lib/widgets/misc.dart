@@ -19,10 +19,19 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
-final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+bool get isDesktop {
+  if (kIsWeb) return false;
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
 final isMobile = Platform.isAndroid || Platform.isIOS;
 final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 

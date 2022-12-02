@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -52,22 +54,40 @@ Future<void> main() async {
   await MobileViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
-  await FirebaseConfiguration.ensureInitialized();
-  // Restore the navigation bar & status bar styling.
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.black,
-      systemNavigationBarDividerColor: Colors.black,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
-  StatusBarControl.setStyle(
-    getStatusBarStyleFromBrightness(
-      SettingsProvider.instance.themeMode == ThemeMode.light
-          ? Brightness.dark
-          : Brightness.light,
-    ),
-  );
+
+  /// Firebase messaging isn't available on desktop platforms
+  if (!isDesktop) {
+    await FirebaseConfiguration.ensureInitialized();
+    // Restore the navigation bar & status bar styling.
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarDividerColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+    StatusBarControl.setStyle(
+      getStatusBarStyleFromBrightness(
+        SettingsProvider.instance.themeMode == ThemeMode.light
+            ? Brightness.dark
+            : Brightness.light,
+      ),
+    );
+  } else {
+    await WindowManager.instance.ensureInitialized();
+    windowManager.waitUntilReadyToShow().then((_) async {
+      await windowManager.setTitleBarStyle(
+        TitleBarStyle.hidden,
+        windowButtonVisibility: false,
+      );
+      await windowManager.setSize(const Size(855, 645));
+      await windowManager.setMinimumSize(const Size(350, 600));
+      await windowManager.center();
+      await windowManager.show();
+      await windowManager.setSkipTaskbar(false);
+    });
+  }
+
   runApp(const MyApp());
 }
 

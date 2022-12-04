@@ -41,7 +41,16 @@ abstract class APIHelpers {
       return ios.identifierForVendor;
     } else if (Platform.isAndroid) {
       final androidDeviceInfo = await instance.androidInfo;
-      return androidDeviceInfo.androidId;
+      return androidDeviceInfo.display;
+    } else if (Platform.isWindows) {
+      final windowsDeviceInfo = await instance.windowsInfo;
+      return windowsDeviceInfo.deviceId;
+    } else if (Platform.isLinux) {
+      final linuxDeviceInfo = await instance.linuxInfo;
+      return linuxDeviceInfo.machineId ?? linuxDeviceInfo.buildId;
+    } else if (Platform.isMacOS) {
+      final macosDeviceInfo = await instance.macOsInfo;
+      return macosDeviceInfo.systemGUID;
     }
     return null;
   }

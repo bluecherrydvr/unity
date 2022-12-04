@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/services.dart';
@@ -66,41 +67,43 @@ class _MobileHomeState extends State<MobileHome> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (tab == 0) {
-        await StatusBarControl.setHidden(true);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
-        );
-        DeviceOrientations.instance.set(
-          [
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ],
-        );
-      } else if (tab == 3) {
-        // Use portrait orientation in "Add Server" tab.
-        // See #14.
-        await StatusBarControl.setHidden(false);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
-        );
-        DeviceOrientations.instance.set(
-          [
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ],
-        );
-      } else {
-        await StatusBarControl.setHidden(false);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
-        );
-        DeviceOrientations.instance.set(
-          DeviceOrientation.values,
-        );
-      }
-    });
+    if (!isDesktop) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (tab == 0) {
+          await StatusBarControl.setHidden(true);
+          await StatusBarControl.setStyle(
+            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+          );
+          DeviceOrientations.instance.set(
+            [
+              DeviceOrientation.landscapeLeft,
+              DeviceOrientation.landscapeRight,
+            ],
+          );
+        } else if (tab == 3) {
+          // Use portrait orientation in "Add Server" tab.
+          // See #14.
+          await StatusBarControl.setHidden(false);
+          await StatusBarControl.setStyle(
+            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+          );
+          DeviceOrientations.instance.set(
+            [
+              DeviceOrientation.portraitUp,
+              DeviceOrientation.portraitDown,
+            ],
+          );
+        } else {
+          await StatusBarControl.setHidden(false);
+          await StatusBarControl.setStyle(
+            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+          );
+          DeviceOrientations.instance.set(
+            DeviceOrientation.values,
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -175,46 +178,48 @@ class _MobileHomeState extends State<MobileHome> {
                           bottomRight: Radius.circular(28.0),
                         ),
                         onTap: () async {
-                          if (index == 0 && tab != 0) {
-                            debugPrint(index.toString());
-                            await StatusBarControl.setHidden(true);
-                            await StatusBarControl.setStyle(
-                              getStatusBarStyleFromBrightness(
-                                Theme.of(context).brightness,
-                              ),
-                            );
-                            DeviceOrientations.instance.set(
-                              [
-                                DeviceOrientation.landscapeLeft,
-                                DeviceOrientation.landscapeRight,
-                              ],
-                            );
-                          } else if (index == 3 && tab != 3) {
-                            debugPrint(index.toString());
-                            // Use portrait orientation in "Add Server" tab. See #14.
-                            await StatusBarControl.setHidden(false);
-                            await StatusBarControl.setStyle(
-                              // Always white status bar style in [AddServerWizard].
-                              StatusBarStyle.LIGHT_CONTENT,
-                            );
-                            DeviceOrientations.instance.set(
-                              [
-                                DeviceOrientation.portraitUp,
-                                DeviceOrientation.portraitDown,
-                              ],
-                            );
-                          } else if (![0, 3].contains(index) &&
-                              [0, 3].contains(tab)) {
-                            debugPrint(index.toString());
-                            await StatusBarControl.setHidden(false);
-                            await StatusBarControl.setStyle(
-                              getStatusBarStyleFromBrightness(
-                                Theme.of(context).brightness,
-                              ),
-                            );
-                            DeviceOrientations.instance.set(
-                              DeviceOrientation.values,
-                            );
+                          if (!isDesktop) {
+                            if (index == 0 && tab != 0) {
+                              debugPrint(index.toString());
+                              await StatusBarControl.setHidden(true);
+                              await StatusBarControl.setStyle(
+                                getStatusBarStyleFromBrightness(
+                                  Theme.of(context).brightness,
+                                ),
+                              );
+                              DeviceOrientations.instance.set(
+                                [
+                                  DeviceOrientation.landscapeLeft,
+                                  DeviceOrientation.landscapeRight,
+                                ],
+                              );
+                            } else if (index == 3 && tab != 3) {
+                              debugPrint(index.toString());
+                              // Use portrait orientation in "Add Server" tab. See #14.
+                              await StatusBarControl.setHidden(false);
+                              await StatusBarControl.setStyle(
+                                // Always white status bar style in [AddServerWizard].
+                                StatusBarStyle.LIGHT_CONTENT,
+                              );
+                              DeviceOrientations.instance.set(
+                                [
+                                  DeviceOrientation.portraitUp,
+                                  DeviceOrientation.portraitDown,
+                                ],
+                              );
+                            } else if (![0, 3].contains(index) &&
+                                [0, 3].contains(tab)) {
+                              debugPrint(index.toString());
+                              await StatusBarControl.setHidden(false);
+                              await StatusBarControl.setStyle(
+                                getStatusBarStyleFromBrightness(
+                                  Theme.of(context).brightness,
+                                ),
+                              );
+                              DeviceOrientations.instance.set(
+                                DeviceOrientation.values,
+                              );
+                            }
                           }
 
                           await Future.delayed(
@@ -257,17 +262,19 @@ class _MobileHomeState extends State<MobileHome> {
           3: () => AddServerWizard(
                 onFinish: () async {
                   setState(() => tab = 0);
-                  await StatusBarControl.setHidden(true);
-                  await StatusBarControl.setStyle(
-                    getStatusBarStyleFromBrightness(
-                        Theme.of(context).brightness),
-                  );
-                  await SystemChrome.setPreferredOrientations(
-                    [
-                      DeviceOrientation.landscapeLeft,
-                      DeviceOrientation.landscapeRight,
-                    ],
-                  );
+                  if (!isDesktop) {
+                    await StatusBarControl.setHidden(true);
+                    await StatusBarControl.setStyle(
+                      getStatusBarStyleFromBrightness(
+                          Theme.of(context).brightness),
+                    );
+                    await SystemChrome.setPreferredOrientations(
+                      [
+                        DeviceOrientation.landscapeLeft,
+                        DeviceOrientation.landscapeRight,
+                      ],
+                    );
+                  }
                 },
               ),
           4: () => Settings(

@@ -18,7 +18,6 @@
  */
 
 import 'dart:io';
-import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,251 +54,219 @@ class _AddServerWizardState extends State<AddServerWizard> {
       ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Stack(
-          alignment: Alignment.center,
+        body: PageView(
+          controller: controller,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            Positioned.fill(
-              child: PageView(
-                controller: controller,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.asset(
-                            'assets/images/background.webp',
-                            fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Card(
-                            elevation: 4.0,
-                            clipBehavior: Clip.antiAlias,
-                            margin: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 16.0) +
-                                MediaQuery.of(context).padding,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/icon.png',
-                                        height: 124.0,
-                                        width: 124.0,
-                                        fit: BoxFit.contain,
-                                      ),
-                                      const SizedBox(height: 24.0),
-                                      Text(
-                                        AppLocalizations.of(context)
-                                            .projectName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline1
-                                            ?.copyWith(
-                                              fontSize: 36.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 4.0),
-                                      Text(
-                                        AppLocalizations.of(context)
-                                            .projectDescription,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
-                                      ),
-                                      const SizedBox(height: 16.0),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Container(
-                                          color: Theme.of(context).cardColor,
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: [
-                                              const Spacer(),
-                                              MouseRegion(
-                                                cursor:
-                                                    SystemMouseCursors.click,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    launchUrl(
-                                                      Uri.https(
-                                                        'www.bluecherrydvr.com',
-                                                        '/',
-                                                      ),
-                                                      mode: LaunchMode
-                                                          .externalApplication,
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    AppLocalizations.of(context)
-                                                        .website,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4
-                                                        ?.copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16.0),
-                                              MouseRegion(
-                                                cursor:
-                                                    SystemMouseCursors.click,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    launchUrl(
-                                                      Uri.https(
-                                                        'www.bluecherrydvr.com',
-                                                        '/product/v3license/',
-                                                      ),
-                                                      mode: LaunchMode
-                                                          .externalApplication,
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    AppLocalizations.of(context)
-                                                        .purchase,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4
-                                                        ?.copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const Divider(thickness: 1.0),
-                                      const SizedBox(height: 16.0),
-                                      Column(
-                                        crossAxisAlignment: Platform.isIOS
-                                            ? CrossAxisAlignment.center
-                                            : CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)
-                                                .welcome,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline1
-                                                ?.copyWith(
-                                                  fontSize: 20.0,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Text(
-                                            AppLocalizations.of(context)
-                                                .welcomeDescription,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+            Stack(children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/background.webp',
+                  fit: BoxFit.cover,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: Card(
+                  elevation: 4.0,
+                  clipBehavior: Clip.antiAlias,
+                  margin: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 16.0,
+                      ) +
+                      MediaQuery.of(context).padding,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/icon.png',
+                              height: 124.0,
+                              width: 124.0,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(height: 24.0),
+                            Text(
+                              AppLocalizations.of(context).projectName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline1
+                                  ?.copyWith(
+                                    fontSize: 36.0,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                ),
-                                const SizedBox(height: 16.0),
-                                Material(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  child: InkWell(
-                                    onTap: () {
-                                      controller.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      width: double.infinity,
-                                      height: 56.0,
+                            ),
+                            const SizedBox(height: 4.0),
+                            Text(
+                              AppLocalizations.of(context).projectDescription,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
+                            const SizedBox(height: 16.0),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                color: Theme.of(context).cardColor,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(children: [
+                                  const Spacer(),
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        launchUrl(
+                                          Uri.https(
+                                            'www.bluecherrydvr.com',
+                                            '/',
+                                          ),
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      },
                                       child: Text(
-                                        AppLocalizations.of(context)
-                                            .letsGo
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        AppLocalizations.of(context).website,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline4
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(width: 16.0),
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        launchUrl(
+                                          Uri.https(
+                                            'www.bluecherrydvr.com',
+                                            '/product/v3license/',
+                                          ),
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      },
+                                      child: Text(
+                                        AppLocalizations.of(context).purchase,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline4
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                            const Divider(thickness: 1.0),
+                            const SizedBox(height: 16.0),
+                            Column(
+                              crossAxisAlignment: Platform.isIOS
+                                  ? CrossAxisAlignment.center
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context).welcome,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(
+                                        fontSize: 20.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .welcomeDescription,
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                               ],
                             ),
-                          ),
+                          ],
                         ),
-                        Positioned.fill(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Container(
-                              color: Colors.transparent,
-                              padding: EdgeInsets.only(
-                                top: MediaQuery.of(context).padding.top,
-                              ),
-                              height: kToolbarHeight +
-                                  MediaQuery.of(context).padding.top,
-                              alignment: Alignment.topLeft,
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 8.0),
-                                  IconButton(
-                                    splashRadius: 20.0,
-                                    onPressed: Scaffold.of(context).openDrawer,
-                                    icon: const Icon(
-                                      Icons.menu,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                      ),
+                      const SizedBox(height: 16.0),
+                      Material(
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: InkWell(
+                          onTap: () {
+                            controller.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: 56.0,
+                            child: Text(
+                              AppLocalizations.of(context).letsGo.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          top: 0.0,
-                          left: 0.0,
-                          bottom: MediaQuery.of(context).size.height * 3 / 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top,
+                    ),
+                    height: kToolbarHeight + MediaQuery.of(context).padding.top,
+                    alignment: Alignment.topLeft,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 8.0),
+                        IconButton(
+                          splashRadius: 20.0,
+                          onPressed: Scaffold.of(context).openDrawer,
+                          icon: const Icon(
+                            Icons.menu,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  ConfigureDVRServerScreen(
-                    controller: controller,
-                    setServer: setServer,
-                    getServer: getServer,
-                  ),
-                  LetsGoScreen(
-                    controller: controller,
-                    getServer: getServer,
-                    onFinish: widget.onFinish,
-                  ),
-                ],
+                ),
+                top: 0.0,
+                left: 0.0,
+                bottom: MediaQuery.of(context).size.height * 3 / 4,
               ),
+            ]),
+            ConfigureDVRServerScreen(
+              controller: controller,
+              setServer: setServer,
+              getServer: getServer,
+            ),
+            LetsGoScreen(
+              controller: controller,
+              getServer: getServer,
+              onFinish: widget.onFinish,
             ),
           ],
         ),

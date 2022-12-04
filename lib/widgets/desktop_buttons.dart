@@ -8,12 +8,18 @@ class WindowButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      width: 138,
-      height: 50,
-      child: WindowCaption(
-        brightness: theme.brightness,
-        backgroundColor: Colors.transparent,
+    return Container(
+      color: theme.appBarTheme.backgroundColor,
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: SizedBox(
+          width: 138,
+          height: 30,
+          child: WindowCaption(
+            brightness: theme.brightness,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
       ),
     );
   }

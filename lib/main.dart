@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,6 +121,12 @@ class MyApp extends StatelessWidget {
           theme: createTheme(themeMode: ThemeMode.light),
           darkTheme: createTheme(themeMode: ThemeMode.dark),
           home: const MyHomePage(),
+          builder: (context, child) {
+            return Column(children: [
+              if (isDesktop) const WindowButtons(),
+              Expanded(child: child!),
+            ]);
+          },
         ),
       ),
     );

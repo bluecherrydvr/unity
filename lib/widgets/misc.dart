@@ -350,11 +350,12 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
 
 // I'm tired of buggy implementation in
 class CorrectedListTile extends StatelessWidget {
-  final void Function()? onTap;
+  final VoidCallback? onTap;
   final IconData iconData;
   final String title;
   final String? subtitle;
   final double? height;
+
   const CorrectedListTile({
     Key? key,
     required this.iconData,

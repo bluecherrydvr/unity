@@ -228,35 +228,37 @@ class _AddServerWizardState extends State<AddServerWizard> {
                   ),
                 ),
               ),
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  child: Container(
+              if (Scaffold.of(context).hasDrawer)
+                Positioned.fill(
+                  child: Material(
                     color: Colors.transparent,
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top,
-                    ),
-                    height: kToolbarHeight + MediaQuery.of(context).padding.top,
-                    alignment: Alignment.topLeft,
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 8.0),
-                        IconButton(
-                          splashRadius: 20.0,
-                          onPressed: Scaffold.of(context).openDrawer,
-                          icon: const Icon(
-                            Icons.menu,
-                            color: Colors.white,
+                    child: Container(
+                      color: Colors.transparent,
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top,
+                      ),
+                      height:
+                          kToolbarHeight + MediaQuery.of(context).padding.top,
+                      alignment: Alignment.topLeft,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 8.0),
+                          IconButton(
+                            splashRadius: 20.0,
+                            onPressed: Scaffold.of(context).openDrawer,
+                            icon: const Icon(
+                              Icons.menu,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                  top: 0.0,
+                  left: 0.0,
+                  bottom: MediaQuery.of(context).size.height * 3 / 4,
                 ),
-                top: 0.0,
-                left: 0.0,
-                bottom: MediaQuery.of(context).size.height * 3 / 4,
-              ),
             ]),
             ConfigureDVRServerScreen(
               controller: controller,

@@ -10,14 +10,16 @@ class WindowButtons extends StatelessWidget {
 
     return Container(
       color: theme.appBarTheme.backgroundColor,
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: SizedBox(
-          width: 138,
-          height: 30,
-          child: WindowCaption(
-            brightness: theme.brightness,
-            backgroundColor: Colors.transparent,
+      child: DragToMoveArea(
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: SizedBox(
+            width: 138,
+            height: 30,
+            child: WindowCaption(
+              brightness: theme.brightness,
+              backgroundColor: Colors.transparent,
+            ),
           ),
         ),
       ),

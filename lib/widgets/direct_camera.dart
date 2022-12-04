@@ -38,11 +38,13 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          splashRadius: 20.0,
-          onPressed: Scaffold.of(context).openDrawer,
-        ),
+        leading: Scaffold.of(context).hasDrawer
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                splashRadius: 20.0,
+                onPressed: Scaffold.of(context).openDrawer,
+              )
+            : null,
         title: Text(AppLocalizations.of(context).directCamera),
       ),
       body: () {

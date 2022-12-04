@@ -124,7 +124,7 @@ class MyApp extends StatelessWidget {
           builder: (context, child) {
             return Column(children: [
               if (isDesktop) const WindowButtons(),
-              Expanded(child: child!),
+              Expanded(child: ClipRect(child: child!)),
             ]);
           },
         ),

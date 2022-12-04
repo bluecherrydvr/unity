@@ -82,11 +82,13 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          splashRadius: 20.0,
-          onPressed: Scaffold.of(context).openDrawer,
-        ),
+        leading: Scaffold.of(context).hasDrawer
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                splashRadius: 20.0,
+                onPressed: Scaffold.of(context).openDrawer,
+              )
+            : null,
         title: Text(AppLocalizations.of(context).eventBrowser),
       ),
       body: () {

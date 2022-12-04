@@ -53,12 +53,15 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          splashRadius: 20.0,
-          onPressed: Scaffold.of(context).openDrawer,
-        ),
+        leading: Scaffold.of(context).hasDrawer
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                splashRadius: 20.0,
+                onPressed: Scaffold.of(context).openDrawer,
+              )
+            : null,
         title: Text(AppLocalizations.of(context).settings),
       ),
       body: SafeArea(

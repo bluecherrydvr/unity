@@ -21,6 +21,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -243,13 +244,13 @@ class EventPlayerScreen extends StatefulWidget {
 }
 
 class _EventPlayerScreenState extends State<EventPlayerScreen> {
-  FijkPlayer ijkPlayer = FijkPlayer();
+  final videoController = BluecherryVideoPlayerController();
 
   @override
   void initState() {
     super.initState();
     debugPrint(widget.event.mediaURL.toString());
-    ijkPlayer.setDataSource(
+    videoController.setDataSource(
       widget.event.mediaURL.toString(),
       autoPlay: true,
     );
@@ -257,7 +258,8 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
 
   @override
   void dispose() {
-    ijkPlayer.release();
+    videoController.release();
+    videoController.dispose();
     super.dispose();
   }
 
@@ -280,15 +282,11 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
       body: InteractiveViewer(
         minScale: 1.0,
         maxScale: 4.0,
-        child: FijkView(
-          player: ijkPlayer,
-          fit: FijkFit.contain,
-          color: Colors.black,
-          panelBuilder: (player, data, context, size, rect) => VideoViewport(
-            context: context,
-            player: player,
-            size: size,
-            rect: rect,
+        child: BluecherryVideoPlayer(
+          controller: videoController,
+          fit: CameraViewFit.contain,
+          paneBuilder: (controller) => VideoViewport(
+            player: controller,
           ),
         ),
       ),
@@ -297,17 +295,11 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
 }
 
 class VideoViewport extends StatefulWidget {
-  final FijkPlayer player;
-  final BuildContext context;
-  final Size size;
-  final Rect rect;
+  final BluecherryVideoPlayerController player;
 
   const VideoViewport({
     Key? key,
     required this.player,
-    required this.context,
-    required this.size,
-    required this.rect,
   }) : super(key: key);
 
   @override
@@ -315,8 +307,8 @@ class VideoViewport extends StatefulWidget {
 }
 
 class _VideoViewportState extends State<VideoViewport> {
-  FijkPlayer get player => widget.player;
-  FijkState state = FijkState.asyncPreparing;
+  BluecherryVideoPlayerController get player => widget.player;
+
   Duration position = Duration.zero;
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
@@ -325,9 +317,7 @@ class _VideoViewportState extends State<VideoViewport> {
   void initState() {
     super.initState();
     // Set class attributes to match the current [FijkPlayer]'s state.
-    state = widget.player.state;
     position = widget.player.currentPos;
-    widget.player.addListener(listener);
     widget.player.onCurrentPosUpdate.listen(currentPosListener);
     widget.player.onBufferStateUpdate.listen(bufferStateListener);
     timer = Timer(const Duration(seconds: 5), () {
@@ -339,22 +329,14 @@ class _VideoViewportState extends State<VideoViewport> {
     });
   }
 
-  void listener() {
-    if (mounted) {
-      setState(() {
-        state = player.state;
-      });
-    }
-  }
-
   void currentPosListener(Duration event) {
     if (mounted) {
       setState(() {
         position = event;
         // Deal with the [seekTo] condition inside the [Slider] [Widget] callback.
-        if (state == FijkState.idle) {
-          state = FijkState.started;
-        }
+        // if (state == FijkState.idle) {
+        //   state = FijkState.started;
+        // }
       });
     }
   }
@@ -365,225 +347,221 @@ class _VideoViewportState extends State<VideoViewport> {
 
   @override
   Widget build(BuildContext context) {
-    Rect rect = Rect.fromLTRB(
-      max(0.0, widget.rect.left),
-      max(0.0, widget.rect.top),
-      min(widget.size.width, widget.rect.right),
-      min(widget.size.height, widget.rect.bottom),
-    );
+    // Rect rect = Rect.fromLTRB(
+    //   max(0.0, widget.rect.left),
+    //   max(0.0, widget.rect.top),
+    //   min(widget.size.width, widget.rect.right),
+    //   min(widget.size.height, widget.rect.bottom),
+    // );
 
-    return Positioned.fromRect(
-      rect: rect,
-      child: Material(
-        color: Colors.transparent,
-        child: SafeArea(
-          child: Stack(children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  if (!visible) {
-                    setState(() {
-                      visible = true;
-                    });
-                    if (timer.isActive) timer.cancel();
-                    timer = Timer(const Duration(seconds: 5), () {
-                      setState(() {
-                        visible = false;
-                      });
-                    });
-                  } else {
+    return Material(
+      color: Colors.transparent,
+      child: SafeArea(
+        child: Stack(children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                if (!visible) {
+                  setState(() {
+                    visible = true;
+                  });
+                  if (timer.isActive) timer.cancel();
+                  timer = Timer(const Duration(seconds: 5), () {
                     setState(() {
                       visible = false;
                     });
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 400),
-                  decoration: BoxDecoration(
-                    gradient: visible
-                        ? const LinearGradient(
-                            stops: [
-                              1.0,
-                              0.8,
-                              0.0,
-                              0.8,
-                              1.0,
-                            ],
-                            colors: [
-                              Colors.black38,
-                              Colors.transparent,
-                              Colors.transparent,
-                              Colors.transparent,
-                              Colors.black38,
-                            ],
-                          )
-                        : null,
-                  ),
+                  });
+                } else {
+                  setState(() {
+                    visible = false;
+                  });
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                decoration: BoxDecoration(
+                  gradient: visible
+                      ? const LinearGradient(
+                          stops: [
+                            1.0,
+                            0.8,
+                            0.0,
+                            0.8,
+                            1.0,
+                          ],
+                          colors: [
+                            Colors.black38,
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.black38,
+                          ],
+                        )
+                      : null,
                 ),
               ),
             ),
-            if (visible ||
-                player.isBuffering ||
-                state == FijkState.asyncPreparing) ...[
+          ),
+          if (visible ||
+              player.isBuffering ||
+              player.ijkPlayer?.state == FijkState.asyncPreparing) ...[
+            Positioned(
+              top: 0.0,
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: () {
+                if (player.error != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.warning,
+                          color: Colors.white70,
+                          size: 32.0,
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          player.error!.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (player.isBuffering ||
+                    player.ijkPlayer?.state == FijkState.asyncPreparing) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  );
+                } else {
+                  return GestureDetector(
+                    child: Icon(
+                      player.isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      shadows: const <Shadow>[
+                        BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75)),
+                      ],
+                      size: 56.0,
+                    ),
+                    onTap: () {
+                      if (player.isPlaying) {
+                        widget.player.pause();
+                      } else {
+                        widget.player.start();
+                      }
+                    },
+                  );
+                }
+              }(),
+            ),
+            if (player.duration != Duration.zero)
               Positioned(
-                top: 0.0,
                 bottom: 0.0,
                 left: 0.0,
                 right: 0.0,
-                child: () {
-                  if (state == FijkState.error) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.warning,
-                            color: Colors.white70,
-                            size: 32.0,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 16.0),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      height: 36.0,
+                      child: Text(
+                        player.currentPos.label,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 12.0),
+                          overlayColor:
+                              Theme.of(context).primaryColor.withOpacity(0.4),
+                          thumbColor: Theme.of(context).primaryColor,
+                          activeTrackColor: Theme.of(context).primaryColor,
+                          inactiveTrackColor:
+                              Theme.of(context).primaryColor.withOpacity(0.5),
+                          trackHeight: 2.0,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 6.0,
                           ),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            player.value.exception.message!.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else if (player.isBuffering ||
-                      state == FijkState.asyncPreparing) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    );
-                  } else {
-                    return GestureDetector(
-                      child: Icon(
-                        state == FijkState.started
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        color: Colors.white,
-                        shadows: const <Shadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75)),
-                        ],
-                        size: 56.0,
-                      ),
-                      onTap: () {
-                        state == FijkState.started
-                            ? widget.player.pause()
-                            : widget.player.start();
-                      },
-                    );
-                  }
-                }(),
-              ),
-              if (player.value.duration != Duration.zero)
-                Positioned(
-                  bottom: 0.0,
-                  left: 0.0,
-                  right: 0.0,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(width: 16.0),
-                      Container(
-                        alignment: Alignment.centerRight,
-                        height: 36.0,
-                        child: Text(
-                          player.currentPos.label,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              ?.copyWith(color: Colors.white),
                         ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: SliderTheme(
-                          data: SliderThemeData(
-                            overlayShape: const RoundSliderOverlayShape(
-                                overlayRadius: 12.0),
-                            overlayColor:
-                                Theme.of(context).primaryColor.withOpacity(0.4),
-                            thumbColor: Theme.of(context).primaryColor,
-                            activeTrackColor: Theme.of(context).primaryColor,
-                            inactiveTrackColor:
-                                Theme.of(context).primaryColor.withOpacity(0.5),
-                            trackHeight: 2.0,
-                            thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 6.0,
-                            ),
-                          ),
-                          child: Transform.translate(
-                            offset: const Offset(0, 0.8),
-                            child: Slider(
-                              value: position.inMilliseconds.toDouble(),
-                              min: 0.0,
-                              max: player.value.duration.inMilliseconds
-                                  .toDouble(),
-                              onChanged: (value) async {
-                                setState(() {
-                                  state = FijkState.idle;
-                                });
-                                position =
-                                    Duration(milliseconds: value.toInt());
-                                await player.seekTo(value.toInt());
-                                await player.start();
-                              },
-                            ),
+                        child: Transform.translate(
+                          offset: const Offset(0, 0.8),
+                          child: Slider(
+                            value: position.inMilliseconds.toDouble(),
+                            min: 0.0,
+                            max: player.duration.inMilliseconds.toDouble(),
+                            onChanged: (value) async {
+                              // setState(() {
+                              //   state = FijkState.idle;
+                              // });
+                              position = Duration(milliseconds: value.toInt());
+                              await player.seekTo(value.toInt());
+                              await player.start();
+                            },
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8.0),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        height: 36.0,
-                        child: Text(
-                          player.value.duration.label,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4
-                              ?.copyWith(color: Colors.white),
-                        ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      height: 36.0,
+                      child: Text(
+                        player.duration.label,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(color: Colors.white),
                       ),
-                      const SizedBox(width: 8.0),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          widget.player.value.fullScreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          if (widget.player.value.fullScreen) {
-                            player.exitFullScreen();
-                          } else {
-                            player.enterFullScreen();
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 8.0),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    // TODO: fullscreen
+                    // IconButton(
+                    //   padding: EdgeInsets.zero,
+                    //   icon: Icon(
+                    //     widget.player.value.fullScreen
+                    //         ? Icons.fullscreen_exit
+                    //         : Icons.fullscreen,
+                    //     color: Colors.white,
+                    //   ),
+                    //   onPressed: () {
+                    //     if (widget.player.value.fullScreen) {
+                    //       player.exitFullScreen();
+                    //     } else {
+                    //       player.enterFullScreen();
+                    //     }
+                    //   },
+                    // ),
+                    const SizedBox(width: 8.0),
+                  ],
                 ),
-            ],
-          ]),
-        ),
+              ),
+          ],
+        ]),
       ),
     );
   }
 
   @override
   void dispose() {
-    player.removeListener(listener);
+    // player.removeListener(listener);
 
     super.dispose();
   }

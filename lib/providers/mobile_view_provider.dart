@@ -18,6 +18,8 @@
  */
 
 import 'dart:convert';
+import 'package:bluecherry_client/widgets/video_player.dart';
+import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/foundation.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 
@@ -75,7 +77,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
   ///
-  final Map<Device, FijkPlayer> players = {};
+  final Map<Device, BluecherryVideoPlayerController> players = {};
 
   /// Current [tab].
   /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
@@ -258,16 +260,21 @@ class MobileViewProvider extends ChangeNotifier {
   }
 
   /// Helper method to create a video player with required configuration for a [Device].
-  FijkPlayer getVideoPlayerController(Device device) {
-    final player = FijkPlayer()
+  BluecherryVideoPlayerController getVideoPlayerController(Device device) {
+    final controller = BluecherryVideoPlayerController();
+
+    controller
       ..setDataSource(
         device.streamURL,
         autoPlay: true,
       )
       ..setVolume(0.0)
-      ..setSpeed(1.0)
-      ..setOption(FijkOption.playerCategory, 'packet-buffering', '0');
-    return player;
+      ..setSpeed(1.0);
+
+    controller.ijkPlayer
+        ?.setOption(FijkOption.playerCategory, 'packet-buffering', '0');
+
+    return controller;
   }
 
   @override

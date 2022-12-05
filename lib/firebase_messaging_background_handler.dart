@@ -216,15 +216,15 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       // Thus, push a new route.
       if (_mutex == null) {
         _mutex = id;
-        await navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (context) => DeviceFullscreenViewer(
-              device: device,
-              ijkPlayer: player,
-              restoreStatusBarStyleOnDispose: true,
-            ),
-          ),
-        );
+        // await navigatorKey.currentState?.push(
+        //   MaterialPageRoute(
+        //     builder: (context) => DeviceFullscreenViewer(
+        //       device: device,
+        //       ijkPlayer: player,
+        //       restoreStatusBarStyleOnDispose: true,
+        //     ),
+        //   ),
+        // );
         _mutex = null;
       }
       // A [DeviceFullscreenViewer] route is likely pushed before due to notification click into the navigator.
@@ -233,15 +233,15 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         navigatorKey.currentState?.pop();
         await Future.delayed(const Duration(seconds: 1));
         _mutex = id;
-        await navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (context) => DeviceFullscreenViewer(
-              device: device,
-              ijkPlayer: player,
-              restoreStatusBarStyleOnDispose: true,
-            ),
-          ),
-        );
+        // await navigatorKey.currentState?.push(
+        //   MaterialPageRoute(
+        //     builder: (context) => DeviceFullscreenViewer(
+        //       device: device,
+        //       ijkPlayer: player,
+        //       restoreStatusBarStyleOnDispose: true,
+        //     ),
+        //   ),
+        // );
         _mutex = null;
       }
       try {

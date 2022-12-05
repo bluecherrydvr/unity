@@ -20,6 +20,7 @@
 import 'dart:io';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,8 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  if (isDesktop) DartVLC.initialize();
+
   WidgetsFlutterBinding.ensureInitialized();
   // Request notifications permission for iOS and Android 13+.
   try {

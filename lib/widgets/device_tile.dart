@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'dart:async';
+import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -52,13 +53,13 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  FijkPlayer? ijkPlayer;
+  BluecherryVideoPlayerController? videoPlayer;
   FijkState? ijkState;
 
   @override
   void initState() {
     super.initState();
-    ijkPlayer = MobileViewProvider.instance.players[widget.device];
+    videoPlayer = MobileViewProvider.instance.players[widget.device];
     if (isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
         setState(() {
@@ -67,25 +68,25 @@ class DeviceTileState extends State<DeviceTile> {
         });
       });
     }
-    if (isMobile) {
-      ijkPlayer?.addListener(ijkPlayerListener);
-    }
+    // if (isMobile) {
+    //   ijkPlayer?.addListener(ijkPlayerListener);
+    // }
   }
 
   @override
   void dispose() {
-    if (isMobile) {
-      ijkPlayer?.removeListener(ijkPlayerListener);
-    }
+    // if (isMobile) {
+    //   ijkPlayer?.removeListener(ijkPlayerListener);
+    // }
     super.dispose();
   }
 
-  void ijkPlayerListener() {
-    if (ijkPlayer?.state != ijkState) {
-      ijkState = ijkPlayer?.state;
-      setState(() {});
-    }
-  }
+  // void ijkPlayerListener() {
+  //   if (ijkPlayer?.state != ijkState) {
+  //     ijkState = ijkPlayer?.state;
+  //     setState(() {});
+  //   }
+  // }
 
   bool get hover =>
       MobileViewProvider.instance.hoverStates[widget.tab]![widget.index];
@@ -96,88 +97,91 @@ class DeviceTileState extends State<DeviceTile> {
   Widget get ijkView {
     return StatefulBuilder(
       builder: (context, _) {
-        ijkPlayer = MobileViewProvider.instance.players[widget.device];
-        debugPrint('${widget.device} ${ijkPlayer?.dataSource.toString()}');
-        return FijkView(
-          player: ijkPlayer!,
-          color: Colors.black,
-          fit: {
-            CameraViewFit.contain: FijkFit.contain,
-            CameraViewFit.fill: FijkFit.fill,
-            CameraViewFit.cover: FijkFit.cover,
-          }[SettingsProvider.instance.cameraViewFit]!,
-          panelBuilder: (player, _, ___, ____, _____) => Material(
-            color: Colors.transparent,
-            child: () {
-              if (player.value.exception.message != null) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.warning,
-                        color: Colors.white70,
-                        size: 32.0,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        player.value.exception.message!.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else if ([
-                FijkState.idle,
-                FijkState.asyncPreparing,
-              ].contains(player.state)) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 4.4,
-                  ),
-                );
-              } else if (hover) {
-                return TweenAnimationBuilder(
-                  tween: Tween<double>(
-                    begin: 0.0,
-                    end: hover ? 1.0 : 0.0,
-                  ),
-                  duration: const Duration(milliseconds: 300),
-                  builder: (context, value, child) => Center(
-                    child: Opacity(
-                      opacity: value as double,
-                      child: IconButton(
-                        splashRadius: 20.0,
-                        onPressed: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => DeviceFullscreenViewer(
-                                device: widget.device,
-                                ijkPlayer: ijkPlayer,
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.fullscreen,
-                          color: Colors.white,
-                          size: 32.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                const SizedBox.shrink();
-              }
-            }(),
-          ),
-        );
+        videoPlayer = MobileViewProvider.instance.players[widget.device];
+        // debugPrint('${widget.device} ${ijkPlayer?.dataSource.toString()}');
+
+        return BluecherryVideoPlayer(controller: videoPlayer!);
+
+        // return FijkView(
+        //   player: ijkPlayer!,
+        //   color: Colors.black,
+        //   fit: {
+        //     CameraViewFit.contain: FijkFit.contain,
+        //     CameraViewFit.fill: FijkFit.fill,
+        //     CameraViewFit.cover: FijkFit.cover,
+        //   }[SettingsProvider.instance.cameraViewFit]!,
+        //   panelBuilder: (player, _, ___, ____, _____) => Material(
+        //     color: Colors.transparent,
+        //     child: () {
+        //       if (player.value.exception.message != null) {
+        //         return Center(
+        //           child: Column(
+        //             mainAxisAlignment: MainAxisAlignment.center,
+        //             crossAxisAlignment: CrossAxisAlignment.center,
+        //             children: [
+        //               const Icon(
+        //                 Icons.warning,
+        //                 color: Colors.white70,
+        //                 size: 32.0,
+        //               ),
+        //               const SizedBox(height: 8.0),
+        //               Text(
+        //                 player.value.exception.message!.toUpperCase(),
+        //                 style: const TextStyle(
+        //                   color: Colors.white70,
+        //                   fontSize: 12.0,
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //         );
+        //       } else if ([
+        //         FijkState.idle,
+        //         FijkState.asyncPreparing,
+        //       ].contains(player.state)) {
+        //         return const Center(
+        //           child: CircularProgressIndicator(
+        //             valueColor: AlwaysStoppedAnimation(Colors.white),
+        //             strokeWidth: 4.4,
+        //           ),
+        //         );
+        //       } else if (hover) {
+        //         return TweenAnimationBuilder(
+        //           tween: Tween<double>(
+        //             begin: 0.0,
+        //             end: hover ? 1.0 : 0.0,
+        //           ),
+        //           duration: const Duration(milliseconds: 300),
+        //           builder: (context, value, child) => Center(
+        //             child: Opacity(
+        //               opacity: value as double,
+        //               child: IconButton(
+        //                 splashRadius: 20.0,
+        //                 onPressed: () async {
+        //                   await Navigator.of(context).push(
+        //                     MaterialPageRoute(
+        //                       builder: (context) => DeviceFullscreenViewer(
+        //                         device: widget.device,
+        //                         ijkPlayer: ijkPlayer,
+        //                       ),
+        //                     ),
+        //                   );
+        //                 },
+        //                 icon: const Icon(
+        //                   Icons.fullscreen,
+        //                   color: Colors.white,
+        //                   size: 32.0,
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         );
+        //       } else {
+        //         const SizedBox.shrink();
+        //       }
+        //     }(),
+        //   ),
+        // );
       },
     );
   }
@@ -191,17 +195,18 @@ class DeviceTileState extends State<DeviceTile> {
         });
       },
       // Fullscreen on double-tap.
-      onDoubleTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DeviceFullscreenViewer(
-            device: widget.device,
-            ijkPlayer: ijkPlayer,
-          ),
-        ),
-      ),
+      // onDoubleTap: () => Navigator.of(context).push(
+      //   MaterialPageRoute(
+      //     builder: (context) => DeviceFullscreenViewer(
+      //       device: widget.device,
+      //       ijkPlayer: ijkPlayer,
+      //     ),
+      //   ),
+      // ),
+      onDoubleTap: () {},
       child: ClipRect(
         child: Stack(children: [
-          if (ijkPlayer == null)
+          if (videoPlayer == null)
             Container(
               color: Colors.black,
               width: double.infinity,

@@ -128,6 +128,9 @@ class _MobileHomeState extends State<MobileHome> {
               extended: isExtraWide,
               useIndicator: !isExtraWide,
               indicatorColor: theme.selectedBackgroundColor,
+              selectedLabelTextStyle: TextStyle(
+                color: theme.selectedForegroundColor,
+              ),
               unselectedLabelTextStyle: TextStyle(
                 color: theme.unselectedForegroundColor,
               ),

@@ -252,7 +252,7 @@ ThemeData createTheme({
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
-      centerTitle: Platform.isIOS,
+      centerTitle: Platform.isIOS || Platform.isMacOS,
     ),
     iconTheme: IconThemeData(
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),

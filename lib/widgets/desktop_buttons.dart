@@ -27,6 +27,8 @@ class WindowButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    print(theme.appBarTheme.backgroundColor);
+
     return Material(
       elevation: 0.0,
       color: theme.appBarTheme.backgroundColor,

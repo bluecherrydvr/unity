@@ -37,6 +37,7 @@ class DirectCameraScreen extends StatefulWidget {
 class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: Scaffold.of(context).hasDrawer

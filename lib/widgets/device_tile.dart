@@ -57,10 +57,12 @@ class DeviceTileState extends State<DeviceTile> {
     videoPlayer = MobileViewProvider.instance.players[widget.device];
     if (isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
-              false;
-        });
+        if (mounted) {
+          setState(() {
+            MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
+                false;
+          });
+        }
       });
     }
   }

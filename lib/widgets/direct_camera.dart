@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/widgets/full_screen_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -91,18 +92,17 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                 itemBuilder: (context, i) {
                   final server = ServersProvider.instance.servers[i];
                   return CustomFutureBuilder<bool>(
-                    future: (() async {
+                    future: () async {
                       if (server.devices.isEmpty) {
                         return API.instance.getDevices(
-                            await API.instance.checkServerCredentials(server));
+                          await API.instance.checkServerCredentials(server),
+                        );
                       }
                       return Future.value(true);
-                    })(),
+                    }(),
                     loadingBuilder: (context) => const SizedBox(
                       height: 96.0,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: Center(child: CircularProgressIndicator()),
                     ),
                     builder: (context, data) {
                       if (server.devices.isEmpty) {
@@ -123,53 +123,53 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: server.devices.length + 1,
-                          itemBuilder: (context, index) => index == 0
-                              ? SubHeader(server.name)
-                              : () {
-                                  index--;
-                                  return ListTile(
-                                    enabled: server.devices[index].status,
-                                    leading: CircleAvatar(
-                                      child: const Icon(Icons.camera_alt),
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor:
-                                          Theme.of(context).iconTheme.color,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return SubHeader(server.name);
+                            } else {
+                              index--;
+                              return ListTile(
+                                enabled: server.devices[index].status,
+                                leading: CircleAvatar(
+                                  child: const Icon(Icons.camera_alt),
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor:
+                                      Theme.of(context).iconTheme.color,
+                                ),
+                                title: Text(
+                                  server.devices[index].name
+                                      .split(' ')
+                                      .map((e) =>
+                                          e[0].toUpperCase() + e.substring(1))
+                                      .join(' '),
+                                ),
+                                subtitle: Text([
+                                  server.devices[index].status
+                                      ? AppLocalizations.of(context).online
+                                      : AppLocalizations.of(context).offline,
+                                  server.devices[index].uri,
+                                  '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                                ].join(' • ')),
+                                onTap: () async {
+                                  final player = MobileViewProvider.instance
+                                      .getVideoPlayerController(
+                                          server.devices[index]);
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return DeviceFullscreenViewer(
+                                          device: server.devices[index],
+                                          videoPlayerController: player,
+                                          restoreStatusBarStyleOnDispose: true,
+                                        );
+                                      },
                                     ),
-                                    title: Text(
-                                      server.devices[index].name
-                                          .split(' ')
-                                          .map((e) =>
-                                              e[0].toUpperCase() +
-                                              e.substring(1))
-                                          .join(' '),
-                                    ),
-                                    subtitle: Text([
-                                      server.devices[index].status
-                                          ? AppLocalizations.of(context).online
-                                          : AppLocalizations.of(context)
-                                              .offline,
-                                      server.devices[index].uri,
-                                      '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                    ].join(' • ')),
-                                    onTap: () async {
-                                      final player = MobileViewProvider.instance
-                                          .getVideoPlayerController(
-                                              server.devices[index]);
-                                      // await Navigator.of(context).push(
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) =>
-                                      //         DeviceFullscreenViewer(
-                                      //       device: server.devices[index],
-                                      //       ijkPlayer: player,
-                                      //       restoreStatusBarStyleOnDispose:
-                                      //           true,
-                                      //     ),
-                                      //   ),
-                                      // );
-                                      await player.release();
-                                    },
                                   );
-                                }(),
+                                  await player.release();
+                                },
+                              );
+                            }
+                          },
                         );
                       }
                     },

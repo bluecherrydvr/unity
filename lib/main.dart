@@ -42,9 +42,25 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  if (isDesktop) DartVLC.initialize();
-
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (isDesktop) {
+    await WindowManager.instance.ensureInitialized();
+    windowManager.waitUntilReadyToShow().then((_) async {
+      await windowManager.setTitleBarStyle(
+        TitleBarStyle.hidden,
+        windowButtonVisibility: false,
+      );
+      await windowManager.setSize(const Size(855, 645));
+      await windowManager.setMinimumSize(const Size(350, 600));
+      await windowManager.center();
+      await windowManager.show();
+      await windowManager.setSkipTaskbar(false);
+    });
+
+    DartVLC.initialize();
+  }
+
   // Request notifications permission for iOS and Android 13+.
   try {
     final result = await Permission.notification.request();
@@ -77,19 +93,6 @@ Future<void> main() async {
             : Brightness.light,
       ),
     );
-  } else {
-    await WindowManager.instance.ensureInitialized();
-    windowManager.waitUntilReadyToShow().then((_) async {
-      await windowManager.setTitleBarStyle(
-        TitleBarStyle.hidden,
-        windowButtonVisibility: false,
-      );
-      await windowManager.setSize(const Size(855, 645));
-      await windowManager.setMinimumSize(const Size(350, 600));
-      await windowManager.center();
-      await windowManager.show();
-      await windowManager.setSkipTaskbar(false);
-    });
   }
 
   runApp(const MyApp());

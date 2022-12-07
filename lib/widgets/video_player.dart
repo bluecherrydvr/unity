@@ -40,6 +40,14 @@ class BluecherryVideoPlayerController {
     }
   }
 
+  String? get dataSource {
+    if (isDesktop) {
+      return vlcPlayer?.current.media?.resource;
+    } else {
+      return ijkPlayer?.dataSource;
+    }
+  }
+
   /// Human readable exception message
   String? get error {
     if (isDesktop) {

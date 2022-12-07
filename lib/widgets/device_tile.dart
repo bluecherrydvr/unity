@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'package:bluecherry_client/widgets/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -71,94 +72,93 @@ class DeviceTileState extends State<DeviceTile> {
 
   bool get hover =>
       MobileViewProvider.instance.hoverStates[widget.tab]![widget.index];
+
   set hover(bool value) =>
       MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
           value;
 
   Widget get ijkView {
-    return StatefulBuilder(
-      builder: (context, _) {
-        videoPlayer = MobileViewProvider.instance.players[widget.device];
-        // debugPrint('${widget.device} ${ijkPlayer?.dataSource.toString()}');
+    return StatefulBuilder(builder: (context, _) {
+      videoPlayer = MobileViewProvider.instance.players[widget.device];
+      debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
 
-        return BluecherryVideoPlayer(
-          controller: videoPlayer!,
-          paneBuilder: (controller) {
-            return Material(
-              color: Colors.transparent,
-              child: () {
-                if (controller.error != null) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.warning,
+      return BluecherryVideoPlayer(
+        controller: videoPlayer!,
+        paneBuilder: (controller) {
+          return Material(
+            color: Colors.transparent,
+            child: () {
+              if (controller.error != null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.warning,
+                        color: Colors.white70,
+                        size: 32.0,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        controller.error!.toUpperCase(),
+                        style: const TextStyle(
                           color: Colors.white70,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else if ([
+                FijkState.idle,
+                FijkState.asyncPreparing,
+              ].contains(controller.ijkPlayer?.state)) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                    strokeWidth: 4.4,
+                  ),
+                );
+              } else if (hover) {
+                return TweenAnimationBuilder(
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: hover ? 1.0 : 0.0,
+                  ),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) => Center(
+                    child: Opacity(
+                      opacity: value as double,
+                      child: IconButton(
+                        splashRadius: 20.0,
+                        onPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DeviceFullscreenViewer(
+                                device: widget.device,
+                                videoPlayerController: videoPlayer,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.fullscreen,
+                          color: Colors.white,
                           size: 32.0,
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          controller.error!.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else if ([
-                  FijkState.idle,
-                  FijkState.asyncPreparing,
-                ].contains(controller.ijkPlayer?.state)) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                      strokeWidth: 4.4,
-                    ),
-                  );
-                } else if (hover) {
-                  return TweenAnimationBuilder(
-                    tween: Tween<double>(
-                      begin: 0.0,
-                      end: hover ? 1.0 : 0.0,
-                    ),
-                    duration: const Duration(milliseconds: 300),
-                    builder: (context, value, child) => Center(
-                      child: Opacity(
-                        opacity: value as double,
-                        child: IconButton(
-                          splashRadius: 20.0,
-                          onPressed: () async {
-                            // await Navigator.of(context).push(
-                            //   MaterialPageRoute(
-                            //     builder: (context) => DeviceFullscreenViewer(
-                            //       device: widget.device,
-                            //       ijkPlayer: ijkPlayer,
-                            //     ),
-                            //   ),
-                            // );
-                          },
-                          icon: const Icon(
-                            Icons.fullscreen,
-                            color: Colors.white,
-                            size: 32.0,
-                          ),
                         ),
                       ),
                     ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }(),
-            );
-          },
-        );
-      },
-    );
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            }(),
+          );
+        },
+      );
+    });
   }
 
   @override
@@ -170,15 +170,14 @@ class DeviceTileState extends State<DeviceTile> {
         });
       },
       // Fullscreen on double-tap.
-      // onDoubleTap: () => Navigator.of(context).push(
-      //   MaterialPageRoute(
-      //     builder: (context) => DeviceFullscreenViewer(
-      //       device: widget.device,
-      //       ijkPlayer: ijkPlayer,
-      //     ),
-      //   ),
-      // ),
-      onDoubleTap: () {},
+      onDoubleTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DeviceFullscreenViewer(
+            device: widget.device,
+            videoPlayerController: videoPlayer,
+          ),
+        ),
+      ),
       child: ClipRect(
         child: Stack(children: [
           if (videoPlayer == null)

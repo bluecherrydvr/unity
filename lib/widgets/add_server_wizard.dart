@@ -68,7 +68,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                 ),
               ),
               Container(
-                alignment: Alignment.center,
+                alignment: AlignmentDirectional.center,
                 child: Card(
                   elevation: 4.0,
                   clipBehavior: Clip.antiAlias,
@@ -83,7 +83,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsetsDirectional.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -111,10 +111,10 @@ class _AddServerWizardState extends State<AddServerWizard> {
                             ),
                             const SizedBox(height: 16.0),
                             Align(
-                              alignment: Alignment.centerRight,
+                              alignment: AlignmentDirectional.centerEnd,
                               child: Container(
                                 color: Theme.of(context).cardColor,
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsetsDirectional.all(8.0),
                                 child: Row(children: [
                                   const Spacer(),
                                   MouseRegion(
@@ -210,7 +210,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                             );
                           },
                           child: Container(
-                            alignment: Alignment.center,
+                            alignment: AlignmentDirectional.center,
                             width: double.infinity,
                             height: 56.0,
                             child: Text(
@@ -234,25 +234,23 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     color: Colors.transparent,
                     child: Container(
                       color: Colors.transparent,
-                      padding: EdgeInsets.only(
+                      padding: EdgeInsetsDirectional.only(
                         top: MediaQuery.of(context).padding.top,
                       ),
                       height:
                           kToolbarHeight + MediaQuery.of(context).padding.top,
-                      alignment: Alignment.topLeft,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 8.0),
-                          IconButton(
-                            splashRadius: 20.0,
-                            onPressed: Scaffold.of(context).openDrawer,
-                            icon: const Icon(
-                              Icons.menu,
-                              color: Colors.white,
-                            ),
+                      alignment: AlignmentDirectional.topStart,
+                      child: Row(children: [
+                        const SizedBox(width: 8.0),
+                        IconButton(
+                          splashRadius: 20.0,
+                          onPressed: Scaffold.of(context).openDrawer,
+                          icon: const Icon(
+                            Icons.menu,
+                            color: Colors.white,
                           ),
-                        ],
-                      ),
+                        ),
+                      ]),
                     ),
                   ),
                   top: 0.0,
@@ -364,10 +362,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             preferredSize: const Size.fromHeight(32.0),
             child: Container(
               height: 32.0,
-              padding: const EdgeInsets.only(left: 16.0),
+              padding: const EdgeInsetsDirectional.only(start: 16.0),
               alignment: Theme.of(context).appBarTheme.centerTitle ?? false
-                  ? Alignment.topCenter
-                  : Alignment.topLeft,
+                  ? AlignmentDirectional.topCenter
+                  : AlignmentDirectional.topStart,
               child: Text(
                 AppLocalizations.of(context).configureDescription,
                 maxLines: 1,
@@ -384,11 +382,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           children: [
             Card(
               elevation: 4.0,
-              margin: const EdgeInsets.all(16.0),
+              margin: const EdgeInsetsDirectional.all(16.0),
               child: Form(
                 key: formKey,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsetsDirectional.all(16.0),
                   child: Column(
                     children: [
                       Row(
@@ -490,7 +488,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                           const SizedBox(width: 8.0),
                           Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
+                            padding: const EdgeInsetsDirectional.only(top: 8.0),
                             child: MaterialButton(
                               onPressed: () {
                                 textEditingControllers[3].text =
@@ -535,7 +533,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                             ),
                           ),
                           // Padding(
-                          //   padding: const EdgeInsets.only(top: 8.0),
+                          //   padding: const EdgeInsetsDirectional.only(top: 8.0),
                           //   child: Row(
                           //     children: [
                           //       Checkbox(
@@ -579,7 +577,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       // ),
                       const SizedBox(height: 16.0),
                       Align(
-                        alignment: Alignment.bottomRight,
+                        alignment: AlignmentDirectional.bottomEnd,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -595,7 +593,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                       );
                                     },
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsetsDirectional.all(8.0),
                                 child: Text(
                                   AppLocalizations.of(context)
                                       .skip
@@ -664,8 +662,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                                           .maybePop,
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
+                                                        const EdgeInsetsDirectional
+                                                            .all(8.0),
                                                     child: Text(
                                                       AppLocalizations.of(
                                                               context)
@@ -686,7 +684,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                       }
                                     },
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsetsDirectional.all(8.0),
                                 child: Text(
                                   AppLocalizations.of(context)
                                       .finish
@@ -774,11 +772,11 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   preferredSize: const Size.fromHeight(32.0),
                   child: Container(
                     height: 32.0,
-                    padding: const EdgeInsets.only(left: 16.0),
+                    padding: const EdgeInsetsDirectional.only(start: 16.0),
                     alignment:
                         Theme.of(context).appBarTheme.centerTitle ?? false
-                            ? Alignment.topCenter
-                            : Alignment.topLeft,
+                            ? AlignmentDirectional.topCenter
+                            : AlignmentDirectional.topStart,
                     child: Text(
                       AppLocalizations.of(context).letsGoDescription,
                       maxLines: 1,
@@ -805,7 +803,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 margin:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsetsDirectional.all(16.0),
                   child: Row(
                     children: [
                       Icon(
@@ -825,7 +823,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               margin:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsetsDirectional.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

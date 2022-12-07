@@ -82,6 +82,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         leading: Scaffold.of(context).hasDrawer
             ? IconButton(
@@ -405,11 +406,11 @@ class _VideoViewportState extends State<VideoViewport> {
           if (visible ||
               player.isBuffering ||
               player.ijkPlayer?.state == FijkState.asyncPreparing) ...[
-            Positioned(
+            PositionedDirectional(
               top: 0.0,
               bottom: 0.0,
-              left: 0.0,
-              right: 0.0,
+              start: 0.0,
+              end: 0.0,
               child: () {
                 if (player.error != null) {
                   return Center(
@@ -465,16 +466,16 @@ class _VideoViewportState extends State<VideoViewport> {
               }(),
             ),
             if (player.duration != Duration.zero)
-              Positioned(
+              PositionedDirectional(
                 bottom: 0.0,
-                left: 0.0,
-                right: 0.0,
+                start: 0.0,
+                end: 0.0,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 16.0),
                     Container(
-                      alignment: Alignment.centerRight,
+                      alignment: AlignmentDirectional.centerEnd,
                       height: 36.0,
                       child: Text(
                         player.currentPos.label,
@@ -521,7 +522,7 @@ class _VideoViewportState extends State<VideoViewport> {
                     ),
                     const SizedBox(width: 8.0),
                     Container(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       height: 36.0,
                       child: Text(
                         player.duration.label,

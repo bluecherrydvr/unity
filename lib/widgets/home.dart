@@ -213,12 +213,6 @@ class _MobileHomeState extends State<MobileHome> {
         physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.zero,
         children: [
-          // DrawerHeader(
-          //   decoration: BoxDecoration(
-          //     color: Theme.of(context).primaryColor,
-          //   ),
-          //   child: Text('project_name'.tr()),
-          // ),
           Container(
             width: double.infinity,
             height: MediaQuery.of(context).padding.top,
@@ -265,10 +259,10 @@ class _MobileHomeState extends State<MobileHome> {
                   width: double.infinity,
                   height: 48.0,
                   child: InkWell(
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(28.0),
-                      bottomRight: Radius.circular(28.0),
-                    ),
+                    borderRadius: const BorderRadiusDirectional.only(
+                      topEnd: Radius.circular(28.0),
+                      bottomEnd: Radius.circular(28.0),
+                    ).resolve(Directionality.of(context)),
                     onTap: () async {
                       if (!isDesktop) {
                         if (index == 0 && tab != 0) {
@@ -326,9 +320,9 @@ class _MobileHomeState extends State<MobileHome> {
                       decoration: BoxDecoration(
                         color:
                             index == tab ? theme.selectedBackgroundColor : null,
-                        borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(28.0),
-                          bottomRight: Radius.circular(28.0),
+                        borderRadius: const BorderRadiusDirectional.only(
+                          topEnd: Radius.circular(28.0),
+                          bottomEnd: Radius.circular(28.0),
                         ),
                       ),
                     ),

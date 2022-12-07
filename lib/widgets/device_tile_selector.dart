@@ -47,16 +47,16 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
     if (device != null) {
       return Material(
         color: Colors.black,
-        child: Stack(alignment: Alignment.topRight, children: [
+        child: Stack(alignment: AlignmentDirectional.topEnd, children: [
           // No longer passing reference to [FijkPlayer].
           DeviceTile(
             device: device,
             tab: widget.tab,
             index: widget.index,
           ),
-          Positioned(
+          PositionedDirectional(
             top: 0.0,
-            right: 0.0,
+            end: 0.0,
             child: Container(
               height: 72.0,
               width: 72.0,
@@ -67,8 +67,8 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                     Colors.black54,
                     Colors.transparent,
                   ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
+                  begin: AlignmentDirectional.topEnd,
+                  end: AlignmentDirectional.bottomStart,
                   stops: [
                     0.0,
                     0.6,
@@ -167,7 +167,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
               }
             },
             child: Container(
-              alignment: Alignment.center,
+              alignment: AlignmentDirectional.center,
               child: const Icon(
                 Icons.add,
                 size: 36.0,

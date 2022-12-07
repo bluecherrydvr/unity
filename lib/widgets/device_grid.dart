@@ -108,11 +108,11 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                           child: Container(
                             height: 40.0,
                             width: 40.0,
-                            alignment: Alignment.center,
+                            alignment: AlignmentDirectional.center,
                             child: Container(
                               height: 28.0,
                               width: 28.0,
-                              alignment: Alignment.center,
+                              alignment: AlignmentDirectional.center,
                               child: Text(
                                 e.toString(),
                                 style: const TextStyle(
@@ -141,7 +141,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   return Container(
                     height: 48.0,
                     width: 48.0,
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: IconButton(
                       onPressed: () => view.setTab(e),
                       icon: child,

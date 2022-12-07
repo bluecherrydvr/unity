@@ -117,7 +117,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                     } else {
                       return Center(
                         child: Container(
-                          alignment: Alignment.center,
+                          alignment: AlignmentDirectional.center,
                           height: 156.0,
                           child: const CircularProgressIndicator(),
                         ),

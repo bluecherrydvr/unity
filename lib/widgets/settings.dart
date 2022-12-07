@@ -66,349 +66,354 @@ class _SettingsState extends State<Settings> {
       ),
       body: SafeArea(
         bottom: false,
-        child:
-            ListView(padding: const EdgeInsets.only(bottom: 16.0), children: [
-          SubHeader(AppLocalizations.of(context).servers),
-          Consumer<ServersProvider>(builder: (context, serversProvider, _) {
-            return Column(children: [
-              ...serversProvider.servers
-                  .map((e) => ServerTile(server: e))
-                  .toList(),
-              ListTile(
-                leading: CircleAvatar(
-                  child: const Icon(Icons.add),
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
-                ),
-                title: Text(AppLocalizations.of(context).addNewServer),
-                onTap: () {
-                  // Go to the "Add Server" tab.
-                  widget.changeCurrentTab.call(3);
-                },
-              ),
-            ]);
-          }),
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-          SubHeader(AppLocalizations.of(context).theme),
-          Consumer<SettingsProvider>(builder: (context, settings, _) {
-            return Column(
-              children: ThemeMode.values.map((e) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    child: Icon({
-                      ThemeMode.system: Icons.brightness_auto,
-                      ThemeMode.light: Icons.light_mode,
-                      ThemeMode.dark: Icons.dark_mode,
-                    }[e]!),
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                  ),
-                  onTap: () {
-                    settings.themeMode = e;
-                  },
-                  trailing: Radio(
-                    value: e,
-                    groupValue: settings.themeMode,
-                    onChanged: (value) {
-                      settings.themeMode = e;
+        child: ListView(
+            padding: const EdgeInsetsDirectional.only(bottom: 16.0),
+            children: [
+              SubHeader(AppLocalizations.of(context).servers),
+              Consumer<ServersProvider>(builder: (context, serversProvider, _) {
+                return Column(children: [
+                  ...serversProvider.servers
+                      .map((e) => ServerTile(server: e))
+                      .toList(),
+                  ListTile(
+                    leading: CircleAvatar(
+                      child: const Icon(Icons.add),
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Theme.of(context).iconTheme.color,
+                    ),
+                    title: Text(AppLocalizations.of(context).addNewServer),
+                    onTap: () {
+                      // Go to the "Add Server" tab.
+                      widget.changeCurrentTab.call(3);
                     },
                   ),
-                  title: Text({
-                    ThemeMode.system: AppLocalizations.of(context).system,
-                    ThemeMode.light: AppLocalizations.of(context).light,
-                    ThemeMode.dark: AppLocalizations.of(context).dark,
-                  }[e]!),
-                );
-              }).toList(),
-            );
-          }),
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-          SubHeader(AppLocalizations.of(context).miscellaneous),
-          Consumer<SettingsProvider>(builder: (context, settings, _) {
-            return Column(children: [
-              CorrectedListTile(
-                iconData: Icons.message,
-                onTap: () async {
-                  if (settings.snoozedUntil.isAfter(DateTime.now())) {
-                    settings.snoozedUntil =
-                        SettingsProvider.defaultSnoozedUntil;
-                  } else {
-                    final timeOfDay = await showTimePicker(
-                      context: context,
-                      helpText: AppLocalizations.of(context)
-                          .snoozeNotificationsUntil
-                          .toUpperCase(),
-                      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
-                      useRootNavigator: false,
-                      builder: (_, child) => Theme.of(context).brightness ==
-                              Brightness.dark
-                          ? Theme(
-                              data: ThemeData.dark().copyWith(
-                                primaryColor: Theme.of(context).primaryColor,
-                                colorScheme: ColorScheme.fromSwatch(
-                                  primarySwatch: Colors.indigo,
-                                  brightness: Brightness.dark,
-                                ),
-                                dialogTheme: const DialogTheme(
-                                  backgroundColor: Colors.black,
-                                ),
-                                scaffoldBackgroundColor: Colors.black,
-                              ),
-                              child: TimePickerTheme(
-                                data: const TimePickerThemeData(
-                                  backgroundColor: Color(0xFF191919),
-                                ),
-                                child: child!,
-                              ),
-                            )
-                          : child!,
-                    );
-                    if (timeOfDay != null) {
-                      settings.snoozedUntil = DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        DateTime.now().day,
-                        timeOfDay.hour,
-                        timeOfDay.minute,
-                      );
-                    }
-                  }
-                },
-                title: AppLocalizations.of(context).snoozeNotifications,
-                height: 72.0,
-                subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                    ? AppLocalizations.of(context).snoozedUntil(
-                        [
-                          if (settings.snoozedUntil.difference(DateTime.now()) >
-                              const Duration(hours: 24))
-                            SettingsProvider.instance.dateFormat
-                                .format(settings.snoozedUntil),
-                          SettingsProvider.instance.timeFormat
-                              .format(settings.snoozedUntil),
-                        ].join(' '),
-                      )
-                    : AppLocalizations.of(context).notSnoozed,
-              ),
-              Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
+                ]);
+              }),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(
+                  height: 1.0,
+                  thickness: 1.0,
                 ),
-                child: ExpansionTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                    child: const Icon(Icons.beenhere_rounded),
-                  ),
-                  title: Text(
-                      AppLocalizations.of(context).notificationClickAction),
-                  textColor: Theme.of(context).textTheme.bodyText1?.color,
-                  subtitle: Text(
-                    settings.notificationClickAction.str(context),
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                          color: Theme.of(context).textTheme.caption?.color,
-                        ),
-                  ),
-                  children: NotificationClickAction.values.map((e) {
+              ),
+              SubHeader(AppLocalizations.of(context).theme),
+              Consumer<SettingsProvider>(builder: (context, settings, _) {
+                return Column(
+                  children: ThemeMode.values.map((e) {
                     return ListTile(
+                      leading: CircleAvatar(
+                        child: Icon({
+                          ThemeMode.system: Icons.brightness_auto,
+                          ThemeMode.light: Icons.light_mode,
+                          ThemeMode.dark: Icons.dark_mode,
+                        }[e]!),
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Theme.of(context).iconTheme.color,
+                      ),
                       onTap: () {
-                        settings.notificationClickAction = e;
+                        settings.themeMode = e;
                       },
                       trailing: Radio(
                         value: e,
-                        groupValue: settings.notificationClickAction,
+                        groupValue: settings.themeMode,
                         onChanged: (value) {
-                          settings.notificationClickAction = e;
+                          settings.themeMode = e;
+                        },
+                      ),
+                      title: Text({
+                        ThemeMode.system: AppLocalizations.of(context).system,
+                        ThemeMode.light: AppLocalizations.of(context).light,
+                        ThemeMode.dark: AppLocalizations.of(context).dark,
+                      }[e]!),
+                    );
+                  }).toList(),
+                );
+              }),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(
+                  height: 1.0,
+                  thickness: 1.0,
+                ),
+              ),
+              SubHeader(AppLocalizations.of(context).miscellaneous),
+              Consumer<SettingsProvider>(builder: (context, settings, _) {
+                return Column(children: [
+                  CorrectedListTile(
+                    iconData: Icons.message,
+                    onTap: () async {
+                      if (settings.snoozedUntil.isAfter(DateTime.now())) {
+                        settings.snoozedUntil =
+                            SettingsProvider.defaultSnoozedUntil;
+                      } else {
+                        final timeOfDay = await showTimePicker(
+                          context: context,
+                          helpText: AppLocalizations.of(context)
+                              .snoozeNotificationsUntil
+                              .toUpperCase(),
+                          initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+                          useRootNavigator: false,
+                          builder: (_, child) =>
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Theme(
+                                      data: ThemeData.dark().copyWith(
+                                        primaryColor:
+                                            Theme.of(context).primaryColor,
+                                        colorScheme: ColorScheme.fromSwatch(
+                                          primarySwatch: Colors.indigo,
+                                          brightness: Brightness.dark,
+                                        ),
+                                        dialogTheme: const DialogTheme(
+                                          backgroundColor: Colors.black,
+                                        ),
+                                        scaffoldBackgroundColor: Colors.black,
+                                      ),
+                                      child: TimePickerTheme(
+                                        data: const TimePickerThemeData(
+                                          backgroundColor: Color(0xFF191919),
+                                        ),
+                                        child: child!,
+                                      ),
+                                    )
+                                  : child!,
+                        );
+                        if (timeOfDay != null) {
+                          settings.snoozedUntil = DateTime(
+                            DateTime.now().year,
+                            DateTime.now().month,
+                            DateTime.now().day,
+                            timeOfDay.hour,
+                            timeOfDay.minute,
+                          );
+                        }
+                      }
+                    },
+                    title: AppLocalizations.of(context).snoozeNotifications,
+                    height: 72.0,
+                    subtitle: settings.snoozedUntil.isAfter(DateTime.now())
+                        ? AppLocalizations.of(context).snoozedUntil(
+                            [
+                              if (settings.snoozedUntil
+                                      .difference(DateTime.now()) >
+                                  const Duration(hours: 24))
+                                SettingsProvider.instance.dateFormat
+                                    .format(settings.snoozedUntil),
+                              SettingsProvider.instance.timeFormat
+                                  .format(settings.snoozedUntil),
+                            ].join(' '),
+                          )
+                        : AppLocalizations.of(context).notSnoozed,
+                  ),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Theme.of(context).iconTheme.color,
+                        child: const Icon(Icons.beenhere_rounded),
+                      ),
+                      title: Text(
+                          AppLocalizations.of(context).notificationClickAction),
+                      textColor: Theme.of(context).textTheme.bodyText1?.color,
+                      subtitle: Text(
+                        settings.notificationClickAction.str(context),
+                        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                              color: Theme.of(context).textTheme.caption?.color,
+                            ),
+                      ),
+                      children: NotificationClickAction.values.map((e) {
+                        return ListTile(
+                          onTap: () {
+                            settings.notificationClickAction = e;
+                          },
+                          trailing: Radio(
+                            value: e,
+                            groupValue: settings.notificationClickAction,
+                            onChanged: (value) {
+                              settings.notificationClickAction = e;
+                            },
+                          ),
+                          title: Padding(
+                            padding:
+                                const EdgeInsetsDirectional.only(start: 8.0),
+                            child: Text(
+                              e.str(context),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Theme.of(context).iconTheme.color,
+                        child: const Icon(Icons.camera_alt),
+                      ),
+                      title: Text(AppLocalizations.of(context).cameraViewFit),
+                      textColor: Theme.of(context).textTheme.bodyText1?.color,
+                      subtitle: Text(
+                        settings.cameraViewFit.str(context),
+                        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                              color: Theme.of(context).textTheme.caption?.color,
+                            ),
+                      ),
+                      children: CameraViewFit.values.map((e) {
+                        return ListTile(
+                          onTap: () {
+                            settings.cameraViewFit = e;
+                          },
+                          trailing: Radio(
+                            value: e,
+                            groupValue: settings.cameraViewFit,
+                            onChanged: (value) {
+                              settings.cameraViewFit = e;
+                            },
+                          ),
+                          title: Padding(
+                            padding:
+                                const EdgeInsetsDirectional.only(start: 8.0),
+                            child: Text(
+                              e.str(context),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ]);
+              }),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(
+                  height: 1.0,
+                  thickness: 1.0,
+                ),
+              ),
+              SubHeader(AppLocalizations.of(context).dateFormat),
+              Consumer<SettingsProvider>(builder: (context, settings, _) {
+                return Column(
+                  children: [
+                    'dd MMMM yyyy',
+                    'EEEE, dd MMMM yyyy',
+                    'EE, dd MMMM yyyy',
+                    'MM/dd/yyyy',
+                    'dd/MM/yyyy',
+                    'MM-dd-yyyy',
+                    'dd-MM-yyyy',
+                    'yyyy-MM-dd'
+                  ].map((e) {
+                    return ListTile(
+                      onTap: () {
+                        settings.dateFormat = DateFormat(e, 'en_US');
+                      },
+                      trailing: Radio(
+                        value: e,
+                        groupValue: settings.dateFormat.pattern,
+                        onChanged: (value) {
+                          settings.dateFormat = DateFormat(e, 'en_US');
                         },
                       ),
                       title: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: const EdgeInsetsDirectional.only(start: 8.0),
                         child: Text(
-                          e.str(context),
+                          DateFormat(e, 'en_US')
+                              .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
                         ),
                       ),
                     );
                   }).toList(),
+                );
+              }),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(
+                  height: 1.0,
+                  thickness: 1.0,
                 ),
               ),
-              Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
-                ),
-                child: ExpansionTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                    child: const Icon(Icons.camera_alt),
-                  ),
-                  title: Text(AppLocalizations.of(context).cameraViewFit),
-                  textColor: Theme.of(context).textTheme.bodyText1?.color,
-                  subtitle: Text(
-                    settings.cameraViewFit.str(context),
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                          color: Theme.of(context).textTheme.caption?.color,
-                        ),
-                  ),
-                  children: CameraViewFit.values.map((e) {
+              SubHeader(AppLocalizations.of(context).timeFormat),
+              Consumer<SettingsProvider>(builder: (context, settings, _) {
+                return Column(
+                  children: [
+                    'HH:mm',
+                    'hh:mm a',
+                  ].map((e) {
                     return ListTile(
                       onTap: () {
-                        settings.cameraViewFit = e;
+                        settings.timeFormat = DateFormat(e, 'en_US');
                       },
                       trailing: Radio(
                         value: e,
-                        groupValue: settings.cameraViewFit,
+                        groupValue: settings.timeFormat.pattern,
                         onChanged: (value) {
-                          settings.cameraViewFit = e;
+                          settings.timeFormat = DateFormat(e, 'en_US');
                         },
                       ),
                       title: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: const EdgeInsetsDirectional.only(start: 8.0),
                         child: Text(
-                          e.str(context),
+                          DateFormat(e, 'en_US')
+                              .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
                         ),
                       ),
                     );
                   }).toList(),
+                );
+              }),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(
+                  height: 1.0,
+                  thickness: 1.0,
                 ),
               ),
-            ]);
-          }),
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-          SubHeader(AppLocalizations.of(context).dateFormat),
-          Consumer<SettingsProvider>(builder: (context, settings, _) {
-            return Column(
-              children: [
-                'dd MMMM yyyy',
-                'EEEE, dd MMMM yyyy',
-                'EE, dd MMMM yyyy',
-                'MM/dd/yyyy',
-                'dd/MM/yyyy',
-                'MM-dd-yyyy',
-                'dd-MM-yyyy',
-                'yyyy-MM-dd'
-              ].map((e) {
-                return ListTile(
-                  onTap: () {
-                    settings.dateFormat = DateFormat(e, 'en_US');
-                  },
-                  trailing: Radio(
-                    value: e,
-                    groupValue: settings.dateFormat.pattern,
-                    onChanged: (value) {
-                      settings.dateFormat = DateFormat(e, 'en_US');
-                    },
-                  ),
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      DateFormat(e, 'en_US')
-                          .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+              SubHeader(AppLocalizations.of(context).version),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8.0),
+                    Text(
+                      kAppVersion,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                  ),
-                );
-              }).toList(),
-            );
-          }),
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-          SubHeader(AppLocalizations.of(context).timeFormat),
-          Consumer<SettingsProvider>(builder: (context, settings, _) {
-            return Column(
-              children: [
-                'HH:mm',
-                'hh:mm a',
-              ].map((e) {
-                return ListTile(
-                  onTap: () {
-                    settings.timeFormat = DateFormat(e, 'en_US');
-                  },
-                  trailing: Radio(
-                    value: e,
-                    groupValue: settings.timeFormat.pattern,
-                    onChanged: (value) {
-                      settings.timeFormat = DateFormat(e, 'en_US');
-                    },
-                  ),
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      DateFormat(e, 'en_US')
-                          .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      AppLocalizations.of(context).versionText,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                  ),
-                );
-              }).toList(),
-            );
-          }),
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-          SubHeader(AppLocalizations.of(context).version),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8.0),
-                Text(
-                  kAppVersion,
-                  style: Theme.of(context).textTheme.headline2,
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  AppLocalizations.of(context).versionText,
-                  style: Theme.of(context).textTheme.headline2,
-                ),
-                const SizedBox(height: 8.0),
-                MaterialButton(
-                  onPressed: () {
-                    launchUrl(
-                      Uri.https(
-                        'www.bluecherrydvr.com',
-                        '/',
+                    const SizedBox(height: 8.0),
+                    MaterialButton(
+                      onPressed: () {
+                        launchUrl(
+                          Uri.https(
+                            'www.bluecherrydvr.com',
+                            '/',
+                          ),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      minWidth: 0.0,
+                      child: Text(
+                        AppLocalizations.of(context).website,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                      mode: LaunchMode.externalApplication,
-                    );
-                  },
-                  padding: EdgeInsets.zero,
-                  minWidth: 0.0,
-                  child: Text(
-                    AppLocalizations.of(context).website,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ]),
+              ),
+            ]),
       ),
     );
   }

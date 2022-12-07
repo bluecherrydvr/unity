@@ -86,15 +86,15 @@ class DesktopAppBar extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Container(
               height: (height ?? kDesktopAppBarHeight) + 8.0,
-              alignment: Alignment.topLeft,
-              padding: const EdgeInsets.only(bottom: 8.0),
+              alignment: AlignmentDirectional.topStart,
+              padding: const EdgeInsetsDirectional.only(bottom: 8.0),
               child: Material(
                 animationDuration: Duration.zero,
                 elevation: elevation ?? 4.0,
                 color: color ?? Theme.of(context).appBarTheme.backgroundColor,
                 child: Container(
                   height: double.infinity,
-                  alignment: Alignment.topLeft,
+                  alignment: AlignmentDirectional.topStart,
                   child: SizedBox(
                     height: kDesktopAppBarHeight,
                     child: Row(
@@ -372,13 +372,13 @@ class CorrectedListTile extends StatelessWidget {
       child: Container(
         height: height ?? 88.0,
         width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(left: 16.0),
+        padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16.0),
-              alignment: Alignment.center,
+              margin: const EdgeInsetsDirectional.only(end: 16.0),
+              alignment: AlignmentDirectional.center,
               width: 40.0,
               height: 40.0,
               child: Icon(iconData),
@@ -421,7 +421,7 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 56.0,
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Text(
         text.toUpperCase(),

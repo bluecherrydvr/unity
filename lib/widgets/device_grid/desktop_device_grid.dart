@@ -27,34 +27,39 @@ class DesktopDeviceGrid extends StatefulWidget {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
-  List<Device> devices = [];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
+
+    final view = context.watch<DesktopViewProvider>();
 
     return Row(children: [
       Expanded(
         child: ReorderableGridView.count(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          crossAxisCount: 2,
+          crossAxisCount: view.devices.length ~/ 2,
           mainAxisSpacing: 0.0,
           crossAxisSpacing: 0.0,
           padding: EdgeInsets.zero,
           onReorder: (initial, end) {
             // TODO: reorder
           },
-          children: devices.asMap().entries.map(
+          children: view.devices.asMap().entries.map(
             (e) {
+              final device = e.value;
               // counts[e.value] = counts[e.value]! - 1;
               // debugPrint(
               //     '${e.value}.${e.value.server.serverUUID}.${counts[e.value]}');
 
-              return Text(
-                '${e.value}.${e.value.server.serverUUID}',
+              // return Text(
+              //   '${e.value}.${e.value.server.serverUUID}',
+              // );
+
+              return DesktopDeviceTile(
                 key: ValueKey('${e.value}.${e.value.server.serverUUID}'),
+                device: device,
               );
               // return DeviceTileSelector(
               //   key: ValueKey(
@@ -91,28 +96,27 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       if (index == 0) return SubHeader(server.name);
 
                       index--;
+                      final device = server.devices[index];
                       return ListTile(
-                        enabled: server.devices[index].status,
+                        enabled: device.status,
+                        selected: view.devices.contains(device),
                         title: Text(
-                          server.devices[index].name
+                          device.name
                               .split(' ')
                               .map((e) => e[0].toUpperCase() + e.substring(1))
                               .join(' '),
                         ),
                         subtitle: Text([
-                          (server.devices[index].status
+                          (device.status
                                   ? AppLocalizations.of(context).online
                                   : AppLocalizations.of(context).offline) +
                               ' • ' +
-                              server.devices[index].uri,
-                          '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                              device.uri,
+                          '${device.resolutionX}x${device.resolutionY}',
                         ].join('\n')),
                         isThreeLine: true,
                         onTap: () {
-                          // Navigator.of(context).pop(server.devices[index]);
-                          setState(() {
-                            devices.add(server.devices[index]);
-                          });
+                          DesktopViewProvider.instance.add(device);
                         },
                       );
                     },
@@ -135,11 +139,31 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   }
 }
 
-class DesktopDeviceTile extends StatelessWidget {
-  const DesktopDeviceTile({Key? key}) : super(key: key);
+class DesktopDeviceTile extends StatefulWidget {
+  const DesktopDeviceTile({Key? key, required this.device}) : super(key: key);
+
+  final Device device;
+
+  @override
+  State<DesktopDeviceTile> createState() => _DesktopDeviceTileState();
+}
+
+class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
+  BluecherryVideoPlayerController? videoPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    videoPlayer = DesktopViewProvider.instance.players[widget.device];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    if (videoPlayer == null) {
+      return const CircularProgressIndicator();
+    }
+    return BluecherryVideoPlayer(
+      controller: videoPlayer!,
+    );
   }
 }

@@ -32,7 +32,7 @@ import 'package:status_bar_control/status_bar_control.dart';
 
 class DeviceFullscreenViewer extends StatefulWidget {
   final Device device;
-  final BluecherryVideoPlayerController? videoPlayerController;
+  final BluecherryVideoPlayerController videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewer({
@@ -93,7 +93,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
           },
           child: InteractiveViewer(
             child: BluecherryVideoPlayer(
-              controller: widget.videoPlayerController!,
+              controller: widget.videoPlayerController,
               fit: fit,
               paneBuilder: (controller) {
                 return Scaffold(

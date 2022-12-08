@@ -59,10 +59,10 @@ class DeviceTileState extends State<DeviceTile> {
     if (isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
-          setState(() {
-            MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
-                false;
-          });
+          // setState(() {
+          //   MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
+          //       false;
+          // });
         }
       });
     }
@@ -74,13 +74,13 @@ class DeviceTileState extends State<DeviceTile> {
   }
 
   bool get hover =>
-      MobileViewProvider.instance.hoverStates[widget.tab]![widget.index];
+      MobileViewProvider.instance.hoverStates[widget.tab]?[widget.index] ??
+      false;
 
-  set hover(bool value) =>
-      MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
-          value;
+  set hover(bool value) => MobileViewProvider.instance.hoverStates[widget.tab]
+      ?[widget.index] = value;
 
-  Widget get ijkView {
+  Widget get playerView {
     return StatefulBuilder(builder: (context, _) {
       videoPlayer = MobileViewProvider.instance.players[widget.device];
       debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
@@ -116,11 +116,13 @@ class DeviceTileState extends State<DeviceTile> {
                       child: IconButton(
                         splashRadius: 20.0,
                         onPressed: () async {
+                          if (videoPlayer == null) return;
+
                           await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => DeviceFullscreenViewer(
                                 device: widget.device,
-                                videoPlayerController: videoPlayer,
+                                videoPlayerController: videoPlayer!,
                               ),
                             ),
                           );
@@ -153,14 +155,17 @@ class DeviceTileState extends State<DeviceTile> {
         });
       },
       // Fullscreen on double-tap.
-      onDoubleTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DeviceFullscreenViewer(
-            device: widget.device,
-            videoPlayerController: videoPlayer,
+      onDoubleTap: () {
+        if (videoPlayer == null) return;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DeviceFullscreenViewer(
+              device: widget.device,
+              videoPlayerController: videoPlayer!,
+            ),
           ),
-        ),
-      ),
+        );
+      },
       child: ClipRect(
         child: Stack(children: [
           if (videoPlayer == null)
@@ -170,7 +175,7 @@ class DeviceTileState extends State<DeviceTile> {
               height: double.infinity,
             )
           else
-            ijkView,
+            playerView,
           PositionedDirectional(
             bottom: 0.0,
             start: 0.0,

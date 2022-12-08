@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:dart_vlc/dart_vlc.dart';
@@ -51,8 +52,8 @@ Future<void> main() async {
         TitleBarStyle.hidden,
         windowButtonVisibility: false,
       );
-      await windowManager.setSize(const Size(855, 645));
-      await windowManager.setMinimumSize(const Size(350, 600));
+      await windowManager.setSize(const Size(900, 645));
+      await windowManager.setMinimumSize(const Size(900, 600));
       await windowManager.center();
       await windowManager.show();
       await windowManager.setSkipTaskbar(false);
@@ -76,6 +77,7 @@ Future<void> main() async {
   HttpOverrides.global = DevHttpOverrides();
   await Hive.initFlutter();
   await MobileViewProvider.ensureInitialized();
+  await DesktopViewProvider.ensureInitialized();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
 
@@ -155,11 +157,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<MobileViewProvider>(
           create: (context) => MobileViewProvider.instance,
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<ServersProvider>(
           create: (context) => ServersProvider.instance,
+        ),
+        ChangeNotifierProvider<DesktopViewProvider>(
+          create: (context) => DesktopViewProvider.instance,
         ),
       ],
       builder: (context, child) => const Home(),

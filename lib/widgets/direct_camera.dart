@@ -153,8 +153,8 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                   '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
                                 ].join(' • ')),
                                 onTap: () async {
-                                  final player = MobileViewProvider.instance
-                                      .getVideoPlayerController(
+                                  final player =
+                                      getVideoPlayerControllerForDevice(
                                           server.devices[index]);
                                   await Navigator.of(context).push(
                                     MaterialPageRoute(

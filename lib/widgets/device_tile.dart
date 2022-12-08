@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/material.dart';
@@ -91,27 +92,7 @@ class DeviceTileState extends State<DeviceTile> {
             color: Colors.transparent,
             child: () {
               if (controller.error != null) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.warning,
-                        color: Colors.white70,
-                        size: 32.0,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        controller.error!.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return ErrorWarning(message: controller.error!);
               } else if ([
                 FijkState.idle,
                 FijkState.asyncPreparing,

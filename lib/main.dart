@@ -61,13 +61,17 @@ Future<void> main() async {
     DartVLC.initialize();
   }
 
-  // Request notifications permission for iOS and Android 13+.
-  try {
-    final result = await Permission.notification.request();
-    debugPrint(result.toString());
-  } catch (exception, stacktrace) {
-    debugPrint(exception.toString());
-    debugPrint(stacktrace.toString());
+  // Request notifications permission for iOS, Android 13+ and Windows.
+  //
+  // permission_handler only supports these platforms
+  if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
+    try {
+      final result = await Permission.notification.request();
+      debugPrint(result.toString());
+    } catch (exception, stacktrace) {
+      debugPrint(exception.toString());
+      debugPrint(stacktrace.toString());
+    }
   }
   HttpOverrides.global = DevHttpOverrides();
   await Hive.initFlutter();

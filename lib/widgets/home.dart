@@ -23,7 +23,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:bluecherry_client/widgets/device_grid.dart';
+import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_screen.dart';
 import 'package:bluecherry_client/widgets/settings.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -37,13 +37,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // if (isDesktop) {
-    //   // TODO: missing implementation.
-    //   // WIP: [MobileHome].
-    //   throw Exception('[DeviceGrid] is not supported on desktop.');
-    // } else {
     return const MobileHome();
-    // }
   }
 }
 

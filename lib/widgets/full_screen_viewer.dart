@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -99,40 +100,19 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
                   backgroundColor: Colors.transparent,
                   body: () {
                     if (controller.error != null) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.warning,
-                              color: Colors.white70,
-                              size: 32.0,
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              controller.error!.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                          ],
+                      return ErrorWarning(message: controller.error!);
+                    } else if ([
+                      FijkState.idle,
+                      FijkState.asyncPreparing,
+                    ].contains(controller.ijkPlayer?.state)) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                          strokeWidth: 4.4,
                         ),
                       );
                     } else {
-                      return [
-                        FijkState.idle,
-                        FijkState.asyncPreparing,
-                      ].contains(controller.ijkPlayer?.state)
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation(Colors.white),
-                                strokeWidth: 4.4,
-                              ),
-                            )
-                          : const SizedBox.shrink();
+                      return const SizedBox.shrink();
                     }
                   }(),
                 );

@@ -32,7 +32,7 @@ class Event {
   final Duration? mediaDuration;
   final Uri? mediaURL;
 
-  Event(
+  const Event(
     this.server,
     this.id,
     this.deviceID,

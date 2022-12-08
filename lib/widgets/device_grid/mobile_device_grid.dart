@@ -17,29 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:provider/provider.dart';
-import 'package:animations/animations.dart';
-import 'package:reorderable_grid_view/reorderable_grid_view.dart';
-
-import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/widgets/device_tile_selector.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
-
-class DeviceGrid extends StatelessWidget {
-  const DeviceGrid({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const MobileDeviceGrid();
-    // TODO: Missing desktop implementation.
-  }
-}
-
-const double kMobileBottomBarHeight = 48.0;
+part of 'device_grid.dart';
 
 class MobileDeviceGrid extends StatefulWidget {
   const MobileDeviceGrid({

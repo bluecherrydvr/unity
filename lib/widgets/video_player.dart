@@ -40,6 +40,10 @@ class BluecherryVideoPlayerController {
     }
   }
 
+  bool get isFullScreen {
+    return false;
+  }
+
   String? get dataSource {
     if (isDesktop) {
       return vlcPlayer?.current.media?.resource;

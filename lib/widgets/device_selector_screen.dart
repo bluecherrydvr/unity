@@ -81,38 +81,36 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: server.devices.length + 1,
-                        itemBuilder: (context, index) => index == 0
-                            ? SubHeader(server.name)
-                            : () {
-                                index--;
-                                return ListTile(
-                                  enabled: server.devices[index].status,
-                                  leading: CircleAvatar(
-                                    child: const Icon(Icons.camera_alt),
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor:
-                                        Theme.of(context).iconTheme.color,
-                                  ),
-                                  title: Text(
-                                    server.devices[index].name
-                                        .split(' ')
-                                        .map((e) =>
-                                            e[0].toUpperCase() + e.substring(1))
-                                        .join(' '),
-                                  ),
-                                  subtitle: Text([
-                                    server.devices[index].status
-                                        ? AppLocalizations.of(context).online
-                                        : AppLocalizations.of(context).offline,
-                                    server.devices[index].uri,
-                                    '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                  ].join(' • ')),
-                                  onTap: () {
-                                    Navigator.of(context)
-                                        .pop(server.devices[index]);
-                                  },
-                                );
-                              }(),
+                        itemBuilder: (context, index) {
+                          if (index == 0) return SubHeader(server.name);
+                          index--;
+                          return ListTile(
+                            enabled: server.devices[index].status,
+                            leading: CircleAvatar(
+                              child: const Icon(Icons.camera_alt),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor:
+                                  Theme.of(context).iconTheme.color,
+                            ),
+                            title: Text(
+                              server.devices[index].name
+                                  .split(' ')
+                                  .map((e) =>
+                                      e[0].toUpperCase() + e.substring(1))
+                                  .join(' '),
+                            ),
+                            subtitle: Text([
+                              server.devices[index].status
+                                  ? AppLocalizations.of(context).online
+                                  : AppLocalizations.of(context).offline,
+                              server.devices[index].uri,
+                              '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                            ].join(' • ')),
+                            onTap: () {
+                              Navigator.of(context).pop(server.devices[index]);
+                            },
+                          );
+                        },
                       );
                     } else {
                       return Center(

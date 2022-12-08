@@ -19,7 +19,6 @@
 
 import 'dart:convert';
 import 'package:bluecherry_client/widgets/video_player.dart';
-import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/foundation.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 

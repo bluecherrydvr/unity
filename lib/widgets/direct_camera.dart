@@ -24,7 +24,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
 class DirectCameraScreen extends StatefulWidget {
@@ -37,7 +36,9 @@ class DirectCameraScreen extends StatefulWidget {
 class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context);
+    // subscribe to updates to media query
+    MediaQuery.of(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: Scaffold.of(context).hasDrawer

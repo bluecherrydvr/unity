@@ -48,7 +48,6 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
       return Material(
         color: Colors.black,
         child: Stack(alignment: AlignmentDirectional.topEnd, children: [
-          // No longer passing reference to [FijkPlayer].
           DeviceTile(
             device: device,
             tab: widget.tab,

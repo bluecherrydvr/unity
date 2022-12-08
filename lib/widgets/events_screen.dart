@@ -20,7 +20,6 @@
  */
 
 import 'dart:async';
-import 'dart:math';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -534,22 +533,22 @@ class _VideoViewportState extends State<VideoViewport> {
                     ),
                     const SizedBox(width: 8.0),
                     // TODO: fullscreen
-                    // IconButton(
-                    //   padding: EdgeInsets.zero,
-                    //   icon: Icon(
-                    //     widget.player.value.fullScreen
-                    //         ? Icons.fullscreen_exit
-                    //         : Icons.fullscreen,
-                    //     color: Colors.white,
-                    //   ),
-                    //   onPressed: () {
-                    //     if (widget.player.value.fullScreen) {
-                    //       player.exitFullScreen();
-                    //     } else {
-                    //       player.enterFullScreen();
-                    //     }
-                    //   },
-                    // ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        widget.player.isFullScreen
+                            ? Icons.fullscreen_exit
+                            : Icons.fullscreen,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        // if (widget.player.value.fullScreen) {
+                        //   player.exitFullScreen();
+                        // } else {
+                        //   player.enterFullScreen();
+                        // }
+                      },
+                    ),
                     const SizedBox(width: 8.0),
                   ],
                 ),

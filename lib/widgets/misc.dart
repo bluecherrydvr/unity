@@ -458,9 +458,8 @@ class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.future?.then((value) {
-        setState(() {
-          data = value;
-        });
+        data = value;
+        if (mounted) setState(() {});
       });
     });
   }

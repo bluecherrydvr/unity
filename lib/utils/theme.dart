@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -238,7 +239,7 @@ ThemeData createTheme({
         statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
         statusBarBrightness: light ? Brightness.light : Brightness.dark,
       ),
-      elevation: 4.0,
+      elevation: isDesktop ? 0.1 : 4.0,
       iconTheme: IconThemeData(
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,

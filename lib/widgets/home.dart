@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -30,6 +31,7 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
+import 'package:provider/provider.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
 class Home extends StatelessWidget {
@@ -49,8 +51,6 @@ class MobileHome extends StatefulWidget {
 }
 
 class _MobileHomeState extends State<MobileHome> {
-  int tab = ServersProvider.instance.serverAdded ? 0 : 3;
-
   Map<IconData, String> navigatorData(BuildContext context) {
     return {
       Icons.window: AppLocalizations.of(context).screens,
@@ -66,6 +66,9 @@ class _MobileHomeState extends State<MobileHome> {
     super.initState();
     if (!isDesktop) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final home = context.watch<HomeProvider>();
+        final tab = home.tab;
+
         if (tab == 0) {
           await StatusBarControl.setHidden(true);
           await StatusBarControl.setStyle(
@@ -107,9 +110,16 @@ class _MobileHomeState extends State<MobileHome> {
   Widget build(BuildContext context) {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
 
+    final home = context.watch<HomeProvider>();
+    final tab = home.tab;
+
     return LayoutBuilder(builder: (context, constraints) {
       final isWide = constraints.biggest.width >= 640;
-      final isExtraWide = constraints.biggest.width >= 1008;
+
+      // if isExtraWide is true, the rail will be extended. This is good for
+      // desktop environments, but I like it compact (just like vscode)
+      // final isExtraWide = constraints.biggest.width >= 1008;
+      const isExtraWide = false;
       return Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: isWide ? null : buildDrawer(context),
@@ -147,9 +157,7 @@ class _MobileHomeState extends State<MobileHome> {
               selectedIndex: tab,
               onDestinationSelected: (index) {
                 if (tab != index) {
-                  setState(() {
-                    tab = index;
-                  });
+                  home.setTab(index);
                 }
               },
             ),
@@ -167,7 +175,7 @@ class _MobileHomeState extends State<MobileHome> {
                   2: () => const EventsScreen(),
                   3: () => AddServerWizard(
                         onFinish: () async {
-                          setState(() => tab = 0);
+                          home.setTab(0);
                           if (!isDesktop) {
                             await StatusBarControl.setHidden(true);
                             await StatusBarControl.setStyle(
@@ -184,7 +192,7 @@ class _MobileHomeState extends State<MobileHome> {
                         },
                       ),
                   4: () => Settings(
-                        changeCurrentTab: (i) => setState(() => tab = i),
+                        changeCurrentTab: (i) => home.setTab(i),
                       ),
                 }[tab]!(),
                 transitionBuilder: (child, animation, secondaryAnimation) {
@@ -205,6 +213,10 @@ class _MobileHomeState extends State<MobileHome> {
 
   Drawer buildDrawer(BuildContext context) {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
+
+    final home = context.watch<HomeProvider>();
+    final tab = home.tab;
+
     return Drawer(
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
@@ -308,9 +320,7 @@ class _MobileHomeState extends State<MobileHome> {
                       await Future.delayed(const Duration(milliseconds: 200));
                       Navigator.of(context).pop();
                       if (tab != index) {
-                        setState(() {
-                          tab = index;
-                        });
+                        home.setTab(index);
                       }
                     },
                     child: Container(

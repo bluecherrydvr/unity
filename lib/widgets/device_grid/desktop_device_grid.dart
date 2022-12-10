@@ -235,7 +235,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                   alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     widget.device.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       shadows: [
                         Shadow(
                           blurRadius: 2,

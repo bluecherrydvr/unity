@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:dart_vlc/dart_vlc.dart';
@@ -117,8 +118,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => SettingsProvider.instance,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider(create: (context) => SettingsProvider.instance),
+        ChangeNotifierProvider<DesktopViewProvider>(
+          create: (context) => DesktopViewProvider.instance,
+        ),
+      ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
           navigatorKey: navigatorKey,
@@ -134,10 +141,14 @@ class MyApp extends StatelessWidget {
           darkTheme: createTheme(themeMode: ThemeMode.dark),
           home: const MyHomePage(),
           builder: (context, child) {
-            return Column(children: [
-              if (isDesktop) const WindowButtons(),
-              Expanded(child: ClipRect(child: child!)),
-            ]);
+            if (isDesktop) {
+              return Column(children: [
+                const WindowButtons(),
+                Expanded(child: ClipRect(child: child!)),
+              ]);
+            }
+
+            return child!;
           },
         ),
       ),
@@ -162,9 +173,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         ChangeNotifierProvider<ServersProvider>(
           create: (context) => ServersProvider.instance,
-        ),
-        ChangeNotifierProvider<DesktopViewProvider>(
-          create: (context) => DesktopViewProvider.instance,
         ),
       ],
       builder: (context, child) => const Home(),

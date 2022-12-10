@@ -36,6 +36,7 @@ const kHiveServers = 'servers';
 const kHiveMobileView = 'mobile_view';
 const kHiveMobileViewTab = 'mobile_view_current_tab';
 const kHiveDesktopView = 'desktop_view';
+const kHiveDesktopLayoutType = 'desktop_view';
 const kHiveNotificationToken = 'notification_token';
 const kHiveThemeMode = 'theme_mode';
 const kHiveDateFormat = 'date_format';

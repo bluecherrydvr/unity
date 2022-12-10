@@ -27,6 +27,14 @@ import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+/// Describes how the grid should behave in large screens
+enum DesktopLayoutType {
+  /// If selected, only a single camera can be selected per time
+  singleView,
+  multipleView,
+  compactView,
+}
+
 class DesktopViewProvider extends ChangeNotifier {
   /// `late` initialized [DesktopViewProvider] instance.
   static late final DesktopViewProvider instance;
@@ -40,6 +48,20 @@ class DesktopViewProvider extends ChangeNotifier {
   }
 
   List<Device> devices = [];
+
+  DesktopLayoutType layoutType = DesktopLayoutType.multipleView;
+
+  void setLayoutType(DesktopLayoutType type) {
+    if (type == layoutType) return;
+    layoutType = type;
+
+    if (layoutType == DesktopLayoutType.singleView && devices.length > 1) {
+      devices.removeRange(1, devices.length);
+    }
+
+    notifyListeners();
+    _save(notifyListeners: false);
+  }
 
   /// Instances of video players corresponding to a particular [Device].
   ///
@@ -76,6 +98,9 @@ class DesktopViewProvider extends ChangeNotifier {
       kHiveDesktopView,
       jsonEncode(data),
     );
+
+    await instance.put(kHiveDesktopLayoutType, layoutType.index);
+
     if (notifyListeners) {
       this.notifyListeners();
     }
@@ -91,6 +116,10 @@ class DesktopViewProvider extends ChangeNotifier {
 
       return Device.fromJson((realItem.value as Map).cast<String, dynamic>());
     }).toList();
+
+    layoutType = DesktopLayoutType
+        .values[int.tryParse(instance.get(kHiveDesktopLayoutType)) ?? 0];
+
     if (notifyListeners) {
       this.notifyListeners();
     }
@@ -100,6 +129,8 @@ class DesktopViewProvider extends ChangeNotifier {
   Future<void> add(Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices.contains(device)) {
+      if (layoutType == DesktopLayoutType.singleView) devices.clear();
+
       debugPrint(device.toString());
       debugPrint(device.streamURL);
       players[device] = getVideoPlayerControllerForDevice(device);

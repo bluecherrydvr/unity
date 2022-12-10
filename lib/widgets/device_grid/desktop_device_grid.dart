@@ -36,41 +36,44 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
     return Row(children: [
       Expanded(
-        child: ReorderableGridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          crossAxisCount: view.devices.length ~/ 2,
-          mainAxisSpacing: 0.0,
-          crossAxisSpacing: 0.0,
-          padding: EdgeInsets.zero,
-          onReorder: (initial, end) {
-            // TODO: reorder
-          },
-          children: view.devices.asMap().entries.map(
-            (e) {
+        child: () {
+          if (view.devices.isEmpty) {
+            return const Center(
+              child: Text(
+                'Select a camera',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.0,
+                ),
+              ),
+            );
+          }
+
+          final dl = view.devices.length;
+          final crossAxisCount = dl == 1
+              ? 1
+              : dl == 2
+                  ? 2
+                  : 3;
+
+          return ReorderableGridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            crossAxisCount: crossAxisCount.clamp(1, 50),
+            mainAxisSpacing: 0.0,
+            crossAxisSpacing: 0.0,
+            padding: EdgeInsets.zero,
+            onReorder: view.reorder,
+            children: view.devices.asMap().entries.map((e) {
               final device = e.value;
-              // counts[e.value] = counts[e.value]! - 1;
-              // debugPrint(
-              //     '${e.value}.${e.value.server.serverUUID}.${counts[e.value]}');
-
-              // return Text(
-              //   '${e.value}.${e.value.server.serverUUID}',
-              // );
-
               return DesktopDeviceTile(
                 key: ValueKey('${e.value}.${e.value.server.serverUUID}'),
                 device: device,
               );
-              // return DeviceTileSelector(
-              //   key: ValueKey(
-              //       '${e.value}.${e.value.server.serverUUID}.${counts[e.value]}'),
-              //   index: e.key,
-              //   tab: tab,
-              // );
-            },
-          ).toList(),
-          dragStartBehavior: DragStartBehavior.start,
-        ),
+            }).toList(),
+            dragStartBehavior: DragStartBehavior.start,
+          );
+        }(),
       ),
       Container(
         width: 180.0,
@@ -97,9 +100,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                       index--;
                       final device = server.devices[index];
+                      final selected = view.devices.contains(device);
+
                       return ListTile(
                         enabled: device.status,
-                        selected: view.devices.contains(device),
+                        selected: selected,
                         title: Text(
                           device.name
                               .split(' ')
@@ -116,7 +121,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                         ].join('\n')),
                         isThreeLine: true,
                         onTap: () {
-                          DesktopViewProvider.instance.add(device);
+                          if (selected) {
+                            DesktopViewProvider.instance.remove(device);
+                          } else {
+                            DesktopViewProvider.instance.add(device);
+                          }
                         },
                       );
                     },
@@ -160,10 +169,38 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   @override
   Widget build(BuildContext context) {
     if (videoPlayer == null) {
-      return const CircularProgressIndicator();
+      return const Center(child: CircularProgressIndicator());
     }
-    return BluecherryVideoPlayer(
-      controller: videoPlayer!,
+
+    final mq = MediaQuery.of(context);
+
+    return SizedBox(
+      height: mq.size.height,
+      child: BluecherryVideoPlayer(
+        controller: videoPlayer!,
+        paneBuilder: (controller) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: () {
+              if (controller.error != null) {
+                return ErrorWarning(message: controller.error!);
+              } else if ([
+                FijkState.idle,
+                FijkState.asyncPreparing,
+              ].contains(controller.ijkPlayer?.state)) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                    strokeWidth: 4.4,
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            }(),
+          );
+        },
+      ),
     );
   }
 }

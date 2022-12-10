@@ -20,17 +20,18 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart'
+    show getVideoPlayerControllerForDevice;
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class DesktopViewProvider extends ChangeNotifier {
-  /// `late` initialized [MobileViewProvider] instance.
+  /// `late` initialized [DesktopViewProvider] instance.
   static late final DesktopViewProvider instance;
 
-  /// Initializes the [MobileViewProvider] instance & fetches state from `async`
+  /// Initializes the [DesktopViewProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<DesktopViewProvider> ensureInitialized() async {
     instance = DesktopViewProvider();
@@ -50,8 +51,8 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('desktop_hive');
-    if (!hive.containsKey(kHiveMobileView)) {
+    final hive = await Hive.openBox('hive');
+    if (!hive.containsKey(kHiveDesktopView)) {
       await _save();
     } else {
       await _restore();
@@ -65,7 +66,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('desktop_hive');
+    final instance = await Hive.openBox('hive');
     final data = devices.map((device) {
       return {device.uri: device.toJson()};
     }).toList();
@@ -82,7 +83,7 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('desktop_hive');
+    final instance = await Hive.openBox('hive');
     devices = (jsonDecode(instance.get(kHiveDesktopView)!) as List)
         .cast<Map>()
         .map<Device>((item) {
@@ -120,6 +121,15 @@ class DesktopViewProvider extends ChangeNotifier {
 
       devices.remove(device);
     }
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Moves a device tile from [initial] position to [end] position inside a [tab].
+  /// Used for re-ordering camera [DeviceTile]s when dragging.
+  Future<void> reorder(int initial, int end) {
+    devices.insert(end, devices.removeAt(initial));
+    // Prevent redundant latency.
     notifyListeners();
     return _save(notifyListeners: false);
   }

@@ -118,28 +118,24 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
               AppLocalizations.of(context).removeCamera,
               AppLocalizations.of(context).replaceCamera,
               AppLocalizations.of(context).reloadCamera,
-            ]
-                .asMap()
-                .entries
-                .map(
-                  (e) => PopupMenuItem(
-                    value: e.key,
-                    padding: EdgeInsets.zero,
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(<int, IconData>{
-                          0: Icons.close_outlined,
-                          1: Icons.add_outlined,
-                          2: Icons.replay_outlined,
-                        }[e.key]!),
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: Theme.of(context).iconTheme.color,
-                      ),
-                      title: Text(e.value),
-                    ),
+            ].asMap().entries.map((e) {
+              return PopupMenuItem(
+                value: e.key,
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Icon(<int, IconData>{
+                      0: Icons.close_outlined,
+                      1: Icons.add_outlined,
+                      2: Icons.replay_outlined,
+                    }[e.key]!),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
                   ),
-                )
-                .toList(),
+                  title: Text(e.value),
+                ),
+              );
+            }).toList(),
           ),
         ]),
       );

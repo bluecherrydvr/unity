@@ -87,7 +87,7 @@ class DeviceTileState extends State<DeviceTile> {
 
       return BluecherryVideoPlayer(
         controller: videoPlayer!,
-        paneBuilder: (controller) {
+        paneBuilder: (context, controller, states) {
           return Material(
             color: Colors.transparent,
             child: () {

@@ -133,4 +133,18 @@ class DesktopViewProvider extends ChangeNotifier {
     notifyListeners();
     return _save(notifyListeners: false);
   }
+
+  /// Reloads a camera [Device] tile from the camera grid, at specified [tab] [index].
+  /// e.g. in response to a network error etc.
+  Future<void> reload(Device device) async {
+    await players[device]?.reset();
+    await players[device]?.setDataSource(
+      device.streamURL,
+      autoPlay: true,
+    );
+    await players[device]?.setVolume(0.0);
+    await players[device]?.setSpeed(1.0);
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
 }

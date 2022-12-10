@@ -20,6 +20,7 @@
 import 'dart:math';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:fijkplayer/fijkplayer.dart';
@@ -167,7 +168,10 @@ class BluecherryVideoPlayerController {
 }
 
 typedef BluecherryPaneBuilder = Widget Function(
-    BluecherryVideoPlayerController controller)?;
+  BuildContext context,
+  BluecherryVideoPlayerController controller,
+  Set<ButtonStates> state,
+)?;
 
 /// An adaptive video player with support for multiple platforms.
 ///
@@ -205,8 +209,17 @@ class BluecherryVideoPlayer extends StatefulWidget {
 class _BluecherryVideoPlayerState extends State<BluecherryVideoPlayer> {
   @override
   Widget build(BuildContext context) {
-    final builder =
-        widget.paneBuilder?.call(widget.controller) ?? const SizedBox.shrink();
+    final builder = Material(
+      type: MaterialType.transparency,
+      child: HoverButton(
+        onPressed: () {},
+        focusEnabled: false,
+        builder: (context, states) {
+          return widget.paneBuilder?.call(context, widget.controller, states) ??
+              const SizedBox.shrink();
+        },
+      ),
+    );
     if (isDesktop) {
       return Stack(children: [
         Positioned.fill(

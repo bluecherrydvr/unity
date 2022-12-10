@@ -285,7 +285,7 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
         child: BluecherryVideoPlayer(
           controller: videoController,
           fit: CameraViewFit.contain,
-          paneBuilder: (controller) => VideoViewport(
+          paneBuilder: (context, controller, states) => VideoViewport(
             player: controller,
           ),
         ),

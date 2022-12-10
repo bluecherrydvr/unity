@@ -95,7 +95,7 @@ class _DeviceFullscreenViewerState extends State<DeviceFullscreenViewer> {
             child: BluecherryVideoPlayer(
               controller: widget.videoPlayerController,
               fit: fit,
-              paneBuilder: (controller) {
+              paneBuilder: (context, controller, states) {
                 return Scaffold(
                   backgroundColor: Colors.transparent,
                   body: () {

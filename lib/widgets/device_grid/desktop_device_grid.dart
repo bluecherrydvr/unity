@@ -52,7 +52,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           final dl = view.devices.length;
           final crossAxisCount = dl == 1
               ? 1
-              : dl == 2
+              : dl <= 4
                   ? 2
                   : 3;
 
@@ -60,8 +60,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             crossAxisCount: crossAxisCount.clamp(1, 50),
-            mainAxisSpacing: 0.0,
-            crossAxisSpacing: 0.0,
+            mainAxisSpacing: 4.0,
+            crossAxisSpacing: 4.0,
+            childAspectRatio: 16 / 9,
             padding: EdgeInsets.zero,
             onReorder: view.reorder,
             children: view.devices.asMap().entries.map((e) {
@@ -178,27 +179,76 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
       height: mq.size.height,
       child: BluecherryVideoPlayer(
         controller: videoPlayer!,
-        paneBuilder: (controller) {
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: () {
-              if (controller.error != null) {
-                return ErrorWarning(message: controller.error!);
-              } else if ([
-                FijkState.idle,
-                FijkState.asyncPreparing,
-              ].contains(controller.ijkPlayer?.state)) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 4.4,
+        paneBuilder: (context, controller, states) {
+          if (controller.error != null) {
+            return ErrorWarning(message: controller.error!);
+          } else if ([
+            FijkState.idle,
+            FijkState.asyncPreparing,
+          ].contains(controller.ijkPlayer?.state)) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.white),
+                strokeWidth: 4.4,
+              ),
+            );
+          } else {
+            return ClipRect(
+              child: Stack(children: [
+                PositionedDirectional(
+                  top: 0,
+                  start: 0,
+                  end: 0,
+                  child: AnimatedSlide(
+                    offset: Offset(0, !states.isHovering ? -1 : 0.0),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      height: 48.0,
+                      color: Colors.black26,
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(children: [
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () {
+                            DesktopViewProvider.instance.remove(widget.device);
+                          },
+                          tooltip: AppLocalizations.of(context).removeCamera,
+                          icon: const Icon(Icons.close_outlined),
+                          color: Colors.white,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            DesktopViewProvider.instance.reload(widget.device);
+                          },
+                          tooltip: AppLocalizations.of(context).reloadCamera,
+                          icon: const Icon(Icons.replay_outlined),
+                          color: Colors.white,
+                        ),
+                      ]),
+                    ),
                   ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }(),
-          );
+                ),
+                Container(
+                  height: 48.0,
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    widget.device.name,
+                    style: TextStyle(
+                      shadows: [
+                        Shadow(
+                          blurRadius: 2,
+                          color: Colors.black,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            );
+          }
         },
       ),
     );

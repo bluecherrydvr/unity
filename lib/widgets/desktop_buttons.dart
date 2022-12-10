@@ -53,7 +53,7 @@ class WindowButtons extends StatelessWidget {
           ),
         SizedBox(
           width: 138,
-          height: 30,
+          height: 40,
           child: WindowCaption(
             brightness: theme.brightness,
             backgroundColor: Colors.transparent,
@@ -78,7 +78,7 @@ class _GridLayout extends StatelessWidget {
 
         return IconButton(
           icon: Icon(iconForLayout(type)),
-          iconSize: 18.0,
+          iconSize: 20.0,
           color: selected ? theme.primaryColor : null,
           onPressed: () async {
             desktop.setLayoutType(type);
@@ -91,11 +91,11 @@ class _GridLayout extends StatelessWidget {
   IconData iconForLayout(DesktopLayoutType type) {
     switch (type) {
       case DesktopLayoutType.singleView:
-        return Icons.square;
+        return Icons.crop_square;
       case DesktopLayoutType.multipleView:
         return Icons.view_comfy_outlined;
       case DesktopLayoutType.compactView:
-        return Icons.view_compact;
+        return Icons.view_compact_outlined;
     }
   }
 }

@@ -19,7 +19,7 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:bluecherry_client/widgets/full_screen_viewer.dart';
+import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';

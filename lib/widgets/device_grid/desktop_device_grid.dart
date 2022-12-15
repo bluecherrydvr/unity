@@ -251,10 +251,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
               offset: Offset(4, -4),
             ),
           ];
-          return Stack(children: [
+          return Column(children: [
             Container(
               height: 48.0,
-              // color: Colors.black26,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               alignment: AlignmentDirectional.centerStart,
               child: Text(
@@ -265,82 +264,76 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: ClipRect(
-                child: AnimatedOpacity(
-                  opacity: !states.isHovering ? 0 : 1,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Container(
-                    height: 48.0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.replay_outlined,
-                            shadows: shadows,
-                          ),
-                          tooltip: AppLocalizations.of(context).reloadCamera,
-                          color: Colors.white,
-                          iconSize: 20.0,
-                          onPressed: () {
-                            DesktopViewProvider.instance.reload(widget.device);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.fullscreen_rounded,
-                            shadows: shadows,
-                          ),
-                          tooltip:
-                              AppLocalizations.of(context).showFullscreenCamera,
-                          color: Colors.white,
-                          iconSize: 22.0,
-                          onPressed: () async {
-                            var player = view.players[widget.device];
-                            bool isLocalController = false;
-                            if (player == null) {
-                              player = getVideoPlayerControllerForDevice(
-                                  widget.device);
-                              isLocalController = true;
-                            }
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) {
-                                return DeviceFullscreenViewer(
-                                  device: widget.device,
-                                  videoPlayerController: player!,
-                                  restoreStatusBarStyleOnDispose: true,
-                                );
-                              }),
-                            );
-                            if (isLocalController) await player.release();
-                          },
-                        ),
-                        const VerticalDivider(
-                          color: Colors.white,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close_outlined,
-                            shadows: shadows,
-                          ),
-                          color: Colors.white,
-                          tooltip: AppLocalizations.of(context).removeCamera,
-                          iconSize: 20.0,
-                          onPressed: () {
-                            DesktopViewProvider.instance.remove(widget.device);
-                          },
-                        ),
-                      ],
+            const Spacer(),
+            AnimatedOpacity(
+              opacity: !states.isHovering ? 0 : 1,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: Container(
+                height: 48.0,
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.replay_outlined,
+                        shadows: shadows,
+                      ),
+                      tooltip: AppLocalizations.of(context).reloadCamera,
+                      color: Colors.white,
+                      iconSize: 20.0,
+                      onPressed: () {
+                        DesktopViewProvider.instance.reload(widget.device);
+                      },
                     ),
-                  ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.fullscreen_rounded,
+                        shadows: shadows,
+                      ),
+                      tooltip:
+                          AppLocalizations.of(context).showFullscreenCamera,
+                      color: Colors.white,
+                      iconSize: 22.0,
+                      onPressed: () async {
+                        var player = view.players[widget.device];
+                        bool isLocalController = false;
+                        if (player == null) {
+                          player =
+                              getVideoPlayerControllerForDevice(widget.device);
+                          isLocalController = true;
+                        }
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) {
+                            return DeviceFullscreenViewer(
+                              device: widget.device,
+                              videoPlayerController: player!,
+                              restoreStatusBarStyleOnDispose: true,
+                            );
+                          }),
+                        );
+                        if (isLocalController) await player.release();
+                      },
+                    ),
+                    const VerticalDivider(
+                      color: Colors.white,
+                      indent: 10,
+                      endIndent: 10,
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close_outlined,
+                        shadows: shadows,
+                      ),
+                      color: Colors.white,
+                      tooltip: AppLocalizations.of(context).removeCamera,
+                      iconSize: 20.0,
+                      onPressed: () {
+                        DesktopViewProvider.instance.remove(widget.device);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

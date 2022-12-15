@@ -40,7 +40,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
       SizedBox(
         width: 180.0,
         child: Material(
-          color: theme.appBarTheme.backgroundColor,
+          color: theme.canvasColor,
           child: ListView.builder(
             itemCount: ServersProvider.instance.servers.length,
             itemBuilder: (context, i) {
@@ -65,42 +65,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                         final device = server.devices[index];
                         final selected = view.devices.contains(device);
 
-                        return ListTile(
-                          enabled: device.status,
+                        return DesktopDeviceSelectorTile(
+                          device: device,
                           selected: selected,
-                          title: Row(children: [
-                            Container(
-                              height: 6.0,
-                              width: 6.0,
-                              margin:
-                                  const EdgeInsetsDirectional.only(end: 8.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: device.status
-                                    ? Colors.green.shade100
-                                    : Colors.red,
-                              ),
-                            ),
-                            Flexible(
-                              child: Text(
-                                device.name
-                                    .split(' ')
-                                    .map((e) =>
-                                        e[0].toUpperCase() + e.substring(1))
-                                    .join(' '),
-                              ),
-                            ),
-                          ]),
-                          // subtitle: Text(
-                          //   '${device.resolutionX}x${device.resolutionY}',
-                          // ),
-                          onTap: () {
-                            if (selected) {
-                              DesktopViewProvider.instance.remove(device);
-                            } else {
-                              DesktopViewProvider.instance.add(device);
-                            }
-                          },
                         );
                       },
                     );
@@ -120,49 +87,52 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         ),
       ),
       Expanded(
-        child: () {
-          if (view.devices.isEmpty) {
-            return const Center(
-              child: Text(
-                'Select a camera',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12.0,
-                ),
-              ),
-            );
-          }
+        child: Material(
+          color: Colors.black,
+          child: SizedBox.expand(
+            child: () {
+              if (view.devices.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Select a camera',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                );
+              }
 
-          final dl = view.devices.length;
-          final crossAxisCount = dl == 1
-              ? 1
-              : dl <= 4
-                  ? 2
-                  : 3;
+              final dl = view.devices.length;
+              final crossAxisCount = dl == 1
+                  ? 1
+                  : dl <= 4
+                      ? 2
+                      : 3;
 
-          return ReorderableGridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount: crossAxisCount.clamp(1, 50),
-            mainAxisSpacing: 4.0,
-            crossAxisSpacing: 4.0,
-            childAspectRatio: 16 / 9,
-            padding: EdgeInsets.zero,
-            onReorder: view.reorder,
-            children: view.devices.asMap().entries.map((e) {
-              final device = e.value;
-              return DesktopDeviceTile(
-                key: ValueKey('${e.value}.${e.value.server.serverUUID}'),
-                device: device,
+              return ReorderableGridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                crossAxisCount: crossAxisCount.clamp(1, 50),
+                mainAxisSpacing: 4.0,
+                crossAxisSpacing: 4.0,
+                childAspectRatio: 16 / 9,
+                padding: EdgeInsets.zero,
+                onReorder: view.reorder,
+                children: view.devices.asMap().entries.map((e) {
+                  final device = e.value;
+                  return DesktopDeviceTile(
+                    key: ValueKey('${e.value}.${e.value.server.serverUUID}'),
+                    device: device,
+                  );
+                }).toList(),
+                dragStartBehavior: DragStartBehavior.start,
               );
-            }).toList(),
-            dragStartBehavior: DragStartBehavior.start,
-          );
-        }(),
+            }(),
+          ),
+        ),
       ),
     ];
-
-    print(widget.width);
 
     if (widget.width <= 900) {
       return Row(children: children.reversed.toList());
@@ -271,6 +241,109 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                 ),
               ]),
             );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class DesktopDeviceSelectorTile extends StatelessWidget {
+  const DesktopDeviceSelectorTile({
+    Key? key,
+    required this.device,
+    required this.selected,
+  }) : super(key: key);
+
+  final Device device;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    MediaQuery.of(context);
+    final view = context.watch<DesktopViewProvider>();
+
+    return GestureDetector(
+      onSecondaryTap: () {
+        if (!device.status) return;
+
+        final renderBox = context.findRenderObject() as RenderBox;
+        final offset = renderBox.localToGlobal(const Offset(8, 0));
+        final size = renderBox.size;
+
+        showMenu(
+          context: context,
+          elevation: 4.0,
+          items: [
+            if (selected)
+              PopupMenuItem(
+                child: const Text('Remove from view'),
+                onTap: () {
+                  view.remove(device);
+                },
+              )
+            else
+              PopupMenuItem(
+                child: const Text('Add to view'),
+                onTap: () {
+                  view.add(device);
+                },
+              ),
+            PopupMenuItem(
+              child: const Text('Open in full screen'),
+              onTap: () {
+                print(Navigator.of(context));
+                // Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) {
+                    final player = view.players[device] ??
+                        getVideoPlayerControllerForDevice(device);
+
+                    return DeviceFullscreenViewer(
+                      device: device,
+                      videoPlayerController: player,
+                      restoreStatusBarStyleOnDispose: true,
+                    );
+                  }),
+                );
+              },
+            ),
+          ],
+          position: RelativeRect.fromLTRB(
+            offset.dx,
+            offset.dy,
+            offset.dx + size.width,
+            offset.dy + size.height,
+          ),
+        );
+      },
+      child: ListTile(
+        enabled: device.status,
+        selected: selected,
+        title: Row(children: [
+          Container(
+            height: 6.0,
+            width: 6.0,
+            margin: const EdgeInsetsDirectional.only(end: 8.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: device.status ? Colors.green.shade100 : Colors.red,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              device.name
+                  .split(' ')
+                  .map((e) => e[0].toUpperCase() + e.substring(1))
+                  .join(' '),
+            ),
+          ),
+        ]),
+        onTap: () {
+          if (selected) {
+            DesktopViewProvider.instance.remove(device);
+          } else {
+            DesktopViewProvider.instance.add(device);
           }
         },
       ),

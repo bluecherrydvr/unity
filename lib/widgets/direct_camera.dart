@@ -157,15 +157,13 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                                       getVideoPlayerControllerForDevice(
                                           server.devices[index]);
                                   await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return DeviceFullscreenViewer(
-                                          device: server.devices[index],
-                                          videoPlayerController: player,
-                                          restoreStatusBarStyleOnDispose: true,
-                                        );
-                                      },
-                                    ),
+                                    MaterialPageRoute(builder: (context) {
+                                      return DeviceFullscreenViewer(
+                                        device: server.devices[index],
+                                        videoPlayerController: player,
+                                        restoreStatusBarStyleOnDispose: true,
+                                      );
+                                    }),
                                   );
                                   await player.release();
                                 },

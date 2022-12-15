@@ -129,6 +129,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
           navigatorKey: navigatorKey,
+          navigatorObservers: [NObserver()],
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

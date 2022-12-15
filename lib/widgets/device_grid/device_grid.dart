@@ -21,6 +21,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';

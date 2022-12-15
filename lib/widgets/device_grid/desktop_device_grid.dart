@@ -366,21 +366,25 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
               ),
             PopupMenuItem(
               child: const Text('Open in full screen'),
-              onTap: () {
-                print(Navigator.of(context));
-                // Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) {
-                    final player = view.players[device] ??
-                        getVideoPlayerControllerForDevice(device);
-
-                    return DeviceFullscreenViewer(
-                      device: device,
-                      videoPlayerController: player,
-                      restoreStatusBarStyleOnDispose: true,
-                    );
-                  }),
-                );
+              onTap: () async {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                  var player = view.players[device];
+                  bool isLocalController = false;
+                  if (player == null) {
+                    player = getVideoPlayerControllerForDevice(device);
+                    isLocalController = true;
+                  }
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return DeviceFullscreenViewer(
+                        device: device,
+                        videoPlayerController: player!,
+                        restoreStatusBarStyleOnDispose: true,
+                      );
+                    }),
+                  );
+                  if (isLocalController) await player.release();
+                });
               },
             ),
           ],

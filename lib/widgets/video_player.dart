@@ -191,6 +191,7 @@ class BluecherryVideoPlayer extends StatefulWidget {
     required this.controller,
     this.fit = CameraViewFit.contain,
     this.paneBuilder,
+    this.color = Colors.black,
   }) : super(key: key);
 
   /// The video controller
@@ -201,6 +202,9 @@ class BluecherryVideoPlayer extends StatefulWidget {
 
   /// Build a pane above the video view
   final BluecherryPaneBuilder? paneBuilder;
+
+  /// Background color
+  final Color color;
 
   @override
   State<BluecherryVideoPlayer> createState() => _BluecherryVideoPlayerState();
@@ -225,7 +229,7 @@ class _BluecherryVideoPlayerState extends State<BluecherryVideoPlayer> {
         Positioned.fill(
           child: Video(
             player: widget.controller.vlcPlayer!,
-            fillColor: Colors.black,
+            fillColor: widget.color,
             fit: {
               CameraViewFit.contain: BoxFit.contain,
               CameraViewFit.cover: BoxFit.cover,
@@ -239,7 +243,7 @@ class _BluecherryVideoPlayerState extends State<BluecherryVideoPlayer> {
     } else {
       return FijkView(
         player: widget.controller.ijkPlayer!,
-        color: Colors.black,
+        color: widget.color,
         fit: {
           CameraViewFit.contain: FijkFit.contain,
           CameraViewFit.fill: FijkFit.fill,

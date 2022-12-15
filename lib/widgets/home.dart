@@ -28,7 +28,6 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_screen.dart';
 import 'package:bluecherry_client/widgets/settings.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:provider/provider.dart';

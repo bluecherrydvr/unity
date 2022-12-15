@@ -241,7 +241,6 @@ class MobileViewProvider extends ChangeNotifier {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
     final instance = await Hive.openBox('hive');
-    print(jsonDecode(instance.get(kHiveMobileView)!));
     devices = jsonDecode(instance.get(kHiveMobileView)!)
         .map(
           (key, value) => MapEntry<int, List<Device?>>(

@@ -131,7 +131,9 @@ class _GridLayout extends StatelessWidget {
         final selected = desktop.layoutType == type;
 
         return IconButton(
-          icon: Icon(iconForLayout(type)),
+          icon: Icon(
+            selected ? selectedIconForLayout(type) : iconForLayout(type),
+          ),
           iconSize: 20.0,
           color: selected ? theme.primaryColor : theme.hintColor,
           onPressed: () async {
@@ -150,6 +152,17 @@ class _GridLayout extends StatelessWidget {
         return Icons.view_comfy_outlined;
       case DesktopLayoutType.compactView:
         return Icons.view_compact_outlined;
+    }
+  }
+
+  IconData selectedIconForLayout(DesktopLayoutType type) {
+    switch (type) {
+      case DesktopLayoutType.singleView:
+        return Icons.square_rounded;
+      case DesktopLayoutType.multipleView:
+        return Icons.view_comfy;
+      case DesktopLayoutType.compactView:
+        return Icons.view_compact;
     }
   }
 }

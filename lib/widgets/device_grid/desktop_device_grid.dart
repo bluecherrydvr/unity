@@ -19,6 +19,8 @@
 
 part of 'device_grid.dart';
 
+const kGridInnerPadding = 8.0;
+
 class DesktopDeviceGrid extends StatefulWidget {
   const DesktopDeviceGrid({Key? key, required this.width}) : super(key: key);
 
@@ -37,8 +39,10 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
     final view = context.watch<DesktopViewProvider>();
 
     final children = [
-      SizedBox(
-        width: 180.0,
+      ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 220.0,
+        ),
         child: Material(
           color: theme.canvasColor,
           child: ListView.builder(
@@ -111,10 +115,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 4.0,
-                    crossAxisSpacing: 4.0,
+                    mainAxisSpacing: kGridInnerPadding,
+                    crossAxisSpacing: kGridInnerPadding,
                     childAspectRatio: 16 / 9,
                   ),
+                  padding: const EdgeInsets.all(10.0),
                   onReorder: view.reorder,
                   itemCount: 4,
                   itemBuilder: (context, index) {
@@ -147,10 +152,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount.clamp(1, 50),
-                  mainAxisSpacing: 4.0,
-                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: kGridInnerPadding,
+                  crossAxisSpacing: kGridInnerPadding,
                   childAspectRatio: 16 / 9,
                 ),
+                padding: const EdgeInsets.all(10.0),
                 onReorder: view.reorder,
                 itemCount: view.devices.length,
                 itemBuilder: (context, index) {
@@ -201,11 +207,13 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     }
 
     final mq = MediaQuery.of(context);
+    final view = context.watch<DesktopViewProvider>();
 
     return SizedBox(
       height: mq.size.height,
       child: BluecherryVideoPlayer(
         controller: videoPlayer!,
+        color: Colors.grey.shade900,
         paneBuilder: (context, controller, states) {
           if (controller.error != null) {
             return ErrorWarning(message: controller.error!);
@@ -219,63 +227,124 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                 strokeWidth: 4.4,
               ),
             );
-          } else {
-            return ClipRect(
-              child: Stack(children: [
-                PositionedDirectional(
-                  top: 0,
-                  start: 0,
-                  end: 0,
-                  child: AnimatedSlide(
-                    offset: Offset(0, !states.isHovering ? -1 : 0.0),
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    child: Container(
-                      height: 48.0,
-                      color: Colors.black26,
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(children: [
-                        const Spacer(),
+          }
+
+          const shadows = [
+            Shadow(
+              blurRadius: 10,
+              color: Colors.black,
+              offset: Offset(-4, -4),
+            ),
+            Shadow(
+              blurRadius: 10,
+              color: Colors.black,
+              offset: Offset(4, 4),
+            ),
+            Shadow(
+              blurRadius: 10,
+              color: Colors.black,
+              offset: Offset(-4, 4),
+            ),
+            Shadow(
+              blurRadius: 10,
+              color: Colors.black,
+              offset: Offset(4, -4),
+            ),
+          ];
+          return Stack(children: [
+            Container(
+              height: 48.0,
+              // color: Colors.black26,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                widget.device.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  shadows: shadows,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 0,
+              child: ClipRect(
+                child: AnimatedOpacity(
+                  opacity: !states.isHovering ? 0 : 1,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Container(
+                    height: 48.0,
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
                         IconButton(
-                          onPressed: () {
-                            DesktopViewProvider.instance.remove(widget.device);
-                          },
-                          tooltip: AppLocalizations.of(context).removeCamera,
-                          icon: const Icon(Icons.close_outlined),
+                          icon: const Icon(
+                            Icons.replay_outlined,
+                            shadows: shadows,
+                          ),
+                          tooltip: AppLocalizations.of(context).reloadCamera,
                           color: Colors.white,
-                        ),
-                        IconButton(
+                          iconSize: 20.0,
                           onPressed: () {
                             DesktopViewProvider.instance.reload(widget.device);
                           },
-                          tooltip: AppLocalizations.of(context).reloadCamera,
-                          icon: const Icon(Icons.replay_outlined),
-                          color: Colors.white,
                         ),
-                      ]),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 48.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    widget.device.name,
-                    style: const TextStyle(
-                      shadows: [
-                        Shadow(
-                          blurRadius: 2,
-                          color: Colors.black,
-                          offset: Offset(1, 1),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.fullscreen_rounded,
+                            shadows: shadows,
+                          ),
+                          tooltip:
+                              AppLocalizations.of(context).showFullscreenCamera,
+                          color: Colors.white,
+                          iconSize: 22.0,
+                          onPressed: () async {
+                            var player = view.players[widget.device];
+                            bool isLocalController = false;
+                            if (player == null) {
+                              player = getVideoPlayerControllerForDevice(
+                                  widget.device);
+                              isLocalController = true;
+                            }
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) {
+                                return DeviceFullscreenViewer(
+                                  device: widget.device,
+                                  videoPlayerController: player!,
+                                  restoreStatusBarStyleOnDispose: true,
+                                );
+                              }),
+                            );
+                            if (isLocalController) await player.release();
+                          },
+                        ),
+                        const VerticalDivider(
+                          color: Colors.white,
+                          indent: 10,
+                          endIndent: 10,
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close_outlined,
+                            shadows: shadows,
+                          ),
+                          color: Colors.white,
+                          tooltip: AppLocalizations.of(context).removeCamera,
+                          iconSize: 20.0,
+                          onPressed: () {
+                            DesktopViewProvider.instance.remove(widget.device);
+                          },
                         ),
                       ],
                     ),
                   ),
                 ),
-              ]),
-            );
-          }
+              ),
+            ),
+          ]);
         },
       ),
     );
@@ -302,9 +371,11 @@ class DesktopCompactTile extends StatelessWidget {
       Expanded(
         child: Row(children: [
           Expanded(child: DesktopDeviceTile(device: device1)),
+          const SizedBox(width: kGridInnerPadding),
           Expanded(child: DesktopDeviceTile(device: device2)),
         ]),
       ),
+      const SizedBox(height: kGridInnerPadding),
       Expanded(
         child: Row(children: [
           Expanded(
@@ -312,6 +383,7 @@ class DesktopCompactTile extends StatelessWidget {
                 ? DesktopDeviceTile(device: devices[2])
                 : const SizedBox.shrink(),
           ),
+          const SizedBox(width: kGridInnerPadding),
           Expanded(
             child: devices.length == 4
                 ? DesktopDeviceTile(device: devices[3])
@@ -342,30 +414,50 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
       onSecondaryTap: () {
         if (!device.status) return;
 
+        const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 16.0);
+
         final renderBox = context.findRenderObject() as RenderBox;
-        final offset = renderBox.localToGlobal(const Offset(8, 0));
-        final size = renderBox.size;
+        final offset = renderBox.localToGlobal(Offset(
+          padding.left,
+          padding.top,
+        ));
+        final size = Size(
+          renderBox.size.width - padding.right * 2,
+          renderBox.size.height - padding.bottom,
+        );
 
         showMenu(
           context: context,
           elevation: 4.0,
-          items: [
-            if (selected)
-              PopupMenuItem(
-                child: const Text('Remove from view'),
-                onTap: () {
-                  view.remove(device);
-                },
-              )
-            else
-              PopupMenuItem(
-                child: const Text('Add to view'),
-                onTap: () {
-                  view.add(device);
-                },
-              ),
+          position: RelativeRect.fromLTRB(
+            offset.dx,
+            offset.dy,
+            offset.dx + size.width,
+            offset.dy + size.height,
+          ),
+          constraints: BoxConstraints(
+            maxWidth: size.width,
+            minWidth: size.width,
+          ),
+          items: <PopupMenuEntry>[
             PopupMenuItem(
-              child: const Text('Open in full screen'),
+              // TODO: localization
+              child: Text(selected ? 'Remove from view' : 'Add to view'),
+              onTap: () {
+                if (selected) {
+                  view.remove(device);
+                } else {
+                  view.add(device);
+                }
+              },
+            ),
+            const PopupMenuDivider(height: 8),
+            PopupMenuItem(
+              child: const Text(
+                // TODO: localization
+                // AppLocalizations.of(context).showFullscreenCamera,
+                'Show in full screen',
+              ),
               onTap: () async {
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
                   var player = view.players[device];
@@ -388,12 +480,6 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
               },
             ),
           ],
-          position: RelativeRect.fromLTRB(
-            offset.dx,
-            offset.dy,
-            offset.dx + size.width,
-            offset.dy + size.height,
-          ),
         );
       },
       child: ListTile(

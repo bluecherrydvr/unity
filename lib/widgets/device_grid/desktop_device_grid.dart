@@ -76,7 +76,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       child: Container(
                         alignment: AlignmentDirectional.center,
                         height: 156.0,
-                        child: const CircularProgressIndicator(),
+                        child: const CircularProgressIndicator.adaptive(),
                       ),
                     );
                   }
@@ -104,29 +104,63 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
               }
 
               final dl = view.devices.length;
+
+              if (view.layoutType == DesktopLayoutType.compactView && dl > 4) {
+                return ReorderableGridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 4.0,
+                    crossAxisSpacing: 4.0,
+                    childAspectRatio: 16 / 9,
+                  ),
+                  onReorder: view.reorder,
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    final device = view.devices[index];
+
+                    if (index == 3) {
+                      final devices = view.devices.sublist(3);
+                      return DesktopCompactTile(
+                        key: ValueKey('$devices.${devices.length}'),
+                        devices: devices,
+                      );
+                    }
+
+                    return DesktopDeviceTile(
+                      key: ValueKey('$device.${device.server.serverUUID}'),
+                      device: device,
+                    );
+                  },
+                );
+              }
+
               final crossAxisCount = dl == 1
                   ? 1
                   : dl <= 4
                       ? 2
                       : 3;
 
-              return ReorderableGridView.count(
+              return ReorderableGridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                crossAxisCount: crossAxisCount.clamp(1, 50),
-                mainAxisSpacing: 4.0,
-                crossAxisSpacing: 4.0,
-                childAspectRatio: 16 / 9,
-                padding: EdgeInsets.zero,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount.clamp(1, 50),
+                  mainAxisSpacing: 4.0,
+                  crossAxisSpacing: 4.0,
+                  childAspectRatio: 16 / 9,
+                ),
                 onReorder: view.reorder,
-                children: view.devices.asMap().entries.map((e) {
-                  final device = e.value;
+                itemCount: view.devices.length,
+                itemBuilder: (context, index) {
+                  final device = view.devices[index];
+
                   return DesktopDeviceTile(
-                    key: ValueKey('${e.value}.${e.value.server.serverUUID}'),
+                    key: ValueKey('$device.${device.server.serverUUID}'),
                     device: device,
                   );
-                }).toList(),
-                dragStartBehavior: DragStartBehavior.start,
+                },
               );
             }(),
           ),
@@ -245,6 +279,47 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         },
       ),
     );
+  }
+}
+
+class DesktopCompactTile extends StatelessWidget {
+  const DesktopCompactTile({
+    Key? key,
+    required this.devices,
+  })  : assert(devices.length >= 2 && devices.length <= 4),
+        super(key: key);
+
+  final List<Device> devices;
+
+  @override
+  Widget build(BuildContext context) {
+    if (devices.isEmpty) return const SizedBox.shrink();
+
+    final Device device1 = devices[0];
+    final Device device2 = devices[1];
+
+    return Column(children: [
+      Expanded(
+        child: Row(children: [
+          Expanded(child: DesktopDeviceTile(device: device1)),
+          Expanded(child: DesktopDeviceTile(device: device2)),
+        ]),
+      ),
+      Expanded(
+        child: Row(children: [
+          Expanded(
+            child: devices.length >= 3
+                ? DesktopDeviceTile(device: devices[2])
+                : const SizedBox.shrink(),
+          ),
+          Expanded(
+            child: devices.length == 4
+                ? DesktopDeviceTile(device: devices[3])
+                : const SizedBox.shrink(),
+          ),
+        ]),
+      ),
+    ]);
   }
 }
 

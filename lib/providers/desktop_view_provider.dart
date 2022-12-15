@@ -31,7 +31,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 enum DesktopLayoutType {
   /// If selected, only a single camera can be selected per time
   singleView,
+
+  /// If selected, multiple camers will be shown in the grid
   multipleView,
+
+  /// If selected, only 4 cameras will be show in the grid
   compactView,
 }
 

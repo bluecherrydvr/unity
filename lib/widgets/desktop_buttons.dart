@@ -79,7 +79,7 @@ class _GridLayout extends StatelessWidget {
         return IconButton(
           icon: Icon(iconForLayout(type)),
           iconSize: 20.0,
-          color: selected ? theme.primaryColor : null,
+          color: selected ? theme.primaryColor : theme.hintColor,
           onPressed: () async {
             desktop.setLayoutType(type);
           },

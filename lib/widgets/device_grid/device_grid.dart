@@ -55,7 +55,7 @@ class DeviceGrid extends StatelessWidget {
         final width = consts.biggest.width;
 
         if (width >= 800) {
-          return const DesktopDeviceGrid();
+          return DesktopDeviceGrid(width: width);
         } else {
           return const MobileDeviceGrid();
         }

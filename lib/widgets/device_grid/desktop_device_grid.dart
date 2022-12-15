@@ -20,7 +20,9 @@
 part of 'device_grid.dart';
 
 class DesktopDeviceGrid extends StatefulWidget {
-  const DesktopDeviceGrid({Key? key}) : super(key: key);
+  const DesktopDeviceGrid({Key? key, required this.width}) : super(key: key);
+
+  final double width;
 
   @override
   State<DesktopDeviceGrid> createState() => _DesktopDeviceGridState();
@@ -34,7 +36,89 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
     final view = context.watch<DesktopViewProvider>();
 
-    return Row(children: [
+    final children = [
+      SizedBox(
+        width: 180.0,
+        child: Material(
+          color: theme.appBarTheme.backgroundColor,
+          child: ListView.builder(
+            itemCount: ServersProvider.instance.servers.length,
+            itemBuilder: (context, i) {
+              final server = ServersProvider.instance.servers[i];
+              return FutureBuilder(
+                future: (() async => server.devices.isEmpty
+                    ? API.instance.getDevices(
+                        await API.instance.checkServerCredentials(server))
+                    : true)(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0) +
+                          mq.viewPadding,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: server.devices.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) return SubHeader(server.name);
+
+                        index--;
+                        final device = server.devices[index];
+                        final selected = view.devices.contains(device);
+
+                        return ListTile(
+                          enabled: device.status,
+                          selected: selected,
+                          title: Row(children: [
+                            Container(
+                              height: 6.0,
+                              width: 6.0,
+                              margin:
+                                  const EdgeInsetsDirectional.only(end: 8.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: device.status
+                                    ? Colors.green.shade100
+                                    : Colors.red,
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                device.name
+                                    .split(' ')
+                                    .map((e) =>
+                                        e[0].toUpperCase() + e.substring(1))
+                                    .join(' '),
+                              ),
+                            ),
+                          ]),
+                          // subtitle: Text(
+                          //   '${device.resolutionX}x${device.resolutionY}',
+                          // ),
+                          onTap: () {
+                            if (selected) {
+                              DesktopViewProvider.instance.remove(device);
+                            } else {
+                              DesktopViewProvider.instance.add(device);
+                            }
+                          },
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: Container(
+                        alignment: AlignmentDirectional.center,
+                        height: 156.0,
+                        child: const CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ),
       Expanded(
         child: () {
           if (view.devices.isEmpty) {
@@ -76,76 +160,15 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           );
         }(),
       ),
-      Container(
-        width: 180.0,
-        color: theme.appBarTheme.backgroundColor,
-        child: ListView.builder(
-          itemCount: ServersProvider.instance.servers.length,
-          itemBuilder: (context, i) {
-            final server = ServersProvider.instance.servers[i];
-            return FutureBuilder(
-              future: (() async => server.devices.isEmpty
-                  ? API.instance.getDevices(
-                      await API.instance.checkServerCredentials(server))
-                  : true)(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0) +
-                        mq.viewPadding,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: server.devices.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) return SubHeader(server.name);
+    ];
 
-                      index--;
-                      final device = server.devices[index];
-                      final selected = view.devices.contains(device);
+    print(widget.width);
 
-                      return ListTile(
-                        enabled: device.status,
-                        selected: selected,
-                        title: Text(
-                          device.name
-                              .split(' ')
-                              .map((e) => e[0].toUpperCase() + e.substring(1))
-                              .join(' '),
-                        ),
-                        subtitle: Text([
-                          (device.status
-                                  ? AppLocalizations.of(context).online
-                                  : AppLocalizations.of(context).offline) +
-                              ' • ' +
-                              device.uri,
-                          '${device.resolutionX}x${device.resolutionY}',
-                        ].join('\n')),
-                        isThreeLine: true,
-                        onTap: () {
-                          if (selected) {
-                            DesktopViewProvider.instance.remove(device);
-                          } else {
-                            DesktopViewProvider.instance.add(device);
-                          }
-                        },
-                      );
-                    },
-                  );
-                } else {
-                  return Center(
-                    child: Container(
-                      alignment: AlignmentDirectional.center,
-                      height: 156.0,
-                      child: const CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              },
-            );
-          },
-        ),
-      ),
-    ]);
+    if (widget.width <= 900) {
+      return Row(children: children.reversed.toList());
+    }
+
+    return Row(children: children);
   }
 }
 

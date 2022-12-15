@@ -117,8 +117,8 @@ class DesktopViewProvider extends ChangeNotifier {
       return Device.fromJson((realItem.value as Map).cast<String, dynamic>());
     }).toList();
 
-    layoutType = DesktopLayoutType
-        .values[int.tryParse(instance.get(kHiveDesktopLayoutType)) ?? 0];
+    layoutType = DesktopLayoutType.values[
+        int.tryParse(instance.get(kHiveDesktopLayoutType).toString()) ?? 0];
 
     if (notifyListeners) {
       this.notifyListeners();

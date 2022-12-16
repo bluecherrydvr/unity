@@ -95,11 +95,14 @@ class _WindowButtonsState extends State<WindowButtons> {
                   padding: const EdgeInsetsDirectional.only(start: 16.0),
                   child: Text(
                     () {
-                      if (tab == 4) {
-                        return AppLocalizations.of(context).settings;
+                      switch (tab) {
+                        case 2:
+                          return AppLocalizations.of(context).eventBrowser;
+                        case 4:
+                          return AppLocalizations.of(context).settings;
+                        default:
+                          return 'Bluecherry';
                       }
-
-                      return 'Bluecherry';
                     }(),
                     style: TextStyle(
                       color: theme.brightness == Brightness.light

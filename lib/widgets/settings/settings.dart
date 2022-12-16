@@ -28,6 +28,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
 part 'date_format_section.dart';
@@ -59,7 +60,6 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    final serversProvider = context.watch<ServersProvider>();
 
     const divider = SliverToBoxAdapter(
       child: Padding(
@@ -348,23 +348,6 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
-}
-
-extension on NotificationClickAction {
-  String str(BuildContext context) => {
-        NotificationClickAction.showFullscreenCamera:
-            AppLocalizations.of(context).showFullscreenCamera,
-        NotificationClickAction.showEventsScreen:
-            AppLocalizations.of(context).showEventsScreen,
-      }[this]!;
-}
-
-extension on CameraViewFit {
-  String str(BuildContext context) => {
-        CameraViewFit.contain: AppLocalizations.of(context).contain,
-        CameraViewFit.cover: AppLocalizations.of(context).cover,
-        CameraViewFit.fill: AppLocalizations.of(context).fill,
-      }[this]!;
 }
 
 // ignore: non_constant_identifier_names

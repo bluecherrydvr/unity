@@ -18,13 +18,12 @@ class DateFormatSection extends StatelessWidget {
         'yyyy-MM-dd'
       ];
 
-      print(consts.maxWidth);
-
       if (consts.maxWidth >= 800) {
+        final crossAxisCount = consts.maxWidth >= 870 ? 4 : 3;
         return Wrap(
           children: formats.map((format) {
             return SizedBox(
-              width: consts.maxWidth / 3,
+              width: consts.maxWidth / crossAxisCount,
               child: RadioListTile(
                 value: format,
                 groupValue: settings.dateFormat.pattern,

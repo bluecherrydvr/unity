@@ -32,7 +32,7 @@ import 'package:bluecherry_client/firebase_options.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/widgets/events_screen.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/models/device.dart';
 

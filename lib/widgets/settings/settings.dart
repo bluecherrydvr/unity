@@ -209,17 +209,14 @@ class _SettingsState extends State<Settings> {
                       ),
                 ),
                 children: NotificationClickAction.values.map((e) {
-                  return ListTile(
-                    onTap: () {
+                  return RadioListTile(
+                    value: e,
+                    groupValue: settings.notificationClickAction,
+                    onChanged: (value) {
                       settings.notificationClickAction = e;
                     },
-                    trailing: Radio(
-                      value: e,
-                      groupValue: settings.notificationClickAction,
-                      onChanged: (value) {
-                        settings.notificationClickAction = e;
-                      },
-                    ),
+                    secondary: const Icon(null),
+                    controlAffinity: ListTileControlAffinity.trailing,
                     title: Padding(
                       padding: const EdgeInsetsDirectional.only(start: 8.0),
                       child: Text(
@@ -249,17 +246,14 @@ class _SettingsState extends State<Settings> {
                       ),
                 ),
                 children: CameraViewFit.values.map((e) {
-                  return ListTile(
-                    onTap: () {
+                  return RadioListTile(
+                    value: e,
+                    groupValue: settings.cameraViewFit,
+                    onChanged: (value) {
                       settings.cameraViewFit = e;
                     },
-                    trailing: Radio(
-                      value: e,
-                      groupValue: settings.cameraViewFit,
-                      onChanged: (value) {
-                        settings.cameraViewFit = e;
-                      },
-                    ),
+                    secondary: const Icon(null),
+                    controlAffinity: ListTileControlAffinity.trailing,
                     title: Padding(
                       padding: const EdgeInsetsDirectional.only(start: 8.0),
                       child: Text(
@@ -301,6 +295,17 @@ class _SettingsState extends State<Settings> {
               ),
             );
           }).toList())),
+          divider,
+          // SubHeader('Language'),
+          // SliverList(
+          //   delegate: SliverChildListDelegate(
+          //     AppLocalizations.supportedLocales.map((locale) {
+          //       return ListTile(
+          //         title: Text(locale.languageCode),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
           divider,
           SubHeader(AppLocalizations.of(context).version),
           SliverToBoxAdapter(

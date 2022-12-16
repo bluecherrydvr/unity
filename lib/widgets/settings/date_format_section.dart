@@ -30,6 +30,7 @@ class DateFormatSection extends StatelessWidget {
                 onChanged: (value) {
                   settings.dateFormat = DateFormat(format, 'en_US');
                 },
+                controlAffinity: ListTileControlAffinity.trailing,
                 title: Text(
                   DateFormat(format, 'en_US')
                       .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
@@ -41,17 +42,13 @@ class DateFormatSection extends StatelessWidget {
       } else {
         return Column(
           children: formats.map((format) {
-            return ListTile(
-              onTap: () {
+            return RadioListTile(
+              value: format,
+              groupValue: settings.dateFormat.pattern,
+              onChanged: (value) {
                 settings.dateFormat = DateFormat(format, 'en_US');
               },
-              trailing: Radio(
-                value: format,
-                groupValue: settings.dateFormat.pattern,
-                onChanged: (value) {
-                  settings.dateFormat = DateFormat(format, 'en_US');
-                },
-              ),
+              controlAffinity: ListTileControlAffinity.trailing,
               title: Padding(
                 padding: const EdgeInsetsDirectional.only(start: 8.0),
                 child: Text(

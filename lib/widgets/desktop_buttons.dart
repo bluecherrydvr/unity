@@ -23,6 +23,7 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -88,11 +89,24 @@ class _WindowButtonsState extends State<WindowButtons> {
                   setState(() {});
                 },
               ),
-            const Expanded(
+            Expanded(
               child: DragToMoveArea(
                 child: Padding(
-                  padding: EdgeInsetsDirectional.only(start: 16.0),
-                  child: Text('Bluecherry'),
+                  padding: const EdgeInsetsDirectional.only(start: 16.0),
+                  child: Text(
+                    () {
+                      if (tab == 4) {
+                        return AppLocalizations.of(context).settings;
+                      }
+
+                      return 'Bluecherry';
+                    }(),
+                    style: TextStyle(
+                      color: theme.brightness == Brightness.light
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -216,7 +216,9 @@ ThemeData createTheme({
         ),
       ),
     ),
-    cardColor: light ? Colors.white : const Color(0xFF242424),
+    cardTheme: CardTheme(
+      color: light ? Colors.white : const Color(0xFF242424),
+    ),
     backgroundColor: primary.withOpacity(0.24),
     dividerColor: light ? Colors.black12 : Colors.white24,
     disabledColor: light ? Colors.black38 : Colors.white38,

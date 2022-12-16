@@ -415,6 +415,7 @@ class CorrectedListTile extends StatelessWidget {
 
 class SubHeader extends StatelessWidget {
   final String text;
+
   const SubHeader(this.text, {Key? key}) : super(key: key);
 
   @override

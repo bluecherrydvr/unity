@@ -32,19 +32,7 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.event.title
-              .split('device')
-              .last
-              .trim()
-              .split(' ')
-              .map(
-                (e) => e.isEmpty ? '' : e[0].toUpperCase() + e.substring(1),
-              )
-              .join(' '),
-        ),
-      ),
+      appBar: isDesktop ? null : AppBar(title: Text(widget.event.deviceName)),
       body: InteractiveViewer(
         minScale: 1.0,
         maxScale: 4.0,

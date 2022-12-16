@@ -120,58 +120,55 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                             ),
                           ),
                         );
-                      } else {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: server.devices.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return SubHeader(server.name);
-                            } else {
-                              index--;
-                              return ListTile(
-                                enabled: server.devices[index].status,
-                                leading: CircleAvatar(
-                                  child: const Icon(Icons.camera_alt),
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor:
-                                      Theme.of(context).iconTheme.color,
-                                ),
-                                title: Text(
-                                  server.devices[index].name
-                                      .split(' ')
-                                      .map((e) =>
-                                          e[0].toUpperCase() + e.substring(1))
-                                      .join(' '),
-                                ),
-                                subtitle: Text([
-                                  server.devices[index].status
-                                      ? AppLocalizations.of(context).online
-                                      : AppLocalizations.of(context).offline,
-                                  server.devices[index].uri,
-                                  '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                                ].join(' • ')),
-                                onTap: () async {
-                                  final player =
-                                      getVideoPlayerControllerForDevice(
-                                          server.devices[index]);
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) {
-                                      return DeviceFullscreenViewer(
-                                        device: server.devices[index],
-                                        videoPlayerController: player,
-                                        restoreStatusBarStyleOnDispose: true,
-                                      );
-                                    }),
-                                  );
-                                  await player.release();
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: server.devices.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return SubHeader(server.name);
+                          }
+                          index--;
+                          return ListTile(
+                            enabled: server.devices[index].status,
+                            leading: CircleAvatar(
+                              child: const Icon(Icons.camera_alt),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor:
+                                  Theme.of(context).iconTheme.color,
+                            ),
+                            title: Text(
+                              server.devices[index].name
+                                  .split(' ')
+                                  .map((e) =>
+                                      e[0].toUpperCase() + e.substring(1))
+                                  .join(' '),
+                            ),
+                            subtitle: Text([
+                              server.devices[index].status
+                                  ? AppLocalizations.of(context).online
+                                  : AppLocalizations.of(context).offline,
+                              server.devices[index].uri,
+                              '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                            ].join(' • ')),
+                            onTap: () async {
+                              final player = getVideoPlayerControllerForDevice(
+                                server.devices[index],
+                              );
+
+                              await Navigator.of(context).pushNamed(
+                                '/fullscreen',
+                                arguments: {
+                                  'device': server.devices[index],
+                                  'player': player,
                                 },
                               );
-                            }
-                          },
-                        );
-                      }
+                              await player.release();
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 },

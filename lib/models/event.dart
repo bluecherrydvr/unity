@@ -45,6 +45,16 @@ class Event {
     this.mediaURL,
   );
 
+  String get deviceName {
+    return title
+        .split('device')
+        .last
+        .trim()
+        .split(' ')
+        .map((e) => e.isEmpty ? '' : e[0].toUpperCase() + e.substring(1))
+        .join(' ');
+  }
+
   @override
   bool operator ==(dynamic other) {
     return other is Event &&

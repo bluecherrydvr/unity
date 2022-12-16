@@ -18,11 +18,15 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+import 'package:bluecherry_client/widgets/video_player.dart';
+import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +44,8 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
+
+import 'widgets/events/events_screen.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -140,7 +146,47 @@ class MyApp extends StatelessWidget {
           themeMode: settings.themeMode,
           theme: createTheme(themeMode: ThemeMode.light),
           darkTheme: createTheme(themeMode: ThemeMode.dark),
-          home: const MyHomePage(),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const MyHomePage(),
+          },
+          onGenerateRoute: (settings) {
+            if (settings.name == '/events') {
+              final Event event = settings.arguments! as Event;
+
+              return MaterialPageRoute(
+                settings: RouteSettings(
+                  name: '/events',
+                  arguments: event,
+                ),
+                builder: (context) {
+                  return EventPlayerScreen(event: event);
+                },
+              );
+            }
+
+            if (settings.name == '/fullscreen') {
+              final data = settings.arguments! as Map;
+              final Device device = data['device'];
+              final BluecherryVideoPlayerController player = data['player'];
+
+              return MaterialPageRoute(
+                settings: RouteSettings(
+                  name: '/fullscreen',
+                  arguments: device,
+                ),
+                builder: (context) {
+                  return DeviceFullscreenViewer(
+                    device: device,
+                    videoPlayerController: player,
+                    restoreStatusBarStyleOnDispose: true,
+                  );
+                },
+              );
+            }
+
+            return null;
+          },
           builder: (context, child) {
             if (isDesktop) {
               return Column(children: [

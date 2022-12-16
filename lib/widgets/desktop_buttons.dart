@@ -20,6 +20,8 @@
 import 'dart:async';
 
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:flutter/material.dart';
@@ -34,12 +36,12 @@ class NObserver extends NavigatorObserver {
     // do not update if it's a popup
     if (route is PopupRoute) return;
 
-    navigationStream.add(null);
+    navigationStream.add(route.settings.arguments);
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    update(route);
+    update(previousRoute ?? route);
     super.didPop(route, previousRoute);
   }
 
@@ -72,7 +74,7 @@ class _WindowButtonsState extends State<WindowButtons> {
 
     return StreamBuilder(
       stream: navigationStream.stream,
-      builder: (child, _) {
+      builder: (child, arguments) {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
 
         return Material(
@@ -95,6 +97,18 @@ class _WindowButtonsState extends State<WindowButtons> {
                   padding: const EdgeInsetsDirectional.only(start: 16.0),
                   child: Text(
                     () {
+                      if (arguments.data != null) {
+                        if (arguments.data is Event) {
+                          final event = arguments.data as Event;
+                          return event.deviceName;
+                        }
+
+                        if (arguments.data is Device) {
+                          final device = arguments.data as Device;
+                          return device.name;
+                        }
+                      }
+
                       switch (tab) {
                         case 2:
                           return AppLocalizations.of(context).eventBrowser;

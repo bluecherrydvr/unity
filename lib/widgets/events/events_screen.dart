@@ -175,25 +175,13 @@ class _EventsScreenState extends State<EventsScreen> {
                                   start: 64.0,
                                   end: 16.0,
                                 ),
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EventPlayerScreen(event: event),
-                                    ),
+                                onTap: () async {
+                                  await Navigator.of(context).pushNamed(
+                                    '/events',
+                                    arguments: event,
                                   );
                                 },
-                                title: Text(
-                                  event.title
-                                      .split('device')
-                                      .last
-                                      .trim()
-                                      .split(' ')
-                                      .map((e) => e.isEmpty
-                                          ? ''
-                                          : e[0].toUpperCase() + e.substring(1))
-                                      .join(' '),
-                                ),
+                                title: Text(event.deviceName),
                                 isThreeLine: true,
                                 subtitle: Text(
                                   [
@@ -213,7 +201,6 @@ class _EventsScreenState extends State<EventsScreen> {
                                 leading: CircleAvatar(
                                   child: Icon(
                                     Icons.warning,
-                                    // color: Theme.of(context).iconTheme.color,
                                     color: Colors.amber.shade300,
                                   ),
                                   backgroundColor: Colors.transparent,

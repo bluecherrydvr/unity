@@ -118,13 +118,12 @@ class DeviceTileState extends State<DeviceTile> {
                         onPressed: () async {
                           if (videoPlayer == null) return;
 
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => DeviceFullscreenViewer(
-                                device: widget.device,
-                                videoPlayerController: videoPlayer!,
-                              ),
-                            ),
+                          await Navigator.of(context).pushNamed(
+                            '/fullscreen',
+                            arguments: {
+                              'device': widget.device,
+                              'player': videoPlayer,
+                            },
                           );
                         },
                         icon: const Icon(
@@ -155,15 +154,15 @@ class DeviceTileState extends State<DeviceTile> {
         });
       },
       // Fullscreen on double-tap.
-      onDoubleTap: () {
+      onDoubleTap: () async {
         if (videoPlayer == null) return;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => DeviceFullscreenViewer(
-              device: widget.device,
-              videoPlayerController: videoPlayer!,
-            ),
-          ),
+
+        await Navigator.of(context).pushNamed(
+          '/fullscreen',
+          arguments: {
+            'device': widget.device,
+            'player': videoPlayer,
+          },
         );
       },
       child: ClipRect(

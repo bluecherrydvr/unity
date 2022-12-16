@@ -304,14 +304,13 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                               getVideoPlayerControllerForDevice(widget.device);
                           isLocalController = true;
                         }
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) {
-                            return DeviceFullscreenViewer(
-                              device: widget.device,
-                              videoPlayerController: player!,
-                              restoreStatusBarStyleOnDispose: true,
-                            );
-                          }),
+
+                        await Navigator.of(context).pushNamed(
+                          '/fullscreen',
+                          arguments: {
+                            'device': widget.device,
+                            'player': player,
+                          },
                         );
                         if (isLocalController) await player.release();
                       },
@@ -459,14 +458,13 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
                     player = getVideoPlayerControllerForDevice(device);
                     isLocalController = true;
                   }
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) {
-                      return DeviceFullscreenViewer(
-                        device: device,
-                        videoPlayerController: player!,
-                        restoreStatusBarStyleOnDispose: true,
-                      );
-                    }),
+
+                  await Navigator.of(context).pushNamed(
+                    '/fullscreen',
+                    arguments: {
+                      'device': device,
+                      'player': player,
+                    },
                   );
                   if (isLocalController) await player.release();
                 });

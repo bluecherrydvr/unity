@@ -29,6 +29,7 @@ class EventsScreenDesktop extends StatelessWidget {
             DataColumn(label: Text('Priority')),
             DataColumn(label: Text('Date')),
           ],
+          showCheckboxColumn: false,
           rows: events.map<DataRow>((Event event) {
             final index = events.indexOf(event);
 
@@ -44,10 +45,20 @@ class EventsScreenDesktop extends StatelessWidget {
             final isAlarm = priority == 'alarm' || priority == 'alrm';
 
             return DataRow(
-              selected: isAlarm,
               color: index.isEven
-                  ? MaterialStatePropertyAll(theme.appBarTheme.backgroundColor)
+                  ? MaterialStateProperty.resolveWith((states) {
+                      return theme.appBarTheme.backgroundColor;
+                    })
                   : null,
+              onSelectChanged: (_) {
+                Navigator.of(context).pushNamed(
+                  '/events',
+                  arguments: event,
+                  // MaterialPageRoute(builder: (context) {
+                  //   return EventPlayerScreen(event: event);
+                  // }),
+                );
+              },
               cells: [
                 // icon
                 DataCell(Icon(
@@ -63,17 +74,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 DataCell(Text(event.server.name)),
                 // device
                 DataCell(
-                  Text(
-                    event.title
-                        .split('device')
-                        .last
-                        .trim()
-                        .split(' ')
-                        .map((e) => e.isEmpty
-                            ? ''
-                            : e[0].toUpperCase() + e.substring(1))
-                        .join(' '),
-                  ),
+                  Text(event.deviceName),
                 ),
                 // event
                 DataCell(Text((parsedCategory?.last ?? '').uppercaseFirst())),

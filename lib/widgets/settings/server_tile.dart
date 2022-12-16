@@ -300,7 +300,7 @@ class _ServerCardState extends State<ServerCard> {
             Transform.scale(
               scale: 0.9,
               child: OutlinedButton(
-                child: const Text('Remove'),
+                child: const Text('Disconnect'),
                 onPressed: () => widget.onRemoveServer(context, widget.server),
               ),
             ),

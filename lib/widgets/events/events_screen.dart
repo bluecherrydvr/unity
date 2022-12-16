@@ -33,9 +33,11 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/api/api.dart';
+import 'package:provider/provider.dart';
 
 part 'event_player.dart';
 part 'events_screen_desktop.dart';
+part 'events_screen_mobile.dart';
 
 typedef EventsData = Map<Server, List<Event>>;
 
@@ -47,6 +49,9 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
+  EventsTimeFilter timeFilter = EventsTimeFilter.last24Hours;
+  EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
+
   bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
@@ -128,122 +133,145 @@ class _EventsScreenState extends State<EventsScreen> {
 
         return LayoutBuilder(builder: (context, consts) {
           if (consts.maxWidth >= 800) {
-            return EventsScreenDesktop(events: events);
-          } else {
-            return RefreshIndicator(
-              onRefresh: fetch,
-              child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: ServersProvider.instance.servers.length,
-                itemBuilder: (context, index) {
-                  final server = ServersProvider.instance.servers[index];
-                  return ExpansionTile(
-                    initiallyExpanded:
-                        ServersProvider.instance.servers.length.compareTo(1) ==
-                            0,
-                    maintainState: true,
-                    leading: CircleAvatar(
-                      child: Icon(
-                        Icons.language,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    title: Row(children: [
-                      Expanded(child: Text(server.name)),
-                      if (isDesktop)
-                        IconButton(
-                          onPressed: fetch,
-                          tooltip: 'Refresh',
-                          icon: const Icon(Icons.refresh),
-                        ),
-                    ]),
-                    subtitle: server.name != server.ip ? Text(server.ip) : null,
-                    children: isFirstTimeLoading
-                        ? <Widget>[
-                            const SizedBox(
-                              height: 96.0,
-                              child: Center(
-                                child: CircularProgressIndicator(),
+            final servers = context.watch<ServersProvider>();
+
+            return Row(children: [
+              SizedBox(
+                width: 180,
+                child: Material(
+                  child: DropdownButtonHideUnderline(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const SubHeader('Servers'),
+                        ...servers.servers.map((server) {
+                          return CheckboxListTile(
+                            value: true,
+                            onChanged: (v) {},
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 8.0,
+                              end: 16.0,
+                            ),
+                            title: Text(
+                              server.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 14.0),
+                            ),
+                          );
+                        }),
+                        const Spacer(),
+                        DropdownButton<EventsTimeFilter>(
+                          isExpanded: true,
+                          value: timeFilter,
+                          items: const [
+                            DropdownMenuItem(
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 16.0,
+                                ),
+                                child: Text('Last hour'),
                               ),
-                            )
-                          ]
-                        : events[server]?.map((event) {
-                              return ListTile(
-                                contentPadding:
-                                    const EdgeInsetsDirectional.only(
-                                  start: 64.0,
-                                  end: 16.0,
+                              value: EventsTimeFilter.lastHour,
+                            ),
+                            DropdownMenuItem(
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 16.0,
                                 ),
-                                onTap: () async {
-                                  await Navigator.of(context).pushNamed(
-                                    '/events',
-                                    arguments: event,
-                                  );
-                                },
-                                title: Text(event.deviceName),
-                                isThreeLine: true,
-                                subtitle: Text(
-                                  [
-                                    event.title.split('event on').first.trim(),
-                                    DateFormat(
-                                          SettingsProvider
-                                              .instance.dateFormat.pattern,
-                                        ).format(event.updated) +
-                                        ' ' +
-                                        DateFormat(
-                                          SettingsProvider
-                                              .instance.timeFormat.pattern,
-                                        ).format(event.updated).toUpperCase(),
-                                  ].join('\n'),
-                                  overflow: TextOverflow.ellipsis,
+                                child: Text('Last 6 hours'),
+                              ),
+                              value: EventsTimeFilter.last6Hours,
+                            ),
+                            DropdownMenuItem(
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 16.0,
                                 ),
-                                leading: CircleAvatar(
-                                  child: Icon(
-                                    Icons.warning,
-                                    color: Colors.amber.shade300,
-                                  ),
-                                  backgroundColor: Colors.transparent,
+                                child: Text('Last 12 hours'),
+                              ),
+                              value: EventsTimeFilter.last12Hours,
+                            ),
+                            DropdownMenuItem(
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 16.0,
                                 ),
-                              );
-                            }).toList() ??
-                            [
-                              if (invalid[server] ?? true)
-                                SizedBox(
-                                  height: 72.0,
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)
-                                          .invalidResponse,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline5
-                                          ?.copyWith(fontSize: 16.0),
-                                    ),
-                                  ),
-                                )
-                              else
-                                SizedBox(
-                                  height: 72.0,
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)
-                                          .noEventsFound,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline5
-                                          ?.copyWith(fontSize: 16.0),
-                                    ),
-                                  ),
+                                child: Text('Last 24 hours'),
+                              ),
+                              value: EventsTimeFilter.last24Hours,
+                            ),
+                            DropdownMenuItem(
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 16.0,
                                 ),
-                            ],
-                  );
-                },
+                                child: Text('Select time range'),
+                              ),
+                              value: EventsTimeFilter.custom,
+                            ),
+                          ],
+                          onChanged: (v) => setState(
+                            () => timeFilter = v ?? timeFilter,
+                          ),
+                        ),
+                        const SubHeader('Minimum level'),
+                        DropdownButton<EventsMinLevelFilter>(
+                          isExpanded: true,
+                          value: levelFilter,
+                          items: EventsMinLevelFilter.values.map((level) {
+                            return DropdownMenuItem(
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 16.0,
+                                ),
+                                child: Text(level.name.uppercaseFirst()),
+                              ),
+                              value: level,
+                            );
+                          }).toList(),
+                          onChanged: (v) => setState(
+                            () => levelFilter = v ?? levelFilter,
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                    ),
+                  ),
+                ),
               ),
+              Expanded(
+                child: EventsScreenDesktop(events: events),
+              ),
+            ]);
+          } else {
+            return EventsScreenMobile(
+              events: events,
+              refresh: fetch,
+              isFirstTimeLoading: isFirstTimeLoading,
+              invalid: invalid,
             );
           }
         });
       }(),
     );
   }
+}
+
+enum EventsTimeFilter {
+  lastHour,
+  last6Hours,
+  last12Hours,
+  last24Hours,
+  custom,
+}
+
+enum EventsMinLevelFilter {
+  any,
+  info,
+  warning,
+  alarming,
+  critical,
 }

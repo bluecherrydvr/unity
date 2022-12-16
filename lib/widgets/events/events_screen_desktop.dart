@@ -49,7 +49,10 @@ class EventsScreenDesktop extends StatelessWidget {
                   ? MaterialStateProperty.resolveWith((states) {
                       return theme.appBarTheme.backgroundColor;
                     })
-                  : null,
+                  : MaterialStateProperty.resolveWith((states) {
+                      return theme.appBarTheme.backgroundColor
+                          ?.withOpacity(0.4);
+                    }),
               onSelectChanged: (_) {
                 Navigator.of(context).pushNamed(
                   '/events',
@@ -73,9 +76,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // server
                 DataCell(Text(event.server.name)),
                 // device
-                DataCell(
-                  Text(event.deviceName),
-                ),
+                DataCell(Text(event.deviceName)),
                 // event
                 DataCell(Text((parsedCategory?.last ?? '').uppercaseFirst())),
                 // duration

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/widgets/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -70,12 +71,18 @@ class _WindowButtonsState extends State<WindowButtons> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final tab = context.watch<HomeProvider>().tab;
+    final home = context.watch<HomeProvider>();
+    final tab = home.tab;
 
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (child, arguments) {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
+
+        const divider = SizedBox(
+          height: 20.0,
+          child: VerticalDivider(color: Colors.white),
+        );
 
         return Material(
           elevation: 0.0,
@@ -90,6 +97,15 @@ class _WindowButtonsState extends State<WindowButtons> {
                   await navigatorKey.currentState?.maybePop();
                   setState(() {});
                 },
+              )
+            else
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 8.0),
+                child: Image.asset(
+                  'assets/images/icon.png',
+                  height: 16.0,
+                  width: 16.0,
+                ),
               ),
             Expanded(
               child: DragToMoveArea(
@@ -105,11 +121,15 @@ class _WindowButtonsState extends State<WindowButtons> {
 
                         if (arguments.data is Device) {
                           final device = arguments.data as Device;
-                          return device.name;
+                          return '${device.server.name} / ${device.name}';
                         }
                       }
 
                       switch (tab) {
+                        case 0:
+                          return AppLocalizations.of(context).screens;
+                        case 1:
+                          return AppLocalizations.of(context).directCamera;
                         case 2:
                           return AppLocalizations.of(context).eventBrowser;
                         case 4:
@@ -129,11 +149,34 @@ class _WindowButtonsState extends State<WindowButtons> {
             ),
 
             // if it's the grid tab
-            if (tab == 0 && !canPop)
+            if (tab == 0 && !canPop) ...[
               const Padding(
                 padding: EdgeInsetsDirectional.only(end: 8.0),
                 child: _GridLayout(),
               ),
+              divider,
+            ],
+            if (!canPop) ...[
+              ...navigatorData(context).entries.map((entry) {
+                final icon = entry.key;
+                // final text = entry.value;
+                final index =
+                    navigatorData(context).keys.toList().indexOf(icon);
+
+                return IconButton(
+                  icon: Icon(
+                    icon,
+                    color: home.tab == index
+                        ? theme.primaryColor
+                        : theme.hintColor,
+                  ),
+                  iconSize: 22.0,
+                  // tooltip: text,
+                  onPressed: () => home.setTab(index),
+                );
+              }),
+              divider,
+            ],
             SizedBox(
               width: 138,
               height: 40,

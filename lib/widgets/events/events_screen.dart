@@ -135,113 +135,110 @@ class _EventsScreenState extends State<EventsScreen> {
           if (consts.maxWidth >= 800) {
             final servers = context.watch<ServersProvider>();
 
-            return Row(children: [
+            return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               SizedBox(
-                width: 180,
+                width: 220,
                 child: Material(
                   child: DropdownButtonHideUnderline(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const SubHeader('Servers'),
-                        ...servers.servers.map((server) {
-                          return CheckboxListTile(
-                            value: true,
-                            onChanged: (v) {},
-                            controlAffinity: ListTileControlAffinity.leading,
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 8.0,
-                              end: 16.0,
+                    child: Column(children: [
+                      const SubHeader('Servers'),
+                      ...servers.servers.map((server) {
+                        return CheckboxListTile(
+                          value: true,
+                          onChanged: (v) {},
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: const EdgeInsetsDirectional.only(
+                            start: 8.0,
+                            end: 16.0,
+                          ),
+                          title: Text(
+                            server.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14.0),
+                          ),
+                        );
+                      }),
+                      const Spacer(),
+                      DropdownButton<EventsTimeFilter>(
+                        isExpanded: true,
+                        value: timeFilter,
+                        items: const [
+                          DropdownMenuItem(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text('Last hour'),
                             ),
-                            title: Text(
-                              server.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14.0),
+                            value: EventsTimeFilter.lastHour,
+                          ),
+                          DropdownMenuItem(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text('Last 6 hours'),
                             ),
+                            value: EventsTimeFilter.last6Hours,
+                          ),
+                          DropdownMenuItem(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text('Last 12 hours'),
+                            ),
+                            value: EventsTimeFilter.last12Hours,
+                          ),
+                          DropdownMenuItem(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text('Last 24 hours'),
+                            ),
+                            value: EventsTimeFilter.last24Hours,
+                          ),
+                          DropdownMenuItem(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text('Select time range'),
+                            ),
+                            value: EventsTimeFilter.custom,
+                          ),
+                        ],
+                        onChanged: (v) => setState(
+                          () => timeFilter = v ?? timeFilter,
+                        ),
+                      ),
+                      const SubHeader('Minimum level'),
+                      DropdownButton<EventsMinLevelFilter>(
+                        isExpanded: true,
+                        value: levelFilter,
+                        items: EventsMinLevelFilter.values.map((level) {
+                          return DropdownMenuItem(
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: 16.0,
+                              ),
+                              child: Text(level.name.uppercaseFirst()),
+                            ),
+                            value: level,
                           );
-                        }),
-                        const Spacer(),
-                        DropdownButton<EventsTimeFilter>(
-                          isExpanded: true,
-                          value: timeFilter,
-                          items: const [
-                            DropdownMenuItem(
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text('Last hour'),
-                              ),
-                              value: EventsTimeFilter.lastHour,
-                            ),
-                            DropdownMenuItem(
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text('Last 6 hours'),
-                              ),
-                              value: EventsTimeFilter.last6Hours,
-                            ),
-                            DropdownMenuItem(
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text('Last 12 hours'),
-                              ),
-                              value: EventsTimeFilter.last12Hours,
-                            ),
-                            DropdownMenuItem(
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text('Last 24 hours'),
-                              ),
-                              value: EventsTimeFilter.last24Hours,
-                            ),
-                            DropdownMenuItem(
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text('Select time range'),
-                              ),
-                              value: EventsTimeFilter.custom,
-                            ),
-                          ],
-                          onChanged: (v) => setState(
-                            () => timeFilter = v ?? timeFilter,
-                          ),
+                        }).toList(),
+                        onChanged: (v) => setState(
+                          () => levelFilter = v ?? levelFilter,
                         ),
-                        const SubHeader('Minimum level'),
-                        DropdownButton<EventsMinLevelFilter>(
-                          isExpanded: true,
-                          value: levelFilter,
-                          items: EventsMinLevelFilter.values.map((level) {
-                            return DropdownMenuItem(
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  start: 16.0,
-                                ),
-                                child: Text(level.name.uppercaseFirst()),
-                              ),
-                              value: level,
-                            );
-                          }).toList(),
-                          onChanged: (v) => setState(
-                            () => levelFilter = v ?? levelFilter,
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 16.0),
+                    ]),
                   ),
                 ),
               ),
+              const VerticalDivider(width: 1),
               Expanded(
                 child: EventsScreenDesktop(events: events),
               ),

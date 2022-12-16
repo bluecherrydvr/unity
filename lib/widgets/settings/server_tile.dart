@@ -115,39 +115,44 @@ class ServersList extends StatelessWidget {
     });
   }
 
-  void onRemoveServer(BuildContext context, Server server) {
-    showDialog(
+  Future<void> onRemoveServer(BuildContext context, Server server) {
+    return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).remove),
-        content: Text(
-          AppLocalizations.of(context).removeServerDescription(server.name),
-          style: Theme.of(context).textTheme.headline4,
-          textAlign: TextAlign.start,
+      builder: (context) => ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 300.0,
         ),
-        actions: [
-          MaterialButton(
-            onPressed: Navigator.of(context).maybePop,
-            child: Text(
-              AppLocalizations.of(context).no.toUpperCase(),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
+        child: AlertDialog(
+          title: Text(AppLocalizations.of(context).remove),
+          content: Text(
+            AppLocalizations.of(context).removeServerDescription(server.name),
+            style: Theme.of(context).textTheme.headline4,
+            textAlign: TextAlign.start,
+          ),
+          actions: [
+            MaterialButton(
+              onPressed: Navigator.of(context).maybePop,
+              child: Text(
+                AppLocalizations.of(context).no.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
-          ),
-          MaterialButton(
-            onPressed: () {
-              ServersProvider.instance.remove(server);
-              Navigator.of(context).maybePop();
-            },
-            child: Text(
-              AppLocalizations.of(context).yes.toUpperCase(),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
+            MaterialButton(
+              onPressed: () {
+                ServersProvider.instance.remove(server);
+                Navigator.of(context).maybePop();
+              },
+              child: Text(
+                AppLocalizations.of(context).yes.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

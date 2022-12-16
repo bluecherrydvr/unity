@@ -19,7 +19,6 @@
 
 import 'dart:async';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';

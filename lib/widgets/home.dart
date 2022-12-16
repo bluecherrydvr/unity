@@ -42,6 +42,16 @@ class Home extends StatelessWidget {
   }
 }
 
+Map<IconData, String> navigatorData(BuildContext context) {
+  return {
+    Icons.window: AppLocalizations.of(context).screens,
+    Icons.camera: AppLocalizations.of(context).directCamera,
+    Icons.description: AppLocalizations.of(context).eventBrowser,
+    Icons.dns: AppLocalizations.of(context).addServer,
+    Icons.settings: AppLocalizations.of(context).settings,
+  };
+}
+
 class MobileHome extends StatefulWidget {
   const MobileHome({Key? key}) : super(key: key);
 
@@ -50,16 +60,6 @@ class MobileHome extends StatefulWidget {
 }
 
 class _MobileHomeState extends State<MobileHome> {
-  Map<IconData, String> navigatorData(BuildContext context) {
-    return {
-      Icons.window: AppLocalizations.of(context).screens,
-      Icons.camera: AppLocalizations.of(context).directCamera,
-      Icons.description: AppLocalizations.of(context).eventBrowser,
-      Icons.dns: AppLocalizations.of(context).addServer,
-      Icons.settings: AppLocalizations.of(context).settings,
-    };
-  }
-
   @override
   void initState() {
     super.initState();
@@ -123,7 +123,8 @@ class _MobileHomeState extends State<MobileHome> {
         resizeToAvoidBottomInset: false,
         drawer: isWide ? null : buildDrawer(context),
         body: Row(children: [
-          if (isWide || isExtraWide) ...[
+          // if it's desktop, we show the navigation in the window bar
+          if ((isWide || isExtraWide) && !isDesktop) ...[
             NavigationRail(
               minExtendedWidth: 220,
               elevation: Theme.of(context).appBarTheme.elevation,

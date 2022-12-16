@@ -257,7 +257,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                widget.device.name,
+                '${widget.device.server.name} / ${widget.device.name}',
                 style: const TextStyle(
                   color: Colors.white,
                   shadows: shadows,
@@ -476,6 +476,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
       child: ListTile(
         enabled: device.status,
         selected: selected,
+        dense: true,
         title: Row(children: [
           Container(
             height: 6.0,
@@ -490,6 +491,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             child: Text(
               device.name
                   .split(' ')
+                  // uppercase all first
                   .map((e) => e[0].toUpperCase() + e.substring(1))
                   .join(' '),
             ),

@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -40,16 +39,18 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
     MediaQuery.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        leading: Scaffold.of(context).hasDrawer
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                splashRadius: 20.0,
-                onPressed: Scaffold.of(context).openDrawer,
-              )
-            : null,
-        title: Text(AppLocalizations.of(context).directCamera),
-      ),
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              leading: Scaffold.of(context).hasDrawer
+                  ? IconButton(
+                      icon: const Icon(Icons.menu),
+                      splashRadius: 20.0,
+                      onPressed: Scaffold.of(context).openDrawer,
+                    )
+                  : null,
+              title: Text(AppLocalizations.of(context).directCamera),
+            ),
       body: () {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(

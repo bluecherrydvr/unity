@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'dart:ui';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
@@ -189,8 +190,16 @@ class MyApp extends StatelessWidget {
           },
           builder: (context, child) {
             if (isDesktop) {
+              final bool isDark = settings.themeMode == ThemeMode.dark ||
+                  (settings.themeMode == ThemeMode.system &&
+                      window.platformBrightness == Brightness.dark);
               return Column(children: [
-                const WindowButtons(),
+                Theme(
+                  data: isDark
+                      ? createTheme(themeMode: ThemeMode.dark)
+                      : createTheme(themeMode: ThemeMode.light),
+                  child: const WindowButtons(),
+                ),
                 Expanded(child: ClipRect(child: child!)),
               ]);
             }

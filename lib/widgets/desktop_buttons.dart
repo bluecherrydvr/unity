@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/home.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -69,6 +70,8 @@ class WindowButtons extends StatefulWidget {
 class _WindowButtonsState extends State<WindowButtons> {
   @override
   Widget build(BuildContext context) {
+    if (!isDesktop) return const SizedBox.shrink();
+
     final theme = Theme.of(context);
 
     final home = context.watch<HomeProvider>();

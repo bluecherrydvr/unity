@@ -18,7 +18,7 @@
  */
 
 import 'dart:io';
-import 'dart:ui';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
@@ -27,6 +27,7 @@ import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
+
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -187,24 +188,6 @@ class MyApp extends StatelessWidget {
             }
 
             return null;
-          },
-          builder: (context, child) {
-            if (isDesktop) {
-              final bool isDark = settings.themeMode == ThemeMode.dark ||
-                  (settings.themeMode == ThemeMode.system &&
-                      window.platformBrightness == Brightness.dark);
-              return Column(children: [
-                Theme(
-                  data: isDark
-                      ? createTheme(themeMode: ThemeMode.dark)
-                      : createTheme(themeMode: ThemeMode.light),
-                  child: const WindowButtons(),
-                ),
-                Expanded(child: ClipRect(child: child!)),
-              ]);
-            }
-
-            return child!;
           },
         ),
       ),

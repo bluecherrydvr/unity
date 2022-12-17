@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -122,89 +123,95 @@ class _MobileHomeState extends State<MobileHome> {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: isWide ? null : buildDrawer(context),
-        body: Row(children: [
-          // if it's desktop, we show the navigation in the window bar
-          if ((isWide || isExtraWide) && !isDesktop) ...[
-            NavigationRail(
-              minExtendedWidth: 220,
-              elevation: Theme.of(context).appBarTheme.elevation,
-              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-              extended: isExtraWide,
-              useIndicator: !isExtraWide,
-              indicatorColor: theme.selectedBackgroundColor,
-              selectedLabelTextStyle: TextStyle(
-                color: theme.selectedForegroundColor,
-              ),
-              unselectedLabelTextStyle: TextStyle(
-                color: theme.unselectedForegroundColor,
-              ),
-              destinations: navigatorData(context).entries.map((entry) {
-                final icon = entry.key;
-                final text = entry.value;
-                final index =
-                    navigatorData(context).keys.toList().indexOf(icon);
-
-                return NavigationRailDestination(
-                  icon: Icon(
-                    icon,
-                    color: index == tab
-                        ? theme.selectedForegroundColor
-                        : theme.unselectedForegroundColor,
-                  ),
-                  label: Text(text),
-                );
-              }).toList(),
-              selectedIndex: tab,
-              onDestinationSelected: (index) {
-                if (tab != index) {
-                  home.setTab(index);
-                }
-              },
-            ),
-            // SizedBox(
-            //   width: 4.0,
-            // ),
-          ],
+        body: Column(children: [
+          const WindowButtons(),
           Expanded(
-            child: ClipRect(
-              child: PageTransitionSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: <int, Widget Function()>{
-                  0: () => const DeviceGrid(),
-                  1: () => const DirectCameraScreen(),
-                  2: () => const EventsScreen(),
-                  3: () => AddServerWizard(
-                        onFinish: () async {
-                          home.setTab(0);
-                          if (!isDesktop) {
-                            await StatusBarControl.setHidden(true);
-                            await StatusBarControl.setStyle(
-                              getStatusBarStyleFromBrightness(
-                                  Theme.of(context).brightness),
-                            );
-                            await SystemChrome.setPreferredOrientations(
-                              [
-                                DeviceOrientation.landscapeLeft,
-                                DeviceOrientation.landscapeRight,
-                              ],
-                            );
-                          }
-                        },
+            child: Row(children: [
+              // if it's desktop, we show the navigation in the window bar
+              if ((isWide || isExtraWide) && !isDesktop) ...[
+                NavigationRail(
+                  minExtendedWidth: 220,
+                  elevation: Theme.of(context).appBarTheme.elevation,
+                  backgroundColor:
+                      Theme.of(context).appBarTheme.backgroundColor,
+                  extended: isExtraWide,
+                  useIndicator: !isExtraWide,
+                  indicatorColor: theme.selectedBackgroundColor,
+                  selectedLabelTextStyle: TextStyle(
+                    color: theme.selectedForegroundColor,
+                  ),
+                  unselectedLabelTextStyle: TextStyle(
+                    color: theme.unselectedForegroundColor,
+                  ),
+                  destinations: navigatorData(context).entries.map((entry) {
+                    final icon = entry.key;
+                    final text = entry.value;
+                    final index =
+                        navigatorData(context).keys.toList().indexOf(icon);
+
+                    return NavigationRailDestination(
+                      icon: Icon(
+                        icon,
+                        color: index == tab
+                            ? theme.selectedForegroundColor
+                            : theme.unselectedForegroundColor,
                       ),
-                  4: () => Settings(
-                        changeCurrentTab: (i) => home.setTab(i),
-                      ),
-                }[tab]!(),
-                transitionBuilder: (child, animation, secondaryAnimation) {
-                  return SharedAxisTransition(
-                    child: child,
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    transitionType: SharedAxisTransitionType.vertical,
-                  );
-                },
+                      label: Text(text),
+                    );
+                  }).toList(),
+                  selectedIndex: tab,
+                  onDestinationSelected: (index) {
+                    if (tab != index) {
+                      home.setTab(index);
+                    }
+                  },
+                ),
+                // SizedBox(
+                //   width: 4.0,
+                // ),
+              ],
+              Expanded(
+                child: ClipRect(
+                  child: PageTransitionSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: <int, Widget Function()>{
+                      0: () => const DeviceGrid(),
+                      1: () => const DirectCameraScreen(),
+                      2: () => const EventsScreen(),
+                      3: () => AddServerWizard(
+                            onFinish: () async {
+                              home.setTab(0);
+                              if (!isDesktop) {
+                                await StatusBarControl.setHidden(true);
+                                await StatusBarControl.setStyle(
+                                  getStatusBarStyleFromBrightness(
+                                      Theme.of(context).brightness),
+                                );
+                                await SystemChrome.setPreferredOrientations(
+                                  [
+                                    DeviceOrientation.landscapeLeft,
+                                    DeviceOrientation.landscapeRight,
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                      4: () => Settings(
+                            changeCurrentTab: (i) => home.setTab(i),
+                          ),
+                    }[tab]!(),
+                    transitionBuilder: (child, animation, secondaryAnimation) {
+                      return SharedAxisTransition(
+                        child: child,
+                        animation: animation,
+                        secondaryAnimation: secondaryAnimation,
+                        transitionType: SharedAxisTransitionType.vertical,
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
+            ]),
           ),
         ]),
       );

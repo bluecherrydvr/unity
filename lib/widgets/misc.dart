@@ -415,15 +415,20 @@ class CorrectedListTile extends StatelessWidget {
 
 class SubHeader extends StatelessWidget {
   final String text;
+  final EdgeInsetsGeometry padding;
 
-  const SubHeader(this.text, {Key? key}) : super(key: key);
+  const SubHeader(
+    this.text, {
+    Key? key,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 56.0,
       alignment: AlignmentDirectional.centerStart,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: padding,
       child: Text(
         text.toUpperCase(),
         style: Theme.of(context).textTheme.overline?.copyWith(

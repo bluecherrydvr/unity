@@ -70,7 +70,8 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                             index--;
                             final device = server.devices[index];
-                            final selected = view.devices.contains(device);
+                            final selected =
+                                view.currentLayout.devices.contains(device);
 
                             return DesktopDeviceSelectorTile(
                               device: device,
@@ -100,7 +101,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           color: Colors.black,
           child: SizedBox.expand(
             child: () {
-              if (view.devices.isEmpty) {
+              if (view.currentLayout.devices.isEmpty) {
                 return const Center(
                   child: Text(
                     'Select a camera',
@@ -112,7 +113,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 );
               }
 
-              final dl = view.devices.length;
+              final dl = view.currentLayout.devices.length;
 
               if (view.currentLayout.layoutType ==
                       DesktopLayoutType.compactView &&
@@ -130,10 +131,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   onReorder: view.reorder,
                   itemCount: 4,
                   itemBuilder: (context, index) {
-                    final device = view.devices[index];
+                    final device = view.currentLayout.devices[index];
 
                     if (index == 3) {
-                      final devices = view.devices.sublist(3);
+                      final devices = view.currentLayout.devices.sublist(3);
+
                       return DesktopCompactTile(
                         key: ValueKey('$devices.${devices.length}'),
                         devices: devices,
@@ -165,9 +167,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 ),
                 padding: const EdgeInsets.all(10.0),
                 onReorder: view.reorder,
-                itemCount: view.devices.length,
+                itemCount: view.currentLayout.devices.length,
                 itemBuilder: (context, index) {
-                  final device = view.devices[index];
+                  final device = view.currentLayout.devices[index];
 
                   return DesktopDeviceTile(
                     key: ValueKey('$device.${device.server.serverUUID}'),

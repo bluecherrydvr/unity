@@ -35,6 +35,7 @@ class NObserver extends NavigatorObserver {
   void update(Route route) {
     // do not update if it's a popup
     if (route is PopupRoute) return;
+    if (route is DialogRoute) return;
 
     navigationStream.add(route.settings.arguments);
   }
@@ -181,32 +182,3 @@ class _WindowButtonsState extends State<WindowButtons> {
     );
   }
 }
-
-// class _GridLayout extends StatelessWidget {
-//   const _GridLayout({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     final desktop = context.watch<DesktopViewProvider>();
-
-//     return Row(
-//       children: DesktopLayoutType.values.map((type) {
-//         final selected = desktop.layoutType == type;
-
-//         return IconButton(
-//           icon: Icon(
-//             selected ? selectedIconForLayout(type) : iconForLayout(type),
-//           ),
-//           iconSize: 20.0,
-//           color: selected ? theme.primaryColor : theme.hintColor,
-//           onPressed: () async {
-//             desktop.setLayoutType(type);
-//           },
-//         );
-//       }).toList(),
-//     );
-//   }
-
-
-// }

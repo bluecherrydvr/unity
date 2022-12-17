@@ -40,8 +40,6 @@ class DesktopViewProvider extends ChangeNotifier {
     return instance;
   }
 
-  List<Device> devices = [];
-
   List<Layout> layouts = [
     const Layout(
       name: 'Default',
@@ -63,12 +61,12 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
     final hive = await Hive.openBox('hive');
-    if (!hive.containsKey(kHiveDesktopView)) {
+    if (!hive.containsKey(kHiveDesktopLayouts)) {
       await _save();
     } else {
       await _restore();
       // Create video player instances for the device tiles already present in the view (restored from cache).
-      for (final device in devices) {
+      for (final device in currentLayout.devices) {
         players[device] = getVideoPlayerControllerForDevice(device);
       }
     }
@@ -78,15 +76,6 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
     final instance = await Hive.openBox('hive');
-    final data = devices.map((device) {
-      return {device.uri: device.toJson()};
-    }).toList();
-
-    debugPrint(data.toString());
-    await instance.put(
-      kHiveDesktopView,
-      jsonEncode(data),
-    );
 
     await instance.put(
       kHiveDesktopLayouts,
@@ -102,13 +91,6 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
     final instance = await Hive.openBox('hive');
-    devices = (jsonDecode(instance.get(kHiveDesktopView)!) as List)
-        .cast<Map>()
-        .map<Device>((item) {
-      final realItem = item.entries.first;
-
-      return Device.fromJson((realItem.value as Map).cast<String, dynamic>());
-    }).toList();
 
     layouts = ((jsonDecode(instance.get(kHiveDesktopLayouts)) ?? []) as List)
         .cast<Map>()
@@ -125,13 +107,16 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Adds a new camera [device]
   Future<void> add(Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
-    if (!devices.contains(device)) {
-      // if (layoutType == DesktopLayoutType.singleView) devices.clear();
+    if (!currentLayout.devices.contains(device)) {
+      if (currentLayout.layoutType == DesktopLayoutType.singleView) {
+        currentLayout.devices.clear();
+      }
 
       debugPrint(device.toString());
       debugPrint(device.streamURL);
+
       players[device] = getVideoPlayerControllerForDevice(device);
-      devices.add(device);
+      currentLayout.devices.add(device);
     }
     notifyListeners();
     return _save(notifyListeners: false);
@@ -140,14 +125,14 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Removes a [Device] tile from the camera grid
   Future<void> remove(Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
-    if (devices.contains(device)) {
+    if (currentLayout.devices.contains(device)) {
       debugPrint(device.toString());
       debugPrint(device.streamURL);
 
       players[device]?.release();
       players[device]?.dispose();
 
-      devices.remove(device);
+      currentLayout.devices.remove(device);
     }
     notifyListeners();
     return _save(notifyListeners: false);
@@ -156,7 +141,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Moves a device tile from [initial] position to [end] position inside a [tab].
   /// Used for re-ordering camera [DeviceTile]s when dragging.
   Future<void> reorder(int initial, int end) {
-    devices.insert(end, devices.removeAt(initial));
+    currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();
     return _save(notifyListeners: false);
@@ -172,6 +157,55 @@ class DesktopViewProvider extends ChangeNotifier {
     );
     await players[device]?.setVolume(0.0);
     await players[device]?.setSpeed(1.0);
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Adds a new layout
+  Future<void> addLayout(Layout layout) {
+    if (!layouts.contains(layout)) {
+      debugPrint(layout.toString());
+      layouts.add(layout);
+    }
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Adds a remove layout
+  Future<void> removeLayout(Layout layout) {
+    if (layouts.contains(layout)) {
+      debugPrint(layout.toString());
+      layouts.remove(layout);
+    }
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Adds a remove layout
+  Future<void> updateLayout(Layout oldLayout, Layout newLayout) {
+    if (layouts.contains(oldLayout)) {
+      debugPrint(newLayout.toString());
+
+      layouts.insert(layouts.indexOf(oldLayout), newLayout);
+
+      debugPrint(oldLayout.toString());
+      debugPrint(newLayout.toString());
+    }
+
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Adds a remove layout
+  Future<void> updateCurrentLayout(int layoutIndex) {
+    _currentLayout = layoutIndex;
+
+    for (final device in currentLayout.devices) {
+      if (!players.containsKey(device)) {
+        players[device] = getVideoPlayerControllerForDevice(device);
+      }
+    }
+
     notifyListeners();
     return _save(notifyListeners: false);
   }

@@ -35,7 +35,6 @@ const kDefaultPassword = 'bluecherry';
 const kHiveServers = 'servers';
 const kHiveMobileView = 'mobile_view';
 const kHiveMobileViewTab = 'mobile_view_current_tab';
-const kHiveDesktopView = 'desktop_view';
 const kHiveDesktopLayouts = 'desktop_view_layouts';
 const kHiveDesktopCurrentLayout = 'desktop_view_current_layout';
 const kHiveNotificationToken = 'notification_token';

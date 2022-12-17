@@ -45,49 +45,54 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         ),
         child: Material(
           color: theme.canvasColor,
-          child: ListView.builder(
-            itemCount: ServersProvider.instance.servers.length,
-            itemBuilder: (context, i) {
-              final server = ServersProvider.instance.servers[i];
-              return FutureBuilder(
-                future: (() async => server.devices.isEmpty
-                    ? API.instance.getDevices(
-                        await API.instance.checkServerCredentials(server))
-                    : true)(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0) +
-                          mq.viewPadding,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: server.devices.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) return SubHeader(server.name);
+          child: Column(children: [
+            const LayoutManager(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: ServersProvider.instance.servers.length,
+                itemBuilder: (context, i) {
+                  final server = ServersProvider.instance.servers[i];
+                  return FutureBuilder(
+                    future: (() async => server.devices.isEmpty
+                        ? API.instance.getDevices(
+                            await API.instance.checkServerCredentials(server))
+                        : true)(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0) +
+                              mq.viewPadding,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: server.devices.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == 0) return SubHeader(server.name);
 
-                        index--;
-                        final device = server.devices[index];
-                        final selected = view.devices.contains(device);
+                            index--;
+                            final device = server.devices[index];
+                            final selected = view.devices.contains(device);
 
-                        return DesktopDeviceSelectorTile(
-                          device: device,
-                          selected: selected,
+                            return DesktopDeviceSelectorTile(
+                              device: device,
+                              selected: selected,
+                            );
+                          },
                         );
-                      },
-                    );
-                  } else {
-                    return Center(
-                      child: Container(
-                        alignment: AlignmentDirectional.center,
-                        height: 156.0,
-                        child: const CircularProgressIndicator.adaptive(),
-                      ),
-                    );
-                  }
+                      } else {
+                        return Center(
+                          child: Container(
+                            alignment: AlignmentDirectional.center,
+                            height: 156.0,
+                            child: const CircularProgressIndicator.adaptive(),
+                          ),
+                        );
+                      }
+                    },
+                  );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+          ]),
         ),
       ),
       Expanded(
@@ -109,7 +114,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
               final dl = view.devices.length;
 
-              if (view.layoutType == DesktopLayoutType.compactView && dl > 4) {
+              if (view.currentLayout.layoutType ==
+                      DesktopLayoutType.compactView &&
+                  dl > 4) {
                 return ReorderableGridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,

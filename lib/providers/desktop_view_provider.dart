@@ -20,24 +20,13 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart'
     show getVideoPlayerControllerForDevice;
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-/// Describes how the grid should behave in large screens
-enum DesktopLayoutType {
-  /// If selected, only a single camera can be selected per time
-  singleView,
-
-  /// If selected, multiple camers will be shown in the grid
-  multipleView,
-
-  /// If selected, only 4 cameras will be show in the grid
-  compactView,
-}
 
 class DesktopViewProvider extends ChangeNotifier {
   /// `late` initialized [DesktopViewProvider] instance.
@@ -53,19 +42,15 @@ class DesktopViewProvider extends ChangeNotifier {
 
   List<Device> devices = [];
 
-  DesktopLayoutType layoutType = DesktopLayoutType.multipleView;
-
-  void setLayoutType(DesktopLayoutType type) {
-    if (type == layoutType) return;
-    layoutType = type;
-
-    if (layoutType == DesktopLayoutType.singleView && devices.length > 1) {
-      devices.removeRange(1, devices.length);
-    }
-
-    notifyListeners();
-    _save(notifyListeners: false);
-  }
+  List<Layout> layouts = [
+    const Layout(
+      name: 'Default',
+      devices: [],
+      layoutType: DesktopLayoutType.multipleView,
+    ),
+  ];
+  int _currentLayout = 0;
+  Layout get currentLayout => layouts[_currentLayout];
 
   /// Instances of video players corresponding to a particular [Device].
   ///
@@ -103,7 +88,11 @@ class DesktopViewProvider extends ChangeNotifier {
       jsonEncode(data),
     );
 
-    await instance.put(kHiveDesktopLayoutType, layoutType.index);
+    await instance.put(
+      kHiveDesktopLayouts,
+      jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
+    );
+    await instance.put(kHiveDesktopCurrentLayout, _currentLayout);
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -121,8 +110,12 @@ class DesktopViewProvider extends ChangeNotifier {
       return Device.fromJson((realItem.value as Map).cast<String, dynamic>());
     }).toList();
 
-    layoutType = DesktopLayoutType.values[
-        int.tryParse(instance.get(kHiveDesktopLayoutType).toString()) ?? 0];
+    layouts = ((jsonDecode(instance.get(kHiveDesktopLayouts)) ?? []) as List)
+        .cast<Map>()
+        .map<Layout>((item) {
+      return Layout.fromMap(item.cast<String, dynamic>());
+    }).toList();
+    _currentLayout = instance.get(kHiveDesktopCurrentLayout) ?? 0;
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -133,7 +126,7 @@ class DesktopViewProvider extends ChangeNotifier {
   Future<void> add(Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices.contains(device)) {
-      if (layoutType == DesktopLayoutType.singleView) devices.clear();
+      // if (layoutType == DesktopLayoutType.singleView) devices.clear();
 
       debugPrint(device.toString());
       debugPrint(device.streamURL);

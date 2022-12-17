@@ -22,7 +22,6 @@ import 'dart:async';
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:flutter/material.dart';
@@ -147,15 +146,6 @@ class _WindowButtonsState extends State<WindowButtons> {
                 ),
               ),
             ),
-
-            // if it's the grid tab
-            if (tab == 0 && !canPop) ...[
-              const Padding(
-                padding: EdgeInsetsDirectional.only(end: 8.0),
-                child: _GridLayout(),
-              ),
-              divider,
-            ],
             if (!canPop) ...[
               ...navigatorData(context).entries.map((entry) {
                 final icon = entry.key;
@@ -192,51 +182,31 @@ class _WindowButtonsState extends State<WindowButtons> {
   }
 }
 
-class _GridLayout extends StatelessWidget {
-  const _GridLayout({Key? key}) : super(key: key);
+// class _GridLayout extends StatelessWidget {
+//   const _GridLayout({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final desktop = context.watch<DesktopViewProvider>();
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
+//     final desktop = context.watch<DesktopViewProvider>();
 
-    return Row(
-      children: DesktopLayoutType.values.map((type) {
-        final selected = desktop.layoutType == type;
+//     return Row(
+//       children: DesktopLayoutType.values.map((type) {
+//         final selected = desktop.layoutType == type;
 
-        return IconButton(
-          icon: Icon(
-            selected ? selectedIconForLayout(type) : iconForLayout(type),
-          ),
-          iconSize: 20.0,
-          color: selected ? theme.primaryColor : theme.hintColor,
-          onPressed: () async {
-            desktop.setLayoutType(type);
-          },
-        );
-      }).toList(),
-    );
-  }
+//         return IconButton(
+//           icon: Icon(
+//             selected ? selectedIconForLayout(type) : iconForLayout(type),
+//           ),
+//           iconSize: 20.0,
+//           color: selected ? theme.primaryColor : theme.hintColor,
+//           onPressed: () async {
+//             desktop.setLayoutType(type);
+//           },
+//         );
+//       }).toList(),
+//     );
+//   }
 
-  IconData iconForLayout(DesktopLayoutType type) {
-    switch (type) {
-      case DesktopLayoutType.singleView:
-        return Icons.crop_square;
-      case DesktopLayoutType.multipleView:
-        return Icons.view_comfy_outlined;
-      case DesktopLayoutType.compactView:
-        return Icons.view_compact_outlined;
-    }
-  }
 
-  IconData selectedIconForLayout(DesktopLayoutType type) {
-    switch (type) {
-      case DesktopLayoutType.singleView:
-        return Icons.square_rounded;
-      case DesktopLayoutType.multipleView:
-        return Icons.view_comfy;
-      case DesktopLayoutType.compactView:
-        return Icons.view_compact;
-    }
-  }
-}
+// }

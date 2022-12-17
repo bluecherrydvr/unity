@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +15,30 @@ class LayoutManager extends StatefulWidget {
 }
 
 class _LayoutManagerState extends State<LayoutManager> {
+  late Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+      final view = DesktopViewProvider.instance;
+      if (view.cycling) {
+        final currentIsLast =
+            view.currentLayoutIndex == view.layouts.length - 1;
+
+        view.updateCurrentLayout(
+          currentIsLast ? 0 : view.currentLayoutIndex + 1,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -19,24 +46,32 @@ class _LayoutManagerState extends State<LayoutManager> {
     final view = context.watch<DesktopViewProvider>();
 
     return SizedBox(
-      height: 200.0,
+      height: 210.0,
       child: Column(children: [
         const Divider(height: 1.0),
         Material(
           color: theme.appBarTheme.backgroundColor,
           child: Padding(
             padding: const EdgeInsetsDirectional.only(
-              top: 4.0,
-              bottom: 4.0,
-              start: 12.0,
+              top: 2.0,
+              bottom: 2.0,
+              start: 16.0,
               end: 16.0,
             ),
             child: Row(children: [
-              const Icon(Icons.view_agenda),
-              const SizedBox(width: 12.0),
               const Expanded(child: Text('View')),
               IconButton(
-                icon: const Icon(Icons.add),
+                icon: Icon(
+                  Icons.cyclone,
+                  size: 18.0,
+                  color: view.cycling ? theme.primaryColor : null,
+                ),
+                padding: EdgeInsets.zero,
+                tooltip: 'Cycle',
+                onPressed: view.toggleCycling,
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, size: 18.0),
                 tooltip: 'New layout',
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -97,6 +132,7 @@ class LayoutTile extends StatelessWidget {
         end: 16.0,
       ),
       title: Text(layout.name),
+      subtitle: Text('${layout.devices.length} cameras'),
       trailing: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(isDesktop ? Icons.more_horiz : Icons.more_vert),

@@ -48,7 +48,9 @@ class DesktopViewProvider extends ChangeNotifier {
     ),
   ];
   int _currentLayout = 0;
+  int get currentLayoutIndex => _currentLayout;
   Layout get currentLayout => layouts[_currentLayout];
+  bool cycling = false;
 
   /// Instances of video players corresponding to a particular [Device].
   ///
@@ -82,6 +84,7 @@ class DesktopViewProvider extends ChangeNotifier {
       jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
     );
     await instance.put(kHiveDesktopCurrentLayout, _currentLayout);
+    await instance.put(kHiveDesktopCycling, cycling);
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -98,6 +101,8 @@ class DesktopViewProvider extends ChangeNotifier {
       return Layout.fromMap(item.cast<String, dynamic>());
     }).toList();
     _currentLayout = instance.get(kHiveDesktopCurrentLayout) ?? 0;
+
+    cycling = instance.get(kHiveDesktopCycling) ?? false;
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -171,7 +176,7 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Adds a remove layout
+  /// Deletes [layout]
   Future<void> removeLayout(Layout layout) {
     if (layouts.contains(layout)) {
       debugPrint(layout.toString());
@@ -181,7 +186,7 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Adds a remove layout
+  /// Replaces [oldLayout] with [newLayout]
   Future<void> updateLayout(Layout oldLayout, Layout newLayout) {
     if (layouts.contains(oldLayout)) {
       debugPrint(newLayout.toString());
@@ -196,7 +201,7 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Adds a remove layout
+  /// Updates the current layout index
   Future<void> updateCurrentLayout(int layoutIndex) {
     _currentLayout = layoutIndex;
 
@@ -205,6 +210,14 @@ class DesktopViewProvider extends ChangeNotifier {
         players[device] = getVideoPlayerControllerForDevice(device);
       }
     }
+
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  /// Toggles cycling
+  Future<void> toggleCycling() {
+    cycling = !cycling;
 
     notifyListeners();
     return _save(notifyListeners: false);

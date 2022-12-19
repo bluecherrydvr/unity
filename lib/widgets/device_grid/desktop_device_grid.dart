@@ -21,6 +21,8 @@ part of 'device_grid.dart';
 
 const kGridInnerPadding = 8.0;
 
+typedef FoldedDevices = List<List<Device>>;
+
 class DesktopDeviceGrid extends StatefulWidget {
   const DesktopDeviceGrid({Key? key, required this.width}) : super(key: key);
 
@@ -31,6 +33,16 @@ class DesktopDeviceGrid extends StatefulWidget {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
+  int calculateCrossAxisCount(int deviceAmount) {
+    if (deviceAmount == 1) {
+      return 1;
+    } else if (deviceAmount <= 4) {
+      return 2;
+    } else {
+      return 3;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,7 +113,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           color: Colors.black,
           child: SizedBox.expand(
             child: () {
-              if (view.currentLayout.devices.isEmpty) {
+              List<Device> devices = view.currentLayout.devices;
+
+              if (devices.isEmpty) {
                 return const Center(
                   child: Text(
                     'Select a camera',
@@ -113,48 +127,73 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 );
               }
 
-              final dl = view.currentLayout.devices.length;
-
+              final dl = devices.length;
               if (view.currentLayout.layoutType ==
                       DesktopLayoutType.compactView &&
-                  dl > 4) {
+                  dl >= 4) {
+                FoldedDevices foldedDevices =
+                    devices.reversed.fold<List<List<Device>>>(
+                  [[]],
+                  (collection, device) {
+                    if (collection.last.length == 4) {
+                      collection.add([device]);
+                    } else {
+                      collection.last.add(device);
+                    }
+
+                    return collection;
+                  },
+                );
+                final crossAxisCount =
+                    calculateCrossAxisCount(foldedDevices.length);
+
+                final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+                // if there are space left on screen
+                if (amountOfItemsOnScreen > foldedDevices.length) {
+                  // final diff = amountOfItemsOnScreen - foldedDevices.length;
+                  while (amountOfItemsOnScreen > foldedDevices.length) {
+                    final lastFullFold =
+                        foldedDevices.lastWhere((fold) => fold.length > 1);
+                    final foldIndex = foldedDevices.indexOf(lastFullFold);
+                    foldedDevices.insert(foldIndex + 1, [lastFullFold.last]);
+                    lastFullFold.removeLast();
+                  }
+                }
+
                 return ReorderableGridView.builder(
+                  key: ValueKey('$crossAxisCount'),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
                     mainAxisSpacing: kGridInnerPadding,
                     crossAxisSpacing: kGridInnerPadding,
                     childAspectRatio: 16 / 9,
                   ),
                   padding: const EdgeInsets.all(10.0),
                   onReorder: view.reorder,
-                  itemCount: 4,
+                  itemCount: foldedDevices.length,
                   itemBuilder: (context, index) {
-                    final device = view.currentLayout.devices[index];
+                    final fold = foldedDevices[index];
 
-                    if (index == 3) {
-                      final devices = view.currentLayout.devices.sublist(3);
-
-                      return DesktopCompactTile(
-                        key: ValueKey('$devices.${devices.length}'),
-                        devices: devices,
+                    if (fold.length == 1) {
+                      final device = fold.first;
+                      return DesktopDeviceTile(
+                        key: ValueKey('$device;${device.server.serverUUID}'),
+                        device: device,
                       );
                     }
 
-                    return DesktopDeviceTile(
-                      key: ValueKey('$device.${device.server.serverUUID}'),
-                      device: device,
+                    return DesktopCompactTile(
+                      key: ValueKey('$fold;${fold.length}'),
+                      devices: fold,
                     );
                   },
                 );
               }
 
-              final crossAxisCount = dl == 1
-                  ? 1
-                  : dl <= 4
-                      ? 2
-                      : 3;
+              final crossAxisCount = calculateCrossAxisCount(dl);
 
               return ReorderableGridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
@@ -167,9 +206,9 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 ),
                 padding: const EdgeInsets.all(10.0),
                 onReorder: view.reorder,
-                itemCount: view.currentLayout.devices.length,
+                itemCount: devices.length,
                 itemBuilder: (context, index) {
-                  final device = view.currentLayout.devices[index];
+                  final device = devices[index];
 
                   return DesktopDeviceTile(
                     key: ValueKey('$device.${device.server.serverUUID}'),
@@ -218,8 +257,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     final mq = MediaQuery.of(context);
     final view = context.watch<DesktopViewProvider>();
 
-    return SizedBox(
+    return Container(
       height: mq.size.height,
+      color: Colors.grey.shade900,
       child: BluecherryVideoPlayer(
         controller: videoPlayer!,
         color: Colors.grey.shade900,

@@ -35,7 +35,10 @@ class BluecherryVideoPlayerController {
 
   BluecherryVideoPlayerController() {
     if (isDesktop) {
-      vlcPlayer = Player(id: Random.secure().nextInt(100000));
+      vlcPlayer = Player(
+        id: Random.secure().nextInt(100000),
+        videoDimensions: const VideoDimensions(640, 360),
+      );
     } else {
       ijkPlayer = FijkPlayer();
     }

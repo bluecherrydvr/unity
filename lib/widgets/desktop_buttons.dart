@@ -124,7 +124,7 @@ class _WindowButtonsState extends State<WindowButtons> {
 
                         if (arguments.data is Device) {
                           final device = arguments.data as Device;
-                          return '${device.server.name} / ${device.name}';
+                          return device.fullName;
                         }
                       }
 

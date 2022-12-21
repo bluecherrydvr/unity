@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   dart_vlc
+  desktop_multi_window
   permission_handler_windows
   screen_retriever
   url_launcher_windows

@@ -17,12 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/utils/window.dart';
+import 'package:bluecherry_client/widgets/camera_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -37,7 +40,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:window_manager/window_manager.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -51,24 +53,27 @@ import 'widgets/events/events_screen.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (isDesktop) {
-    await WindowManager.instance.ensureInitialized();
-    windowManager.waitUntilReadyToShow().then((_) async {
-      await windowManager.setTitleBarStyle(
-        TitleBarStyle.hidden,
-        windowButtonVisibility: false,
+    if (args.isNotEmpty) {
+      debugPrint('FOUND ANOTHER WINDOW: $args');
+      final params = (json.decode(args[2]) as Map).cast<String, dynamic>();
+      final windowId = params['window_id'] as String;
+      final device = Device.fromJson(
+        (params['device'] as Map).cast<String, dynamic>(),
       );
-      await windowManager.setSize(const Size(900, 645));
-      await windowManager.setMinimumSize(const Size(900, 600));
-      await windowManager.center();
-      await windowManager.show();
-      await windowManager.setSkipTaskbar(false);
-    });
 
-    DartVLC.initialize();
+      DartVLC.initialize();
+
+      runApp(CameraView(device: device));
+
+      return;
+    } else {
+      await configureWindow();
+      DartVLC.initialize();
+    }
   }
 
   // Request notifications permission for iOS, Android 13+ and Windows.

@@ -162,7 +162,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 }
 
                 return ReorderableGridView.builder(
-                  key: ValueKey('$crossAxisCount'),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -306,7 +305,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                '${widget.device.server.name} / ${widget.device.name}',
+                widget.device.fullName,
                 style: const TextStyle(
                   color: Colors.white,
                   shadows: shadows,
@@ -325,15 +324,12 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: const Icon(
-                        Icons.replay_outlined,
-                        shadows: shadows,
-                      ),
-                      tooltip: AppLocalizations.of(context).reloadCamera,
+                      icon: const Icon(Icons.open_in_new, shadows: shadows),
+                      tooltip: 'Open in a new window',
                       color: Colors.white,
-                      iconSize: 20.0,
+                      iconSize: 22.0,
                       onPressed: () {
-                        DesktopViewProvider.instance.reload(widget.device);
+                        widget.device.openInANewWindow();
                       },
                     ),
                     IconButton(
@@ -362,6 +358,18 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                           },
                         );
                         if (isLocalController) await player.release();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.replay_outlined,
+                        shadows: shadows,
+                      ),
+                      tooltip: AppLocalizations.of(context).reloadCamera,
+                      color: Colors.white,
+                      iconSize: 20.0,
+                      onPressed: () {
+                        DesktopViewProvider.instance.reload(widget.device);
                       },
                     ),
                     const VerticalDivider(
@@ -480,9 +488,9 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             maxWidth: size.width,
             minWidth: size.width,
           ),
+          // TODO: localization
           items: <PopupMenuEntry>[
             PopupMenuItem(
-              // TODO: localization
               child: Text(selected ? 'Remove from view' : 'Add to view'),
               onTap: () {
                 if (selected) {
@@ -495,12 +503,10 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             const PopupMenuDivider(height: 8),
             PopupMenuItem(
               child: const Text(
-                // TODO: localization
-                // AppLocalizations.of(context).showFullscreenCamera,
                 'Show in full screen',
               ),
               onTap: () async {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
                   var player = view.players[device];
                   bool isLocalController = false;
                   if (player == null) {
@@ -519,6 +525,17 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
                 });
               },
             ),
+            if (isDesktop)
+              PopupMenuItem(
+                child: const Text(
+                  'Open in a new window',
+                ),
+                onTap: () async {
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    device.openInANewWindow();
+                  });
+                },
+              ),
           ],
         );
       },

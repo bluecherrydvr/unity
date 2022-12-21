@@ -51,6 +51,11 @@ class Device {
   String get streamURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
 
+  /// Server name / Device name
+  String get fullName {
+    return '${server.name} / $name';
+  }
+
   @override
   String toString() =>
       'Device($name, $uri, $status, $resolutionX, $resolutionY)';
@@ -89,21 +94,25 @@ class Device {
         server ?? this.server,
       );
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'uri': uri,
-        'status': status,
-        'resolutionX': resolutionX,
-        'resolutionY': resolutionY,
-        'server': server.toJson(devices: false),
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'uri': uri,
+      'status': status,
+      'resolutionX': resolutionX,
+      'resolutionY': resolutionY,
+      'server': server.toJson(devices: false),
+    };
+  }
 
-  factory Device.fromJson(Map<String, dynamic> json) => Device(
-        json['name'],
-        json['uri'],
-        json['status'],
-        json['resolutionX'],
-        json['resolutionY'],
-        Server.fromJson(json['server']),
-      );
+  factory Device.fromJson(Map<String, dynamic> json) {
+    return Device(
+      json['name'],
+      json['uri'],
+      json['status'],
+      json['resolutionX'],
+      json['resolutionY'],
+      Server.fromJson(json['server']),
+    );
+  }
 }

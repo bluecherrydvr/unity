@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:uuid/uuid.dart';
+
 /// Interpreted as the current application version.
 /// Update the [String]'s value before an update.
 const kAppVersion = '0.0.1';
@@ -57,3 +59,6 @@ const kDeviceTileMargin = 16.0;
 
 /// The period of cycle
 const kCycleTogglePeriod = Duration(seconds: 5);
+
+/// Uuid generator
+const uuid = Uuid();

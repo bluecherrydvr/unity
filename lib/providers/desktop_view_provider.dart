@@ -50,6 +50,8 @@ class DesktopViewProvider extends ChangeNotifier {
   int _currentLayout = 0;
   int get currentLayoutIndex => _currentLayout;
   Layout get currentLayout => layouts[_currentLayout];
+
+  /// Whether the layouts are rotating in a cycle
   bool cycling = false;
 
   /// Instances of video players corresponding to a particular [Device].

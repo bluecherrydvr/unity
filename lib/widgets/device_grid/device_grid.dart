@@ -43,6 +43,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 
+part 'desktop_sidebar.dart';
 part 'desktop_device_grid.dart';
 part 'mobile_device_grid.dart';
 

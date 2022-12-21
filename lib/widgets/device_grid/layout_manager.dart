@@ -7,6 +7,8 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class LayoutManager extends StatefulWidget {
   const LayoutManager({Key? key}) : super(key: key);
 
@@ -59,7 +61,7 @@ class _LayoutManagerState extends State<LayoutManager> {
               end: 16.0,
             ),
             child: Row(children: [
-              const Expanded(child: Text('View')),
+              Expanded(child: Text(AppLocalizations.of(context).view)),
               IconButton(
                 icon: Icon(
                   Icons.cyclone,
@@ -67,12 +69,12 @@ class _LayoutManagerState extends State<LayoutManager> {
                   color: view.cycling ? theme.primaryColor : null,
                 ),
                 padding: EdgeInsets.zero,
-                tooltip: 'Cycle',
+                tooltip: AppLocalizations.of(context).cycle,
                 onPressed: view.toggleCycling,
               ),
               IconButton(
                 icon: const Icon(Icons.add, size: 18.0),
-                tooltip: 'New layout',
+                tooltip: AppLocalizations.of(context).newLayout,
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   showDialog(
@@ -132,7 +134,9 @@ class LayoutTile extends StatelessWidget {
         end: 16.0,
       ),
       title: Text(layout.name),
-      subtitle: Text('${layout.devices.length} cameras'),
+      subtitle: Text(
+        AppLocalizations.of(context).nDevices(layout.devices.length),
+      ),
       trailing: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(isDesktop ? Icons.more_horiz : Icons.more_vert),
@@ -175,14 +179,14 @@ IconData iconForLayout(DesktopLayoutType type) {
   }
 }
 
-String textForLayout(DesktopLayoutType type) {
+String textForLayout(BuildContext context, DesktopLayoutType type) {
   switch (type) {
     case DesktopLayoutType.singleView:
-      return 'Single view';
+      return AppLocalizations.of(context).singleView;
     case DesktopLayoutType.multipleView:
-      return 'Multiple view';
+      return AppLocalizations.of(context).multipleView;
     case DesktopLayoutType.compactView:
-      return 'Compact view';
+      return AppLocalizations.of(context).compactView;
   }
 }
 
@@ -222,7 +226,7 @@ class _LayoutTypeChooser extends StatelessWidget {
             child: Icon(icon, key: ValueKey(icon), size: 22.0),
           ),
           const SizedBox(width: 8.0),
-          Text(textForLayout(type)),
+          Text(textForLayout(context, type)),
           const SizedBox(width: 16.0),
         ]);
       }).toList(),
@@ -254,16 +258,19 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Create new layout'),
+      title: Text(AppLocalizations.of(context).createNewLayout),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Layout name',
-            label: Text('Layout name'),
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context).layoutNameHint,
+            label: Text(AppLocalizations.of(context).layoutNameHint),
           ),
         ),
-        const SubHeader('Layout type', padding: EdgeInsets.zero),
+        SubHeader(
+          AppLocalizations.of(context).layoutTypeHint,
+          padding: EdgeInsets.zero,
+        ),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) => setState(() => selected = index),
@@ -272,7 +279,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
       actions: [
         OutlinedButton(
           onPressed: Navigator.of(context).pop,
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -285,7 +292,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             ));
             Navigator.of(context).pop();
           },
-          child: const Text('Create'),
+          child: Text(AppLocalizations.of(context).finish),
         ),
       ],
     );
@@ -324,12 +331,15 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Layout name',
-            label: Text('Layout name'),
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context).layoutNameHint,
+            label: Text(AppLocalizations.of(context).layoutNameHint),
           ),
         ),
-        const SubHeader('Layout type', padding: EdgeInsets.zero),
+        SubHeader(
+          AppLocalizations.of(context).layoutTypeHint,
+          padding: EdgeInsets.zero,
+        ),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) => setState(() => selected = index),
@@ -338,7 +348,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       actions: [
         TextButton(
           onPressed: Navigator.of(context).pop,
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -351,7 +361,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: const Text('Done'),
+          child: Text(AppLocalizations.of(context).finish),
         ),
       ],
     );

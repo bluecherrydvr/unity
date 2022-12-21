@@ -39,7 +39,7 @@ class EventsScreenMobile extends StatelessWidget {
               if (isDesktop)
                 IconButton(
                   onPressed: refresh,
-                  tooltip: 'Refresh',
+                  tooltip: AppLocalizations.of(context).refresh,
                   icon: const Icon(Icons.refresh),
                 ),
             ]),

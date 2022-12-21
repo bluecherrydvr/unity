@@ -141,7 +141,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 child: Material(
                   child: DropdownButtonHideUnderline(
                     child: Column(children: [
-                      const SubHeader('Servers'),
+                      SubHeader(AppLocalizations.of(context).servers),
                       ...servers.servers.map((server) {
                         return CheckboxListTile(
                           value: true,

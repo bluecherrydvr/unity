@@ -56,10 +56,10 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
               List<Device> devices = view.currentLayout.devices;
 
               if (devices.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    'Select a camera',
-                    style: TextStyle(
+                    AppLocalizations.of(context).selectACamera,
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12.0,
                     ),
@@ -265,7 +265,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.open_in_new, shadows: shadows),
-                      tooltip: 'Open in a new window',
+                      tooltip: AppLocalizations.of(context).openInANewWindow,
                       color: Colors.white,
                       iconSize: 22.0,
                       onPressed: () {

@@ -293,7 +293,8 @@ class _ServerCardState extends State<ServerCard> {
                   Transform.scale(
                     scale: 0.9,
                     child: OutlinedButton(
-                      child: const Text('Disconnect'),
+                      child:
+                          Text(AppLocalizations.of(context).disconnectServer),
                       onPressed: () {
                         widget.onRemoveServer(context, widget.server);
                       },
@@ -312,31 +313,32 @@ class _ServerCardState extends State<ServerCard> {
               position: PopupMenuPosition.under,
               offset: const Offset(-128, 4.0),
               constraints: const BoxConstraints(maxWidth: 160.0),
-              tooltip: 'Server options',
+              tooltip: AppLocalizations.of(context).serverOptions,
               itemBuilder: (context) {
                 return [
                   PopupMenuItem(
-                    child: const Text('Disconnect'),
+                    child: Text(AppLocalizations.of(context).disconnectServer),
                     onTap: () {
                       widget.onRemoveServer(context, widget.server);
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: const Text('Browse events'),
+                    child: Text(AppLocalizations.of(context).browseEvents),
                     onTap: () {
-                      launchUrl(Uri.parse(widget.server.ip));
+                      // TODO: browse events
+                      // launchUrl(Uri.parse(widget.server.ip));
                     },
                   ),
                   PopupMenuItem(
-                    child: const Text('Configure server'),
+                    child: Text(AppLocalizations.of(context).configureServer),
                     onTap: () {
                       launchUrl(Uri.parse(widget.server.ip));
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: const Text('Refresh devices'),
+                    child: Text(AppLocalizations.of(context).refreshDevices),
                     onTap: () async {
                       try {
                         await API.instance.getDevices(await API.instance

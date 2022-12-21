@@ -20,14 +20,14 @@ class EventsScreenDesktop extends StatelessWidget {
         width: double.infinity,
         child: DataTable(
           columnSpacing: 35.0,
-          columns: const [
-            DataColumn(label: SizedBox.shrink()),
-            DataColumn(label: Text('Server')),
-            DataColumn(label: Text('Device')),
-            DataColumn(label: Text('Event')),
-            DataColumn(label: Text('Duration')),
-            DataColumn(label: Text('Priority')),
-            DataColumn(label: Text('Date')),
+          columns: [
+            DataColumn(label: const SizedBox.shrink()),
+            DataColumn(label: Text(AppLocalizations.of(context).server)),
+            DataColumn(label: Text(AppLocalizations.of(context).device)),
+            DataColumn(label: Text(AppLocalizations.of(context).event)),
+            DataColumn(label: Text(AppLocalizations.of(context).duration)),
+            DataColumn(label: Text(AppLocalizations.of(context).priority)),
+            DataColumn(label: Text(AppLocalizations.of(context).date)),
           ],
           showCheckboxColumn: false,
           rows: events.map<DataRow>((Event event) {
@@ -54,13 +54,7 @@ class EventsScreenDesktop extends StatelessWidget {
                           ?.withOpacity(0.4);
                     }),
               onSelectChanged: (_) {
-                Navigator.of(context).pushNamed(
-                  '/events',
-                  arguments: event,
-                  // MaterialPageRoute(builder: (context) {
-                  //   return EventPlayerScreen(event: event);
-                  // }),
-                );
+                Navigator.of(context).pushNamed('/events', arguments: event);
               },
               cells: [
                 // icon

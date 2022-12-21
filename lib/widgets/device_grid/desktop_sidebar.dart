@@ -119,10 +119,13 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             maxWidth: size.width,
             minWidth: size.width,
           ),
-          // TODO: localization
           items: <PopupMenuEntry>[
             PopupMenuItem(
-              child: Text(selected ? 'Remove from view' : 'Add to view'),
+              child: Text(
+                selected
+                    ? AppLocalizations.of(context).removeFromView
+                    : AppLocalizations.of(context).addToView,
+              ),
               onTap: () {
                 if (selected) {
                   view.remove(device);
@@ -133,8 +136,8 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             ),
             const PopupMenuDivider(height: 8),
             PopupMenuItem(
-              child: const Text(
-                'Show in full screen',
+              child: Text(
+                AppLocalizations.of(context).showFullscreenCamera,
               ),
               onTap: () async {
                 WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -158,9 +161,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             ),
             if (isDesktop)
               PopupMenuItem(
-                child: const Text(
-                  'Open in a new window',
-                ),
+                child: Text(AppLocalizations.of(context).openInANewWindow),
                 onTap: () async {
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                     device.openInANewWindow();

@@ -52,27 +52,7 @@ class ServersList extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleSmall,
                         ),
-                        // Text(
-                        //   fetched
-                        //       ? [
-                        //           if (widget.server.name != widget.server.ip)
-                        //             widget.server.ip,
-                        //           AppLocalizations.of(context)
-                        //               .nDevices(widget.server.devices.length),
-                        //         ].join(' • ')
-                        //       : AppLocalizations.of(context).gettingDevices,
-                        //   overflow: TextOverflow.ellipsis,
-                        //   style: theme.textTheme.caption,
-                        // ),
                         const SizedBox(height: 15.0),
-                        // Transform.scale(
-                        //   scale: 0.9,
-                        //   child: OutlinedButton(
-                        //     child: const Text('Remove'),
-                        //     onPressed: () =>
-                        //         widget.onRemoveServer(context, widget.server),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -275,42 +255,103 @@ class _ServerCardState extends State<ServerCard> {
       height: 180,
       width: 180,
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            CircleAvatar(
-              child: const Icon(Icons.dns, size: 30.0),
-              backgroundColor: Colors.transparent,
-              foregroundColor: Theme.of(context).iconTheme.color,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              widget.server.name,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleSmall,
-            ),
-            Text(
-              fetched
-                  ? [
-                      if (widget.server.name != widget.server.ip)
-                        widget.server.ip,
-                      AppLocalizations.of(context)
-                          .nDevices(widget.server.devices.length),
-                    ].join(' • ')
-                  : AppLocalizations.of(context).gettingDevices,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.caption,
-            ),
-            const SizedBox(height: 15.0),
-            Transform.scale(
-              scale: 0.9,
-              child: OutlinedButton(
-                child: const Text('Disconnect'),
-                onPressed: () => widget.onRemoveServer(context, widget.server),
+        child: Stack(children: [
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    child: const Icon(Icons.dns, size: 30.0),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    widget.server.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  Text(
+                    fetched
+                        ? [
+                            if (widget.server.name != widget.server.ip)
+                              widget.server.ip,
+                          ].join('')
+                        : AppLocalizations.of(context).gettingDevices,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.caption,
+                  ),
+                  Text(
+                    fetched
+                        ? AppLocalizations.of(context)
+                            .nDevices(widget.server.devices.length)
+                        : '',
+                  ),
+                  const SizedBox(height: 15.0),
+                  Transform.scale(
+                    scale: 0.9,
+                    child: OutlinedButton(
+                      child: const Text('Disconnect'),
+                      onPressed: () {
+                        widget.onRemoveServer(context, widget.server);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ]),
-        ),
+          ),
+          PositionedDirectional(
+            top: 4,
+            end: 2,
+            child: PopupMenuButton<Object>(
+              iconSize: 20.0,
+              splashRadius: 16.0,
+              position: PopupMenuPosition.under,
+              offset: const Offset(-128, 4.0),
+              constraints: const BoxConstraints(maxWidth: 160.0),
+              tooltip: 'Server options',
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: const Text('Disconnect'),
+                    onTap: () {
+                      widget.onRemoveServer(context, widget.server);
+                    },
+                  ),
+                  const PopupMenuDivider(height: 1.0),
+                  PopupMenuItem(
+                    child: const Text('Browse events'),
+                    onTap: () {
+                      launchUrl(Uri.parse(widget.server.ip));
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: const Text('Configure server'),
+                    onTap: () {
+                      launchUrl(Uri.parse(widget.server.ip));
+                    },
+                  ),
+                  const PopupMenuDivider(height: 1.0),
+                  PopupMenuItem(
+                    child: const Text('Refresh devices'),
+                    onTap: () async {
+                      try {
+                        await API.instance.getDevices(await API.instance
+                            .checkServerCredentials(widget.server));
+                      } catch (exception, stacktrace) {
+                        debugPrint(exception.toString());
+                        debugPrint(stacktrace.toString());
+                      }
+                    },
+                  ),
+                ];
+              },
+            ),
+          ),
+        ]),
       ),
     );
   }

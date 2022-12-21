@@ -306,7 +306,7 @@ class _SettingsState extends State<Settings> {
           //     }).toList(),
           //   ),
           // ),
-          divider,
+          // divider,
           SubHeader(AppLocalizations.of(context).version),
           SliverToBoxAdapter(
             child: Padding(

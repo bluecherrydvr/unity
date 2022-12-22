@@ -122,16 +122,18 @@ class Event {
         'mediaURL': mediaURL.toString(),
       };
 
-  factory Event.fromJson(Map<String, dynamic> json) => Event(
-        Server.fromJson(json['server']),
-        json['deviceID'],
-        json['id'],
-        json['title'],
-        DateTime.parse(json['published']),
-        DateTime.parse(json['updated']),
-        json['category'],
-        json['mediaID'],
-        Duration(milliseconds: json['mediaDuration']),
-        Uri.parse(json['mediaURL']),
-      );
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      Server.fromJson(json['server']),
+      json['deviceID'],
+      json['id'],
+      json['title'],
+      DateTime.parse(json['published']),
+      DateTime.parse(json['updated']),
+      json['category'],
+      json['mediaID'],
+      Duration(milliseconds: json['mediaDuration']),
+      Uri.parse(json['mediaURL']),
+    );
+  }
 }

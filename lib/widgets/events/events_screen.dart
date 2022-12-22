@@ -21,6 +21,7 @@
 
 import 'dart:async';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:intl/intl.dart';

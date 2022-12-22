@@ -21,7 +21,7 @@ class EventsScreenDesktop extends StatelessWidget {
         child: DataTable(
           columnSpacing: 35.0,
           columns: [
-            DataColumn(label: const SizedBox.shrink()),
+            const DataColumn(label: SizedBox.shrink()),
             DataColumn(label: Text(AppLocalizations.of(context).server)),
             DataColumn(label: Text(AppLocalizations.of(context).device)),
             DataColumn(label: Text(AppLocalizations.of(context).event)),
@@ -53,9 +53,13 @@ class EventsScreenDesktop extends StatelessWidget {
                       return theme.appBarTheme.backgroundColor
                           ?.withOpacity(0.4);
                     }),
-              onSelectChanged: (_) {
-                Navigator.of(context).pushNamed('/events', arguments: event);
-              },
+              onSelectChanged: event.mediaURL == null
+                  ? null
+                  : (_) {
+                      debugPrint('Displaying event $event');
+                      Navigator.of(context)
+                          .pushNamed('/events', arguments: event);
+                    },
               cells: [
                 // icon
                 DataCell(Icon(

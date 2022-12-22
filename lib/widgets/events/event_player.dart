@@ -33,17 +33,29 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: isDesktop ? null : AppBar(title: Text(widget.event.deviceName)),
-      body: InteractiveViewer(
-        minScale: 1.0,
-        maxScale: 4.0,
-        child: BluecherryVideoPlayer(
-          controller: videoController,
-          fit: CameraViewFit.contain,
-          paneBuilder: (context, controller, states) => VideoViewport(
-            player: controller,
+      body: Column(children: [
+        const WindowButtons(),
+        Expanded(
+          child: InteractiveViewer(
+            minScale: 1.0,
+            maxScale: 4.0,
+            child: BluecherryVideoPlayer(
+              controller: videoController,
+              fit: CameraViewFit.contain,
+              paneBuilder: (context, controller, states) {
+                if (isDesktop) {
+                  return _DesktopVideoViewport(
+                    event: widget.event,
+                    player: controller,
+                  );
+                } else {
+                  return VideoViewport(player: controller);
+                }
+              },
+            ),
           ),
         ),
-      ),
+      ]),
     );
   }
 }
@@ -318,5 +330,53 @@ class _VideoViewportState extends State<VideoViewport> {
     // player.removeListener(listener);
 
     super.dispose();
+  }
+}
+
+class _DesktopVideoViewport extends StatefulWidget {
+  final Event event;
+  final BluecherryVideoPlayerController player;
+
+  const _DesktopVideoViewport({
+    Key? key,
+    required this.event,
+    required this.player,
+  }) : super(key: key);
+
+  @override
+  State<_DesktopVideoViewport> createState() => __DesktopVideoViewportState();
+}
+
+class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
+    return Stack(children: [
+      PositionedDirectional(
+        bottom: 0,
+        start: 12.0,
+        end: 12.0,
+        child: Row(children: [
+          Text(settings.timeFormat.format(widget.event.published)),
+          Expanded(
+            child: Slider(
+              value: widget.player.currentPos.inMilliseconds.toDouble(),
+              min: 0,
+              max: widget.player.duration.inMilliseconds.toDouble(),
+              onChanged: (v) {
+                widget.player.seekTo(v.toInt());
+              },
+            ),
+          ),
+          Text(
+            settings.timeFormat.format(
+              widget.event.published
+                  .add(widget.event.mediaDuration ?? Duration.zero),
+            ),
+          ),
+        ]),
+      ),
+    ]);
   }
 }

@@ -132,8 +132,10 @@ ThemeData createTheme({
       ),
     );
   }
+
   return ThemeData(
     useMaterial3: true,
+
     // ignore: deprecated_member_use
     androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
     // Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
@@ -236,6 +238,8 @@ ThemeData createTheme({
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: light ? Colors.white : const Color(0xFF202020),
+      surfaceTintColor: light ? Colors.white : const Color(0xFF202020),
+      shadowColor: light ? Colors.white : const Color(0xFF202020),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: light ? Colors.black12 : Colors.white12,
         statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
@@ -269,10 +273,12 @@ ThemeData createTheme({
     ),
     textTheme: textTheme,
     primaryTextTheme: textTheme,
-    colorScheme: ColorScheme.fromSwatch().copyWith(
+    colorScheme: ColorScheme.fromSwatch(
+      brightness: light ? Brightness.light : Brightness.dark,
+      cardColor: light ? Colors.white : const Color(0xFF242424),
+    ).copyWith(
       primary: primary,
       secondary: accent,
-      brightness: light ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
       textStyle: Platform.isWindows || Platform.isLinux || Platform.isMacOS

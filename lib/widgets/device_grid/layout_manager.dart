@@ -50,7 +50,7 @@ class _LayoutManagerState extends State<LayoutManager> {
     return SizedBox(
       height: 210.0,
       child: Column(children: [
-        const Divider(height: 1.0),
+        if (isDesktop) const Divider(height: 1.0),
         Material(
           color: theme.appBarTheme.backgroundColor,
           child: Padding(
@@ -66,14 +66,20 @@ class _LayoutManagerState extends State<LayoutManager> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
-                  color: view.cycling ? theme.primaryColor : null,
+                  color: view.cycling
+                      ? theme.primaryColor
+                      : IconTheme.of(context).color,
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: AppLocalizations.of(context).cycle,
                 onPressed: view.toggleCycling,
               ),
               IconButton(
-                icon: const Icon(Icons.add, size: 18.0),
+                icon: Icon(
+                  Icons.add,
+                  size: 18.0,
+                  color: IconTheme.of(context).color,
+                ),
                 tooltip: AppLocalizations.of(context).newLayout,
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -139,7 +145,10 @@ class LayoutTile extends StatelessWidget {
       ),
       trailing: IconButton(
         padding: EdgeInsets.zero,
-        icon: Icon(isDesktop ? Icons.more_horiz : Icons.more_vert),
+        icon: Icon(
+          isDesktop ? Icons.more_horiz : Icons.more_vert,
+          color: IconTheme.of(context).color,
+        ),
         onPressed: () {
           showDialog(
             context: context,

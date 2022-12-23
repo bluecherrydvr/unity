@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  awesome_notifications
   dart_vlc
   desktop_multi_window
   screen_retriever

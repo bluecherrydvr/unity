@@ -1,0 +1,3 @@
+library unity_video_player;
+
+export 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';

@@ -31,12 +31,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  fijkplayer:
-    git:
-      # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
-      url: https://github.com/alexmercerind/fijkplayer.git
-      ref: master
-  dart_vlc: ^0.4.0
+  unity_video_player:
+    path: packages/unity_video_player/unity_video_player/
   reorderable_grid_view:
     git:
       url: https://github.com/alexmercerind/reorderable_grid_view.git

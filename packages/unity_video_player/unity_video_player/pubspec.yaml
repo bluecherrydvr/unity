@@ -1,0 +1,37 @@
+name: unity_video_player
+description: Video player used in the Unity project
+version: 0.0.1
+homepage:
+
+publish_to: none
+
+environment:
+  sdk: '>=2.18.5 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  unity_video_player_desktop:
+    path: ../unity_video_player_desktop
+  unity_video_player_mobile:
+    path: ../unity_video_player_mobile
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: unity_video_player_mobile
+      ios:
+        default_package: unity_video_player_mobile
+      macos:
+        default_package: unity_video_player_desktop
+      linux:
+        default_package: unity_video_player_desktop
+      windows:
+        default_package: unity_video_player_desktop

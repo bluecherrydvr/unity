@@ -24,7 +24,6 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
-import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/camera_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
@@ -48,6 +47,7 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 import 'widgets/events/events_screen.dart';
 
@@ -60,7 +60,7 @@ Future<void> main(List<String> args) async {
     if (args.isNotEmpty) {
       debugPrint('FOUND ANOTHER WINDOW: $args');
       final params = (json.decode(args[2]) as Map).cast<String, dynamic>();
-      final windowId = params['window_id'] as String;
+      // final windowId = params['window_id'] as String;
       final device = Device.fromJson(
         (params['device'] as Map).cast<String, dynamic>(),
       );
@@ -70,11 +70,12 @@ Future<void> main(List<String> args) async {
       runApp(CameraView(device: device));
 
       return;
-    } else {
-      await configureWindow();
-      DartVLC.initialize();
     }
   }
+
+  await UnityVideoPlayerInterface.instance.initialize();
+
+  print(UnityVideoPlayerInterface.instance.runtimeType);
 
   // Request notifications permission for iOS, Android 13+ and Windows.
   //

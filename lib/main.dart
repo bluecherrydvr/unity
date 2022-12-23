@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/camera_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
@@ -73,32 +74,41 @@ Future<void> main(List<String> args) async {
     }
   }
 
-  await UnityVideoPlayerInterface.instance.initialize();
-
-  print(UnityVideoPlayerInterface.instance.runtimeType);
-
-  // Request notifications permission for iOS, Android 13+ and Windows.
+  // We use [Future.wait] to decrease startup time.
   //
-  // permission_handler only supports these platforms
-  if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
-    try {
-      final result = await Permission.notification.request();
-      debugPrint(result.toString());
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
-  }
-  HttpOverrides.global = DevHttpOverrides();
-  await Hive.initFlutter();
-  await MobileViewProvider.ensureInitialized();
-  await DesktopViewProvider.ensureInitialized();
-  await ServersProvider.ensureInitialized();
+  // With it, all these functions will be running at the same time.
+  await Future.wait([
+    if (isDesktop) configureWindow(),
+    UnityVideoPlayerInterface.instance.initialize(),
+    () async {
+      // Request notifications permission for iOS, Android 13+ and Windows.
+      //
+      // permission_handler only supports these platforms
+      if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
+        try {
+          final result = await Permission.notification.request();
+          debugPrint(result.toString());
+        } catch (exception, stacktrace) {
+          debugPrint(exception.toString());
+          debugPrint(stacktrace.toString());
+        }
+      }
+    }(),
+    Hive.initFlutter(),
+
+    /// Firebase messaging isn't available on desktop platforms
+    if (!isDesktop) FirebaseConfiguration.ensureInitialized(),
+  ]);
+
+  await Future.wait([
+    MobileViewProvider.ensureInitialized(),
+    DesktopViewProvider.ensureInitialized(),
+    ServersProvider.ensureInitialized(),
+  ]);
+  // settings provider needs to be initalized alone
   await SettingsProvider.ensureInitialized();
 
-  /// Firebase messaging isn't available on desktop platforms
   if (!isDesktop) {
-    await FirebaseConfiguration.ensureInitialized();
     // Restore the navigation bar & status bar styling.
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(

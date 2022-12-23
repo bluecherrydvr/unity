@@ -42,7 +42,14 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: server.devices.length + 1,
                         itemBuilder: (context, index) {
-                          if (index == 0) return SubHeader(server.name);
+                          if (index == 0) {
+                            return SubHeader(
+                              server.name,
+                              subtext: AppLocalizations.of(context).nDevices(
+                                server.devices.length,
+                              ),
+                            );
+                          }
 
                           index--;
                           final device = server.devices[index];
@@ -91,86 +98,10 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
     final view = context.watch<DesktopViewProvider>();
 
     return GestureDetector(
-      onSecondaryTap: () {
-        if (!device.status) return;
+      onSecondaryTap: () => displayOptions(context),
 
-        const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 16.0);
-
-        final renderBox = context.findRenderObject() as RenderBox;
-        final offset = renderBox.localToGlobal(Offset(
-          padding.left,
-          padding.top,
-        ));
-        final size = Size(
-          renderBox.size.width - padding.right * 2,
-          renderBox.size.height - padding.bottom,
-        );
-
-        showMenu(
-          context: context,
-          elevation: 4.0,
-          position: RelativeRect.fromLTRB(
-            offset.dx,
-            offset.dy,
-            offset.dx + size.width,
-            offset.dy + size.height,
-          ),
-          constraints: BoxConstraints(
-            maxWidth: size.width,
-            minWidth: size.width,
-          ),
-          items: <PopupMenuEntry>[
-            PopupMenuItem(
-              child: Text(
-                selected
-                    ? AppLocalizations.of(context).removeFromView
-                    : AppLocalizations.of(context).addToView,
-              ),
-              onTap: () {
-                if (selected) {
-                  view.remove(device);
-                } else {
-                  view.add(device);
-                }
-              },
-            ),
-            const PopupMenuDivider(height: 8),
-            PopupMenuItem(
-              child: Text(
-                AppLocalizations.of(context).showFullscreenCamera,
-              ),
-              onTap: () async {
-                WidgetsBinding.instance.addPostFrameCallback((_) async {
-                  var player = view.players[device];
-                  bool isLocalController = false;
-                  if (player == null) {
-                    player = getVideoPlayerControllerForDevice(device);
-                    isLocalController = true;
-                  }
-
-                  await Navigator.of(context).pushNamed(
-                    '/fullscreen',
-                    arguments: {
-                      'device': device,
-                      'player': player,
-                    },
-                  );
-                  if (isLocalController) await player.release();
-                });
-              },
-            ),
-            if (isDesktop)
-              PopupMenuItem(
-                child: Text(AppLocalizations.of(context).openInANewWindow),
-                onTap: () async {
-                  WidgetsBinding.instance.addPostFrameCallback((_) async {
-                    device.openInANewWindow();
-                  });
-                },
-              ),
-          ],
-        );
-      },
+      // On mobile platforms, display it on long press
+      onLongPress: isDesktop ? null : () => displayOptions(context),
       child: ListTile(
         enabled: device.status,
         selected: selected,
@@ -185,7 +116,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
               color: device.status ? Colors.green.shade100 : Colors.red,
             ),
           ),
-          Flexible(
+          Expanded(
             child: Text(
               device.name
                   .split(' ')
@@ -194,15 +125,103 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
                   .join(' '),
             ),
           ),
+          // if (isMobile)
+          IconButton(
+            onPressed: device.status ? () => displayOptions(context) : null,
+            icon: Icon(moreIconData),
+          ),
         ]),
         onTap: () {
           if (selected) {
-            DesktopViewProvider.instance.remove(device);
+            view.remove(device);
           } else {
-            DesktopViewProvider.instance.add(device);
+            view.add(device);
           }
         },
       ),
+    );
+  }
+
+  void displayOptions(BuildContext context) {
+    if (!device.status) return;
+
+    final view = context.read<DesktopViewProvider>();
+
+    const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 16.0);
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset(
+      padding.left,
+      padding.top,
+    ));
+    final size = Size(
+      renderBox.size.width - padding.right * 2,
+      renderBox.size.height - padding.bottom,
+    );
+
+    showMenu(
+      context: context,
+      elevation: 4.0,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + size.width,
+        offset.dy + size.height,
+      ),
+      constraints: BoxConstraints(
+        maxWidth: size.width,
+        minWidth: size.width,
+      ),
+      items: <PopupMenuEntry>[
+        PopupMenuItem(
+          child: Text(
+            selected
+                ? AppLocalizations.of(context).removeFromView
+                : AppLocalizations.of(context).addToView,
+          ),
+          onTap: () {
+            if (selected) {
+              view.remove(device);
+            } else {
+              view.add(device);
+            }
+          },
+        ),
+        const PopupMenuDivider(height: 8),
+        PopupMenuItem(
+          child: Text(
+            AppLocalizations.of(context).showFullscreenCamera,
+          ),
+          onTap: () async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              var player = view.players[device];
+              bool isLocalController = false;
+              if (player == null) {
+                player = getVideoPlayerControllerForDevice(device);
+                isLocalController = true;
+              }
+
+              await Navigator.of(context).pushNamed(
+                '/fullscreen',
+                arguments: {
+                  'device': device,
+                  'player': player,
+                },
+              );
+              if (isLocalController) await player.release();
+            });
+          },
+        ),
+        if (isDesktop)
+          PopupMenuItem(
+            child: Text(AppLocalizations.of(context).openInANewWindow),
+            onTap: () async {
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                device.openInANewWindow();
+              });
+            },
+          ),
+      ],
     );
   }
 }

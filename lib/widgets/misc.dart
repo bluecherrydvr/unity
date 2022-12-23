@@ -32,6 +32,8 @@ bool get isDesktop {
   ].contains(defaultTargetPlatform);
 }
 
+final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
+
 final isMobile = Platform.isAndroid || Platform.isIOS;
 final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 
@@ -415,10 +417,12 @@ class CorrectedListTile extends StatelessWidget {
 
 class SubHeader extends StatelessWidget {
   final String text;
+  final String? subtext;
   final EdgeInsetsGeometry padding;
 
   const SubHeader(
     this.text, {
+    this.subtext,
     Key? key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
   }) : super(key: key);
@@ -429,13 +433,28 @@ class SubHeader extends StatelessWidget {
       height: 56.0,
       alignment: AlignmentDirectional.centerStart,
       padding: padding,
-      child: Text(
-        text.toUpperCase(),
-        style: Theme.of(context).textTheme.overline?.copyWith(
-              color: Theme.of(context).textTheme.headline3?.color,
-              fontSize: 12.0,
-              fontWeight: FontWeight.w600,
-            ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text.toUpperCase(),
+            style: Theme.of(context).textTheme.overline?.copyWith(
+                  color: Theme.of(context).textTheme.headline3?.color,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          if (subtext != null)
+            Text(
+              subtext!.toUpperCase(),
+              style: Theme.of(context).textTheme.overline?.copyWith(
+                    color: Theme.of(context).hintColor,
+                    fontSize: 10.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+            )
+        ],
       ),
     );
   }

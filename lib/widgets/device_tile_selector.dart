@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -110,8 +111,8 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                   }
               }
             },
-            icon: const Icon(
-              Icons.more_vert,
+            icon: Icon(
+              moreIconData,
               color: Colors.white,
             ),
             itemBuilder: (_) => [

@@ -44,13 +44,12 @@ class _LayoutManagerState extends State<LayoutManager> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final view = context.watch<DesktopViewProvider>();
 
     return SizedBox(
       height: 210.0,
       child: Column(children: [
-        if (isDesktop) const Divider(height: 1.0),
+        // if (isDesktop) const Divider(height: 1.0),
         Material(
           color: theme.appBarTheme.backgroundColor,
           child: Padding(
@@ -120,47 +119,60 @@ class LayoutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      selected: selected,
-      leading: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: Icon(
-          selected
-              ? selectedIconForLayout(layout.layoutType)
-              : iconForLayout(layout.layoutType),
-          key: ValueKey(layout.layoutType),
-          size: 20.0,
-        ),
-      ),
-      horizontalTitleGap: 16.0,
-      minLeadingWidth: 24.0,
-      contentPadding: const EdgeInsetsDirectional.only(
-        start: 12.0,
-        end: 16.0,
-      ),
-      title: Text(layout.name),
-      subtitle: Text(
-        AppLocalizations.of(context).nDevices(layout.devices.length),
-      ),
-      trailing: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(
-          isDesktop ? Icons.more_horiz : Icons.more_vert,
-          color: IconTheme.of(context).color,
-        ),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => EditLayoutDialog(layout: layout),
-          );
-        },
-      ),
-      onTap: () {
-        DesktopViewProvider.instance.updateCurrentLayout(
-          DesktopViewProvider.instance.layouts.indexOf(layout),
+    final view = context.watch<DesktopViewProvider>();
+
+    return GestureDetector(
+      onSecondaryTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => EditLayoutDialog(layout: layout),
         );
       },
+      child: ListTile(
+        dense: true,
+        selected: selected,
+        leading: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          child: Icon(
+            selected
+                ? selectedIconForLayout(layout.layoutType)
+                : iconForLayout(layout.layoutType),
+            key: ValueKey(layout.layoutType),
+            size: 20.0,
+          ),
+        ),
+        horizontalTitleGap: 16.0,
+        minLeadingWidth: 24.0,
+        contentPadding: const EdgeInsetsDirectional.only(
+          start: 12.0,
+          end: 16.0,
+        ),
+        title: Text(layout.name),
+        subtitle: Text(
+          AppLocalizations.of(context).nDevices(layout.devices.length),
+        ),
+        trailing: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(moreIconData),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => EditLayoutDialog(layout: layout),
+            );
+          },
+        ),
+        onLongPress: isDesktop
+            ? null
+            : () {
+                showDialog(
+                  context: context,
+                  builder: (context) => EditLayoutDialog(layout: layout),
+                );
+              },
+        onTap: () {
+          view.updateCurrentLayout(view.layouts.indexOf(layout));
+        },
+      ),
     );
   }
 
@@ -266,6 +278,8 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final view = context.watch<DesktopViewProvider>();
+
     return AlertDialog(
       title: Text(AppLocalizations.of(context).createNewLayout),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -292,10 +306,10 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            DesktopViewProvider.instance.addLayout(Layout(
+            view.addLayout(Layout(
               name: controller.text.isNotEmpty
                   ? controller.text
-                  : 'Layout ${DesktopViewProvider.instance.layouts.length + 1}',
+                  : 'Layout ${view.layouts.length + 1}',
               layoutType: DesktopLayoutType.values[selected],
               devices: [],
             ));
@@ -323,6 +337,8 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final view = context.watch<DesktopViewProvider>();
+
     return AlertDialog(
       title: Row(
         children: [
@@ -330,10 +346,12 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             iconSize: 18.0,
-            onPressed: () {
-              DesktopViewProvider.instance.removeLayout(widget.layout);
-              Navigator.of(context).pop();
-            },
+            onPressed: view.layouts.length == 1
+                ? null
+                : () {
+                    view.removeLayout(widget.layout);
+                    Navigator.of(context).pop();
+                  },
           ),
         ],
       ),
@@ -361,7 +379,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            DesktopViewProvider.instance.updateLayout(
+            view.updateLayout(
               widget.layout,
               widget.layout.copyWith(
                 name: controller.text.isEmpty ? null : controller.text,

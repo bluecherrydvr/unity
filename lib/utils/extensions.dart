@@ -96,3 +96,11 @@ extension StringExtension on String {
     return substring(0, 1).toUpperCase() + substring(1);
   }
 }
+
+extension NumberExtension on num {
+  /// Ensure this number is positive
+  num ensurePositive() {
+    if (isNegative) return -this;
+    return this;
+  }
+}

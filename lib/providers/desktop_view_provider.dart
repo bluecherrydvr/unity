@@ -48,7 +48,12 @@ class DesktopViewProvider extends ChangeNotifier {
     ),
   ];
   int _currentLayout = 0;
-  int get currentLayoutIndex => _currentLayout;
+  int get currentLayoutIndex {
+    if (_currentLayout.isNegative) return 0;
+
+    return _currentLayout;
+  }
+
   Layout get currentLayout => layouts[_currentLayout];
 
   /// Whether the layouts are rotating in a cycle
@@ -180,8 +185,15 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Deletes [layout]
   Future<void> removeLayout(Layout layout) {
+    assert(layouts.length > 1, 'There must be at least one layout');
+
     if (layouts.contains(layout)) {
       debugPrint(layout.toString());
+
+      // if the selected layout is the last, remove one from the index
+      // this can be done safely because we already check if there is at least
+      // one layout in the list
+      if (currentLayoutIndex == layouts.length - 1) _currentLayout -= 1;
       layouts.remove(layout);
     }
     notifyListeners();

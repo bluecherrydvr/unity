@@ -113,7 +113,7 @@ class _WindowButtonsState extends State<WindowButtons> {
             Expanded(
               child: DragToMoveArea(
                 child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 16.0),
+                  padding: const EdgeInsetsDirectional.only(start: 10.0),
                   child: Text(
                     () {
                       if (arguments.data != null) {
@@ -145,6 +145,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                       color: theme.brightness == Brightness.light
                           ? Colors.black
                           : Colors.white,
+                      fontSize: 12.0,
                     ),
                   ),
                 ),
@@ -153,7 +154,7 @@ class _WindowButtonsState extends State<WindowButtons> {
             if (!canPop) ...[
               ...navigatorData(context).entries.map((entry) {
                 final icon = entry.key;
-                // final text = entry.value;
+                final text = entry.value;
                 final index =
                     navigatorData(context).keys.toList().indexOf(icon);
 
@@ -165,7 +166,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                         : theme.hintColor,
                   ),
                   iconSize: 22.0,
-                  // tooltip: text,
+                  tooltip: text,
                   onPressed: () => home.setTab(index),
                 );
               }),

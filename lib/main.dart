@@ -29,7 +29,6 @@ import 'package:bluecherry_client/widgets/camera_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
 
 import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/material.dart';
@@ -99,6 +98,8 @@ Future<void> main(List<String> args) async {
     /// Firebase messaging isn't available on desktop platforms
     if (!isDesktop) FirebaseConfiguration.ensureInitialized(),
   ]);
+
+  debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
 
   await Future.wait([
     MobileViewProvider.ensureInitialized(),
@@ -186,7 +187,7 @@ class MyApp extends StatelessWidget {
             if (settings.name == '/fullscreen') {
               final data = settings.arguments! as Map;
               final Device device = data['device'];
-              final BluecherryVideoPlayerController player = data['player'];
+              final UnityVideoPlayer player = data['player'];
 
               return MaterialPageRoute(
                 settings: RouteSettings(

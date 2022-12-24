@@ -23,10 +23,8 @@ import 'dart:async';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -35,6 +33,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 part 'event_player.dart';
 part 'events_screen_desktop.dart';

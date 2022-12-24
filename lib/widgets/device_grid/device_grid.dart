@@ -27,10 +27,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/device_grid/layout_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -41,6 +38,7 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 part 'desktop_sidebar.dart';
 part 'desktop_device_grid.dart';

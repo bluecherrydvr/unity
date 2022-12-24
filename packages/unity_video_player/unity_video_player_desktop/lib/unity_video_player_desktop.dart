@@ -3,6 +3,7 @@ library unity_video_player_desktop;
 import 'dart:math';
 
 import 'package:dart_vlc/dart_vlc.dart';
+import 'package:flutter/material.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
@@ -19,6 +20,38 @@ class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
   @override
   UnityVideoPlayer createPlayer() {
     return UnityVideoPlayerDesktop();
+  }
+
+  @override
+  Widget createVideoView({
+    required UnityVideoPlayer player,
+    UnityVideoFit fit = UnityVideoFit.contain,
+    UnityVideoPaneBuilder? paneBuilder,
+    Color color = const Color(0xFF000000),
+  }) {
+    return Builder(builder: (context) {
+      return Stack(children: [
+        Positioned.fill(
+          child: Video(
+            player: (player as UnityVideoPlayerDesktop).vlcPlayer,
+            fillColor: color,
+            fit: {
+              UnityVideoFit.contain: BoxFit.contain,
+              UnityVideoFit.cover: BoxFit.cover,
+              UnityVideoFit.fill: BoxFit.fill,
+            }[fit]!,
+            // showControls: false,
+          ),
+        ),
+        if (paneBuilder != null)
+          Positioned.fill(
+            child: Material(
+              type: MaterialType.transparency,
+              child: paneBuilder(context, player),
+            ),
+          ),
+      ]);
+    });
   }
 }
 

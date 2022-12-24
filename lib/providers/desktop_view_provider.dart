@@ -24,9 +24,9 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart'
     show getVideoPlayerControllerForDevice;
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 class DesktopViewProvider extends ChangeNotifier {
   /// `late` initialized [DesktopViewProvider] instance.
@@ -65,7 +65,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
   ///
-  final Map<Device, BluecherryVideoPlayerController> players = {};
+  final Map<Device, UnityVideoPlayer> players = {};
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {

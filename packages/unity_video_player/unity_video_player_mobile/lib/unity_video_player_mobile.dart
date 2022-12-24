@@ -1,10 +1,11 @@
 library unity_video_player_mobile;
 
 import 'package:fijkplayer/fijkplayer.dart';
+import 'package:flutter/widgets.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
-  /// Registers this class as the default instance of [UrlLauncherPlatform].
+  /// Registers this class as the default instance of [UnityVideoPlayerInterface].
   static void registerWith() {
     UnityVideoPlayerInterface.instance = UnityVideoPlayerMobileInterface();
   }
@@ -15,6 +16,28 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
   @override
   UnityVideoPlayer createPlayer() {
     return UnityVideoPlayerMobile();
+  }
+
+  /// Creates a video view
+  @override
+  Widget createVideoView({
+    required UnityVideoPlayer player,
+    UnityVideoFit fit = UnityVideoFit.contain,
+    UnityVideoPaneBuilder? paneBuilder,
+    Color color = const Color(0xFF000000),
+  }) {
+    return FijkView(
+      player: (player as UnityVideoPlayerMobile).ijkPlayer,
+      color: color,
+      fit: {
+        UnityVideoFit.contain: FijkFit.contain,
+        UnityVideoFit.fill: FijkFit.fill,
+        UnityVideoFit.cover: FijkFit.cover,
+      }[fit]!,
+      panelBuilder: (p, v, c, s, t) {
+        return paneBuilder?.call(c, player) ?? const SizedBox.shrink();
+      },
+    );
   }
 }
 

@@ -20,22 +20,20 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:status_bar_control/status_bar_control.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 part 'desktop_viewer.dart';
 part 'mobile_viewer.dart';
 
 class DeviceFullscreenViewer extends StatelessWidget {
   final Device device;
-  final BluecherryVideoPlayerController videoPlayerController;
+  final UnityVideoPlayer videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewer({

@@ -18,13 +18,12 @@
  */
 
 import 'dart:convert';
-import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -76,7 +75,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
   ///
-  final Map<Device, BluecherryVideoPlayerController> players = {};
+  final Map<Device, UnityVideoPlayer> players = {};
 
   /// Current [tab].
   /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
@@ -264,10 +263,10 @@ class MobileViewProvider extends ChangeNotifier {
 }
 
 /// Helper method to create a video player with required configuration for a [Device].
-BluecherryVideoPlayerController getVideoPlayerControllerForDevice(
+UnityVideoPlayer getVideoPlayerControllerForDevice(
   Device device,
 ) {
-  final controller = BluecherryVideoPlayerController();
+  final controller = UnityVideoPlayer.create();
 
   controller
     ..setDataSource(
@@ -277,8 +276,9 @@ BluecherryVideoPlayerController getVideoPlayerControllerForDevice(
     ..setVolume(0.0)
     ..setSpeed(1.0);
 
-  controller.ijkPlayer
-      ?.setOption(FijkOption.playerCategory, 'packet-buffering', '0');
+  // TODO:
+  // controller.ijkPlayer
+  //     ?.setOption(FijkOption.playerCategory, 'packet-buffering', '0');
 
   return controller;
 }

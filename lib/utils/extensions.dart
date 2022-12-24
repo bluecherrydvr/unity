@@ -1,6 +1,7 @@
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 extension DurationExtension on Duration {
   /// Return [Duration] as typical formatted string.
@@ -81,11 +82,11 @@ extension NotificationExtensions on NotificationClickAction {
       }[this]!;
 }
 
-extension CameraViewFitExtension on CameraViewFit {
+extension CameraViewFitExtension on UnityVideoFit {
   String str(BuildContext context) => {
-        CameraViewFit.contain: AppLocalizations.of(context).contain,
-        CameraViewFit.cover: AppLocalizations.of(context).cover,
-        CameraViewFit.fill: AppLocalizations.of(context).fill,
+        UnityVideoFit.contain: AppLocalizations.of(context).contain,
+        UnityVideoFit.cover: AppLocalizations.of(context).cover,
+        UnityVideoFit.fill: AppLocalizations.of(context).fill,
       }[this]!;
 }
 

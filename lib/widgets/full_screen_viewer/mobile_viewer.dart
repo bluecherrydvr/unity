@@ -2,7 +2,7 @@ part of 'full_screen_viewer.dart';
 
 class DeviceFullscreenViewerMobile extends StatefulWidget {
   final Device device;
-  final BluecherryVideoPlayerController videoPlayerController;
+  final UnityVideoPlayer videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewerMobile({
@@ -20,7 +20,7 @@ class DeviceFullscreenViewerMobile extends StatefulWidget {
 class _DeviceFullscreenViewerMobileState
     extends State<DeviceFullscreenViewerMobile> {
   bool overlay = false;
-  CameraViewFit fit = CameraViewFit.contain;
+  UnityVideoFit fit = UnityVideoFit.contain;
   Brightness? brightness;
 
   @override
@@ -64,19 +64,16 @@ class _DeviceFullscreenViewerMobileState
             });
           },
           child: InteractiveViewer(
-            child: BluecherryVideoPlayer(
-              controller: widget.videoPlayerController,
+            child: UnityVideoView(
+              player: widget.videoPlayerController,
               fit: fit,
-              paneBuilder: (context, controller, states) {
+              paneBuilder: (context, controller) {
                 return Scaffold(
                   backgroundColor: Colors.transparent,
                   body: () {
                     if (controller.error != null) {
                       return ErrorWarning(message: controller.error!);
-                    } else if ([
-                      FijkState.idle,
-                      FijkState.asyncPreparing,
-                    ].contains(controller.ijkPlayer?.state)) {
+                    } else if (controller.isBuffering) {
                       return const Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -123,14 +120,14 @@ class _DeviceFullscreenViewerMobileState
                   splashRadius: 20.0,
                   onPressed: () {
                     setState(() {
-                      fit = fit == CameraViewFit.fill
-                          ? CameraViewFit.contain
-                          : CameraViewFit.fill;
+                      fit = fit == UnityVideoFit.fill
+                          ? UnityVideoFit.contain
+                          : UnityVideoFit.fill;
                     });
                   },
                   icon: Icon(
                     Icons.aspect_ratio,
-                    color: fit == CameraViewFit.fill
+                    color: fit == UnityVideoFit.fill
                         ? Colors.white.withOpacity(0.87)
                         : Colors.white.withOpacity(0.54),
                   ),

@@ -19,13 +19,12 @@
 
 import 'dart:async';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 class DeviceTile extends StatefulWidget {
   final Device device;
@@ -49,7 +48,7 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  BluecherryVideoPlayerController? videoPlayer;
+  UnityVideoPlayer? videoPlayer;
 
   @override
   void initState() {
@@ -84,18 +83,15 @@ class DeviceTileState extends State<DeviceTile> {
       videoPlayer = MobileViewProvider.instance.players[widget.device];
       debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
 
-      return BluecherryVideoPlayer(
-        controller: videoPlayer!,
-        paneBuilder: (context, controller, states) {
+      return UnityVideoView(
+        player: videoPlayer!,
+        paneBuilder: (context, controller) {
           return Material(
             color: Colors.transparent,
             child: () {
               if (controller.error != null) {
                 return ErrorWarning(message: controller.error!);
-              } else if ([
-                FijkState.idle,
-                FijkState.asyncPreparing,
-              ].contains(controller.ijkPlayer?.state)) {
+              } else if (controller.isBuffering) {
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation(Colors.white),

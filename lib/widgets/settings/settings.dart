@@ -20,6 +20,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -245,7 +246,7 @@ class _SettingsState extends State<Settings> {
                         color: Theme.of(context).textTheme.caption?.color,
                       ),
                 ),
-                children: CameraViewFit.values.map((e) {
+                children: UnityVideoFit.values.map((e) {
                   return RadioListTile(
                     value: e,
                     groupValue: settings.cameraViewFit,

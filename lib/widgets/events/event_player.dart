@@ -10,7 +10,7 @@ class EventPlayerScreen extends StatefulWidget {
 }
 
 class _EventPlayerScreenState extends State<EventPlayerScreen> {
-  final videoController = BluecherryVideoPlayerController();
+  final videoController = UnityVideoPlayer.create();
 
   @override
   void initState() {
@@ -39,10 +39,10 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
           child: InteractiveViewer(
             minScale: 1.0,
             maxScale: 4.0,
-            child: BluecherryVideoPlayer(
-              controller: videoController,
-              fit: CameraViewFit.contain,
-              paneBuilder: (context, controller, states) {
+            child: UnityVideoView(
+              player: videoController,
+              fit: UnityVideoFit.contain,
+              paneBuilder: (context, controller) {
                 if (isDesktop) {
                   return _DesktopVideoViewport(
                     event: widget.event,
@@ -61,7 +61,7 @@ class _EventPlayerScreenState extends State<EventPlayerScreen> {
 }
 
 class VideoViewport extends StatefulWidget {
-  final BluecherryVideoPlayerController player;
+  final UnityVideoPlayer player;
 
   const VideoViewport({
     Key? key,
@@ -73,7 +73,7 @@ class VideoViewport extends StatefulWidget {
 }
 
 class _VideoViewportState extends State<VideoViewport> {
-  BluecherryVideoPlayerController get player => widget.player;
+  UnityVideoPlayer get player => widget.player;
 
   Duration position = Duration.zero;
   bool visible = true;
@@ -168,9 +168,7 @@ class _VideoViewportState extends State<VideoViewport> {
               ),
             ),
           ),
-          if (visible ||
-              player.isBuffering ||
-              player.ijkPlayer?.state == FijkState.asyncPreparing) ...[
+          if (visible || player.isBuffering) ...[
             PositionedDirectional(
               top: 0.0,
               bottom: 0.0,
@@ -199,8 +197,7 @@ class _VideoViewportState extends State<VideoViewport> {
                       ],
                     ),
                   );
-                } else if (player.isBuffering ||
-                    player.ijkPlayer?.state == FijkState.asyncPreparing) {
+                } else if (player.isBuffering) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: Colors.white,
@@ -302,7 +299,8 @@ class _VideoViewportState extends State<VideoViewport> {
                     IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        widget.player.isFullScreen
+                        false
+                            // widget.player.isFullScreen
                             ? Icons.fullscreen_exit
                             : Icons.fullscreen,
                         color: Colors.white,
@@ -335,7 +333,7 @@ class _VideoViewportState extends State<VideoViewport> {
 
 class _DesktopVideoViewport extends StatefulWidget {
   final Event event;
-  final BluecherryVideoPlayerController player;
+  final UnityVideoPlayer player;
 
   const _DesktopVideoViewport({
     Key? key,

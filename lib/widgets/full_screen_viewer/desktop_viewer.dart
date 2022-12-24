@@ -2,7 +2,7 @@ part of 'full_screen_viewer.dart';
 
 class DeviceFullscreenViewerDesktop extends StatefulWidget {
   final Device device;
-  final BluecherryVideoPlayerController videoPlayerController;
+  final UnityVideoPlayer videoPlayerController;
 
   const DeviceFullscreenViewerDesktop({
     Key? key,
@@ -17,23 +17,20 @@ class DeviceFullscreenViewerDesktop extends StatefulWidget {
 
 class _DeviceFullscreenViewerDesktopState
     extends State<DeviceFullscreenViewerDesktop> {
-  CameraViewFit fit = CameraViewFit.contain;
+  UnityVideoFit fit = UnityVideoFit.contain;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       child: Column(children: [
         Expanded(
-          child: BluecherryVideoPlayer(
-            controller: widget.videoPlayerController,
+          child: UnityVideoView(
+            player: widget.videoPlayerController,
             fit: fit,
-            paneBuilder: (context, controller, states) {
+            paneBuilder: (context, controller) {
               if (controller.error != null) {
                 return ErrorWarning(message: controller.error!);
-              } else if ([
-                FijkState.idle,
-                FijkState.asyncPreparing,
-              ].contains(controller.ijkPlayer?.state)) {
+              } else if (controller.isBuffering) {
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation(Colors.white),

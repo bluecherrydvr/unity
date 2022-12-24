@@ -1,6 +1,18 @@
 library unity_video_player_platform_interface;
 
+import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+typedef UnityVideoPaneBuilder = Widget Function(
+  BuildContext context,
+  UnityVideoPlayer controller,
+)?;
+
+enum UnityVideoFit {
+  contain,
+  fill,
+  cover,
+}
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
   UnityVideoPlayerInterface() : super(token: _token);
@@ -23,9 +35,35 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
 
   /// Creates a player
   UnityVideoPlayer createPlayer();
+
+  /// Creates a video view
+  Widget createVideoView({
+    required UnityVideoPlayer player,
+    UnityVideoFit fit = UnityVideoFit.contain,
+    UnityVideoPaneBuilder? paneBuilder,
+    Color color = const Color(0xFF000000),
+  });
+}
+
+// ignore: non_constant_identifier_names
+Widget UnityVideoView({
+  required UnityVideoPlayer player,
+  UnityVideoFit fit = UnityVideoFit.contain,
+  UnityVideoPaneBuilder? paneBuilder,
+  Color color = const Color(0xFF000000),
+}) {
+  return UnityVideoPlayerInterface.instance.createVideoView(
+    player: player,
+    color: color,
+    fit: fit,
+    paneBuilder: paneBuilder,
+  );
 }
 
 abstract class UnityVideoPlayer {
+  static UnityVideoPlayer create() =>
+      UnityVideoPlayerInterface.instance.createPlayer();
+
   /// The current data source url
   String? get dataSource;
 

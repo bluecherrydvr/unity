@@ -179,7 +179,7 @@ class DesktopDeviceTile extends StatefulWidget {
 }
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  BluecherryVideoPlayerController? videoPlayer;
+  UnityVideoPlayer? videoPlayer;
 
   @override
   void initState() {
@@ -199,16 +199,13 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     return Container(
       height: mq.size.height,
       color: Colors.grey.shade900,
-      child: BluecherryVideoPlayer(
-        controller: videoPlayer!,
+      child: UnityVideoView(
+        player: videoPlayer!,
         color: Colors.grey.shade900,
-        paneBuilder: (context, controller, states) {
+        paneBuilder: (context, controller) {
           if (controller.error != null) {
             return ErrorWarning(message: controller.error!);
-          } else if ([
-            FijkState.idle,
-            FijkState.asyncPreparing,
-          ].contains(controller.ijkPlayer?.state)) {
+          } else if (controller.isBuffering) {
             return const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -254,7 +251,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
             ),
             const Spacer(),
             AnimatedOpacity(
-              opacity: !states.isHovering ? 0 : 1,
+              // TODO:
+              // opacity: !states.isHovering ? 0 : 1,
+              opacity: 0.0,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               child: Container(

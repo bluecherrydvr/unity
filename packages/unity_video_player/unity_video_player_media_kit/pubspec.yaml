@@ -1,0 +1,36 @@
+name: unity_video_player_media_kit
+description: UnityVideoPlayer implemented using MediaKit
+version: 0.0.1
+homepage:
+
+publish_to: none
+
+environment:
+  sdk: '>=2.18.5 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  media_kit:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      path: media_kit/
+  media_kit_core_video:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      path: media_kit_core_video/
+  unity_video_player_platform_interface:
+    path: ../unity_video_player_platform_interface/
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  plugin:
+    implements: unity_video_player
+    platforms:
+      windows:
+        dartPluginClass: UnityVideoPlayerMediaKitInterface

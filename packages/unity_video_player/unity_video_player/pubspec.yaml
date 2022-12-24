@@ -36,4 +36,4 @@ flutter:
       linux:
         default_package: unity_video_player_desktop
       windows:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_desktop

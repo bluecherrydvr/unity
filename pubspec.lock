@@ -366,24 +366,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.5"
-  media_kit:
-    dependency: transitive
-    description:
-      path: media_kit
-      ref: HEAD
-      resolved-ref: "1e1bcdb2e3cc2f2dbcf7e0d598788d03f686864e"
-      url: "https://github.com/alexmercerind/media_kit.git"
-    source: git
-    version: "0.0.1"
-  media_kit_core_video:
-    dependency: transitive
-    description:
-      path: media_kit_core_video
-      ref: HEAD
-      resolved-ref: "1e1bcdb2e3cc2f2dbcf7e0d598788d03f686864e"
-      url: "https://github.com/alexmercerind/media_kit.git"
-    source: git
-    version: "0.0.1"
   meta:
     dependency: transitive
     description:
@@ -554,13 +536,6 @@ packages:
       url: "https://github.com/alexmercerind/reorderable_grid_view.git"
     source: git
     version: "2.2.2"
-  safe_local_storage:
-    dependency: transitive
-    description:
-      name: safe_local_storage
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   screen_retriever:
     dependency: transitive
     description:
@@ -608,13 +583,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.1"
-  synchronized:
-    dependency: transitive
-    description:
-      name: synchronized
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.0+3"
   term_glyph:
     dependency: transitive
     description:
@@ -650,13 +618,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  unity_video_player_media_kit:
-    dependency: transitive
-    description:
-      path: "packages/unity_video_player/unity_video_player_media_kit"
-      relative: true
-    source: path
-    version: "0.0.1"
   unity_video_player_mobile:
     dependency: transitive
     description:
@@ -671,13 +632,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  uri_parser:
-    dependency: transitive
-    description:
-      name: uri_parser
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   url_launcher:
     dependency: "direct main"
     description:

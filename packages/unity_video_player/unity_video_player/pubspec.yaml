@@ -12,12 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  unity_video_player_media_kit:
+    path: ../unity_video_player_media_kit
   unity_video_player_desktop:
     path: ../unity_video_player_desktop
   unity_video_player_mobile:
     path: ../unity_video_player_mobile
-  unity_video_player_media_kit:
-    path: ../unity_video_player_media_kit
 
 dev_dependencies:
   flutter_test:

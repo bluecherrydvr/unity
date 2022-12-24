@@ -83,6 +83,13 @@ class __MKVideoState extends State<_MKVideo> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!widget.player.state.isPlaying) widget.player.play();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Video(
       controller: controller,
@@ -125,7 +132,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    mkPlayer.add(Media(url));
+    // do not use mkPlayer.add because it doesn't support auto play
+    mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
   }
 
   @override

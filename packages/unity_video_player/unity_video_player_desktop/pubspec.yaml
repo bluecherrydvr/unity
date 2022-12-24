@@ -29,3 +29,5 @@ flutter:
         dartPluginClass: UnityVideoPlayerDesktopInterface
       macos:
         dartPluginClass: UnityVideoPlayerDesktopInterface
+      windows:
+        dartPluginClass: UnityVideoPlayerDesktopInterface

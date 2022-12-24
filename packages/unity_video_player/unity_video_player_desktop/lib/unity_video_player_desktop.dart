@@ -40,7 +40,7 @@ class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
               UnityVideoFit.cover: BoxFit.cover,
               UnityVideoFit.fill: BoxFit.fill,
             }[fit]!,
-            // showControls: false,
+            showControls: false,
           ),
         ),
         if (paneBuilder != null)

@@ -86,6 +86,9 @@ abstract class UnityVideoPlayer {
   /// Whether the media is playing
   bool get isPlaying;
 
+  /// Whether the media is seekable
+  bool get isSeekable;
+
   Future<void> setDataSource(String url, {bool autoPlay = true});
   Future<void> setVolume(double volume);
   Future<void> setSpeed(double speed);

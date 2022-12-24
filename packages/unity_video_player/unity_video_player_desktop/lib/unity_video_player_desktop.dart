@@ -78,6 +78,10 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
 
   @override
   bool get isBuffering => vlcPlayer.bufferingProgress != 1.0;
+
+  @override
+  bool get isSeekable => vlcPlayer.playback.isSeekable;
+
   @override
   Stream<Duration> get onCurrentPosUpdate =>
       vlcPlayer.positionStream.map<Duration>(

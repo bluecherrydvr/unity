@@ -71,19 +71,21 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
               if (view.currentLayout.layoutType ==
                       DesktopLayoutType.compactView &&
                   dl >= 4) {
-                FoldedDevices foldedDevices =
-                    devices.reversed.fold<List<List<Device>>>(
-                  [[]],
-                  (collection, device) {
-                    if (collection.last.length == 4) {
-                      collection.add([device]);
-                    } else {
-                      collection.last.add(device);
-                    }
+                FoldedDevices foldedDevices = devices
+                    .fold<List<List<Device>>>(
+                      [[]],
+                      (collection, device) {
+                        if (collection.last.length == 4) {
+                          collection.add([device]);
+                        } else {
+                          collection.last.add(device);
+                        }
 
-                    return collection;
-                  },
-                );
+                        return collection;
+                      },
+                    )
+                    .reversed
+                    .toList();
                 final crossAxisCount =
                     calculateCrossAxisCount(foldedDevices.length);
 
@@ -94,14 +96,19 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   // final diff = amountOfItemsOnScreen - foldedDevices.length;
                   while (amountOfItemsOnScreen > foldedDevices.length) {
                     final lastFullFold =
-                        foldedDevices.lastWhere((fold) => fold.length > 1);
+                        foldedDevices.firstWhere((fold) => fold.length > 1);
                     final foldIndex = foldedDevices.indexOf(lastFullFold);
-                    foldedDevices.insert(foldIndex + 1, [lastFullFold.last]);
+                    foldedDevices.insert(
+                      (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                      [lastFullFold.last],
+                    );
                     lastFullFold.removeLast();
                   }
                 }
 
-                return ReorderableGridView.builder(
+                foldedDevices = foldedDevices.toList();
+
+                return GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -111,7 +118,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                     childAspectRatio: 16 / 9,
                   ),
                   padding: const EdgeInsets.all(10.0),
-                  onReorder: view.reorder,
                   itemCount: foldedDevices.length,
                   itemBuilder: (context, index) {
                     final fold = foldedDevices[index];
@@ -205,7 +211,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         paneBuilder: (context, controller) {
           if (controller.error != null) {
             return ErrorWarning(message: controller.error!);
-          } else if (controller.isBuffering) {
+          } else if (!controller.isSeekable) {
             return const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -236,103 +242,107 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
               offset: Offset(4, -4),
             ),
           ];
-          return Column(children: [
-            Container(
-              height: 48.0,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                widget.device.fullName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  shadows: shadows,
-                ),
-              ),
-            ),
-            const Spacer(),
-            AnimatedOpacity(
-              // TODO:
-              // opacity: !states.isHovering ? 0 : 1,
-              opacity: 0.0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              child: Container(
-                height: 48.0,
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.open_in_new, shadows: shadows),
-                      tooltip: AppLocalizations.of(context).openInANewWindow,
+          return HoverButton(
+            onPressed: () {},
+            builder: (context, states) {
+              return Column(children: [
+                Container(
+                  height: 48.0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    widget.device.fullName,
+                    style: const TextStyle(
                       color: Colors.white,
-                      iconSize: 22.0,
-                      onPressed: () {
-                        widget.device.openInANewWindow();
-                      },
+                      shadows: shadows,
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.fullscreen_rounded,
-                        shadows: shadows,
-                      ),
-                      tooltip:
-                          AppLocalizations.of(context).showFullscreenCamera,
-                      color: Colors.white,
-                      iconSize: 22.0,
-                      onPressed: () async {
-                        var player = view.players[widget.device];
-                        bool isLocalController = false;
-                        if (player == null) {
-                          player =
-                              getVideoPlayerControllerForDevice(widget.device);
-                          isLocalController = true;
-                        }
-
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': player,
+                  ),
+                ),
+                const Spacer(),
+                AnimatedOpacity(
+                  opacity: !states.isHovering ? 0 : 1,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Container(
+                    height: 48.0,
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.open_in_new, shadows: shadows),
+                          tooltip:
+                              AppLocalizations.of(context).openInANewWindow,
+                          color: Colors.white,
+                          iconSize: 20.0,
+                          onPressed: () {
+                            widget.device.openInANewWindow();
                           },
-                        );
-                        if (isLocalController) await player.release();
-                      },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.fullscreen_rounded,
+                            shadows: shadows,
+                          ),
+                          tooltip:
+                              AppLocalizations.of(context).showFullscreenCamera,
+                          color: Colors.white,
+                          iconSize: 22.0,
+                          onPressed: () async {
+                            var player = view.players[widget.device];
+                            bool isLocalController = false;
+                            if (player == null) {
+                              player = getVideoPlayerControllerForDevice(
+                                  widget.device);
+                              isLocalController = true;
+                            }
+
+                            await Navigator.of(context).pushNamed(
+                              '/fullscreen',
+                              arguments: {
+                                'device': widget.device,
+                                'player': player,
+                              },
+                            );
+                            if (isLocalController) await player.release();
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.replay_outlined,
+                            shadows: shadows,
+                          ),
+                          tooltip: AppLocalizations.of(context).reloadCamera,
+                          color: Colors.white,
+                          iconSize: 20.0,
+                          onPressed: () {
+                            DesktopViewProvider.instance.reload(widget.device);
+                          },
+                        ),
+                        const VerticalDivider(
+                          color: Colors.white,
+                          indent: 10,
+                          endIndent: 10,
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close_outlined,
+                            shadows: shadows,
+                          ),
+                          color: Colors.white,
+                          tooltip: AppLocalizations.of(context).removeCamera,
+                          iconSize: 20.0,
+                          onPressed: () {
+                            DesktopViewProvider.instance.remove(widget.device);
+                          },
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.replay_outlined,
-                        shadows: shadows,
-                      ),
-                      tooltip: AppLocalizations.of(context).reloadCamera,
-                      color: Colors.white,
-                      iconSize: 20.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.reload(widget.device);
-                      },
-                    ),
-                    const VerticalDivider(
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close_outlined,
-                        shadows: shadows,
-                      ),
-                      color: Colors.white,
-                      tooltip: AppLocalizations.of(context).removeCamera,
-                      iconSize: 20.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.remove(widget.device);
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ]);
+              ]);
+            },
+          );
         },
       ),
     );

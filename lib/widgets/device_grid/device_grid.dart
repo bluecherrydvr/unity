@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/device_grid/layout_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';

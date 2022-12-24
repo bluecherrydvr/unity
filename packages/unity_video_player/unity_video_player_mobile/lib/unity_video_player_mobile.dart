@@ -69,6 +69,9 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   bool get isPlaying => ijkPlayer.state == FijkState.started;
 
   @override
+  bool get isSeekable => ijkPlayer.state == FijkState.asyncPreparing;
+
+  @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     await ijkPlayer.setDataSource(
       url,

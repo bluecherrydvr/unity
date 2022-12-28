@@ -61,13 +61,13 @@ Future<void> main(List<String> args) async {
       debugPrint('FOUND ANOTHER WINDOW: $args');
       final params = (json.decode(args[2]) as Map).cast<String, dynamic>();
       // final windowId = params['window_id'] as String;
-      final device = Device.fromJson(
-        (params['device'] as Map).cast<String, dynamic>(),
-      );
+      // final device = Device.fromJson(
+      //   (params['device'] as Map).cast<String, dynamic>(),
+      // );
 
-      DartVLC.initialize();
+      // DartVLC.initialize();
 
-      runApp(CameraView(device: device));
+      runApp(CameraView());
 
       return;
     }

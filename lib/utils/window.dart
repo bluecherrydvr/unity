@@ -5,6 +5,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -30,14 +31,19 @@ extension DeviceWindowExtension on Device {
   /// Opens this device in a new window
   void openInANewWindow() async {
     assert(isDesktop, 'Can not open a new window in a non-desktop environment');
+    debugPrint('Opening a new window');
     final window = await DesktopMultiWindow.createWindow(json.encode({
-      'window_id': uuid.v4(),
-      'device': toJson(),
+      // 'window_id': uuid.v4(),
+      // 'device': toJson(),
     }));
-    window
-      ..setFrame(const Offset(0, 0) & kInitialWindowSize)
-      ..center()
-      ..setTitle(fullName)
-      ..show();
+
+    debugPrint('Opened window with id ${window.windowId}');
+
+    await window.setFrame(const Offset(0, 0) & kInitialWindowSize);
+    await window.center();
+    await window.setTitle(fullName);
+    await window.show();
+
+    debugPrint('Showed window with id ${window.windowId}');
   }
 }

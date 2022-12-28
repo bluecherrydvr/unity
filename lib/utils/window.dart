@@ -26,21 +26,14 @@ Future<void> configureWindow() async {
   });
 }
 
-/// Configures the current window
-Future<void> configureCameraWindow() async {
+/// Configures the camera sub window
+///
+/// See also:
+///
+///  * [SingleCameraWindow]
+Future<void> configureCameraWindow(String title) async {
   await WindowManager.instance.ensureInitialized();
-  windowManager.waitUntilReadyToShow().then((_) async {
-    await windowManager.setTitleBarStyle(
-      TitleBarStyle.hidden,
-      windowButtonVisibility: false,
-    );
-    await windowManager.setSize(const Size(900, 600));
-    await windowManager.setMinimumSize(const Size(900, 600));
-    await windowManager.center(animate: true);
-    // await windowManager.maximize();
-    await windowManager.setSkipTaskbar(false);
-    await windowManager.show();
-  });
+  await windowManager.setTitle(title);
 }
 
 extension DeviceWindowExtension on Device {

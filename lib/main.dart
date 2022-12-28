@@ -58,16 +58,17 @@ Future<void> main(List<String> args) async {
 
   if (isDesktop && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
+    await Hive.initFlutter();
 
-    // configureCameraWindow();
     final device = Device.fromJson(json.decode(args[0]));
     final mode = ThemeMode.values[int.tryParse(args[1]) ?? 0];
+    configureCameraWindow(device.fullName);
 
     debugPrint(device.toString());
     debugPrint(mode.toString());
 
-    // // settings provider needs to be initalized alone
-    // await SettingsProvider.ensureInitialized();
+    // this is just a mock. HomeProvider depends on this, so we mock the instance
+    ServersProvider.instance = ServersProvider();
 
     runApp(
       SingleCameraWindow(

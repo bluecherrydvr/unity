@@ -29,8 +29,8 @@ class SingleCameraWindow extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => HomeProvider()),
       ],
       child: MaterialApp(
-        // navigatorKey: navigatorKey,
-        // navigatorObservers: [NObserver()],
+        navigatorKey: navigatorKey,
+        navigatorObservers: [NObserver()],
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -78,7 +78,7 @@ class _CameraViewState extends State<CameraView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(children: [
-        WindowButtons(title: widget.device.fullName),
+        // WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: controller,

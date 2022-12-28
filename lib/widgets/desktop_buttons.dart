@@ -61,13 +61,24 @@ class NObserver extends NavigatorObserver {
 }
 
 class WindowButtons extends StatefulWidget {
-  const WindowButtons({Key? key, this.title}) : super(key: key);
+  const WindowButtons({
+    Key? key,
+    this.title,
+    this.showNavigator = true,
+  }) : super(key: key);
 
   /// The current window title.
   ///
   /// If not provided, the title if fetched from the data of the current
   /// route
   final String? title;
+
+  /// Whether the navigator will be show.
+  ///
+  /// Usually disabled on sub windows.
+  ///
+  /// Defaults to true.
+  final bool showNavigator;
 
   @override
   State<WindowButtons> createState() => _WindowButtonsState();
@@ -88,9 +99,13 @@ class _WindowButtonsState extends State<WindowButtons> {
       builder: (child, arguments) {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
 
-        const divider = SizedBox(
-          height: 20.0,
-          child: VerticalDivider(color: Colors.white),
+        final divider = SizedBox(
+          height: 16.0,
+          child: VerticalDivider(
+            color: theme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
+          ),
         );
 
         return Material(
@@ -153,11 +168,13 @@ class _WindowButtonsState extends State<WindowButtons> {
                           : Colors.white,
                       fontSize: 12.0,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
             ),
-            if (!canPop) ...[
+            if (!canPop && widget.showNavigator) ...[
               ...navigatorData(context).entries.map((entry) {
                 final icon = entry.key;
                 final text = entry.value;

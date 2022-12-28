@@ -269,16 +269,20 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.open_in_new, shadows: shadows),
-                          tooltip:
-                              AppLocalizations.of(context).openInANewWindow,
-                          color: Colors.white,
-                          iconSize: 20.0,
-                          onPressed: () {
-                            widget.device.openInANewWindow();
-                          },
-                        ),
+                        if (isDesktop)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.open_in_new,
+                              shadows: shadows,
+                            ),
+                            tooltip:
+                                AppLocalizations.of(context).openInANewWindow,
+                            color: Colors.white,
+                            iconSize: 20.0,
+                            onPressed: () {
+                              widget.device.openInANewWindow();
+                            },
+                          ),
                         IconButton(
                           icon: const Icon(
                             Icons.fullscreen_rounded,

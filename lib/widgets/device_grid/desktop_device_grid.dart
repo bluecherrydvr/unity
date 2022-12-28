@@ -200,7 +200,6 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     }
 
     final mq = MediaQuery.of(context);
-    final view = context.watch<DesktopViewProvider>();
 
     return Container(
       height: mq.size.height,
@@ -209,184 +208,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         player: videoPlayer!,
         color: Colors.grey.shade900,
         paneBuilder: (context, controller) {
-          if (controller.error != null) {
-            return ErrorWarning(message: controller.error!);
-          } else if (!controller.isSeekable) {
-            return const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.white),
-                strokeWidth: 4.4,
-              ),
-            );
-          }
-
-          const shadows = [
-            Shadow(
-              blurRadius: 10,
-              color: Colors.black,
-              offset: Offset(-4, -4),
-            ),
-            Shadow(
-              blurRadius: 10,
-              color: Colors.black,
-              offset: Offset(4, 4),
-            ),
-            Shadow(
-              blurRadius: 10,
-              color: Colors.black,
-              offset: Offset(-4, 4),
-            ),
-            Shadow(
-              blurRadius: 10,
-              color: Colors.black,
-              offset: Offset(4, -4),
-            ),
-          ];
-
-          return HoverButton(
-            onPressed: () {},
-            builder: (context, states) {
-              return Column(children: [
-                Container(
-                  height: 48.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    widget.device.fullName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      shadows: shadows,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                AnimatedOpacity(
-                  opacity: !states.isHovering ? 0 : 1,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Container(
-                    height: 48.0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        FutureBuilder<double>(
-                          future: controller.volume,
-                          initialData: 0.0,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              final volume = snapshot.data!;
-                              final isMuted = volume == 0.0;
-
-                              return IconButton(
-                                icon: Icon(
-                                  isMuted
-                                      ? Icons.volume_mute_rounded
-                                      : Icons.volume_up_rounded,
-                                  shadows: shadows,
-                                ),
-                                tooltip: isMuted
-                                    ? AppLocalizations.of(context).enableAudio
-                                    : AppLocalizations.of(context).disableAudio,
-                                color: Colors.white,
-                                iconSize: 20.0,
-                                onPressed: () async {
-                                  if (isMuted) {
-                                    await controller.setVolume(1.0);
-                                  } else {
-                                    await controller.setVolume(0.0);
-                                  }
-
-                                  setState(() {});
-                                },
-                              );
-                            }
-
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const VerticalDivider(
-                          color: Colors.white,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        if (isDesktop)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.open_in_new,
-                              shadows: shadows,
-                            ),
-                            tooltip:
-                                AppLocalizations.of(context).openInANewWindow,
-                            color: Colors.white,
-                            iconSize: 20.0,
-                            onPressed: () {
-                              widget.device.openInANewWindow();
-                            },
-                          ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.fullscreen_rounded,
-                            shadows: shadows,
-                          ),
-                          tooltip:
-                              AppLocalizations.of(context).showFullscreenCamera,
-                          color: Colors.white,
-                          iconSize: 22.0,
-                          onPressed: () async {
-                            var player = view.players[widget.device];
-                            bool isLocalController = false;
-                            if (player == null) {
-                              player = getVideoPlayerControllerForDevice(
-                                  widget.device);
-                              isLocalController = true;
-                            }
-
-                            await Navigator.of(context).pushNamed(
-                              '/fullscreen',
-                              arguments: {
-                                'device': widget.device,
-                                'player': player,
-                              },
-                            );
-                            if (isLocalController) await player.release();
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.replay_outlined,
-                            shadows: shadows,
-                          ),
-                          tooltip: AppLocalizations.of(context).reloadCamera,
-                          color: Colors.white,
-                          iconSize: 20.0,
-                          onPressed: () {
-                            DesktopViewProvider.instance.reload(widget.device);
-                          },
-                        ),
-                        const VerticalDivider(
-                          color: Colors.white,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close_outlined,
-                            shadows: shadows,
-                          ),
-                          color: Colors.white,
-                          tooltip: AppLocalizations.of(context).removeCamera,
-                          iconSize: 20.0,
-                          onPressed: () {
-                            DesktopViewProvider.instance.remove(widget.device);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ]);
-            },
+          return DesktopTileViewport(
+            controller: controller,
+            device: widget.device,
           );
         },
       ),
@@ -435,5 +259,232 @@ class DesktopCompactTile extends StatelessWidget {
         ]),
       ),
     ]);
+  }
+}
+
+class DesktopTileViewport extends StatefulWidget {
+  final UnityVideoPlayer controller;
+  final Device device;
+
+  /// Whether this viewport is in a sub view.
+  ///
+  /// Some features aren't allow in subview
+  final bool isSubView;
+
+  const DesktopTileViewport({
+    Key? key,
+    required this.controller,
+    required this.device,
+    this.isSubView = false,
+  }) : super(key: key);
+
+  @override
+  State<DesktopTileViewport> createState() => _DesktopTileViewportState();
+}
+
+class _DesktopTileViewportState extends State<DesktopTileViewport> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final view = context.watch<DesktopViewProvider>();
+
+    if (widget.controller.error != null) {
+      return ErrorWarning(message: widget.controller.error!);
+    } else if (!widget.controller.isSeekable) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(Colors.white),
+          strokeWidth: 4.4,
+        ),
+      );
+    }
+
+    const shadows = [
+      Shadow(
+        blurRadius: 10,
+        color: Colors.black,
+        offset: Offset(-4, -4),
+      ),
+      Shadow(
+        blurRadius: 10,
+        color: Colors.black,
+        offset: Offset(4, 4),
+      ),
+      Shadow(
+        blurRadius: 10,
+        color: Colors.black,
+        offset: Offset(-4, 4),
+      ),
+      Shadow(
+        blurRadius: 10,
+        color: Colors.black,
+        offset: Offset(4, -4),
+      ),
+    ];
+
+    final foreground = HoverButton(
+      onPressed: () {},
+      builder: (context, states) {
+        return Column(children: [
+          if (!widget.isSubView)
+            Container(
+              height: 48.0,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                widget.device.fullName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  shadows: shadows,
+                ),
+              ),
+            ),
+          const Spacer(),
+          AnimatedOpacity(
+            opacity: !states.isHovering ? 0 : 1,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: Container(
+              height: 48.0,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FutureBuilder<double>(
+                    future: widget.controller.volume,
+                    initialData: 0.0,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final volume = snapshot.data!;
+                        final isMuted = volume == 0.0;
+
+                        return IconButton(
+                          icon: Icon(
+                            isMuted
+                                ? Icons.volume_mute_rounded
+                                : Icons.volume_up_rounded,
+                            shadows: shadows,
+                          ),
+                          tooltip: isMuted
+                              ? AppLocalizations.of(context).enableAudio
+                              : AppLocalizations.of(context).disableAudio,
+                          color: Colors.white,
+                          iconSize: 20.0,
+                          onPressed: () async {
+                            if (isMuted) {
+                              await widget.controller.setVolume(1.0);
+                            } else {
+                              await widget.controller.setVolume(0.0);
+                            }
+
+                            setState(() {});
+                          },
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  const VerticalDivider(
+                    color: Colors.white,
+                    indent: 10,
+                    endIndent: 10,
+                  ),
+                  if (isDesktop && !widget.isSubView)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.open_in_new,
+                        shadows: shadows,
+                      ),
+                      tooltip: AppLocalizations.of(context).openInANewWindow,
+                      color: Colors.white,
+                      iconSize: 20.0,
+                      onPressed: () {
+                        widget.device.openInANewWindow();
+                      },
+                    ),
+                  if (!widget.isSubView)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.fullscreen_rounded,
+                        shadows: shadows,
+                      ),
+                      tooltip:
+                          AppLocalizations.of(context).showFullscreenCamera,
+                      color: Colors.white,
+                      iconSize: 22.0,
+                      onPressed: () async {
+                        var player = view.players[widget.device];
+                        bool isLocalController = false;
+                        if (player == null) {
+                          player =
+                              getVideoPlayerControllerForDevice(widget.device);
+                          isLocalController = true;
+                        }
+
+                        await Navigator.of(context).pushNamed(
+                          '/fullscreen',
+                          arguments: {
+                            'device': widget.device,
+                            'player': player,
+                          },
+                        );
+                        if (isLocalController) await player.release();
+                      },
+                    ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.replay_outlined,
+                      shadows: shadows,
+                    ),
+                    tooltip: AppLocalizations.of(context).reloadCamera,
+                    color: Colors.white,
+                    iconSize: 20.0,
+                    onPressed: () {
+                      DesktopViewProvider.instance.reload(widget.device);
+                    },
+                  ),
+                  if (!widget.isSubView) ...[
+                    const VerticalDivider(
+                      color: Colors.white,
+                      indent: 10,
+                      endIndent: 10,
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close_outlined,
+                        shadows: shadows,
+                      ),
+                      color: Colors.white,
+                      tooltip: AppLocalizations.of(context).removeCamera,
+                      iconSize: 20.0,
+                      onPressed: () {
+                        DesktopViewProvider.instance.remove(widget.device);
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ]);
+      },
+    );
+
+    return TooltipTheme(
+      data: TooltipTheme.of(context).copyWith(
+        preferBelow: false,
+        verticalOffset: 20.0,
+        decoration: BoxDecoration(
+          color: theme.brightness == Brightness.light
+              ? Colors.black
+              : Colors.white,
+          borderRadius: isMobile
+              ? BorderRadius.circular(16.0)
+              : BorderRadius.circular(6.0),
+        ),
+      ),
+      child: foreground,
+    );
   }
 }

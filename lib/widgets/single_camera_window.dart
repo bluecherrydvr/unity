@@ -1,5 +1,7 @@
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 import 'desktop_buttons.dart';
-import 'error_warning.dart';
 
 class SingleCameraWindow extends StatelessWidget {
   final Device device;
@@ -27,6 +28,7 @@ class SingleCameraWindow extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -84,18 +86,11 @@ class _CameraViewState extends State<CameraView> {
             player: controller,
             color: Colors.grey.shade900,
             paneBuilder: (context, controller) {
-              if (controller.error != null) {
-                return ErrorWarning(message: controller.error!);
-              } else if (!controller.isSeekable) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 4.4,
-                  ),
-                );
-              }
-
-              return const SizedBox.shrink();
+              return DesktopTileViewport(
+                controller: controller,
+                device: widget.device,
+                isSubView: true,
+              );
             },
           ),
         ),

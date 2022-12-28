@@ -69,6 +69,7 @@ Future<void> main(List<String> args) async {
 
     // this is just a mock. HomeProvider depends on this, so we mock the instance
     ServersProvider.instance = ServersProvider();
+    DesktopViewProvider.instance = DesktopViewProvider();
 
     runApp(
       SingleCameraWindow(

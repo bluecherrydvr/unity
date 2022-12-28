@@ -288,14 +288,13 @@ ThemeData createTheme({
             )
           : null,
       decoration: BoxDecoration(
-        color: light ? Colors.black : Colors.white,
-        borderRadius: Platform.isAndroid || Platform.isIOS
-            ? BorderRadius.circular(16.0)
-            : BorderRadius.circular(4.0),
+        color: light ? Colors.grey.shade900 : Colors.white,
+        borderRadius:
+            isMobile ? BorderRadius.circular(16.0) : BorderRadius.circular(6.0),
       ),
       height: Platform.isAndroid || Platform.isIOS ? 32.0 : null,
       verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
-          ? 36.0
+          ? 28.0
           : null,
       preferBelow: Platform.isWindows || Platform.isLinux || Platform.isMacOS
           ? true

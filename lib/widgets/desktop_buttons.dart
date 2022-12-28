@@ -61,7 +61,13 @@ class NObserver extends NavigatorObserver {
 }
 
 class WindowButtons extends StatefulWidget {
-  const WindowButtons({Key? key}) : super(key: key);
+  const WindowButtons({Key? key, this.title}) : super(key: key);
+
+  /// The current window title.
+  ///
+  /// If not provided, the title if fetched from the data of the current
+  /// route
+  final String? title;
 
   @override
   State<WindowButtons> createState() => _WindowButtonsState();
@@ -138,7 +144,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                         case 4:
                           return AppLocalizations.of(context).settings;
                         default:
-                          return 'Bluecherry';
+                          return widget.title ?? 'Bluecherry';
                       }
                     }(),
                     style: TextStyle(

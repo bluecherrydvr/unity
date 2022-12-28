@@ -25,12 +25,11 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/window.dart';
-import 'package:bluecherry_client/widgets/camera_view.dart';
+import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 
-import 'package:dart_vlc/dart_vlc.dart' hide Device;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -55,22 +54,29 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  await UnityVideoPlayerInterface.instance.initialize();
 
-  if (isDesktop) {
-    if (args.isNotEmpty) {
-      debugPrint('FOUND ANOTHER WINDOW: $args');
-      final params = (json.decode(args[2]) as Map).cast<String, dynamic>();
-      // final windowId = params['window_id'] as String;
-      // final device = Device.fromJson(
-      //   (params['device'] as Map).cast<String, dynamic>(),
-      // );
+  if (isDesktop && args.isNotEmpty) {
+    debugPrint('FOUND ANOTHER WINDOW: $args');
 
-      // DartVLC.initialize();
+    // configureCameraWindow();
+    final device = Device.fromJson(json.decode(args[0]));
+    final mode = ThemeMode.values[int.tryParse(args[1]) ?? 0];
 
-      runApp(CameraView());
+    debugPrint(device.toString());
+    debugPrint(mode.toString());
 
-      return;
-    }
+    // // settings provider needs to be initalized alone
+    // await SettingsProvider.ensureInitialized();
+
+    runApp(
+      SingleCameraWindow(
+        device: device,
+        mode: mode,
+      ),
+    );
+
+    return;
   }
 
   // We use [Future.wait] to decrease startup time.
@@ -78,7 +84,6 @@ Future<void> main(List<String> args) async {
   // With it, all these functions will be running at the same time.
   await Future.wait([
     if (isDesktop) configureWindow(),
-    UnityVideoPlayerInterface.instance.initialize(),
     () async {
       // Request notifications permission for iOS, Android 13+ and Windows.
       //

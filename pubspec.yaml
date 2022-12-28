@@ -48,7 +48,8 @@ dependencies:
 
   # Desktop
   window_manager: ^0.2.8
-  desktop_multi_window: ^0.2.0
+  unity_multi_window:
+    path: packages/unity_multi_window/
 
 dev_dependencies:
   flutter_test:

@@ -56,7 +56,7 @@ class SecondaryWindow extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('THIS IS A SECONDARY WINDOW'),
+              const Text('THIS IS A SECONDARY WINDOWr'),
               TextButton(
                 onPressed: () {
                   exit(0);

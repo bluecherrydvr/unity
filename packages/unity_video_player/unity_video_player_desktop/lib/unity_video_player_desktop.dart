@@ -61,6 +61,9 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
     videoDimensions: const VideoDimensions(640, 360),
   );
 
+  // stores the current volume, since vlc do not provide it
+  double _currentVolume = 1.0;
+
   @override
   String? get dataSource => vlcPlayer.current.media?.resource;
 
@@ -100,7 +103,14 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
   }
 
   @override
-  Future<void> setVolume(double volume) async => vlcPlayer.setVolume(volume);
+  Future<void> setVolume(double volume) async {
+    vlcPlayer.setVolume(volume);
+    _currentVolume = volume;
+  }
+
+  @override
+  Future<double> get volume async => _currentVolume;
+
   @override
   Future<void> setSpeed(double speed) async => vlcPlayer.setRate(speed);
   @override

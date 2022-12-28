@@ -91,6 +91,10 @@ abstract class UnityVideoPlayer {
 
   Future<void> setDataSource(String url, {bool autoPlay = true});
   Future<void> setVolume(double volume);
+
+  /// The current media volume
+  Future<double> get volume;
+
   Future<void> setSpeed(double speed);
   Future<void> seekTo(int msec);
 

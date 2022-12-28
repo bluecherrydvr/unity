@@ -111,6 +111,8 @@
   "notificationClickAction": "Notification Click Action",
   "showFullscreenCamera": "Show in fullscreen",
   "openInANewWindow": "Open in a new window",
+  "enableAudio": "Enable audio",
+  "disableAudio": "Disable audio",
   "showEventsScreen": "Show events history",
   "addNewServer": "Add new server",
   "disconnectServer": "Disconnect",

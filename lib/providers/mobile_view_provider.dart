@@ -276,9 +276,5 @@ UnityVideoPlayer getVideoPlayerControllerForDevice(
     ..setVolume(0.0)
     ..setSpeed(1.0);
 
-  // TODO:
-  // controller.ijkPlayer
-  //     ?.setOption(FijkOption.playerCategory, 'packet-buffering', '0');
-
   return controller;
 }

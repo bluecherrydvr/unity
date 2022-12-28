@@ -242,6 +242,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
               offset: Offset(4, -4),
             ),
           ];
+
           return HoverButton(
             onPressed: () {},
             builder: (context, states) {
@@ -269,6 +270,46 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        FutureBuilder<double>(
+                          future: controller.volume,
+                          initialData: 0.0,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final volume = snapshot.data!;
+                              final isMuted = volume == 0.0;
+
+                              return IconButton(
+                                icon: Icon(
+                                  isMuted
+                                      ? Icons.volume_mute_rounded
+                                      : Icons.volume_up_rounded,
+                                  shadows: shadows,
+                                ),
+                                tooltip: isMuted
+                                    ? AppLocalizations.of(context).enableAudio
+                                    : AppLocalizations.of(context).disableAudio,
+                                color: Colors.white,
+                                iconSize: 20.0,
+                                onPressed: () async {
+                                  if (isMuted) {
+                                    await controller.setVolume(1.0);
+                                  } else {
+                                    await controller.setVolume(0.0);
+                                  }
+
+                                  setState(() {});
+                                },
+                              );
+                            }
+
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        const VerticalDivider(
+                          color: Colors.white,
+                          indent: 10,
+                          endIndent: 10,
+                        ),
                         if (isDesktop)
                           IconButton(
                             icon: const Icon(

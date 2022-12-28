@@ -44,6 +44,9 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
 class UnityVideoPlayerMobile extends UnityVideoPlayer {
   FijkPlayer ijkPlayer = FijkPlayer();
 
+  // stores the current volume, since ijkPlayer do not provide it
+  double _currentVolume = 1.0;
+
   @override
   String? get dataSource {
     return ijkPlayer.dataSource;
@@ -77,10 +80,23 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
       url,
       autoPlay: autoPlay,
     );
+
+    await ijkPlayer.setOption(
+      FijkOption.playerCategory,
+      'packet-buffering',
+      '0',
+    );
   }
 
   @override
-  Future<void> setVolume(double volume) => ijkPlayer.setVolume(volume);
+  Future<void> setVolume(double volume) async {
+    await ijkPlayer.setVolume(volume);
+    _currentVolume = volume;
+  }
+
+  @override
+  Future<double> get volume async => _currentVolume;
+
   @override
   Future<void> setSpeed(double speed) => ijkPlayer.setSpeed(speed);
   @override

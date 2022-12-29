@@ -19,6 +19,7 @@ class EventsScreenDesktop extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: DataTable(
+          horizontalMargin: 20.0,
           columnSpacing: 35.0,
           columns: [
             const DataColumn(label: SizedBox.shrink()),
@@ -45,6 +46,7 @@ class EventsScreenDesktop extends StatelessWidget {
             final isAlarm = priority == 'alarm' || priority == 'alrm';
 
             return DataRow(
+              key: ValueKey<Event>(event),
               color: index.isEven
                   ? MaterialStateProperty.resolveWith((states) {
                       return theme.appBarTheme.backgroundColor;
@@ -78,8 +80,12 @@ class EventsScreenDesktop extends StatelessWidget {
                 // event
                 DataCell(Text((parsedCategory?.last ?? '').uppercaseFirst())),
                 // duration
-                DataCell(Text((event.mediaDuration?.humanReadableCompact ?? '')
-                    .uppercaseFirst())),
+                DataCell(
+                  Text(
+                    (event.mediaDuration?.humanReadableCompact(context) ?? '')
+                        .uppercaseFirst(),
+                  ),
+                ),
                 // priority
                 DataCell(Text(priority.uppercaseFirst())),
                 // date

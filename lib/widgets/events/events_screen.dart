@@ -22,6 +22,7 @@
 import 'dart:async';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,9 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-part 'event_player.dart';
+import 'event_player_desktop.dart';
+
+part 'event_player_mobile.dart';
 part 'events_screen_desktop.dart';
 part 'events_screen_mobile.dart';
 
@@ -139,6 +142,7 @@ class _EventsScreenState extends State<EventsScreen> {
               SizedBox(
                 width: 220,
                 child: Material(
+                  color: Theme.of(context).appBarTheme.backgroundColor,
                   child: DropdownButtonHideUnderline(
                     child: Column(children: [
                       SubHeader(AppLocalizations.of(context).servers),
@@ -160,53 +164,29 @@ class _EventsScreenState extends State<EventsScreen> {
                         );
                       }),
                       const Spacer(),
+                      // TODO: THIS IS BLOCKED BY https://github.com/flutter/flutter/pull/115806
                       DropdownButton<EventsTimeFilter>(
                         isExpanded: true,
                         value: timeFilter,
                         items: const [
                           DropdownMenuItem(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text('Last hour'),
-                            ),
+                            child: Text('Last hour'),
                             value: EventsTimeFilter.lastHour,
                           ),
                           DropdownMenuItem(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text('Last 6 hours'),
-                            ),
+                            child: Text('Last 6 hours'),
                             value: EventsTimeFilter.last6Hours,
                           ),
                           DropdownMenuItem(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text('Last 12 hours'),
-                            ),
+                            child: Text('Last 12 hours'),
                             value: EventsTimeFilter.last12Hours,
                           ),
                           DropdownMenuItem(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text('Last 24 hours'),
-                            ),
+                            child: Text('Last 24 hours'),
                             value: EventsTimeFilter.last24Hours,
                           ),
                           DropdownMenuItem(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text('Select time range'),
-                            ),
+                            child: Text('Select time range'),
                             value: EventsTimeFilter.custom,
                           ),
                         ],
@@ -220,12 +200,7 @@ class _EventsScreenState extends State<EventsScreen> {
                         value: levelFilter,
                         items: EventsMinLevelFilter.values.map((level) {
                           return DropdownMenuItem(
-                            child: Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                start: 16.0,
-                              ),
-                              child: Text(level.name.uppercaseFirst()),
-                            ),
+                            child: Text(level.name.uppercaseFirst()),
                             value: level,
                           );
                         }).toList(),

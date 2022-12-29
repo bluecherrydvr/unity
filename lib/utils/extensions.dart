@@ -24,7 +24,7 @@ extension DurationExtension on Duration {
     }
   }
 
-  String get humanReadable {
+  String humanReadable(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final String hours = twoDigits(inHours);
     final String minutes = twoDigits(inMinutes.remainder(60));
@@ -32,23 +32,24 @@ extension DurationExtension on Duration {
 
     List<String> finalStrings = [];
 
-    // TODO: translate
+    final localizations = AppLocalizations.of(context);
+
     if (hours.isNotEmpty) {
-      finalStrings.add('$hours hours');
+      finalStrings.add(localizations.hours(hours));
     }
 
     if (minutes.isNotEmpty) {
-      finalStrings.add('$minutes minutes');
+      finalStrings.add(localizations.minutes(minutes));
     }
 
     if (seconds.isNotEmpty) {
-      finalStrings.add('$seconds seconds');
+      finalStrings.add(localizations.seconds(seconds));
     }
 
     return finalStrings.join(', ');
   }
 
-  String get humanReadableCompact {
+  String humanReadableCompact(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final String hours = twoDigits(inHours);
     final String minutes = twoDigits(inMinutes.remainder(60));
@@ -56,17 +57,18 @@ extension DurationExtension on Duration {
 
     List<String> finalStrings = [];
 
-    // TODO: translate
+    final localizations = AppLocalizations.of(context);
+
     if (hours.isNotEmpty) {
-      finalStrings.add('${hours}h');
+      finalStrings.add(localizations.hoursCompact(hours));
     }
 
     if (minutes.isNotEmpty) {
-      finalStrings.add('${minutes}m');
+      finalStrings.add(localizations.minutesCompact(minutes));
     }
 
     if (seconds.isNotEmpty) {
-      finalStrings.add('${seconds}s');
+      finalStrings.add(localizations.secondsCompact(seconds));
     }
 
     return finalStrings.join('');

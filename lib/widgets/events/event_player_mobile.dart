@@ -1,15 +1,30 @@
 part of 'events_screen.dart';
 
-class EventPlayerScreen extends StatefulWidget {
+class EventPlayerScreen extends StatelessWidget {
   final Event event;
 
   const EventPlayerScreen({Key? key, required this.event}) : super(key: key);
 
   @override
-  State<EventPlayerScreen> createState() => _EventPlayerScreenState();
+  Widget build(BuildContext context) {
+    if (isDesktop) {
+      return EventPlayerDesktop(event: event);
+    } else {
+      return _EventPlayerMobile(event: event);
+    }
+  }
 }
 
-class _EventPlayerScreenState extends State<EventPlayerScreen> {
+class _EventPlayerMobile extends StatefulWidget {
+  final Event event;
+
+  const _EventPlayerMobile({Key? key, required this.event}) : super(key: key);
+
+  @override
+  State<_EventPlayerMobile> createState() => __EventPlayerMobileState();
+}
+
+class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   final videoController = UnityVideoPlayer.create();
 
   @override
@@ -113,13 +128,6 @@ class _VideoViewportState extends State<VideoViewport> {
 
   @override
   Widget build(BuildContext context) {
-    // Rect rect = Rect.fromLTRB(
-    //   max(0.0, widget.rect.left),
-    //   max(0.0, widget.rect.top),
-    //   min(widget.size.width, widget.rect.right),
-    //   min(widget.size.height, widget.rect.bottom),
-    // );
-
     return Material(
       color: Colors.transparent,
       child: SafeArea(
@@ -176,27 +184,7 @@ class _VideoViewportState extends State<VideoViewport> {
               end: 0.0,
               child: () {
                 if (player.error != null) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.warning,
-                          color: Colors.white70,
-                          size: 32.0,
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          player.error!.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  return ErrorWarning(message: player.error!);
                 } else if (player.isBuffering) {
                   return const Center(
                     child: CircularProgressIndicator(
@@ -275,7 +263,7 @@ class _VideoViewportState extends State<VideoViewport> {
                               //   state = FijkState.idle;
                               // });
                               position = Duration(milliseconds: value.toInt());
-                              await player.seekTo(value.toInt());
+                              await player.seekTo(position);
                               await player.start();
                             },
                           ),
@@ -363,7 +351,7 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
               min: 0,
               max: widget.player.duration.inMilliseconds.toDouble(),
               onChanged: (v) {
-                widget.player.seekTo(v.toInt());
+                widget.player.seekTo(Duration(milliseconds: v.toInt()));
               },
             ),
           ),

@@ -62,14 +62,19 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   Duration get currentPos => ijkPlayer.currentPos;
 
   @override
-  bool get isBuffering => ijkPlayer.isBuffering;
-  @override
   Stream<Duration> get onCurrentPosUpdate => ijkPlayer.onCurrentPosUpdate;
+
+  @override
+  bool get isBuffering => ijkPlayer.isBuffering;
   @override
   Stream<bool> get onBufferStateUpdate => ijkPlayer.onBufferStateUpdate;
 
   @override
   bool get isPlaying => ijkPlayer.state == FijkState.started;
+
+  @override
+  Stream<bool> get onPlayingStateUpdate =>
+      Stream.fromFuture(Future.value(ijkPlayer.isPlayable()));
 
   @override
   bool get isSeekable => ijkPlayer.state == FijkState.asyncPreparing;
@@ -100,7 +105,8 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) => ijkPlayer.setSpeed(speed);
   @override
-  Future<void> seekTo(int msec) => ijkPlayer.seekTo(msec);
+  Future<void> seekTo(Duration position) =>
+      ijkPlayer.seekTo(position.inMilliseconds);
 
   @override
   Future<void> start() => ijkPlayer.start();

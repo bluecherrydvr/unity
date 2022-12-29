@@ -98,6 +98,10 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
   bool get isPlaying => vlcPlayer.playback.isPlaying;
 
   @override
+  Stream<bool> get onPlayingStateUpdate =>
+      vlcPlayer.playbackStream.map((playback) => playback.isPlaying);
+
+  @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     vlcPlayer.open(Media.network(url));
   }
@@ -114,8 +118,7 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) async => vlcPlayer.setRate(speed);
   @override
-  Future<void> seekTo(int msec) async =>
-      vlcPlayer.seek(Duration(milliseconds: msec));
+  Future<void> seekTo(Duration position) async => vlcPlayer.seek(position);
 
   @override
   Future<void> start() async => vlcPlayer.play();

@@ -5,7 +5,7 @@ import 'package:unity_multi_window/unity_multi_window.dart';
 
 void main(List<String> args) {
   if (args.isNotEmpty) {
-    print(args);
+    debugPrint('$args');
 
     runApp(const SecondaryWindow());
 
@@ -30,8 +30,8 @@ class HomeWindow extends StatelessWidget {
           child: TextButton(
             child: const Text('CREATE WINDOW'),
             onPressed: () {
-              final window = MultiWindow.run([
-                'RUNNING A NEW WINDOW HEHEHE',
+              MultiWindow.run([
+                'window id',
               ]);
             },
           ),

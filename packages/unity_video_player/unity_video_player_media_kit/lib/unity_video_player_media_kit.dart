@@ -135,6 +135,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   bool get isPlaying => mkPlayer.state.isPlaying;
 
   @override
+  Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.isPlaying;
+
+  @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     // do not use mkPlayer.add because it doesn't support auto play
     mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
@@ -149,8 +152,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;
   @override
-  Future<void> seekTo(int msec) async =>
-      mkPlayer.seek(Duration(milliseconds: msec));
+  Future<void> seekTo(Duration position) async => mkPlayer.seek(position);
 
   @override
   Future<void> start() async => mkPlayer.play();
@@ -161,7 +163,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> reset() async {
     await pause();
-    await seekTo(0);
+    await seekTo(Duration.zero);
   }
 
   @override

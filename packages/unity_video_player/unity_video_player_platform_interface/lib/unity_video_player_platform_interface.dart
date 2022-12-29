@@ -78,13 +78,15 @@ abstract class UnityVideoPlayer {
   /// The current position of the current media.
   Duration get currentPos;
 
+  Stream<Duration> get onCurrentPosUpdate;
+
   /// Whether the media is buffering
   bool get isBuffering;
-  Stream<Duration> get onCurrentPosUpdate;
   Stream<bool> get onBufferStateUpdate;
 
   /// Whether the media is playing
   bool get isPlaying;
+  Stream<bool> get onPlayingStateUpdate;
 
   /// Whether the media is seekable
   bool get isSeekable;
@@ -96,7 +98,7 @@ abstract class UnityVideoPlayer {
   Future<double> get volume;
 
   Future<void> setSpeed(double speed);
-  Future<void> seekTo(int msec);
+  Future<void> seekTo(Duration position);
 
   Future<void> start();
   Future<void> pause();

@@ -76,6 +76,42 @@
       "n": {}
     }
   },
+  "hours": "{h} hours",
+  "@hours": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "hoursCompact": "{h}h",
+  "@hoursCompact": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "minutes": "{m} minutes",
+  "@minutes": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "minutesCompact": "{m}m",
+  "@minutesCompact": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "seconds": "{s} seconds",
+  "@seconds": {
+    "placeholders": {
+      "s": {}
+    }
+  },
+  "secondsCompact": "{s}s",
+  "@secondsCompact": {
+    "placeholders": {
+      "s": {}
+    }
+  },
   "remove": "Remove ?",
   "removeServerDescription": "{serverName} will be removed from the application. You'll not be able to view cameras from this server & will no longer receive notifications.",
   "@removeServerDescription": {

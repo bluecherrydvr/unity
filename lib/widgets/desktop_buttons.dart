@@ -137,6 +137,8 @@ class _WindowButtonsState extends State<WindowButtons> {
                   padding: const EdgeInsetsDirectional.only(start: 10.0),
                   child: Text(
                     () {
+                      if (widget.title != null) return widget.title!;
+
                       if (arguments.data != null) {
                         if (arguments.data is Event) {
                           final event = arguments.data as Event;

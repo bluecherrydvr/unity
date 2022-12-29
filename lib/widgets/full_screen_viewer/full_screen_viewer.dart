@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class DeviceFullscreenViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= 1008) {
+      if (consts.maxWidth >= 800) {
         return DeviceFullscreenViewerDesktop(
           device: device,
           videoPlayerController: videoPlayerController,

@@ -23,6 +23,7 @@ class _DeviceFullscreenViewerDesktopState
   Widget build(BuildContext context) {
     return Material(
       child: Column(children: [
+        WindowButtons(title: widget.device.fullName),
         Expanded(
           child: UnityVideoView(
             player: widget.videoPlayerController,
@@ -30,7 +31,7 @@ class _DeviceFullscreenViewerDesktopState
             paneBuilder: (context, controller) {
               if (controller.error != null) {
                 return ErrorWarning(message: controller.error!);
-              } else if (controller.isBuffering) {
+              } else if (!controller.isSeekable) {
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation(Colors.white),

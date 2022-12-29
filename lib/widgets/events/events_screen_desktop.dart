@@ -3,15 +3,60 @@ part of 'events_screen.dart';
 class EventsScreenDesktop extends StatelessWidget {
   final EventsData events;
 
-  const EventsScreenDesktop({Key? key, required this.events}) : super(key: key);
+  // filters
+  final List<Server> allowedServers;
+  final EventsTimeFilter timeFilter;
+  final EventsMinLevelFilter levelFilter;
+
+  const EventsScreenDesktop({
+    Key? key,
+    required this.events,
+    required this.allowedServers,
+    required this.timeFilter,
+    required this.levelFilter,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final events = this.events.values.expand((element) sync* {
-      for (final e in element) {
-        yield e;
+    final now = DateTime.now();
+    final int hourRange = {
+      EventsTimeFilter.last12Hours: 12,
+      EventsTimeFilter.last24Hours: 24,
+      EventsTimeFilter.last6Hours: 6,
+      EventsTimeFilter.lastHour: 1,
+      EventsTimeFilter.any: -1,
+    }[timeFilter]!;
+
+    final events = this.events.values.expand((events) sync* {
+      for (final event in events) {
+        // allow events from the allowed servers
+        if (!allowedServers.any((element) => event.server.ip == element.ip)) {
+          continue;
+        }
+
+        // allow events within the time range
+        if (timeFilter != EventsTimeFilter.any) {
+          if (now.difference(event.published).inHours > hourRange) continue;
+        }
+
+        final parsedCategory = event.category?.split('/');
+        final priority = parsedCategory?[1] ?? '';
+        final isAlarm = priority == 'alarm' || priority == 'alrm';
+
+        switch (levelFilter) {
+          case EventsMinLevelFilter.alarming:
+            if (!isAlarm) continue;
+            break;
+          case EventsMinLevelFilter.warning:
+            if (priority != 'warn') continue;
+            break;
+          default:
+            break;
+        }
+
+        yield event;
       }
     }).toList();
 
@@ -34,7 +79,6 @@ class EventsScreenDesktop extends StatelessWidget {
           rows: events.map<DataRow>((Event event) {
             final index = events.indexOf(event);
 
-            final parsedCategory = event.category?.split('/');
             final dateFormatter = DateFormat(
               SettingsProvider.instance.dateFormat.pattern,
             );
@@ -42,6 +86,7 @@ class EventsScreenDesktop extends StatelessWidget {
               SettingsProvider.instance.timeFormat.pattern,
             );
 
+            final parsedCategory = event.category?.split('/');
             final priority = parsedCategory?[1] ?? '';
             final isAlarm = priority == 'alarm' || priority == 'alrm';
 

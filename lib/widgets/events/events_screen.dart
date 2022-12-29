@@ -54,6 +54,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   EventsTimeFilter timeFilter = EventsTimeFilter.last24Hours;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
+  List<Server> allowedServers = [...ServersProvider.instance.servers];
 
   bool isFirstTimeLoading = true;
   final EventsData events = {};
@@ -148,8 +149,16 @@ class _EventsScreenState extends State<EventsScreen> {
                       SubHeader(AppLocalizations.of(context).servers),
                       ...servers.servers.map((server) {
                         return CheckboxListTile(
-                          value: true,
-                          onChanged: (v) {},
+                          value: allowedServers.contains(server),
+                          onChanged: (v) {
+                            setState(() {
+                              if (v == null || !v) {
+                                allowedServers.remove(server);
+                              } else {
+                                allowedServers.add(server);
+                              }
+                            });
+                          },
                           controlAffinity: ListTileControlAffinity.leading,
                           contentPadding: const EdgeInsetsDirectional.only(
                             start: 8.0,
@@ -170,6 +179,10 @@ class _EventsScreenState extends State<EventsScreen> {
                         value: timeFilter,
                         items: const [
                           DropdownMenuItem(
+                            child: Text('Any'),
+                            value: EventsTimeFilter.any,
+                          ),
+                          DropdownMenuItem(
                             child: Text('Last hour'),
                             value: EventsTimeFilter.lastHour,
                           ),
@@ -185,10 +198,10 @@ class _EventsScreenState extends State<EventsScreen> {
                             child: Text('Last 24 hours'),
                             value: EventsTimeFilter.last24Hours,
                           ),
-                          DropdownMenuItem(
-                            child: Text('Select time range'),
-                            value: EventsTimeFilter.custom,
-                          ),
+                          // DropdownMenuItem(
+                          //   child: Text('Select time range'),
+                          //   value: EventsTimeFilter.custom,
+                          // ),
                         ],
                         onChanged: (v) => setState(
                           () => timeFilter = v ?? timeFilter,
@@ -215,7 +228,12 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
               const VerticalDivider(width: 1),
               Expanded(
-                child: EventsScreenDesktop(events: events),
+                child: EventsScreenDesktop(
+                  events: events,
+                  allowedServers: allowedServers,
+                  timeFilter: timeFilter,
+                  levelFilter: levelFilter,
+                ),
               ),
             ]);
           } else {
@@ -237,7 +255,7 @@ enum EventsTimeFilter {
   last6Hours,
   last12Hours,
   last24Hours,
-  custom,
+  any,
 }
 
 enum EventsMinLevelFilter {

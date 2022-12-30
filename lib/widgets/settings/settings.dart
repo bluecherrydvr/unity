@@ -358,44 +358,64 @@ class _SettingsState extends State<Settings> {
 
 // ignore: non_constant_identifier_names
 Widget SubHeader(String text) {
-  return SliverPersistentHeader(
-    delegate: _SubHeaderDelegate(text),
-    pinned: true,
-  );
-}
-
-class _SubHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final String text;
-
-  _SubHeaderDelegate(this.text);
-
-  @override
-  Widget build(context, double shrinkOffset, bool overlapsContent) {
-    return Material(
-      child: Container(
-        height: 56.0,
-        alignment: AlignmentDirectional.centerStart,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          text.toUpperCase(),
-          style: Theme.of(context).textTheme.overline?.copyWith(
-                color: Theme.of(context).textTheme.headline3?.color,
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-              ),
+  return SliverToBoxAdapter(
+    child: Builder(builder: (context) {
+      return Material(
+        child: Container(
+          height: 56.0,
+          alignment: AlignmentDirectional.centerStart,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            text.toUpperCase(),
+            style: Theme.of(context).textTheme.overline?.copyWith(
+                  color: Theme.of(context).textTheme.headline3?.color,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }),
+  );
 
-  @override
-  double get maxExtent => 56.0;
-
-  @override
-  double get minExtent => 56.0;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
-  }
+  // return SliverPersistentHeader(
+  //   delegate: _SubHeaderDelegate(text),
+  //   pinned: true,
+  // );
 }
+
+// class _SubHeaderDelegate extends SliverPersistentHeaderDelegate {
+//   final String text;
+
+//   _SubHeaderDelegate(this.text);
+
+//   @override
+//   Widget build(context, double shrinkOffset, bool overlapsContent) {
+//     return Material(
+//       child: Container(
+//         height: 56.0,
+//         alignment: AlignmentDirectional.centerStart,
+//         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//         child: Text(
+//           text.toUpperCase(),
+//           style: Theme.of(context).textTheme.overline?.copyWith(
+//                 color: Theme.of(context).textTheme.headline3?.color,
+//                 fontSize: 12.0,
+//                 fontWeight: FontWeight.w600,
+//               ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   double get maxExtent => 56.0;
+
+//   @override
+//   double get minExtent => 56.0;
+
+//   @override
+//   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+//     return true;
+//   }
+// }

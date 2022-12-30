@@ -94,11 +94,12 @@ class EventsScreenDesktop extends StatelessWidget {
               key: ValueKey<Event>(event),
               color: index.isEven
                   ? MaterialStateProperty.resolveWith((states) {
-                      return theme.appBarTheme.backgroundColor;
+                      return theme.appBarTheme.backgroundColor
+                          ?.withOpacity(0.75);
                     })
                   : MaterialStateProperty.resolveWith((states) {
                       return theme.appBarTheme.backgroundColor
-                          ?.withOpacity(0.4);
+                          ?.withOpacity(0.25);
                     }),
               onSelectChanged: event.mediaURL == null
                   ? null

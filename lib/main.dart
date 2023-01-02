@@ -29,6 +29,7 @@ import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/splash_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,13 @@ import 'widgets/events/events_screen.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main(List<String> args) async {
+
+  // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
+  // On windows, the window is hidden until flutter draws its first frame.
+  // To create a splash screen effect while the dependencies are loading, we
+  // can run the [SplashScreen] widget as the app.
+  if (Platform.isWindows) runApp(const SplashScreen());
+
   WidgetsFlutterBinding.ensureInitialized();
   await UnityVideoPlayerInterface.instance.initialize();
 

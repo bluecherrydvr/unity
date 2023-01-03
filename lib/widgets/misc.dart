@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 import 'dart:io';
 import 'dart:async';
 
@@ -24,6 +25,8 @@ import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
 bool get isDesktop {
+  return false;
+
   if (kIsWeb) return false;
   return [
     TargetPlatform.windows,

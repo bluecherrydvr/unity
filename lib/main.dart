@@ -30,6 +30,7 @@ import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,7 +55,6 @@ import 'widgets/events/events_screen.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main(List<String> args) async {
-
   // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
   // On windows, the window is hidden until flutter draws its first frame.
   // To create a splash screen effect while the dependencies are loading, we
@@ -111,7 +111,8 @@ Future<void> main(List<String> args) async {
     Hive.initFlutter(),
 
     /// Firebase messaging isn't available on desktop platforms
-    if (!isDesktop) FirebaseConfiguration.ensureInitialized(),
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
+      FirebaseConfiguration.ensureInitialized(),
   ]);
 
   debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
@@ -142,7 +143,7 @@ Future<void> main(List<String> args) async {
     );
   }
 
-  runApp(const MyApp());
+  runApp(const UnityApp());
 }
 
 class DevHttpOverrides extends HttpOverrides {
@@ -153,8 +154,8 @@ class DevHttpOverrides extends HttpOverrides {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class UnityApp extends StatelessWidget {
+  const UnityApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +169,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           navigatorObservers: [NObserver()],
           localizationsDelegates: const [

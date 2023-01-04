@@ -325,40 +325,44 @@ class _MobileHomeState extends State<MobileHome> {
       child: Column(children: [
         const Spacer(),
         Expanded(
-          child: NavigationRail(
-            minExtendedWidth: 220,
-            elevation: Theme.of(context).appBarTheme.elevation,
-            backgroundColor: backgroundColor,
-            extended: isExtraWide,
-            useIndicator: !isExtraWide,
-            indicatorColor: theme.selectedBackgroundColor,
-            selectedLabelTextStyle: TextStyle(
-              color: theme.selectedForegroundColor,
-            ),
-            unselectedLabelTextStyle: TextStyle(
-              color: theme.unselectedForegroundColor,
-            ),
-            destinations: navigatorData(context).entries.map((entry) {
-              final icon = entry.key;
-              final text = entry.value;
-              final index = navigatorData(context).keys.toList().indexOf(icon);
+          flex: 3,
+          child: Center(
+            child: NavigationRail(
+              minExtendedWidth: 220,
+              elevation: Theme.of(context).appBarTheme.elevation,
+              backgroundColor: backgroundColor,
+              extended: isExtraWide,
+              useIndicator: !isExtraWide,
+              indicatorColor: theme.selectedBackgroundColor,
+              selectedLabelTextStyle: TextStyle(
+                color: theme.selectedForegroundColor,
+              ),
+              unselectedLabelTextStyle: TextStyle(
+                color: theme.unselectedForegroundColor,
+              ),
+              destinations: navigatorData(context).entries.map((entry) {
+                final icon = entry.key;
+                final text = entry.value;
+                final index =
+                    navigatorData(context).keys.toList().indexOf(icon);
 
-              return NavigationRailDestination(
-                icon: Icon(
-                  icon,
-                  color: index == home.tab
-                      ? theme.selectedForegroundColor
-                      : theme.unselectedForegroundColor,
-                ),
-                label: Text(text),
-              );
-            }).toList(),
-            selectedIndex: home.tab,
-            onDestinationSelected: (index) {
-              if (home.tab != index) {
-                home.setTab(index);
-              }
-            },
+                return NavigationRailDestination(
+                  icon: Icon(
+                    icon,
+                    color: index == home.tab
+                        ? theme.selectedForegroundColor
+                        : theme.unselectedForegroundColor,
+                  ),
+                  label: Text(text),
+                );
+              }).toList(),
+              selectedIndex: home.tab,
+              onDestinationSelected: (index) {
+                if (home.tab != index) {
+                  home.setTab(index);
+                }
+              },
+            ),
           ),
         ),
         const Spacer(),

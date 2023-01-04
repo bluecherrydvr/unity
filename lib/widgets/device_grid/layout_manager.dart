@@ -149,6 +149,7 @@ class LayoutTile extends StatelessWidget {
       },
       child: ListTile(
         dense: true,
+        visualDensity: VisualDensity.compact,
         selected: selected,
         leading: AnimatedSwitcher(
           duration: const Duration(milliseconds: 150),

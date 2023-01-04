@@ -46,6 +46,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
             child: Material(
               type: MaterialType.transparency,
               child: ListView.builder(
+                padding: EdgeInsets.only(
+                  bottom: mq.viewPadding.bottom,
+                ),
                 itemCount: ServersProvider.instance.servers.length,
                 itemBuilder: (context, i) {
                   final server = ServersProvider.instance.servers[i];
@@ -57,8 +60,6 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         return ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0) +
-                              mq.viewPadding,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: server.devices.length + 1,
@@ -104,7 +105,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   }
 }
 
-class DesktopDeviceSelectorTile extends StatelessWidget {
+class DesktopDeviceSelectorTile extends StatefulWidget {
   const DesktopDeviceSelectorTile({
     Key? key,
     required this.device,
@@ -115,57 +116,86 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
   final bool selected;
 
   @override
+  State<DesktopDeviceSelectorTile> createState() =>
+      _DesktopDeviceSelectorTileState();
+}
+
+class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
+  PointerDeviceKind? currentLongPressDeviceKind;
+
+  @override
   Widget build(BuildContext context) {
+    // subscribe to media query updates
     MediaQuery.of(context);
+    final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return GestureDetector(
-      onSecondaryTap: () => displayOptions(context),
+      onSecondaryTap: () => _displayOptions(context),
 
-      // On mobile platforms, display it on long press
-      onLongPress: isDesktop ? null : () => displayOptions(context),
-      child: ListTile(
-        enabled: device.status,
-        selected: selected,
-        dense: true,
-        title: Row(children: [
+      // Only display options on long press if it's caused by a touch input
+      onLongPressEnd: (details) {
+        switch (currentLongPressDeviceKind) {
+          case PointerDeviceKind.touch:
+            _displayOptions(context);
+            break;
+          default:
+            break;
+        }
+
+        currentLongPressDeviceKind = null;
+      },
+      onLongPressDown: (details) => currentLongPressDeviceKind = details.kind,
+      child: InkWell(
+        onTap: !widget.device.status
+            ? null
+            : () {
+                if (widget.selected) {
+                  view.remove(widget.device);
+                } else {
+                  view.add(widget.device);
+                }
+              },
+        child: Row(children: [
+          const SizedBox(width: 16.0),
           Container(
             height: 6.0,
             width: 6.0,
             margin: const EdgeInsetsDirectional.only(end: 8.0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: device.status ? Colors.green.shade100 : Colors.red,
+              color: widget.device.status ? Colors.green.shade100 : Colors.red,
             ),
           ),
           Expanded(
             child: Text(
-              device.name
-                  .split(' ')
-                  // uppercase all first
-                  .map((e) => e[0].toUpperCase() + e.substring(1))
-                  .join(' '),
+              widget.device.name.uppercaseFirst(),
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: widget.selected ? theme.primaryColor : null,
+              ),
             ),
           ),
           // if (isMobile)
-          IconButton(
-            onPressed: device.status ? () => displayOptions(context) : null,
-            icon: Icon(moreIconData),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1.0),
+            child: IconButton(
+              onPressed:
+                  widget.device.status ? () => _displayOptions(context) : null,
+              icon: Icon(moreIconData),
+              iconSize: 22.0,
+            ),
           ),
+          const SizedBox(width: 16.0),
         ]),
-        onTap: () {
-          if (selected) {
-            view.remove(device);
-          } else {
-            view.add(device);
-          }
-        },
       ),
     );
   }
 
-  void displayOptions(BuildContext context) {
-    if (!device.status) return;
+  /// Display the options for the current device.
+  ///
+  /// There must be a [Navigator] above the provided [context]
+  Future<void> _displayOptions(BuildContext context) async {
+    if (!widget.device.status) return;
 
     final view = context.read<DesktopViewProvider>();
 
@@ -181,7 +211,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
       renderBox.size.height - padding.bottom,
     );
 
-    showMenu(
+    await showMenu(
       context: context,
       elevation: 4.0,
       position: RelativeRect.fromLTRB(
@@ -197,15 +227,15 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
       items: <PopupMenuEntry>[
         PopupMenuItem(
           child: Text(
-            selected
+            widget.selected
                 ? AppLocalizations.of(context).removeFromView
                 : AppLocalizations.of(context).addToView,
           ),
           onTap: () {
-            if (selected) {
-              view.remove(device);
+            if (widget.selected) {
+              view.remove(widget.device);
             } else {
-              view.add(device);
+              view.add(widget.device);
             }
           },
         ),
@@ -216,17 +246,17 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
           ),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
-              var player = view.players[device];
+              var player = view.players[widget.device];
               bool isLocalController = false;
               if (player == null) {
-                player = getVideoPlayerControllerForDevice(device);
+                player = getVideoPlayerControllerForDevice(widget.device);
                 isLocalController = true;
               }
 
               await Navigator.of(context).pushNamed(
                 '/fullscreen',
                 arguments: {
-                  'device': device,
+                  'device': widget.device,
                   'player': player,
                 },
               );
@@ -239,7 +269,7 @@ class DesktopDeviceSelectorTile extends StatelessWidget {
             child: Text(AppLocalizations.of(context).openInANewWindow),
             onTap: () async {
               WidgetsBinding.instance.addPostFrameCallback((_) async {
-                device.openInANewWindow();
+                widget.device.openInANewWindow();
               });
             },
           ),

@@ -302,25 +302,26 @@ class _VideoViewportState extends State<VideoViewport> {
                       ),
                     ),
                     const SizedBox(width: 8.0),
-                    // TODO: fullscreen
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        false
-                            // widget.player.isFullScreen
-                            ? Icons.fullscreen_exit
-                            : Icons.fullscreen,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        // if (widget.player.value.fullScreen) {
-                        //   player.exitFullScreen();
-                        // } else {
-                        //   player.enterFullScreen();
-                        // }
-                      },
-                    ),
-                    const SizedBox(width: 8.0),
+                    // TODO: fullscreen. unity_video_player currently doesn't provide an
+                    // interface for full screen handling
+                    // IconButton(
+                    //   padding: EdgeInsets.zero,
+                    //   icon: Icon(
+                    //     false
+                    //         // widget.player.isFullScreen
+                    //         ? Icons.fullscreen_exit
+                    //         : Icons.fullscreen,
+                    //     color: Colors.white,
+                    //   ),
+                    //   onPressed: () {
+                    //     // if (widget.player.value.fullScreen) {
+                    //     //   player.exitFullScreen();
+                    //     // } else {
+                    //     //   player.enterFullScreen();
+                    //     // }
+                    //   },
+                    // ),
+                    // const SizedBox(width: 8.0),
                   ],
                 ),
               ),

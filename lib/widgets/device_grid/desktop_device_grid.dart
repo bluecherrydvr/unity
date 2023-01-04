@@ -33,14 +33,15 @@ class DesktopDeviceGrid extends StatefulWidget {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
+  /// Calculates how many views there will be in the grid view
+  ///
+  /// Basically, we take the square root of the provided [deviceAmount], and round
+  /// it to the next number. We can do this because the grid displays only numbers
+  /// that have an exact square root (1, 4, 9, etc).
+  ///
+  /// For example, if [deviceAmount] is between 17-25, the returned value is is 5
   int calculateCrossAxisCount(int deviceAmount) {
-    if (deviceAmount == 1) {
-      return 1;
-    } else if (deviceAmount <= 4) {
-      return 2;
-    } else {
-      return 3;
-    }
+    return sqrt(deviceAmount).ceil();
   }
 
   @override

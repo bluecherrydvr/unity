@@ -108,8 +108,6 @@ class _MobileHomeState extends State<MobileHome> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = NavigationRailDrawerData(theme: Theme.of(context));
-
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
@@ -129,43 +127,7 @@ class _MobileHomeState extends State<MobileHome> {
             child: Row(children: [
               // if it's desktop, we show the navigation in the window bar
               if ((isWide || isExtraWide) && !isDesktop) ...[
-                NavigationRail(
-                  minExtendedWidth: 220,
-                  elevation: Theme.of(context).appBarTheme.elevation,
-                  backgroundColor:
-                      Theme.of(context).appBarTheme.backgroundColor,
-                  extended: isExtraWide,
-                  useIndicator: !isExtraWide,
-                  indicatorColor: theme.selectedBackgroundColor,
-                  selectedLabelTextStyle: TextStyle(
-                    color: theme.selectedForegroundColor,
-                  ),
-                  unselectedLabelTextStyle: TextStyle(
-                    color: theme.unselectedForegroundColor,
-                  ),
-                  destinations: navigatorData(context).entries.map((entry) {
-                    final icon = entry.key;
-                    final text = entry.value;
-                    final index =
-                        navigatorData(context).keys.toList().indexOf(icon);
-
-                    return NavigationRailDestination(
-                      icon: Icon(
-                        icon,
-                        color: index == tab
-                            ? theme.selectedForegroundColor
-                            : theme.unselectedForegroundColor,
-                      ),
-                      label: Text(text),
-                    );
-                  }).toList(),
-                  selectedIndex: tab,
-                  onDestinationSelected: (index) {
-                    if (tab != index) {
-                      home.setTab(index);
-                    }
-                  },
-                ),
+                buildNavigationRail(context, isExtraWide: isExtraWide),
                 // SizedBox(
                 //   width: 4.0,
                 // ),
@@ -347,6 +309,60 @@ class _MobileHomeState extends State<MobileHome> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget buildNavigationRail(
+    BuildContext context, {
+    required bool isExtraWide,
+  }) {
+    final theme = NavigationRailDrawerData(theme: Theme.of(context));
+    final home = context.watch<HomeProvider>();
+
+    final backgroundColor = Theme.of(context).appBarTheme.backgroundColor;
+    return Material(
+      color: backgroundColor,
+      child: Column(children: [
+        const Spacer(),
+        Expanded(
+          child: NavigationRail(
+            minExtendedWidth: 220,
+            elevation: Theme.of(context).appBarTheme.elevation,
+            backgroundColor: backgroundColor,
+            extended: isExtraWide,
+            useIndicator: !isExtraWide,
+            indicatorColor: theme.selectedBackgroundColor,
+            selectedLabelTextStyle: TextStyle(
+              color: theme.selectedForegroundColor,
+            ),
+            unselectedLabelTextStyle: TextStyle(
+              color: theme.unselectedForegroundColor,
+            ),
+            destinations: navigatorData(context).entries.map((entry) {
+              final icon = entry.key;
+              final text = entry.value;
+              final index = navigatorData(context).keys.toList().indexOf(icon);
+
+              return NavigationRailDestination(
+                icon: Icon(
+                  icon,
+                  color: index == home.tab
+                      ? theme.selectedForegroundColor
+                      : theme.unselectedForegroundColor,
+                ),
+                label: Text(text),
+              );
+            }).toList(),
+            selectedIndex: home.tab,
+            onDestinationSelected: (index) {
+              if (home.tab != index) {
+                home.setTab(index);
+              }
+            },
+          ),
+        ),
+        const Spacer(),
+      ]),
     );
   }
 }

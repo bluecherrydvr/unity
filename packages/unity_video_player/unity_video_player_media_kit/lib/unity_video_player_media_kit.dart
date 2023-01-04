@@ -90,6 +90,12 @@ class __MKVideoState extends State<_MKVideo> {
   }
 
   @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Video(
       controller: controller,
@@ -167,10 +173,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  void dispose() {
-    Future.microtask(() async {
-      await mkPlayer.dispose();
-      await controller?.dispose();
-    });
+  void dispose() async {
+    await mkPlayer.dispose();
   }
 }

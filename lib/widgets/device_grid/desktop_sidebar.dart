@@ -171,7 +171,11 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
             child: Text(
               widget.device.name.uppercaseFirst(),
               style: theme.textTheme.titleMedium!.copyWith(
-                color: widget.selected ? theme.primaryColor : null,
+                color: widget.selected
+                    ? theme.primaryColor
+                    : !widget.device.status
+                        ? theme.disabledColor
+                        : null,
               ),
             ),
           ),

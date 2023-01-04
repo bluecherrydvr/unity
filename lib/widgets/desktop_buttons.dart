@@ -96,114 +96,140 @@ class _WindowButtonsState extends State<WindowButtons> {
 
     return StreamBuilder(
       stream: navigationStream.stream,
-      builder: (child, arguments) {
+      builder: (context, arguments) {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
 
-        final divider = SizedBox(
-          height: 16.0,
-          child: VerticalDivider(
-            color: theme.brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-          ),
-        );
+        // final divider = SizedBox(
+        //   height: 16.0,
+        //   child: VerticalDivider(
+        //     color: theme.brightness == Brightness.dark
+        //         ? Colors.white
+        //         : Colors.black,
+        //   ),
+        // );
 
         return Material(
           elevation: 0.0,
           color: theme.appBarTheme.backgroundColor,
-          child: Row(children: [
-            if (canPop)
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                iconSize: 20.0,
-                color: theme.hintColor,
-                onPressed: () async {
-                  await navigatorKey.currentState?.maybePop();
-                  setState(() {});
-                },
-              )
-            else
-              Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Image.asset(
-                  'assets/images/icon.png',
-                  height: 16.0,
-                  width: 16.0,
+          child: Stack(children: [
+            Row(children: [
+              if (canPop)
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  iconSize: 20.0,
+                  color: theme.hintColor,
+                  onPressed: () async {
+                    await navigatorKey.currentState?.maybePop();
+                    setState(() {});
+                  },
+                )
+              else
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8.0),
+                  child: Image.asset(
+                    'assets/images/icon.png',
+                    height: 16.0,
+                    width: 16.0,
+                  ),
                 ),
-              ),
-            Expanded(
-              child: DragToMoveArea(
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 10.0),
-                  child: Text(
-                    () {
-                      if (widget.title != null) return widget.title!;
+              Expanded(
+                child: DragToMoveArea(
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 10.0),
+                    child: Text(
+                      () {
+                        if (widget.title != null) return widget.title!;
 
-                      if (arguments.data != null) {
-                        if (arguments.data is Event) {
-                          final event = arguments.data as Event;
-                          return event.deviceName;
+                        if (arguments.data != null) {
+                          if (arguments.data is Event) {
+                            final event = arguments.data as Event;
+                            return event.deviceName;
+                          }
+
+                          if (arguments.data is Device) {
+                            final device = arguments.data as Device;
+                            return device.fullName;
+                          }
                         }
 
-                        if (arguments.data is Device) {
-                          final device = arguments.data as Device;
-                          return device.fullName;
+                        switch (tab) {
+                          case 0:
+                            return AppLocalizations.of(context).screens;
+                          case 1:
+                            return AppLocalizations.of(context).directCamera;
+                          case 2:
+                            return AppLocalizations.of(context).eventBrowser;
+                          case 4:
+                            return AppLocalizations.of(context).settings;
+                          default:
+                            return widget.title ?? 'Bluecherry';
                         }
-                      }
-
-                      switch (tab) {
-                        case 0:
-                          return AppLocalizations.of(context).screens;
-                        case 1:
-                          return AppLocalizations.of(context).directCamera;
-                        case 2:
-                          return AppLocalizations.of(context).eventBrowser;
-                        case 4:
-                          return AppLocalizations.of(context).settings;
-                        default:
-                          return widget.title ?? 'Bluecherry';
-                      }
-                    }(),
-                    style: TextStyle(
-                      color: theme.brightness == Brightness.light
-                          ? Colors.black
-                          : Colors.white,
-                      fontSize: 12.0,
+                      }(),
+                      style: TextStyle(
+                        color: theme.brightness == Brightness.light
+                            ? Colors.black
+                            : Colors.white,
+                        fontSize: 12.0,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
-            ),
-            if (!canPop && widget.showNavigator) ...[
-              ...navigatorData(context).entries.map((entry) {
-                final icon = entry.key;
-                final text = entry.value;
-                final index =
-                    navigatorData(context).keys.toList().indexOf(icon);
+              // if (!canPop && widget.showNavigator) ...[
+              //   ...navigatorData(context).entries.map((entry) {
+              //     final icon = entry.key;
+              //     final text = entry.value;
+              //     final index =
+              //         navigatorData(context).keys.toList().indexOf(icon);
 
-                return IconButton(
-                  icon: Icon(
-                    icon,
-                    color: home.tab == index
-                        ? theme.primaryColor
-                        : theme.hintColor,
-                  ),
-                  iconSize: 22.0,
-                  tooltip: text,
-                  onPressed: () => home.setTab(index),
-                );
-              }),
-              divider,
-            ],
-            SizedBox(
-              width: 138,
-              height: 40,
-              child: WindowCaption(
-                brightness: theme.brightness,
-                backgroundColor: Colors.transparent,
+              //     return IconButton(
+              //       icon: Icon(
+              //         icon,
+              //         color: home.tab == index
+              //             ? theme.primaryColor
+              //             : theme.hintColor,
+              //       ),
+              //       iconSize: 22.0,
+              //       tooltip: text,
+              //       onPressed: () => home.setTab(index),
+              //     );
+              //   }),
+              //   divider,
+              // ],
+              SizedBox(
+                width: 138,
+                height: 40,
+                child: WindowCaption(
+                  brightness: theme.brightness,
+                  backgroundColor: Colors.transparent,
+                ),
               ),
+            ]),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                ...navigatorData(context).entries.map((entry) {
+                  final icon = entry.key;
+                  final text = entry.value;
+                  final index =
+                      navigatorData(context).keys.toList().indexOf(icon);
+
+                  return IconButton(
+                    icon: Icon(
+                      icon,
+                      color: home.tab == index
+                          ? theme.primaryColor
+                          : theme.hintColor,
+                    ),
+                    iconSize: 22.0,
+                    tooltip: text,
+                    onPressed: () => home.setTab(index),
+                  );
+                }),
+              ]),
             ),
           ]),
         );

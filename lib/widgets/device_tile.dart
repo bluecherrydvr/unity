@@ -107,7 +107,7 @@ class DeviceTileState extends State<DeviceTile> {
                   duration: const Duration(milliseconds: 300),
                   builder: (context, value, child) => Center(
                     child: Opacity(
-                      opacity: value as double,
+                      opacity: value,
                       child: IconButton(
                         splashRadius: 20.0,
                         onPressed: () async {

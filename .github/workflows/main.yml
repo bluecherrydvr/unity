@@ -107,7 +107,7 @@ jobs:
           draft: true
           prerelease: false
           body: ""
-          tag_name: "vnext"
+          tag_name: "vnextw"
           files: |
             installer\Output\bluecherry-dvr-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}

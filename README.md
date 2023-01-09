@@ -21,11 +21,16 @@ This project & work under this repository is licensed under [GNU General Public 
 
 - iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
 - [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
+- [Windows](https://github.com/bluecherrydvr/unity/releases/tag/vnextw)
 
 ## Features
 
 - Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
-- Re-orderable drag-and-drop camera grid viewer. See multiple cameras in 4x4, 2x1 or 1x1 view.
+- Interactive camera grid viewer, with support for multiple layouts:
+  - For larger screens, compact and multiple layout views are available.
+  - For smaller screens, see multiple cameras in 4x4, 2x1 or 1x1 view
+  - Re-orgderable drag-and-drop camera viewer
+  - Cycle through different layout views 
 - Pinch-to-zoom fullscreen camera viewer.
 - Events viewer.
 - Direct camera viewer.
@@ -33,10 +38,12 @@ This project & work under this repository is licensed under [GNU General Public 
 - Configurable in-app date & time format.
 - System camera event notifications with screenshot thumbnails.
 - Ability to snooze notifications directly from notification or within the app.
+- Adaptive design for larger screens
+- Directionality support for right-to-left languages
 - Cross-platform. Currently targets mobile platforms. Desktop support coming in future.
   - [x] Android
   - [ ] iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
-  - [ ] Windows
+  - [x] Windows
   - [ ] Linux
   - [ ] macOS
 
@@ -67,36 +74,31 @@ Current source tree has following files:
 
 ```
 lib
-|
+│
 ├───api                                                [API wrapper around Bluecherry DVR server.]
-|   └──api.dart
+│   └──api.dart
 │
 ├───models                                             [model classes to serve & bind type-safe data together in various entities.]
 │   ├───device.dart
 │   ├───event.dart
+│   ├───layout.dart
 │   └───server.dart
 │
 ├───providers                                          [core business logic of the application.]
+│   ├───desktop_view_provider.dart                     [stores, provides & caches desktop camera layout]
+│   │───home_provider.dart                             [stores, provides & caches data about the home page]
 │   ├───mobile_view_provider.dart                      [stores, provides & caches mobile camera layout etc.]
 │   ├───server_provider.dart                           [stores, provides & caches multiple DVR servers added by the user.]
 │   └───settings_provider.dart                         [stores, provides & caches various in-app configurations & settings.]
 │
 ├───utils                                              [constant values, helper functions & theme-related stuff.]
 │   ├───constants.dart
+│   ├───extensions.dart
 │   ├───methods.dart
-│   └───theme.dart
+│   ├───theme.dart
+│   └───window.dart
 │
 ├───widgets                                            [UI/UX & widgets used to display content.]
-│   ├───add_server_wizard.dart
-│   ├───device_grid.dart
-│   ├───device_selector_screen.dart
-│   ├───device_tile.dart
-│   ├───device_tile_selector.dart
-│   ├───direct_camera.dart
-│   ├───events_screen.dart
-│   ├───home.dart
-│   ├───misc.dart
-│   └───settings.dart
 │
 ├───firebase_messaging_background_handler.dart         [handles in-app notifications, snoozing, thumbnails etc. & other Firebase related hooks.]
 ├───firebase_options.dart                              [auto-generated firebase configuration.]

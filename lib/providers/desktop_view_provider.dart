@@ -21,8 +21,7 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart'
-    show getVideoPlayerControllerForDevice;
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';

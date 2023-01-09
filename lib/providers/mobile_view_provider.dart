@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -260,21 +261,4 @@ class MobileViewProvider extends ChangeNotifier {
   @override
   // ignore: must_call_super
   void dispose() {}
-}
-
-/// Helper method to create a video player with required configuration for a [Device].
-UnityVideoPlayer getVideoPlayerControllerForDevice(
-  Device device,
-) {
-  final controller = UnityVideoPlayer.create();
-
-  controller
-    ..setDataSource(
-      device.streamURL,
-      autoPlay: true,
-    )
-    ..setVolume(0.0)
-    ..setSpeed(1.0);
-
-  return controller;
 }

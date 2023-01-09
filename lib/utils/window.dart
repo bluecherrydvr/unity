@@ -27,6 +27,7 @@ import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+/// The initial size of the window
 const kInitialWindowSize = Size(900, 645);
 
 /// Configures the current window

@@ -20,7 +20,6 @@
 import 'package:bluecherry_client/models/device.dart';
 
 /// A [Server] added by a user.
-///
 class Server {
   final String name;
   final String ip;

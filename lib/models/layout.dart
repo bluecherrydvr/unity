@@ -24,19 +24,30 @@ import 'package:collection/collection.dart';
 
 /// Describes how the grid should behave in large screens
 enum DesktopLayoutType {
-  /// If selected, only a single camera can be selected per time
+  /// If selected, only a single camera can be selected per layout
   singleView,
 
-  /// If selected, multiple camers will be shown in the grid
+  /// If selected, multiple cameras will be shown in the grid
   multipleView,
 
-  /// If selected, only 4 cameras will be show in the grid
+  /// If selected, only 4 views will be show in the grid. Each view can have 4
+  /// cameras displayed, creating a soft and compact layout view
   compactView,
 }
 
+/// A layout is a view that can contain one or more [Device]s.
+///
+/// See also:
+///  * [Device], which are displayed inside a Layout
+///  * [DesktopLayoutType], which configures the type of the layout
 class Layout {
+  /// The name of the layout
   final String name;
+
+  /// The devices present in this layout view
   final List<Device> devices;
+
+  /// The type of layout
   final DesktopLayoutType layoutType;
 
   const Layout.raw({
@@ -45,6 +56,7 @@ class Layout {
     required this.layoutType,
   });
 
+  /// Creates a new layout with the given [name]
   const Layout({
     required this.name,
     this.devices = const [],

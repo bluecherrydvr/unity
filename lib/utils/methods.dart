@@ -23,6 +23,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
+import 'package:unity_video_player/unity_video_player.dart';
+import 'package:bluecherry_client/models/device.dart';
+
 /// A helper singleton to set preferred orientation for the app.
 class DeviceOrientations {
   /// [DeviceOrientations] singleton instance.
@@ -60,4 +63,21 @@ StatusBarStyle getStatusBarStyleFromBrightness(Brightness brightness) {
         ? StatusBarStyle.DARK_CONTENT
         : StatusBarStyle.LIGHT_CONTENT;
   }
+}
+
+/// Helper method to create a video player with required configuration for a [Device].
+UnityVideoPlayer getVideoPlayerControllerForDevice(
+  Device device,
+) {
+  final controller = UnityVideoPlayer.create();
+
+  controller
+    ..setDataSource(
+      device.streamURL,
+      autoPlay: true,
+    )
+    ..setVolume(0.0)
+    ..setSpeed(1.0);
+
+  return controller;
 }

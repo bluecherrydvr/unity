@@ -44,10 +44,18 @@
   "removeCamera": "Remove Camera",
   "replaceCamera": "Replace Camera",
   "reloadCamera": "Reload Camera",
-  "selectACamera": "Select Camera",
+  "selectACamera": "Select a camera",
   "online": "Online",
   "offline": "Offline",
-  "eventBrowser": "History",
+  "removeFromView": "Remove from view",
+  "addToView": "Add to view",
+  "eventBrowser": "Events History",
+  "server": "Server",
+  "device": "Device",
+  "event": "Event",
+  "duration": "Duration",
+  "priority": "Priority",
+  "date": "Date",
   "lastUpdate": "Last Update",
   "theme": "Theme",
   "system": "System",
@@ -66,6 +74,42 @@
   "@nDevices": {
     "placeholders": {
       "n": {}
+    }
+  },
+  "hours": "{h} hours",
+  "@hours": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "hoursCompact": "{h}h",
+  "@hoursCompact": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "minutes": "{m} minutes",
+  "@minutes": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "minutesCompact": "{m}m",
+  "@minutesCompact": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "seconds": "{s} seconds",
+  "@seconds": {
+    "placeholders": {
+      "s": {}
+    }
+  },
+  "secondsCompact": "{s}s",
+  "@secondsCompact": {
+    "placeholders": {
+      "s": {}
     }
   },
   "remove": "Remove ?",
@@ -101,7 +145,25 @@
   "noEventsFound": "No events found",
   "invalidResponse": "Invalid response received from the server",
   "notificationClickAction": "Notification Click Action",
-  "showFullscreenCamera": "Show fullscreen camera",
+  "showFullscreenCamera": "Show in fullscreen",
+  "openInANewWindow": "Open in a new window",
+  "enableAudio": "Enable audio",
+  "disableAudio": "Disable audio",
   "showEventsScreen": "Show events history",
-  "addNewServer": "Add new server"
+  "addNewServer": "Add new server",
+  "disconnectServer": "Disconnect",
+  "serverOptions": "Server options",
+  "browseEvents": "Browse events",
+  "configureServer": "Configure server",
+  "refreshDevices": "Refresh devices",
+  "refresh": "Refresh",
+  "view": "View",
+  "cycle": "Cycle",
+  "newLayout": "New layout",
+  "singleView": "Single view",
+  "multipleView": "Multiple view",
+  "compactView": "Compact view",
+  "createNewLayout": "Create new layout",
+  "layoutNameHint": "Layout name",
+  "layoutTypeHint": "Layout type"
 }

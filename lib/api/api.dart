@@ -154,7 +154,7 @@ class API {
           !e.containsKey('content')
               ? null
               : Uri.parse(
-                  e['content']['\$t'].replaceAll(
+                  e['content'][r'$t'].replaceAll(
                     'https://',
                     'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
                   ),

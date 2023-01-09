@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'dart:math';
+import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -31,8 +32,7 @@ import 'package:bluecherry_client/firebase_options.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/widgets/events_screen.dart';
-import 'package:bluecherry_client/widgets/device_tile.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/models/device.dart';
 
@@ -210,8 +210,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       final server = ServersProvider.instance.servers
           .firstWhere((server) => server.serverUUID == serverUUID);
       final device = Device(name!, 'live/$id', true, 0, 0, server);
-      final player =
-          MobileViewProvider.instance.getVideoPlayerController(device);
+      final player = getVideoPlayerControllerForDevice(device);
       // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
       // Thus, push a new route.
       if (_mutex == null) {
@@ -220,7 +219,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
           MaterialPageRoute(
             builder: (context) => DeviceFullscreenViewer(
               device: device,
-              ijkPlayer: player,
+              videoPlayerController: player,
               restoreStatusBarStyleOnDispose: true,
             ),
           ),
@@ -237,7 +236,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
           MaterialPageRoute(
             builder: (context) => DeviceFullscreenViewer(
               device: device,
-              ijkPlayer: player,
+              videoPlayerController: player,
               restoreStatusBarStyleOnDispose: true,
             ),
           ),

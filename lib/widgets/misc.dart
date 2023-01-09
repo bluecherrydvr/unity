@@ -16,13 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 import 'dart:io';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
-final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+bool get isDesktop {
+  if (kIsWeb) return false;
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
+final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
+
 final isMobile = Platform.isAndroid || Platform.isIOS;
 final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 
@@ -77,15 +89,15 @@ class DesktopAppBar extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Container(
               height: (height ?? kDesktopAppBarHeight) + 8.0,
-              alignment: Alignment.topLeft,
-              padding: const EdgeInsets.only(bottom: 8.0),
+              alignment: AlignmentDirectional.topStart,
+              padding: const EdgeInsetsDirectional.only(bottom: 8.0),
               child: Material(
                 animationDuration: Duration.zero,
                 elevation: elevation ?? 4.0,
                 color: color ?? Theme.of(context).appBarTheme.backgroundColor,
                 child: Container(
                   height: double.infinity,
-                  alignment: Alignment.topLeft,
+                  alignment: AlignmentDirectional.topStart,
                   child: SizedBox(
                     height: kDesktopAppBarHeight,
                     child: Row(
@@ -341,11 +353,12 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
 
 // I'm tired of buggy implementation in
 class CorrectedListTile extends StatelessWidget {
-  final void Function()? onTap;
+  final VoidCallback? onTap;
   final IconData iconData;
   final String title;
   final String? subtitle;
   final double? height;
+
   const CorrectedListTile({
     Key? key,
     required this.iconData,
@@ -362,13 +375,13 @@ class CorrectedListTile extends StatelessWidget {
       child: Container(
         height: height ?? 88.0,
         width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(left: 16.0),
+        padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16.0),
-              alignment: Alignment.center,
+              margin: const EdgeInsetsDirectional.only(end: 16.0),
+              alignment: AlignmentDirectional.center,
               width: 40.0,
               height: 40.0,
               child: Icon(iconData),
@@ -405,21 +418,44 @@ class CorrectedListTile extends StatelessWidget {
 
 class SubHeader extends StatelessWidget {
   final String text;
-  const SubHeader(this.text, {Key? key}) : super(key: key);
+  final String? subtext;
+  final EdgeInsetsGeometry padding;
+
+  const SubHeader(
+    this.text, {
+    this.subtext,
+    Key? key,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 56.0,
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Text(
-        text.toUpperCase(),
-        style: Theme.of(context).textTheme.overline?.copyWith(
-              color: Theme.of(context).textTheme.headline3?.color,
-              fontSize: 12.0,
-              fontWeight: FontWeight.w600,
-            ),
+      alignment: AlignmentDirectional.centerStart,
+      padding: padding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text.toUpperCase(),
+            style: Theme.of(context).textTheme.overline?.copyWith(
+                  color: Theme.of(context).textTheme.headline3?.color,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          if (subtext != null)
+            Text(
+              subtext!.toUpperCase(),
+              style: Theme.of(context).textTheme.overline?.copyWith(
+                    color: Theme.of(context).hintColor,
+                    fontSize: 10.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+            )
+        ],
       ),
     );
   }
@@ -448,9 +484,8 @@ class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.future?.then((value) {
-        setState(() {
-          data = value;
-        });
+        data = value;
+        if (mounted) setState(() {});
       });
     });
   }

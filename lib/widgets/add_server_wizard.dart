@@ -54,251 +54,211 @@ class _AddServerWizardState extends State<AddServerWizard> {
       ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Stack(
-          alignment: Alignment.center,
+        body: PageView(
+          controller: controller,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            Positioned.fill(
-              child: PageView(
-                controller: controller,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.asset(
-                            'assets/images/background.webp',
-                            fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
+            Stack(children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/background.webp',
+                  fit: BoxFit.cover,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                ),
+              ),
+              Container(
+                alignment: AlignmentDirectional.center,
+                child: Card(
+                  color: Theme.of(context).cardColor,
+                  elevation: 4.0,
+                  clipBehavior: Clip.antiAlias,
+                  margin: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 16.0,
+                      ) +
+                      MediaQuery.of(context).padding,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.all(16.0),
+                        child: Column(children: [
+                          Image.asset(
+                            'assets/images/icon.png',
+                            height: 124.0,
+                            width: 124.0,
+                            fit: BoxFit.contain,
                           ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Card(
-                            elevation: 4.0,
-                            clipBehavior: Clip.antiAlias,
-                            margin: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 16.0) +
-                                MediaQuery.of(context).padding,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/icon.png',
-                                        height: 124.0,
-                                        width: 124.0,
-                                        fit: BoxFit.contain,
-                                      ),
-                                      const SizedBox(height: 24.0),
-                                      Text(
-                                        AppLocalizations.of(context)
-                                            .projectName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline1
-                                            ?.copyWith(
-                                              fontSize: 36.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 4.0),
-                                      Text(
-                                        AppLocalizations.of(context)
-                                            .projectDescription,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
-                                      ),
-                                      const SizedBox(height: 16.0),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Container(
-                                          color: Theme.of(context).cardColor,
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: [
-                                              const Spacer(),
-                                              MouseRegion(
-                                                cursor:
-                                                    SystemMouseCursors.click,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    launchUrl(
-                                                      Uri.https(
-                                                        'www.bluecherrydvr.com',
-                                                        '/',
-                                                      ),
-                                                      mode: LaunchMode
-                                                          .externalApplication,
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    AppLocalizations.of(context)
-                                                        .website,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4
-                                                        ?.copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16.0),
-                                              MouseRegion(
-                                                cursor:
-                                                    SystemMouseCursors.click,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    launchUrl(
-                                                      Uri.https(
-                                                        'www.bluecherrydvr.com',
-                                                        '/product/v3license/',
-                                                      ),
-                                                      mode: LaunchMode
-                                                          .externalApplication,
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    AppLocalizations.of(context)
-                                                        .purchase,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4
-                                                        ?.copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const Divider(thickness: 1.0),
-                                      const SizedBox(height: 16.0),
-                                      Column(
-                                        crossAxisAlignment: Platform.isIOS
-                                            ? CrossAxisAlignment.center
-                                            : CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)
-                                                .welcome,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline1
-                                                ?.copyWith(
-                                                  fontSize: 20.0,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Text(
-                                            AppLocalizations.of(context)
-                                                .welcomeDescription,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 16.0),
-                                Material(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  child: InkWell(
-                                    onTap: () {
-                                      controller.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      width: double.infinity,
-                                      height: 56.0,
-                                      child: Text(
-                                        AppLocalizations.of(context)
-                                            .letsGo
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                          const SizedBox(height: 24.0),
+                          Text(
+                            AppLocalizations.of(context).projectName,
+                            style:
+                                Theme.of(context).textTheme.headline1?.copyWith(
+                                      fontSize: 36.0,
+                                      fontWeight: FontWeight.w600,
                                     ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            AppLocalizations.of(context).projectDescription,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
+                          const SizedBox(height: 16.0),
+                          Container(
+                            alignment: AlignmentDirectional.centerEnd,
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Row(children: [
+                              const Spacer(),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    launchUrl(
+                                      Uri.https(
+                                        'www.bluecherrydvr.com',
+                                        '/',
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  child: Text(
+                                    AppLocalizations.of(context).website,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Container(
-                              color: Colors.transparent,
-                              padding: EdgeInsets.only(
-                                top: MediaQuery.of(context).padding.top,
                               ),
-                              height: kToolbarHeight +
-                                  MediaQuery.of(context).padding.top,
-                              alignment: Alignment.topLeft,
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 8.0),
-                                  IconButton(
-                                    splashRadius: 20.0,
-                                    onPressed: Scaffold.of(context).openDrawer,
-                                    icon: const Icon(
-                                      Icons.menu,
-                                      color: Colors.white,
-                                    ),
+                              const SizedBox(width: 16.0),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    launchUrl(
+                                      Uri.https(
+                                        'www.bluecherrydvr.com',
+                                        '/product/v3license/',
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  child: Text(
+                                    AppLocalizations.of(context).purchase,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
                                   ),
-                                ],
+                                ),
+                              ),
+                            ]),
+                          ),
+                          const Divider(thickness: 1.0),
+                          const SizedBox(height: 16.0),
+                          Column(
+                            crossAxisAlignment: Platform.isIOS
+                                ? CrossAxisAlignment.center
+                                : CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context).welcome,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline1
+                                    ?.copyWith(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                AppLocalizations.of(context).welcomeDescription,
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                            ],
+                          ),
+                        ]),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Material(
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: InkWell(
+                          onTap: () {
+                            controller.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          child: Container(
+                            alignment: AlignmentDirectional.center,
+                            width: double.infinity,
+                            height: 56.0,
+                            child: Text(
+                              AppLocalizations.of(context).letsGo.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          top: 0.0,
-                          left: 0.0,
-                          bottom: MediaQuery.of(context).size.height * 3 / 4,
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (Scaffold.of(context).hasDrawer)
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      color: Colors.transparent,
+                      padding: EdgeInsetsDirectional.only(
+                        top: MediaQuery.of(context).padding.top,
+                      ),
+                      height:
+                          kToolbarHeight + MediaQuery.of(context).padding.top,
+                      alignment: AlignmentDirectional.topStart,
+                      child: Row(children: [
+                        const SizedBox(width: 8.0),
+                        IconButton(
+                          splashRadius: 20.0,
+                          onPressed: Scaffold.of(context).openDrawer,
+                          icon: const Icon(
+                            Icons.menu,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ]),
                     ),
                   ),
-                  ConfigureDVRServerScreen(
-                    controller: controller,
-                    setServer: setServer,
-                    getServer: getServer,
-                  ),
-                  LetsGoScreen(
-                    controller: controller,
-                    getServer: getServer,
-                    onFinish: widget.onFinish,
-                  ),
-                ],
-              ),
+                  top: 0.0,
+                  left: 0.0,
+                  bottom: MediaQuery.of(context).size.height * 3 / 4,
+                ),
+            ]),
+            ConfigureDVRServerScreen(
+              controller: controller,
+              setServer: setServer,
+              getServer: getServer,
+            ),
+            LetsGoScreen(
+              controller: controller,
+              getServer: getServer,
+              onFinish: widget.onFinish,
             ),
           ],
         ),
@@ -306,9 +266,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
     );
   }
 
-  void setServer(Server server) => setState(() {
-        this.server = server;
-      });
+  void setServer(Server server) {
+    setState(() {
+      this.server = server;
+    });
+  }
 
   Server? getServer() => server;
 }
@@ -317,6 +279,7 @@ class ConfigureDVRServerScreen extends StatefulWidget {
   final PageController controller;
   final void Function(Server) setServer;
   final Server? Function() getServer;
+
   const ConfigureDVRServerScreen({
     Key? key,
     required this.controller,
@@ -394,10 +357,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             preferredSize: const Size.fromHeight(32.0),
             child: Container(
               height: 32.0,
-              padding: const EdgeInsets.only(left: 16.0),
+              padding: const EdgeInsetsDirectional.only(start: 16.0),
               alignment: Theme.of(context).appBarTheme.centerTitle ?? false
-                  ? Alignment.topCenter
-                  : Alignment.topLeft,
+                  ? AlignmentDirectional.topCenter
+                  : AlignmentDirectional.topStart,
               child: Text(
                 AppLocalizations.of(context).configureDescription,
                 maxLines: 1,
@@ -410,331 +373,217 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             ),
           ),
         ),
-        body: ListView(
-          children: [
-            Card(
-              elevation: 4.0,
-              margin: const EdgeInsets.all(16.0),
-              child: Form(
-                key: formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return AppLocalizations.of(context)
-                                      .errorTextField(
-                                    AppLocalizations.of(context).hostname,
-                                  );
-                                }
-                                return null;
-                              },
-                              controller: textEditingControllers[0],
-                              autofocus: true,
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              keyboardType: TextInputType.url,
-                              style: Theme.of(context).textTheme.headline4,
-                              decoration: InputDecoration(
-                                label:
-                                    Text(AppLocalizations.of(context).hostname),
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return AppLocalizations.of(context)
-                                      .errorTextField(
-                                    AppLocalizations.of(context).port,
-                                  );
-                                }
-                                return null;
-                              },
-                              controller: textEditingControllers[1],
-                              autofocus: true,
-                              keyboardType: TextInputType.number,
-                              style: Theme.of(context).textTheme.headline4,
-                              decoration: InputDecoration(
-                                label: Text(AppLocalizations.of(context).port),
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                        ],
+        body: Card(
+          elevation: 4.0,
+          margin: const EdgeInsetsDirectional.all(16.0),
+          child: Form(
+            key: formKey,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(16.0),
+              child: Column(children: [
+                Row(children: [
+                  Expanded(
+                    flex: 5,
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return AppLocalizations.of(context).errorTextField(
+                            AppLocalizations.of(context).hostname,
+                          );
+                        }
+                        return null;
+                      },
+                      controller: textEditingControllers[0],
+                      autofocus: true,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      keyboardType: TextInputType.url,
+                      style: Theme.of(context).textTheme.headline4,
+                      decoration: InputDecoration(
+                        label: Text(AppLocalizations.of(context).hostname),
+                        border: const OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16.0),
-                      TextFormField(
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return AppLocalizations.of(context).errorTextField(
-                              AppLocalizations.of(context).name,
-                            );
-                          }
-                          return null;
-                        },
-                        onTap: () => nameTextFieldEverFocused = true,
-                        controller: textEditingControllers[2],
-                        textCapitalization: TextCapitalization.words,
-                        keyboardType: TextInputType.name,
-                        style: Theme.of(context).textTheme.headline4,
-                        decoration: InputDecoration(
-                          label: Text(AppLocalizations.of(context).name),
-                          border: const OutlineInputBorder(),
-                        ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return AppLocalizations.of(context).errorTextField(
+                            AppLocalizations.of(context).port,
+                          );
+                        }
+                        return null;
+                      },
+                      controller: textEditingControllers[1],
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      style: Theme.of(context).textTheme.headline4,
+                      decoration: InputDecoration(
+                        label: Text(AppLocalizations.of(context).port),
+                        border: const OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16.0),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return AppLocalizations.of(context)
-                                      .errorTextField(
-                                    AppLocalizations.of(context).username,
-                                  );
-                                }
-                                return null;
-                              },
-                              controller: textEditingControllers[3],
-                              style: Theme.of(context).textTheme.headline4,
-                              decoration: InputDecoration(
-                                label:
-                                    Text(AppLocalizations.of(context).username),
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: MaterialButton(
-                              onPressed: () {
-                                textEditingControllers[3].text =
-                                    kDefaultUsername;
-                                textEditingControllers[4].text =
-                                    kDefaultPassword;
-                              },
-                              child: Text(
-                                AppLocalizations.of(context)
-                                    .useDefault
-                                    .toUpperCase(),
-                              ),
-                              textColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16.0),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return AppLocalizations.of(context)
-                                      .errorTextField(
-                                    AppLocalizations.of(context).password,
-                                  );
-                                }
-                                return null;
-                              },
-                              controller: textEditingControllers[4],
-                              obscureText: true,
-                              style: Theme.of(context).textTheme.headline4,
-                              decoration: InputDecoration(
-                                label:
-                                    Text(AppLocalizations.of(context).password),
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(top: 8.0),
-                          //   child: Row(
-                          //     children: [
-                          //       Checkbox(
-                          //         value: savePassword,
-                          //         onChanged: (value) {
-                          //           setState(() {
-                          //             savePassword = value!;
-                          //           });
-                          //         },
-                          //       ),
-                          //       Text(
-                          //         'save_password'.tr(),
-                          //         maxLines: 2,
-                          //         overflow: TextOverflow.ellipsis,
-                          //         style: Theme.of(context).textTheme.headline4,
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          const SizedBox(width: 16.0),
-                        ],
-                      ),
-                      // const SizedBox(height: 16.0),
-                      // Row(
-                      //   children: [
-                      //     Checkbox(
-                      //       value: connectAutomaticallyAtStartup,
-                      //       onChanged: (value) {
-                      //         setState(() {
-                      //           connectAutomaticallyAtStartup = value!;
-                      //         });
-                      //       },
-                      //     ),
-                      //     Text(
-                      //       'connect_automatically_at_startup'.tr(),
-                      //       maxLines: 2,
-                      //       overflow: TextOverflow.ellipsis,
-                      //       style: Theme.of(context).textTheme.headline4,
-                      //     ),
-                      //   ],
-                      // ),
-                      const SizedBox(height: 16.0),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            MaterialButton(
-                              onPressed: disableFinishButton
-                                  ? null
-                                  : () {
-                                      widget.controller.nextPage(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  AppLocalizations.of(context)
-                                      .skip
-                                      .toUpperCase(),
-                                ),
-                              ),
-                              textColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                            MaterialButton(
-                              onPressed: disableFinishButton
-                                  ? null
-                                  : () async {
-                                      if (formKey.currentState?.validate() ??
-                                          false) {
-                                        setState(() {
-                                          disableFinishButton = true;
-                                        });
-                                        final server = await API.instance
-                                            .checkServerCredentials(
-                                          Server(
-                                            textEditingControllers[2].text,
-                                            getServerHostname(
-                                                textEditingControllers[0].text),
-                                            int.parse(
-                                                textEditingControllers[1].text),
-                                            textEditingControllers[3].text,
-                                            textEditingControllers[4].text,
-                                            [],
-                                            savePassword: savePassword,
-                                            connectAutomaticallyAtStartup:
-                                                connectAutomaticallyAtStartup,
-                                          ),
-                                        );
-                                        FocusScope.of(context).unfocus();
-                                        if (server.serverUUID != null &&
-                                            server.cookie != null) {
-                                          widget.setServer(server);
-                                          await ServersProvider.instance
-                                              .add(server);
-                                          widget.controller.nextPage(
-                                            duration: const Duration(
-                                              milliseconds: 300,
-                                            ),
-                                            curve: Curves.easeInOut,
-                                          );
-                                        } else {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: Text(
-                                                  AppLocalizations.of(context)
-                                                      .error),
-                                              content: Text(
-                                                AppLocalizations.of(context)
-                                                    .serverNotAddedError(
-                                                        server.name),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline4,
-                                              ),
-                                              actions: [
-                                                MaterialButton(
-                                                  onPressed:
-                                                      Navigator.of(context)
-                                                          .maybePop,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      AppLocalizations.of(
-                                                              context)
-                                                          .ok,
-                                                    ),
-                                                  ),
-                                                  textColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                        setState(() {
-                                          disableFinishButton = false;
-                                        });
-                                      }
-                                    },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  AppLocalizations.of(context)
-                                      .finish
-                                      .toUpperCase(),
-                                ),
-                              ),
-                              textColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return AppLocalizations.of(context).errorTextField(
+                        AppLocalizations.of(context).name,
+                      );
+                    }
+                    return null;
+                  },
+                  onTap: () => nameTextFieldEverFocused = true,
+                  controller: textEditingControllers[2],
+                  textCapitalization: TextCapitalization.words,
+                  keyboardType: TextInputType.name,
+                  style: Theme.of(context).textTheme.headline4,
+                  decoration: InputDecoration(
+                    label: Text(AppLocalizations.of(context).name),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
-              ),
+                const SizedBox(height: 16.0),
+                Row(children: [
+                  Expanded(
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return AppLocalizations.of(context).errorTextField(
+                            AppLocalizations.of(context).username,
+                          );
+                        }
+                        return null;
+                      },
+                      controller: textEditingControllers[3],
+                      style: Theme.of(context).textTheme.headline4,
+                      decoration: InputDecoration(
+                        label: Text(AppLocalizations.of(context).username),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(top: 8.0),
+                    child: MaterialButton(
+                      onPressed: () {
+                        textEditingControllers[3].text = kDefaultUsername;
+                        textEditingControllers[4].text = kDefaultPassword;
+                      },
+                      child: Text(
+                        AppLocalizations.of(context).useDefault.toUpperCase(),
+                      ),
+                      textColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 16.0),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return AppLocalizations.of(context).errorTextField(
+                            AppLocalizations.of(context).password,
+                          );
+                        }
+                        return null;
+                      },
+                      controller: textEditingControllers[4],
+                      obscureText: true,
+                      style: Theme.of(context).textTheme.headline4,
+                      decoration: InputDecoration(
+                        label: Text(AppLocalizations.of(context).password),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  // Padding(
+                  //   padding: const EdgeInsetsDirectional.only(top: 8.0),
+                  //   child: Row(
+                  //     children: [
+                  //       Checkbox(
+                  //         value: savePassword,
+                  //         onChanged: (value) {
+                  //           setState(() {
+                  //             savePassword = value!;
+                  //           });
+                  //         },
+                  //       ),
+                  //       Text(
+                  //         'save_password'.tr(),
+                  //         maxLines: 2,
+                  //         overflow: TextOverflow.ellipsis,
+                  //         style: Theme.of(context).textTheme.headline4,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  const SizedBox(width: 16.0),
+                ]),
+                // const SizedBox(height: 16.0),
+                // Row(
+                //   children: [
+                //     Checkbox(
+                //       value: connectAutomaticallyAtStartup,
+                //       onChanged: (value) {
+                //         setState(() {
+                //           connectAutomaticallyAtStartup = value!;
+                //         });
+                //       },
+                //     ),
+                //     Text(
+                //       'connect_automatically_at_startup'.tr(),
+                //       maxLines: 2,
+                //       overflow: TextOverflow.ellipsis,
+                //       style: Theme.of(context).textTheme.headline4,
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 16.0),
+                Align(
+                  alignment: AlignmentDirectional.bottomEnd,
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    MaterialButton(
+                      onPressed: disableFinishButton
+                          ? null
+                          : () {
+                              widget.controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(8.0),
+                        child: Text(
+                          AppLocalizations.of(context).skip.toUpperCase(),
+                        ),
+                      ),
+                      textColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                    MaterialButton(
+                      onPressed:
+                          disableFinishButton ? null : () => finish(context),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(8.0),
+                        child: Text(
+                          AppLocalizations.of(context).finish.toUpperCase(),
+                        ),
+                      ),
+                      textColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ]),
+                ),
+              ]),
             ),
-          ],
+          ),
         ),
       ),
       onWillPop: () {
@@ -748,12 +597,71 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       },
     );
   }
+
+  void finish(BuildContext context) async {
+    if (formKey.currentState?.validate() ?? false) {
+      setState(() {
+        disableFinishButton = true;
+      });
+      final server = await API.instance.checkServerCredentials(
+        Server(
+          textEditingControllers[2].text,
+          getServerHostname(textEditingControllers[0].text),
+          int.parse(textEditingControllers[1].text),
+          textEditingControllers[3].text,
+          textEditingControllers[4].text,
+          [],
+          savePassword: savePassword,
+          connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
+        ),
+      );
+      FocusScope.of(context).unfocus();
+
+      if (server.serverUUID != null && server.cookie != null) {
+        widget.setServer(server);
+        await ServersProvider.instance.add(server);
+        widget.controller.nextPage(
+          duration: const Duration(
+            milliseconds: 300,
+          ),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context).error),
+            content: Text(
+              AppLocalizations.of(context).serverNotAddedError(server.name),
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            actions: [
+              MaterialButton(
+                onPressed: Navigator.of(context).maybePop,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(8.0),
+                  child: Text(
+                    AppLocalizations.of(context).ok,
+                  ),
+                ),
+                textColor: Theme.of(context).colorScheme.secondary,
+              ),
+            ],
+          ),
+        );
+      }
+      setState(() {
+        disableFinishButton = false;
+      });
+    }
+  }
 }
 
 class LetsGoScreen extends StatefulWidget {
   final PageController controller;
   final Server? Function() getServer;
   final VoidCallback onFinish;
+
   const LetsGoScreen({
     Key? key,
     required this.controller,
@@ -768,11 +676,13 @@ class LetsGoScreen extends StatefulWidget {
 class _LetsGoScreenState extends State<LetsGoScreen> {
   @override
   Widget build(BuildContext context) {
+    final server = widget.getServer();
+
     return WillPopScope(
       child: Scaffold(
         appBar: isMobile
             ? AppBar(
-                leading: widget.getServer() != null
+                leading: server != null
                     ? null
                     : NavigatorPopButton(
                         color: Colors.white,
@@ -804,11 +714,11 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                   preferredSize: const Size.fromHeight(32.0),
                   child: Container(
                     height: 32.0,
-                    padding: const EdgeInsets.only(left: 16.0),
+                    padding: const EdgeInsetsDirectional.only(start: 16.0),
                     alignment:
                         Theme.of(context).appBarTheme.centerTitle ?? false
-                            ? Alignment.topCenter
-                            : Alignment.topLeft,
+                            ? AlignmentDirectional.topCenter
+                            : AlignmentDirectional.topStart,
                     child: Text(
                       AppLocalizations.of(context).letsGoDescription,
                       maxLines: 1,
@@ -822,110 +732,105 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 ),
               )
             : null,
-        body: ListView(
-          children: [
-            const SizedBox(height: 8.0),
-            if (widget.getServer() != null)
-              Card(
-                elevation: 4.0,
-                color: Color.alphaBlend(
-                  Colors.green.withOpacity(0.2),
-                  Theme.of(context).cardColor,
-                ),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.check,
-                        color: Colors.green.shade400,
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: Text(AppLocalizations.of(context).serverAdded),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        body: ListView(children: [
+          const SizedBox(height: 8.0),
+          if (server != null)
             Card(
               elevation: 4.0,
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              color: Color.alphaBlend(
+                Colors.green.withOpacity(0.2),
+                Theme.of(context).cardColor,
+              ),
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(' • '),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(AppLocalizations.of(context).tip0),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(' • '),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(AppLocalizations.of(context).tip1),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(' • '),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(AppLocalizations.of(context).tip2),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(' • '),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(AppLocalizations.of(context).tip3),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsetsDirectional.all(16.0),
+                child: Row(children: [
+                  Icon(
+                    Icons.check,
+                    color: Colors.green.shade400,
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: Text(AppLocalizations.of(context).serverAdded),
+                  ),
+                ]),
               ),
             ),
-            const SizedBox(height: 8.0),
-          ],
-        ),
+          Card(
+            elevation: 4.0,
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(' • '),
+                        const SizedBox(width: 4.0),
+                        Expanded(
+                          child: Text(AppLocalizations.of(context).tip0),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(' • '),
+                        const SizedBox(width: 4.0),
+                        Expanded(
+                          child: Text(AppLocalizations.of(context).tip1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(' • '),
+                        const SizedBox(width: 4.0),
+                        Expanded(
+                          child: Text(AppLocalizations.of(context).tip2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(' • '),
+                        const SizedBox(width: 4.0),
+                        Expanded(
+                          child: Text(AppLocalizations.of(context).tip3),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8.0),
+        ]),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             widget.onFinish.call();

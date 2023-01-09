@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -131,7 +132,10 @@ ThemeData createTheme({
       ),
     );
   }
+
   return ThemeData(
+    useMaterial3: true,
+
     // ignore: deprecated_member_use
     androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
     // Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
@@ -214,7 +218,9 @@ ThemeData createTheme({
         ),
       ),
     ),
-    cardColor: light ? Colors.white : const Color(0xFF242424),
+    cardTheme: CardTheme(
+      color: light ? Colors.white : const Color(0xFF242424),
+    ),
     backgroundColor: primary.withOpacity(0.24),
     dividerColor: light ? Colors.black12 : Colors.white24,
     disabledColor: light ? Colors.black38 : Colors.white38,
@@ -232,12 +238,14 @@ ThemeData createTheme({
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: light ? Colors.white : const Color(0xFF202020),
+      surfaceTintColor: light ? Colors.white : const Color(0xFF202020),
+      shadowColor: light ? Colors.white : const Color(0xFF202020),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: light ? Colors.black12 : Colors.white12,
         statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
         statusBarBrightness: light ? Brightness.light : Brightness.dark,
       ),
-      elevation: 4.0,
+      elevation: isDesktop ? 0.1 : 4.0,
       iconTheme: IconThemeData(
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
@@ -251,7 +259,7 @@ ThemeData createTheme({
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
-      centerTitle: Platform.isIOS,
+      centerTitle: Platform.isIOS || Platform.isMacOS,
     ),
     iconTheme: IconThemeData(
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
@@ -265,10 +273,12 @@ ThemeData createTheme({
     ),
     textTheme: textTheme,
     primaryTextTheme: textTheme,
-    colorScheme: ColorScheme.fromSwatch().copyWith(
+    colorScheme: ColorScheme.fromSwatch(
+      brightness: light ? Brightness.light : Brightness.dark,
+      cardColor: light ? Colors.white : const Color(0xFF242424),
+    ).copyWith(
       primary: primary,
       secondary: accent,
-      brightness: light ? Brightness.light : Brightness.dark,
     ),
     tooltipTheme: TooltipThemeData(
       textStyle: Platform.isWindows || Platform.isLinux || Platform.isMacOS
@@ -278,14 +288,13 @@ ThemeData createTheme({
             )
           : null,
       decoration: BoxDecoration(
-        color: light ? Colors.black : Colors.white,
-        borderRadius: Platform.isAndroid || Platform.isIOS
-            ? BorderRadius.circular(16.0)
-            : BorderRadius.circular(4.0),
+        color: light ? Colors.grey.shade900 : Colors.white,
+        borderRadius:
+            isMobile ? BorderRadius.circular(16.0) : BorderRadius.circular(6.0),
       ),
       height: Platform.isAndroid || Platform.isIOS ? 32.0 : null,
       verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
-          ? 36.0
+          ? 28.0
           : null,
       preferBelow: Platform.isWindows || Platform.isLinux || Platform.isMacOS
           ? true

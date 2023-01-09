@@ -32,7 +32,7 @@ class Event {
   final Duration? mediaDuration;
   final Uri? mediaURL;
 
-  Event(
+  const Event(
     this.server,
     this.id,
     this.deviceID,
@@ -44,6 +44,16 @@ class Event {
     this.mediaDuration,
     this.mediaURL,
   );
+
+  String get deviceName {
+    return title
+        .split('device')
+        .last
+        .trim()
+        .split(' ')
+        .map((e) => e.isEmpty ? '' : e[0].toUpperCase() + e.substring(1))
+        .join(' ');
+  }
 
   @override
   bool operator ==(dynamic other) {
@@ -112,16 +122,18 @@ class Event {
         'mediaURL': mediaURL.toString(),
       };
 
-  factory Event.fromJson(Map<String, dynamic> json) => Event(
-        Server.fromJson(json['server']),
-        json['deviceID'],
-        json['id'],
-        json['title'],
-        DateTime.parse(json['published']),
-        DateTime.parse(json['updated']),
-        json['category'],
-        json['mediaID'],
-        Duration(milliseconds: json['mediaDuration']),
-        Uri.parse(json['mediaURL']),
-      );
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      Server.fromJson(json['server']),
+      json['deviceID'],
+      json['id'],
+      json['title'],
+      DateTime.parse(json['published']),
+      DateTime.parse(json['updated']),
+      json['category'],
+      json['mediaID'],
+      Duration(milliseconds: json['mediaDuration']),
+      Uri.parse(json['mediaURL']),
+    );
+  }
 }

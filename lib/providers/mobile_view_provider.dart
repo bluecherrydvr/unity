@@ -19,11 +19,11 @@
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -75,7 +75,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
   ///
-  final Map<Device, FijkPlayer> players = {};
+  final Map<Device, UnityVideoPlayer> players = {};
 
   /// Current [tab].
   /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
@@ -94,7 +94,7 @@ class MobileViewProvider extends ChangeNotifier {
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in current) {
         if (device != null) {
-          players[device] = getVideoPlayerController(device);
+          players[device] = getVideoPlayerControllerForDevice(device);
         }
       }
     }
@@ -121,7 +121,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
     for (final device in items) {
       if (!players.keys.contains(device) && device != null) {
-        players[device] = getVideoPlayerController(device);
+        players[device] = getVideoPlayerControllerForDevice(device);
       }
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
@@ -166,7 +166,7 @@ class MobileViewProvider extends ChangeNotifier {
     if (!devices[tab]!.contains(device)) {
       debugPrint(device.toString());
       debugPrint(device.streamURL);
-      players[device] = getVideoPlayerController(device);
+      players[device] = getVideoPlayerControllerForDevice(device);
     }
     devices[tab]![index] = device;
     notifyListeners();
@@ -190,7 +190,7 @@ class MobileViewProvider extends ChangeNotifier {
     if (!devices[tab]!.contains(device)) {
       debugPrint(device.toString());
       debugPrint(device.streamURL);
-      players[device] = getVideoPlayerController(device);
+      players[device] = getVideoPlayerControllerForDevice(device);
     }
     // Save the new [device] at the position.
     devices[tab]![index] = device;
@@ -257,20 +257,24 @@ class MobileViewProvider extends ChangeNotifier {
     }
   }
 
-  /// Helper method to create a video player with required configuration for a [Device].
-  FijkPlayer getVideoPlayerController(Device device) {
-    final player = FijkPlayer()
-      ..setDataSource(
-        device.streamURL,
-        autoPlay: true,
-      )
-      ..setVolume(0.0)
-      ..setSpeed(1.0)
-      ..setOption(FijkOption.playerCategory, 'packet-buffering', '0');
-    return player;
-  }
-
   @override
   // ignore: must_call_super
   void dispose() {}
+}
+
+/// Helper method to create a video player with required configuration for a [Device].
+UnityVideoPlayer getVideoPlayerControllerForDevice(
+  Device device,
+) {
+  final controller = UnityVideoPlayer.create();
+
+  controller
+    ..setDataSource(
+      device.streamURL,
+      autoPlay: true,
+    )
+    ..setVolume(0.0)
+    ..setSpeed(1.0);
+
+  return controller;
 }

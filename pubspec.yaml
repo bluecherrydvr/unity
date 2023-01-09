@@ -1,21 +1,9 @@
 name: bluecherry_client
 description: Bluecherry client written in Flutter.
 
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.2.0+4
+version: 0.1.0+0
 
 environment:
   sdk: ">=2.15.1 <3.0.0"
@@ -31,45 +19,44 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  fijkplayer:
-    git:
-      # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
-      url: https://github.com/alexmercerind/fijkplayer.git
-      ref: master
+  unity_video_player:
+    path: packages/unity_video_player/unity_video_player/
   reorderable_grid_view:
     git:
       url: https://github.com/alexmercerind/reorderable_grid_view.git
       ref: master
-  http: ^0.13.4
-  xml2json: ^5.3.2
+  http: ^0.13.5
+  xml2json: ^5.3.5
   status_bar_control: ^3.2.1
-  animations: ^2.0.3
-  provider: ^6.0.3
+  animations: ^2.0.7
+  provider: ^6.0.5
   intl: ^0.17.0
   firebase_core: ^1.17.1
   intl_utils: ^2.1.0
   # Firebase Messaging 11.2.8 seems to be the most stable version.
   firebase_messaging: 11.2.8
   # Pinning awesome_notifications to this specific version, since stability of newer releases hasn't been confirmed yet.
-  awesome_notifications: 0.7.0-beta.5
-  device_info_plus: ^3.2.4
+  awesome_notifications: 0.7.4
+  device_info_plus: ^8.0.0
   url_launcher: ^6.1.3
   path_provider: ^2.0.11
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  video_thumbnail: ^0.5.0
-  permission_handler: ^10.1.0
+  video_thumbnail: ^0.5.3
+  permission_handler: ^10.2.0
+  uuid: ^3.0.7
+
+  # Desktop
+  window_manager: ^0.2.8
+  unity_multi_window:
+    path: packages/unity_multi_window/
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^1.0.0
+  msix: ^3.7.0
+  flutter_launcher_icons: ^0.11.0
 
 dependency_overrides:
   fijkplayer:
@@ -78,45 +65,37 @@ dependency_overrides:
       url: https://github.com/alexmercerind/fijkplayer.git
       ref: master
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
   # The following line ensures that the translations are generated before the
   # application build using the ARB files provided.
   generate: true
-
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
+flutter_icons:
+  # android: "launcher_icon"
+  android: false
+  ios: false
+  image_path: "assets/images/icon.png"
+  # min_sdk_android: 21 # android min sdk min:16, default 21
+  # web:
+  #   generate: true
+  #   image_path: "path/to/image.png"
+  #   background_color: "#hexcode"
+  #   theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/images/icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  # macos:
+  #   generate: true
+  #   image_path: "path/to/image.png"
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+msix_config:
+  display_name: Bluecherry Client
+  publisher_display_name: Bluecherry DVR
+  identity_name: bluecherry.dvr.unity
+  # msix_version: 1.0.0.0
+  logo_path: assets\images\icon.png
+  capabilities: internetClient

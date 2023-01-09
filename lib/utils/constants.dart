@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:uuid/uuid.dart';
+
 /// Interpreted as the current application version.
 /// Update the [String]'s value before an update.
 const kAppVersion = '0.0.1';
@@ -35,6 +37,9 @@ const kDefaultPassword = 'bluecherry';
 const kHiveServers = 'servers';
 const kHiveMobileView = 'mobile_view';
 const kHiveMobileViewTab = 'mobile_view_current_tab';
+const kHiveDesktopLayouts = 'desktop_view_layouts';
+const kHiveDesktopCurrentLayout = 'desktop_view_current_layout';
+const kHiveDesktopCycling = 'desktop_view_cycling';
 const kHiveNotificationToken = 'notification_token';
 const kHiveThemeMode = 'theme_mode';
 const kHiveDateFormat = 'date_format';
@@ -51,3 +56,9 @@ const kDeviceTileHeight = 360.0;
 
 /// Margin between & around a [DeviceTile]. Only relevant on desktop.
 const kDeviceTileMargin = 16.0;
+
+/// The period of cycle
+const kCycleTogglePeriod = Duration(seconds: 5);
+
+/// Uuid generator
+const uuid = Uuid();

@@ -19,13 +19,12 @@
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// This class manages & saves (caching) the currently added [Server]s by the user.
 ///
@@ -65,7 +64,7 @@ class ServersProvider extends ChangeNotifier {
   Future<void> add(Server server) async {
     // Prevent duplicates.
     if (servers.contains(server)) {
-      return Future.value(null);
+      return;
     }
     servers.add(server);
     await _save();
@@ -73,7 +72,7 @@ class ServersProvider extends ChangeNotifier {
     try {
       final instance = await Hive.openBox('hive');
       final notificationToken = instance.get(kHiveNotificationToken);
-      assert(notificationToken != null, "[kHiveNotificationToken] is null.");
+      assert(notificationToken != null, '[kHiveNotificationToken] is null.');
       await API.instance.registerNotificationToken(server, notificationToken!);
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
@@ -92,7 +91,7 @@ class ServersProvider extends ChangeNotifier {
       final view = {...provider.devices};
       for (final tab in view.keys) {
         final devices = view[tab]!;
-        for (int i = 0; i < devices.length; i++) {
+        for (var i = 0; i < devices.length; i++) {
           final device = devices[i];
           if (device?.server == server) {
             await provider.remove(tab, i);
@@ -126,7 +125,7 @@ class ServersProvider extends ChangeNotifier {
   Future<void> _restore() async {
     final instance = await Hive.openBox('hive');
     servers = jsonDecode(instance.get(kHiveServers)!)
-        .map((e) => Server.fromJson(e))
+        .map(Server.fromJson)
         .toList()
         .cast<Server>();
     notifyListeners();

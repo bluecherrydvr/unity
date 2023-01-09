@@ -18,12 +18,12 @@
  */
 
 import 'dart:async';
-import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:flutter/material.dart';
 
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/material.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class DeviceTile extends StatefulWidget {

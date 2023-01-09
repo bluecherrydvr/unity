@@ -61,9 +61,9 @@ class ServersList extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircleAvatar(
-                          child: const Icon(Icons.add, size: 30.0),
                           backgroundColor: Colors.transparent,
                           foregroundColor: Theme.of(context).iconTheme.color,
+                          child: const Icon(Icons.add, size: 30.0),
                         ),
                         const SizedBox(height: 8.0),
                         Text(
@@ -91,9 +91,9 @@ class ServersList extends StatelessWidget {
             }),
             ListTile(
               leading: CircleAvatar(
-                child: const Icon(Icons.add),
                 backgroundColor: Colors.transparent,
                 foregroundColor: Theme.of(context).iconTheme.color,
+                child: const Icon(Icons.add),
               ),
               title: Text(AppLocalizations.of(context).addNewServer),
               onTap: () {
@@ -199,9 +199,9 @@ class _ServerTileState extends State<ServerTile> {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        child: const Icon(Icons.dns),
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).iconTheme.color,
+        child: const Icon(Icons.dns),
       ),
       title: Text(
         widget.server.name,
@@ -282,9 +282,9 @@ class _ServerCardState extends State<ServerCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    child: const Icon(Icons.dns, size: 30.0),
                     backgroundColor: Colors.transparent,
                     foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.dns, size: 30.0),
                   ),
                   const SizedBox(height: 8.0),
                   Text(
@@ -297,7 +297,7 @@ class _ServerCardState extends State<ServerCard> {
                         ? [
                             if (widget.server.name != widget.server.ip)
                               widget.server.ip,
-                          ].join('')
+                          ].join()
                         : AppLocalizations.of(context).gettingDevices,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.caption,
@@ -345,7 +345,7 @@ class _ServerCardState extends State<ServerCard> {
                   PopupMenuItem(
                     child: Text(AppLocalizations.of(context).browseEvents),
                     onTap: () {
-                      // TODO: browse events
+                      // TODO(bdlukaa): browse events
                       // launchUrl(Uri.parse(widget.server.ip));
                     },
                   ),

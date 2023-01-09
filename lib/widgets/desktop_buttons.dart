@@ -109,7 +109,6 @@ class _WindowButtonsState extends State<WindowButtons> {
         // );
 
         return Material(
-          elevation: 0.0,
           color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [
             Row(children: [

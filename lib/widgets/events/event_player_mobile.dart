@@ -50,16 +50,14 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   void initState() {
     super.initState();
     debugPrint(widget.event.mediaURL.toString());
-    videoController.setDataSource(
-      widget.event.mediaURL.toString(),
-      autoPlay: true,
-    );
+    videoController.setDataSource(widget.event.mediaURL.toString());
   }
 
   @override
   void dispose() {
-    videoController.release();
-    videoController.dispose();
+    videoController
+      ..release()
+      ..dispose();
     super.dispose();
   }
 
@@ -75,7 +73,6 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
             maxScale: 4.0,
             child: UnityVideoView(
               player: videoController,
-              fit: UnityVideoFit.contain,
               paneBuilder: (context, controller) {
                 if (isDesktop) {
                   return _DesktopVideoViewport(
@@ -240,7 +237,6 @@ class _VideoViewportState extends State<VideoViewport> {
                 start: 0.0,
                 end: 0.0,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 16.0),
                     Container(
@@ -275,7 +271,6 @@ class _VideoViewportState extends State<VideoViewport> {
                           offset: const Offset(0, 0.8),
                           child: Slider(
                             value: position.inMilliseconds.toDouble(),
-                            min: 0.0,
                             max: player.duration.inMilliseconds.toDouble(),
                             onChanged: (value) async {
                               // setState(() {
@@ -302,7 +297,7 @@ class _VideoViewportState extends State<VideoViewport> {
                       ),
                     ),
                     const SizedBox(width: 8.0),
-                    // TODO: fullscreen. unity_video_player currently doesn't provide an
+                    // TODO(bdlukaa): fullscreen. unity_video_player currently doesn't provide an
                     // interface for full screen handling
                     // IconButton(
                     //   padding: EdgeInsets.zero,
@@ -368,7 +363,6 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
           Expanded(
             child: Slider(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
-              min: 0,
               max: widget.player.duration.inMilliseconds.toDouble(),
               onChanged: (v) {
                 widget.player.seekTo(Duration(milliseconds: v.toInt()));

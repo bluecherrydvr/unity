@@ -18,16 +18,16 @@
  */
 
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
@@ -80,7 +80,6 @@ class _AddServerWizardState extends State<AddServerWizard> {
                       MediaQuery.of(context).padding,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
@@ -222,6 +221,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
               ),
               if (Scaffold.of(context).hasDrawer)
                 Positioned.fill(
+                  bottom: MediaQuery.of(context).size.height * 3 / 4,
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
@@ -245,9 +245,6 @@ class _AddServerWizardState extends State<AddServerWizard> {
                       ]),
                     ),
                   ),
-                  top: 0.0,
-                  left: 0.0,
-                  bottom: MediaQuery.of(context).size.height * 3 / 4,
                 ),
             ]),
             ConfigureDVRServerScreen(
@@ -476,10 +473,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         textEditingControllers[3].text = kDefaultUsername;
                         textEditingControllers[4].text = kDefaultPassword;
                       },
+                      textColor: Theme.of(context).colorScheme.secondary,
                       child: Text(
                         AppLocalizations.of(context).useDefault.toUpperCase(),
                       ),
-                      textColor: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ]),
@@ -560,24 +557,24 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                 curve: Curves.easeInOut,
                               );
                             },
+                      textColor: Theme.of(context).colorScheme.secondary,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.all(8.0),
                         child: Text(
                           AppLocalizations.of(context).skip.toUpperCase(),
                         ),
                       ),
-                      textColor: Theme.of(context).colorScheme.secondary,
                     ),
                     MaterialButton(
                       onPressed:
                           disableFinishButton ? null : () => finish(context),
+                      textColor: Theme.of(context).colorScheme.secondary,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.all(8.0),
                         child: Text(
                           AppLocalizations.of(context).finish.toUpperCase(),
                         ),
                       ),
-                      textColor: Theme.of(context).colorScheme.secondary,
                     ),
                   ]),
                 ),
@@ -598,8 +595,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     );
   }
 
-  void finish(BuildContext context) async {
+  Future<void> finish(BuildContext context) async {
     if (formKey.currentState?.validate() ?? false) {
+      final focusScope = FocusScope.of(context);
+
       setState(() {
         disableFinishButton = true;
       });
@@ -615,7 +614,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),
       );
-      FocusScope.of(context).unfocus();
+      focusScope.unfocus();
 
       if (server.serverUUID != null && server.cookie != null) {
         widget.setServer(server);
@@ -638,13 +637,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             actions: [
               MaterialButton(
                 onPressed: Navigator.of(context).maybePop,
+                textColor: Theme.of(context).colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
                   child: Text(
                     AppLocalizations.of(context).ok,
                   ),
                 ),
-                textColor: Theme.of(context).colorScheme.secondary,
               ),
             ],
           ),

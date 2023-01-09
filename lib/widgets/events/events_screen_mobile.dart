@@ -47,11 +47,11 @@ class EventsScreenMobile extends StatelessWidget {
                 ServersProvider.instance.servers.length.compareTo(1) == 0,
             maintainState: true,
             leading: CircleAvatar(
+              backgroundColor: Colors.transparent,
               child: Icon(
                 Icons.language,
                 color: Theme.of(context).iconTheme.color,
               ),
-              backgroundColor: Colors.transparent,
             ),
             title: Row(children: [
               Expanded(child: Text(server.name)),
@@ -100,11 +100,11 @@ class EventsScreenMobile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
                           child: Icon(
                             Icons.warning,
                             color: Colors.amber.shade300,
                           ),
-                          backgroundColor: Colors.transparent,
                         ),
                       );
                     }).toList() ??

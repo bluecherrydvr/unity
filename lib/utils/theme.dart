@@ -45,7 +45,7 @@ const kAccentColorDark = Color(0xffff4081);
 ThemeData createTheme({
   required ThemeMode themeMode,
 }) {
-  bool light = themeMode == ThemeMode.light;
+  final light = themeMode == ThemeMode.light;
   final primary = light ? kPrimaryColorLight : kPrimaryColorDark;
   final accent = light ? kAccentColorLight : kAccentColorDark;
   late TextTheme textTheme;

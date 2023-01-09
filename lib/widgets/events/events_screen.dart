@@ -20,23 +20,22 @@
  */
 
 import 'dart:async';
+
+import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
+import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/api/api.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-
-import 'event_player_desktop.dart';
 
 part 'event_player_mobile.dart';
 part 'events_screen_desktop.dart';
@@ -114,7 +113,6 @@ class _EventsScreenState extends State<EventsScreen> {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -173,30 +171,30 @@ class _EventsScreenState extends State<EventsScreen> {
                         );
                       }),
                       const Spacer(),
-                      // TODO: THIS IS BLOCKED BY https://github.com/flutter/flutter/pull/115806
+                      // TODO(bdlukaa): THIS IS BLOCKED BY https://github.com/flutter/flutter/pull/115806
                       DropdownButton<EventsTimeFilter>(
                         isExpanded: true,
                         value: timeFilter,
                         items: const [
                           DropdownMenuItem(
-                            child: Text('Any'),
                             value: EventsTimeFilter.any,
+                            child: Text('Any'),
                           ),
                           DropdownMenuItem(
-                            child: Text('Last hour'),
                             value: EventsTimeFilter.lastHour,
+                            child: Text('Last hour'),
                           ),
                           DropdownMenuItem(
-                            child: Text('Last 6 hours'),
                             value: EventsTimeFilter.last6Hours,
+                            child: Text('Last 6 hours'),
                           ),
                           DropdownMenuItem(
-                            child: Text('Last 12 hours'),
                             value: EventsTimeFilter.last12Hours,
+                            child: Text('Last 12 hours'),
                           ),
                           DropdownMenuItem(
-                            child: Text('Last 24 hours'),
                             value: EventsTimeFilter.last24Hours,
+                            child: Text('Last 24 hours'),
                           ),
                           // DropdownMenuItem(
                           //   child: Text('Select time range'),
@@ -213,8 +211,8 @@ class _EventsScreenState extends State<EventsScreen> {
                         value: levelFilter,
                         items: EventsMinLevelFilter.values.map((level) {
                           return DropdownMenuItem(
-                            child: Text(level.name.uppercaseFirst()),
                             value: level,
+                            child: Text(level.name.uppercaseFirst()),
                           );
                         }).toList(),
                         onChanged: (v) => setState(

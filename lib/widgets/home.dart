@@ -17,20 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/providers/home_provider.dart';
-import 'package:bluecherry_client/widgets/desktop_buttons.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/settings/settings.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/settings/settings.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
@@ -66,13 +65,14 @@ class _MobileHomeState extends State<MobileHome> {
     super.initState();
     if (!isDesktop) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final theme = Theme.of(context);
         final home = context.watch<HomeProvider>();
         final tab = home.tab;
 
         if (tab == 0) {
           await StatusBarControl.setHidden(true);
           await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+            getStatusBarStyleFromBrightness(theme.brightness),
           );
           DeviceOrientations.instance.set(
             [
@@ -85,7 +85,7 @@ class _MobileHomeState extends State<MobileHome> {
           // See #14.
           await StatusBarControl.setHidden(false);
           await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+            getStatusBarStyleFromBrightness(theme.brightness),
           );
           DeviceOrientations.instance.set(
             [
@@ -96,7 +96,7 @@ class _MobileHomeState extends State<MobileHome> {
         } else {
           await StatusBarControl.setHidden(false);
           await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+            getStatusBarStyleFromBrightness(theme.brightness),
           );
           DeviceOrientations.instance.set(
             DeviceOrientation.values,
@@ -108,6 +108,7 @@ class _MobileHomeState extends State<MobileHome> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
@@ -135,7 +136,6 @@ class _MobileHomeState extends State<MobileHome> {
               Expanded(
                 child: ClipRect(
                   child: PageTransitionSwitcher(
-                    duration: const Duration(milliseconds: 300),
                     child: <int, Widget Function()>{
                       0: () => const DeviceGrid(),
                       1: () => const DirectCameraScreen(),
@@ -147,7 +147,7 @@ class _MobileHomeState extends State<MobileHome> {
                                 await StatusBarControl.setHidden(true);
                                 await StatusBarControl.setStyle(
                                   getStatusBarStyleFromBrightness(
-                                      Theme.of(context).brightness),
+                                      theme.brightness),
                                 );
                                 await SystemChrome.setPreferredOrientations(
                                   [
@@ -158,16 +158,14 @@ class _MobileHomeState extends State<MobileHome> {
                               }
                             },
                           ),
-                      4: () => Settings(
-                            changeCurrentTab: (i) => home.setTab(i),
-                          ),
+                      4: () => Settings(changeCurrentTab: home.setTab),
                     }[tab]!(),
                     transitionBuilder: (child, animation, secondaryAnimation) {
                       return SharedAxisTransition(
-                        child: child,
                         animation: animation,
                         secondaryAnimation: secondaryAnimation,
                         transitionType: SharedAxisTransitionType.vertical,
+                        child: child,
                       );
                     },
                   ),
@@ -242,14 +240,15 @@ class _MobileHomeState extends State<MobileHome> {
                       bottomEnd: Radius.circular(28.0),
                     ).resolve(Directionality.of(context)),
                     onTap: () async {
+                      final theme = Theme.of(context);
+                      final navigator = Navigator.of(context);
+
                       if (!isDesktop) {
                         if (index == 0 && tab != 0) {
                           debugPrint(index.toString());
                           await StatusBarControl.setHidden(true);
                           await StatusBarControl.setStyle(
-                            getStatusBarStyleFromBrightness(
-                              Theme.of(context).brightness,
-                            ),
+                            getStatusBarStyleFromBrightness(theme.brightness),
                           );
                           DeviceOrientations.instance.set(
                             [
@@ -276,9 +275,7 @@ class _MobileHomeState extends State<MobileHome> {
                           debugPrint(index.toString());
                           await StatusBarControl.setHidden(false);
                           await StatusBarControl.setStyle(
-                            getStatusBarStyleFromBrightness(
-                              Theme.of(context).brightness,
-                            ),
+                            getStatusBarStyleFromBrightness(theme.brightness),
                           );
                           DeviceOrientations.instance.set(
                             DeviceOrientation.values,
@@ -287,12 +284,12 @@ class _MobileHomeState extends State<MobileHome> {
                       }
 
                       await Future.delayed(const Duration(milliseconds: 200));
-                      Navigator.of(context).pop();
+                      navigator.pop();
                       if (tab != index) {
                         home.setTab(index);
                       }
                     },
-                    child: Container(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         color:
                             index == tab ? theme.selectedBackgroundColor : null,

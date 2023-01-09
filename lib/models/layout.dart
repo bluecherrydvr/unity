@@ -50,17 +50,17 @@ class Layout {
   /// The type of layout
   final DesktopLayoutType layoutType;
 
-  const Layout.raw({
-    required this.name,
-    required this.devices,
-    required this.layoutType,
-  });
-
   /// Creates a new layout with the given [name]
   const Layout({
     required this.name,
     this.devices = const [],
     this.layoutType = DesktopLayoutType.multipleView,
+  });
+
+  const Layout.raw({
+    required this.name,
+    required this.devices,
+    required this.layoutType,
   });
 
   @override
@@ -92,8 +92,7 @@ class Layout {
   factory Layout.fromMap(Map<String, dynamic> map) {
     return Layout(
       name: map['name'] ?? '',
-      devices:
-          List<Device>.from(map['devices']?.map((x) => Device.fromJson(x))),
+      devices: List<Device>.from(map['devices']?.map(Device.fromJson)),
       layoutType: DesktopLayoutType.values[map['layoutType'] as int],
     );
   }

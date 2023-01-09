@@ -20,31 +20,30 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:animations/animations.dart';
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/device_grid/layout_manager.dart';
+import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:animations/animations.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
-
-import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/widgets/device_tile_selector.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-part 'desktop_sidebar.dart';
 part 'desktop_device_grid.dart';
+part 'desktop_sidebar.dart';
 part 'mobile_device_grid.dart';
 
 const double kMobileBottomBarHeight = 48.0;

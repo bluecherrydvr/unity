@@ -19,6 +19,7 @@
 
 import 'dart:async';
 
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -26,8 +27,6 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-
-import '../../models/event.dart';
 
 class EventPlayerDesktop extends StatefulWidget {
   final Event event;
@@ -55,12 +54,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   void initState() {
     super.initState();
     debugPrint(widget.event.mediaURL.toString());
-    videoController.setDataSource(
-      widget.event.mediaURL.toString(),
-      autoPlay: true,
-    );
-    videoController.setVolume(volume);
-    videoController.setSpeed(speed);
+    videoController
+      ..setDataSource(
+        widget.event.mediaURL.toString(),
+      )
+      ..setVolume(volume)
+      ..setSpeed(speed);
 
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
@@ -75,8 +74,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
 
   @override
   void dispose() {
-    videoController.release();
-    videoController.dispose();
+    videoController
+      ..release()
+      ..dispose();
     playingSubscription.cancel();
     playingAnimationController.dispose();
     super.dispose();
@@ -97,7 +97,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
               Expanded(
                 child: UnityVideoView(
                   player: videoController,
-                  fit: UnityVideoFit.contain,
                   paneBuilder: (context, controller) {
                     if (controller.error != null) {
                       return ErrorWarning(message: controller.error!);
@@ -164,8 +163,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   ),
                   Slider(
                     value: volume,
-                    min: 0.0,
-                    max: 1.0,
                     onChanged: (v) {
                       setState(() => volume = v);
                     },
@@ -206,7 +203,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                       (snapshot.data ?? videoController.currentPos)
                           .inMicroseconds
                           .toDouble(),
-                  min: 0,
                   max: videoController.duration.inMicroseconds.toDouble(),
                   onChanged: (v) => setState(() => _position = v),
                   onChangeEnd: (v) {
@@ -240,11 +236,10 @@ class _CustomTrackShape extends RoundedRectSliderTrackShape {
     bool isEnabled = false,
     bool isDiscrete = false,
   }) {
-    final double trackHeight = sliderTheme.trackHeight!;
-    final double trackLeft = offset.dx + 10.0;
-    final double trackTop =
-        offset.dy + (parentBox.size.height - trackHeight) / 2;
-    final double trackWidth = parentBox.size.width - 10.0;
+    final trackHeight = sliderTheme.trackHeight!;
+    final trackLeft = offset.dx + 10.0;
+    final trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final trackWidth = parentBox.size.width - 10.0;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 

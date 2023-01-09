@@ -18,13 +18,13 @@
  */
 
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -129,8 +129,9 @@ class MobileViewProvider extends ChangeNotifier {
     players.removeWhere((key, value) {
       final result = items.contains(key);
       if (!result) {
-        value.release();
-        value.dispose();
+        value
+          ..release()
+          ..dispose();
       }
       return !result;
     });
@@ -142,7 +143,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// Removes a [Device] tile from the camera grid, at specified [tab] [index].
   Future<void> remove(int tab, int index) {
     final device = devices[tab]![index];
-    int count = 0;
+    var count = 0;
     for (final element in devices[tab]!) {
       if (element == device) count++;
     }
@@ -177,7 +178,7 @@ class MobileViewProvider extends ChangeNotifier {
   /// Replaces a [Device] tile from the camera grid, at specified [tab] [index] with passed [device].
   Future<void> replace(int tab, int index, Device device) async {
     final current = devices[tab]![index];
-    int count = 0;
+    var count = 0;
     for (final element in devices[tab]!) {
       if (element == current) count++;
     }
@@ -204,10 +205,7 @@ class MobileViewProvider extends ChangeNotifier {
   Future<void> reload(int tab, int index) async {
     final device = devices[tab]![index]!;
     await players[device]?.reset();
-    await players[device]?.setDataSource(
-      device.streamURL,
-      autoPlay: true,
-    );
+    await players[device]?.setDataSource(device.streamURL);
     await players[device]?.setVolume(0.0);
     await players[device]?.setSpeed(1.0);
     notifyListeners();

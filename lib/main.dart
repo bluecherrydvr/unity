@@ -20,37 +20,34 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
-import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
+import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/home.dart';
-import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:status_bar_control/status_bar_control.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-
-import 'widgets/events/events_screen.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -189,7 +186,7 @@ class UnityApp extends StatelessWidget {
           },
           onGenerateRoute: (settings) {
             if (settings.name == '/events') {
-              final Event event = settings.arguments! as Event;
+              final event = settings.arguments! as Event;
 
               return MaterialPageRoute(
                 settings: RouteSettings(

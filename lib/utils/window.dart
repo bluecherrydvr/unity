@@ -22,9 +22,8 @@ import 'dart:convert';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-
-import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:flutter/material.dart';
+import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The initial size of the window
@@ -58,7 +57,7 @@ Future<void> configureCameraWindow(String title) async {
 
 extension DeviceWindowExtension on Device {
   /// Opens this device in a new window
-  void openInANewWindow() async {
+  Future<void> openInANewWindow() async {
     assert(isDesktop, 'Can not open a new window in a non-desktop environment');
 
     debugPrint('Opening a new window');

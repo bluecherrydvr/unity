@@ -17,20 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:unity_video_player/unity_video_player.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'date_format_section.dart';
 part 'server_tile.dart';
@@ -98,13 +97,13 @@ class _SettingsState extends State<Settings> {
             delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
               return ListTile(
                 leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Theme.of(context).iconTheme.color,
                   child: Icon({
                     ThemeMode.system: Icons.brightness_auto,
                     ThemeMode.light: Icons.light_mode,
                     ThemeMode.dark: Icons.dark_mode,
                   }[e]!),
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
                 ),
                 onTap: () {
                   settings.themeMode = e;

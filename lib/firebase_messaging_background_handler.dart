@@ -19,24 +19,23 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_options.dart';
+import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/models/device.dart';
-
-import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// Notification buttons are not translated.
 final snooze15ButtonLabel =
@@ -46,7 +45,7 @@ final snooze30ButtonLabel =
 final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 hour';
 
 /// Callbacks received from the [FirebaseMessaging] instance.
-@pragma("vm:entry-point")
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
@@ -91,8 +90,6 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
           name,
           if (state != null) state,
         ].join(' • '),
-        displayOnBackground: true,
-        displayOnForeground: true,
         payload: message.data
             .map<String, String>(
               (key, value) => MapEntry(
@@ -140,8 +137,6 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
               name,
               if (state != null) state,
             ].join(' • '),
-            displayOnBackground: true,
-            displayOnForeground: true,
             payload: message.data
                 .map<String, String>(
                   (key, value) => MapEntry(
@@ -184,7 +179,7 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   }
 }
 
-@pragma("vm:entry-point")
+@pragma('vm:entry-point')
 Future<void> _backgroundClickAction(ReceivedAction action) async {
   await Future.delayed(const Duration(seconds: 1));
   await Firebase.initializeApp();
@@ -316,8 +311,6 @@ abstract class FirebaseConfiguration {
               name,
               if (state != null) state,
             ].join(' • '),
-            displayOnBackground: true,
-            displayOnForeground: true,
             payload: message.data
                 .map<String, String>(
                   (key, value) => MapEntry(
@@ -365,8 +358,6 @@ abstract class FirebaseConfiguration {
                   name,
                   if (state != null) state,
                 ].join(' • '),
-                displayOnBackground: true,
-                displayOnForeground: true,
                 payload: message.data
                     .map<String, String>(
                       (key, value) => MapEntry(
@@ -409,11 +400,7 @@ abstract class FirebaseConfiguration {
       }
     });
     try {
-      await FirebaseMessaging.instance.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      await FirebaseMessaging.instance.requestPermission();
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

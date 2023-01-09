@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -101,8 +101,6 @@ class DesktopAppBar extends StatelessWidget {
                   child: SizedBox(
                     height: kDesktopAppBarHeight,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         leading ??
                             NavigatorPopButton(
@@ -343,10 +341,10 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       key: key,
-      child: child,
       onTap: _onTap,
       onTapDown: _onTapDown,
       onTapCancel: _onTapCancel,
+      child: child,
     );
   }
 }
@@ -377,7 +375,6 @@ class CorrectedListTile extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               margin: const EdgeInsetsDirectional.only(end: 16.0),

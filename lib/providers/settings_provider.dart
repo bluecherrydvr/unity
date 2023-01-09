@@ -17,11 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:intl/intl.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-import 'package:bluecherry_client/utils/constants.dart';
+import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.

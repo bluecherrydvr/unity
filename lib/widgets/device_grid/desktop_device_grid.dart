@@ -54,7 +54,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           color: Colors.black,
           child: SizedBox.expand(
             child: () {
-              List<Device> devices = view.currentLayout.devices;
+              final devices = view.currentLayout.devices;
 
               if (devices.isEmpty) {
                 return Center(
@@ -72,7 +72,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
               if (view.currentLayout.layoutType ==
                       DesktopLayoutType.compactView &&
                   dl >= 4) {
-                FoldedDevices foldedDevices = devices
+                var foldedDevices = devices
                     .fold<List<List<Device>>>(
                       [[]],
                       (collection, device) {
@@ -232,8 +232,8 @@ class DesktopCompactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     if (devices.isEmpty) return const SizedBox.shrink();
 
-    final Device device1 = devices[0];
-    final Device device2 = devices[1];
+    final device1 = devices[0];
+    final device2 = devices[1];
 
     return Column(children: [
       Expanded(
@@ -303,22 +303,18 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     const shadows = [
       Shadow(
         blurRadius: 10,
-        color: Colors.black,
         offset: Offset(-4, -4),
       ),
       Shadow(
         blurRadius: 10,
-        color: Colors.black,
         offset: Offset(4, 4),
       ),
       Shadow(
         blurRadius: 10,
-        color: Colors.black,
         offset: Offset(-4, 4),
       ),
       Shadow(
         blurRadius: 10,
-        color: Colors.black,
         offset: Offset(4, -4),
       ),
     ];
@@ -416,7 +412,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       iconSize: 22.0,
                       onPressed: () async {
                         var player = view.players[widget.device];
-                        bool isLocalController = false;
+                        var isLocalController = false;
                         if (player == null) {
                           player =
                               getVideoPlayerControllerForDevice(widget.device);

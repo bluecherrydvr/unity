@@ -24,9 +24,8 @@ import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class LayoutManager extends StatefulWidget {
   const LayoutManager({Key? key}) : super(key: key);
@@ -255,6 +254,10 @@ class _LayoutTypeChooser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToggleButtons(
+      isSelected: DesktopLayoutType.values.map((type) {
+        return type.index == selected;
+      }).toList(),
+      onPressed: onSelect,
       children: DesktopLayoutType.values.map<Widget>((type) {
         final isSelected = type.index == selected;
         final icon =
@@ -271,10 +274,6 @@ class _LayoutTypeChooser extends StatelessWidget {
           const SizedBox(width: 16.0),
         ]);
       }).toList(),
-      isSelected: DesktopLayoutType.values.map((type) {
-        return type.index == selected;
-      }).toList(),
-      onPressed: onSelect,
     );
   }
 }

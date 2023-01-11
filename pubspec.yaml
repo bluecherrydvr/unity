@@ -25,10 +25,10 @@ dependencies:
   animations: ^2.0.7
   provider: ^6.0.5
   intl: ^0.17.0
-  firebase_core: ^1.17.1
+  firebase_core: ^2.4.1
   intl_utils: ^2.1.0
   # Firebase Messaging 11.2.8 seems to be the most stable version.
-  firebase_messaging: 11.2.8
+  firebase_messaging: ^14.2.1
   # Pinning awesome_notifications to this specific version, since stability of newer releases hasn't been confirmed yet.
   awesome_notifications: 0.7.4
   device_info_plus: ^8.0.0

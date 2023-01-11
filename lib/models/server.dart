@@ -116,7 +116,11 @@ class Server {
         json['port'],
         json['login'],
         json['password'],
-        json['devices'].map(Device.fromJson).toList().cast<Device>(),
+        (json['devices'] as List)
+            .cast<Map<String, dynamic>>()
+            .map(Device.fromJson)
+            .toList()
+            .cast<Device>(),
         rtspPort: json['rtspPort'],
         serverUUID: json['serverUUID'],
         cookie: json['cookie'],

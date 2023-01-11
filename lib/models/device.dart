@@ -112,7 +112,7 @@ class Device {
       json['status'],
       json['resolutionX'],
       json['resolutionY'],
-      Server.fromJson(json['server']),
+      Server.fromJson(json['server'] as Map<String, dynamic>),
     );
   }
 }

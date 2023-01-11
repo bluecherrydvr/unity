@@ -124,7 +124,8 @@ class ServersProvider extends ChangeNotifier {
   /// Restore currently added [Server]s from `package:hive` cache.
   Future<void> _restore() async {
     final instance = await Hive.openBox('hive');
-    servers = jsonDecode(instance.get(kHiveServers)!)
+    servers = (jsonDecode(instance.get(kHiveServers)!) as List)
+        .cast<Map<String, dynamic>>()
         .map(Server.fromJson)
         .toList()
         .cast<Server>();

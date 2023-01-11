@@ -100,7 +100,7 @@ class VideoViewport extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VideoViewportState createState() => _VideoViewportState();
+  State<VideoViewport> createState() => _VideoViewportState();
 }
 
 class _VideoViewportState extends State<VideoViewport> {
@@ -246,7 +246,7 @@ class _VideoViewportState extends State<VideoViewport> {
                         player.currentPos.label,
                         style: Theme.of(context)
                             .textTheme
-                            .headline4
+                            .headlineMedium
                             ?.copyWith(color: Colors.white),
                       ),
                     ),
@@ -292,7 +292,7 @@ class _VideoViewportState extends State<VideoViewport> {
                         player.duration.label,
                         style: Theme.of(context)
                             .textTheme
-                            .headline4
+                            .headlineMedium
                             ?.copyWith(color: Colors.white),
                       ),
                     ),

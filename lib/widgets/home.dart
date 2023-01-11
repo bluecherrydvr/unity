@@ -220,7 +220,7 @@ class _MobileHomeState extends State<MobileHome> {
                   text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color:
                             index == tab ? theme.selectedForegroundColor : null,
                       ),

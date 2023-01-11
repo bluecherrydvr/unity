@@ -117,7 +117,7 @@ class DesktopAppBar extends StatelessWidget {
                           Text(
                             title!,
                             style:
-                                Theme.of(context).textTheme.headline1?.copyWith(
+                                Theme.of(context).textTheme.displayLarge?.copyWith(
                                     color: color != null
                                         ? isDark
                                             ? Colors.white
@@ -390,14 +390,14 @@ class CorrectedListTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   if (subtitle != null) const SizedBox(height: 4.0),
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                            color: Theme.of(context).textTheme.caption?.color,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -437,8 +437,8 @@ class SubHeader extends StatelessWidget {
         children: [
           Text(
             text.toUpperCase(),
-            style: Theme.of(context).textTheme.overline?.copyWith(
-                  color: Theme.of(context).textTheme.headline3?.color,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
                   fontSize: 12.0,
                   fontWeight: FontWeight.w600,
                 ),
@@ -446,7 +446,7 @@ class SubHeader extends StatelessWidget {
           if (subtext != null)
             Text(
               subtext!.toUpperCase(),
-              style: Theme.of(context).textTheme.overline?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).hintColor,
                     fontSize: 10.0,
                     fontWeight: FontWeight.w600,

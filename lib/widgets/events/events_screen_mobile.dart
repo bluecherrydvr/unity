@@ -89,13 +89,11 @@ class EventsScreenMobile extends StatelessWidget {
                         subtitle: Text(
                           [
                             event.title.split('event on').first.trim(),
-                            DateFormat(
+                            '${DateFormat(
                                   SettingsProvider.instance.dateFormat.pattern,
-                                ).format(event.updated) +
-                                ' ' +
-                                DateFormat(
+                                ).format(event.updated)} ${DateFormat(
                                   SettingsProvider.instance.timeFormat.pattern,
-                                ).format(event.updated).toUpperCase(),
+                                ).format(event.updated).toUpperCase()}',
                           ].join('\n'),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -117,7 +115,7 @@ class EventsScreenMobile extends StatelessWidget {
                               AppLocalizations.of(context).invalidResponse,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headlineSmall
                                   ?.copyWith(fontSize: 16.0),
                             ),
                           ),
@@ -130,7 +128,7 @@ class EventsScreenMobile extends StatelessWidget {
                               AppLocalizations.of(context).noEventsFound,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headlineSmall
                                   ?.copyWith(fontSize: 16.0),
                             ),
                           ),

@@ -24,7 +24,7 @@ dependencies:
   status_bar_control: ^3.2.1
   animations: ^2.0.7
   provider: ^6.0.5
-  intl: ^0.18.0
+  intl: ^0.17.0
   firebase_core: ^1.17.1
   intl_utils: ^2.1.0
   # Firebase Messaging 11.2.8 seems to be the most stable version.

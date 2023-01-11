@@ -125,7 +125,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   AppLocalizations.of(context).noServersAdded,
                   style: Theme.of(context)
                       .textTheme
-                      .headline5
+                      .headlineSmall
                       ?.copyWith(fontSize: 16.0),
                 ),
               ],

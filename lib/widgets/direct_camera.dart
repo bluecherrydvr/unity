@@ -69,7 +69,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                   AppLocalizations.of(context).noServersAdded,
                   style: Theme.of(context)
                       .textTheme
-                      .headline5
+                      .headlineSmall
                       ?.copyWith(fontSize: 16.0),
                 ),
               ],
@@ -134,7 +134,7 @@ class _DevicesForServer extends StatelessWidget {
           child: Text(
             AppLocalizations.of(context).noDevices,
             style:
-                Theme.of(context).textTheme.headline5?.copyWith(fontSize: 16.0),
+                Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 16.0),
           ),
         ),
       );

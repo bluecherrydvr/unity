@@ -20,6 +20,7 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 /// Describes how the grid should behave in large screens

@@ -125,7 +125,7 @@ class ServersList extends StatelessWidget {
           title: Text(AppLocalizations.of(context).remove),
           content: Text(
             AppLocalizations.of(context).removeServerDescription(server.name),
-            style: Theme.of(context).textTheme.headline4,
+            style: Theme.of(context).textTheme.headlineMedium,
             textAlign: TextAlign.start,
           ),
           actions: [
@@ -300,7 +300,7 @@ class _ServerCardState extends State<ServerCard> {
                           ].join()
                         : AppLocalizations.of(context).gettingDevices,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.caption,
+                    style: theme.textTheme.bodySmall,
                   ),
                   Text(
                     fetched

@@ -113,7 +113,7 @@ class HoverButton extends StatefulWidget {
   final bool focusEnabled;
 
   @override
-  _HoverButtonState createState() => _HoverButtonState();
+  State<HoverButton> createState() => _HoverButtonState();
 }
 
 class _HoverButtonState extends State<HoverButton> {

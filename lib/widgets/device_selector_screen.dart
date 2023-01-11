@@ -55,7 +55,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                   AppLocalizations.of(context).noServersAdded,
                   style: Theme.of(context)
                       .textTheme
-                      .headline5
+                      .headlineSmall
                       ?.copyWith(fontSize: 16.0),
                 ),
               ],

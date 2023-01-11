@@ -202,7 +202,7 @@ class API {
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
       final response = await post(
-        Uri.parse(uri! + 'store-token'),
+        Uri.parse('${uri!}store-token'),
         headers: {
           'Cookie': server.cookie!,
           'Content-Type': 'application/json',
@@ -243,7 +243,7 @@ class API {
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
       final response = await post(
-        Uri.parse(uri! + 'remove-token'),
+        Uri.parse('${uri!}remove-token'),
         headers: {
           'Cookie': server.cookie!,
           'Content-Type': 'application/json',

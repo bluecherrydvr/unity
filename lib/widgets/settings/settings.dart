@@ -201,11 +201,11 @@ class _SettingsState extends State<Settings> {
                 ),
                 title:
                     Text(AppLocalizations.of(context).notificationClickAction),
-                textColor: Theme.of(context).textTheme.bodyText1?.color,
+                textColor: Theme.of(context).textTheme.bodyLarge?.color,
                 subtitle: Text(
                   settings.notificationClickAction.str(context),
-                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                        color: Theme.of(context).textTheme.caption?.color,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
                 ),
                 children: NotificationClickAction.values.map((e) {
@@ -238,11 +238,11 @@ class _SettingsState extends State<Settings> {
                   child: const Icon(Icons.camera_alt),
                 ),
                 title: Text(AppLocalizations.of(context).cameraViewFit),
-                textColor: Theme.of(context).textTheme.bodyText1?.color,
+                textColor: Theme.of(context).textTheme.bodyLarge?.color,
                 subtitle: Text(
                   settings.cameraViewFit.str(context),
-                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                        color: Theme.of(context).textTheme.caption?.color,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
                 ),
                 children: UnityVideoFit.values.map((e) {
@@ -317,12 +317,12 @@ class _SettingsState extends State<Settings> {
                   const SizedBox(height: 8.0),
                   Text(
                     kAppVersion,
-                    style: Theme.of(context).textTheme.headline2,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8.0),
                   Text(
                     AppLocalizations.of(context).versionText,
-                    style: Theme.of(context).textTheme.headline2,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8.0),
                   MaterialButton(
@@ -366,8 +366,8 @@ Widget SubHeader(String text) {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             text.toUpperCase(),
-            style: Theme.of(context).textTheme.overline?.copyWith(
-                  color: Theme.of(context).textTheme.headline3?.color,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
                   fontSize: 12.0,
                   fontWeight: FontWeight.w600,
                 ),

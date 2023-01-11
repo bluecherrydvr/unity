@@ -156,9 +156,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // date
                 DataCell(
                   Text(
-                    dateFormatter.format(event.updated) +
-                        ' ' +
-                        timeFormatter.format(event.updated).toUpperCase(),
+                    '${dateFormatter.format(event.updated)} ${timeFormatter.format(event.updated).toUpperCase()}',
                   ),
                 ),
               ],

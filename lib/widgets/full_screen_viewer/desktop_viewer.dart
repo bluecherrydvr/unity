@@ -42,7 +42,7 @@ class _DeviceFullscreenViewerDesktopState
   Widget build(BuildContext context) {
     return Material(
       child: Column(children: [
-        WindowButtons(title: widget.device.fullName),
+        WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: widget.videoPlayerController,

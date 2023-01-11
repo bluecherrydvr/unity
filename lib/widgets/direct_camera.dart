@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -133,8 +134,10 @@ class _DevicesForServer extends StatelessWidget {
         child: Center(
           child: Text(
             AppLocalizations.of(context).noDevices,
-            style:
-                Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 16.0),
           ),
         ),
       );
@@ -148,8 +151,16 @@ class _DevicesForServer extends StatelessWidget {
             child: Wrap(
               children: server.devices.map<Widget>((device) {
                 final foregroundColor = device.status
-                    ? Colors.green.shade100
-                    : Colors.red.withOpacity(0.75);
+                    ? colorFromBrightness(
+                        context,
+                        light: Colors.green.shade400,
+                        dark: Colors.green.shade100,
+                      )
+                    : colorFromBrightness(
+                        context,
+                        light: Colors.red.withOpacity(0.75),
+                        dark: Colors.red.shade400,
+                      );
 
                 return Card(
                   child: InkWell(

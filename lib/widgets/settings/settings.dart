@@ -72,7 +72,6 @@ class _SettingsState extends State<Settings> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: isDesktop
           ? null
           : AppBar(
@@ -360,6 +359,7 @@ Widget SubHeader(String text) {
   return SliverToBoxAdapter(
     child: Builder(builder: (context) {
       return Material(
+        type: MaterialType.transparency,
         child: Container(
           height: 56.0,
           alignment: AlignmentDirectional.centerStart,

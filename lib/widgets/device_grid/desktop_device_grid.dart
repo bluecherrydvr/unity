@@ -202,12 +202,11 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
 
     final mq = MediaQuery.of(context);
 
-    return Container(
+    return SizedBox(
       height: mq.size.height,
-      color: Colors.grey.shade900,
       child: UnityVideoView(
         player: videoPlayer!,
-        color: Colors.grey.shade900,
+        color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
           return DesktopTileViewport(
             controller: controller,

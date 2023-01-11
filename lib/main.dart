@@ -56,8 +56,7 @@ Future<void> main(List<String> args) async {
   // On windows, the window is hidden until flutter draws its first frame.
   // To create a splash screen effect while the dependencies are loading, we
   // can run the [SplashScreen] widget as the app.
-  // TODO(bdlukaa): when the above fix land on stable, recreate the windows/ dir
-  if (Platform.isWindows) runApp(const SplashScreen());
+  if (isDesktop) runApp(const SplashScreen());
 
   WidgetsFlutterBinding.ensureInitialized();
   await UnityVideoPlayerInterface.instance.initialize();

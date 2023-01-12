@@ -38,7 +38,6 @@ class EventsScreenDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final downloads = context.watch<DownloadsManager>();
 
     final now = DateTime.now();
     final hourRange = {

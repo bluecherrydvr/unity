@@ -232,7 +232,10 @@ class DownloadTile extends StatelessWidget {
                             child: TextButton(
                               onPressed: isDownloaded
                                   ? () {
-                                      launchFileExplorer(downloadPath!);
+                                      Navigator.of(context).pushNamed(
+                                        '/events',
+                                        arguments: event,
+                                      );
                                     }
                                   : null,
                               child: Row(

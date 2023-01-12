@@ -23,11 +23,14 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+
+const _kDownloadsManagerPadding = 14.0;
 
 class DownloadsManagerScreen extends StatelessWidget {
   const DownloadsManagerScreen({Key? key}) : super(key: key);
@@ -41,7 +44,10 @@ class DownloadsManagerScreen extends StatelessWidget {
         return CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsetsDirectional.only(
+                top: _kDownloadsManagerPadding / 2,
+                bottom: _kDownloadsManagerPadding / 2,
+              ),
               sliver: SliverList.builder(
                 itemCount: downloads.downloading.length,
                 itemBuilder: (context, index) {
@@ -105,13 +111,24 @@ class DownloadTile extends StatelessWidget {
     final eventType = (parsedCategory?.last ?? '').uppercaseFirst();
     final at = SettingsProvider.instance.dateFormat.format(event.published);
 
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0),
+    );
+
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
+      padding: const EdgeInsetsDirectional.only(
+        start: _kDownloadsManagerPadding,
+        end: _kDownloadsManagerPadding,
+        bottom: _kDownloadsManagerPadding / 2,
+      ),
+      child: ClipPath.shape(
+        shape: shape,
         child: Material(
+          shape: shape,
           child: ExpansionTile(
-            shape: Border.all(style: BorderStyle.none),
+            clipBehavior: Clip.hardEdge,
+            shape: shape,
+            collapsedShape: shape,
             title: Row(children: [
               SizedBox(
                 width: 40.0,
@@ -119,7 +136,7 @@ class DownloadTile extends StatelessWidget {
                 child: () {
                   if (isDownloaded) {
                     return const Padding(
-                      padding: EdgeInsets.only(right: 12.0),
+                      padding: EdgeInsetsDirectional.only(end: 12.0),
                       child: Icon(
                         Icons.download_done,
                         color: Colors.green,
@@ -168,7 +185,7 @@ class DownloadTile extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Event type'),
+                                Text(loc.eventType),
                                 Text(loc.device),
                                 Text(loc.server),
                                 Text(loc.duration),
@@ -180,8 +197,6 @@ class DownloadTile extends StatelessWidget {
                           Expanded(
                             child: DefaultTextStyle(
                               style: const TextStyle(),
-                              // maxLines: 1,
-                              // overflow: TextOverflow.ellipsis,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -209,25 +224,27 @@ class DownloadTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (isDownloaded)
-                            Tooltip(
-                              preferBelow: false,
-                              message: loc.play,
-                              child: TextButton(
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.play_arrow, size: 20.0),
-                                    if (size.width >= _breakpoint) ...[
-                                      const SizedBox(width: 8.0),
-                                      Text(loc.play),
-                                    ],
+                          wrapTooltipIf(
+                            isDownloaded && size.width < _breakpoint,
+                            preferBelow: false,
+                            message: loc.play,
+                            child: TextButton(
+                              onPressed: isDownloaded
+                                  ? () {
+                                      launchFileExplorer(downloadPath!);
+                                    }
+                                  : null,
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.play_arrow, size: 20.0),
+                                  if (size.width >= _breakpoint) ...[
+                                    const SizedBox(width: 8.0),
+                                    Text(loc.play),
                                   ],
-                                ),
-                                onPressed: () {
-                                  launchFileExplorer(downloadPath!);
-                                },
+                                ],
                               ),
                             ),
+                          ),
                           TextButton(
                             onPressed: isDownloaded
                                 ? () {

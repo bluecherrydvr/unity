@@ -154,6 +154,7 @@
   "disconnectServer": "Disconnect",
   "serverOptions": "Server options",
   "browseEvents": "Browse events",
+  "eventType": "Event type",
   "configureServer": "Configure server",
   "refreshDevices": "Refresh devices",
   "refresh": "Refresh",

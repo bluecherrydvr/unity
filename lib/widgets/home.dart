@@ -24,7 +24,7 @@ import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
-import 'package:bluecherry_client/widgets/downloads_manager/downloads_manager.dart';
+import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';

@@ -26,7 +26,6 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -151,18 +150,13 @@ class _WindowButtonsState extends State<WindowButtons> {
                           }
                         }
 
-                        switch (tab) {
-                          case 0:
-                            return AppLocalizations.of(context).screens;
-                          case 1:
-                            return AppLocalizations.of(context).directCamera;
-                          case 2:
-                            return AppLocalizations.of(context).eventBrowser;
-                          case 4:
-                            return AppLocalizations.of(context).settings;
-                          default:
-                            return widget.title ?? 'Bluecherry';
+                        final names = navigatorData(context).values;
+
+                        if (tab >= names.length) {
+                          return widget.title ?? 'Bluecherry';
                         }
+
+                        return names.elementAt(tab);
                       }(),
                       style: TextStyle(
                         color: theme.brightness == Brightness.light

@@ -38,6 +38,7 @@ class EventsScreenDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final downloads = context.watch<DownloadsManager>();
 
     final now = DateTime.now();
     final hourRange = {
@@ -84,7 +85,7 @@ class EventsScreenDesktop extends StatelessWidget {
         width: double.infinity,
         child: DataTable(
           horizontalMargin: 20.0,
-          columnSpacing: 35.0,
+          columnSpacing: 30.0,
           columns: [
             const DataColumn(label: SizedBox.shrink()),
             DataColumn(label: Text(AppLocalizations.of(context).server)),
@@ -109,6 +110,11 @@ class EventsScreenDesktop extends StatelessWidget {
             final priority = parsedCategory?[1] ?? '';
             final isAlarm = priority == 'alarm' || priority == 'alrm';
 
+            final isDownloaded =
+                downloads.downloadedEvents.any((de) => de.event.id == event.id);
+            final isDownloading =
+                downloads.downloading.keys.any((e) => e.id == event.id);
+
             return DataRow(
               key: ValueKey<Event>(event),
               color: index.isEven
@@ -129,14 +135,43 @@ class EventsScreenDesktop extends StatelessWidget {
                     },
               cells: [
                 // icon
-                DataCell(Icon(
-                  () {
+                DataCell(Container(
+                  width: 40.0,
+                  height: 40.0,
+                  alignment: Alignment.center,
+                  child: () {
                     if (isAlarm) {
-                      return Icons.warning;
+                      return const Icon(
+                        Icons.warning,
+                        color: Colors.amber,
+                      );
                     }
-                    return null;
+
+                    if (isDownloaded) {
+                      return const Icon(
+                        Icons.download_done,
+                        color: Colors.green,
+                      );
+                    }
+
+                    if (isDownloading) {
+                      return DownloadProgressIndicator(
+                        progress: downloads.downloading[downloads
+                            .downloading.keys
+                            .firstWhere((e) => e.id == event.id)]!,
+                      );
+                    }
+
+                    if (event.mediaURL != null) {
+                      return IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          downloads.download(event);
+                        },
+                        icon: const Icon(Icons.download),
+                      );
+                    }
                   }(),
-                  color: Colors.amber,
                 )),
                 // server
                 DataCell(Text(event.server.name)),

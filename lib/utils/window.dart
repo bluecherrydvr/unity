@@ -18,6 +18,7 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -67,5 +68,18 @@ extension DeviceWindowExtension on Device {
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');
+  }
+}
+
+/// Launches the file explorer at the given path
+void launchFileExplorer(String path) {
+  assert(isDesktop);
+
+  if (Platform.isWindows) {
+    Process.run('explorer', [path]);
+  } else if (Platform.isLinux) {
+    Process.run('xdg-open', [path]);
+  } else if (Platform.isMacOS) {
+    Process.run('open', [path]);
   }
 }

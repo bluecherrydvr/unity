@@ -100,7 +100,7 @@ class DownloadsManager extends ChangeNotifier {
 
     await instance.put(
       kHiveDownloads,
-      jsonEncode(downloadedEvents.map((layout) => layout.toJson()).toList()),
+      jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
     );
 
     if (notifyListeners) {
@@ -140,8 +140,7 @@ class DownloadsManager extends ChangeNotifier {
     notifyListeners();
 
     final dir = await _downloadsDirectory();
-    final fileName =
-        'event_${event.id}${event.deviceID}${event.server}${path.extension(event.mediaURL!.toString())}';
+    final fileName = 'event_${event.id}${event.deviceID}${event.server.ip}.mp4';
     final downloadPath = '${dir.path}${path.separator}$fileName';
 
     await Dio().downloadUri(
@@ -152,8 +151,7 @@ class DownloadsManager extends ChangeNotifier {
       ),
       onReceiveProgress: (received, total) {
         if (total != -1) {
-          downloading[event] = received / total * 100;
-          debugPrint(downloading[event].toString());
+          downloading[event] = received / total;
           notifyListeners();
         }
       },
@@ -166,5 +164,15 @@ class DownloadsManager extends ChangeNotifier {
     ));
 
     await _save();
+  }
+
+  /// Deletes any downloaded events at the given [downloadPath]
+  Future<void> delete(String downloadPath) async {
+    final file = File(downloadPath);
+
+    downloadedEvents.removeWhere((de) => de.downloadPath == downloadPath);
+    await _save();
+
+    if (await file.exists()) await file.delete();
   }
 }

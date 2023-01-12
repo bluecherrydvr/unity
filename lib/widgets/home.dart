@@ -24,6 +24,7 @@ import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
+import 'package:bluecherry_client/widgets/downloads_manager/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
@@ -48,6 +49,7 @@ Map<IconData, String> navigatorData(BuildContext context) {
     Icons.camera: AppLocalizations.of(context).directCamera,
     Icons.description: AppLocalizations.of(context).eventBrowser,
     Icons.dns: AppLocalizations.of(context).addServer,
+    Icons.download: 'Downloads',
     Icons.settings: AppLocalizations.of(context).settings,
   };
 }
@@ -158,7 +160,8 @@ class _MobileHomeState extends State<MobileHome> {
                               }
                             },
                           ),
-                      4: () => Settings(changeCurrentTab: home.setTab),
+                      4: () => const DownloadsManagerScreen(),
+                      5: () => Settings(changeCurrentTab: home.setTab),
                     }[tab]!(),
                     transitionBuilder: (child, animation, secondaryAnimation) {
                       return SharedAxisTransition(

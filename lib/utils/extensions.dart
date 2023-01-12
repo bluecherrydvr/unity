@@ -53,15 +53,15 @@ extension DurationExtension on Duration {
 
     final localizations = AppLocalizations.of(context);
 
-    if (hours.isNotEmpty) {
+    if (hours.isNotEmpty && hours != '00') {
       finalStrings.add(localizations.hours(hours));
     }
 
-    if (minutes.isNotEmpty) {
+    if (minutes.isNotEmpty && minutes != '00') {
       finalStrings.add(localizations.minutes(minutes));
     }
 
-    if (seconds.isNotEmpty) {
+    if (seconds.isNotEmpty && seconds != '00') {
       finalStrings.add(localizations.seconds(seconds));
     }
 
@@ -78,15 +78,15 @@ extension DurationExtension on Duration {
 
     final localizations = AppLocalizations.of(context);
 
-    if (hours.isNotEmpty) {
+    if (hours.isNotEmpty && hours != '00') {
       finalStrings.add(localizations.hoursCompact(hours));
     }
 
-    if (minutes.isNotEmpty) {
+    if (minutes.isNotEmpty && minutes != '00') {
       finalStrings.add(localizations.minutesCompact(minutes));
     }
 
-    if (seconds.isNotEmpty) {
+    if (seconds.isNotEmpty && seconds != '00') {
       finalStrings.add(localizations.secondsCompact(seconds));
     }
 

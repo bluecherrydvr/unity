@@ -39,7 +39,7 @@ Future<void> configureWindow() async {
       windowButtonVisibility: false,
     );
     await windowManager.setSize(kInitialWindowSize);
-    await windowManager.setMinimumSize(const Size(900, 600));
+    await windowManager.setMinimumSize(const Size(300, 500));
     // await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.show();

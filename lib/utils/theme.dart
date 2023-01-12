@@ -137,9 +137,6 @@ ThemeData createTheme({
     brightness: light ? Brightness.light : Brightness.dark,
     seedColor: primary,
     secondary: accent,
-    // cardColor: light ? Colors.white : const Color(0xFF242424),
-    // primaryColorDark: kPrimaryColorDark,
-    // accentColor: accent,
   );
 
   return ThemeData(
@@ -147,29 +144,6 @@ ThemeData createTheme({
 
     // ignore: deprecated_member_use
     androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
-    // Explicitly using [ChipThemeData] on Linux since it seems to be falling back to Ubuntu's font family.
-    chipTheme: Platform.isLinux
-        ? ChipThemeData(
-            backgroundColor: primary,
-            disabledColor: primary.withOpacity(0.2),
-            selectedColor: primary,
-            secondarySelectedColor: accent,
-            padding: EdgeInsets.zero,
-            labelStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 14.0,
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Inter',
-            ),
-            secondaryLabelStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 14.0,
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Inter',
-            ),
-            brightness: Brightness.dark,
-          )
-        : null,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
       selectionColor: primary.withOpacity(0.2),
@@ -204,11 +178,6 @@ ThemeData createTheme({
     splashFactory:
         Platform.isAndroid ? InkSparkle.splashFactory : InkRipple.splashFactory,
     highlightColor: Platform.isAndroid ? Colors.transparent : null,
-    primaryColorLight: primary,
-    primaryColor: primary,
-    primaryColorDark: primary,
-    scaffoldBackgroundColor:
-        light ? Colors.white.withOpacity(0.87) : const Color(0xFF121212),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: light ? const Color(0xFF202020) : Colors.white,
       actionTextColor: primary,
@@ -227,30 +196,17 @@ ThemeData createTheme({
         ),
       ),
     ),
-    dividerColor: light ? Colors.black12 : Colors.white24,
-    disabledColor: light ? Colors.black38 : Colors.white38,
-    tabBarTheme: TabBarTheme(
-      labelColor: primary,
-      unselectedLabelColor:
-          light ? Colors.black54 : Colors.white.withOpacity(0.67),
-    ),
-    popupMenuTheme: PopupMenuThemeData(
-      elevation: 4.0,
-      color: light ? Colors.white : const Color(0xFF292929),
-    ),
-    drawerTheme: DrawerThemeData(
-      backgroundColor: light ? Colors.white : const Color(0xFF141414),
-    ),
     splashColor: primary.withOpacity(0.15),
     appBarTheme: AppBarTheme(
-      surfaceTintColor: light ? Colors.white : const Color(0xFF202020),
+      // color: Colors.transparent,
       shadowColor: light ? Colors.white : const Color(0xFF202020),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: light ? Colors.black12 : Colors.white12,
         statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
         statusBarBrightness: light ? Brightness.light : Brightness.dark,
       ),
-      elevation: isDesktop ? 0.1 : 4.0,
+      scrolledUnderElevation: 0.0,
+      elevation: 0.0,
       iconTheme: IconThemeData(
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         size: 24.0,
@@ -270,7 +226,6 @@ ThemeData createTheme({
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
       size: 24,
     ),
-    // dialogBackgroundColor: light ? Colors.white : const Color(0xFF202020),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: light ? primary : const Color(0xFF272727),
       selectedItemColor: Colors.white.withOpacity(0.87),

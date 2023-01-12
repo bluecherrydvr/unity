@@ -211,105 +211,105 @@ class _MobileHomeState extends State<MobileHome> {
             final text = entry.value;
             final index = navigatorData(context).keys.toList().indexOf(icon);
 
-            return Stack(children: [
-              ListTile(
-                dense: true,
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  child: Icon(
-                    icon,
-                    color: index == tab
-                        ? theme.selectedForegroundColor
-                        : theme.unselectedForegroundColor,
-                  ),
-                ),
-                title: Text(
-                  text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color:
-                            index == tab ? theme.selectedForegroundColor : null,
-                      ),
-                ),
+            return Container(
+              padding: const EdgeInsetsDirectional.only(
+                end: 12.0,
+                bottom: 4.0,
               ),
-              Material(
+              width: double.infinity,
+              height: 48.0,
+              child: Material(
                 color: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.only(
-                    right: 12.0,
-                  ),
-                  width: double.infinity,
-                  height: 48.0,
-                  child: InkWell(
-                    borderRadius: const BorderRadiusDirectional.only(
-                      topEnd: Radius.circular(28.0),
-                      bottomEnd: Radius.circular(28.0),
-                    ).resolve(Directionality.of(context)),
-                    onTap: () async {
-                      final theme = Theme.of(context);
-                      final navigator = Navigator.of(context);
+                child: InkWell(
+                  borderRadius: const BorderRadiusDirectional.only(
+                    topEnd: Radius.circular(28.0),
+                    bottomEnd: Radius.circular(28.0),
+                  ).resolve(Directionality.of(context)),
+                  onTap: () async {
+                    final theme = Theme.of(context);
+                    final navigator = Navigator.of(context);
 
-                      if (!isDesktop) {
-                        if (index == 0 && tab != 0) {
-                          debugPrint(index.toString());
-                          await StatusBarControl.setHidden(true);
-                          await StatusBarControl.setStyle(
-                            getStatusBarStyleFromBrightness(theme.brightness),
-                          );
-                          DeviceOrientations.instance.set(
-                            [
-                              DeviceOrientation.landscapeLeft,
-                              DeviceOrientation.landscapeRight,
-                            ],
-                          );
-                        } else if (index == 3 && tab != 3) {
-                          debugPrint(index.toString());
-                          // Use portrait orientation in "Add Server" tab. See #14.
-                          await StatusBarControl.setHidden(false);
-                          await StatusBarControl.setStyle(
-                            // Always white status bar style in [AddServerWizard].
-                            StatusBarStyle.LIGHT_CONTENT,
-                          );
-                          DeviceOrientations.instance.set(
-                            [
-                              DeviceOrientation.portraitUp,
-                              DeviceOrientation.portraitDown,
-                            ],
-                          );
-                        } else if (![0, 3].contains(index) &&
-                            [0, 3].contains(tab)) {
-                          debugPrint(index.toString());
-                          await StatusBarControl.setHidden(false);
-                          await StatusBarControl.setStyle(
-                            getStatusBarStyleFromBrightness(theme.brightness),
-                          );
-                          DeviceOrientations.instance.set(
-                            DeviceOrientation.values,
-                          );
-                        }
+                    if (!isDesktop) {
+                      if (index == 0 && tab != 0) {
+                        debugPrint(index.toString());
+                        await StatusBarControl.setHidden(true);
+                        await StatusBarControl.setStyle(
+                          getStatusBarStyleFromBrightness(theme.brightness),
+                        );
+                        DeviceOrientations.instance.set(
+                          [
+                            DeviceOrientation.landscapeLeft,
+                            DeviceOrientation.landscapeRight,
+                          ],
+                        );
+                      } else if (index == 3 && tab != 3) {
+                        debugPrint(index.toString());
+                        // Use portrait orientation in "Add Server" tab. See #14.
+                        await StatusBarControl.setHidden(false);
+                        await StatusBarControl.setStyle(
+                          // Always white status bar style in [AddServerWizard].
+                          StatusBarStyle.LIGHT_CONTENT,
+                        );
+                        DeviceOrientations.instance.set(
+                          [
+                            DeviceOrientation.portraitUp,
+                            DeviceOrientation.portraitDown,
+                          ],
+                        );
+                      } else if (![0, 3].contains(index) &&
+                          [0, 3].contains(tab)) {
+                        debugPrint(index.toString());
+                        await StatusBarControl.setHidden(false);
+                        await StatusBarControl.setStyle(
+                          getStatusBarStyleFromBrightness(theme.brightness),
+                        );
+                        DeviceOrientations.instance.set(
+                          DeviceOrientation.values,
+                        );
                       }
+                    }
 
-                      await Future.delayed(const Duration(milliseconds: 200));
-                      navigator.pop();
-                      if (tab != index) {
-                        home.setTab(index);
-                      }
-                    },
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color:
-                            index == tab ? theme.selectedBackgroundColor : null,
-                        borderRadius: const BorderRadiusDirectional.only(
-                          topEnd: Radius.circular(28.0),
-                          bottomEnd: Radius.circular(28.0),
+                    await Future.delayed(const Duration(milliseconds: 200));
+                    navigator.pop();
+                    if (tab != index) {
+                      home.setTab(index);
+                    }
+                  },
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color:
+                          index == tab ? theme.selectedBackgroundColor : null,
+                      borderRadius: const BorderRadiusDirectional.only(
+                        topEnd: Radius.circular(28.0),
+                        bottomEnd: Radius.circular(28.0),
+                      ),
+                    ),
+                    child: ListTile(
+                      dense: true,
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
+                          icon,
+                          color: index == tab
+                              ? theme.selectedForegroundColor
+                              : theme.unselectedForegroundColor,
                         ),
+                      ),
+                      title: Text(
+                        text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: index == tab
+                                  ? theme.selectedForegroundColor
+                                  : null,
+                            ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ]);
+            );
           }),
         ],
       ),
@@ -323,18 +323,25 @@ class _MobileHomeState extends State<MobileHome> {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
     final home = context.watch<HomeProvider>();
 
-    final backgroundColor = Theme.of(context).appBarTheme.backgroundColor;
-    return Material(
-      color: backgroundColor,
+    const imageSize = 42.0;
+
+    return Card(
       child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Image.asset(
+            'assets/images/icon.png',
+            width: imageSize,
+            height: imageSize,
+          ),
+        ),
         const Spacer(),
         Expanded(
           flex: 3,
           child: Center(
             child: NavigationRail(
               minExtendedWidth: 220,
-              elevation: Theme.of(context).appBarTheme.elevation,
-              backgroundColor: backgroundColor,
+              backgroundColor: Colors.transparent,
               extended: isExtraWide,
               useIndicator: !isExtraWide,
               indicatorColor: theme.selectedBackgroundColor,
@@ -370,6 +377,7 @@ class _MobileHomeState extends State<MobileHome> {
           ),
         ),
         const Spacer(),
+        const SizedBox(height: imageSize + 16.0),
       ]),
     );
   }
@@ -380,7 +388,8 @@ class NavigationRailDrawerData {
 
   const NavigationRailDrawerData({required this.theme});
 
-  Color get selectedBackgroundColor => theme.primaryColor.withOpacity(0.2);
-  Color get selectedForegroundColor => theme.primaryColor;
+  Color get selectedBackgroundColor =>
+      theme.colorScheme.primary.withOpacity(0.2);
+  Color get selectedForegroundColor => theme.colorScheme.primary;
   Color? get unselectedForegroundColor => theme.iconTheme.color;
 }

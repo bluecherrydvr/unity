@@ -76,7 +76,7 @@ UnityVideoPlayer getVideoPlayerControllerForDevice(
   return controller;
 }
 
-/// Wraps tooltip if the app meets [condition]
+/// Wraps [child] in a [Tooltip] if the app meets [condition]
 Widget wrapTooltipIf(
   bool condition, {
   required Widget child,
@@ -92,4 +92,22 @@ Widget wrapTooltipIf(
   }
 
   return child;
+}
+
+/// Wraps [child] in an [Expanded] if the app meets [condition]
+Widget wrapExpandedIf(
+  bool condition, {
+  required Widget child,
+}) {
+  if (condition) {
+    return Expanded(child: child);
+  }
+
+  return child;
+}
+
+T? showIf<T extends Widget>(bool condition, {required T child}) {
+  if (condition) return child;
+
+  return null;
 }

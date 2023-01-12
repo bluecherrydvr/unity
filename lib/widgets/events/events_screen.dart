@@ -29,6 +29,7 @@ import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -99,18 +100,19 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              leading: Scaffold.of(context).hasDrawer
-                  ? IconButton(
-                      icon: const Icon(Icons.menu),
-                      splashRadius: 20.0,
-                      onPressed: Scaffold.of(context).openDrawer,
-                    )
-                  : null,
-              title: Text(AppLocalizations.of(context).eventBrowser),
-            ),
+      appBar: showIf(
+        isMobile,
+        child: AppBar(
+          leading: Scaffold.of(context).hasDrawer
+              ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  splashRadius: 20.0,
+                  onPressed: Scaffold.of(context).openDrawer,
+                )
+              : null,
+          title: Text(AppLocalizations.of(context).eventBrowser),
+        ),
+      ),
       body: () {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(

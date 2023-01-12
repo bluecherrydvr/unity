@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -73,18 +74,19 @@ class _SettingsState extends State<Settings> {
     );
 
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              leading: Scaffold.of(context).hasDrawer
-                  ? IconButton(
-                      icon: const Icon(Icons.menu),
-                      splashRadius: 20.0,
-                      onPressed: Scaffold.of(context).openDrawer,
-                    )
-                  : null,
-              title: Text(AppLocalizations.of(context).settings),
-            ),
+      appBar: showIf(
+        isMobile,
+        child: AppBar(
+          leading: Scaffold.of(context).hasDrawer
+              ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  splashRadius: 20.0,
+                  onPressed: Scaffold.of(context).openDrawer,
+                )
+              : null,
+          title: Text(AppLocalizations.of(context).settings),
+        ),
+      ),
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(slivers: [

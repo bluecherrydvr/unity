@@ -40,6 +40,19 @@ class DownloadsManagerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final downloads = context.watch<DownloadsManager>();
     return Scaffold(
+      appBar: showIf(
+        isMobile,
+        child: AppBar(
+          leading: Scaffold.of(context).hasDrawer
+              ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  splashRadius: 20.0,
+                  onPressed: Scaffold.of(context).openDrawer,
+                )
+              : null,
+          title: Text(AppLocalizations.of(context).downloads),
+        ),
+      ),
       body: LayoutBuilder(builder: (context, consts) {
         final size = consts.biggest;
         return CustomScrollView(
@@ -124,7 +137,8 @@ class DownloadTile extends StatelessWidget {
       ),
       child: ClipPath.shape(
         shape: shape,
-        child: Material(
+        child: Card(
+          margin: EdgeInsets.zero,
           shape: shape,
           child: ExpansionTile(
             clipBehavior: Clip.hardEdge,
@@ -174,13 +188,16 @@ class DownloadTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
+                    wrapExpandedIf(
+                      size.width >= _breakpoint,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          DefaultTextStyle(
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          DefaultTextStyle.merge(
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             child: Column(
@@ -196,20 +213,17 @@ class DownloadTile extends StatelessWidget {
                           ),
                           const SizedBox(width: 6.0),
                           Expanded(
-                            child: DefaultTextStyle(
-                              style: const TextStyle(),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(eventType),
-                                  Text(event.deviceName),
-                                  Text(event.server.name),
-                                  Text(event.mediaDuration
-                                          ?.humanReadable(context) ??
-                                      '--'),
-                                  Text(at),
-                                ],
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(eventType),
+                                Text(event.deviceName),
+                                Text(event.server.name),
+                                Text(event.mediaDuration
+                                        ?.humanReadable(context) ??
+                                    '--'),
+                                Text(at),
+                              ],
                             ),
                           ),
                         ],

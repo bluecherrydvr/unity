@@ -74,7 +74,10 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: isDesktop ? null : AppBar(title: Text(widget.event.deviceName)),
+      appBar: showIf(
+        isMobile,
+        child: AppBar(title: Text(widget.event.deviceName)),
+      ),
       body: Column(children: [
         const WindowButtons(),
         Expanded(

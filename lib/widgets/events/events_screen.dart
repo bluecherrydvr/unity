@@ -20,6 +20,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';

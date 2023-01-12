@@ -140,11 +140,12 @@ class _MobileHomeState extends State<MobileHome> {
               Expanded(
                 child: ClipRect(
                   child: PageTransitionSwitcher(
-                    child: <int, Widget Function()>{
-                      0: () => const DeviceGrid(),
-                      1: () => const DirectCameraScreen(),
-                      2: () => const EventsScreen(),
-                      3: () => AddServerWizard(
+                    child: <UnityTab, Widget Function()>{
+                      UnityTab.deviceGrid: () => const DeviceGrid(),
+                      UnityTab.directCameraScreen: () =>
+                          const DirectCameraScreen(),
+                      UnityTab.eventsScreen: () => const EventsScreen(),
+                      UnityTab.addServer: () => AddServerWizard(
                             onFinish: () async {
                               home.setTab(0);
                               if (!isDesktop) {
@@ -162,9 +163,10 @@ class _MobileHomeState extends State<MobileHome> {
                               }
                             },
                           ),
-                      4: () => const DownloadsManagerScreen(),
-                      5: () => Settings(changeCurrentTab: home.setTab),
-                    }[tab]!(),
+                      UnityTab.downloads: () => const DownloadsManagerScreen(),
+                      UnityTab.settings: () =>
+                          Settings(changeCurrentTab: home.setTab),
+                    }[UnityTab.values[tab]]!(),
                     transitionBuilder: (child, animation, secondaryAnimation) {
                       return SharedAxisTransition(
                         animation: animation,

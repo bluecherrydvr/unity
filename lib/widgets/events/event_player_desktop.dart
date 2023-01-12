@@ -18,10 +18,13 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -54,14 +57,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   @override
   void initState() {
     super.initState();
-    debugPrint(widget.event.mediaURL.toString());
-    videoController
-      ..setDataSource(
-        widget.event.mediaURL.toString(),
-      )
-      ..setVolume(volume)
-      ..setSpeed(speed);
-
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
       setState(() {});
@@ -71,6 +66,26 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         playingAnimationController.reverse();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    final downloads = context.read<DownloadsManager>();
+
+    final mediaUrl = downloads.isEventDownloaded(widget.event.id)
+        ? Uri.file(
+            downloads.getDownloadedPathForEvent(widget.event.id),
+            windows: Platform.isWindows,
+          ).toString()
+        : widget.event.mediaURL.toString();
+
+    debugPrint(mediaUrl);
+    videoController
+      ..setDataSource(mediaUrl)
+      ..setVolume(volume)
+      ..setSpeed(speed);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -126,6 +141,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
                   ),
                   Text(
                     settings.dateFormat.format(widget.event.published),
@@ -133,6 +149,15 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   ),
                   Text(widget.event.title),
                   const Spacer(),
+                  Consumer<DownloadsManager>(
+                    builder: (context, downloads, child) {
+                      return Row(children: [
+                        Expanded(child: child!),
+                        DownloadIndicator(event: widget.event),
+                      ]);
+                    },
+                    child: Text(AppLocalizations.of(context).downloaded),
+                  ),
                   Row(children: [
                     Expanded(
                       child: SubHeader(
@@ -150,6 +175,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                         setState(() {});
                       },
                       tooltip: videoController.isPlaying ? loc.pause : loc.play,
+                      iconSize: 22.0,
                       icon: AnimatedBuilder(
                         animation: playingAnimationController,
                         builder: (context, _) => AnimatedIcon(

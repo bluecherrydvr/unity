@@ -124,6 +124,22 @@ class DownloadsManager extends ChangeNotifier {
     }
   }
 
+  /// Whether the given event is downloaded
+  bool isEventDownloaded(int eventId) {
+    return downloadedEvents.any((de) => de.event.id == eventId);
+  }
+
+  String getDownloadedPathForEvent(int eventId) {
+    return downloadedEvents
+        .firstWhere((de) => de.event.id == eventId)
+        .downloadPath;
+  }
+
+  /// Whether the given event is being downloaded
+  bool isEventDownloading(int eventId) {
+    return downloading.keys.any((e) => e.id == eventId);
+  }
+
   Future<Directory> _downloadsDirectory() async {
     final docsDir = await getApplicationSupportDirectory();
     return Directory('${docsDir.path}${path.separator}downloads').create();

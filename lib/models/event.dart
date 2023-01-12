@@ -55,6 +55,14 @@ class Event {
         .join(' ');
   }
 
+  bool get isAlarm {
+    final parsedCategory = category?.split('/');
+    final priority = parsedCategory?[1] ?? '';
+    final isAlarm = priority == 'alarm' || priority == 'alrm';
+
+    return isAlarm;
+  }
+
   @override
   bool operator ==(dynamic other) {
     return other is Event &&

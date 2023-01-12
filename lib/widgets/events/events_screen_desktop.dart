@@ -108,12 +108,6 @@ class EventsScreenDesktop extends StatelessWidget {
 
             final parsedCategory = event.category?.split('/');
             final priority = parsedCategory?[1] ?? '';
-            final isAlarm = priority == 'alarm' || priority == 'alrm';
-
-            final isDownloaded =
-                downloads.downloadedEvents.any((de) => de.event.id == event.id);
-            final isDownloading =
-                downloads.downloading.keys.any((e) => e.id == event.id);
 
             return DataRow(
               key: ValueKey<Event>(event),
@@ -139,39 +133,7 @@ class EventsScreenDesktop extends StatelessWidget {
                   width: 40.0,
                   height: 40.0,
                   alignment: Alignment.center,
-                  child: () {
-                    if (isAlarm) {
-                      return const Icon(
-                        Icons.warning,
-                        color: Colors.amber,
-                      );
-                    }
-
-                    if (isDownloaded) {
-                      return const Icon(
-                        Icons.download_done,
-                        color: Colors.green,
-                      );
-                    }
-
-                    if (isDownloading) {
-                      return DownloadProgressIndicator(
-                        progress: downloads.downloading[downloads
-                            .downloading.keys
-                            .firstWhere((e) => e.id == event.id)]!,
-                      );
-                    }
-
-                    if (event.mediaURL != null) {
-                      return IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          downloads.download(event);
-                        },
-                        icon: const Icon(Icons.download),
-                      );
-                    }
-                  }(),
+                  child: DownloadIndicator(event: event),
                 )),
                 // server
                 DataCell(Text(event.server.name)),

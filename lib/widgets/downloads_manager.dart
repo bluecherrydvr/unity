@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -316,5 +317,65 @@ class DownloadProgressIndicator extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+/// The download indicator for the given event
+///
+/// See also:
+///  * [EventsScreenDesktop], which uses this to display the download status
+class DownloadIndicator extends StatelessWidget {
+  final Event event;
+
+  const DownloadIndicator({
+    Key? key,
+    required this.event,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40.0,
+      width: 40.0,
+      child: () {
+        if (event.isAlarm) {
+          return const Icon(
+            Icons.warning,
+            color: Colors.amber,
+          );
+        }
+
+        final downloads = context.watch<DownloadsManager>();
+
+        if (downloads.isEventDownloaded(event.id)) {
+          return IconButton(
+            onPressed: () {
+              context.read<HomeProvider>().setTab(UnityTab.downloads.index);
+            },
+            tooltip: AppLocalizations.of(context).seeInDownloads,
+            icon: const Icon(
+              Icons.download_done,
+              color: Colors.green,
+            ),
+          );
+        }
+
+        if (downloads.isEventDownloading(event.id)) {
+          return DownloadProgressIndicator(
+            progress: downloads.downloading[downloads.downloading.keys
+                .firstWhere((e) => e.id == event.id)]!,
+          );
+        }
+
+        if (event.mediaURL != null) {
+          return IconButton(
+            padding: EdgeInsets.zero,
+            tooltip: AppLocalizations.of(context).download,
+            onPressed: () => downloads.download(event),
+            icon: const Icon(Icons.download),
+          );
+        }
+      }(),
+    );
   }
 }

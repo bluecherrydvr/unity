@@ -20,6 +20,15 @@
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:flutter/foundation.dart';
 
+enum UnityTab {
+  deviceGrid,
+  directCameraScreen,
+  eventsScreen,
+  addServer,
+  downloads,
+  settings,
+}
+
 class HomeProvider extends ChangeNotifier {
   int tab = ServersProvider.instance.serverAdded ? 0 : 3;
 

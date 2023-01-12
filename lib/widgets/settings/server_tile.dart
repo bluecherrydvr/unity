@@ -97,8 +97,7 @@ class ServersList extends StatelessWidget {
               ),
               title: Text(AppLocalizations.of(context).addNewServer),
               onTap: () {
-                // Go to the "Add Server" tab.
-                changeCurrentTab.call(3);
+                changeCurrentTab(UnityTab.addServer.index);
               },
             ),
             const Padding(

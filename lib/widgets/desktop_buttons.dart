@@ -110,28 +110,28 @@ class _WindowButtonsState extends State<WindowButtons> {
         return Material(
           color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [
-            Row(children: [
-              if (canPop)
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  iconSize: 20.0,
-                  color: theme.hintColor,
-                  onPressed: () async {
-                    await navigatorKey.currentState?.maybePop();
-                    setState(() {});
-                  },
-                )
-              else
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8.0),
-                  child: Image.asset(
-                    'assets/images/icon.png',
-                    height: 16.0,
-                    width: 16.0,
+            DragToMoveArea(
+              child: Row(children: [
+                if (canPop)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    iconSize: 20.0,
+                    color: theme.hintColor,
+                    onPressed: () async {
+                      await navigatorKey.currentState?.maybePop();
+                      setState(() {});
+                    },
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: Image.asset(
+                      'assets/images/icon.png',
+                      height: 16.0,
+                      width: 16.0,
+                    ),
                   ),
-                ),
-              Expanded(
-                child: DragToMoveArea(
+                Expanded(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(start: 10.0),
                     child: Text(
@@ -169,37 +169,37 @@ class _WindowButtonsState extends State<WindowButtons> {
                     ),
                   ),
                 ),
-              ),
-              // if (!canPop && widget.showNavigator) ...[
-              //   ...navigatorData(context).entries.map((entry) {
-              //     final icon = entry.key;
-              //     final text = entry.value;
-              //     final index =
-              //         navigatorData(context).keys.toList().indexOf(icon);
+                // if (!canPop && widget.showNavigator) ...[
+                //   ...navigatorData(context).entries.map((entry) {
+                //     final icon = entry.key;
+                //     final text = entry.value;
+                //     final index =
+                //         navigatorData(context).keys.toList().indexOf(icon);
 
-              //     return IconButton(
-              //       icon: Icon(
-              //         icon,
-              //         color: home.tab == index
-              //             ? theme.primaryColor
-              //             : theme.hintColor,
-              //       ),
-              //       iconSize: 22.0,
-              //       tooltip: text,
-              //       onPressed: () => home.setTab(index),
-              //     );
-              //   }),
-              //   divider,
-              // ],
-              SizedBox(
-                width: 138,
-                height: 40,
-                child: WindowCaption(
-                  brightness: theme.brightness,
-                  backgroundColor: Colors.transparent,
+                //     return IconButton(
+                //       icon: Icon(
+                //         icon,
+                //         color: home.tab == index
+                //             ? theme.primaryColor
+                //             : theme.hintColor,
+                //       ),
+                //       iconSize: 22.0,
+                //       tooltip: text,
+                //       onPressed: () => home.setTab(index),
+                //     );
+                //   }),
+                //   divider,
+                // ],
+                SizedBox(
+                  width: 138,
+                  height: 40,
+                  child: WindowCaption(
+                    brightness: theme.brightness,
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
-              ),
-            ]),
+              ]),
+            ),
             if (!canPop && widget.showNavigator)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),

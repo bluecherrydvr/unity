@@ -29,7 +29,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
-import 'package:bluecherry_client/widgets/downloads_manager/desktop_downloads_manager.dart';
+import 'package:bluecherry_client/widgets/downloads_manager/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/misc.dart';

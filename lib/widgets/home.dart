@@ -44,13 +44,15 @@ class Home extends StatelessWidget {
 }
 
 Map<IconData, String> navigatorData(BuildContext context) {
+  final loc = AppLocalizations.of(context);
+
   return {
-    Icons.window: AppLocalizations.of(context).screens,
-    Icons.camera: AppLocalizations.of(context).directCamera,
-    Icons.description: AppLocalizations.of(context).eventBrowser,
-    Icons.dns: AppLocalizations.of(context).addServer,
-    Icons.download: 'Downloads',
-    Icons.settings: AppLocalizations.of(context).settings,
+    Icons.window: loc.screens,
+    Icons.camera: loc.directCamera,
+    Icons.description: loc.eventBrowser,
+    Icons.dns: loc.addServer,
+    Icons.download: loc.downloads,
+    Icons.settings: loc.settings,
   };
 }
 

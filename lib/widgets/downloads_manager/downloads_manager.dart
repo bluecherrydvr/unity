@@ -21,6 +21,7 @@ import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/widgets/downloads_manager/desktop_downloads_manager.dart';
 import 'package:bluecherry_client/widgets/downloads_manager/mobile_downloads_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class DownloadsManagerScreen extends StatelessWidget {
@@ -36,8 +37,8 @@ class DownloadsManagerScreen extends StatelessWidget {
 
         if (downloads.downloadedEvents.isEmpty &&
             downloads.downloading.isEmpty) {
-          return const Center(
-            child: Text('You have no downloads'),
+          return Center(
+            child: Text(AppLocalizations.of(context).noDownloads),
           );
         }
 

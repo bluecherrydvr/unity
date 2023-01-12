@@ -25,6 +25,7 @@ import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -84,6 +85,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
     return SliderTheme(
@@ -132,9 +134,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   Text(widget.event.title),
                   const Spacer(),
                   Row(children: [
-                    const Expanded(
+                    Expanded(
                       child: SubHeader(
-                        'PLAYBACK OPTIONS',
+                        loc.playbackOptions,
                         padding: EdgeInsets.zero,
                       ),
                     ),
@@ -147,7 +149,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                         }
                         setState(() {});
                       },
-                      tooltip: videoController.isPlaying ? 'Pause' : 'Play',
+                      tooltip: videoController.isPlaying ? loc.pause : loc.play,
                       icon: AnimatedBuilder(
                         animation: playingAnimationController,
                         builder: (context, _) => AnimatedIcon(
@@ -159,7 +161,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   ]),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Text('Volume • ${volume.toStringAsFixed(1)}'),
+                    child: Text(loc.volume(volume.toStringAsFixed(1))),
                   ),
                   Slider(
                     value: volume,
@@ -173,7 +175,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   ),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Text('Speed • ${speed.toStringAsFixed(2)}'),
+                    child: Text(loc.speed(speed.toStringAsFixed(2))),
                   ),
                   Slider(
                     value: speed,
@@ -242,5 +244,4 @@ class _CustomTrackShape extends RoundedRectSliderTrackShape {
     final trackWidth = parentBox.size.width - 10.0;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
-
 }

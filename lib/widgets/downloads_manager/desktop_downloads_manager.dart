@@ -26,6 +26,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class DesktopDownloadsManager extends StatelessWidget {
@@ -88,6 +89,8 @@ class DownloadTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     final parsedCategory = event.category?.split('/');
     final at = SettingsProvider.instance.dateFormat.format(event.published);
 
@@ -118,13 +121,22 @@ class DownloadTile extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  '${(parsedCategory?.last ?? '').uppercaseFirst()}'
-                  ' on ${event.deviceName}'
-                  ' under server ${event.server.name}'
-                  ' at $at',
+                  loc.downloadTitle(
+                    (parsedCategory?.last ?? '').uppercaseFirst(),
+                    event.deviceName,
+                    event.server.name,
+                    at,
+                  ),
                 ),
               ),
-              // Expanded(child: Text('In Progress')),
+              if (isDownloaded)
+                IconButton(
+                  icon: const Icon(Icons.play_arrow, size: 20.0),
+                  tooltip: loc.play,
+                  onPressed: () {
+                    launchFileExplorer(downloadPath!);
+                  },
+                ),
             ]),
             childrenPadding: const EdgeInsets.symmetric(
               vertical: 12.0,
@@ -135,18 +147,17 @@ class DownloadTile extends StatelessWidget {
               Row(children: [
                 Expanded(
                   child: Row(children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Device:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Server:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Duration:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Date:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ],
+                    DefaultTextStyle(
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(loc.device),
+                          Text(loc.server),
+                          Text(loc.duration),
+                          Text(loc.date),
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 6.0),
                     Column(
@@ -165,28 +176,15 @@ class DownloadTile extends StatelessWidget {
                   TextButton(
                     onPressed: isDownloaded
                         ? () {
-                            // TODO: downloads reproducer
-                            launchFileExplorer(downloadPath!);
-                          }
-                        : null,
-                    child: Row(children: const [
-                      Icon(Icons.play_arrow, size: 20.0),
-                      SizedBox(width: 8.0),
-                      Text('Reproduce'),
-                    ]),
-                  ),
-                  TextButton(
-                    onPressed: isDownloaded
-                        ? () {
                             context
                                 .read<DownloadsManager>()
                                 .delete(downloadPath!);
                           }
                         : null,
-                    child: Row(children: const [
-                      Icon(Icons.delete, size: 20.0),
-                      SizedBox(width: 8.0),
-                      Text('Delete'),
+                    child: Row(children: [
+                      const Icon(Icons.delete, size: 20.0),
+                      const SizedBox(width: 8.0),
+                      Text(loc.delete),
                     ]),
                   ),
                   if (isDesktop)
@@ -198,10 +196,10 @@ class DownloadTile extends StatelessWidget {
                               );
                             }
                           : null,
-                      child: Row(children: const [
-                        Icon(Icons.folder, size: 20.0),
-                        SizedBox(width: 8.0),
-                        Text('Show in Files'), // show in explorer
+                      child: Row(children: [
+                        const Icon(Icons.folder, size: 20.0),
+                        const SizedBox(width: 8.0),
+                        Text(loc.showInFiles), // show in explorer
                       ]),
                     ),
                 ]),

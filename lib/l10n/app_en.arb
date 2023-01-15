@@ -183,6 +183,7 @@
       "date": {}
     }
   },
+  "downloadPath": "Download path",
   "playbackOptions": "PLAYBACK OPTIONS",
   "play": "Play",
   "pause": "Pause",

@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
@@ -26,6 +28,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -191,80 +194,89 @@ class _SettingsState extends State<Settings> {
                     )
                   : AppLocalizations.of(context).notSnoozed,
             ),
-            Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.transparent,
+            ExpansionTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Theme.of(context).iconTheme.color,
+                child: const Icon(Icons.beenhere_rounded),
               ),
-              child: ExpansionTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
-                  child: const Icon(Icons.beenhere_rounded),
-                ),
-                title:
-                    Text(AppLocalizations.of(context).notificationClickAction),
-                textColor: Theme.of(context).textTheme.bodyLarge?.color,
-                subtitle: Text(
-                  settings.notificationClickAction.str(context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                ),
-                children: NotificationClickAction.values.map((e) {
-                  return RadioListTile(
-                    value: e,
-                    groupValue: settings.notificationClickAction,
-                    onChanged: (value) {
-                      settings.notificationClickAction = e;
-                    },
-                    secondary: const Icon(null),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    title: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: Text(
-                        e.str(context),
-                      ),
+              title: Text(AppLocalizations.of(context).notificationClickAction),
+              textColor: Theme.of(context).textTheme.bodyLarge?.color,
+              subtitle: Text(
+                settings.notificationClickAction.str(context),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
-                  );
-                }).toList(),
               ),
+              children: NotificationClickAction.values.map((e) {
+                return RadioListTile(
+                  value: e,
+                  groupValue: settings.notificationClickAction,
+                  onChanged: (value) {
+                    settings.notificationClickAction = e;
+                  },
+                  secondary: const Icon(null),
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  title: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: Text(
+                      e.str(context),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-            Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.transparent,
+            ExpansionTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Theme.of(context).iconTheme.color,
+                child: const Icon(Icons.camera_alt),
               ),
-              child: ExpansionTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
-                  child: const Icon(Icons.camera_alt),
-                ),
-                title: Text(AppLocalizations.of(context).cameraViewFit),
-                textColor: Theme.of(context).textTheme.bodyLarge?.color,
-                subtitle: Text(
-                  settings.cameraViewFit.str(context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                ),
-                children: UnityVideoFit.values.map((e) {
-                  return RadioListTile(
-                    value: e,
-                    groupValue: settings.cameraViewFit,
-                    onChanged: (value) {
-                      settings.cameraViewFit = e;
-                    },
-                    secondary: const Icon(null),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    title: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: Text(
-                        e.str(context),
-                      ),
+              title: Text(AppLocalizations.of(context).cameraViewFit),
+              textColor: Theme.of(context).textTheme.bodyLarge?.color,
+              subtitle: Text(
+                settings.cameraViewFit.str(context),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
-                  );
-                }).toList(),
               ),
+              children: UnityVideoFit.values.map((e) {
+                return RadioListTile(
+                  value: e,
+                  groupValue: settings.cameraViewFit,
+                  onChanged: (value) {
+                    settings.cameraViewFit = e;
+                  },
+                  secondary: const Icon(null),
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  title: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: Text(
+                      e.str(context),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            CorrectedListTile(
+              iconData: Icons.download,
+              title: AppLocalizations.of(context).downloadPath,
+              subtitle: settings.downloadsDirectory,
+              height: 72.0,
+              onTap: () async {
+                final selectedDirectory =
+                    await FilePicker.platform.getDirectoryPath(
+                  dialogTitle: AppLocalizations.of(context).downloadPath,
+                  initialDirectory:
+                      SettingsProvider.instance.downloadsDirectory,
+                  lockParentWindow: true,
+                );
+
+                if (selectedDirectory != null) {
+                  settings.downloadsDirectory =
+                      Directory(selectedDirectory).path;
+                }
+              },
             ),
           ])),
           divider,

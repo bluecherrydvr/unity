@@ -302,6 +302,10 @@ ThemeData createTheme({
       }),
     ),
     colorScheme: colorScheme,
+    expansionTileTheme: const ExpansionTileThemeData(
+      shape: RoundedRectangleBorder(),
+      collapsedShape: RoundedRectangleBorder(),
+    ),
   );
 }
 

@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 class DownloadedEvent {
   final Event event;
@@ -143,11 +143,6 @@ class DownloadsManager extends ChangeNotifier {
     return downloading.keys.any((e) => e.id == eventId);
   }
 
-  Future<Directory> _downloadsDirectory() async {
-    final docsDir = await getApplicationSupportDirectory();
-    return Directory('${docsDir.path}${path.separator}downloads').create();
-  }
-
   /// Downloads the given [event]
   Future<void> download(Event event) async {
     assert(event.mediaURL != null, 'There must be an url to be downloaded');
@@ -158,9 +153,9 @@ class DownloadsManager extends ChangeNotifier {
     downloading[event] = 0.0;
     notifyListeners();
 
-    final dir = await _downloadsDirectory();
+    final dir = SettingsProvider.instance.downloadsDirectory;
     final fileName = 'event_${event.id}${event.deviceID}${event.server.ip}.mp4';
-    final downloadPath = '${dir.path}${path.separator}$fileName';
+    final downloadPath = '$dir${path.separator}$fileName';
 
     await Dio().downloadUri(
       event.mediaURL!,

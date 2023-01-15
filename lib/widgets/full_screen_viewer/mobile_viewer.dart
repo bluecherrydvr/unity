@@ -50,7 +50,7 @@ class _DeviceFullscreenViewerMobileState
         brightness = Theme.of(context).brightness;
         await StatusBarControl.setHidden(true);
         await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(Theme.of(context).brightness),
+          getStatusBarStyleFromBrightness(brightness!),
         );
         DeviceOrientations.instance.set([
           DeviceOrientation.landscapeLeft,
@@ -61,10 +61,12 @@ class _DeviceFullscreenViewerMobileState
   }
 
   @override
-  void dispose() async {
-    if (widget.restoreStatusBarStyleOnDispose && brightness != null) {
-      await StatusBarControl.setHidden(false);
-      await StatusBarControl.setStyle(
+  void dispose() {
+    if (!isDesktop &&
+        widget.restoreStatusBarStyleOnDispose &&
+        brightness != null) {
+      StatusBarControl.setHidden(false);
+      StatusBarControl.setStyle(
         getStatusBarStyleFromBrightness(brightness!),
       );
       DeviceOrientations.instance.restoreLast();

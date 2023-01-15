@@ -18,13 +18,13 @@
  */
 
 import 'dart:io';
-import 'package:http/http.dart';
-import 'package:flutter/widgets.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// This file mainly contains helper functions for working with the API.
 /// It is not a part of the server's API itself.
@@ -119,9 +119,9 @@ abstract class APIHelpers {
       return null;
     }
 
-    final list = events.toList();
-    list.removeWhere((element) => element.deviceID.toString() != deviceID);
-    for (int i = 0; i < list.length; i++) {
+    final list = events.toList()
+      ..removeWhere((element) => element.deviceID.toString() != deviceID);
+    for (var i = 0; i < list.length; i++) {
       if (list[i].mediaID != null) {
         final thumbnail = await getThumbnailForMediaID(list[i].mediaID!);
         if (thumbnail != null) {

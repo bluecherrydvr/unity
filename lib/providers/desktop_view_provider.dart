@@ -21,9 +21,8 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart'
-    show getVideoPlayerControllerForDevice;
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -41,11 +40,7 @@ class DesktopViewProvider extends ChangeNotifier {
   }
 
   List<Layout> layouts = [
-    const Layout(
-      name: 'Default',
-      devices: [],
-      layoutType: DesktopLayoutType.multipleView,
-    ),
+    const Layout(name: 'Default'),
   ];
   int _currentLayout = 0;
   int get currentLayoutIndex {
@@ -165,7 +160,6 @@ class DesktopViewProvider extends ChangeNotifier {
     await players[device]?.reset();
     await players[device]?.setDataSource(
       device.streamURL,
-      autoPlay: true,
     );
     await players[device]?.setVolume(0.0);
     await players[device]?.setSpeed(1.0);

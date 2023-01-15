@@ -17,14 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/widgets/device_selector_screen.dart';
+import 'package:bluecherry_client/widgets/device_tile.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
-import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/widgets/device_selector_screen.dart';
-import 'package:bluecherry_client/widgets/device_tile.dart';
 
 class DeviceTileSelector extends StatefulWidget {
   final int tab;
@@ -125,13 +124,13 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                 padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
                     child: Icon(<int, IconData>{
                       0: Icons.close_outlined,
                       1: Icons.add_outlined,
                       2: Icons.replay_outlined,
                     }[e.key]!),
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
                   ),
                   title: Text(e.value),
                 ),

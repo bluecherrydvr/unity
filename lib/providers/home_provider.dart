@@ -17,9 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:flutter/foundation.dart';
-
-import 'server_provider.dart';
 
 class HomeProvider extends ChangeNotifier {
   int tab = ServersProvider.instance.serverAdded ? 0 : 3;

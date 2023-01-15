@@ -1,17 +1,15 @@
+import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-import 'package:bluecherry_client/main.dart';
-import 'package:bluecherry_client/models/device.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-
-import 'desktop_buttons.dart';
 
 class SingleCameraWindow extends StatelessWidget {
   final Device device;
@@ -70,7 +68,7 @@ class _CameraViewState extends State<CameraView> {
     controller = UnityVideoPlayer.create();
 
     controller
-      ..setDataSource(widget.device.streamURL, autoPlay: true)
+      ..setDataSource(widget.device.streamURL)
       ..setVolume(0.0)
       ..setSpeed(1.0);
   }

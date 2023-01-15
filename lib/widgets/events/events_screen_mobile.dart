@@ -47,11 +47,11 @@ class EventsScreenMobile extends StatelessWidget {
                 ServersProvider.instance.servers.length.compareTo(1) == 0,
             maintainState: true,
             leading: CircleAvatar(
+              backgroundColor: Colors.transparent,
               child: Icon(
                 Icons.language,
                 color: Theme.of(context).iconTheme.color,
               ),
-              backgroundColor: Colors.transparent,
             ),
             title: Row(children: [
               Expanded(child: Text(server.name)),
@@ -89,22 +89,20 @@ class EventsScreenMobile extends StatelessWidget {
                         subtitle: Text(
                           [
                             event.title.split('event on').first.trim(),
-                            DateFormat(
+                            '${DateFormat(
                                   SettingsProvider.instance.dateFormat.pattern,
-                                ).format(event.updated) +
-                                ' ' +
-                                DateFormat(
+                                ).format(event.updated)} ${DateFormat(
                                   SettingsProvider.instance.timeFormat.pattern,
-                                ).format(event.updated).toUpperCase(),
+                                ).format(event.updated).toUpperCase()}',
                           ].join('\n'),
                           overflow: TextOverflow.ellipsis,
                         ),
                         leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
                           child: Icon(
                             Icons.warning,
                             color: Colors.amber.shade300,
                           ),
-                          backgroundColor: Colors.transparent,
                         ),
                       );
                     }).toList() ??
@@ -117,7 +115,7 @@ class EventsScreenMobile extends StatelessWidget {
                               AppLocalizations.of(context).invalidResponse,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headlineSmall
                                   ?.copyWith(fontSize: 16.0),
                             ),
                           ),
@@ -130,7 +128,7 @@ class EventsScreenMobile extends StatelessWidget {
                               AppLocalizations.of(context).noEventsFound,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5
+                                  .headlineSmall
                                   ?.copyWith(fontSize: 16.0),
                             ),
                           ),

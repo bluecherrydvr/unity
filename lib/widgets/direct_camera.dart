@@ -17,16 +17,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'package:bluecherry_client/api/api.dart';
-import 'package:bluecherry_client/providers/mobile_view_provider.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 
 class DirectCameraScreen extends StatefulWidget {
   const DirectCameraScreen({Key? key}) : super(key: key);
@@ -58,7 +58,6 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -71,7 +70,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
                   AppLocalizations.of(context).noServersAdded,
                   style: Theme.of(context)
                       .textTheme
-                      .headline5
+                      .headlineSmall
                       ?.copyWith(fontSize: 16.0),
                 ),
               ],
@@ -135,8 +134,10 @@ class _DevicesForServer extends StatelessWidget {
         child: Center(
           child: Text(
             AppLocalizations.of(context).noDevices,
-            style:
-                Theme.of(context).textTheme.headline5?.copyWith(fontSize: 16.0),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 16.0),
           ),
         ),
       );
@@ -150,8 +151,16 @@ class _DevicesForServer extends StatelessWidget {
             child: Wrap(
               children: server.devices.map<Widget>((device) {
                 final foregroundColor = device.status
-                    ? Colors.green.shade100
-                    : Colors.red.withOpacity(0.75);
+                    ? colorFromBrightness(
+                        context,
+                        light: Colors.green.shade400,
+                        dark: Colors.green.shade100,
+                      )
+                    : colorFromBrightness(
+                        context,
+                        light: Colors.red.withOpacity(0.75),
+                        dark: Colors.red.shade400,
+                      );
 
                 return Card(
                   child: InkWell(
@@ -168,9 +177,9 @@ class _DevicesForServer extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CircleAvatar(
-                              child: const Icon(Icons.camera_alt),
                               backgroundColor: Colors.transparent,
                               foregroundColor: foregroundColor,
+                              child: const Icon(Icons.camera_alt),
                             ),
                             Text(
                               device.name,
@@ -195,9 +204,9 @@ class _DevicesForServer extends StatelessWidget {
           return ListTile(
             enabled: device.status,
             leading: CircleAvatar(
-              child: const Icon(Icons.camera_alt),
               backgroundColor: Colors.transparent,
               foregroundColor: Theme.of(context).iconTheme.color,
+              child: const Icon(Icons.camera_alt),
             ),
             title: Text(
               device.name.uppercaseFirst(),
@@ -216,7 +225,7 @@ class _DevicesForServer extends StatelessWidget {
     });
   }
 
-  void onTap(BuildContext context, Device device) async {
+  Future<void> onTap(BuildContext context, Device device) async {
     final player = getVideoPlayerControllerForDevice(
       device,
     );

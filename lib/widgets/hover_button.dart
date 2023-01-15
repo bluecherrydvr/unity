@@ -113,7 +113,7 @@ class HoverButton extends StatefulWidget {
   final bool focusEnabled;
 
   @override
-  _HoverButtonState createState() => _HoverButtonState();
+  State<HoverButton> createState() => _HoverButtonState();
 }
 
 class _HoverButtonState extends State<HoverButton> {
@@ -126,7 +126,7 @@ class _HoverButtonState extends State<HoverButton> {
   void initState() {
     super.initState();
     node = widget.focusNode ?? _createFocusNode();
-    void handleActionTap() async {
+    Future<void> handleActionTap() async {
       if (!enabled) return;
       setState(() => _pressing = true);
       widget.onPressed?.call();
@@ -253,7 +253,6 @@ class _HoverButtonState extends State<HoverButton> {
     } else {
       w = MouseRegion(
         cursor: widget.cursor ?? MouseCursor.defer,
-        opaque: true,
         onEnter: (e) {
           if (mounted) setState(() => _hovering = true);
         },
@@ -334,8 +333,8 @@ class _LerpProperties<T> implements ButtonState<T?> {
 
   @override
   T? resolve(Set<ButtonStates> states) {
-    final T? resolvedA = a?.resolve(states);
-    final T? resolvedB = b?.resolve(states);
+    final resolvedA = a?.resolve(states);
+    final resolvedB = b?.resolve(states);
     return lerpFunction(resolvedA, resolvedB, t);
   }
 }

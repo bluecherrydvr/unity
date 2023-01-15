@@ -203,7 +203,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
 
     final view = context.read<DesktopViewProvider>();
 
-    const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 16.0);
+    const padding = EdgeInsets.symmetric(horizontal: 16.0);
 
     final renderBox = context.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset(
@@ -251,7 +251,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               var player = view.players[widget.device];
-              bool isLocalController = false;
+              var isLocalController = false;
               if (player == null) {
                 player = getVideoPlayerControllerForDevice(widget.device);
                 isLocalController = true;

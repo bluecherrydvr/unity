@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -101,8 +101,6 @@ class DesktopAppBar extends StatelessWidget {
                   child: SizedBox(
                     height: kDesktopAppBarHeight,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         leading ??
                             NavigatorPopButton(
@@ -119,7 +117,7 @@ class DesktopAppBar extends StatelessWidget {
                           Text(
                             title!,
                             style:
-                                Theme.of(context).textTheme.headline1?.copyWith(
+                                Theme.of(context).textTheme.displayLarge?.copyWith(
                                     color: color != null
                                         ? isDark
                                             ? Colors.white
@@ -343,10 +341,10 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       key: key,
-      child: child,
       onTap: _onTap,
       onTapDown: _onTapDown,
       onTapCancel: _onTapCancel,
+      child: child,
     );
   }
 }
@@ -377,7 +375,6 @@ class CorrectedListTile extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               margin: const EdgeInsetsDirectional.only(end: 16.0),
@@ -393,14 +390,14 @@ class CorrectedListTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   if (subtitle != null) const SizedBox(height: 4.0),
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                            color: Theme.of(context).textTheme.caption?.color,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -440,8 +437,8 @@ class SubHeader extends StatelessWidget {
         children: [
           Text(
             text.toUpperCase(),
-            style: Theme.of(context).textTheme.overline?.copyWith(
-                  color: Theme.of(context).textTheme.headline3?.color,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
                   fontSize: 12.0,
                   fontWeight: FontWeight.w600,
                 ),
@@ -449,7 +446,7 @@ class SubHeader extends StatelessWidget {
           if (subtext != null)
             Text(
               subtext!.toUpperCase(),
-              style: Theme.of(context).textTheme.overline?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).hintColor,
                     fontSize: 10.0,
                     fontWeight: FontWeight.w600,

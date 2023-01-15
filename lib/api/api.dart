@@ -18,14 +18,14 @@
  */
 
 import 'dart:convert';
-import 'package:http/http.dart';
-import 'package:flutter/rendering.dart';
-import 'package:xml2json/xml2json.dart';
 
+import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/api/api_helpers.dart';
+import 'package:flutter/rendering.dart';
+import 'package:http/http.dart';
+import 'package:xml2json/xml2json.dart';
 
 class API {
   static final API instance = API();
@@ -77,8 +77,7 @@ class API {
           'Cookie': server.cookie!,
         },
       );
-      final parser = Xml2Json();
-      parser.parse(response.body);
+      final parser = Xml2Json()..parse(response.body);
       server.devices.clear();
       server.devices.addAll(
         jsonDecode(parser.toParker())['devices']['device']
@@ -127,8 +126,7 @@ class API {
           'Cookie': server.cookie!,
         },
       );
-      final parser = Xml2Json();
-      parser.parse(response.body);
+      final parser = Xml2Json()..parse(response.body);
       return jsonDecode(parser.toGData())['feed']['entry'].map((e) {
         debugPrint(e.toString());
         return Event(
@@ -204,7 +202,7 @@ class API {
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
       final response = await post(
-        Uri.parse(uri! + 'store-token'),
+        Uri.parse('${uri!}store-token'),
         headers: {
           'Cookie': server.cookie!,
           'Content-Type': 'application/json',
@@ -245,7 +243,7 @@ class API {
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
       final response = await post(
-        Uri.parse(uri! + 'remove-token'),
+        Uri.parse('${uri!}remove-token'),
         headers: {
           'Cookie': server.cookie!,
           'Content-Type': 'application/json',

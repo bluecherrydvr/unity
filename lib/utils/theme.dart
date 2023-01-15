@@ -45,57 +45,57 @@ const kAccentColorDark = Color(0xffff4081);
 ThemeData createTheme({
   required ThemeMode themeMode,
 }) {
-  bool light = themeMode == ThemeMode.light;
+  final light = themeMode == ThemeMode.light;
   final primary = light ? kPrimaryColorLight : kPrimaryColorDark;
   final accent = light ? kAccentColorLight : kAccentColorDark;
   late TextTheme textTheme;
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     textTheme = TextTheme(
       /// Leading tile widgets text theme.
-      headline1: TextStyle(
+      displayLarge: TextStyle(
         color: light ? Colors.black : Colors.white,
         fontSize: 16.0,
         fontWeight: FontWeight.w600,
       ),
 
       /// [AlbumTile] text theme.
-      headline2: TextStyle(
+      displayMedium: TextStyle(
         color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.w600,
       ),
-      headline3: TextStyle(
+      displaySmall: TextStyle(
         color: light
             ? Colors.black.withOpacity(0.70)
             : Colors.white.withOpacity(0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
-      headline4: TextStyle(
+      headlineMedium: TextStyle(
         color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
-      headline5: TextStyle(
+      headlineSmall: TextStyle(
         color: light
             ? Colors.black.withOpacity(0.70)
             : Colors.white.withOpacity(0.70),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
-      subtitle1: TextStyle(
+      titleMedium: TextStyle(
         color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
         fontWeight: FontWeight.w600,
       ),
-      bodyText2: TextStyle(
+      bodyMedium: TextStyle(
         color: light
             ? Colors.black.withOpacity(0.70)
             : Colors.white.withOpacity(0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
-      caption: TextStyle(
+      bodySmall: TextStyle(
         color: light
             ? Colors.black.withOpacity(0.70)
             : Colors.white.withOpacity(0.70),
@@ -105,33 +105,42 @@ ThemeData createTheme({
     );
   } else {
     textTheme = TextTheme(
-      headline1: TextStyle(
+      displayLarge: TextStyle(
         fontWeight: FontWeight.normal,
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 18.0,
       ),
-      headline2: TextStyle(
+      displayMedium: TextStyle(
         fontWeight: FontWeight.normal,
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 16.0,
       ),
-      headline3: TextStyle(
+      displaySmall: TextStyle(
         fontWeight: FontWeight.normal,
         color: light ? Colors.black87 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
-      headline4: TextStyle(
+      headlineMedium: TextStyle(
         fontWeight: FontWeight.normal,
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontSize: 14.0,
       ),
-      headline5: TextStyle(
+      headlineSmall: TextStyle(
         fontWeight: FontWeight.normal,
         color: light ? Colors.black54 : Colors.white.withOpacity(0.54),
         fontSize: 14.0,
       ),
     );
   }
+
+  final colorScheme = ColorScheme.fromSeed(
+    brightness: light ? Brightness.light : Brightness.dark,
+    seedColor: primary,
+    secondary: accent,
+    // cardColor: light ? Colors.white : const Color(0xFF242424),
+    // primaryColorDark: kPrimaryColorDark,
+    // accentColor: accent,
+  );
 
   return ThemeData(
     useMaterial3: true,
@@ -198,12 +207,12 @@ ThemeData createTheme({
     primaryColorLight: primary,
     primaryColor: primary,
     primaryColorDark: primary,
-    scaffoldBackgroundColor: light ? Colors.white : const Color(0xFF121212),
-    toggleableActiveColor: primary,
+    scaffoldBackgroundColor:
+        light ? Colors.white.withOpacity(0.87) : const Color(0xFF121212),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: light ? const Color(0xFF202020) : Colors.white,
       actionTextColor: primary,
-      contentTextStyle: textTheme.headline4?.copyWith(
+      contentTextStyle: textTheme.headlineMedium?.copyWith(
         color: light ? Colors.white : Colors.black,
       ),
     ),
@@ -218,10 +227,6 @@ ThemeData createTheme({
         ),
       ),
     ),
-    cardTheme: CardTheme(
-      color: light ? Colors.white : const Color(0xFF242424),
-    ),
-    backgroundColor: primary.withOpacity(0.24),
     dividerColor: light ? Colors.black12 : Colors.white24,
     disabledColor: light ? Colors.black38 : Colors.white38,
     tabBarTheme: TabBarTheme(
@@ -236,8 +241,8 @@ ThemeData createTheme({
     drawerTheme: DrawerThemeData(
       backgroundColor: light ? Colors.white : const Color(0xFF141414),
     ),
+    splashColor: primary.withOpacity(0.15),
     appBarTheme: AppBarTheme(
-      backgroundColor: light ? Colors.white : const Color(0xFF202020),
       surfaceTintColor: light ? Colors.white : const Color(0xFF202020),
       shadowColor: light ? Colors.white : const Color(0xFF202020),
       systemOverlayStyle: SystemUiOverlayStyle(
@@ -265,7 +270,7 @@ ThemeData createTheme({
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
       size: 24,
     ),
-    dialogBackgroundColor: light ? Colors.white : const Color(0xFF202020),
+    // dialogBackgroundColor: light ? Colors.white : const Color(0xFF202020),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: light ? primary : const Color(0xFF272727),
       selectedItemColor: Colors.white.withOpacity(0.87),
@@ -273,13 +278,6 @@ ThemeData createTheme({
     ),
     textTheme: textTheme,
     primaryTextTheme: textTheme,
-    colorScheme: ColorScheme.fromSwatch(
-      brightness: light ? Brightness.light : Brightness.dark,
-      cardColor: light ? Colors.white : const Color(0xFF242424),
-    ).copyWith(
-      primary: primary,
-      secondary: accent,
-    ),
     tooltipTheme: TooltipThemeData(
       textStyle: Platform.isWindows || Platform.isLinux || Platform.isMacOS
           ? TextStyle(
@@ -302,5 +300,67 @@ ThemeData createTheme({
       waitDuration: const Duration(seconds: 1),
     ),
     fontFamily: Platform.isLinux ? 'Inter' : null,
+    checkboxTheme: CheckboxThemeData(
+      fillColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        }
+        if (states.contains(MaterialState.selected)) {
+          return primary;
+        }
+        return null;
+      }),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        }
+        if (states.contains(MaterialState.selected)) {
+          return primary;
+        }
+        return null;
+      }),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        }
+        if (states.contains(MaterialState.selected)) {
+          return primary;
+        }
+        return null;
+      }),
+      trackColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        }
+        if (states.contains(MaterialState.selected)) {
+          return primary;
+        }
+        return null;
+      }),
+    ),
+    colorScheme: colorScheme,
   );
+}
+
+/// Returns either [dark] or [light] colors based on the brightness of the current
+/// theme
+Color colorFromBrightness(
+  BuildContext context, {
+  required Color light,
+  required Color dark,
+}) {
+  switch (Theme.of(context).brightness) {
+    case Brightness.dark:
+      return dark;
+    case Brightness.light:
+      return light;
+  }
 }

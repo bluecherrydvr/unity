@@ -48,12 +48,12 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       FadeThroughTransition(
                 animation: primaryAnimation,
                 secondaryAnimation: secondaryAnimation,
-                child: child,
                 fillColor: Colors.black,
+                child: child,
               ),
             ),
           ),
-        Container(
+        DecoratedBox(
           decoration: const BoxDecoration(
             boxShadow: [
               BoxShadow(color: Colors.black45, blurRadius: 8.0),
@@ -83,6 +83,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
+                          color: Colors.white,
                           child: Container(
                             height: 40.0,
                             width: 40.0,
@@ -91,13 +92,6 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                               height: 28.0,
                               width: 28.0,
                               alignment: AlignmentDirectional.center,
-                              child: Text(
-                                e.toString(),
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18.0,
-                                ),
-                              ),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Theme.of(context).primaryColor,
@@ -105,9 +99,15 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                                 ),
                                 borderRadius: BorderRadius.circular(14.0),
                               ),
+                              child: Text(
+                                '$e',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                ),
+                              ),
                             ),
                           ),
-                          color: Colors.white,
                         )
                       : Text(
                           e.toString(),
@@ -125,7 +125,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       icon: child,
                     ),
                   );
-                }).toList(),
+                }),
               ]),
             ),
           ),
@@ -203,12 +203,9 @@ class _MobileDeviceGridChild extends StatelessWidget {
                       MediaQuery.of(context).padding.bottom),
             }
           }[tab]!,
-          mainAxisSpacing: 0.0,
-          crossAxisSpacing: 0.0,
           padding: EdgeInsets.zero,
           onReorder: (initial, end) => view.reorder(tab, initial, end),
           children: children,
-          dragStartBehavior: DragStartBehavior.start,
         ),
       );
     });

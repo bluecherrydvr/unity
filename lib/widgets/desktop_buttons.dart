@@ -109,7 +109,6 @@ class _WindowButtonsState extends State<WindowButtons> {
         // );
 
         return Material(
-          elevation: 0.0,
           color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [
             Row(children: [
@@ -207,30 +206,31 @@ class _WindowButtonsState extends State<WindowButtons> {
                 ),
               ),
             ]),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                ...navigatorData(context).entries.map((entry) {
-                  final icon = entry.key;
-                  final text = entry.value;
-                  final index =
-                      navigatorData(context).keys.toList().indexOf(icon);
+            if (!canPop && widget.showNavigator)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  ...navigatorData(context).entries.map((entry) {
+                    final icon = entry.key;
+                    final text = entry.value;
+                    final index =
+                        navigatorData(context).keys.toList().indexOf(icon);
 
-                  return IconButton(
-                    icon: Icon(
-                      icon,
-                      color: home.tab == index
-                          ? theme.primaryColor
-                          : theme.hintColor,
-                    ),
-                    iconSize: 22.0,
-                    tooltip: text,
-                    onPressed: () => home.setTab(index),
-                  );
-                }),
-              ]),
-            ),
+                    return IconButton(
+                      icon: Icon(
+                        icon,
+                        color: home.tab == index
+                            ? theme.primaryColor
+                            : theme.hintColor,
+                      ),
+                      iconSize: 22.0,
+                      tooltip: text,
+                      onPressed: () => home.setTab(index),
+                    );
+                  }),
+                ]),
+              ),
           ]),
         );
       },

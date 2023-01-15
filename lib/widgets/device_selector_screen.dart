@@ -17,12 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DeviceSelectorScreen extends StatefulWidget {
   const DeviceSelectorScreen({
@@ -44,7 +43,6 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -57,7 +55,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                   AppLocalizations.of(context).noServersAdded,
                   style: Theme.of(context)
                       .textTheme
-                      .headline5
+                      .headlineSmall
                       ?.copyWith(fontSize: 16.0),
                 ),
               ],
@@ -87,10 +85,10 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                           return ListTile(
                             enabled: server.devices[index].status,
                             leading: CircleAvatar(
-                              child: const Icon(Icons.camera_alt),
                               backgroundColor: Colors.transparent,
                               foregroundColor:
                                   Theme.of(context).iconTheme.color,
+                              child: const Icon(Icons.camera_alt),
                             ),
                             title: Text(
                               server.devices[index].name

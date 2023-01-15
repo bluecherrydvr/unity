@@ -40,7 +40,7 @@ class EventsScreenDesktop extends StatelessWidget {
     final theme = Theme.of(context);
 
     final now = DateTime.now();
-    final int hourRange = {
+    final hourRange = {
       EventsTimeFilter.last12Hours: 12,
       EventsTimeFilter.last24Hours: 24,
       EventsTimeFilter.last6Hours: 6,
@@ -156,9 +156,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // date
                 DataCell(
                   Text(
-                    dateFormatter.format(event.updated) +
-                        ' ' +
-                        timeFormatter.format(event.updated).toUpperCase(),
+                    '${dateFormatter.format(event.updated)} ${timeFormatter.format(event.updated).toUpperCase()}',
                   ),
                 ),
               ],

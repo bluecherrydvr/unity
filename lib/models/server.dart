@@ -20,7 +20,6 @@
 import 'package:bluecherry_client/models/device.dart';
 
 /// A [Server] added by a user.
-///
 class Server {
   final String name;
   final String ip;
@@ -117,7 +116,11 @@ class Server {
         json['port'],
         json['login'],
         json['password'],
-        json['devices'].map((e) => Device.fromJson(e)).toList().cast<Device>(),
+        (json['devices'] as List)
+            .cast<Map<String, dynamic>>()
+            .map(Device.fromJson)
+            .toList()
+            .cast<Device>(),
         rtspPort: json['rtspPort'],
         serverUUID: json['serverUUID'],
         cookie: json['cookie'],

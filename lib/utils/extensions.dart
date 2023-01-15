@@ -45,11 +45,11 @@ extension DurationExtension on Duration {
 
   String humanReadable(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final String hours = twoDigits(inHours);
-    final String minutes = twoDigits(inMinutes.remainder(60));
-    final String seconds = twoDigits(inSeconds.remainder(60));
+    final hours = twoDigits(inHours);
+    final minutes = twoDigits(inMinutes.remainder(60));
+    final seconds = twoDigits(inSeconds.remainder(60));
 
-    List<String> finalStrings = [];
+    final finalStrings = <String>[];
 
     final localizations = AppLocalizations.of(context);
 
@@ -70,11 +70,11 @@ extension DurationExtension on Duration {
 
   String humanReadableCompact(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final String hours = twoDigits(inHours);
-    final String minutes = twoDigits(inMinutes.remainder(60));
-    final String seconds = twoDigits(inSeconds.remainder(60));
+    final hours = twoDigits(inHours);
+    final minutes = twoDigits(inMinutes.remainder(60));
+    final seconds = twoDigits(inSeconds.remainder(60));
 
-    List<String> finalStrings = [];
+    final finalStrings = <String>[];
 
     final localizations = AppLocalizations.of(context);
 
@@ -90,7 +90,7 @@ extension DurationExtension on Duration {
       finalStrings.add(localizations.secondsCompact(seconds));
     }
 
-    return finalStrings.join('');
+    return finalStrings.join();
   }
 }
 

@@ -54,31 +54,60 @@ jobs:
             bluecherry-android-x86_64-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # TODO: Desktop implementations needs work. Adaptive UI, as the current desktop client.
-  #
-  # build_windows:
-  #   name: Bluecherry Client Windows
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         submodules: recursive
-  #     - uses: subosito/flutter-action@v1
-  #       with:
-  #         channel: "stable"
-  #     - run: flutter config --enable-windows-desktop
-  #     - run: flutter pub get
-  #     - run: flutter build windows
-  #     - run: cp -r build/windows/runner/Release bluecherry-client-windows-exe
-  #     - run: tar.exe -a -c -f bluecherry-client-windows-exe.zip bluecherry-client-windows-exe
-  #     - name: Release
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         draft: true
-  #         prerelease: false
-  #         body: ""
-  #         tag_name: "vnext"
-  #         files: |
-  #           bluecherry-client-windows-exe.zip
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+  build_windows:
+    name: Bluecherry Client Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Checkout fred
+        uses: actions/checkout@v2
+        with:
+          repository: 'freenet/fred'
+          fetch-depth: 0
+          path: 'fred'
+
+      - name: Download fred from the Github Release
+        uses: i3h/download-release-asset@v1.1.0
+        with:
+          owner: "freenet"
+          repo: "fred"
+          tag: "latest"
+          file: "freenet.jar"
+
+      - uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: unzip
+
+      - uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: updateSetupFile
+
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - run: dart pub global activate intl_utils 2.1.0
+      - run: flutter gen-l10n
+      - run: flutter pub upgrade
+      - run: flutter pub get
+      - run: flutter build windows
+
+      - name: Building the installer
+        run: |
+          "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/installer-test.iss"
+        shell: cmd
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "vnextw"
+          files: |
+            installer\Output\bluecherry-dvr-setup.exe
+          token: ${{ secrets.GITHUB_TOKEN }}

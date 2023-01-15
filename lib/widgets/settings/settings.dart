@@ -17,20 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:unity_video_player/unity_video_player.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'date_format_section.dart';
 part 'server_tile.dart';
@@ -73,7 +72,6 @@ class _SettingsState extends State<Settings> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: isDesktop
           ? null
           : AppBar(
@@ -98,13 +96,13 @@ class _SettingsState extends State<Settings> {
             delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
               return ListTile(
                 leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Theme.of(context).iconTheme.color,
                   child: Icon({
                     ThemeMode.system: Icons.brightness_auto,
                     ThemeMode.light: Icons.light_mode,
                     ThemeMode.dark: Icons.dark_mode,
                   }[e]!),
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
                 ),
                 onTap: () {
                   settings.themeMode = e;
@@ -202,11 +200,11 @@ class _SettingsState extends State<Settings> {
                 ),
                 title:
                     Text(AppLocalizations.of(context).notificationClickAction),
-                textColor: Theme.of(context).textTheme.bodyText1?.color,
+                textColor: Theme.of(context).textTheme.bodyLarge?.color,
                 subtitle: Text(
                   settings.notificationClickAction.str(context),
-                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                        color: Theme.of(context).textTheme.caption?.color,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
                 ),
                 children: NotificationClickAction.values.map((e) {
@@ -239,11 +237,11 @@ class _SettingsState extends State<Settings> {
                   child: const Icon(Icons.camera_alt),
                 ),
                 title: Text(AppLocalizations.of(context).cameraViewFit),
-                textColor: Theme.of(context).textTheme.bodyText1?.color,
+                textColor: Theme.of(context).textTheme.bodyLarge?.color,
                 subtitle: Text(
                   settings.cameraViewFit.str(context),
-                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                        color: Theme.of(context).textTheme.caption?.color,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
                 ),
                 children: UnityVideoFit.values.map((e) {
@@ -318,12 +316,12 @@ class _SettingsState extends State<Settings> {
                   const SizedBox(height: 8.0),
                   Text(
                     kAppVersion,
-                    style: Theme.of(context).textTheme.headline2,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8.0),
                   Text(
                     AppLocalizations.of(context).versionText,
-                    style: Theme.of(context).textTheme.headline2,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8.0),
                   MaterialButton(
@@ -361,14 +359,15 @@ Widget SubHeader(String text) {
   return SliverToBoxAdapter(
     child: Builder(builder: (context) {
       return Material(
+        type: MaterialType.transparency,
         child: Container(
           height: 56.0,
           alignment: AlignmentDirectional.centerStart,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             text.toUpperCase(),
-            style: Theme.of(context).textTheme.overline?.copyWith(
-                  color: Theme.of(context).textTheme.headline3?.color,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
                   fontSize: 12.0,
                   fontWeight: FontWeight.w600,
                 ),

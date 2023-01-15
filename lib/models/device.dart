@@ -21,7 +21,7 @@ import 'package:bluecherry_client/models/server.dart';
 
 /// A [Device] present on a server.
 class Device {
-  /// Name of the device device.
+  /// Name of the device.
   final String name;
 
   /// [Uri] to the RTSP stream associated with the device.
@@ -112,7 +112,7 @@ class Device {
       json['status'],
       json['resolutionX'],
       json['resolutionY'],
-      Server.fromJson(json['server']),
+      Server.fromJson(json['server'] as Map<String, dynamic>),
     );
   }
 }

@@ -34,7 +34,12 @@ import 'package:provider/provider.dart';
 const _kDownloadsManagerPadding = 14.0;
 
 class DownloadsManagerScreen extends StatelessWidget {
-  const DownloadsManagerScreen({Key? key}) : super(key: key);
+  final int? initiallyExpandedEventId;
+
+  const DownloadsManagerScreen({
+    Key? key,
+    this.initiallyExpandedEventId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,7 @@ class DownloadsManagerScreen extends StatelessWidget {
                     event: event,
                     size: size,
                     progress: progress,
+                    initiallyExpanded: initiallyExpandedEventId == event.id,
                   );
                 },
               ),
@@ -88,6 +94,7 @@ class DownloadsManagerScreen extends StatelessWidget {
                   event: de.event,
                   size: size,
                   downloadPath: de.downloadPath,
+                  initiallyExpanded: initiallyExpandedEventId == de.event.id,
                 );
               },
             ),
@@ -98,32 +105,53 @@ class DownloadsManagerScreen extends StatelessWidget {
   }
 }
 
-class DownloadTile extends StatelessWidget {
+class DownloadTile extends StatefulWidget {
   const DownloadTile({
     Key? key,
-    required this.event,
     required this.size,
+    required this.event,
     this.progress = 1.0,
     this.downloadPath,
+    this.initiallyExpanded = true,
   }) : super(key: key);
 
   final Size size;
   final Event event;
   final double progress;
   final String? downloadPath;
-
-  /// Whether the event is fully downloaded
-  bool get isDownloaded => progress == 1.0 && downloadPath != null;
+  final bool initiallyExpanded;
 
   static const _breakpoint = 500.0;
+
+  @override
+  State<DownloadTile> createState() => _DownloadTileState();
+}
+
+class _DownloadTileState extends State<DownloadTile> {
+  /// Whether the event is fully downloaded
+  bool get isDownloaded =>
+      widget.progress == 1.0 && widget.downloadPath != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initiallyExpanded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        Scrollable.ensureVisible(context);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
-    final parsedCategory = event.category?.split('/');
+    final parsedCategory = widget.event.category?.split('/');
     final eventType = (parsedCategory?.last ?? '').uppercaseFirst();
-    final at = SettingsProvider.instance.dateFormat.format(event.published);
+    final at =
+        SettingsProvider.instance.dateFormat.format(widget.event.published);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
@@ -144,6 +172,7 @@ class DownloadTile extends StatelessWidget {
             clipBehavior: Clip.hardEdge,
             shape: shape,
             collapsedShape: shape,
+            initiallyExpanded: widget.initiallyExpanded,
             title: Row(children: [
               SizedBox(
                 width: 40.0,
@@ -159,15 +188,15 @@ class DownloadTile extends StatelessWidget {
                     );
                   }
 
-                  return DownloadProgressIndicator(progress: progress);
+                  return DownloadProgressIndicator(progress: widget.progress);
                 }(),
               ),
               Expanded(
                 child: Text(
                   loc.downloadTitle(
                     eventType,
-                    event.deviceName,
-                    event.server.name,
+                    widget.event.deviceName,
+                    widget.event.server.name,
                     at,
                   ),
                 ),
@@ -182,14 +211,14 @@ class DownloadTile extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: Flex(
-                  direction: size.width >= _breakpoint
+                  direction: widget.size.width >= DownloadTile._breakpoint
                       ? Axis.horizontal
                       : Axis.vertical,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     wrapExpandedIf(
-                      size.width >= _breakpoint,
+                      widget.size.width >= DownloadTile._breakpoint,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,9 +246,9 @@ class DownloadTile extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(eventType),
-                                Text(event.deviceName),
-                                Text(event.server.name),
-                                Text(event.mediaDuration
+                                Text(widget.event.deviceName),
+                                Text(widget.event.server.name),
+                                Text(widget.event.mediaDuration
                                         ?.humanReadable(context) ??
                                     '--'),
                                 Text(at),
@@ -232,7 +261,7 @@ class DownloadTile extends StatelessWidget {
                     const SizedBox(height: 12.0),
                     Center(
                       child: Flex(
-                        direction: size.width >= _breakpoint
+                        direction: widget.size.width >= DownloadTile._breakpoint
                             ? Axis.vertical
                             : Axis.horizontal,
                         mainAxisSize: MainAxisSize.min,
@@ -240,7 +269,8 @@ class DownloadTile extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           wrapTooltipIf(
-                            isDownloaded && size.width < _breakpoint,
+                            isDownloaded &&
+                                widget.size.width < DownloadTile._breakpoint,
                             preferBelow: false,
                             message: loc.play,
                             child: TextButton(
@@ -248,14 +278,15 @@ class DownloadTile extends StatelessWidget {
                                   ? () {
                                       Navigator.of(context).pushNamed(
                                         '/events',
-                                        arguments: event,
+                                        arguments: widget.event,
                                       );
                                     }
                                   : null,
                               child: Row(
                                 children: [
                                   const Icon(Icons.play_arrow, size: 20.0),
-                                  if (size.width >= _breakpoint) ...[
+                                  if (widget.size.width >=
+                                      DownloadTile._breakpoint) ...[
                                     const SizedBox(width: 8.0),
                                     Text(loc.play),
                                   ],
@@ -268,7 +299,7 @@ class DownloadTile extends StatelessWidget {
                                 ? () {
                                     context
                                         .read<DownloadsManager>()
-                                        .delete(downloadPath!);
+                                        .delete(widget.downloadPath!);
                                   }
                                 : null,
                             child: Row(children: [
@@ -282,7 +313,7 @@ class DownloadTile extends StatelessWidget {
                               onPressed: isDownloaded
                                   ? () {
                                       launchFileExplorer(
-                                        File(downloadPath!).parent.path,
+                                        File(widget.downloadPath!).parent.path,
                                       );
                                     }
                                   : null,
@@ -367,7 +398,7 @@ class DownloadIndicator extends StatelessWidget {
         if (downloads.isEventDownloaded(event.id)) {
           return IconButton(
             onPressed: () {
-              context.read<HomeProvider>().setTab(UnityTab.downloads.index);
+              context.read<HomeProvider>().toDownloads(event.id);
             },
             tooltip: AppLocalizations.of(context).seeInDownloads,
             icon: const Icon(

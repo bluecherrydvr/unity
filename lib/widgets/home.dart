@@ -163,7 +163,10 @@ class _MobileHomeState extends State<MobileHome> {
                               }
                             },
                           ),
-                      UnityTab.downloads: () => const DownloadsManagerScreen(),
+                      UnityTab.downloads: () => DownloadsManagerScreen(
+                            initiallyExpandedEventId:
+                                home.initiallyExpandedDownloadEventId,
+                          ),
                       UnityTab.settings: () =>
                           Settings(changeCurrentTab: home.setTab),
                     }[UnityTab.values[tab]]!(),

@@ -30,10 +30,24 @@ enum UnityTab {
 }
 
 class HomeProvider extends ChangeNotifier {
-  int tab = ServersProvider.instance.serverAdded ? 0 : 3;
+  int tab = ServersProvider.instance.serverAdded
+      ? UnityTab.deviceGrid.index
+      : UnityTab.addServer.index;
 
   void setTab(int tab) {
     this.tab = tab;
+
+    if (tab != UnityTab.downloads.index) {
+      initiallyExpandedDownloadEventId = null;
+    }
+
     notifyListeners();
+  }
+
+  int? initiallyExpandedDownloadEventId;
+  void toDownloads(int eventId) {
+    initiallyExpandedDownloadEventId = eventId;
+
+    setTab(UnityTab.downloads.index);
   }
 }

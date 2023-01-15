@@ -16,8 +16,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.0.5"
-          channel: "stable"
+          channel: "master"
       # TODO: Signing Android application.
       # - name: Create Key Store
       #   id: create_key_store
@@ -79,17 +78,9 @@ jobs:
           tag: "latest"
           file: "freenet.jar"
 
-      - uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: unzip
-
-      - uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: updateSetupFile
-
       - uses: subosito/flutter-action@v1
         with:
-          channel: "stable"
+          channel: "master"
       - run: dart pub global activate intl_utils 2.1.0
       - run: flutter gen-l10n
       - run: flutter pub upgrade

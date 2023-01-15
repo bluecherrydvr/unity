@@ -66,6 +66,13 @@
   "addServer": "Add Server",
   "settings": "Settings",
   "noServersAdded": "No servers added",
+  "editServerInfo": "Edit server info",
+  "editServer": "Edit server {serverName}",
+  "@editServer": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
   "pressBackAgainToExit": "Press back button again to exit",
   "servers": "Servers",
   "dateFormat": "Date Format",

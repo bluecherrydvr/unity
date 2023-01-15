@@ -331,10 +331,35 @@ class _ServerCardState extends State<ServerCard> {
               splashRadius: 16.0,
               position: PopupMenuPosition.under,
               offset: const Offset(-128, 4.0),
-              constraints: const BoxConstraints(maxWidth: 160.0),
+              constraints: const BoxConstraints(maxWidth: 180.0),
               tooltip: AppLocalizations.of(context).serverOptions,
               itemBuilder: (context) {
                 return [
+                  PopupMenuItem(
+                    child: Text(AppLocalizations.of(context).editServerInfo),
+                    onTap: () {
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        final server = widget.server;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text(
+                                AppLocalizations.of(context).editServer(
+                                  server.name,
+                                ),
+                              ),
+                              content: EditServer(
+                                serverIp: server.ip,
+                                serverPort: server.port,
+                              ),
+                            );
+                          },
+                        );
+                      });
+                    },
+                  ),
                   PopupMenuItem(
                     child: Text(AppLocalizations.of(context).disconnectServer),
                     onTap: () {

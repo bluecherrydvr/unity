@@ -23,6 +23,28 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+Future<void> showEditServer(BuildContext context, Server server) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(
+          AppLocalizations.of(context).editServer(
+            server.name,
+          ),
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 300.0),
+          child: EditServer(
+            serverIp: server.ip,
+            serverPort: server.port,
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class EditServer extends StatefulWidget {
   final String serverIp;
   final int serverPort;
@@ -189,6 +211,14 @@ class _EditServerState extends State<EditServer> {
           Align(
             alignment: AlignmentDirectional.bottomEnd,
             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              MaterialButton(
+                onPressed: Navigator.of(context).pop,
+                textColor: Theme.of(context).colorScheme.secondary,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(8.0),
+                  child: Text(AppLocalizations.of(context).cancel),
+                ),
+              ),
               MaterialButton(
                 onPressed: disableFinishButton ? null : update,
                 textColor: Theme.of(context).colorScheme.secondary,

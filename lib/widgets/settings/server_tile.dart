@@ -221,9 +221,13 @@ class _ServerTileState extends State<ServerTile> {
         icon: const Icon(
           Icons.delete,
         ),
+        tooltip: AppLocalizations.of(context).disconnectServer,
         splashRadius: 24.0,
         onPressed: () => widget.onRemoveServer(context, widget.server),
       ),
+      onTap: () {
+        showEditServer(context, widget.server);
+      },
     );
   }
 }
@@ -339,24 +343,7 @@ class _ServerCardState extends State<ServerCard> {
                     child: Text(AppLocalizations.of(context).editServerInfo),
                     onTap: () {
                       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                        final server = widget.server;
-
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text(
-                                AppLocalizations.of(context).editServer(
-                                  server.name,
-                                ),
-                              ),
-                              content: EditServer(
-                                serverIp: server.ip,
-                                serverPort: server.port,
-                              ),
-                            );
-                          },
-                        );
+                        if (mounted) showEditServer(context, widget.server);
                       });
                     },
                   ),

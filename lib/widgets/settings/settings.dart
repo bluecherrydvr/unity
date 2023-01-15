@@ -328,10 +328,7 @@ class _SettingsState extends State<Settings> {
                   MaterialButton(
                     onPressed: () {
                       launchUrl(
-                        Uri.https(
-                          'www.bluecherrydvr.com',
-                          '/',
-                        ),
+                        Uri.https('www.bluecherrydvr.com', '/'),
                         mode: LaunchMode.externalApplication,
                       );
                     },

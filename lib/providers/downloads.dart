@@ -112,10 +112,13 @@ class DownloadsManager extends ChangeNotifier {
   Future<void> _restore({bool notifyListeners = true}) async {
     final instance = await Hive.openBox('hive');
 
-    downloadedEvents =
-        ((jsonDecode(instance.get(kHiveDownloads)) ?? []) as List)
-            .cast<Map>()
-            .map<DownloadedEvent>((item) {
+    downloadedEvents = ((await compute(
+              jsonDecode,
+              instance.get(kHiveDownloads) as String,
+            ) ??
+            []) as List)
+        .cast<Map>()
+        .map<DownloadedEvent>((item) {
       return DownloadedEvent.fromJson(item.cast<String, dynamic>());
     }).toList();
 

@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -49,7 +50,7 @@ ThemeData createTheme({
   final primary = light ? kPrimaryColorLight : kPrimaryColorDark;
   final accent = light ? kAccentColorLight : kAccentColorDark;
   late TextTheme textTheme;
-  if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+  if (isDesktop) {
     textTheme = TextTheme(
       /// Leading tile widgets text theme.
       displayLarge: TextStyle(
@@ -141,6 +142,7 @@ ThemeData createTheme({
 
   return ThemeData(
     useMaterial3: true,
+    colorScheme: colorScheme,
 
     // ignore: deprecated_member_use
     androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
@@ -175,9 +177,10 @@ ThemeData createTheme({
     ),
     buttonTheme:
         ButtonThemeData(disabledColor: light ? Colors.black12 : Colors.white24),
-    splashFactory:
-        Platform.isAndroid ? InkSparkle.splashFactory : InkRipple.splashFactory,
-    highlightColor: Platform.isAndroid ? Colors.transparent : null,
+    splashFactory: InkSparkle.splashFactory,
+    highlightColor: defaultTargetPlatform == TargetPlatform.android
+        ? Colors.transparent
+        : null,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: light ? const Color(0xFF202020) : Colors.white,
       actionTextColor: primary,
@@ -220,21 +223,19 @@ ThemeData createTheme({
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
-      centerTitle: Platform.isIOS || Platform.isMacOS,
+      centerTitle: [
+        TargetPlatform.iOS,
+        TargetPlatform.macOS,
+      ].contains(defaultTargetPlatform),
     ),
     iconTheme: IconThemeData(
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),
       size: 24,
     ),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: light ? primary : const Color(0xFF272727),
-      selectedItemColor: Colors.white.withOpacity(0.87),
-      unselectedItemColor: Colors.white54,
-    ),
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     tooltipTheme: TooltipThemeData(
-      textStyle: Platform.isWindows || Platform.isLinux || Platform.isMacOS
+      textStyle: isDesktop
           ? TextStyle(
               fontSize: 12.0,
               color: light ? Colors.white : Colors.black,
@@ -245,63 +246,12 @@ ThemeData createTheme({
         borderRadius:
             isMobile ? BorderRadius.circular(16.0) : BorderRadius.circular(6.0),
       ),
-      height: Platform.isAndroid || Platform.isIOS ? 32.0 : null,
-      verticalOffset: Platform.isWindows || Platform.isLinux || Platform.isMacOS
-          ? 28.0
-          : null,
-      preferBelow: Platform.isWindows || Platform.isLinux || Platform.isMacOS
-          ? true
-          : null,
+      height: isMobile ? 32.0 : null,
+      verticalOffset: isDesktop ? 28.0 : null,
+      preferBelow: isDesktop ? true : null,
       waitDuration: const Duration(seconds: 1),
     ),
-    fontFamily: Platform.isLinux ? 'Inter' : null,
-    checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return primary;
-        }
-        return null;
-      }),
-    ),
-    radioTheme: RadioThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return primary;
-        }
-        return null;
-      }),
-    ),
-    switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return primary;
-        }
-        return null;
-      }),
-      trackColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return primary;
-        }
-        return null;
-      }),
-    ),
-    colorScheme: colorScheme,
+    fontFamily: defaultTargetPlatform == TargetPlatform.linux ? 'Inter' : null,
     expansionTileTheme: const ExpansionTileThemeData(
       shape: RoundedRectangleBorder(),
       collapsedShape: RoundedRectangleBorder(),

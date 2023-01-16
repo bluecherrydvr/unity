@@ -340,7 +340,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             },
           ),
           backgroundColor: Theme.of(context).brightness == Brightness.light
-              ? Theme.of(context).primaryColor
+              ? Theme.of(context).colorScheme.primary
               : Theme.of(context).cardColor,
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.white12,
@@ -706,7 +706,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               statusBarBrightness: Brightness.dark,
             ),
             backgroundColor: Theme.of(context).brightness == Brightness.light
-                ? Theme.of(context).primaryColor
+                ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).cardColor,
             title: Text(
               AppLocalizations.of(context).letsGo,

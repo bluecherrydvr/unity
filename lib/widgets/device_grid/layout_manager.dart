@@ -84,7 +84,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                   Icons.cyclone,
                   size: 18.0,
                   color: view.cycling
-                      ? theme.primaryColor
+                      ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
                 padding: EdgeInsets.zero,

@@ -154,6 +154,7 @@
   "disconnectServer": "Disconnect",
   "serverOptions": "Server options",
   "browseEvents": "Browse events",
+  "eventType": "Event type",
   "configureServer": "Configure server",
   "refreshDevices": "Refresh devices",
   "refresh": "Refresh",
@@ -165,5 +166,37 @@
   "compactView": "Compact view",
   "createNewLayout": "Create new layout",
   "layoutNameHint": "Layout name",
-  "layoutTypeHint": "Layout type"
+  "layoutTypeHint": "Layout type",
+  "downloads": "Downloads",
+  "download": "Download",
+  "downloaded": "Downloaded",
+  "seeInDownloads": "See in Downloads",
+  "delete": "Delete",
+  "showInFiles": "Show in Files",
+  "noDownloads": "You have no downloads",
+  "downloadTitle": "{event} on {device} under server {server} at {date}",
+  "@downloadTitle": {
+    "placeholders": {
+      "event": {},
+      "device": {},
+      "server": {},
+      "date": {}
+    }
+  },
+  "downloadPath": "Download path",
+  "playbackOptions": "PLAYBACK OPTIONS",
+  "play": "Play",
+  "pause": "Pause",
+  "volume": "Volume • {v}",
+  "@volume": {
+    "placeholders": {
+      "v": {}
+    }
+  },
+  "speed": "Speed • {s}",
+  "@speed": {
+    "placeholders": {
+      "s": {}
+    }
+  }
 }

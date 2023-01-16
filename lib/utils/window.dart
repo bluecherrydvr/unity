@@ -18,6 +18,7 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -38,7 +39,7 @@ Future<void> configureWindow() async {
       windowButtonVisibility: false,
     );
     await windowManager.setSize(kInitialWindowSize);
-    await windowManager.setMinimumSize(const Size(900, 600));
+    await windowManager.setMinimumSize(const Size(300, 500));
     // await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.show();
@@ -67,5 +68,18 @@ extension DeviceWindowExtension on Device {
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');
+  }
+}
+
+/// Launches the file explorer at the given path
+void launchFileExplorer(String path) {
+  assert(isDesktop);
+
+  if (Platform.isWindows) {
+    Process.run('explorer', [path]);
+  } else if (Platform.isLinux) {
+    Process.run('xdg-open', [path]);
+  } else if (Platform.isMacOS) {
+    Process.run('open', [path]);
   }
 }

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -114,13 +115,14 @@ Future<void> main(List<String> args) async {
 
   debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
 
+  // settings provider needs to be initalized alone
+  await SettingsProvider.ensureInitialized();
   await Future.wait([
     MobileViewProvider.ensureInitialized(),
     DesktopViewProvider.ensureInitialized(),
     ServersProvider.ensureInitialized(),
+    DownloadsManager.ensureInitialized(),
   ]);
-  // settings provider needs to be initalized alone
-  await SettingsProvider.ensureInitialized();
 
   if (!isDesktop) {
     // Restore the navigation bar & status bar styling.
@@ -159,9 +161,14 @@ class UnityApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => HomeProvider()),
-        ChangeNotifierProvider(create: (context) => SettingsProvider.instance),
-        ChangeNotifierProvider<DesktopViewProvider>(
-          create: (context) => DesktopViewProvider.instance,
+        ChangeNotifierProvider<SettingsProvider>.value(
+          value: SettingsProvider.instance,
+        ),
+        ChangeNotifierProvider<DesktopViewProvider>.value(
+          value: DesktopViewProvider.instance,
+        ),
+        ChangeNotifierProvider<DownloadsManager>.value(
+          value: DownloadsManager.instance,
         ),
       ],
       child: Consumer<SettingsProvider>(

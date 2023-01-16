@@ -84,7 +84,7 @@ class EventsScreenDesktop extends StatelessWidget {
         width: double.infinity,
         child: DataTable(
           horizontalMargin: 20.0,
-          columnSpacing: 35.0,
+          columnSpacing: 30.0,
           columns: [
             const DataColumn(label: SizedBox.shrink()),
             DataColumn(label: Text(AppLocalizations.of(context).server)),
@@ -107,7 +107,6 @@ class EventsScreenDesktop extends StatelessWidget {
 
             final parsedCategory = event.category?.split('/');
             final priority = parsedCategory?[1] ?? '';
-            final isAlarm = priority == 'alarm' || priority == 'alrm';
 
             return DataRow(
               key: ValueKey<Event>(event),
@@ -129,14 +128,11 @@ class EventsScreenDesktop extends StatelessWidget {
                     },
               cells: [
                 // icon
-                DataCell(Icon(
-                  () {
-                    if (isAlarm) {
-                      return Icons.warning;
-                    }
-                    return null;
-                  }(),
-                  color: Colors.amber,
+                DataCell(Container(
+                  width: 40.0,
+                  height: 40.0,
+                  alignment: Alignment.center,
+                  child: DownloadIndicator(event: event),
                 )),
                 // server
                 DataCell(Text(event.server.name)),

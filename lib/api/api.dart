@@ -147,7 +147,7 @@ class API {
           !e.containsKey('content')
               ? null
               : Duration(
-                  milliseconds: int.tryParse(e['content']['media_size']) ?? 0,
+                  microseconds: int.tryParse(e['content']['media_size']) ?? 0,
                 ),
           !e.containsKey('content')
               ? null

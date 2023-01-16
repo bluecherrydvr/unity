@@ -23,6 +23,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -684,58 +685,57 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
 
     return WillPopScope(
       child: Scaffold(
-        appBar: isMobile
-            ? AppBar(
-                leading: server != null
-                    ? null
-                    : NavigatorPopButton(
-                        color: Colors.white,
-                        onTap: () {
-                          widget.controller.previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
-                systemOverlayStyle: const SystemUiOverlayStyle(
-                  statusBarColor: Colors.white12,
-                  statusBarIconBrightness: Brightness.light,
-                  statusBarBrightness: Brightness.dark,
-                ),
-                backgroundColor:
-                    Theme.of(context).brightness == Brightness.light
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(context).cardColor,
-                title: Text(
-                  AppLocalizations.of(context).letsGo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
+        appBar: showIf<AppBar>(
+          isMobile,
+          child: AppBar(
+            leading: server != null
+                ? null
+                : NavigatorPopButton(
                     color: Colors.white,
+                    onTap: () {
+                      widget.controller.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.white12,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
+            ),
+            backgroundColor: Theme.of(context).brightness == Brightness.light
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).cardColor,
+            title: Text(
+              AppLocalizations.of(context).letsGo,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(32.0),
+              child: Container(
+                height: 32.0,
+                padding: const EdgeInsetsDirectional.only(start: 16.0),
+                alignment: Theme.of(context).appBarTheme.centerTitle ?? false
+                    ? AlignmentDirectional.topCenter
+                    : AlignmentDirectional.topStart,
+                child: Text(
+                  AppLocalizations.of(context).letsGoDescription,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(color: Colors.white.withOpacity(0.87)),
                 ),
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(32.0),
-                  child: Container(
-                    height: 32.0,
-                    padding: const EdgeInsetsDirectional.only(start: 16.0),
-                    alignment:
-                        Theme.of(context).appBarTheme.centerTitle ?? false
-                            ? AlignmentDirectional.topCenter
-                            : AlignmentDirectional.topStart,
-                    child: Text(
-                      AppLocalizations.of(context).letsGoDescription,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(color: Colors.white.withOpacity(0.87)),
-                    ),
-                  ),
-                ),
-              )
-            : null,
+              ),
+            ),
+          ),
+        ),
         body: ListView(children: [
           const SizedBox(height: 8.0),
           if (server != null)

@@ -47,6 +47,8 @@ const kHiveTimeFormat = 'time_format';
 const kHiveSnoozedUntil = 'snoozed_until';
 const kHiveNotificationClickAction = 'notification_click_action';
 const kHiveCameraViewFit = 'camera_view_fit';
+const kHiveDownloadsDirectorySetting = 'downloads_dir';
+const kHiveDownloads = 'downloads';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

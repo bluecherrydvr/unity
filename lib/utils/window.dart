@@ -27,7 +27,7 @@ import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The initial size of the window
-const kInitialWindowSize = Size(900, 645);
+const kInitialWindowSize = Size(1066, 645);
 
 /// Configures the current window
 Future<void> configureWindow() async {
@@ -38,7 +38,7 @@ Future<void> configureWindow() async {
       windowButtonVisibility: false,
     );
     await windowManager.setSize(kInitialWindowSize);
-    await windowManager.setMinimumSize(const Size(900, 600));
+    await windowManager.setMinimumSize(kInitialWindowSize);
     // await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.show();

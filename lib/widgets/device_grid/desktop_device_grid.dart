@@ -387,8 +387,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   () {
                     final isMuted = volume == 0.0;
 
-                    print(volume);
-
                     return IconButton(
                       icon: Icon(
                         isMuted

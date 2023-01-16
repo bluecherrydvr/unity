@@ -283,6 +283,20 @@ class DesktopTileViewport extends StatefulWidget {
 }
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
+  double? volume;
+
+  void updateVolume() {
+    widget.controller.volume.then((value) {
+      if (mounted) setState(() => volume = value);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updateVolume();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -370,41 +384,34 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  FutureBuilder<double>(
-                    future: widget.controller.volume,
-                    initialData: 0.0,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        final volume = snapshot.data!;
-                        final isMuted = volume == 0.0;
+                  () {
+                    final isMuted = volume == 0.0;
 
-                        return IconButton(
-                          icon: Icon(
-                            isMuted
-                                ? Icons.volume_mute_rounded
-                                : Icons.volume_up_rounded,
-                            shadows: shadows,
-                          ),
-                          tooltip: isMuted
-                              ? AppLocalizations.of(context).enableAudio
-                              : AppLocalizations.of(context).disableAudio,
-                          color: Colors.white,
-                          iconSize: 18.0,
-                          onPressed: () async {
-                            if (isMuted) {
-                              await widget.controller.setVolume(1.0);
-                            } else {
-                              await widget.controller.setVolume(0.0);
-                            }
+                    print(volume);
 
-                            setState(() {});
-                          },
-                        );
-                      }
+                    return IconButton(
+                      icon: Icon(
+                        isMuted
+                            ? Icons.volume_mute_rounded
+                            : Icons.volume_up_rounded,
+                        shadows: shadows,
+                      ),
+                      tooltip: isMuted
+                          ? AppLocalizations.of(context).enableAudio
+                          : AppLocalizations.of(context).disableAudio,
+                      color: Colors.white,
+                      iconSize: 18.0,
+                      onPressed: () async {
+                        if (isMuted) {
+                          await widget.controller.setVolume(1.0);
+                        } else {
+                          await widget.controller.setVolume(0.0);
+                        }
 
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                        updateVolume();
+                      },
+                    );
+                  }(),
                   const VerticalDivider(
                     color: Colors.white,
                     indent: 10,

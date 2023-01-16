@@ -156,11 +156,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     });
   }
 
+  // Volume in media kit goes from 0 to 100
   @override
-  Future<void> setVolume(double volume) async => mkPlayer.volume = volume;
+  Future<void> setVolume(double volume) async => mkPlayer.volume = volume * 100;
 
   @override
-  Future<double> get volume => mkPlayer.streams.volume.last;
+  Future<double> get volume async => mkPlayer.state.volume / 100;
 
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;

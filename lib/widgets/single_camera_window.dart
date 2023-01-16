@@ -41,6 +41,7 @@ class SingleCameraWindow extends StatelessWidget {
         themeMode: mode,
         theme: createTheme(themeMode: ThemeMode.light),
         darkTheme: createTheme(themeMode: ThemeMode.dark),
+        debugShowCheckedModeBanner: false,
         home: CameraView(device: device),
       ),
     );
@@ -78,7 +79,6 @@ class _CameraViewState extends State<CameraView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(children: [
-        // WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: controller,

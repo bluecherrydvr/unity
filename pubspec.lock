@@ -438,6 +438,24 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  media_kit:
+    dependency: transitive
+    description:
+      path: media_kit
+      ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      resolved-ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "0.0.1"
+  media_kit_core_video:
+    dependency: transitive
+    description:
+      path: media_kit_core_video
+      ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      resolved-ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "0.0.1"
   meta:
     dependency: transitive
     description:
@@ -639,6 +657,14 @@ packages:
       url: "https://github.com/alexmercerind/reorderable_grid_view.git"
     source: git
     version: "2.2.2"
+  safe_local_storage:
+    dependency: transitive
+    description:
+      name: safe_local_storage
+      sha256: "7ca14be87040e6badfcdb9c71e963846c4e7d827dbc9f62cab7496497352f8d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   screen_retriever:
     dependency: transitive
     description:
@@ -692,6 +718,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      sha256: "33b31b6beb98100bf9add464a36a8dd03eb10c7a8cf15aeec535e9b054aaf04b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   term_glyph:
     dependency: transitive
     description:
@@ -737,6 +771,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  unity_video_player_media_kit:
+    dependency: transitive
+    description:
+      path: "packages/unity_video_player/unity_video_player_media_kit"
+      relative: true
+    source: path
+    version: "0.0.1"
   unity_video_player_mobile:
     dependency: transitive
     description:
@@ -751,6 +792,14 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  uri_parser:
+    dependency: transitive
+    description:
+      name: uri_parser
+      sha256: a41b242c319cdc30958963b362ad2f9c63ede569bdab106c7a926638963d53e7
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   url_launcher:
     dependency: "direct main"
     description:

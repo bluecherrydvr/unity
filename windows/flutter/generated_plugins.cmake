@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   dart_vlc
+  media_kit_core_video
   permission_handler_windows
   screen_retriever
   url_launcher_windows

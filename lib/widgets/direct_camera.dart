@@ -42,18 +42,19 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
     MediaQuery.of(context);
 
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              leading: Scaffold.of(context).hasDrawer
-                  ? IconButton(
-                      icon: const Icon(Icons.menu),
-                      splashRadius: 20.0,
-                      onPressed: Scaffold.of(context).openDrawer,
-                    )
-                  : null,
-              title: Text(AppLocalizations.of(context).directCamera),
-            ),
+      appBar: showIf(
+        isMobile,
+        child: AppBar(
+          leading: Scaffold.of(context).hasDrawer
+              ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  splashRadius: 20.0,
+                  onPressed: Scaffold.of(context).openDrawer,
+                )
+              : null,
+          title: Text(AppLocalizations.of(context).directCamera),
+        ),
+      ),
       body: () {
         if (ServersProvider.instance.servers.isEmpty) {
           return Center(

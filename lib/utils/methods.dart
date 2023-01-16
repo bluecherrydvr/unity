@@ -20,7 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -74,4 +74,40 @@ UnityVideoPlayer getVideoPlayerControllerForDevice(
     ..setSpeed(1.0);
 
   return controller;
+}
+
+/// Wraps [child] in a [Tooltip] if the app meets [condition]
+Widget wrapTooltipIf(
+  bool condition, {
+  required Widget child,
+  required String message,
+  bool? preferBelow,
+}) {
+  if (condition) {
+    return Tooltip(
+      message: message,
+      preferBelow: preferBelow,
+      child: child,
+    );
+  }
+
+  return child;
+}
+
+/// Wraps [child] in an [Expanded] if the app meets [condition]
+Widget wrapExpandedIf(
+  bool condition, {
+  required Widget child,
+}) {
+  if (condition) {
+    return Expanded(child: child);
+  }
+
+  return child;
+}
+
+T? showIf<T extends Widget>(bool condition, {required T child}) {
+  if (condition) return child;
+
+  return null;
 }

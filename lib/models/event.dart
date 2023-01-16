@@ -55,6 +55,14 @@ class Event {
         .join(' ');
   }
 
+  bool get isAlarm {
+    final parsedCategory = category?.split('/');
+    final priority = parsedCategory?[1] ?? '';
+    final isAlarm = priority == 'alarm' || priority == 'alrm';
+
+    return isAlarm;
+  }
+
   @override
   bool operator ==(dynamic other) {
     return other is Event &&
@@ -111,14 +119,15 @@ class Event {
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'server': server.toJson(devices: false),
         'deviceID': deviceID,
+        'id': id,
         'title': title,
         'published': published.toIso8601String(),
         'updated': updated.toIso8601String(),
         'category': category,
         'mediaID': mediaID,
-        'mediaDuration': mediaDuration?.inMilliseconds,
+        'mediaDuration': mediaDuration?.inMicroseconds,
         'mediaURL': mediaURL.toString(),
       };
 
@@ -132,7 +141,7 @@ class Event {
       DateTime.parse(json['updated']),
       json['category'],
       json['mediaID'],
-      Duration(milliseconds: json['mediaDuration']),
+      Duration(microseconds: json['mediaDuration']),
       Uri.parse(json['mediaURL']),
     );
   }

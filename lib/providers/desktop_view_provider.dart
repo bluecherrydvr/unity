@@ -97,7 +97,11 @@ class DesktopViewProvider extends ChangeNotifier {
   Future<void> _restore({bool notifyListeners = true}) async {
     final instance = await Hive.openBox('hive');
 
-    layouts = ((jsonDecode(instance.get(kHiveDesktopLayouts)) ?? []) as List)
+    layouts = ((await compute(
+              jsonDecode,
+              instance.get(kHiveDesktopLayouts) as String,
+            ) ??
+            []) as List)
         .cast<Map>()
         .map<Layout>((item) {
       return Layout.fromMap(item.cast<String, dynamic>());

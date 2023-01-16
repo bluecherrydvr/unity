@@ -17,10 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+// ignore: depend_on_referenced_packages
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.
@@ -36,6 +41,10 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultNotificationClickAction =
       NotificationClickAction.showFullscreenCamera;
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
+  static Future<Directory> kDefaultDownloadsDirectory() async {
+    final docsDir = await getApplicationSupportDirectory();
+    return Directory('${docsDir.path}${path.separator}downloads').create();
+  }
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
@@ -45,6 +54,7 @@ class SettingsProvider extends ChangeNotifier {
   NotificationClickAction get notificationClickAction =>
       _notificationClickAction;
   UnityVideoFit get cameraViewFit => _cameraViewFit;
+  String get downloadsDirectory => _downloadsDirectory;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -104,12 +114,24 @@ class SettingsProvider extends ChangeNotifier {
     });
   }
 
+  set downloadsDirectory(String value) {
+    _downloadsDirectory = value;
+    notifyListeners();
+    Hive.openBox('hive').then((instance) {
+      instance.put(
+        kHiveDownloadsDirectorySetting,
+        value,
+      );
+    });
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
   late NotificationClickAction _notificationClickAction;
   late UnityVideoFit _cameraViewFit;
+  late String _downloadsDirectory;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -173,6 +195,12 @@ class SettingsProvider extends ChangeNotifier {
       _cameraViewFit = UnityVideoFit.values[hive.get(kHiveCameraViewFit)!];
     } else {
       _cameraViewFit = kDefaultCameraViewFit;
+    }
+
+    if (hive.containsKey(kHiveDownloadsDirectorySetting)) {
+      _downloadsDirectory = hive.get(kHiveDownloadsDirectorySetting);
+    } else {
+      _downloadsDirectory = (await kDefaultDownloadsDirectory()).path;
     }
     notifyListeners();
   }

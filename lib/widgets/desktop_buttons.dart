@@ -26,7 +26,6 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -111,28 +110,28 @@ class _WindowButtonsState extends State<WindowButtons> {
         return Material(
           color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [
-            Row(children: [
-              if (canPop)
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  iconSize: 20.0,
-                  color: theme.hintColor,
-                  onPressed: () async {
-                    await navigatorKey.currentState?.maybePop();
-                    setState(() {});
-                  },
-                )
-              else
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8.0),
-                  child: Image.asset(
-                    'assets/images/icon.png',
-                    height: 16.0,
-                    width: 16.0,
+            DragToMoveArea(
+              child: Row(children: [
+                if (canPop)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    iconSize: 20.0,
+                    color: theme.hintColor,
+                    onPressed: () async {
+                      await navigatorKey.currentState?.maybePop();
+                      setState(() {});
+                    },
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: Image.asset(
+                      'assets/images/icon.png',
+                      height: 16.0,
+                      width: 16.0,
+                    ),
                   ),
-                ),
-              Expanded(
-                child: DragToMoveArea(
+                Expanded(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(start: 10.0),
                     child: Text(
@@ -151,18 +150,13 @@ class _WindowButtonsState extends State<WindowButtons> {
                           }
                         }
 
-                        switch (tab) {
-                          case 0:
-                            return AppLocalizations.of(context).screens;
-                          case 1:
-                            return AppLocalizations.of(context).directCamera;
-                          case 2:
-                            return AppLocalizations.of(context).eventBrowser;
-                          case 4:
-                            return AppLocalizations.of(context).settings;
-                          default:
-                            return widget.title ?? 'Bluecherry';
+                        final names = navigatorData(context).values;
+
+                        if (tab >= names.length) {
+                          return widget.title ?? 'Bluecherry';
                         }
+
+                        return names.elementAt(tab);
                       }(),
                       style: TextStyle(
                         color: theme.brightness == Brightness.light
@@ -175,37 +169,37 @@ class _WindowButtonsState extends State<WindowButtons> {
                     ),
                   ),
                 ),
-              ),
-              // if (!canPop && widget.showNavigator) ...[
-              //   ...navigatorData(context).entries.map((entry) {
-              //     final icon = entry.key;
-              //     final text = entry.value;
-              //     final index =
-              //         navigatorData(context).keys.toList().indexOf(icon);
+                // if (!canPop && widget.showNavigator) ...[
+                //   ...navigatorData(context).entries.map((entry) {
+                //     final icon = entry.key;
+                //     final text = entry.value;
+                //     final index =
+                //         navigatorData(context).keys.toList().indexOf(icon);
 
-              //     return IconButton(
-              //       icon: Icon(
-              //         icon,
-              //         color: home.tab == index
-              //             ? theme.primaryColor
-              //             : theme.hintColor,
-              //       ),
-              //       iconSize: 22.0,
-              //       tooltip: text,
-              //       onPressed: () => home.setTab(index),
-              //     );
-              //   }),
-              //   divider,
-              // ],
-              SizedBox(
-                width: 138,
-                height: 40,
-                child: WindowCaption(
-                  brightness: theme.brightness,
-                  backgroundColor: Colors.transparent,
+                //     return IconButton(
+                //       icon: Icon(
+                //         icon,
+                //         color: home.tab == index
+                //             ? theme.primaryColor
+                //             : theme.hintColor,
+                //       ),
+                //       iconSize: 22.0,
+                //       tooltip: text,
+                //       onPressed: () => home.setTab(index),
+                //     );
+                //   }),
+                //   divider,
+                // ],
+                SizedBox(
+                  width: 138,
+                  height: 40,
+                  child: WindowCaption(
+                    brightness: theme.brightness,
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
-              ),
-            ]),
+              ]),
+            ),
             if (!canPop && widget.showNavigator)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
@@ -221,7 +215,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                       icon: Icon(
                         icon,
                         color: home.tab == index
-                            ? theme.primaryColor
+                            ? theme.colorScheme.primary
                             : theme.hintColor,
                       ),
                       iconSize: 22.0,

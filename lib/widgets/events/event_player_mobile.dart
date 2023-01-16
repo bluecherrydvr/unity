@@ -47,10 +47,20 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   final videoController = UnityVideoPlayer.create();
 
   @override
-  void initState() {
-    super.initState();
-    debugPrint(widget.event.mediaURL.toString());
-    videoController.setDataSource(widget.event.mediaURL.toString());
+  void didChangeDependencies() {
+    final downloads = context.read<DownloadsManager>();
+
+    final mediaUrl = downloads.isEventDownloaded(widget.event.id)
+        ? Uri.file(
+            downloads.getDownloadedPathForEvent(widget.event.id),
+            windows: Platform.isWindows,
+          ).toString()
+        : widget.event.mediaURL.toString();
+
+    debugPrint(mediaUrl);
+    videoController.setDataSource(mediaUrl);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -64,7 +74,10 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: isDesktop ? null : AppBar(title: Text(widget.event.deviceName)),
+      appBar: showIf(
+        isMobile,
+        child: AppBar(title: Text(widget.event.deviceName)),
+      ),
       body: Column(children: [
         const WindowButtons(),
         Expanded(

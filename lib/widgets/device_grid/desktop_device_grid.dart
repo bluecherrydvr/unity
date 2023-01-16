@@ -325,15 +325,39 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           if (!widget.isSubView)
             Container(
               height: 48.0,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                widget.device.fullName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  shadows: shadows,
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
+                const EdgeInsets.only(top: 8.0),
               ),
+              alignment: AlignmentDirectional.centerStart,
+              child: Row(children: [
+                Expanded(
+                  child: Text(
+                    widget.device.fullName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      shadows: shadows,
+                    ),
+                  ),
+                ),
+                if (!widget.isSubView)
+                  AnimatedOpacity(
+                    opacity: !states.isHovering ? 0 : 1,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.close_outlined,
+                        shadows: shadows,
+                      ),
+                      color: Colors.white,
+                      tooltip: AppLocalizations.of(context).removeCamera,
+                      iconSize: 18.0,
+                      onPressed: () {
+                        DesktopViewProvider.instance.remove(widget.device);
+                      },
+                    ),
+                  ),
+              ]),
             ),
           const Spacer(),
           AnimatedOpacity(
@@ -341,8 +365,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
             child: Container(
-              height: 48.0,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0)
+                  .add(const EdgeInsets.only(bottom: 4.0)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -365,7 +389,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                               ? AppLocalizations.of(context).enableAudio
                               : AppLocalizations.of(context).disableAudio,
                           color: Colors.white,
-                          iconSize: 20.0,
+                          iconSize: 18.0,
                           onPressed: () async {
                             if (isMuted) {
                               await widget.controller.setVolume(1.0);
@@ -394,7 +418,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                       tooltip: AppLocalizations.of(context).openInANewWindow,
                       color: Colors.white,
-                      iconSize: 20.0,
+                      iconSize: 18.0,
                       onPressed: () {
                         widget.device.openInANewWindow();
                       },
@@ -408,7 +432,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       tooltip:
                           AppLocalizations.of(context).showFullscreenCamera,
                       color: Colors.white,
-                      iconSize: 22.0,
+                      iconSize: 18.0,
                       onPressed: () async {
                         var player = view.players[widget.device];
                         var isLocalController = false;
@@ -435,30 +459,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     ),
                     tooltip: AppLocalizations.of(context).reloadCamera,
                     color: Colors.white,
-                    iconSize: 20.0,
+                    iconSize: 18.0,
                     onPressed: () {
                       DesktopViewProvider.instance.reload(widget.device);
                     },
                   ),
-                  if (!widget.isSubView) ...[
-                    const VerticalDivider(
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close_outlined,
-                        shadows: shadows,
-                      ),
-                      color: Colors.white,
-                      tooltip: AppLocalizations.of(context).removeCamera,
-                      iconSize: 20.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.remove(widget.device);
-                      },
-                    ),
-                  ],
                 ],
               ),
             ),

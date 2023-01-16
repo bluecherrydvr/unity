@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -342,10 +343,7 @@ class _SettingsState extends State<Settings> {
                   MaterialButton(
                     onPressed: () {
                       launchUrl(
-                        Uri.https(
-                          'www.bluecherrydvr.com',
-                          '/',
-                        ),
+                        Uri.https('www.bluecherrydvr.com', '/'),
                         mode: LaunchMode.externalApplication,
                       );
                     },

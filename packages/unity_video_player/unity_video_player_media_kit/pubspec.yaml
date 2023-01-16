@@ -15,10 +15,12 @@ dependencies:
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
+      ref: 36b0681c61fcfe7283b07d7d4b67c8554e080e7b
       path: media_kit/
   media_kit_core_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
+      ref: 36b0681c61fcfe7283b07d7d4b67c8554e080e7b
       path: media_kit_core_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/

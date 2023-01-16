@@ -111,6 +111,22 @@ class ServersProvider extends ChangeNotifier {
     }
   }
 
+  /// Updates the given [server] in the cache.
+  Future<void> update(Server server) async {
+    // If not found, add it
+    if (!servers.any((s) => s.ip == server.ip && s.port == server.port)) {
+      return add(server);
+    }
+
+    final s =
+        servers.firstWhere((s) => s.ip == server.ip && s.port == server.port);
+    final serverIndex = servers.indexOf(s);
+
+    servers[serverIndex] = server;
+
+    await _save();
+  }
+
   /// Save currently added [Server]s to `package:hive` cache.
   Future<void> _save() async {
     final instance = await Hive.openBox('hive');

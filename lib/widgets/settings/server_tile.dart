@@ -220,9 +220,13 @@ class _ServerTileState extends State<ServerTile> {
         icon: const Icon(
           Icons.delete,
         ),
+        tooltip: AppLocalizations.of(context).disconnectServer,
         splashRadius: 24.0,
         onPressed: () => widget.onRemoveServer(context, widget.server),
       ),
+      onTap: () {
+        showEditServer(context, widget.server);
+      },
     );
   }
 }
@@ -330,10 +334,18 @@ class _ServerCardState extends State<ServerCard> {
               splashRadius: 16.0,
               position: PopupMenuPosition.under,
               offset: const Offset(-128, 4.0),
-              constraints: const BoxConstraints(maxWidth: 160.0),
+              constraints: const BoxConstraints(maxWidth: 180.0),
               tooltip: AppLocalizations.of(context).serverOptions,
               itemBuilder: (context) {
                 return [
+                  PopupMenuItem(
+                    child: Text(AppLocalizations.of(context).editServerInfo),
+                    onTap: () {
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        if (mounted) showEditServer(context, widget.server);
+                      });
+                    },
+                  ),
                   PopupMenuItem(
                     child: Text(AppLocalizations.of(context).disconnectServer),
                     onTap: () {

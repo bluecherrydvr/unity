@@ -182,6 +182,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   void dispose() async {
+    await (await mkVideoController).dispose();
     await mkPlayer.dispose();
   }
 }

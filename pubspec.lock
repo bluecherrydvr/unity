@@ -442,8 +442,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
-      resolved-ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      ref: e3b54022517a427d22859431b4de2155eefc3065
+      resolved-ref: e3b54022517a427d22859431b4de2155eefc3065
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
@@ -451,8 +451,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_core_video
-      ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
-      resolved-ref: a08cd91594e5bbe3a60fcfabf7d087fa9f405311
+      ref: e3b54022517a427d22859431b4de2155eefc3065
+      resolved-ref: e3b54022517a427d22859431b4de2155eefc3065
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"

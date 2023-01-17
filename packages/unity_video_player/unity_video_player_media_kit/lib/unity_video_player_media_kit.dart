@@ -2,7 +2,7 @@ library unity_video_player_media_kit;
 
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_core_video/media_kit_core_video.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {

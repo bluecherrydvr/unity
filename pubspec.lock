@@ -442,17 +442,26 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: e3b54022517a427d22859431b4de2155eefc3065
-      resolved-ref: e3b54022517a427d22859431b4de2155eefc3065
+      ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
+      resolved-ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
-  media_kit_core_video:
+  media_kit_libs_windows_video:
     dependency: transitive
     description:
-      path: media_kit_core_video
-      ref: e3b54022517a427d22859431b4de2155eefc3065
-      resolved-ref: e3b54022517a427d22859431b4de2155eefc3065
+      path: media_kit_libs_windows_video
+      ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
+      resolved-ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.0"
+  media_kit_video:
+    dependency: transitive
+    description:
+      path: media_kit_video
+      ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
+      resolved-ref: "2c9669248b8c93a57896a8170fe204a05e773df7"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"

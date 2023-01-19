@@ -93,6 +93,8 @@ class _WindowButtonsState extends State<WindowButtons> {
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
+    final navData = NavigatorData.of(context);
+
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
@@ -150,7 +152,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                           }
                         }
 
-                        final names = navigatorData(context).values;
+                        final names = navData.map((d) => d.text);
 
                         if (tab >= names.length) {
                           return widget.title ?? 'Bluecherry';
@@ -169,27 +171,11 @@ class _WindowButtonsState extends State<WindowButtons> {
                     ),
                   ),
                 ),
-                // if (!canPop && widget.showNavigator) ...[
-                //   ...navigatorData(context).entries.map((entry) {
-                //     final icon = entry.key;
-                //     final text = entry.value;
-                //     final index =
-                //         navigatorData(context).keys.toList().indexOf(icon);
-
-                //     return IconButton(
-                //       icon: Icon(
-                //         icon,
-                //         color: home.tab == index
-                //             ? theme.colorScheme.primary
-                //             : theme.hintColor,
-                //       ),
-                //       iconSize: 22.0,
-                //       tooltip: text,
-                //       onPressed: () => home.setTab(index),
-                //     );
-                //   }),
-                //   divider,
-                // ],
+                if (home.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: UnityLoadingIndicator(),
+                  ),
                 SizedBox(
                   width: 138,
                   height: 40,
@@ -205,18 +191,24 @@ class _WindowButtonsState extends State<WindowButtons> {
                 padding: const EdgeInsets.only(top: 4.0),
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  ...navigatorData(context).entries.map((entry) {
-                    final icon = entry.key;
-                    final text = entry.value;
-                    final index =
-                        navigatorData(context).keys.toList().indexOf(icon);
+                  ...navData.map((data) {
+                    final index = navData.indexOf(data);
+                    final isSelected = tab == index;
+
+                    final icon = isSelected ? data.selectedIcon : data.icon;
+                    final text = data.text;
 
                     return IconButton(
-                      icon: Icon(
-                        icon,
-                        color: home.tab == index
-                            ? theme.colorScheme.primary
-                            : theme.hintColor,
+                      icon: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          icon,
+                          key: ValueKey(isSelected),
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : theme.hintColor,
+                          fill: isSelected ? 1.0 : 0.0,
+                        ),
                       ),
                       iconSize: 22.0,
                       tooltip: text,
@@ -228,6 +220,22 @@ class _WindowButtonsState extends State<WindowButtons> {
           ]),
         );
       },
+    );
+  }
+}
+
+/// A widget that shows whether something in the app is loading
+class UnityLoadingIndicator extends StatelessWidget {
+  const UnityLoadingIndicator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO(bdlukaa): show current tasks on hover
+
+    return const SizedBox(
+      height: 20.0,
+      width: 20.0,
+      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
     );
   }
 }

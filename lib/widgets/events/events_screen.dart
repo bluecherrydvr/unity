@@ -26,6 +26,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -66,10 +67,12 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    fetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
   Future<void> fetch() async {
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsHistory);
     try {
       for (final server in ServersProvider.instance.servers) {
         try {
@@ -88,6 +91,7 @@ class _EventsScreenState extends State<EventsScreen> {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+    home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     if (mounted) {
       setState(() {
         isFirstTimeLoading = false;

@@ -101,7 +101,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: const [
                           CircleAvatar(child: Icon(Icons.pause)),
                         ],
                       ),
@@ -141,7 +141,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                                   return const SizedBox.shrink();
                                 }
 
-                                final events = e.value;
+                                // final events = e.value;
 
                                 return _DeviceTimelineTile(device: device);
                               },

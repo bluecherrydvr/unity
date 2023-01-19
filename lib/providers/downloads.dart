@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:dio/dio.dart';
@@ -169,6 +170,9 @@ class DownloadsManager extends ChangeNotifier {
     // safe for release
     if (event.mediaURL == null) return;
 
+    final home = HomeProvider.instance
+      ..loading(UnityLoadingReason.downloadEvent);
+
     downloading[event] = 0.0;
     notifyListeners();
 
@@ -195,6 +199,8 @@ class DownloadsManager extends ChangeNotifier {
       event: event,
       downloadPath: downloadPath,
     ));
+
+    home.notLoading(UnityLoadingReason.downloadEvent);
 
     await _save();
   }

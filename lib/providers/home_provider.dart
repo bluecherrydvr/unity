@@ -30,12 +30,30 @@ enum UnityTab {
   settings,
 }
 
+enum UnityLoadingReason {
+  fetchingEventsPlayback,
+  fetchingEventsHistory,
+  downloadEvent,
+}
+
 class HomeProvider extends ChangeNotifier {
+  static late HomeProvider _instance;
+
+  HomeProvider() {
+    _instance = this;
+  }
+
+  static HomeProvider get instance => _instance;
+
   int tab = ServersProvider.instance.serverAdded
       ? UnityTab.deviceGrid.index
       : UnityTab.addServer.index;
 
+  List<UnityLoadingReason> loadReasons = [];
+
   void setTab(int tab) {
+    if (tab.isNegative) return;
+
     this.tab = tab;
 
     if (tab != UnityTab.downloads.index) {
@@ -50,5 +68,19 @@ class HomeProvider extends ChangeNotifier {
     initiallyExpandedDownloadEventId = eventId;
 
     setTab(UnityTab.downloads.index);
+  }
+
+  /// Whether something in the app is loading
+  bool get isLoading => loadReasons.isNotEmpty;
+  void loading(UnityLoadingReason reason) {
+    loadReasons.add(reason);
+
+    notifyListeners();
+  }
+
+  void notLoading(UnityLoadingReason reason) {
+    loadReasons.remove(reason);
+
+    notifyListeners();
   }
 }

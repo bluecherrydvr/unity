@@ -20,9 +20,11 @@
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Device Id : Events for device
 typedef EventsData = Map<String, List<Event>>;
@@ -39,6 +41,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   EventsData eventsForDevice = {};
 
   Future<void> fetch() async {
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsPlayback);
+
     try {
       for (final server in ServersProvider.instance.servers) {
         try {
@@ -70,6 +75,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+
+    home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+
     if (mounted) {
       setState(() {
         isFirstTimeLoading = false;
@@ -80,8 +88,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   @override
   void initState() {
     super.initState();
-
-    fetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
   @override

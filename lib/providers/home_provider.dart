@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 
 enum UnityTab {
   deviceGrid,
+  eventsPlayback,
   directCameraScreen,
   eventsScreen,
   addServer,

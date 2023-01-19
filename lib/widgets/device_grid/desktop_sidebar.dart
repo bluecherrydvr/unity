@@ -19,6 +19,8 @@
 
 part of 'device_grid.dart';
 
+const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
+
 class DesktopSidebar extends StatefulWidget {
   const DesktopSidebar({Key? key}) : super(key: key);
 
@@ -35,9 +37,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
     final view = context.watch<DesktopViewProvider>();
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 220.0,
-      ),
+      constraints: kSidebarConstraints,
       child: Material(
         color: theme.canvasColor,
         child: Column(children: [

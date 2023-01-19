@@ -23,7 +23,7 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
 
@@ -80,7 +80,7 @@ class API {
       final parser = Xml2Json()..parse(response.body);
       server.devices.clear();
       server.devices.addAll(
-        jsonDecode(parser.toParker())['devices']['device']
+        (await compute(jsonDecode, parser.toParker()))['devices']['device']
             .map(
               (e) => Device(
                 e['device_name'],
@@ -127,7 +127,8 @@ class API {
         },
       );
       final parser = Xml2Json()..parse(response.body);
-      return jsonDecode(parser.toGData())['feed']['entry'].map((e) {
+      return (await compute(jsonDecode, parser.toGData()))['feed']['entry']
+          .map((e) {
         debugPrint(e.toString());
         return Event(
           server,

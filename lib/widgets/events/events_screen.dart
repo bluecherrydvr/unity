@@ -66,9 +66,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await fetch();
-    });
+    fetch();
   }
 
   Future<void> fetch() async {
@@ -78,7 +76,7 @@ class _EventsScreenState extends State<EventsScreen> {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
           );
-          events[server] = iterable.toList().cast<Event>();
+          events[server] = iterable.toList();
           invalid[server] = false;
         } catch (exception, stacktrace) {
           debugPrint(exception.toString());

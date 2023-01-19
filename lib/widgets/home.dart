@@ -26,6 +26,7 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +49,9 @@ Map<IconData, String> navigatorData(BuildContext context) {
 
   return {
     Icons.window: loc.screens,
+    Icons.slideshow: 'Events Playback',
     Icons.camera: loc.directCamera,
-    Icons.description: loc.eventBrowser,
+    Icons.featured_play_list_outlined: loc.eventBrowser,
     Icons.dns: loc.addServer,
     Icons.download: loc.downloads,
     Icons.settings: loc.settings,
@@ -142,6 +144,7 @@ class _MobileHomeState extends State<MobileHome> {
                   child: PageTransitionSwitcher(
                     child: <UnityTab, Widget Function()>{
                       UnityTab.deviceGrid: () => const DeviceGrid(),
+                      UnityTab.eventsPlayback: () => const EventsPlayback(),
                       UnityTab.directCameraScreen: () =>
                           const DirectCameraScreen(),
                       UnityTab.eventsScreen: () => const EventsScreen(),

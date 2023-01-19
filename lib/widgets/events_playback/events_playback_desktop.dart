@@ -19,8 +19,10 @@
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
@@ -30,7 +32,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class EventsPlaybackDesktop extends StatelessWidget {
+const kDeviceNameWidth = 140.0;
+const kTimelineViewHeight = 190.0;
+
+class EventsPlaybackDesktop extends StatefulWidget {
   final EventsData events;
 
   const EventsPlaybackDesktop({
@@ -39,12 +44,19 @@ class EventsPlaybackDesktop extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<EventsPlaybackDesktop> createState() => _EventsPlaybackDesktopState();
+}
+
+class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
+  double _thumbPosition = 0;
+
+  @override
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
 
-    return Column(children: [
+    return Row(children: [
       Expanded(
-        child: Row(children: [
+        child: Column(children: [
           Expanded(
             child: Container(
               color: Colors.black,
@@ -55,128 +67,192 @@ class EventsPlaybackDesktop extends StatelessWidget {
                       crossAxisCount: 2,
                       childAspectRatio: 16 / 9,
                       children: events.selectedIds.map((id) {
-                        final eventsForDevice = this.events[id];
+                        final eventsForDevice = widget.events[id];
 
-                        return Text(id);
+                        return Center(child: Text(id));
                       }).toList(),
                     ),
             ),
           ),
-          ConstrainedBox(
-            constraints: kSidebarConstraints,
-            child: Material(
-              child: Column(children: [
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.viewPaddingOf(context).bottom,
-                    ),
-                    itemCount: ServersProvider.instance.servers.length,
-                    itemBuilder: (context, i) {
-                      final server = ServersProvider.instance.servers[i];
-                      return FutureBuilder(
-                        future: (() async => server.devices.isEmpty
-                            ? API.instance.getDevices(await API.instance
-                                .checkServerCredentials(server))
-                            : true)(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: Container(
-                                alignment: AlignmentDirectional.center,
-                                height: 156.0,
-                                child:
-                                    const CircularProgressIndicator.adaptive(),
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: server.devices.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return SubHeader(
-                                  server.name,
-                                  subtext:
-                                      AppLocalizations.of(context).nDevices(
-                                    server.devices.length,
-                                  ),
-                                );
-                              }
-
-                              index--;
-                              final device = server.devices[index];
-                              if (!this.events.keys.contains(
-                                  EventsProvider.idForDevice(device))) {
-                                return const SizedBox.shrink();
-                              }
-
-                              final selected = events.selectedIds
-                                  .contains(EventsProvider.idForDevice(device));
-
-                              return _DeviceTile(
-                                device: device,
-                                selected: selected,
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
+          SizedBox(
+            height: kTimelineViewHeight,
+            child: Card(
+              margin: EdgeInsets.zero,
+              shape: const RoundedRectangleBorder(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-              ]),
-            ),
-          ),
-        ]),
-      ),
-      SizedBox(
-        height: 170.0,
-        child: Card(
-          margin: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
-                child: Text('Device name'),
-              ),
-              Expanded(
                 child: () {
-                  final allEvents = (this.events.isEmpty
-                      ? []
-                      : this
-                          .events
-                          .values
+                  final allEvents = (widget.events.isEmpty
+                      ? <Event>[]
+                      : widget.events.values
                           .reduce((value, element) => value + element))
                     ..sort((e1, e2) {
                       return e1.published.compareTo(e2.published);
                     });
 
-                  final oldest = allEvents.first;
-                  final newest = allEvents.last;
+                  final oldest = allEvents.isEmpty ? null : allEvents.first;
+                  final newest = allEvents.isEmpty ? null : allEvents.last;
 
-                  return ListView.builder(
-                    itemCount: this.events.entries.length,
-                    itemBuilder: (context, index) {
-                      final e = this.events.entries.elementAt(index);
-                      final device =
-                          ServersProvider.instance.servers.findDevice(e.key);
-                      if (device == null) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(child: Icon(Icons.pause)),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(children: [
+                          const SizedBox(
+                            width: kDeviceNameWidth,
+                            child: Text('Device name'),
+                          ),
+                          Text(
+                            oldest == null
+                                ? '--'
+                                : SettingsProvider.instance.dateFormat
+                                    .format(oldest.published),
+                          ),
+                          const Spacer(),
+                          Text(
+                            newest == null
+                                ? '--'
+                                : SettingsProvider.instance.dateFormat
+                                    .format(newest.published),
+                          ),
+                        ]),
+                      ),
+                      Expanded(
+                        child: Stack(children: [
+                          Positioned.fill(
+                            child: ListView.builder(
+                              itemCount: widget.events.entries.length,
+                              itemBuilder: (context, index) {
+                                final e =
+                                    widget.events.entries.elementAt(index);
+                                final device = ServersProvider.instance.servers
+                                    .findDevice(e.key);
+                                if (device == null) {
+                                  return const SizedBox.shrink();
+                                }
 
-                      final events = e.value;
+                                final events = e.value;
 
-                      return _DeviceTimelineTile(device: device);
-                    },
+                                return _DeviceTimelineTile(device: device);
+                              },
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            bottom: 0,
+                            left: kDeviceNameWidth,
+                            child: Container(
+                              height: double.infinity,
+                              width: 2,
+                              color: Theme.of(context).indicatorColor,
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ],
                   );
                 }(),
               ),
-            ]),
+            ),
           ),
+        ]),
+      ),
+      ConstrainedBox(
+        constraints: kSidebarConstraints,
+        child: Material(
+          child: Column(children: [
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.viewPaddingOf(context).bottom,
+                ),
+                itemCount: ServersProvider.instance.servers.length,
+                itemBuilder: (context, i) {
+                  final server = ServersProvider.instance.servers[i];
+                  return FutureBuilder(
+                    future: (() async => server.devices.isEmpty
+                        ? API.instance.getDevices(
+                            await API.instance.checkServerCredentials(server))
+                        : true)(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: Container(
+                            alignment: AlignmentDirectional.center,
+                            height: 156.0,
+                            child: const CircularProgressIndicator.adaptive(),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: server.devices.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return SubHeader(
+                              server.name,
+                              subtext: AppLocalizations.of(context).nDevices(
+                                server.devices.length,
+                              ),
+                            );
+                          }
+
+                          index--;
+                          final device = server.devices[index];
+                          if (!widget.events.keys
+                              .contains(EventsProvider.idForDevice(device))) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final selected = events.selectedIds
+                              .contains(EventsProvider.idForDevice(device));
+
+                          return _DeviceTile(
+                            device: device,
+                            selected: selected,
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              height: kTimelineViewHeight,
+              child: Card(
+                margin: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 8.0,
+                    bottom: 8.0,
+                    left: 8.0,
+                    right: 16.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text('Filter'),
+                      Expanded(child: Placeholder()),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ]),
         ),
       ),
     ]);
@@ -260,16 +336,17 @@ class _DeviceTimelineTile extends StatelessWidget {
       height: 24.0,
       child: Material(
         child: Row(children: [
-          const SizedBox(width: 8.0),
           SizedBox(
-            width: 140.0,
-            child: Text(
-              '${device.server.name}/${device.name}',
-              maxLines: 1,
-              overflow: TextOverflow.fade,
+            width: kDeviceNameWidth,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                '${device.server.name}/${device.name}',
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+              ),
             ),
           ),
-          const SizedBox(width: 8.0),
           const VerticalDivider(
             width: 2,
           ),

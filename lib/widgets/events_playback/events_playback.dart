@@ -47,6 +47,10 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           );
 
           for (final event in events) {
+            if (!server.devices.any((d) => d.name == event.deviceName)) {
+              continue;
+            }
+
             final device =
                 server.devices.firstWhere((d) => d.name == event.deviceName);
             final id = EventsProvider.idForDevice(device);

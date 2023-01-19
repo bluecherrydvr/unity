@@ -53,7 +53,7 @@ class ServersList extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.0),
                   onTap: () {
                     // Go to the "Add Server" tab.
-                    changeCurrentTab.call(3);
+                    changeCurrentTab.call(UnityTab.addServer.index);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

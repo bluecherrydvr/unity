@@ -194,18 +194,20 @@ class SubHeader extends StatelessWidget {
   final String text;
   final String? subtext;
   final EdgeInsetsGeometry padding;
+  final double? height;
 
   const SubHeader(
     this.text, {
     this.subtext,
     Key? key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+    this.height = 56.0,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56.0,
+      height: height,
       alignment: AlignmentDirectional.centerStart,
       padding: padding,
       child: Column(

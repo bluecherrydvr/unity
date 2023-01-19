@@ -31,8 +31,19 @@ enum UnityTab {
 }
 
 enum UnityLoadingReason {
+  /// Fetching the events in the [EventsPlayback] screen
   fetchingEventsPlayback,
+
+  /// Fetching the periods in [EventsPlayback] screen.
+  ///
+  /// It is a heavy computational task, so it's useful to warn the user something
+  /// is going on
+  fetchingEventsPlaybackPeriods,
+
+  /// Fetching the events in the [EventsScreen] screen
   fetchingEventsHistory,
+
+  /// Downloading an event media
   downloadEvent,
 }
 
@@ -72,10 +83,10 @@ class HomeProvider extends ChangeNotifier {
 
   /// Whether something in the app is loading
   bool get isLoading => loadReasons.isNotEmpty;
-  void loading(UnityLoadingReason reason) {
+  void loading(UnityLoadingReason reason, {bool notify = true}) {
     loadReasons.add(reason);
 
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   void notLoading(UnityLoadingReason reason) {

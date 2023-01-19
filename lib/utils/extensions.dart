@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -140,5 +141,46 @@ extension ServerExtension on List<Server> {
     }
 
     return null;
+  }
+}
+
+extension DateTimeExtension on List<DateTime> {
+  bool hasForDate(DateTime date) {
+    return any((pd) {
+      return pd.year == date.year &&
+          pd.month == date.month &&
+          pd.day == date.day &&
+          pd.hour == date.hour &&
+          pd.minute == date.minute;
+    });
+  }
+}
+
+extension EventsExtension on List<Event> {
+  bool hasForDate(DateTime date) {
+    return any((event) {
+      final pd = event.published;
+      return pd.year == date.year &&
+          pd.month == date.month &&
+          pd.day == date.day &&
+          pd.hour == date.hour &&
+          pd.minute == date.minute;
+    });
+  }
+
+  Event get oldest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.published.compareTo(e2.published);
+      });
+
+    return copy.first;
+  }
+
+  Event get newest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.published.compareTo(e2.published);
+      });
+
+    return copy.last;
   }
 }

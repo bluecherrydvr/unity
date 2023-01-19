@@ -32,6 +32,7 @@ dependencies:
 
   intl: ^0.17.0
   intl_utils: ^2.1.0
+  auto_size_text: ^3.0.0
 
   firebase_core: ^2.4.1
   # Firebase Messaging 11.2.8 seems to be the most stable version.

@@ -608,10 +608,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       });
       final server = await API.instance.checkServerCredentials(
         Server(
-          textEditingControllers[2].text,
-          getServerHostname(textEditingControllers[0].text),
-          int.parse(textEditingControllers[1].text),
-          textEditingControllers[3].text,
+          textEditingControllers[2].text.trim(),
+          getServerHostname(textEditingControllers[0].text.trim()),
+          int.parse(textEditingControllers[1].text.trim()),
+          textEditingControllers[3].text.trim(),
           textEditingControllers[4].text,
           [],
           savePassword: savePassword,

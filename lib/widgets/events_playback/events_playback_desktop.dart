@@ -17,16 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,6 +37,93 @@ import 'package:provider/provider.dart';
 
 const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
+const kTimelineTileHeight = 24.0;
+
+class TimelineItem {
+  final String deviceId;
+  final List<Event> events;
+
+  const TimelineItem({
+    required this.deviceId,
+    required this.events,
+  });
+}
+
+class TimelineController extends ChangeNotifier {
+  List<TimelineItem> items = [];
+  List<DateTime> periods = [];
+
+  TimelineController();
+
+  /// [events] all the events split by device
+  ///
+  /// [allEvents] all events in the history
+  ///
+  /// [oldest] the date of the oldest event
+  ///
+  /// [newest] the date of the newest event
+  Future<void> initialize(
+    EventsData events,
+    List<Event> allEvents,
+    DateTime oldest,
+    DateTime newest,
+  ) async {
+    HomeProvider.instance.loading(
+      UnityLoadingReason.fetchingEventsPlaybackPeriods,
+      notify: false,
+    );
+    periods = await compute(_generatePeriods, [
+      oldest,
+      newest,
+      allEvents.map((e) => e.published).toList(),
+    ]);
+
+    for (final event in events.entries) {
+      final id = event.key;
+      final ev = event.value;
+
+      items.add(TimelineItem(
+        deviceId: id,
+        events: ev,
+      ));
+    }
+
+    HomeProvider.instance.notLoading(
+      UnityLoadingReason.fetchingEventsPlaybackPeriods,
+    );
+
+    notifyListeners();
+  }
+
+  static List<DateTime> _generatePeriods(List data) {
+    final oldest = data[0] as DateTime;
+    final newest = data[1] as DateTime;
+    final allDates = data[2] as List<DateTime>;
+
+    var periods = [oldest];
+
+    var placeholder = oldest;
+
+    while (placeholder.year != newest.year ||
+        placeholder.month != newest.month ||
+        placeholder.day != newest.day ||
+        placeholder.hour != newest.hour ||
+        placeholder.minute != newest.minute) {
+      placeholder = placeholder.add(const Duration(minutes: 1));
+
+      if (allDates.hasForDate(placeholder)) periods.add(placeholder);
+    }
+
+    return periods;
+  }
+
+  @override
+  void dispose() {
+    items.clear();
+
+    super.dispose();
+  }
+}
 
 class EventsPlaybackDesktop extends StatefulWidget {
   final EventsData events;
@@ -48,11 +138,59 @@ class EventsPlaybackDesktop extends StatefulWidget {
 }
 
 class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
+  late final timelineController = TimelineController();
+
   double _thumbPosition = 0;
+
+  double _speed = 1;
+  double _volume = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    timelineController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void didUpdateWidget(covariant EventsPlaybackDesktop oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (timelineController.items.length != widget.events.length) {
+      final allEvents = (widget.events.isEmpty
+          ? <Event>[]
+          : widget.events.values.reduce((value, element) => value + element))
+        ..sort((e1, e2) {
+          return e1.published.compareTo(e2.published);
+        });
+
+      final oldest =
+          allEvents.isEmpty ? DateTime.now() : allEvents.first.published;
+      final newest =
+          allEvents.isEmpty ? DateTime.now() : allEvents.last.published;
+
+      timelineController.initialize(widget.events, allEvents, oldest, newest);
+    }
+  }
+
+  @override
+  void dispose() {
+    timelineController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
+
+    final allEvents = (widget.events.isEmpty
+        ? <Event>[]
+        : widget.events.values.reduce((value, element) => value + element))
+      ..sort((e1, e2) {
+        return e1.published.compareTo(e2.published);
+      });
+
+    final oldest = allEvents.isEmpty ? null : allEvents.first;
+    final newest = allEvents.isEmpty ? null : allEvents.last;
 
     return Row(children: [
       Expanded(
@@ -80,88 +218,94 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
               margin: EdgeInsets.zero,
               shape: const RoundedRectangleBorder(),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 6.0,
+                  bottom: 4.0,
                 ),
-                child: () {
-                  final allEvents = (widget.events.isEmpty
-                      ? <Event>[]
-                      : widget.events.values
-                          .reduce((value, element) => value + element))
-                    ..sort((e1, e2) {
-                      return e1.published.compareTo(e2.published);
-                    });
-
-                  final oldest = allEvents.isEmpty ? null : allEvents.first;
-                  final newest = allEvents.isEmpty ? null : allEvents.last;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          CircleAvatar(child: Icon(Icons.pause)),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(children: [
-                          const SizedBox(
-                            width: kDeviceNameWidth,
-                            child: Text('Device name'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${_speed == 1.0 ? '1' : _speed.toStringAsFixed(1)}x',
+                        ),
+                        SizedBox(
+                          width: 120.0,
+                          child: Slider(
+                            value: _speed,
+                            max: 2,
+                            onChanged: (v) => setState(() => _speed = v),
                           ),
-                          Text(
-                            oldest == null
-                                ? '--'
-                                : SettingsProvider.instance.dateFormat
-                                    .format(oldest.published),
-                          ),
-                          const Spacer(),
-                          Text(
-                            newest == null
-                                ? '--'
-                                : SettingsProvider.instance.dateFormat
-                                    .format(newest.published),
-                          ),
-                        ]),
-                      ),
-                      Expanded(
-                        child: Stack(children: [
-                          Positioned.fill(
-                            child: ListView.builder(
-                              itemCount: widget.events.entries.length,
-                              itemBuilder: (context, index) {
-                                final e =
-                                    widget.events.entries.elementAt(index);
-                                final device = ServersProvider.instance.servers
-                                    .findDevice(e.key);
-                                if (device == null) {
-                                  return const SizedBox.shrink();
-                                }
-
-                                // final events = e.value;
-
-                                return _DeviceTimelineTile(device: device);
-                              },
+                        ),
+                        CircleAvatar(
+                          child: ClipOval(
+                            child: Material(
+                              type: MaterialType.transparency,
+                              child: InkWell(
+                                onTap: () {},
+                                child: const Center(child: Icon(Icons.pause)),
+                              ),
                             ),
                           ),
-                          Positioned(
-                            top: 0,
-                            bottom: 0,
-                            left: kDeviceNameWidth,
-                            child: Container(
-                              height: double.infinity,
-                              width: 2,
-                              color: Theme.of(context).indicatorColor,
+                        ),
+                        SizedBox(
+                          width: 120.0,
+                          child: Slider(
+                            value: _volume,
+                            onChanged: (v) => setState(() => _volume = v),
+                          ),
+                        ),
+                        Text(_volume.toStringAsFixed(1)),
+                      ],
+                    ),
+                    Row(children: [
+                      const SizedBox(
+                        width: kDeviceNameWidth,
+                        child: Text('Device name'),
+                      ),
+                      Text(
+                        oldest == null
+                            ? '--'
+                            : SettingsProvider.instance.dateFormat
+                                .format(oldest.published),
+                      ),
+                      const Spacer(),
+                      Text(
+                        newest == null
+                            ? '--'
+                            : SettingsProvider.instance.dateFormat
+                                .format(newest.published),
+                      ),
+                    ]),
+                    Expanded(
+                      child: Stack(children: [
+                        Positioned.fill(
+                          child: SingleChildScrollView(
+                            child: Material(
+                              child: TimelineView(
+                                timelineController: timelineController,
+                              ),
                             ),
                           ),
-                        ]),
-                      ),
-                    ],
-                  );
-                }(),
+                        ),
+                        Positioned(
+                          top: 0,
+                          bottom: 0,
+                          left: kDeviceNameWidth,
+                          child: Container(
+                            height: double.infinity,
+                            width: 2,
+                            color: Theme.of(context).indicatorColor,
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -244,9 +388,29 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Filter'),
-                      Expanded(child: Placeholder()),
+                    children: [
+                      // TODO(bdlukaa): Filter
+                      const SubHeader(
+                        'Filter',
+                        padding: EdgeInsets.only(bottom: 6.0),
+                        height: null,
+                      ),
+                      FilterTile(
+                        title: 'From',
+                        trailing: oldest == null
+                            ? '--'
+                            : SettingsProvider.instance.dateFormat
+                                .format(oldest.published),
+                        onTap: () {},
+                      ),
+                      FilterTile(
+                        title: 'To',
+                        trailing: newest == null
+                            ? '--'
+                            : SettingsProvider.instance.dateFormat
+                                .format(newest.published),
+                        onTap: () {},
+                      ),
                     ],
                   ),
                 ),
@@ -325,44 +489,95 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
   }
 }
 
-class _DeviceTimelineTile extends StatelessWidget {
-  final Device device;
+class TimelineView extends StatelessWidget {
+  final TimelineController timelineController;
 
-  const _DeviceTimelineTile({Key? key, required this.device}) : super(key: key);
+  const TimelineView({
+    Key? key,
+    required this.timelineController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 24.0,
-      child: Material(
-        child: Row(children: [
-          SizedBox(
-            width: kDeviceNameWidth,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                '${device.server.name}/${device.name}',
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-              ),
+    return Row(children: [
+      Column(
+          children: timelineController.items.map((i) {
+        final device = ServersProvider.instance.servers.findDevice(
+          i.deviceId,
+        )!;
+
+        return SizedBox(
+          height: kTimelineTileHeight,
+          width: kDeviceNameWidth,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: AutoSizeText(
+              '${device.server.name}/${device.name}',
+              maxLines: 1,
+              overflow: TextOverflow.fade,
             ),
           ),
-          const VerticalDivider(
-            width: 2,
-          ),
-          Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.green.shade700,
-                border: Border(
-                  bottom: BorderSide(color: Theme.of(context).canvasColor),
-                ),
-              ),
-              child: const SizedBox.expand(),
-            ),
-          ),
-        ]),
+        );
+      }).toList()),
+      const VerticalDivider(width: 2.0),
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Column(
+              children: timelineController.items.map((i) {
+            return Row(
+              children: timelineController.periods.map((period) {
+                final has = i.events.hasForDate(period);
+
+                return Container(
+                  height: kTimelineTileHeight,
+                  decoration: BoxDecoration(
+                    color: has ? Colors.green.shade700 : Colors.grey.shade400,
+                    border: Border(
+                      bottom: BorderSide(color: Theme.of(context).canvasColor),
+                    ),
+                  ),
+                  width: 9,
+                  // child: Text(period.hour.toString()),
+                );
+              }).toList(),
+            );
+          }).toList()),
+        ),
       ),
-    );
+    ]);
+  }
+}
+
+class FilterTile extends StatelessWidget {
+  final String title;
+  final String trailing;
+  final VoidCallback onTap;
+
+  const FilterTile({
+    Key? key,
+    required this.title,
+    required this.trailing,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Text(title),
+      const SizedBox(width: 4.0),
+      Expanded(
+        child: Material(
+          child: InkWell(
+            onTap: onTap,
+            child: AutoSizeText(
+              trailing,
+              maxLines: 1,
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 }

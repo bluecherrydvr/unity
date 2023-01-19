@@ -150,7 +150,8 @@ class _SettingsState extends State<Settings> {
                         Theme.of(context).brightness == Brightness.dark
                             ? Theme(
                                 data: ThemeData.dark().copyWith(
-                                  primaryColor: Theme.of(context).primaryColor,
+                                  primaryColor:
+                                      Theme.of(context).colorScheme.primary,
                                   colorScheme: ColorScheme.fromSwatch(
                                     primarySwatch: Colors.indigo,
                                     brightness: Brightness.dark,

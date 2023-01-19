@@ -147,10 +147,12 @@ class EventsPlaybackDesktop extends StatelessWidget {
               ),
               Expanded(
                 child: () {
-                  final allEvents = this
-                      .events
-                      .values
-                      .reduce((value, element) => value + element)
+                  final allEvents = (this.events.isEmpty
+                      ? []
+                      : this
+                          .events
+                          .values
+                          .reduce((value, element) => value + element))
                     ..sort((e1, e2) {
                       return e1.published.compareTo(e2.published);
                     });
@@ -233,7 +235,7 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
               widget.device.name.uppercaseFirst(),
               style: theme.textTheme.titleMedium!.copyWith(
                 color: widget.selected
-                    ? theme.primaryColor
+                    ? theme.colorScheme.primary
                     : !widget.device.status
                         ? theme.disabledColor
                         : null,

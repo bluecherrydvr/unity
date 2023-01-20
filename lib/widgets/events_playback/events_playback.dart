@@ -52,7 +52,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           );
 
           for (final event in events) {
-            if (!server.devices.any((d) => d.name == event.deviceName)) {
+            if (!server.devices.any((d) => d.name == event.deviceName)
+                //  || event.isAlarm
+                ) {
               continue;
             }
 

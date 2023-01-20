@@ -144,7 +144,7 @@ extension ServerExtension on List<Server> {
   }
 }
 
-extension DateTimeExtension on List<DateTime> {
+extension DateTimeExtension on Iterable<DateTime> {
   bool hasForDate(DateTime date) {
     return any((pd) {
       return pd.year == date.year &&
@@ -156,9 +156,20 @@ extension DateTimeExtension on List<DateTime> {
   }
 }
 
-extension EventsExtension on List<Event> {
+extension EventsExtension on Iterable<Event> {
   bool hasForDate(DateTime date) {
     return any((event) {
+      final pd = event.published;
+      return pd.year == date.year &&
+          pd.month == date.month &&
+          pd.day == date.day &&
+          pd.hour == date.hour &&
+          pd.minute == date.minute;
+    });
+  }
+
+  Event forDate(DateTime date) {
+    return firstWhere((event) {
       final pd = event.published;
       return pd.year == date.year &&
           pd.month == date.month &&

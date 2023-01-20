@@ -86,10 +86,9 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
   bool get isSeekable => vlcPlayer.playback.isSeekable;
 
   @override
-  Stream<Duration> get onCurrentPosUpdate =>
-      vlcPlayer.positionStream.map<Duration>(
-        (event) => event.position ?? Duration.zero,
-      );
+  Stream<Duration> get onCurrentPosUpdate => vlcPlayer.positionStream
+      .map<Duration>((event) => event.position ?? Duration.zero);
+
   @override
   Stream<bool> get onBufferStateUpdate =>
       vlcPlayer.bufferingProgressStream.map((event) => event != 1.0);
@@ -103,7 +102,31 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    vlcPlayer.open(Media.network(url));
+    vlcPlayer.open(Media.network(url), autoStart: autoPlay);
+  }
+
+  @override
+  Future<void> setMultipleDataSource(
+    List<UnityVideoPlayerSource> url, {
+    bool autoPlay = true,
+  }) async {
+    vlcPlayer.open(
+      Playlist(
+        medias: url.map<Media>((source) {
+          if (source is UnityVideoPlayerUrlSource) {
+            return Media.network(source.url);
+          } else if (source is UnityVideoPlayerSilenceSource) {
+            // TODO(bdlukaa): silence source
+          } else if (source is UnityVideoPlayerAssetSource) {
+            return Media.asset(source.path);
+          }
+
+          throw UnsupportedError(
+            '${source.runtimeType} is not a supported type',
+          );
+        }).toList(),
+      ),
+    );
   }
 
   @override

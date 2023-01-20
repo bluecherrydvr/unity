@@ -94,6 +94,14 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   }
 
   @override
+  Future<void> setMultipleDataSource(
+    List<UnityVideoPlayerSource> url, {
+    bool autoPlay = true,
+  }) async {
+    // TODO(bdlukaa): playlist in mobile player
+  }
+
+  @override
   Future<void> setVolume(double volume) async {
     await ijkPlayer.setVolume(volume);
     _currentVolume = volume;

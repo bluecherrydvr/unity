@@ -34,6 +34,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
@@ -42,14 +43,32 @@ const kTimelineTileHeight = 24.0;
 class TimelineItem {
   final String deviceId;
   final List<Event> events;
+  final UnityVideoPlayer player;
 
   const TimelineItem({
     required this.deviceId,
     required this.events,
+    required this.player,
   });
 }
 
 class TimelineController extends ChangeNotifier {
+  AnimationController? controller;
+  Duration? _duration;
+  Duration get duration {
+    return Duration(milliseconds: _duration!.inMilliseconds ~/ _speed);
+  }
+
+  double _speed = 2;
+  double get speed => _speed;
+  set speed(double v) {
+    _speed = v;
+
+    controller?.duration = duration;
+
+    notifyListeners();
+  }
+
   List<TimelineItem> items = [];
   List<DateTime> periods = [];
 
@@ -67,6 +86,7 @@ class TimelineController extends ChangeNotifier {
     List<Event> allEvents,
     DateTime oldest,
     DateTime newest,
+    TickerProvider vsync,
   ) async {
     HomeProvider.instance.loading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
@@ -75,17 +95,52 @@ class TimelineController extends ChangeNotifier {
     periods = await compute(_generatePeriods, [
       oldest,
       newest,
-      allEvents.map((e) => e.published).toList(),
+      allEvents.map((e) => e.published),
     ]);
+
+    _duration = periods.last.difference(periods.first);
+    controller = AnimationController(
+      vsync: vsync,
+      duration: duration,
+    );
 
     for (final event in events.entries) {
       final id = event.key;
       final ev = event.value;
 
-      items.add(TimelineItem(
+      final item = TimelineItem(
         deviceId: id,
         events: ev,
-      ));
+        player: UnityVideoPlayer.create(),
+      );
+
+      // item.player
+      //   ..setMultipleDataSource(
+      //     // we can ensure the url is not null because we filter for alarms above
+      //     // ev.map((source) {
+      //     //   return UnityVideoPlayerUrlSource(url: source.mediaURL!.toString());
+      //     // }).toList(),
+      //     periods.map((period) {
+      //       if (ev.hasForDate(period)) {
+      //         final event = ev.forDate(period);
+      //         return UnityVideoPlayerUrlSource(url: event.mediaURL!.toString());
+      //       }
+
+      //       // we can allow this because each period in [periods] has 1 second
+      //       return UnityVideoPlayerAssetSource(
+      //         path: 'assets/videos/blank_video.mp4',
+      //       );
+      //     }).toList(),
+      //     autoPlay: false,
+      //   )
+      //   ..onPlayingStateUpdate.listen((playing) {
+      //     if (playing) controller?.forward();
+      //     notifyListeners();
+      //   });
+
+      controller?.forward();
+
+      items.add(item);
     }
 
     HomeProvider.instance.notLoading(
@@ -98,9 +153,9 @@ class TimelineController extends ChangeNotifier {
   static List<DateTime> _generatePeriods(List data) {
     final oldest = data[0] as DateTime;
     final newest = data[1] as DateTime;
-    final allDates = data[2] as List<DateTime>;
+    final allDates = data[2] as Iterable<DateTime>;
 
-    var periods = [oldest];
+    var periods = <DateTime>[];
 
     var placeholder = oldest;
 
@@ -117,11 +172,47 @@ class TimelineController extends ChangeNotifier {
     return periods;
   }
 
+  /// Starts all players
+  Future<void> play() async {
+    await Future.wait([...items.map((i) => i.player.start())]);
+    controller?.forward();
+
+    notifyListeners();
+  }
+
+  /// Checks if the current player state is paused
+  ///
+  /// If a single player is paused, all players will be paused.
+  bool get isPaused {
+    final paused = items.any((item) => !item.player.isPlaying);
+
+    for (final item in items) {
+      if (paused && item.player.isPlaying) {
+        item.player.pause();
+      }
+    }
+
+    return paused;
+  }
+
+  /// Pauses all players
+  Future<void> pause() async {
+    await Future.wait(items.map((i) => i.player.pause()));
+    controller?.stop();
+
+    notifyListeners();
+  }
+
   @override
-  void dispose() {
+  Future<void> dispose() async {
+    super.dispose();
+    for (final item in items) {
+      await item.player.release();
+      item.player.dispose();
+    }
     items.clear();
 
-    super.dispose();
+    controller?.dispose();
   }
 }
 
@@ -137,12 +228,12 @@ class EventsPlaybackDesktop extends StatefulWidget {
   State<EventsPlaybackDesktop> createState() => _EventsPlaybackDesktopState();
 }
 
-class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
+class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
+    with SingleTickerProviderStateMixin {
   late final timelineController = TimelineController();
 
   double _thumbPosition = 0;
 
-  double _speed = 1;
   double _volume = 1;
 
   @override
@@ -168,7 +259,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
       final newest =
           allEvents.isEmpty ? DateTime.now() : allEvents.last.published;
 
-      timelineController.initialize(widget.events, allEvents, oldest, newest);
+      timelineController.initialize(
+          widget.events, allEvents, oldest, newest, this);
     }
   }
 
@@ -200,14 +292,28 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
               color: Colors.black,
               alignment: Alignment.center,
               child: events.selectedIds.isEmpty
-                  ? const Text('Select an event')
+                  ? const Text('Select a device')
                   : GridView.count(
-                      crossAxisCount: 2,
+                      crossAxisCount: calculateCrossAxisCount(
+                        timelineController.items.length,
+                      ),
                       childAspectRatio: 16 / 9,
-                      children: events.selectedIds.map((id) {
-                        final eventsForDevice = widget.events[id];
+                      children: timelineController.items.map((i) {
+                        return UnityVideoView(
+                          player: i.player,
+                          paneBuilder: (context, player) {
+                            if (player.dataSource == null ||
+                                player.dataSource!.contains('blank_video')) {
+                              return const Center(
+                                child: Text(
+                                  'The camera has no records in current period',
+                                ),
+                              );
+                            }
 
-                        return Center(child: Text(id));
+                            return const SizedBox.shrink();
+                          },
+                        );
                       }).toList(),
                     ),
             ),
@@ -231,23 +337,38 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${_speed == 1.0 ? '1' : _speed.toStringAsFixed(1)}x',
+                          '${timelineController.speed == 1.0 ? '1' : timelineController.speed.toStringAsFixed(1)}x',
                         ),
                         SizedBox(
                           width: 120.0,
                           child: Slider(
-                            value: _speed,
+                            value: timelineController.speed,
                             max: 2,
-                            onChanged: (v) => setState(() => _speed = v),
+                            onChanged: (v) => timelineController.speed = v,
                           ),
                         ),
-                        CircleAvatar(
-                          child: ClipOval(
+                        Tooltip(
+                          message:
+                              timelineController.isPaused ? 'Play' : 'Pause',
+                          child: CircleAvatar(
                             child: Material(
                               type: MaterialType.transparency,
                               child: InkWell(
-                                onTap: () {},
-                                child: const Center(child: Icon(Icons.pause)),
+                                borderRadius: BorderRadius.circular(100.0),
+                                onTap: () {
+                                  if (timelineController.isPaused) {
+                                    timelineController.play();
+                                  } else {
+                                    timelineController.pause();
+                                  }
+                                },
+                                child: Center(
+                                  child: Icon(
+                                    timelineController.isPaused
+                                        ? Icons.play_arrow
+                                        : Icons.pause,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -282,27 +403,47 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       ),
                     ]),
                     Expanded(
-                      child: Stack(children: [
-                        Positioned.fill(
-                          child: SingleChildScrollView(
-                            child: Material(
-                              child: TimelineView(
-                                timelineController: timelineController,
+                      child: LayoutBuilder(builder: (context, consts) {
+                        return Stack(children: [
+                          Positioned.fill(
+                            child: SingleChildScrollView(
+                              child: Material(
+                                child: TimelineView(
+                                  timelineController: timelineController,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          bottom: 0,
-                          left: kDeviceNameWidth,
-                          child: Container(
-                            height: double.infinity,
-                            width: 2,
-                            color: Theme.of(context).indicatorColor,
-                          ),
-                        ),
-                      ]),
+                          if (timelineController.controller != null)
+                            AnimatedBuilder(
+                              animation: timelineController.controller!,
+                              builder: (context, child) {
+                                final left = Tween<double>(
+                                  begin: kDeviceNameWidth,
+                                  end: consts.maxWidth,
+                                ).evaluate(timelineController.controller!);
+
+                                return Positioned(
+                                  top: 0,
+                                  bottom: 0,
+                                  left: left,
+                                  child: child!,
+                                );
+                              },
+                              child: GestureDetector(
+                                onHorizontalDragUpdate: (d) {
+                                  print(d.localPosition);
+                                },
+                                child: Container(
+                                  height: double.infinity,
+                                  width: 2,
+                                  color: Colors.black,
+                                  // color: Theme.of(context).indicatorColor,
+                                ),
+                              ),
+                            ),
+                        ]);
+                      }),
                     ),
                   ],
                 ),
@@ -537,8 +678,7 @@ class TimelineView extends StatelessWidget {
                       bottom: BorderSide(color: Theme.of(context).canvasColor),
                     ),
                   ),
-                  width: 9,
-                  // child: Text(period.hour.toString()),
+                  width: 2,
                 );
               }).toList(),
             );

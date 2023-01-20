@@ -157,7 +157,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     mkPlayer.open(
       Playlist(url.map((source) {
         if (source is UnityVideoPlayerUrlSource) {
-          return Media((source as UnityVideoPlayerUrlSource).url);
+          return Media(source.url);
         } else if (source is UnityVideoPlayerSilenceSource) {
           // TODO(bdlukaa): silence source
         } else if (source is UnityVideoPlayerAssetSource) {

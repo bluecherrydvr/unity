@@ -22,9 +22,44 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+class FilterData {
+  final List<String>? devices;
+
+  final DateTime fromLimit;
+  final DateTime toLimit;
+
+  final DateTime from;
+  final DateTime to;
+
+  const FilterData({
+    required this.devices,
+    required this.fromLimit,
+    required this.toLimit,
+    required this.from,
+    required this.to,
+  });
+
+  FilterData copyWith({
+    List<String>? devices,
+    DateTime? fromLimit,
+    DateTime? toLimit,
+    DateTime? from,
+    DateTime? to,
+  }) {
+    return FilterData(
+      devices: devices ?? this.devices,
+      fromLimit: fromLimit ?? this.fromLimit,
+      toLimit: toLimit ?? this.toLimit,
+      from: from ?? this.from,
+      to: to ?? this.to,
+    );
+  }
+}
 
 // Device Id : Events for device
 typedef EventsData = Map<String, List<Event>>;
@@ -39,6 +74,8 @@ class EventsPlayback extends StatefulWidget {
 class _EventsPlaybackState extends State<EventsPlayback> {
   bool isFirstTimeLoading = true;
   EventsData eventsForDevice = {};
+
+  FilterData? filterData;
 
   Future<void> fetch() async {
     final home = context.read<HomeProvider>()
@@ -78,6 +115,17 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       debugPrint(stacktrace.toString());
     }
 
+    final allEvents = eventsForDevice.values.reduce((a, b) => a + b);
+    final from = allEvents.oldest;
+    final to = allEvents.newest;
+    filterData = FilterData(
+      devices: null,
+      from: from.published,
+      fromLimit: from.published,
+      to: to.published,
+      toLimit: to.published,
+    );
+
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
     if (mounted) {
@@ -95,6 +143,30 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
-    return EventsPlaybackDesktop(events: eventsForDevice);
+    return EventsPlaybackDesktop(
+      events: Map.fromEntries(
+        eventsForDevice.entries.where((entry) {
+          if (filterData == null) return true;
+
+          if (filterData!.devices != null &&
+              !filterData!.devices!.contains(entry.key)) {
+            return false;
+          }
+
+          return true;
+        }).map((e) {
+          if (filterData == null) return e;
+
+          final events = e.value.where((event) {
+            return filterData!.from.isBefore(event.published) ||
+                filterData!.to.isAfter(event.published);
+          }).toList();
+
+          return MapEntry(e.key, events);
+        }),
+      ),
+      filter: filterData,
+      onFilter: (filter) => setState(() => filterData = filter),
+    );
   }
 }

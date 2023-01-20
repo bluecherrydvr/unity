@@ -84,21 +84,25 @@ class TimelineController extends ChangeNotifier {
   Future<void> initialize(
     EventsData events,
     List<Event> allEvents,
-    DateTime oldest,
-    DateTime newest,
     TickerProvider vsync,
   ) async {
     HomeProvider.instance.loading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
       notify: false,
     );
+    await clear();
+    notifyListeners();
+
     periods = await compute(_generatePeriods, [
-      oldest,
-      newest,
+      allEvents.oldest.published,
+      allEvents.newest.published,
       allEvents.map((e) => e.published),
     ]);
 
     _duration = periods.last.difference(periods.first);
+
+    controller?.dispose();
+    controller = null;
     controller = AnimationController(
       vsync: vsync,
       duration: duration,
@@ -155,6 +159,8 @@ class TimelineController extends ChangeNotifier {
     final newest = data[1] as DateTime;
     final allDates = data[2] as Iterable<DateTime>;
 
+    debugPrint('oldest $oldest / newest $newest - ${allDates.length}');
+
     var periods = <DateTime>[];
 
     var placeholder = oldest;
@@ -203,14 +209,19 @@ class TimelineController extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  Future<void> dispose() async {
-    super.dispose();
+  Future<void> clear() async {
     for (final item in items) {
       await item.player.release();
       item.player.dispose();
     }
     items.clear();
+    periods.clear();
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    clear();
 
     controller?.dispose();
   }
@@ -218,10 +229,14 @@ class TimelineController extends ChangeNotifier {
 
 class EventsPlaybackDesktop extends StatefulWidget {
   final EventsData events;
+  final FilterData? filter;
+  final ValueChanged<FilterData> onFilter;
 
   const EventsPlaybackDesktop({
     Key? key,
     required this.events,
+    required this.filter,
+    required this.onFilter,
   }) : super(key: key);
 
   @override
@@ -229,7 +244,7 @@ class EventsPlaybackDesktop extends StatefulWidget {
 }
 
 class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final timelineController = TimelineController();
 
   double _thumbPosition = 0;
@@ -246,21 +261,12 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
   void didUpdateWidget(covariant EventsPlaybackDesktop oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (timelineController.items.length != widget.events.length) {
-      final allEvents = (widget.events.isEmpty
+    if (oldWidget.events != widget.events) {
+      final allEvents = widget.events.isEmpty
           ? <Event>[]
-          : widget.events.values.reduce((value, element) => value + element))
-        ..sort((e1, e2) {
-          return e1.published.compareTo(e2.published);
-        });
+          : widget.events.values.reduce((value, element) => value + element);
 
-      final oldest =
-          allEvents.isEmpty ? DateTime.now() : allEvents.first.published;
-      final newest =
-          allEvents.isEmpty ? DateTime.now() : allEvents.last.published;
-
-      timelineController.initialize(
-          widget.events, allEvents, oldest, newest, this);
+      timelineController.initialize(widget.events, allEvents, this);
     }
   }
 
@@ -273,16 +279,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
   @override
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
-
-    final allEvents = (widget.events.isEmpty
-        ? <Event>[]
-        : widget.events.values.reduce((value, element) => value + element))
-      ..sort((e1, e2) {
-        return e1.published.compareTo(e2.published);
-      });
-
-    final oldest = allEvents.isEmpty ? null : allEvents.first;
-    final newest = allEvents.isEmpty ? null : allEvents.last;
 
     return Row(children: [
       Expanded(
@@ -389,17 +385,17 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                         child: Text('Device name'),
                       ),
                       Text(
-                        oldest == null
+                        widget.filter == null
                             ? '--'
                             : SettingsProvider.instance.dateFormat
-                                .format(oldest.published),
+                                .format(widget.filter!.from),
                       ),
                       const Spacer(),
                       Text(
-                        newest == null
+                        widget.filter == null
                             ? '--'
                             : SettingsProvider.instance.dateFormat
-                                .format(newest.published),
+                                .format(widget.filter!.to),
                       ),
                     ]),
                     Expanded(
@@ -432,7 +428,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                               },
                               child: GestureDetector(
                                 onHorizontalDragUpdate: (d) {
-                                  print(d.localPosition);
+                                  debugPrint(d.localPosition.toString());
                                 },
                                 child: Container(
                                   height: double.infinity,
@@ -530,7 +526,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // TODO(bdlukaa): Filter
                       const SubHeader(
                         'Filter',
                         padding: EdgeInsets.only(bottom: 6.0),
@@ -538,19 +533,49 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                       ),
                       FilterTile(
                         title: 'From',
-                        trailing: oldest == null
+                        trailing: widget.filter == null
                             ? '--'
                             : SettingsProvider.instance.dateFormat
-                                .format(oldest.published),
-                        onTap: () {},
+                                .format(widget.filter!.from),
+                        onTap: widget.filter == null
+                            ? null
+                            : () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: widget.filter!.from,
+                                  firstDate: widget.filter!.fromLimit,
+                                  lastDate: widget.filter!.to,
+                                );
+
+                                if (date != null) {
+                                  widget.onFilter(widget.filter!.copyWith(
+                                    from: date,
+                                  ));
+                                }
+                              },
                       ),
                       FilterTile(
                         title: 'To',
-                        trailing: newest == null
+                        trailing: widget.filter == null
                             ? '--'
                             : SettingsProvider.instance.dateFormat
-                                .format(newest.published),
-                        onTap: () {},
+                                .format(widget.filter!.to),
+                        onTap: widget.filter == null
+                            ? null
+                            : () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: widget.filter!.to,
+                                  firstDate: widget.filter!.from,
+                                  lastDate: widget.filter!.toLimit,
+                                );
+
+                                if (date != null) {
+                                  widget.onFilter(widget.filter!.copyWith(
+                                    to: date,
+                                  ));
+                                }
+                              },
                       ),
                     ],
                   ),
@@ -692,7 +717,7 @@ class TimelineView extends StatelessWidget {
 class FilterTile extends StatelessWidget {
   final String title;
   final String trailing;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const FilterTile({
     Key? key,

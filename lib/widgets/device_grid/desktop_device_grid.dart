@@ -53,116 +53,135 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         child: Material(
           color: Colors.black,
           child: SizedBox.expand(
-            child: () {
-              final devices = view.currentLayout.devices;
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: () {
+                final devices = view.currentLayout.devices;
 
-              if (devices.isEmpty) {
-                return Center(
-                  child: Text(
-                    AppLocalizations.of(context).selectACamera,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12.0,
+                if (devices.isEmpty) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).selectACamera,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12.0,
+                      ),
                     ),
-                  ),
-                );
-              }
-
-              final dl = devices.length;
-              if (view.currentLayout.layoutType ==
-                      DesktopLayoutType.compactView &&
-                  dl >= 4) {
-                var foldedDevices = devices
-                    .fold<List<List<Device>>>(
-                      [[]],
-                      (collection, device) {
-                        if (collection.last.length == 4) {
-                          collection.add([device]);
-                        } else {
-                          collection.last.add(device);
-                        }
-
-                        return collection;
-                      },
-                    )
-                    .reversed
-                    .toList();
-                final crossAxisCount =
-                    calculateCrossAxisCount(foldedDevices.length);
-
-                final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
-
-                // if there are space left on screen
-                if (amountOfItemsOnScreen > foldedDevices.length) {
-                  // final diff = amountOfItemsOnScreen - foldedDevices.length;
-                  while (amountOfItemsOnScreen > foldedDevices.length) {
-                    final lastFullFold =
-                        foldedDevices.firstWhere((fold) => fold.length > 1);
-                    final foldIndex = foldedDevices.indexOf(lastFullFold);
-                    foldedDevices.insert(
-                      (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
-                      [lastFullFold.last],
-                    );
-                    lastFullFold.removeLast();
-                  }
+                  );
                 }
 
-                foldedDevices = foldedDevices.toList();
+                const gridPadding = EdgeInsets.all(10.0);
 
-                return GridView.builder(
+                final dl = devices.length;
+
+                if (dl == 1) {
+                  final device = devices.first;
+                  return Padding(
+                    padding: gridPadding,
+                    child: DesktopDeviceTile(
+                      key: ValueKey('$device.${device.server.serverUUID}'),
+                      device: device,
+                    ),
+                  );
+                }
+
+                if (view.currentLayout.layoutType ==
+                        DesktopLayoutType.compactView &&
+                    dl >= 4) {
+                  var foldedDevices = devices
+                      .fold<List<List<Device>>>(
+                        [[]],
+                        (collection, device) {
+                          if (collection.last.length == 4) {
+                            collection.add([device]);
+                          } else {
+                            collection.last.add(device);
+                          }
+
+                          return collection;
+                        },
+                      )
+                      .reversed
+                      .toList();
+                  final crossAxisCount =
+                      calculateCrossAxisCount(foldedDevices.length);
+
+                  final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+                  // if there are space left on screen
+                  if (amountOfItemsOnScreen > foldedDevices.length) {
+                    // final diff = amountOfItemsOnScreen - foldedDevices.length;
+                    while (amountOfItemsOnScreen > foldedDevices.length) {
+                      final lastFullFold =
+                          foldedDevices.firstWhere((fold) => fold.length > 1);
+                      final foldIndex = foldedDevices.indexOf(lastFullFold);
+                      foldedDevices.insert(
+                        (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                        [lastFullFold.last],
+                      );
+                      lastFullFold.removeLast();
+                    }
+                  }
+
+                  foldedDevices = foldedDevices.toList();
+
+                  return GridView.builder(
+                    key: ValueKey(view.currentLayout.hashCode),
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: kGridInnerPadding,
+                      crossAxisSpacing: kGridInnerPadding,
+                      childAspectRatio: 16 / 9,
+                    ),
+                    padding: gridPadding,
+                    itemCount: foldedDevices.length,
+                    itemBuilder: (context, index) {
+                      final fold = foldedDevices[index];
+
+                      if (fold.length == 1) {
+                        final device = fold.first;
+                        return DesktopDeviceTile(
+                          key: ValueKey('$device;${device.server.serverUUID}'),
+                          device: device,
+                        );
+                      }
+
+                      return DesktopCompactTile(
+                        key: ValueKey('$fold;${fold.length}'),
+                        devices: fold,
+                      );
+                    },
+                  );
+                }
+
+                final crossAxisCount = calculateCrossAxisCount(dl);
+
+                return ReorderableGridView.builder(
+                  key: ValueKey(view.currentLayout.hashCode),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
+                    crossAxisCount: crossAxisCount.clamp(1, 50),
                     mainAxisSpacing: kGridInnerPadding,
                     crossAxisSpacing: kGridInnerPadding,
                     childAspectRatio: 16 / 9,
                   ),
-                  padding: const EdgeInsets.all(10.0),
-                  itemCount: foldedDevices.length,
+                  padding: gridPadding,
+                  onReorder: view.reorder,
+                  itemCount: devices.length,
                   itemBuilder: (context, index) {
-                    final fold = foldedDevices[index];
+                    final device = devices[index];
 
-                    if (fold.length == 1) {
-                      final device = fold.first;
-                      return DesktopDeviceTile(
-                        key: ValueKey('$device;${device.server.serverUUID}'),
-                        device: device,
-                      );
-                    }
-
-                    return DesktopCompactTile(
-                      key: ValueKey('$fold;${fold.length}'),
-                      devices: fold,
+                    return DesktopDeviceTile(
+                      key: ValueKey('$device.${device.server.serverUUID}'),
+                      device: device,
                     );
                   },
                 );
-              }
-
-              final crossAxisCount = calculateCrossAxisCount(dl);
-
-              return ReorderableGridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount.clamp(1, 50),
-                  mainAxisSpacing: kGridInnerPadding,
-                  crossAxisSpacing: kGridInnerPadding,
-                  childAspectRatio: 16 / 9,
-                ),
-                padding: const EdgeInsets.all(10.0),
-                onReorder: view.reorder,
-                itemCount: devices.length,
-                itemBuilder: (context, index) {
-                  final device = devices[index];
-
-                  return DesktopDeviceTile(
-                    key: ValueKey('$device.${device.server.serverUUID}'),
-                    device: device,
-                  );
-                },
-              );
-            }(),
+              }(),
+            ),
           ),
         ),
       ),

@@ -54,7 +54,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           color: Colors.black,
           child: SizedBox.expand(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 100),
               child: () {
                 final devices = view.currentLayout.devices;
 

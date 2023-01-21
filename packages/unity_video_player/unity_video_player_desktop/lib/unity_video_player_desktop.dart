@@ -18,7 +18,7 @@ class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  UnityVideoPlayer createPlayer() {
+  UnityVideoPlayer createPlayer({int? width, int? height}) {
     return UnityVideoPlayerDesktop();
   }
 
@@ -56,10 +56,16 @@ class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
 }
 
 class UnityVideoPlayerDesktop extends UnityVideoPlayer {
-  Player vlcPlayer = Player(
-    id: Random.secure().nextInt(100000),
-    videoDimensions: const VideoDimensions(640, 360),
-  );
+  late Player vlcPlayer;
+
+  UnityVideoPlayerDesktop({int? width, int? height}) {
+    vlcPlayer = Player(
+      id: Random.secure().nextInt(100000),
+      videoDimensions: width != null && height != null
+          ? VideoDimensions(width, height)
+          : null,
+    );
+  }
 
   // stores the current volume, since vlc do not provide it
   double _currentVolume = 1.0;

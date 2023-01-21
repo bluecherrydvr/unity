@@ -15,7 +15,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   Future<void> initialize() async {}
 
   @override
-  UnityVideoPlayer createPlayer() {
+  UnityVideoPlayer createPlayer({int? width, int? height}) {
     return UnityVideoPlayerMediaKit();
   }
 
@@ -103,8 +103,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Player mkPlayer = Player();
   late Future<VideoController> mkVideoController;
 
-  UnityVideoPlayerMediaKit() {
-    mkVideoController = VideoController.create(mkPlayer.handle);
+  UnityVideoPlayerMediaKit({int? width, int? height}) {
+    mkVideoController = VideoController.create(
+      mkPlayer.handle,
+      height: height,
+      width: width,
+    );
   }
 
   void ensureVideoControllerInitialized(VoidCallback cb) {

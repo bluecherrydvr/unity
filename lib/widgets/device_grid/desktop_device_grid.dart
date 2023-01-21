@@ -77,6 +77,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 if (dl == 1) {
                   final device = devices.first;
                   return Padding(
+                    key: ValueKey(view.currentLayout.hashCode),
                     padding: gridPadding,
                     child: DesktopDeviceTile(
                       key: ValueKey('$device.${device.server.serverUUID}'),

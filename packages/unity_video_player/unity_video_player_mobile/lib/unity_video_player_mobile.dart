@@ -14,7 +14,7 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
   Future<void> initialize() async {}
 
   @override
-  UnityVideoPlayer createPlayer() {
+  UnityVideoPlayer createPlayer({int? width, int? height}) {
     return UnityVideoPlayerMobile();
   }
 

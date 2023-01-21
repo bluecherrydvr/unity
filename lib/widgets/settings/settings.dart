@@ -146,29 +146,6 @@ class _SettingsState extends State<Settings> {
                         .toUpperCase(),
                     initialTime: TimeOfDay.fromDateTime(DateTime.now()),
                     useRootNavigator: false,
-                    builder: (_, child) =>
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Theme(
-                                data: ThemeData.dark().copyWith(
-                                  primaryColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  colorScheme: ColorScheme.fromSwatch(
-                                    primarySwatch: Colors.indigo,
-                                    brightness: Brightness.dark,
-                                  ),
-                                  dialogTheme: const DialogTheme(
-                                    backgroundColor: Colors.black,
-                                  ),
-                                  scaffoldBackgroundColor: Colors.black,
-                                ),
-                                child: TimePickerTheme(
-                                  data: const TimePickerThemeData(
-                                    backgroundColor: Color(0xFF191919),
-                                  ),
-                                  child: child!,
-                                ),
-                              )
-                            : child!,
                   );
                   if (timeOfDay != null) {
                     settings.snoozedUntil = DateTime(

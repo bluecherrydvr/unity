@@ -34,7 +34,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   Future<void> initialize();
 
   /// Creates a player
-  UnityVideoPlayer createPlayer();
+  UnityVideoPlayer createPlayer({int? width, int? height});
 
   /// Creates a video view
   Widget createVideoView({
@@ -61,8 +61,12 @@ Widget UnityVideoView({
 }
 
 abstract class UnityVideoPlayer {
-  static UnityVideoPlayer create() =>
-      UnityVideoPlayerInterface.instance.createPlayer();
+  static UnityVideoPlayer create({int? width, int? height}) {
+    return UnityVideoPlayerInterface.instance.createPlayer(
+      width: width,
+      height: height,
+    );
+  }
 
   /// The current data source url
   String? get dataSource;

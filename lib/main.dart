@@ -114,7 +114,8 @@ Future<void> main(List<String> args) async {
       FirebaseConfiguration.ensureInitialized(),
   ]);
 
-  debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
+  debugPrint(
+      'Video Playback\$${UnityVideoPlayerInterface.instance.runtimeType}');
 
   // settings provider needs to be initalized alone
   await SettingsProvider.ensureInitialized();

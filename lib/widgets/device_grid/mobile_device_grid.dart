@@ -60,7 +60,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
             ],
           ),
           child: Material(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             child: Container(
               height: kMobileBottomBarHeight,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -94,7 +94,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                               alignment: AlignmentDirectional.center,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Theme.of(context).primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 2.0,
                                 ),
                                 borderRadius: BorderRadius.circular(14.0),

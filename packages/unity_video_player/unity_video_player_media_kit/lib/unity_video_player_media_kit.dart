@@ -2,7 +2,7 @@ library unity_video_player_media_kit;
 
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_core_video/media_kit_core_video.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
@@ -15,7 +15,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   Future<void> initialize() async {}
 
   @override
-  UnityVideoPlayer createPlayer() {
+  UnityVideoPlayer createPlayer({int? width, int? height}) {
     return UnityVideoPlayerMediaKit();
   }
 
@@ -31,6 +31,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
         Positioned.fill(
           child: _MKVideo(
             player: (player as UnityVideoPlayerMediaKit).mkPlayer,
+            videoController: player.mkVideoController,
             color: color,
             fit: {
               UnityVideoFit.contain: BoxFit.contain,
@@ -55,11 +56,13 @@ class _MKVideo extends StatefulWidget {
   const _MKVideo({
     Key? key,
     required this.player,
+    required this.videoController,
     required this.fit,
     required this.color,
   }) : super(key: key);
 
   final Player player;
+  final Future<VideoController> videoController;
   final BoxFit fit;
   final Color color;
 
@@ -68,17 +71,14 @@ class _MKVideo extends StatefulWidget {
 }
 
 class __MKVideoState extends State<_MKVideo> {
-  // Reference to the [VideoController] instance from `package:media_kit_core_video`.
-  VideoController? controller;
+  VideoController? videoController;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Create a [VideoController] instance from `package:media_kit_core_video`.
-      // Pass the [handle] of the [Player] from `package:media_kit` to the [VideoController] constructor.
-      controller = await VideoController.create(widget.player.handle);
-      setState(() {});
+
+    widget.videoController.then((value) {
+      setState(() => videoController = value);
     });
   }
 
@@ -90,15 +90,9 @@ class __MKVideoState extends State<_MKVideo> {
   }
 
   @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Video(
-      controller: controller,
+      controller: videoController,
       fill: widget.color,
       fit: widget.fit,
     );
@@ -107,6 +101,21 @@ class __MKVideoState extends State<_MKVideo> {
 
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Player mkPlayer = Player();
+  late Future<VideoController> mkVideoController;
+
+  UnityVideoPlayerMediaKit({int? width, int? height}) {
+    mkVideoController = VideoController.create(
+      mkPlayer.handle,
+      height: height,
+      width: width,
+    );
+  }
+
+  void ensureVideoControllerInitialized(VoidCallback cb) {
+    mkVideoController.then((_) {
+      cb();
+    });
+  }
 
   @override
   String? get dataSource =>
@@ -145,15 +154,18 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    // do not use mkPlayer.add because it doesn't support auto play
-    mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
+    ensureVideoControllerInitialized(() {
+      // do not use mkPlayer.add because it doesn't support auto play
+      mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
+    });
   }
 
+  // Volume in media kit goes from 0 to 100
   @override
-  Future<void> setVolume(double volume) async => mkPlayer.volume = volume;
+  Future<void> setVolume(double volume) async => mkPlayer.volume = volume * 100;
 
   @override
-  Future<double> get volume => mkPlayer.streams.volume.last;
+  Future<double> get volume async => mkPlayer.state.volume / 100;
 
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;
@@ -174,6 +186,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   void dispose() async {
+    await (await mkVideoController).dispose();
     await mkPlayer.dispose();
   }
 }

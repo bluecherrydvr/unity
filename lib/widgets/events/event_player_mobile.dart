@@ -269,12 +269,17 @@ class _VideoViewportState extends State<VideoViewport> {
                         data: SliderThemeData(
                           overlayShape: const RoundSliderOverlayShape(
                               overlayRadius: 12.0),
-                          overlayColor:
-                              Theme.of(context).primaryColor.withOpacity(0.4),
-                          thumbColor: Theme.of(context).primaryColor,
-                          activeTrackColor: Theme.of(context).primaryColor,
-                          inactiveTrackColor:
-                              Theme.of(context).primaryColor.withOpacity(0.5),
+                          overlayColor: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.4),
+                          thumbColor: Theme.of(context).colorScheme.primary,
+                          activeTrackColor:
+                              Theme.of(context).colorScheme.primary,
+                          inactiveTrackColor: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5),
                           trackHeight: 2.0,
                           thumbShape: const RoundSliderThumbShape(
                             enabledThumbRadius: 6.0,

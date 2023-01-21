@@ -68,7 +68,10 @@ StatusBarStyle getStatusBarStyleFromBrightness(Brightness brightness) {
 UnityVideoPlayer getVideoPlayerControllerForDevice(
   Device device,
 ) {
-  final controller = UnityVideoPlayer.create()
+  final controller = UnityVideoPlayer.create(
+    width: device.resolutionX,
+    height: device.resolutionY,
+  )
     ..setDataSource(device.streamURL)
     ..setVolume(0.0)
     ..setSpeed(1.0);

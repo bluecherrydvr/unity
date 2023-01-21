@@ -232,9 +232,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                           .inMicroseconds
                           .toDouble(),
                   max: videoController.duration.inMicroseconds.toDouble(),
+                  onChangeStart: (v) => videoController.pause(),
                   onChanged: (v) => setState(() => _position = v),
-                  onChangeEnd: (v) {
-                    videoController.seekTo(Duration(microseconds: v.toInt()));
+                  onChangeEnd: (v) async {
+                    await videoController
+                        .seekTo(Duration(microseconds: v.toInt()));
+                    await videoController.start();
+
                     setState(() => _position = null);
                   },
                 ),

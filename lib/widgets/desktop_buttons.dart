@@ -180,7 +180,7 @@ class _WindowButtonsState extends State<WindowButtons> {
                 //       icon: Icon(
                 //         icon,
                 //         color: home.tab == index
-                //             ? theme.primaryColor
+                //             ? theme.colorScheme.primary
                 //             : theme.hintColor,
                 //       ),
                 //       iconSize: 22.0,

@@ -41,6 +41,7 @@ class SingleCameraWindow extends StatelessWidget {
         themeMode: mode,
         theme: createTheme(themeMode: ThemeMode.light),
         darkTheme: createTheme(themeMode: ThemeMode.dark),
+        debugShowCheckedModeBanner: false,
         home: CameraView(device: device),
       ),
     );
@@ -65,9 +66,10 @@ class _CameraViewState extends State<CameraView> {
   @override
   void initState() {
     super.initState();
-    controller = UnityVideoPlayer.create();
-
-    controller
+    controller = UnityVideoPlayer.create(
+      width: widget.device.resolutionX,
+      height: widget.device.resolutionY,
+    )
       ..setDataSource(widget.device.streamURL)
       ..setVolume(0.0)
       ..setSpeed(1.0);
@@ -78,7 +80,6 @@ class _CameraViewState extends State<CameraView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(children: [
-        // WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: controller,

@@ -19,7 +19,7 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
-DisableProgramGroupPage=yes
+DisableProgramGroupPage=yes                            
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputBaseFilename=bluecherry-dvr-setup
@@ -60,15 +60,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\build\windows\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\awesome_notifications_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\dart_vlc_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\libvlc.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\libvlccore.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\permission_handler_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\screen_retriever_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\window_manager_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\build\windows\runner\Release\plugins\*"; DestDir: "{app}\plugins"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files

@@ -20,6 +20,7 @@
 part of 'device_grid.dart';
 
 const kGridInnerPadding = 8.0;
+const kGridPadding = EdgeInsets.all(10.0);
 
 typedef FoldedDevices = List<List<Device>>;
 
@@ -74,15 +75,13 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   );
                 }
 
-                const gridPadding = EdgeInsets.all(10.0);
-
                 final dl = devices.length;
 
                 if (dl == 1) {
                   final device = devices.first;
                   return Padding(
                     key: ValueKey(view.currentLayout.hashCode),
-                    padding: gridPadding,
+                    padding: kGridPadding,
                     child: DesktopDeviceTile(
                       key: ValueKey('$device.${device.server.serverUUID}'),
                       device: device,
@@ -140,7 +139,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       crossAxisSpacing: kGridInnerPadding,
                       childAspectRatio: 16 / 9,
                     ),
-                    padding: gridPadding,
+                    padding: kGridPadding,
                     itemCount: foldedDevices.length,
                     itemBuilder: (context, index) {
                       final fold = foldedDevices[index];
@@ -173,7 +172,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                     crossAxisSpacing: kGridInnerPadding,
                     childAspectRatio: 16 / 9,
                   ),
-                  padding: gridPadding,
+                  padding: kGridPadding,
                   onReorder: view.reorder,
                   itemCount: devices.length,
                   itemBuilder: (context, index) {

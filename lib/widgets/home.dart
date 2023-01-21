@@ -174,37 +174,39 @@ class _MobileHomeState extends State<Home> {
                 Expanded(
                   child: ClipRect(
                     child: PageTransitionSwitcher(
-                      child: <UnityTab, Widget Function()>{
-                        UnityTab.deviceGrid: () => const DeviceGrid(),
-                        UnityTab.eventsPlayback: () => const EventsPlayback(),
-                        UnityTab.directCameraScreen: () =>
-                            const DirectCameraScreen(),
-                        UnityTab.eventsScreen: () => const EventsScreen(),
-                        UnityTab.addServer: () => AddServerWizard(
-                              onFinish: () async {
-                                home.setTab(0);
-                                if (!isDesktop) {
-                                  await StatusBarControl.setHidden(true);
-                                  await StatusBarControl.setStyle(
-                                    getStatusBarStyleFromBrightness(
-                                        theme.brightness),
-                                  );
-                                  await SystemChrome.setPreferredOrientations(
-                                    [
-                                      DeviceOrientation.landscapeLeft,
-                                      DeviceOrientation.landscapeRight,
-                                    ],
-                                  );
-                                }
-                              },
-                            ),
-                        UnityTab.downloads: () => DownloadsManagerScreen(
-                              initiallyExpandedEventId:
-                                  home.initiallyExpandedDownloadEventId,
-                            ),
-                        UnityTab.settings: () =>
-                            Settings(changeCurrentTab: home.setTab),
-                      }[UnityTab.values[tab]]!(),
+                      child: RepaintBoundary(
+                        child: <UnityTab, Widget Function()>{
+                          UnityTab.deviceGrid: () => const DeviceGrid(),
+                          UnityTab.eventsPlayback: () => const EventsPlayback(),
+                          UnityTab.directCameraScreen: () =>
+                              const DirectCameraScreen(),
+                          UnityTab.eventsScreen: () => const EventsScreen(),
+                          UnityTab.addServer: () => AddServerWizard(
+                                onFinish: () async {
+                                  home.setTab(UnityTab.deviceGrid.index);
+                                  if (!isDesktop) {
+                                    await StatusBarControl.setHidden(true);
+                                    await StatusBarControl.setStyle(
+                                      getStatusBarStyleFromBrightness(
+                                          theme.brightness),
+                                    );
+                                    await SystemChrome.setPreferredOrientations(
+                                      [
+                                        DeviceOrientation.landscapeLeft,
+                                        DeviceOrientation.landscapeRight,
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+                          UnityTab.downloads: () => DownloadsManagerScreen(
+                                initiallyExpandedEventId:
+                                    home.initiallyExpandedDownloadEventId,
+                              ),
+                          UnityTab.settings: () =>
+                              Settings(changeCurrentTab: home.setTab),
+                        }[UnityTab.values[tab]]!(),
+                      ),
                       transitionBuilder:
                           (child, animation, secondaryAnimation) {
                         return SharedAxisTransition(

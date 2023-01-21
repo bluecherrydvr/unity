@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
@@ -39,6 +40,7 @@ import 'package:unity_video_player/unity_video_player.dart';
 const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
+const kPeriodWidth = 3.0;
 
 class TimelineItem {
   final String deviceId;
@@ -54,6 +56,7 @@ class TimelineItem {
 
 class TimelineController extends ChangeNotifier {
   AnimationController? controller;
+  DateTime get currentPeriod => periods.first.add(duration * controller!.value);
   Duration? _duration;
   Duration get duration {
     return Duration(milliseconds: _duration!.inMilliseconds ~/ _speed);
@@ -96,13 +99,46 @@ class TimelineController extends ChangeNotifier {
     ]);
 
     _duration = periods.last.difference(periods.first);
+    notifyListeners();
 
     controller?.dispose();
     controller = null;
     controller = AnimationController(
       vsync: vsync,
       duration: duration,
-    );
+    )..addListener(() {
+        if (!controller!.isAnimating) {
+          for (final item in items) {
+            item.player.pause();
+          }
+          notifyListeners();
+          return;
+        }
+
+        if (controller!.isCompleted) {
+          controller!.value = 0.0;
+          return;
+        }
+
+        var shouldNotify = false;
+
+        for (final item in items) {
+          if (item.events.hasForDate(currentPeriod)) {
+            // print('${item.deviceId} has');
+            if (!item.player.isPlaying) {
+              shouldNotify = true;
+              item.player.start();
+            }
+          } else {
+            if (item.player.isPlaying) {
+              shouldNotify = true;
+              item.player.pause();
+            }
+          }
+        }
+
+        if (shouldNotify) notifyListeners();
+      });
 
     for (final event in events.entries) {
       final id = event.key;
@@ -114,29 +150,18 @@ class TimelineController extends ChangeNotifier {
         player: UnityVideoPlayer.create(),
       );
 
-      // item.player
-      //   ..setMultipleDataSource(
-      //     // we can ensure the url is not null because we filter for alarms above
-      //     // ev.map((source) {
-      //     //   return UnityVideoPlayerUrlSource(url: source.mediaURL!.toString());
-      //     // }).toList(),
-      //     periods.map((period) {
-      //       if (ev.hasForDate(period)) {
-      //         final event = ev.forDate(period);
-      //         return UnityVideoPlayerUrlSource(url: event.mediaURL!.toString());
-      //       }
-
-      //       // we can allow this because each period in [periods] has 1 second
-      //       return UnityVideoPlayerAssetSource(
-      //         path: 'assets/videos/blank_video.mp4',
-      //       );
-      //     }).toList(),
-      //     autoPlay: false,
-      //   )
-      //   ..onPlayingStateUpdate.listen((playing) {
-      //     if (playing) controller?.forward();
-      //     notifyListeners();
-      //   });
+      item.player
+        ..setMultipleDataSource(
+          // we can ensure the url is not null because we filter for alarms above
+          ev.where((event) => event.mediaURL != null).map((event) {
+            return event.mediaURL!.toString();
+          }).toList(),
+          autoPlay: false,
+        )
+        ..onPlayingStateUpdate.listen((playing) {
+          if (playing) controller?.forward();
+          notifyListeners();
+        });
 
       controller?.forward();
 
@@ -176,7 +201,6 @@ class TimelineController extends ChangeNotifier {
 
   /// Starts all players
   Future<void> play() async {
-    await Future.wait([...items.map((i) => i.player.start())]);
     controller?.forward();
 
     notifyListeners();
@@ -186,15 +210,7 @@ class TimelineController extends ChangeNotifier {
   ///
   /// If a single player is paused, all players will be paused.
   bool get isPaused {
-    final paused = items.any((item) => !item.player.isPlaying);
-
-    for (final item in items) {
-      if (paused && item.player.isPlaying) {
-        item.player.pause();
-      }
-    }
-
-    return paused;
+    return controller == null || !controller!.isAnimating;
   }
 
   /// Pauses all players
@@ -210,6 +226,7 @@ class TimelineController extends ChangeNotifier {
       await item.player.release();
       item.player.dispose();
     }
+
     items.clear();
     periods.clear();
   }
@@ -243,8 +260,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
     with TickerProviderStateMixin {
   late final timelineController = TimelineController();
 
-  double _thumbPosition = 0;
-
   double _volume = 1;
 
   @override
@@ -257,7 +272,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
   void didUpdateWidget(covariant EventsPlaybackDesktop oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.events != widget.events) {
+    if (oldWidget.filter != widget.filter) {
       final allEvents = widget.events.isEmpty
           ? <Event>[]
           : widget.events.values.reduce((value, element) => value + element);
@@ -280,9 +295,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
       Expanded(
         child: Column(children: [
           Expanded(
-            child: Container(
-              color: Colors.black,
-              alignment: Alignment.center,
+            child: Center(
               child: events.selectedIds.isEmpty
                   ? const Text('Select a device')
                   : GridView.count(
@@ -290,17 +303,28 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                         timelineController.items.length,
                       ),
                       childAspectRatio: 16 / 9,
+                      padding: kGridPadding,
+                      mainAxisSpacing: kGridInnerPadding,
+                      crossAxisSpacing: kGridInnerPadding,
                       children: timelineController.items.map((i) {
                         return UnityVideoView(
                           player: i.player,
                           paneBuilder: (context, player) {
-                            if (player.dataSource == null ||
-                                player.dataSource!.contains('blank_video')) {
+                            final has = i.events
+                                .hasForDate(timelineController.currentPeriod);
+
+                            if (!has) {
                               return const Center(
                                 child: Text(
                                   'The camera has no records in current period',
                                 ),
                               );
+                            } else if (player.dataSource == null) {
+                              return const ErrorWarning(
+                                message: 'Error loading',
+                              );
+                            } else {
+                              debugPrint('${player.dataSource}');
                             }
 
                             return const SizedBox.shrink();
@@ -387,6 +411,16 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                                 .format(widget.filter!.from),
                       ),
                       const Spacer(),
+                      if (timelineController.controller != null)
+                        AnimatedBuilder(
+                          animation: timelineController.controller!,
+                          builder: (context, child) {
+                            return Text(
+                              timelineController.currentPeriod.toString(),
+                            );
+                          },
+                        ),
+                      const Spacer(),
                       Text(
                         widget.filter == null
                             ? '--'
@@ -395,47 +429,13 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                       ),
                     ]),
                     Expanded(
-                      child: LayoutBuilder(builder: (context, consts) {
-                        return Stack(children: [
-                          Positioned.fill(
-                            child: SingleChildScrollView(
-                              child: Material(
-                                child: TimelineView(
-                                  timelineController: timelineController,
-                                ),
-                              ),
-                            ),
+                      child: SingleChildScrollView(
+                        child: Material(
+                          child: TimelineView(
+                            timelineController: timelineController,
                           ),
-                          if (timelineController.controller != null)
-                            AnimatedBuilder(
-                              animation: timelineController.controller!,
-                              builder: (context, child) {
-                                final left = Tween<double>(
-                                  begin: kDeviceNameWidth,
-                                  end: consts.maxWidth,
-                                ).evaluate(timelineController.controller!);
-
-                                return Positioned(
-                                  top: 0,
-                                  bottom: 0,
-                                  left: left,
-                                  child: child!,
-                                );
-                              },
-                              child: GestureDetector(
-                                onHorizontalDragUpdate: (d) {
-                                  debugPrint(d.localPosition.toString());
-                                },
-                                child: Container(
-                                  height: double.infinity,
-                                  width: 2,
-                                  color: Colors.black,
-                                  // color: Theme.of(context).indicatorColor,
-                                ),
-                              ),
-                            ),
-                        ]);
-                      }),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -661,52 +661,119 @@ class TimelineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Column(
-          children: timelineController.items.map((i) {
-        final device = ServersProvider.instance.servers.findDevice(
-          i.deviceId,
-        )!;
+    final maxHeight = timelineController.items.length * kTimelineTileHeight;
+    final maxWidth = timelineController.periods.length * kPeriodWidth;
 
-        return SizedBox(
-          height: kTimelineTileHeight,
-          width: kDeviceNameWidth,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: AutoSizeText(
-              '${device.server.name}/${device.name}',
-              maxLines: 1,
-              overflow: TextOverflow.fade,
+    final servers = context.read<ServersProvider>().servers;
+
+    return SizedBox(
+      height: maxHeight,
+      child: Row(children: [
+        Column(
+            children: timelineController.items.map((i) {
+          final device = servers.findDevice(i.deviceId)!;
+          final server = servers.firstWhere((s) => s.ip == device.server.ip);
+
+          return SizedBox(
+            height: kTimelineTileHeight,
+            width: kDeviceNameWidth,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: AutoSizeText(
+                '${server.name}/${device.name}',
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+              ),
             ),
-          ),
-        );
-      }).toList()),
-      const VerticalDivider(width: 2.0),
-      Expanded(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Column(
-              children: timelineController.items.map((i) {
-            return Row(
-              children: timelineController.periods.map((period) {
-                final has = i.events.hasForDate(period);
+          );
+        }).toList()),
+        const VerticalDivider(width: 2.0),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: maxWidth,
+              height: maxHeight,
+              child: Stack(children: [
+                Positioned.fill(
+                  child: Column(
+                      children: timelineController.items.map((item) {
+                    return Row(
+                      children: timelineController.periods.map((period) {
+                        final has = item.events.hasForDate(period);
 
-                return Container(
-                  height: kTimelineTileHeight,
-                  decoration: BoxDecoration(
-                    color: has ? Colors.green.shade700 : Colors.grey.shade400,
-                    border: Border(
-                      bottom: BorderSide(color: Theme.of(context).canvasColor),
+                        return Container(
+                          height: kTimelineTileHeight,
+                          decoration: BoxDecoration(
+                            color: has
+                                ? item.events.forDate(period).isAlarm
+                                    ? Colors.red
+                                    : Colors.green.shade700
+                                : Colors.grey.shade400,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Theme.of(context).canvasColor,
+                              ),
+                            ),
+                          ),
+                          width: kPeriodWidth,
+                        );
+                      }).toList(),
+                    );
+                  }).toList()),
+                ),
+                if (timelineController.controller != null)
+                  AnimatedBuilder(
+                    animation: timelineController.controller!,
+                    builder: (context, child) {
+                      final left = Tween<double>(
+                        begin: 0,
+                        end: maxWidth,
+                      ).evaluate(timelineController.controller!);
+
+                      return Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: left,
+                        child: child!,
+                      );
+                    },
+                    child: GestureDetector(
+                      onHorizontalDragStart: (_) {
+                        timelineController.controller!.stop();
+                      },
+                      onHorizontalDragUpdate: (d) {
+                        // if lower than 0 or greater than 1, it means it's off the
+                        // bounds of the scroller
+                        final pos =
+                            (d.localPosition.dx / maxWidth).clamp(0.0, 1.0);
+                        debugPrint('${d.localPosition.dx}/$maxWidth $pos');
+
+                        timelineController.controller!.value = pos;
+
+                        // print(timelineController.controller!.value);
+
+                        // Tween<double>(
+                        //   begin: 0,
+                        //   end: maxWidth,
+                        // );
+                      },
+                      onHorizontalDragEnd: (_) {
+                        timelineController.controller!.forward();
+                      },
+                      child: Container(
+                        height: double.infinity,
+                        width: kPeriodWidth,
+                        color: Colors.black.withOpacity(0.6),
+                      ),
                     ),
                   ),
-                  width: 2,
-                );
-              }).toList(),
-            );
-          }).toList()),
+              ]),
+            ),
+          ),
         ),
-      ),
-    ]);
+      ]),
+    );
   }
 }
 

@@ -76,6 +76,13 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   EventsData eventsForDevice = {};
 
   FilterData? filterData;
+  EventsData filteredData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
+  }
 
   Future<void> fetch() async {
     final home = context.read<HomeProvider>()
@@ -126,6 +133,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       toLimit: to.published,
     );
 
+    updateFilteredData();
+
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
     if (mounted) {
@@ -135,38 +144,46 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
+  void updateFilteredData() {
+    filteredData = Map.fromEntries(
+      eventsForDevice.entries.where((entry) {
+        if (filterData == null) return true;
+
+        if (filterData!.devices != null &&
+            !filterData!.devices!.contains(entry.key)) {
+          return false;
+        }
+
+        return true;
+      }).map((e) {
+        if (filterData == null) return e;
+
+        final events = e.value.where((event) {
+          return filterData!.from.isBefore(event.published) &&
+              filterData!.to.isAfter(event.published) &&
+              !event.isAlarm;
+        }).toList();
+
+        return MapEntry(e.key, events);
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final home = context.watch<HomeProvider>();
+
     return EventsPlaybackDesktop(
-      events: Map.fromEntries(
-        eventsForDevice.entries.where((entry) {
-          if (filterData == null) return true;
-
-          if (filterData!.devices != null &&
-              !filterData!.devices!.contains(entry.key)) {
-            return false;
-          }
-
-          return true;
-        }).map((e) {
-          if (filterData == null) return e;
-
-          final events = e.value.where((event) {
-            return filterData!.from.isBefore(event.published) ||
-                filterData!.to.isAfter(event.published);
-          }).toList();
-
-          return MapEntry(e.key, events);
-        }),
-      ),
+      events: filteredData,
       filter: filterData,
-      onFilter: (filter) => setState(() => filterData = filter),
+      onFilter: (filter) {
+        home.loading(UnityLoadingReason.fetchingEventsPlayback);
+
+        updateFilteredData();
+        setState(() => filterData = filter);
+
+        home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+      },
     );
   }
 }

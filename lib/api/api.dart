@@ -129,7 +129,7 @@ class API {
       final parser = Xml2Json()..parse(response.body);
       return (await compute(jsonDecode, parser.toGData()))['feed']['entry']
           .map((e) {
-        // debugPrint(e.toString());
+        if (!e.containsKey('content')) debugPrint(e.toString());
         return Event(
           server,
           int.parse(e['id']['raw']),

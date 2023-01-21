@@ -349,7 +349,11 @@ class _ServerCardState extends State<ServerCard> {
                   PopupMenuItem(
                     child: Text(AppLocalizations.of(context).disconnectServer),
                     onTap: () {
-                      widget.onRemoveServer(context, widget.server);
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        if (mounted) {
+                          widget.onRemoveServer(context, widget.server);
+                        }
+                      });
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),

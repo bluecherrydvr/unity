@@ -97,7 +97,7 @@ abstract class UnityVideoPlayer {
 
   Future<void> setDataSource(String url, {bool autoPlay = true});
   Future<void> setMultipleDataSource(
-    List<UnityVideoPlayerSource> url, {
+    List<String> url, {
     bool autoPlay = true,
   });
   Future<void> setVolume(double volume);
@@ -114,30 +114,4 @@ abstract class UnityVideoPlayer {
   Future<void> reset();
 
   void dispose();
-}
-
-abstract class UnityVideoPlayerSource {}
-
-class UnityVideoPlayerUrlSource extends UnityVideoPlayerSource {
-  final String url;
-
-  UnityVideoPlayerUrlSource({
-    required this.url,
-  });
-}
-
-class UnityVideoPlayerAssetSource extends UnityVideoPlayerSource {
-  final String path;
-
-  UnityVideoPlayerAssetSource({
-    required this.path,
-  });
-}
-
-class UnityVideoPlayerSilenceSource extends UnityVideoPlayerSource {
-  final Duration duration;
-
-  UnityVideoPlayerSilenceSource({
-    required this.duration,
-  });
 }

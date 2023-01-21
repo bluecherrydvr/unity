@@ -95,7 +95,7 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
 
   @override
   Future<void> setMultipleDataSource(
-    List<UnityVideoPlayerSource> url, {
+    List<String> url, {
     bool autoPlay = true,
   }) async {
     // TODO(bdlukaa): playlist in mobile player

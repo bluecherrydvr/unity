@@ -162,21 +162,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setMultipleDataSource(
-    List<UnityVideoPlayerSource> url, {
+    List<String> url, {
     bool autoPlay = true,
   }) async {
     mkPlayer.open(
-      Playlist(url.map((source) {
-        if (source is UnityVideoPlayerUrlSource) {
-          return Media(source.url);
-        } else if (source is UnityVideoPlayerSilenceSource) {
-          // TODO(bdlukaa): silence source
-        } else if (source is UnityVideoPlayerAssetSource) {
-          // TODO(bdlukaa): asset source
-        }
-
-        throw UnsupportedError('${source.runtimeType} is not a supported type');
-      }).toList()),
+      Playlist(url.map((source) => Media(source)).toList()),
       play: autoPlay,
     );
   }

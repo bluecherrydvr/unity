@@ -77,10 +77,6 @@ class TimelineController extends ChangeNotifier {
   /// [events] all the events split by device
   ///
   /// [allEvents] all events in the history
-  ///
-  /// [oldest] the date of the oldest event
-  ///
-  /// [newest] the date of the newest event
   Future<void> initialize(
     EventsData events,
     List<Event> allEvents,

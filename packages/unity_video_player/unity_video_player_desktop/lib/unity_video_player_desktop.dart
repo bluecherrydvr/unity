@@ -113,24 +113,12 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
 
   @override
   Future<void> setMultipleDataSource(
-    List<UnityVideoPlayerSource> url, {
+    List<String> url, {
     bool autoPlay = true,
   }) async {
     vlcPlayer.open(
       Playlist(
-        medias: url.map<Media>((source) {
-          if (source is UnityVideoPlayerUrlSource) {
-            return Media.network(source.url);
-          } else if (source is UnityVideoPlayerSilenceSource) {
-            // TODO(bdlukaa): silence source
-          } else if (source is UnityVideoPlayerAssetSource) {
-            return Media.asset(source.path);
-          }
-
-          throw UnsupportedError(
-            '${source.runtimeType} is not a supported type',
-          );
-        }).toList(),
+        medias: url.map<Media>((source) => Media.network(source)).toList(),
       ),
     );
   }

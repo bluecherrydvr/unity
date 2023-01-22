@@ -85,12 +85,14 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter pub upgrade
       - run: flutter pub get
-      - run: flutter build windows
+      - run: flutter build windows --verbose
 
       - name: Building the installer
         run: |
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/installer-test.iss"
         shell: cmd
+
+      - run: cp installer\Output\bluecherry-dvr-setup.exe bluecherry-dvr-setup.exe
 
       - name: Release
         uses: softprops/action-gh-release@v1

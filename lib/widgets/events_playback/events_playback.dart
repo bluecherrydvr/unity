@@ -160,8 +160,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
         final events = e.value.where((event) {
           return filterData!.from.isBefore(event.published) &&
-              filterData!.to.isAfter(event.published) &&
-              !event.isAlarm;
+              filterData!.to.isAfter(event.published);
+          // &&
+          // !event.isAlarm;
         }).toList();
 
         return MapEntry(e.key, events);

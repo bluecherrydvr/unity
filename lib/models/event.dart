@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 
 /// An [Event] received from the [Server] logs.
 class Event {
@@ -44,6 +45,21 @@ class Event {
     this.mediaDuration,
     this.mediaURL,
   );
+
+  Event.dump({
+    Server? server,
+    this.id = 1,
+    this.deviceID = 1,
+    this.title = '',
+    DateTime? published,
+    DateTime? updated,
+    this.category,
+    this.mediaID,
+    this.mediaDuration,
+    this.mediaURL,
+  })  : server = server ?? ServersProvider.instance.servers.first,
+        published = published ?? DateTime.now(),
+        updated = updated ?? DateTime.now();
 
   String get deviceName {
     return title

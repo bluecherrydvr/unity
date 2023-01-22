@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
@@ -40,7 +41,9 @@ import 'package:unity_video_player/unity_video_player.dart';
 const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
-const kPeriodWidth = 3.0;
+
+/// The width of a second
+const kPeriodWidth = 2.0;
 
 class TimelineItem {
   final String deviceId;
@@ -56,13 +59,20 @@ class TimelineItem {
 
 class TimelineController extends ChangeNotifier {
   AnimationController? controller;
-  DateTime get currentPeriod => periods.first.add(duration * controller!.value);
+  DateTime get currentPeriod {
+    if (oldest == null) return DateTime(0);
+
+    return oldest!.published.add(duration * controller!.value);
+  }
+
   Duration? _duration;
   Duration get duration {
+    if (_duration == null) return Duration.zero;
+
     return Duration(milliseconds: _duration!.inMilliseconds ~/ _speed);
   }
 
-  double _speed = 2;
+  double _speed = 1;
   double get speed => _speed;
   set speed(double v) {
     _speed = v;
@@ -73,7 +83,8 @@ class TimelineController extends ChangeNotifier {
   }
 
   List<TimelineItem> items = [];
-  List<DateTime> periods = [];
+  Event? oldest;
+  Event? newest;
 
   TimelineController();
 
@@ -92,13 +103,11 @@ class TimelineController extends ChangeNotifier {
     await clear();
     notifyListeners();
 
-    periods = await compute(_generatePeriods, [
-      allEvents.oldest.published,
-      allEvents.newest.published,
-      allEvents.map((e) => e.published),
-    ]);
+    oldest = allEvents.oldest;
+    newest = allEvents.newest;
+    _duration = newest!.published.difference(
+        oldest!.published.add(oldest!.mediaDuration ?? Duration.zero));
 
-    _duration = periods.last.difference(periods.first);
     notifyListeners();
 
     controller?.dispose();
@@ -150,20 +159,22 @@ class TimelineController extends ChangeNotifier {
         player: UnityVideoPlayer.create(),
       );
 
-      item.player
-        ..setMultipleDataSource(
-          // we can ensure the url is not null because we filter for alarms above
-          ev.where((event) => event.mediaURL != null).map((event) {
-            return event.mediaURL!.toString();
-          }).toList(),
-          autoPlay: false,
-        )
-        ..onPlayingStateUpdate.listen((playing) {
-          if (playing) controller?.forward();
-          notifyListeners();
-        });
+      item.player.onPlayingStateUpdate.listen((playing) {
+        if (playing) controller?.forward();
+        notifyListeners();
+      });
 
-      controller?.forward();
+      item.player
+          .setMultipleDataSource(
+        // we can ensure the url is not null because we filter for alarms above
+        ev.where((event) => event.mediaURL != null).map((event) {
+          return event.mediaURL!.toString();
+        }).toList(),
+        autoPlay: false,
+      )
+          .then((value) {
+        controller?.forward();
+      });
 
       items.add(item);
     }
@@ -173,30 +184,6 @@ class TimelineController extends ChangeNotifier {
     );
 
     notifyListeners();
-  }
-
-  static List<DateTime> _generatePeriods(List data) {
-    final oldest = data[0] as DateTime;
-    final newest = data[1] as DateTime;
-    final allDates = data[2] as Iterable<DateTime>;
-
-    debugPrint('oldest $oldest / newest $newest - ${allDates.length}');
-
-    var periods = <DateTime>[];
-
-    var placeholder = oldest;
-
-    while (placeholder.year != newest.year ||
-        placeholder.month != newest.month ||
-        placeholder.day != newest.day ||
-        placeholder.hour != newest.hour ||
-        placeholder.minute != newest.minute) {
-      placeholder = placeholder.add(const Duration(minutes: 1));
-
-      if (allDates.hasForDate(placeholder)) periods.add(placeholder);
-    }
-
-    return periods;
   }
 
   /// Starts all players
@@ -228,7 +215,7 @@ class TimelineController extends ChangeNotifier {
     }
 
     items.clear();
-    periods.clear();
+    // periods.clear();
   }
 
   @override
@@ -296,7 +283,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
         child: Column(children: [
           Expanded(
             child: Center(
-              child: events.selectedIds.isEmpty
+              child: events.selectedIds.isEmpty ||
+                      timelineController.controller == null
                   ? const Text('Select a device')
                   : GridView.count(
                       crossAxisCount: calculateCrossAxisCount(
@@ -662,7 +650,9 @@ class TimelineView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxHeight = timelineController.items.length * kTimelineTileHeight;
-    final maxWidth = timelineController.periods.length * kPeriodWidth;
+    final maxWidth = timelineController.controller == null
+        ? 100.0
+        : timelineController.duration.inSeconds * kPeriodWidth;
 
     final servers = context.read<ServersProvider>().servers;
 
@@ -671,8 +661,8 @@ class TimelineView extends StatelessWidget {
       child: Row(children: [
         Column(
             children: timelineController.items.map((i) {
-          final device = servers.findDevice(i.deviceId)!;
-          final server = servers.firstWhere((s) => s.ip == device.server.ip);
+          // final device = servers.findDevice(i.deviceId)!;
+          // final server = servers.firstWhere((s) => s.ip == device.server.ip);
 
           return SizedBox(
             height: kTimelineTileHeight,
@@ -680,7 +670,8 @@ class TimelineView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: AutoSizeText(
-                '${server.name}/${device.name}',
+                // '${server.name}/${device.name}',
+                '${i.deviceId}',
                 maxLines: 1,
                 overflow: TextOverflow.fade,
               ),
@@ -691,34 +682,63 @@ class TimelineView extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
+            child: Container(
               width: maxWidth,
               height: maxHeight,
+              color: Colors.grey.shade400,
               child: Stack(children: [
                 Positioned.fill(
                   child: Column(
                       children: timelineController.items.map((item) {
-                    return Row(
-                      children: timelineController.periods.map((period) {
-                        final has = item.events.hasForDate(period);
+                    return Container(
+                      height: kTimelineTileHeight,
+                      width: maxWidth,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).canvasColor,
+                          ),
+                        ),
+                      ),
+                      child: Stack(
+                          children: item.events.map((event) {
+                        final mediaDuration = event.mediaDuration ??
+                            event.updated.difference(event.published);
+                        print(
+                            '$maxWidth ${event.published.difference(timelineController.oldest!.published).inSeconds.toDouble() * kPeriodWidth} ${kPeriodWidth * mediaDuration.inSeconds}');
+                        final to = event.published.add(mediaDuration);
 
-                        return Container(
-                          height: kTimelineTileHeight,
-                          decoration: BoxDecoration(
-                            color: has
-                                ? item.events.forDate(period).isAlarm
+                        return Positioned(
+                          top: 0,
+                          bottom: 0,
+                          // left: timelineController.oldest!.published
+                          //         .difference(event.published)
+                          //         .inSeconds
+                          //         .toDouble() *
+                          //     kPeriodWidth,
+                          left: event.published
+                                  .difference(
+                                      timelineController.oldest!.published)
+                                  .inSeconds
+                                  .toDouble() *
+                              kPeriodWidth,
+                          width: kPeriodWidth * mediaDuration.inSeconds,
+                          child: Tooltip(
+                            message:
+                                'From: ${SettingsProvider.instance.dateFormat.format(event.published)}'
+                                ' at ${SettingsProvider.instance.timeFormat.format(event.published)} \n'
+                                'to ${SettingsProvider.instance.dateFormat.format(to)}'
+                                ' at ${SettingsProvider.instance.timeFormat.format(to)}',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: event.isAlarm
                                     ? Colors.red
-                                    : Colors.green.shade700
-                                : Colors.grey.shade400,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Theme.of(context).canvasColor,
+                                    : Colors.green.shade700,
                               ),
                             ),
                           ),
-                          width: kPeriodWidth,
                         );
-                      }).toList(),
+                      }).toList()),
                     );
                   }).toList()),
                 ),
@@ -750,21 +770,16 @@ class TimelineView extends StatelessWidget {
                         debugPrint('${d.localPosition.dx}/$maxWidth $pos');
 
                         timelineController.controller!.value = pos;
-
-                        // print(timelineController.controller!.value);
-
-                        // Tween<double>(
-                        //   begin: 0,
-                        //   end: maxWidth,
-                        // );
                       },
                       onHorizontalDragEnd: (_) {
                         timelineController.controller!.forward();
+
+                        debugPrint('${timelineController.currentPeriod}');
                       },
                       child: Container(
                         height: double.infinity,
                         width: kPeriodWidth,
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.amber,
                       ),
                     ),
                   ),

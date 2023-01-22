@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -86,7 +85,7 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter pub upgrade
       - run: flutter pub get
-      - run: flutter build windows
+      - run: flutter build windows --verbose
 
       - name: Building the installer
         run: |

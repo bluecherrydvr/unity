@@ -144,15 +144,49 @@ extension ServerExtension on List<Server> {
   }
 }
 
-extension DateTimeExtension on Iterable<DateTime> {
+extension DateTimeExtension on DateTime {
   bool hasForDate(DateTime date) {
-    return any((pd) {
-      return pd.year == date.year &&
-          pd.month == date.month &&
-          pd.day == date.day &&
-          pd.hour == date.hour &&
-          pd.minute == date.minute;
-    });
+    return year == date.year &&
+        month == date.month &&
+        day == date.day &&
+        hour == date.hour &&
+        minute == date.minute;
+  }
+
+  bool isInBetween(DateTime first, DateTime second) {
+    return hasForDate(first) ||
+        hasForDate(second) ||
+        (isAfter(first) && isBefore(second));
+  }
+}
+
+extension DateTimeListExtension on Iterable<DateTime> {
+  bool hasForDate(DateTime date) {
+    return any((pd) => pd.hasForDate(date));
+  }
+
+  Iterable<DateTime> forDate(DateTime date) {
+    return where((pd) => pd.hasForDate(date));
+  }
+
+  Iterable<DateTime> inBetween(DateTime d1, DateTime d2) {
+    return where((e) => e.isInBetween(d1, d2));
+  }
+
+  DateTime get oldest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.compareTo(e2);
+      });
+
+    return copy.first;
+  }
+
+  DateTime get newest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.compareTo(e2);
+      });
+
+    return copy.first;
   }
 }
 
@@ -160,22 +194,28 @@ extension EventsExtension on Iterable<Event> {
   bool hasForDate(DateTime date) {
     return any((event) {
       final pd = event.published;
-      return pd.year == date.year &&
-          pd.month == date.month &&
-          pd.day == date.day &&
-          pd.hour == date.hour &&
-          pd.minute == date.minute;
+
+      final end = event.mediaDuration == null
+          ? event.published.add(event.updated.difference(event.published))
+          : event.published.add(event.mediaDuration!);
+
+      return pd.hasForDate(date) ||
+          end.hasForDate(date) ||
+          date.isInBetween(pd, end);
     });
   }
 
   Event forDate(DateTime date) {
     return firstWhere((event) {
       final pd = event.published;
-      return pd.year == date.year &&
-          pd.month == date.month &&
-          pd.day == date.day &&
-          pd.hour == date.hour &&
-          pd.minute == date.minute;
+      return pd.hasForDate(date);
+    });
+  }
+
+  Iterable<Event> forDateList(DateTime date) {
+    return where((event) {
+      final pd = event.published;
+      return pd.hasForDate(date);
     });
   }
 
@@ -193,5 +233,9 @@ extension EventsExtension on Iterable<Event> {
       });
 
     return copy.last;
+  }
+
+  Iterable<Event> inBetween(DateTime d1, DateTime d2) {
+    return where((e) => e.published.isInBetween(d1, d2));
   }
 }

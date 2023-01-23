@@ -26,10 +26,10 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
+import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -44,188 +44,6 @@ const kTimelineTileHeight = 24.0;
 
 /// The width of a second
 const kPeriodWidth = 2.0;
-
-class TimelineItem {
-  final String deviceId;
-  final List<Event> events;
-  final UnityVideoPlayer player;
-
-  const TimelineItem({
-    required this.deviceId,
-    required this.events,
-    required this.player,
-  });
-}
-
-class TimelineController extends ChangeNotifier {
-  AnimationController? controller;
-  DateTime get currentPeriod {
-    if (oldest == null) return DateTime(0);
-
-    return oldest!.published.add(duration * controller!.value);
-  }
-
-  Duration? _duration;
-  Duration get duration {
-    if (_duration == null) return Duration.zero;
-
-    return Duration(milliseconds: _duration!.inMilliseconds ~/ _speed);
-  }
-
-  double _speed = 1;
-  double get speed => _speed;
-  set speed(double v) {
-    _speed = v;
-
-    controller?.duration = duration;
-
-    notifyListeners();
-  }
-
-  List<TimelineItem> items = [];
-  Event? oldest;
-  Event? newest;
-
-  TimelineController();
-
-  /// [events] all the events split by device
-  ///
-  /// [allEvents] all events in the history
-  Future<void> initialize(
-    EventsData events,
-    List<Event> allEvents,
-    TickerProvider vsync,
-  ) async {
-    HomeProvider.instance.loading(
-      UnityLoadingReason.fetchingEventsPlaybackPeriods,
-      notify: false,
-    );
-    await clear();
-    notifyListeners();
-
-    oldest = allEvents.oldest;
-    newest = allEvents.newest;
-    _duration = newest!.published.difference(
-        oldest!.published.add(oldest!.mediaDuration ?? Duration.zero));
-
-    notifyListeners();
-
-    controller?.dispose();
-    controller = null;
-    controller = AnimationController(
-      vsync: vsync,
-      duration: duration,
-    )..addListener(() {
-        if (!controller!.isAnimating) {
-          for (final item in items) {
-            item.player.pause();
-          }
-          notifyListeners();
-          return;
-        }
-
-        if (controller!.isCompleted) {
-          controller!.value = 0.0;
-          return;
-        }
-
-        var shouldNotify = false;
-
-        for (final item in items) {
-          if (item.events.hasForDate(currentPeriod)) {
-            // print('${item.deviceId} has');
-            if (!item.player.isPlaying) {
-              shouldNotify = true;
-              item.player.start();
-            }
-          } else {
-            if (item.player.isPlaying) {
-              shouldNotify = true;
-              item.player.pause();
-            }
-          }
-        }
-
-        if (shouldNotify) notifyListeners();
-      });
-
-    for (final event in events.entries) {
-      final id = event.key;
-      final ev = event.value;
-
-      final item = TimelineItem(
-        deviceId: id,
-        events: ev,
-        player: UnityVideoPlayer.create(),
-      );
-
-      item.player.onPlayingStateUpdate.listen((playing) {
-        if (playing) controller?.forward();
-        notifyListeners();
-      });
-
-      item.player
-          .setMultipleDataSource(
-        // we can ensure the url is not null because we filter for alarms above
-        ev.where((event) => event.mediaURL != null).map((event) {
-          return event.mediaURL!.toString();
-        }).toList(),
-        autoPlay: false,
-      )
-          .then((value) {
-        controller?.forward();
-      });
-
-      items.add(item);
-    }
-
-    HomeProvider.instance.notLoading(
-      UnityLoadingReason.fetchingEventsPlaybackPeriods,
-    );
-
-    notifyListeners();
-  }
-
-  /// Starts all players
-  Future<void> play() async {
-    controller?.forward();
-
-    notifyListeners();
-  }
-
-  /// Checks if the current player state is paused
-  ///
-  /// If a single player is paused, all players will be paused.
-  bool get isPaused {
-    return controller == null || !controller!.isAnimating;
-  }
-
-  /// Pauses all players
-  Future<void> pause() async {
-    await Future.wait(items.map((i) => i.player.pause()));
-    controller?.stop();
-
-    notifyListeners();
-  }
-
-  Future<void> clear() async {
-    for (final item in items) {
-      await item.player.release();
-      item.player.dispose();
-    }
-
-    items.clear();
-    // periods.clear();
-  }
-
-  @override
-  Future<void> dispose() async {
-    super.dispose();
-    clear();
-
-    controller?.dispose();
-  }
-}
 
 class EventsPlaybackDesktop extends StatefulWidget {
   final EventsData events;
@@ -283,18 +101,18 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
         child: Column(children: [
           Expanded(
             child: Center(
-              child: events.selectedIds.isEmpty ||
-                      timelineController.controller == null
+              child: timelineController.tiles.isEmpty ||
+                      !timelineController.initialized
                   ? const Text('Select a device')
                   : GridView.count(
                       crossAxisCount: calculateCrossAxisCount(
-                        timelineController.items.length,
+                        timelineController.tiles.length,
                       ),
                       childAspectRatio: 16 / 9,
                       padding: kGridPadding,
                       mainAxisSpacing: kGridInnerPadding,
                       crossAxisSpacing: kGridInnerPadding,
-                      children: timelineController.items.map((i) {
+                      children: timelineController.tiles.map((i) {
                         return UnityVideoView(
                           player: i.player,
                           paneBuilder: (context, player) {
@@ -399,15 +217,15 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                                 .format(widget.filter!.from),
                       ),
                       const Spacer(),
-                      if (timelineController.controller != null)
-                        AnimatedBuilder(
-                          animation: timelineController.controller!,
-                          builder: (context, child) {
-                            return Text(
-                              timelineController.currentPeriod.toString(),
-                            );
-                          },
-                        ),
+                      // if (timelineController.controller != null)
+                      //   AnimatedBuilder(
+                      //     animation: timelineController.controller!,
+                      //     builder: (context, child) {
+                      //       return Text(
+                      //         timelineController.currentPeriod.toString(),
+                      //       );
+                      //     },
+                      //   ),
                       const Spacer(),
                       Text(
                         widget.filter == null
@@ -635,159 +453,6 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
           const SizedBox(width: 16.0),
         ]),
       ),
-    );
-  }
-}
-
-class TimelineView extends StatelessWidget {
-  final TimelineController timelineController;
-
-  const TimelineView({
-    Key? key,
-    required this.timelineController,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final maxHeight = timelineController.items.length * kTimelineTileHeight;
-    final maxWidth = timelineController.controller == null
-        ? 100.0
-        : timelineController.duration.inSeconds * kPeriodWidth;
-
-    final servers = context.read<ServersProvider>().servers;
-
-    return SizedBox(
-      height: maxHeight,
-      child: Row(children: [
-        Column(
-            children: timelineController.items.map((i) {
-          // final device = servers.findDevice(i.deviceId)!;
-          // final server = servers.firstWhere((s) => s.ip == device.server.ip);
-
-          return SizedBox(
-            height: kTimelineTileHeight,
-            width: kDeviceNameWidth,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: AutoSizeText(
-                // '${server.name}/${device.name}',
-                '${i.deviceId}',
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-              ),
-            ),
-          );
-        }).toList()),
-        const VerticalDivider(width: 2.0),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              width: maxWidth,
-              height: maxHeight,
-              color: Colors.grey.shade400,
-              child: Stack(children: [
-                Positioned.fill(
-                  child: Column(
-                      children: timelineController.items.map((item) {
-                    return Container(
-                      height: kTimelineTileHeight,
-                      width: maxWidth,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).canvasColor,
-                          ),
-                        ),
-                      ),
-                      child: Stack(
-                          children: item.events.map((event) {
-                        final mediaDuration = event.mediaDuration ??
-                            event.updated.difference(event.published);
-                        print(
-                            '$maxWidth ${event.published.difference(timelineController.oldest!.published).inSeconds.toDouble() * kPeriodWidth} ${kPeriodWidth * mediaDuration.inSeconds}');
-                        final to = event.published.add(mediaDuration);
-
-                        return Positioned(
-                          top: 0,
-                          bottom: 0,
-                          // left: timelineController.oldest!.published
-                          //         .difference(event.published)
-                          //         .inSeconds
-                          //         .toDouble() *
-                          //     kPeriodWidth,
-                          left: event.published
-                                  .difference(
-                                      timelineController.oldest!.published)
-                                  .inSeconds
-                                  .toDouble() *
-                              kPeriodWidth,
-                          width: kPeriodWidth * mediaDuration.inSeconds,
-                          child: Tooltip(
-                            message:
-                                'From: ${SettingsProvider.instance.dateFormat.format(event.published)}'
-                                ' at ${SettingsProvider.instance.timeFormat.format(event.published)} \n'
-                                'to ${SettingsProvider.instance.dateFormat.format(to)}'
-                                ' at ${SettingsProvider.instance.timeFormat.format(to)}',
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: event.isAlarm
-                                    ? Colors.red
-                                    : Colors.green.shade700,
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList()),
-                    );
-                  }).toList()),
-                ),
-                if (timelineController.controller != null)
-                  AnimatedBuilder(
-                    animation: timelineController.controller!,
-                    builder: (context, child) {
-                      final left = Tween<double>(
-                        begin: 0,
-                        end: maxWidth,
-                      ).evaluate(timelineController.controller!);
-
-                      return Positioned(
-                        top: 0,
-                        bottom: 0,
-                        left: left,
-                        child: child!,
-                      );
-                    },
-                    child: GestureDetector(
-                      onHorizontalDragStart: (_) {
-                        timelineController.controller!.stop();
-                      },
-                      onHorizontalDragUpdate: (d) {
-                        // if lower than 0 or greater than 1, it means it's off the
-                        // bounds of the scroller
-                        final pos =
-                            (d.localPosition.dx / maxWidth).clamp(0.0, 1.0);
-                        debugPrint('${d.localPosition.dx}/$maxWidth $pos');
-
-                        timelineController.controller!.value = pos;
-                      },
-                      onHorizontalDragEnd: (_) {
-                        timelineController.controller!.forward();
-
-                        debugPrint('${timelineController.currentPeriod}');
-                      },
-                      child: Container(
-                        height: double.infinity,
-                        width: kPeriodWidth,
-                        color: Colors.amber,
-                      ),
-                    ),
-                  ),
-              ]),
-            ),
-          ),
-        ),
-      ]),
     );
   }
 }

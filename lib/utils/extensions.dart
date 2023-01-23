@@ -72,7 +72,7 @@ extension DurationExtension on Duration {
     return finalStrings.join(', ');
   }
 
-  String humanReadableCompact(BuildContext context) {
+  String humanReadableCompact(BuildContext context, [bool allowEmpty = false]) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final hours = twoDigits(inHours);
     final minutes = twoDigits(inMinutes.remainder(60));
@@ -82,15 +82,15 @@ extension DurationExtension on Duration {
 
     final localizations = AppLocalizations.of(context);
 
-    if (hours.isNotEmpty && hours != '00') {
+    if (hours.isNotEmpty && hours != '00' || allowEmpty) {
       finalStrings.add(localizations.hoursCompact(hours));
     }
 
-    if (minutes.isNotEmpty && minutes != '00') {
+    if (minutes.isNotEmpty && minutes != '00' || allowEmpty) {
       finalStrings.add(localizations.minutesCompact(minutes));
     }
 
-    if (seconds.isNotEmpty && seconds != '00') {
+    if (seconds.isNotEmpty && seconds != '00' || allowEmpty) {
       finalStrings.add(localizations.secondsCompact(seconds));
     }
 

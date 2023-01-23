@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
@@ -6,6 +8,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -13,11 +16,9 @@ const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
 
-/// The width of a second
 const kPeriodWidth = 2.0;
-
-/// The width of a gap
-const kGapWidth = 85.0;
+const kGapWidth = 84.0;
+const kGapDuration = Duration(seconds: 6);
 
 class TimelineTile {
   final String deviceId;
@@ -181,11 +182,31 @@ class TimelineController extends ChangeNotifier {
   Duration duration = Duration.zero;
   List<TimelineItem> timeGaps = [];
 
+  late Timer? timer;
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // currentItem = timeGaps.firstWhere((tg) {
+      //   if (tg is TimelineGap) {
+
+      //   }
+      // });
+      position = position + const Duration(seconds: 1);
+      positionNotifier.notifyListeners();
+    });
+  }
+
+  Duration position = Duration.zero;
+  final positionNotifier = ChangeNotifier();
+
+  double progress = 0.0;
   DateTime get currentPeriod => DateTime.now();
+  TimelineItem? currentItem;
 
   double speed = 1;
 
-  TimelineController();
+  TimelineController() {
+    startTimer();
+  }
 
   bool get initialized {
     return timeGaps.isNotEmpty;
@@ -242,17 +263,19 @@ class TimelineController extends ChangeNotifier {
       newest!.published,
       allEvents,
     ]);
+    currentItem = timeGaps.first;
 
     duration = timeGaps.map((item) {
       if (item is TimelineValue) {
         return item.duration;
       } else if (item is TimelineGap) {
-        return const Duration(seconds: 15);
+        return kGapDuration;
       } else {
         throw UnsupportedError('${item.runtimeType} is not supported');
       }
     }).reduce((a, b) => a + b);
-    notifyListeners();
+
+    startTimer();
 
     HomeProvider.instance.notLoading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
@@ -263,7 +286,7 @@ class TimelineController extends ChangeNotifier {
 
   /// Starts all players
   Future<void> play() async {
-    // controller?.forward();
+    startTimer();
 
     notifyListeners();
   }
@@ -272,14 +295,14 @@ class TimelineController extends ChangeNotifier {
   ///
   /// If a single player is paused, all players will be paused.
   bool get isPaused {
-    return true;
-    // return controller == null || !controller!.isAnimating;
+    return timer == null || !timer!.isActive;
   }
 
   /// Pauses all players
   Future<void> pause() async {
     await Future.wait(tiles.map((i) => i.player.pause()));
     // controller?.stop();
+    timer?.cancel();
 
     notifyListeners();
   }
@@ -298,6 +321,7 @@ class TimelineController extends ChangeNotifier {
   Future<void> dispose() async {
     super.dispose();
     clear();
+    timer?.cancel();
 
     // controller?.dispose();
   }
@@ -341,104 +365,119 @@ class TimelineView extends StatelessWidget {
         }).toList()),
         const VerticalDivider(width: 2.0),
         Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: timelineController.tiles.map((tile) {
-                return Container(
-                  height: kTimelineTileHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    border: const Border(bottom: BorderSide()),
-                  ),
-                  child: Row(
-                      children: timelineController.timeGaps.map((i) {
-                    if (i is TimelineGap) {
-                      return Container(
-                        // width: i.gapDuration.inMinutes * kPeriodWidth,
-                        width: kGapWidth,
-                        height: kTimelineTileHeight,
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: AutoSizeText(
-                          i.gapDuration.humanReadableCompact(context),
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    } else if (i is TimelineValue) {
-                      return SizedBox(
-                        height: kTimelineTileHeight,
-                        width: i.duration.inSeconds * kPeriodWidth,
-                        child: () {
-                          final events = tile.events.inBetween(i.start, i.end);
+          child: Stack(children: [
+            Positioned.fill(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: timelineController.tiles.map((tile) {
+                    return Container(
+                      height: kTimelineTileHeight,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        border: const Border(bottom: BorderSide()),
+                      ),
+                      child: Row(
+                          children: timelineController.timeGaps.map((i) {
+                        if (i is TimelineGap) {
+                          return Container(
+                            width: kGapWidth,
+                            height: kTimelineTileHeight,
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            alignment: Alignment.center,
+                            child: AutoSizeText(
+                              i.gapDuration.humanReadableCompact(context, true),
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        } else if (i is TimelineValue) {
+                          return SizedBox(
+                            height: kTimelineTileHeight,
+                            width: i.duration.inSeconds * kPeriodWidth,
+                            child: () {
+                              final events =
+                                  tile.events.inBetween(i.start, i.end);
 
-                          if (events.isEmpty) {
-                            // return const Text('-');
-                            return const SizedBox.shrink();
-                          }
+                              if (events.isEmpty) {
+                                // return const Text('-');
+                                return const SizedBox.shrink();
+                              }
 
-                          Widget buildForEvent(
-                              Event? event, Duration duration) {
-                            return Tooltip(
-                              message: duration.humanReadableCompact(context),
-                              child: Container(
-                                height: kTimelineTileHeight,
-                                width: duration.inSeconds * kPeriodWidth,
-                                color: event == null
-                                    ? null
-                                    : event.isAlarm
-                                        ? Colors.amber
-                                        : Colors.green,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                // child: AutoSizeText(
-                                //   duration.humanReadableCompact(context),
-                                //   maxLines: 1,
-                                //   textAlign: TextAlign.center,
-                                // ),
-                              ),
-                            );
-                          }
+                              Widget buildForEvent(
+                                Event? event,
+                                Duration duration,
+                              ) {
+                                return Tooltip(
+                                  message:
+                                      duration.humanReadableCompact(context),
+                                  preferBelow: false,
+                                  verticalOffset: 14.0,
+                                  child: Container(
+                                    height: kTimelineTileHeight,
+                                    width: duration.inSeconds * kPeriodWidth,
+                                    color: event == null
+                                        ? null
+                                        : event.isAlarm
+                                            ? Colors.amber
+                                            : Colors.green,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                  ),
+                                );
+                              }
 
-                          var widgets = <Widget>[];
+                              var widgets = <Widget>[];
 
-                          Event? previous;
-                          for (final event in events) {
-                            if (previous == null) {
-                              previous = event;
-                              final duration = event.mediaDuration ??
-                                  event.updated.difference(event.published);
+                              Event? previous;
+                              for (final event in events) {
+                                if (previous == null) {
+                                  previous = event;
+                                  final duration = event.mediaDuration ??
+                                      event.updated.difference(event.published);
 
-                              widgets.add(buildForEvent(event, duration));
-                            } else {
-                              final previousEnd = previous.published.add(
-                                previous.mediaDuration ??
-                                    (previous.updated
-                                        .difference(previous.published)),
-                              );
-                              final difference =
-                                  previousEnd.difference(event.published);
+                                  widgets.add(buildForEvent(event, duration));
+                                } else {
+                                  final previousEnd = previous.published.add(
+                                    previous.mediaDuration ??
+                                        (previous.updated
+                                            .difference(previous.published)),
+                                  );
+                                  final difference =
+                                      previousEnd.difference(event.published);
 
-                              widgets.add(buildForEvent(null, difference));
+                                  widgets.add(buildForEvent(null, difference));
 
-                              final duration = event.mediaDuration ??
-                                  event.updated.difference(event.published);
-                              widgets.add(buildForEvent(event, duration));
-                            }
-                          }
+                                  final duration = event.mediaDuration ??
+                                      event.updated.difference(event.published);
+                                  widgets.add(buildForEvent(event, duration));
+                                }
+                              }
 
-                          return Row(children: widgets);
-                        }(),
-                      );
-                    } else {
-                      throw UnsupportedError('Unsupported');
-                    }
-                  }).toList()),
-                );
-              }).toList(),
+                              return Row(children: widgets);
+                            }(),
+                          );
+                        } else {
+                          throw UnsupportedError('Unsupported');
+                        }
+                      }).toList()),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
-          ),
+            if (timelineController.initialized)
+              Positioned(
+                left: timelineController.position.inSeconds.toDouble(),
+                height: kTimelineViewHeight,
+                width: 4.0,
+                child: Container(
+                  height: kTimelineViewHeight,
+                  color: Colors.deepOrange,
+                ),
+              ),
+          ]),
         ),
       ]),
     );

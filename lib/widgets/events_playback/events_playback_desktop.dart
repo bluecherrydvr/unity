@@ -217,15 +217,15 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                                 .format(widget.filter!.from),
                       ),
                       const Spacer(),
-                      // if (timelineController.controller != null)
-                      //   AnimatedBuilder(
-                      //     animation: timelineController.controller!,
-                      //     builder: (context, child) {
-                      //       return Text(
-                      //         timelineController.currentPeriod.toString(),
-                      //       );
-                      //     },
-                      //   ),
+                      if (timelineController.initialized)
+                        AnimatedBuilder(
+                          animation: timelineController.positionNotifier,
+                          builder: (context, child) {
+                            return Text(
+                              timelineController.position.toString(),
+                            );
+                          },
+                        ),
                       const Spacer(),
                       Text(
                         widget.filter == null
@@ -237,8 +237,11 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                     Expanded(
                       child: SingleChildScrollView(
                         child: Material(
-                          child: TimelineView(
-                            timelineController: timelineController,
+                          child: AnimatedBuilder(
+                            animation: timelineController.positionNotifier,
+                            builder: (context, child) => TimelineView(
+                              timelineController: timelineController,
+                            ),
                           ),
                         ),
                       ),

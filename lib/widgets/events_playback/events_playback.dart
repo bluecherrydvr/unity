@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:collection/collection.dart';
+
 /*
  * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
@@ -36,12 +40,15 @@ class FilterData {
   final DateTime from;
   final DateTime to;
 
+  final bool allowAlarms;
+
   const FilterData({
     required this.devices,
     required this.fromLimit,
     required this.toLimit,
     required this.from,
     required this.to,
+    required this.allowAlarms,
   });
 
   FilterData copyWith({
@@ -50,6 +57,7 @@ class FilterData {
     DateTime? toLimit,
     DateTime? from,
     DateTime? to,
+    bool? allowAlarms,
   }) {
     return FilterData(
       devices: devices ?? this.devices,
@@ -57,7 +65,37 @@ class FilterData {
       toLimit: toLimit ?? this.toLimit,
       from: from ?? this.from,
       to: to ?? this.to,
+      allowAlarms: allowAlarms ?? this.allowAlarms,
     );
+  }
+
+  @override
+  String toString() {
+    return 'FilterData(devices: $devices, fromLimit: $fromLimit, toLimit: $toLimit, from: $from, to: $to, allowAlarms: $allowAlarms)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
+
+    return other is FilterData &&
+        listEquals(other.devices, devices) &&
+        other.fromLimit == fromLimit &&
+        other.toLimit == toLimit &&
+        other.from == from &&
+        other.to == to &&
+        other.allowAlarms == allowAlarms;
+  }
+
+  @override
+  int get hashCode {
+    return devices.hashCode ^
+        fromLimit.hashCode ^
+        toLimit.hashCode ^
+        from.hashCode ^
+        to.hashCode ^
+        allowAlarms.hashCode;
   }
 }
 
@@ -131,9 +169,10 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       fromLimit: from.published,
       to: to.published,
       toLimit: to.published,
+      allowAlarms: false,
     );
 
-    updateFilteredData();
+    await updateFilteredData();
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
@@ -160,10 +199,12 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         if (filterData == null) return e;
 
         final events = e.value.where((event) {
-          return filterData!.from.isBefore(event.published) &&
+          final passDate = filterData!.from.isBefore(event.published) &&
               filterData!.to.isAfter(event.published);
-          // &&
-          // !event.isAlarm;
+
+          final passAlarm = filterData!.allowAlarms ? true : !event.isAlarm;
+
+          return passDate && passAlarm;
         }).toList();
 
         return MapEntry(e.key, events);

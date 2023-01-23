@@ -400,6 +400,24 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                                 }
                               },
                       ),
+                      const Divider(),
+                      FilterTile.checkbox(
+                        checked: widget.filter?.allowAlarms,
+                        onChanged: (v) {
+                          if (v == null) {
+                            if (widget.filter != null) {
+                              widget.onFilter(
+                                widget.filter!.copyWith(allowAlarms: true),
+                              );
+                            }
+                          } else {
+                            widget.onFilter(
+                              widget.filter!.copyWith(allowAlarms: v),
+                            );
+                          }
+                        },
+                        title: const Text('Allow alarms'),
+                      ),
                     ],
                   ),
                 ),
@@ -490,19 +508,45 @@ class FilterTile extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
+  static Widget checkbox({
+    required bool? checked,
+    required ValueChanged<bool?> onChanged,
+    required Widget title,
+  }) {
+    return Row(children: [
+      title,
+      const Spacer(),
+      Checkbox(
+        value: checked,
+        onChanged: onChanged,
+        tristate: true,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Text(title),
+      SizedBox(
+        width: 40.0,
+        child: AutoSizeText(
+          title,
+          maxLines: 1,
+        ),
+      ),
       const SizedBox(width: 4.0),
       Expanded(
         child: Material(
           child: InkWell(
             onTap: onTap,
-            child: AutoSizeText(
-              trailing,
-              maxLines: 1,
-              textAlign: TextAlign.end,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4.0),
+              child: AutoSizeText(
+                trailing,
+                maxLines: 1,
+                textAlign: TextAlign.end,
+              ),
             ),
           ),
         ),

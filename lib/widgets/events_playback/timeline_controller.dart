@@ -240,6 +240,9 @@ class TimelineController extends ChangeNotifier {
 
   Timer? timer;
   void startTimer() {
+    // do not initialize it twice, otherwise it may cause inconsistency
+    if (timer != null) return;
+
     const interval = Duration(milliseconds: 100);
     timer = Timer.periodic(interval, (timer) {
       if (oldest == null) return;
@@ -331,21 +334,21 @@ class TimelineController extends ChangeNotifier {
         events: events,
         player: UnityVideoPlayer.create(),
       );
-      // item.player.onPlayingStateUpdate.listen((playing) {
-      //   if (playing) controller?.forward();
-      //   notifyListeners();
-      // });
-      // item.player
-      //     .setMultipleDataSource(
-      //   // we can ensure the url is not null because we filter for alarms above
-      //   ev.where((event) => event.mediaURL != null).map((event) {
-      //     return event.mediaURL!.toString();
-      //   }).toList(),
-      //   autoPlay: false,
-      // )
-      //     .then((value) {
-      //   controller?.forward();
-      // });
+      item.player.onPlayingStateUpdate.listen((playing) {
+        if (playing) {
+          play();
+        } else {
+          pause();
+        }
+        notifyListeners();
+      });
+      item.player.setMultipleDataSource(
+        // we can ensure the url is not null because we filter for alarms above
+        item.events.where((event) => event.mediaURL != null).map((event) {
+          return event.mediaURL!.toString();
+        }).toList(),
+        autoPlay: false,
+      );
       tiles.add(item);
     }
 
@@ -370,6 +373,7 @@ class TimelineController extends ChangeNotifier {
   /// Starts all players
   Future<void> play() async {
     startTimer();
+    await Future.wait(tiles.map((i) => i.player.start()));
 
     notifyListeners();
   }

@@ -144,7 +144,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     }
   }
 
-  void updateFilteredData() {
+  // TODO(bdlukaa): use compute here
+  Future<void> updateFilteredData() async {
     filteredData = Map.fromEntries(
       eventsForDevice.entries.where((entry) {
         if (filterData == null) return true;
@@ -177,11 +178,12 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     return EventsPlaybackDesktop(
       events: filteredData,
       filter: filterData,
-      onFilter: (filter) {
+      onFilter: (filter) async {
         home.loading(UnityLoadingReason.fetchingEventsPlayback);
 
-        updateFilteredData();
-        setState(() => filterData = filter);
+        filterData = filter;
+        await updateFilteredData();
+        setState(() {});
 
         home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
       },

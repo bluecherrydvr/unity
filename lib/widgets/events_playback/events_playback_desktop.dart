@@ -60,8 +60,7 @@ class EventsPlaybackDesktop extends StatefulWidget {
   State<EventsPlaybackDesktop> createState() => _EventsPlaybackDesktopState();
 }
 
-class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
-    with TickerProviderStateMixin {
+class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   late final timelineController = TimelineController();
 
   double _volume = 1;
@@ -87,7 +86,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
         : widget.events.values.reduce((value, element) => value + element);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      timelineController.initialize(widget.events, allEvents, this);
+      timelineController.initialize(widget.events, allEvents);
     });
   }
 
@@ -118,15 +117,20 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                       mainAxisSpacing: kGridInnerPadding,
                       crossAxisSpacing: kGridInnerPadding,
                       children: timelineController.tiles.map((i) {
+                        final has =
+                            i.events.hasForDate(timelineController.currentDate);
+
                         return UnityVideoView(
                           player: i.player,
                           paneBuilder: (context, player) {
-                            final has = i.events == timelineController;
-
                             if (!has) {
                               return const Center(
-                                child: Text(
-                                  'The camera has no records in current period',
+                                child: Padding(
+                                  padding: EdgeInsets.all(6.0),
+                                  child: AutoSizeText(
+                                    'The camera has no records in current period',
+                                    maxLines: 1,
+                                  ),
                                 ),
                               );
                             } else if (player.dataSource == null) {

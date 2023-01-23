@@ -240,7 +240,7 @@ class TimelineController extends ChangeNotifier {
 
   Timer? timer;
   void startTimer() {
-    const interval = Duration(milliseconds: 300);
+    const interval = Duration(milliseconds: 100);
     timer = Timer.periodic(interval, (timer) {
       if (oldest == null) return;
 
@@ -254,7 +254,7 @@ class TimelineController extends ChangeNotifier {
         }
       }
 
-      final itemForDate = timelineEvents.firstWhere((e) {
+      bool check(TimelineItem e) {
         if (e is TimelineGap) {
           return currentDate.isInBetween(e.start, e.end);
         } else if (e is TimelineValue) {
@@ -262,7 +262,13 @@ class TimelineController extends ChangeNotifier {
         } else {
           throw UnsupportedError('${e.runtimeType} is not supported');
         }
-      });
+      }
+
+      // Usually, if no events were found, it probably means there is a gap between
+      // events in a single [TimelineItem]. >>should<< be normal
+      final itemForDate = timelineEvents.any(check)
+          ? timelineEvents.firstWhere(check)
+          : currentItem;
 
       if (itemForDate is TimelineGap) {
         add(itemForDate.duration, isGap: true);
@@ -272,7 +278,6 @@ class TimelineController extends ChangeNotifier {
 
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
-        print(currentItem.runtimeType);
         notifyListeners();
       }
       positionNotifier.notifyListeners();
@@ -295,6 +300,11 @@ class TimelineController extends ChangeNotifier {
 
   TimelineController();
 
+  /// Whether this controller is initialized
+  ///
+  /// See also:
+  ///
+  /// * [initialize], which initializes the timeline view
   bool get initialized {
     return timelineEvents.isNotEmpty;
   }
@@ -305,11 +315,10 @@ class TimelineController extends ChangeNotifier {
   Future<void> initialize(
     EventsData events,
     List<Event> allEvents,
-    TickerProvider vsync,
   ) async {
     HomeProvider.instance
         .loading(UnityLoadingReason.fetchingEventsPlaybackPeriods);
-    await clear();
+    await _clear();
     notifyListeners();
 
     positionNotifier.notifyListeners();
@@ -340,9 +349,7 @@ class TimelineController extends ChangeNotifier {
       tiles.add(item);
     }
 
-    final result = await compute(TimelineItem.calculateTimeline, [
-      allEvents,
-    ]);
+    final result = await compute(TimelineItem.calculateTimeline, [allEvents]);
     timelineEvents = result[0] as List<TimelineItem>;
 
     duration = result[1] as Duration;
@@ -357,7 +364,6 @@ class TimelineController extends ChangeNotifier {
     );
 
     startTimer();
-
     notifyListeners();
   }
 
@@ -377,14 +383,15 @@ class TimelineController extends ChangeNotifier {
 
   /// Pauses all players
   Future<void> pause() async {
+    timer?.cancel();
     await Future.wait(tiles.map((i) => i.player.pause()));
     // controller?.stop();
-    timer?.cancel();
 
     notifyListeners();
   }
 
-  Future<void> clear() async {
+  @protected
+  Future<void> _clear() async {
     for (final item in tiles) {
       await item.player.release();
       item.player.dispose();
@@ -400,7 +407,7 @@ class TimelineController extends ChangeNotifier {
   @override
   Future<void> dispose() async {
     super.dispose();
-    clear();
+    _clear();
     timer?.cancel();
     positionNotifier.dispose();
     scrollController.dispose();
@@ -584,7 +591,7 @@ class TimelineView extends StatelessWidget {
                     child: Container(
                       height: kTimelineViewHeight,
                       width: 4.0,
-                      color: Colors.deepOrange,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),

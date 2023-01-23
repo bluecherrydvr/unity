@@ -9,15 +9,17 @@ import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:unity_video_player/unity_video_player.dart';
 
 const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
 
-const kPeriodWidth = 2.0;
-const kGapWidth = 84.0;
+/// The width of a millisecond
+const kPeriodWidth = 0.01;
 const kGapDuration = Duration(seconds: 6);
+final kGapWidth = kGapDuration.inMilliseconds * kPeriodWidth;
 
 class TimelineTile {
   final String deviceId;
@@ -32,7 +34,12 @@ class TimelineTile {
 }
 
 abstract class TimelineItem {
-  const TimelineItem();
+  final DateTime start;
+  final DateTime end;
+
+  final Duration duration;
+
+  const TimelineItem(this.start, this.end, this.duration);
 
   /// Returns a list with useful data
   ///
@@ -54,35 +61,48 @@ abstract class TimelineItem {
     TimelineItem? currentItem;
 
     while (!currentDateTime.hasForDate(newest)) {
-      currentDateTime = currentDateTime.add(const Duration(seconds: 1));
+      void increment() =>
+          currentDateTime = currentDateTime.add(const Duration(minutes: 1));
 
       if (currentItem == null) {
-        if (!allEvents.hasForDate(currentDateTime)) {
-          currentItem = TimelineGap(
-            start: currentDateTime,
-            gapDuration: Duration.zero,
-            end: currentDateTime,
-          );
-        } else {
-          final forDate = allEvents.forDateList(currentDateTime);
+        final forDate = allEvents.forDateList(currentDateTime);
+        if (forDate.isNotEmpty) {
+          final start = forDate.oldest.published;
           currentItem = TimelineValue(
-            start: forDate.oldest.published,
+            start: start,
             end: currentDateTime,
             duration: Duration.zero,
             events: forDate,
           );
+          // currentDateTime = start;
+          increment();
+        } else {
+          final start = timelineEvents.isEmpty
+              ? currentDateTime
+              : timelineEvents.last.end;
+          currentItem = TimelineGap(
+            start: start,
+            gapDuration: Duration.zero,
+            end: currentDateTime,
+          );
+          // currentDateTime = start;
+          increment();
         }
       } else {
         if (allEvents.hasForDate(currentDateTime)) {
           // ends the gap
           if (currentItem is TimelineGap) {
+            final event = allEvents.forDateList(currentDateTime).oldest;
             currentItem = TimelineGap(
               start: currentItem.start,
-              end: currentDateTime,
-              gapDuration: currentDateTime.difference(currentItem.start),
+              end: event.published,
+              gapDuration: event.published.difference(currentItem.start),
             );
             timelineEvents.add(currentItem);
+            // currentDateTime = timelineEvents.last.end;
             currentItem = null;
+          } else {
+            increment();
           }
         } else {
           // ends a timeline value
@@ -90,11 +110,6 @@ abstract class TimelineItem {
             final events = allEvents
                 .inBetween(currentItem.start, currentDateTime)
                 .toList();
-            // final duration = events.map((e) {
-            //   if (e.mediaDuration != null) return e.mediaDuration!;
-
-            //   return e.updated.difference(e.published);
-            // }).reduce((a, b) => a + b);
 
             var duration = Duration.zero;
             Event? previous;
@@ -106,12 +121,12 @@ abstract class TimelineItem {
 
                 duration = duration + eventDuration;
               } else {
+                // the gap between the two events
                 final previousEnd = previous.published.add(
                   previous.mediaDuration ??
                       (previous.updated.difference(previous.published)),
                 );
                 final difference = previousEnd.difference(event.published);
-
                 duration = duration + difference;
 
                 final eventDuration = event.mediaDuration ??
@@ -119,15 +134,18 @@ abstract class TimelineItem {
                 duration = duration + eventDuration;
               }
             }
+
             currentItem = TimelineValue(
               start: currentItem.start,
               end: currentItem.start.add(duration),
               duration: duration,
               events: events,
             );
-            // print(currentDateTime.difference(currentItem.start));
             timelineEvents.add(currentItem);
+            // currentDateTime = timelineEvents.last.end;
             currentItem = null;
+          } else {
+            increment();
           }
         }
       }
@@ -155,46 +173,58 @@ abstract class TimelineItem {
 class TimelineValue extends TimelineItem {
   final Iterable<Event> events;
 
-  final DateTime start;
-  final DateTime end;
-
-  final Duration duration;
-
   const TimelineValue({
     required this.events,
-    required this.start,
-    required this.end,
-    required this.duration,
-  });
+    required DateTime start,
+    required DateTime end,
+    required Duration duration,
+  }) : super(start, end, duration);
+
+  @override
+  String toString() {
+    return 'TimelineValue(events: $events, start: $start, end: $end, duration: $duration)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is TimelineValue &&
+        other.events == events &&
+        other.start == start &&
+        other.end == end &&
+        other.duration == duration;
+  }
+
+  @override
+  int get hashCode {
+    return events.hashCode ^ start.hashCode ^ end.hashCode ^ duration.hashCode;
+  }
 }
 
 class TimelineGap extends TimelineItem {
-  final Duration gapDuration;
-  final DateTime start;
-  final DateTime end;
-
   const TimelineGap({
-    required this.gapDuration,
-    required this.start,
-    required this.end,
-  });
+    required DateTime start,
+    required DateTime end,
+    required Duration gapDuration,
+  }) : super(start, end, gapDuration);
 
   @override
   String toString() =>
-      'TimelineGap(gapDuration: $gapDuration, start: $start, end: $end)';
+      'TimelineGap(gapDuration: $duration, start: $start, end: $end)';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is TimelineGap &&
-        other.gapDuration == gapDuration &&
+        other.duration == duration &&
         other.start == start &&
         other.end == end;
   }
 
   @override
-  int get hashCode => gapDuration.hashCode ^ start.hashCode ^ end.hashCode;
+  int get hashCode => duration.hashCode ^ start.hashCode ^ end.hashCode;
 }
 
 class TimelineController extends ChangeNotifier {
@@ -210,16 +240,20 @@ class TimelineController extends ChangeNotifier {
 
   Timer? timer;
   void startTimer() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    const interval = Duration(milliseconds: 300);
+    timer = Timer.periodic(interval, (timer) {
       if (oldest == null) return;
-      // currentItem = timelineEvents.firstWhere((tg) {
-      //   if (tg is TimelineGap) {
 
-      //   }
-      // });
-      _position = _position + const Duration(seconds: 1);
+      void add(Duration duration, {bool isGap = false}) {
+        _position = _position + duration;
+        currentDate = oldest!.published.add(_position);
+        if (isGap) {
+          _thumbPosition = _thumbPosition + kGapDuration;
+        } else {
+          _thumbPosition = _thumbPosition + duration;
+        }
+      }
 
-      currentDate = oldest!.published.add(_position);
       final itemForDate = timelineEvents.firstWhere((e) {
         if (e is TimelineGap) {
           return currentDate.isInBetween(e.start, e.end);
@@ -230,19 +264,31 @@ class TimelineController extends ChangeNotifier {
         }
       });
 
+      if (itemForDate is TimelineGap) {
+        add(itemForDate.duration, isGap: true);
+      } else if (itemForDate is TimelineValue) {
+        add(interval);
+      }
+
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
+        print(currentItem.runtimeType);
+        notifyListeners();
       }
       positionNotifier.notifyListeners();
     });
   }
 
+  /// The position of the current item, considering the gaps
   Duration _position = Duration.zero;
+
+  /// The position of the thumb, considering gaps with the duration of [kGapDuration]
+  Duration _thumbPosition = Duration.zero;
+
   DateTime currentDate = DateTime(0);
   final positionNotifier = ChangeNotifier();
 
   double progress = 0.0;
-  DateTime get currentPeriod => DateTime.now();
   TimelineItem? currentItem;
 
   double speed = 1;
@@ -298,18 +344,19 @@ class TimelineController extends ChangeNotifier {
       allEvents,
     ]);
     timelineEvents = result[0] as List<TimelineItem>;
-    currentItem = timelineEvents.first;
 
     duration = result[1] as Duration;
 
-    oldest = result[2] as Event?;
-    newest = result[2] as Event?;
+    oldest = result[2] as Event;
+    newest = result[2] as Event;
 
-    startTimer();
+    currentDate = oldest!.published;
 
     HomeProvider.instance.notLoading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
     );
+
+    startTimer();
 
     notifyListeners();
   }
@@ -345,6 +392,9 @@ class TimelineController extends ChangeNotifier {
 
     tiles.clear();
     timelineEvents.clear();
+
+    _thumbPosition = Duration.zero;
+    _position = Duration.zero;
   }
 
   @override
@@ -405,9 +455,8 @@ class TimelineView extends StatelessWidget {
                   children: timelineController.tiles.map((tile) {
                     return Container(
                       height: kTimelineTileHeight,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade400,
-                        border: const Border(bottom: BorderSide()),
+                      decoration: const BoxDecoration(
+                        border: Border(bottom: BorderSide()),
                       ),
                       child: Row(
                           children: timelineController.timelineEvents.map((i) {
@@ -417,16 +466,20 @@ class TimelineView extends StatelessWidget {
                             height: kTimelineTileHeight,
                             padding: const EdgeInsets.symmetric(horizontal: 5),
                             alignment: Alignment.center,
+                            color: Colors.grey.shade400,
                             child: AutoSizeText(
-                              i.gapDuration.humanReadableCompact(context, true),
+                              i.duration.humanReadableCompact(context, true),
                               maxLines: 1,
+                              minFontSize: 8.0,
+                              maxFontSize: 10.0,
                               textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.black),
                             ),
                           );
                         } else if (i is TimelineValue) {
                           return SizedBox(
                             height: kTimelineTileHeight,
-                            width: i.duration.inSeconds * kPeriodWidth,
+                            width: i.duration.inMilliseconds * kPeriodWidth,
                             child: () {
                               final events =
                                   tile.events.inBetween(i.start, i.end);
@@ -447,14 +500,16 @@ class TimelineView extends StatelessWidget {
                                   verticalOffset: 14.0,
                                   child: Container(
                                     height: kTimelineTileHeight,
-                                    width: duration.inSeconds * kPeriodWidth,
+                                    width:
+                                        duration.inMilliseconds * kPeriodWidth,
                                     color: event == null
                                         ? null
                                         : event.isAlarm
                                             ? Colors.amber
                                             : Colors.green,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
+                                      horizontal: 4,
+                                    ),
                                   ),
                                 );
                               }
@@ -499,18 +554,39 @@ class TimelineView extends StatelessWidget {
               ),
             ),
             if (timelineController.initialized)
-              AnimatedBuilder(
-                animation: timelineController.scrollController,
-                builder: (context, child) => Positioned(
-                  left: timelineController._position.inSeconds -
-                      timelineController.scrollController.offset,
-                  height: kTimelineViewHeight,
-                  width: 4.0,
-                  child: child!,
-                ),
-                child: Container(
-                  height: kTimelineViewHeight,
-                  color: Colors.deepOrange,
+              RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([
+                    timelineController.scrollController,
+                    timelineController.positionNotifier,
+                  ]),
+                  builder: (context, child) {
+                    final scrollOffset =
+                        timelineController.scrollController.hasClients
+                            ? timelineController.scrollController.offset
+                            : 0.0;
+                    final x = timelineController._thumbPosition.inMilliseconds *
+                            kPeriodWidth -
+                        scrollOffset;
+
+                    if (x.isNegative) {
+                      return const SizedBox(
+                        height: kTimelineViewHeight,
+                      );
+                    }
+
+                    return Padding(
+                      padding: EdgeInsets.only(left: x),
+                      child: child!,
+                    );
+                  },
+                  child: IgnorePointer(
+                    child: Container(
+                      height: kTimelineViewHeight,
+                      width: 4.0,
+                      color: Colors.deepOrange,
+                    ),
+                  ),
                 ),
               ),
           ]),

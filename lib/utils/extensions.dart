@@ -154,68 +154,38 @@ extension DateTimeExtension on DateTime {
   }
 
   bool isInBetween(DateTime first, DateTime second) {
-    return hasForDate(first) ||
-        hasForDate(second) ||
-        (isAfter(first) && isBefore(second));
-  }
-}
-
-extension DateTimeListExtension on Iterable<DateTime> {
-  bool hasForDate(DateTime date) {
-    return any((pd) => pd.hasForDate(date));
-  }
-
-  Iterable<DateTime> forDate(DateTime date) {
-    return where((pd) => pd.hasForDate(date));
-  }
-
-  Iterable<DateTime> inBetween(DateTime d1, DateTime d2) {
-    return where((e) => e.isInBetween(d1, d2));
-  }
-
-  DateTime get oldest {
-    final copy = [...this]..sort((e1, e2) {
-        return e1.compareTo(e2);
-      });
-
-    return copy.first;
-  }
-
-  DateTime get newest {
-    final copy = [...this]..sort((e1, e2) {
-        return e1.compareTo(e2);
-      });
-
-    return copy.first;
+    return isAfter(first) && isBefore(second) ||
+        this == first ||
+        this == second;
   }
 }
 
 extension EventsExtension on Iterable<Event> {
   bool hasForDate(DateTime date) {
     return any((event) {
-      final pd = event.published;
+      final start = event.published;
 
       final end = event.mediaDuration == null
           ? event.published.add(event.updated.difference(event.published))
           : event.published.add(event.mediaDuration!);
 
-      return pd.hasForDate(date) ||
-          end.hasForDate(date) ||
-          date.isInBetween(pd, end);
+      return date.isInBetween(start, end);
     });
   }
 
   Event forDate(DateTime date) {
-    return firstWhere((event) {
-      final pd = event.published;
-      return pd.hasForDate(date);
-    });
+    return forDateList(date).first;
   }
 
   Iterable<Event> forDateList(DateTime date) {
     return where((event) {
-      final pd = event.published;
-      return pd.hasForDate(date);
+      final start = event.published;
+
+      final end = event.mediaDuration == null
+          ? event.published.add(event.updated.difference(event.published))
+          : event.published.add(event.mediaDuration!);
+
+      return date.isInBetween(start, end);
     });
   }
 

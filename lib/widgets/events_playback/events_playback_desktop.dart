@@ -30,6 +30,7 @@ import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -76,14 +77,18 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.filter != widget.filter) {
-      final allEvents = widget.events.isEmpty
-          ? <Event>[]
-          : widget.events.values.reduce((value, element) => value + element);
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        timelineController.initialize(widget.events, allEvents, this);
-      });
+      initialize();
     }
+  }
+
+  void initialize() {
+    final allEvents = widget.events.isEmpty
+        ? <Event>[]
+        : widget.events.values.reduce((value, element) => value + element);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      timelineController.initialize(widget.events, allEvents, this);
+    });
   }
 
   @override
@@ -116,8 +121,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                         return UnityVideoView(
                           player: i.player,
                           paneBuilder: (context, player) {
-                            final has = i.events
-                                .hasForDate(timelineController.currentPeriod);
+                            final has = i.events == timelineController;
 
                             if (!has) {
                               return const Center(
@@ -203,6 +207,12 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                           ),
                         ),
                         Text(_volume.toStringAsFixed(1)),
+                        if (kDebugMode)
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            tooltip: 'Recompute',
+                            onPressed: initialize,
+                          ),
                       ],
                     ),
                     Row(children: [
@@ -218,13 +228,15 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                       ),
                       const Spacer(),
                       if (timelineController.initialized)
-                        AnimatedBuilder(
-                          animation: timelineController.positionNotifier,
-                          builder: (context, child) {
-                            return Text(
-                              timelineController.currentDate.toString(),
-                            );
-                          },
+                        RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: timelineController.positionNotifier,
+                            builder: (context, child) {
+                              return Text(
+                                timelineController.currentDate.toString(),
+                              );
+                            },
+                          ),
                         ),
                       const Spacer(),
                       Text(
@@ -237,11 +249,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                     Expanded(
                       child: SingleChildScrollView(
                         child: Material(
-                          child: AnimatedBuilder(
-                            animation: timelineController.positionNotifier,
-                            builder: (context, child) => TimelineView(
-                              timelineController: timelineController,
-                            ),
+                          child: TimelineView(
+                            timelineController: timelineController,
                           ),
                         ),
                       ),

@@ -22,7 +22,6 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
-import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -31,7 +30,6 @@ import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -82,7 +80,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
           ? <Event>[]
           : widget.events.values.reduce((value, element) => value + element);
 
-      timelineController.initialize(widget.events, allEvents, this);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        timelineController.initialize(widget.events, allEvents, this);
+      });
     }
   }
 
@@ -222,7 +222,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                           animation: timelineController.positionNotifier,
                           builder: (context, child) {
                             return Text(
-                              timelineController.position.toString(),
+                              timelineController.currentDate.toString(),
                             );
                           },
                         ),
@@ -281,36 +281,41 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                         );
                       }
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: server.devices.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return SubHeader(
-                              server.name,
-                              subtext: AppLocalizations.of(context).nDevices(
-                                server.devices.length,
-                              ),
+                      if (server.devices.any((d) => widget.events.keys
+                          .contains(EventsProvider.idForDevice(d)))) {
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: server.devices.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return SubHeader(
+                                server.name,
+                                subtext: AppLocalizations.of(context).nDevices(
+                                  server.devices.length,
+                                ),
+                              );
+                            }
+
+                            index--;
+                            final device = server.devices[index];
+                            if (!widget.events.keys
+                                .contains(EventsProvider.idForDevice(device))) {
+                              return const SizedBox.shrink();
+                            }
+
+                            final selected = events.selectedIds
+                                .contains(EventsProvider.idForDevice(device));
+
+                            return _DeviceTile(
+                              device: device,
+                              selected: selected,
                             );
-                          }
+                          },
+                        );
+                      }
 
-                          index--;
-                          final device = server.devices[index];
-                          if (!widget.events.keys
-                              .contains(EventsProvider.idForDevice(device))) {
-                            return const SizedBox.shrink();
-                          }
-
-                          final selected = events.selectedIds
-                              .contains(EventsProvider.idForDevice(device));
-
-                          return _DeviceTile(
-                            device: device,
-                            selected: selected,
-                          );
-                        },
-                      );
+                      return const SizedBox.shrink();
                     },
                   );
                 },

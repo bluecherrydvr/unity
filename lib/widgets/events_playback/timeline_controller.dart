@@ -8,7 +8,6 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -35,12 +34,22 @@ class TimelineTile {
 abstract class TimelineItem {
   const TimelineItem();
 
-  static List<TimelineItem> findGaps(List data) {
-    final oldest = data[0] as DateTime;
-    final newest = data[1] as DateTime;
-    final allEvents = data[2] as Iterable<Event>;
+  /// Returns a list with useful data
+  ///
+  /// * 0 - List<TimelineItem>
+  /// * 1 - Duration
+  /// * 2 - Oldest [Event]
+  /// * 3 - Newest [Event]
+  static List calculateTimeline(List data) {
+    final allEvents = data[0] as Iterable<Event>;
 
-    final gaps = <TimelineItem>[];
+    final oldestEvent = allEvents.oldest;
+    final newestEvent = allEvents.newest;
+
+    final oldest = oldestEvent.published;
+    final newest = newestEvent.published;
+
+    final timelineEvents = <TimelineItem>[];
     var currentDateTime = oldest;
     TimelineItem? currentItem;
 
@@ -72,7 +81,7 @@ abstract class TimelineItem {
               end: currentDateTime,
               gapDuration: currentDateTime.difference(currentItem.start),
             );
-            gaps.add(currentItem);
+            timelineEvents.add(currentItem);
             currentItem = null;
           }
         } else {
@@ -117,14 +126,29 @@ abstract class TimelineItem {
               events: events,
             );
             // print(currentDateTime.difference(currentItem.start));
-            gaps.add(currentItem);
+            timelineEvents.add(currentItem);
             currentItem = null;
           }
         }
       }
     }
 
-    return gaps;
+    final duration = timelineEvents.map((item) {
+      if (item is TimelineValue) {
+        return item.duration;
+      } else if (item is TimelineGap) {
+        return kGapDuration;
+      } else {
+        throw UnsupportedError('${item.runtimeType} is not supported');
+      }
+    }).reduce((a, b) => a + b);
+
+    return [
+      timelineEvents,
+      duration,
+      oldestEvent,
+      newestEvent,
+    ];
   }
 }
 
@@ -174,28 +198,47 @@ class TimelineGap extends TimelineItem {
 }
 
 class TimelineController extends ChangeNotifier {
+  final scrollController = ScrollController();
+
   List<TimelineTile> tiles = [];
   Event? oldest;
   Event? newest;
 
   /// The duration of all events summed
   Duration duration = Duration.zero;
-  List<TimelineItem> timeGaps = [];
+  List<TimelineItem> timelineEvents = [];
 
-  late Timer? timer;
+  Timer? timer;
   void startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      // currentItem = timeGaps.firstWhere((tg) {
+      if (oldest == null) return;
+      // currentItem = timelineEvents.firstWhere((tg) {
       //   if (tg is TimelineGap) {
 
       //   }
       // });
-      position = position + const Duration(seconds: 1);
+      _position = _position + const Duration(seconds: 1);
+
+      currentDate = oldest!.published.add(_position);
+      final itemForDate = timelineEvents.firstWhere((e) {
+        if (e is TimelineGap) {
+          return currentDate.isInBetween(e.start, e.end);
+        } else if (e is TimelineValue) {
+          return e.events.hasForDate(currentDate);
+        } else {
+          throw UnsupportedError('${e.runtimeType} is not supported');
+        }
+      });
+
+      if (currentItem != itemForDate) {
+        currentItem = itemForDate;
+      }
       positionNotifier.notifyListeners();
     });
   }
 
-  Duration position = Duration.zero;
+  Duration _position = Duration.zero;
+  DateTime currentDate = DateTime(0);
   final positionNotifier = ChangeNotifier();
 
   double progress = 0.0;
@@ -204,12 +247,10 @@ class TimelineController extends ChangeNotifier {
 
   double speed = 1;
 
-  TimelineController() {
-    startTimer();
-  }
+  TimelineController();
 
   bool get initialized {
-    return timeGaps.isNotEmpty;
+    return timelineEvents.isNotEmpty;
   }
 
   /// [events] all the events split by device
@@ -220,24 +261,19 @@ class TimelineController extends ChangeNotifier {
     List<Event> allEvents,
     TickerProvider vsync,
   ) async {
-    HomeProvider.instance.loading(
-      UnityLoadingReason.fetchingEventsPlaybackPeriods,
-      notify: false,
-    );
+    HomeProvider.instance
+        .loading(UnityLoadingReason.fetchingEventsPlaybackPeriods);
     await clear();
     notifyListeners();
 
-    oldest = allEvents.oldest;
-    newest = allEvents.newest;
-
-    notifyListeners();
+    positionNotifier.notifyListeners();
 
     for (final event in events.entries) {
       final id = event.key;
-      final ev = event.value;
+      final events = event.value;
       final item = TimelineTile(
         deviceId: id,
-        events: ev,
+        events: events,
         player: UnityVideoPlayer.create(),
       );
       // item.player.onPlayingStateUpdate.listen((playing) {
@@ -258,22 +294,16 @@ class TimelineController extends ChangeNotifier {
       tiles.add(item);
     }
 
-    timeGaps = await compute(TimelineItem.findGaps, [
-      oldest!.published,
-      newest!.published,
+    final result = await compute(TimelineItem.calculateTimeline, [
       allEvents,
     ]);
-    currentItem = timeGaps.first;
+    timelineEvents = result[0] as List<TimelineItem>;
+    currentItem = timelineEvents.first;
 
-    duration = timeGaps.map((item) {
-      if (item is TimelineValue) {
-        return item.duration;
-      } else if (item is TimelineGap) {
-        return kGapDuration;
-      } else {
-        throw UnsupportedError('${item.runtimeType} is not supported');
-      }
-    }).reduce((a, b) => a + b);
+    duration = result[1] as Duration;
+
+    oldest = result[2] as Event?;
+    newest = result[2] as Event?;
 
     startTimer();
 
@@ -314,7 +344,7 @@ class TimelineController extends ChangeNotifier {
     }
 
     tiles.clear();
-    // periods.clear();
+    timelineEvents.clear();
   }
 
   @override
@@ -322,8 +352,8 @@ class TimelineController extends ChangeNotifier {
     super.dispose();
     clear();
     timer?.cancel();
-
-    // controller?.dispose();
+    positionNotifier.dispose();
+    scrollController.dispose();
   }
 }
 
@@ -368,6 +398,7 @@ class TimelineView extends StatelessWidget {
           child: Stack(children: [
             Positioned.fill(
               child: SingleChildScrollView(
+                controller: timelineController.scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,7 +410,7 @@ class TimelineView extends StatelessWidget {
                         border: const Border(bottom: BorderSide()),
                       ),
                       child: Row(
-                          children: timelineController.timeGaps.map((i) {
+                          children: timelineController.timelineEvents.map((i) {
                         if (i is TimelineGap) {
                           return Container(
                             width: kGapWidth,
@@ -468,10 +499,15 @@ class TimelineView extends StatelessWidget {
               ),
             ),
             if (timelineController.initialized)
-              Positioned(
-                left: timelineController.position.inSeconds.toDouble(),
-                height: kTimelineViewHeight,
-                width: 4.0,
+              AnimatedBuilder(
+                animation: timelineController.scrollController,
+                builder: (context, child) => Positioned(
+                  left: timelineController._position.inSeconds -
+                      timelineController.scrollController.offset,
+                  height: kTimelineViewHeight,
+                  width: 4.0,
+                  child: child!,
+                ),
                 child: Container(
                   height: kTimelineViewHeight,
                   color: Colors.deepOrange,
@@ -481,145 +517,5 @@ class TimelineView extends StatelessWidget {
         ),
       ]),
     );
-
-    // final maxWidth = timelineController.controller == null
-    //     ? 100.0
-    //     : timelineController.duration.inSeconds * kPeriodWidth;
-
-    // final servers = context.read<ServersProvider>().servers;
-
-    // return SizedBox(
-    //   height: maxHeight,
-    //   child: Row(children: [
-    //     Column(
-    //         children: timelineController.tiles.map((i) {
-    //       // final device = servers.findDevice(i.deviceId)!;
-    //       // final server = servers.firstWhere((s) => s.ip == device.server.ip);
-
-    //       return SizedBox(
-    //         height: kTimelineTileHeight,
-    //         width: kDeviceNameWidth,
-    //         child: Padding(
-    //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    //           child: AutoSizeText(
-    //             // '${server.name}/${device.name}',
-    //             '${i.deviceId}',
-    //             maxLines: 1,
-    //             overflow: TextOverflow.fade,
-    //           ),
-    //         ),
-    //       );
-    //     }).toList()),
-    //     const VerticalDivider(width: 2.0),
-    //     Expanded(
-    //       child: SingleChildScrollView(
-    //         scrollDirection: Axis.horizontal,
-    //         child: Container(
-    //           width: maxWidth,
-    //           height: maxHeight,
-    //           color: Colors.grey.shade400,
-    //           child: Stack(children: [
-    //             Positioned.fill(
-    //               child: Column(
-    //                   children: timelineController.tiles.map((item) {
-    //                 return Container(
-    //                   height: kTimelineTileHeight,
-    //                   width: maxWidth,
-    //                   decoration: BoxDecoration(
-    //                     border: Border(
-    //                       bottom: BorderSide(
-    //                         color: Theme.of(context).canvasColor,
-    //                       ),
-    //                     ),
-    //                   ),
-    //                   child: Stack(
-    //                       children: item.events.map((event) {
-    //                     final mediaDuration = event.mediaDuration ??
-    //                         event.updated.difference(event.published);
-    //                     // print(
-    //                     //     '$maxWidth ${event.published.difference(timelineController.oldest!.published).inSeconds.toDouble() * kPeriodWidth} ${kPeriodWidth * mediaDuration.inSeconds}');
-    //                     final to = event.published.add(mediaDuration);
-
-    //                     return Positioned(
-    //                       top: 0,
-    //                       bottom: 0,
-    //                       // left: timelineController.oldest!.published
-    //                       //         .difference(event.published)
-    //                       //         .inSeconds
-    //                       //         .toDouble() *
-    //                       //     kPeriodWidth,
-    //                       left: event.published
-    //                               .difference(
-    //                                   timelineController.oldest!.published)
-    //                               .inSeconds
-    //                               .toDouble() *
-    //                           kPeriodWidth,
-    //                       width: kPeriodWidth * mediaDuration.inSeconds,
-    //                       child: Tooltip(
-    //                         message:
-    //                             'From: ${SettingsProvider.instance.dateFormat.format(event.published)}'
-    //                             ' at ${SettingsProvider.instance.timeFormat.format(event.published)} \n'
-    //                             'to ${SettingsProvider.instance.dateFormat.format(to)}'
-    //                             ' at ${SettingsProvider.instance.timeFormat.format(to)}',
-    //                         child: Container(
-    //                           decoration: BoxDecoration(
-    //                             color: event.isAlarm
-    //                                 ? Colors.red
-    //                                 : Colors.green.shade700,
-    //                           ),
-    //                         ),
-    //                       ),
-    //                     );
-    //                   }).toList()),
-    //                 );
-    //               }).toList()),
-    //             ),
-    //             if (timelineController.controller != null)
-    //               AnimatedBuilder(
-    //                 animation: timelineController.controller!,
-    //                 builder: (context, child) {
-    //                   final left = Tween<double>(
-    //                     begin: 0,
-    //                     end: maxWidth,
-    //                   ).evaluate(timelineController.controller!);
-
-    //                   return Positioned(
-    //                     top: 0,
-    //                     bottom: 0,
-    //                     left: left,
-    //                     child: child!,
-    //                   );
-    //                 },
-    //                 child: GestureDetector(
-    //                   onHorizontalDragStart: (_) {
-    //                     timelineController.controller!.stop();
-    //                   },
-    //                   onHorizontalDragUpdate: (d) {
-    //                     // if lower than 0 or greater than 1, it means it's off the
-    //                     // bounds of the scroller
-    //                     final pos =
-    //                         (d.localPosition.dx / maxWidth).clamp(0.0, 1.0);
-    //                     debugPrint('${d.localPosition.dx}/$maxWidth $pos');
-
-    //                     timelineController.controller!.value = pos;
-    //                   },
-    //                   onHorizontalDragEnd: (_) {
-    //                     timelineController.controller!.forward();
-
-    //                     debugPrint('${timelineController.currentPeriod}');
-    //                   },
-    //                   child: Container(
-    //                     height: double.infinity,
-    //                     width: kPeriodWidth,
-    //                     color: Colors.amber,
-    //                   ),
-    //                 ),
-    //               ),
-    //           ]),
-    //         ),
-    //       ),
-    //     ),
-    //   ]),
-    // );
   }
 }

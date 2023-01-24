@@ -60,6 +60,11 @@ Future<void> main(List<String> args) async {
   if (isDesktop) runApp(const SplashScreen());
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Skips bad certificate
+  // See: https://github.com/bluecherrydvr/unity/discussions/42
+  HttpOverrides.global = DevHttpOverrides();
+
   await UnityVideoPlayerInterface.instance.initialize();
 
   if (isDesktop && args.isNotEmpty) {

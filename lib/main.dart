@@ -20,6 +20,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
@@ -60,6 +61,7 @@ Future<void> main(List<String> args) async {
   if (isDesktop) runApp(const SplashScreen());
 
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = DevHttpOverrides();
   await UnityVideoPlayerInterface.instance.initialize();
 
   if (isDesktop && args.isNotEmpty) {

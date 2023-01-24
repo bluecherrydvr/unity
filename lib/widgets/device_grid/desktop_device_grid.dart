@@ -228,6 +228,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
+          debugPrint(controller.dataSource);
           return DesktopTileViewport(
             controller: controller,
             device: widget.device,

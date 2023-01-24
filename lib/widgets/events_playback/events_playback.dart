@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:collection/collection.dart';
-
 /*
  * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
@@ -28,6 +24,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -208,7 +205,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         }).toList();
 
         return MapEntry(e.key, events);
-      }),
+      }).where((e) => e.value.isNotEmpty),
     );
   }
 

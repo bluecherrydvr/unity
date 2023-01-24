@@ -238,23 +238,41 @@ class TimelineController extends ChangeNotifier {
   Duration duration = Duration.zero;
   List<TimelineItem> timelineEvents = [];
 
+  void add(Duration duration, {bool isGap = false}) {
+    _position = _position + duration;
+    currentDate = oldest!.published.add(_position);
+    if (isGap) {
+      _thumbPosition = _thumbPosition + kGapDuration;
+    } else {
+      _thumbPosition = _thumbPosition + duration;
+    }
+  }
+
   Timer? timer;
   void startTimer() {
     // do not initialize it twice, otherwise it may cause inconsistency
-    if (timer != null) return;
+    if (timer != null && timer!.isActive) return;
+    if (oldest == null || newest == null) return;
 
-    const interval = Duration(milliseconds: 100);
-    timer = Timer.periodic(interval, (timer) {
-      if (oldest == null) return;
+    const interval = Duration(milliseconds: 25);
 
-      void add(Duration duration, {bool isGap = false}) {
-        _position = _position + duration;
-        currentDate = oldest!.published.add(_position);
-        if (isGap) {
-          _thumbPosition = _thumbPosition + kGapDuration;
-        } else {
-          _thumbPosition = _thumbPosition + duration;
-        }
+    final endDate = newest!.published.add(
+      newest!.mediaDuration ?? newest!.updated.difference(newest!.published),
+    );
+
+    void reset() {
+      currentDate = oldest!.published;
+      currentItem = null;
+      _position = Duration.zero;
+      _thumbPosition = Duration.zero;
+    }
+
+    // reset();
+
+    timer = Timer.periodic(interval, (timer) async {
+      if (currentDate.isAtSameMomentAs(endDate) ||
+          currentDate.isAfter(endDate)) {
+        reset();
       }
 
       bool check(TimelineItem e) {
@@ -276,27 +294,48 @@ class TimelineController extends ChangeNotifier {
       if (itemForDate is TimelineGap) {
         add(itemForDate.duration, isGap: true);
       } else if (itemForDate is TimelineValue) {
-        add(interval);
+        if (itemForDate.events.hasForDate(currentDate)) {
+          final event = itemForDate.events.forDate(currentDate);
+          if (event.isAlarm) add(interval);
+        } else {
+          notifyListeners();
+        }
       }
 
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
         notifyListeners();
+
+        if (currentItem is TimelineValue) {
+          final event =
+              (currentItem as TimelineValue).events.forDate(currentDate);
+          final tile = tiles.firstWhere((tile) => tile.events.contains(event));
+          if (event.mediaURL != null) {
+            if (tile.player.dataSource == event.mediaURL!.toString()) {
+              await tile.player.start();
+              notifyListeners();
+            } else {
+              await tile.player.setDataSource(
+                event.mediaURL!.toString(),
+              );
+              notifyListeners();
+            }
+          }
+        }
       }
+
       positionNotifier.notifyListeners();
     });
   }
 
   /// The position of the current item, considering the gaps
   Duration _position = Duration.zero;
+  final positionNotifier = ChangeNotifier();
 
   /// The position of the thumb, considering gaps with the duration of [kGapDuration]
   Duration _thumbPosition = Duration.zero;
 
   DateTime currentDate = DateTime(0);
-  final positionNotifier = ChangeNotifier();
-
-  double progress = 0.0;
   TimelineItem? currentItem;
 
   double speed = 1;
@@ -334,21 +373,29 @@ class TimelineController extends ChangeNotifier {
         events: events,
         player: UnityVideoPlayer.create(),
       );
+      var previousPos = Duration.zero;
+      item.player.onCurrentPosUpdate.listen((pos) {
+        if (pos < previousPos) previousPos = pos;
+
+        final has = item.events.hasForDate(currentDate);
+        if (has) {
+          // final event = item.events.forDate(currentDate);
+          // _position + event.mediaDuration!;
+          // print(
+          //   event.published.add(pos).subtract(_position),
+          // );
+
+          add(pos - previousPos);
+          print('$pos - $previousPos - ${pos - previousPos}');
+
+          previousPos = pos;
+        }
+      });
       item.player.onPlayingStateUpdate.listen((playing) {
-        if (playing) {
-          play();
-        } else {
+        if (playing && isPaused) {
           pause();
         }
-        notifyListeners();
       });
-      item.player.setMultipleDataSource(
-        // we can ensure the url is not null because we filter for alarms above
-        item.events.where((event) => event.mediaURL != null).map((event) {
-          return event.mediaURL!.toString();
-        }).toList(),
-        autoPlay: false,
-      );
       tiles.add(item);
     }
 
@@ -358,7 +405,7 @@ class TimelineController extends ChangeNotifier {
     duration = result[1] as Duration;
 
     oldest = result[2] as Event;
-    newest = result[2] as Event;
+    newest = result[3] as Event;
 
     currentDate = oldest!.published;
 
@@ -373,7 +420,14 @@ class TimelineController extends ChangeNotifier {
   /// Starts all players
   Future<void> play() async {
     startTimer();
-    await Future.wait(tiles.map((i) => i.player.start()));
+    if (currentItem is TimelineValue) {
+      // await (currentItem as TimelineValue).;
+      if (tiles.any((tile) => tile.events.hasForDate(currentDate))) {
+        final tile =
+            tiles.firstWhere((tile) => tile.events.hasForDate(currentDate));
+        tile.player.start();
+      }
+    }
 
     notifyListeners();
   }

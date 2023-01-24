@@ -111,10 +111,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
   }
 
-  void ensureVideoControllerInitialized(VoidCallback cb) {
-    mkVideoController.then((_) {
-      cb();
-    });
+  Future<void> ensureVideoControllerInitialized(Function cb) async {
+    // mkVideoController.then((_) {
+    //   cb();
+    // });
+    await mkVideoController;
+    await cb();
   }
 
   @override
@@ -160,9 +162,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    ensureVideoControllerInitialized(() {
+    await ensureVideoControllerInitialized(() async {
       // do not use mkPlayer.add because it doesn't support auto play
-      mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
+      await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
     });
   }
 
@@ -171,7 +173,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     List<String> url, {
     bool autoPlay = true,
   }) async {
-    mkPlayer.open(
+    await mkPlayer.open(
       Playlist(url.map((source) => Media(source)).toList()),
       play: autoPlay,
     );

@@ -104,11 +104,12 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
       Expanded(
         child: Column(children: [
           Expanded(
-            child: Center(
-              child: timelineController.tiles.isEmpty ||
-                      !timelineController.initialized
-                  ? const Text('Select a device')
-                  : GridView.count(
+            child: timelineController.tiles.isEmpty ||
+                    !timelineController.initialized
+                ? const Center(child: Text('Select a device'))
+                : LayoutBuilder(builder: (context, constraints) {
+                    return GridView.count(
+                      shrinkWrap: true,
                       crossAxisCount: calculateCrossAxisCount(
                         timelineController.tiles.length,
                       ),
@@ -120,20 +121,22 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         final has =
                             i.events.hasForDate(timelineController.currentDate);
 
+                        if (!has) {
+                          return Container(
+                            color: Colors.black,
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(6.0),
+                            child: const AutoSizeText(
+                              'The camera has no records in current period',
+                              maxLines: 1,
+                            ),
+                          );
+                        }
+
                         return UnityVideoView(
                           player: i.player,
                           paneBuilder: (context, player) {
-                            if (!has) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(6.0),
-                                  child: AutoSizeText(
-                                    'The camera has no records in current period',
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              );
-                            } else if (player.dataSource == null) {
+                            if (player.dataSource == null) {
                               return const ErrorWarning(
                                 message: 'Error loading',
                               );
@@ -145,8 +148,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           },
                         );
                       }).toList(),
-                    ),
-            ),
+                    );
+                  }),
           ),
           SizedBox(
             height: kTimelineViewHeight,
@@ -403,19 +406,21 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       const Divider(),
                       FilterTile.checkbox(
                         checked: widget.filter?.allowAlarms,
-                        onChanged: (v) {
-                          if (v == null) {
-                            if (widget.filter != null) {
-                              widget.onFilter(
-                                widget.filter!.copyWith(allowAlarms: true),
-                              );
-                            }
-                          } else {
-                            widget.onFilter(
-                              widget.filter!.copyWith(allowAlarms: v),
-                            );
-                          }
-                        },
+                        onChanged: widget.filter == null
+                            ? null
+                            : (v) {
+                                if (v == null) {
+                                  widget.onFilter(
+                                    widget.filter!.copyWith(allowAlarms: true),
+                                  );
+                                } else {
+                                  widget.onFilter(
+                                    widget.filter!.copyWith(
+                                      allowAlarms: !widget.filter!.allowAlarms,
+                                    ),
+                                  );
+                                }
+                              },
                         title: const Text('Allow alarms'),
                       ),
                     ],
@@ -510,7 +515,7 @@ class FilterTile extends StatelessWidget {
 
   static Widget checkbox({
     required bool? checked,
-    required ValueChanged<bool?> onChanged,
+    required ValueChanged<bool?>? onChanged,
     required Widget title,
   }) {
     return Row(children: [

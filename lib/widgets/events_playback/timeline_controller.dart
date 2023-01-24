@@ -256,23 +256,42 @@ class TimelineController extends ChangeNotifier {
 
     const interval = Duration(milliseconds: 25);
 
-    final endDate = newest!.published.add(
-      newest!.mediaDuration ?? newest!.updated.difference(newest!.published),
-    );
-
     void reset() {
       currentDate = oldest!.published;
       currentItem = null;
       _position = Duration.zero;
       _thumbPosition = Duration.zero;
+
+      for (final tile in tiles) {
+        tile.player.reset();
+      }
     }
 
-    // reset();
+    // print('${_allEvents.hasForDate(currentDate)}');
+
+    bool has() {
+      return timelineEvents.any((e) {
+        if (e is TimelineGap) {
+          return currentDate.isInBetween(e.start, e.end);
+        } else if (e is TimelineValue) {
+          return currentDate.isInBetween(e.start, e.end);
+        } else {
+          throw UnsupportedError('${e.runtimeType} is not a supported type');
+        }
+      });
+    }
+
+    if (!has()) {
+      timer?.cancel();
+      reset();
+    }
 
     timer = Timer.periodic(interval, (timer) async {
-      if (currentDate.isAtSameMomentAs(endDate) ||
-          currentDate.isAfter(endDate)) {
+      if (!has()) {
+        timer.cancel();
         reset();
+
+        return;
       }
 
       bool check(TimelineItem e) {
@@ -305,15 +324,17 @@ class TimelineController extends ChangeNotifier {
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
         notifyListeners();
+      }
 
-        if (currentItem is TimelineValue) {
-          final event =
-              (currentItem as TimelineValue).events.forDate(currentDate);
+      if (currentItem is TimelineValue) {
+        final events = (currentItem as TimelineValue).events;
+
+        if (events.hasForDate(currentDate)) {
+          final event = events.forDate(currentDate);
           final tile = tiles.firstWhere((tile) => tile.events.contains(event));
           if (event.mediaURL != null) {
             if (tile.player.dataSource == event.mediaURL!.toString()) {
               await tile.player.start();
-              notifyListeners();
             } else {
               await tile.player.setDataSource(
                 event.mediaURL!.toString(),
@@ -379,14 +400,8 @@ class TimelineController extends ChangeNotifier {
 
         final has = item.events.hasForDate(currentDate);
         if (has) {
-          // final event = item.events.forDate(currentDate);
-          // _position + event.mediaDuration!;
-          // print(
-          //   event.published.add(pos).subtract(_position),
-          // );
-
           add(pos - previousPos);
-          print('$pos - $previousPos - ${pos - previousPos}');
+          debugPrint('$pos - $previousPos - ${pos - previousPos}');
 
           previousPos = pos;
         }
@@ -395,6 +410,7 @@ class TimelineController extends ChangeNotifier {
         if (playing && isPaused) {
           pause();
         }
+        notifyListeners();
       });
       tiles.add(item);
     }
@@ -420,14 +436,14 @@ class TimelineController extends ChangeNotifier {
   /// Starts all players
   Future<void> play() async {
     startTimer();
-    if (currentItem is TimelineValue) {
-      // await (currentItem as TimelineValue).;
-      if (tiles.any((tile) => tile.events.hasForDate(currentDate))) {
-        final tile =
-            tiles.firstWhere((tile) => tile.events.hasForDate(currentDate));
-        tile.player.start();
-      }
-    }
+    // if (currentItem is TimelineValue) {
+    //   // await (currentItem as TimelineValue).;
+    //   if (tiles.any((tile) => tile.events.hasForDate(currentDate))) {
+    //     final tile =
+    //         tiles.firstWhere((tile) => tile.events.hasForDate(currentDate));
+    //     tile.player.start();
+    //   }
+    // }
 
     notifyListeners();
   }
@@ -443,7 +459,6 @@ class TimelineController extends ChangeNotifier {
   Future<void> pause() async {
     timer?.cancel();
     await Future.wait(tiles.map((i) => i.player.pause()));
-    // controller?.stop();
 
     notifyListeners();
   }
@@ -492,7 +507,9 @@ class TimelineView extends StatelessWidget {
         Column(
             children: timelineController.tiles.map((i) {
           final device = servers.findDevice(i.deviceId)!;
-          final server = servers.firstWhere((s) => s.ip == device.server.ip);
+          // final server = servers.firstWhere((s) => s.ip == device.server.ip);
+
+          // device.fullName
 
           return SizedBox(
             height: kTimelineTileHeight,
@@ -500,7 +517,7 @@ class TimelineView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: AutoSizeText(
-                '${server.name}/${device.name}',
+                device.fullName,
                 maxLines: 1,
                 overflow: TextOverflow.fade,
                 maxFontSize: 12.0,
@@ -550,7 +567,6 @@ class TimelineView extends StatelessWidget {
                                   tile.events.inBetween(i.start, i.end);
 
                               if (events.isEmpty) {
-                                // return const Text('-');
                                 return const SizedBox.shrink();
                               }
 
@@ -610,7 +626,9 @@ class TimelineView extends StatelessWidget {
                             }(),
                           );
                         } else {
-                          throw UnsupportedError('Unsupported');
+                          throw UnsupportedError(
+                            '${i.runtimeType} is not a supported type',
+                          );
                         }
                       }).toList()),
                     );

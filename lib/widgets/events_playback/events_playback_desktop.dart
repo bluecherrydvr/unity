@@ -18,6 +18,7 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:intl/intl.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
@@ -99,6 +100,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   @override
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return Row(children: [
       Expanded(
@@ -106,7 +108,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
           Expanded(
             child: timelineController.tiles.isEmpty ||
                     !timelineController.initialized
-                ? const Center(child: Text('Select a device'))
+                ? Center(
+                    child: Text(AppLocalizations.of(context).selectACamera))
                 : LayoutBuilder(builder: (context, constraints) {
                     return GridView.count(
                       shrinkWrap: true,
@@ -126,8 +129,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                             color: Colors.black,
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(6.0),
-                            child: const AutoSizeText(
-                              'The camera has no records in current period',
+                            child: AutoSizeText(
+                              AppLocalizations.of(context).noRecords,
                               maxLines: 1,
                             ),
                           );
@@ -137,9 +140,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           player: i.player,
                           paneBuilder: (context, player) {
                             if (player.dataSource == null) {
-                              return const ErrorWarning(
-                                message: 'Error loading',
-                              );
+                              return const ErrorWarning(message: '');
                             } else {
                               debugPrint('${player.dataSource}');
                             }
@@ -181,8 +182,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           ),
                         ),
                         Tooltip(
-                          message:
-                              timelineController.isPaused ? 'Play' : 'Pause',
+                          message: timelineController.isPaused
+                              ? AppLocalizations.of(context).play
+                              : AppLocalizations.of(context).pause,
                           child: CircleAvatar(
                             child: Material(
                               type: MaterialType.transparency,
@@ -223,15 +225,14 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       ],
                     ),
                     Row(children: [
-                      const SizedBox(
+                      SizedBox(
                         width: kDeviceNameWidth,
-                        child: Text('Device name'),
+                        child: Text(AppLocalizations.of(context).device),
                       ),
                       Text(
                         widget.filter == null
                             ? '--'
-                            : SettingsProvider.instance.dateFormat
-                                .format(widget.filter!.from),
+                            : settings.dateFormat.format(widget.filter!.from),
                       ),
                       const Spacer(),
                       if (timelineController.initialized)
@@ -239,8 +240,12 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           child: AnimatedBuilder(
                             animation: timelineController.positionNotifier,
                             builder: (context, child) {
-                              return Text(
-                                timelineController.currentDate.toString(),
+                              return AutoSizeText(
+                                '${settings.dateFormat.format(timelineController.currentDate)}'
+                                ' '
+                                '${DateFormat.Hms().format(timelineController.currentDate)}',
+                                minFontSize: 8.0,
+                                maxFontSize: 13.0,
                               );
                             },
                           ),
@@ -249,8 +254,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       Text(
                         widget.filter == null
                             ? '--'
-                            : SettingsProvider.instance.dateFormat
-                                .format(widget.filter!.to),
+                            : settings.dateFormat.format(widget.filter!.to),
                       ),
                     ]),
                     Expanded(
@@ -352,17 +356,16 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SubHeader(
-                        'Filter',
-                        padding: EdgeInsets.only(bottom: 6.0),
+                      SubHeader(
+                        AppLocalizations.of(context).filter,
+                        padding: const EdgeInsets.only(bottom: 6.0),
                         height: null,
                       ),
                       FilterTile(
-                        title: 'From',
+                        title: AppLocalizations.of(context).fromDate,
                         trailing: widget.filter == null
                             ? '--'
-                            : SettingsProvider.instance.dateFormat
-                                .format(widget.filter!.from),
+                            : settings.dateFormat.format(widget.filter!.from),
                         onTap: widget.filter == null
                             ? null
                             : () async {
@@ -381,11 +384,10 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                               },
                       ),
                       FilterTile(
-                        title: 'To',
+                        title: AppLocalizations.of(context).toDate,
                         trailing: widget.filter == null
                             ? '--'
-                            : SettingsProvider.instance.dateFormat
-                                .format(widget.filter!.to),
+                            : settings.dateFormat.format(widget.filter!.to),
                         onTap: widget.filter == null
                             ? null
                             : () async {
@@ -421,7 +423,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                                   );
                                 }
                               },
-                        title: const Text('Allow alarms'),
+                        title: Text(AppLocalizations.of(context).allowAlarms),
                       ),
                     ],
                   ),

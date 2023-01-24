@@ -20,7 +20,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';

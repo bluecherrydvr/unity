@@ -2,7 +2,7 @@
 
 <h1 align="left"><a href="https://www.bluecherrydvr.com/">Bluecherry Client</a></h1>
 
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/bluecherrydvr/unity/graphs/commit-activity)
 [![Github all releases](https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg)](https://GitHub.com/bluecherrydvr/unity/releases/)
 
 

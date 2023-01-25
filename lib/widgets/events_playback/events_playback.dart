@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -180,14 +181,23 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     }
   }
 
-  // TODO(bdlukaa): use compute here
   Future<void> updateFilteredData() async {
-    filteredData = Map.fromEntries(
+    filteredData = await compute(_filterData, [
+      eventsForDevice,
+      filterData,
+    ]);
+  }
+
+  static EventsData _filterData(List data) {
+    final eventsForDevice = data[0] as EventsData;
+    final filterData = data[1] as FilterData?;
+
+    return Map.fromEntries(
       eventsForDevice.entries.where((entry) {
         if (filterData == null) return true;
 
-        if (filterData!.devices != null &&
-            !filterData!.devices!.contains(entry.key)) {
+        if (filterData.devices != null &&
+            !filterData.devices!.contains(entry.key)) {
           return false;
         }
 
@@ -196,10 +206,10 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         if (filterData == null) return e;
 
         final events = e.value.where((event) {
-          final passDate = filterData!.from.isBefore(event.published) &&
-              filterData!.to.isAfter(event.published);
+          final passDate = filterData.from.isBefore(event.published) &&
+              filterData.to.isAfter(event.published);
 
-          final passAlarm = filterData!.allowAlarms ? true : !event.isAlarm;
+          final passAlarm = filterData.allowAlarms ? true : !event.isAlarm;
 
           return passDate && passAlarm;
         }).toList();

@@ -78,7 +78,7 @@ class __MKVideoState extends State<_MKVideo> {
     super.initState();
 
     widget.videoController.then((value) {
-      setState(() => videoController = value);
+      if (mounted) setState(() => videoController = value);
     });
   }
 

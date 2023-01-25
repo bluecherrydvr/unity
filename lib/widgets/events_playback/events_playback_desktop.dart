@@ -18,7 +18,6 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:intl/intl.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
@@ -35,20 +34,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-const kDeviceNameWidth = 140.0;
-const kTimelineViewHeight = 190.0;
-const kTimelineTileHeight = 24.0;
-
-/// The width of a second
-const kPeriodWidth = 2.0;
+typedef FutureValueChanged<T> = Future<void> Function(T data);
 
 class EventsPlaybackDesktop extends StatefulWidget {
   final EventsData events;
   final FilterData? filter;
-  final ValueChanged<FilterData> onFilter;
+  final FutureValueChanged<FilterData> onFilter;
 
   const EventsPlaybackDesktop({
     Key? key,
@@ -82,12 +77,17 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   }
 
   void initialize() {
+    final selectedIds = context.read<EventsProvider>().selectedIds;
+
+    final realEvents = ({...widget.events}
+      ..removeWhere((key, value) => !selectedIds.contains(key)));
+
     final allEvents = widget.events.isEmpty
         ? <Event>[]
-        : widget.events.values.reduce((value, element) => value + element);
+        : realEvents.values.reduce((value, element) => value + element);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      timelineController.initialize(widget.events, allEvents);
+      timelineController.initialize(context, realEvents, allEvents);
     });
   }
 
@@ -106,51 +106,52 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
       Expanded(
         child: Column(children: [
           Expanded(
-            child: timelineController.tiles.isEmpty ||
-                    !timelineController.initialized
-                ? Center(
-                    child: Text(AppLocalizations.of(context).selectACamera))
-                : LayoutBuilder(builder: (context, constraints) {
-                    return GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: calculateCrossAxisCount(
-                        timelineController.tiles.length,
-                      ),
-                      childAspectRatio: 16 / 9,
-                      padding: kGridPadding,
-                      mainAxisSpacing: kGridInnerPadding,
-                      crossAxisSpacing: kGridInnerPadding,
-                      children: timelineController.tiles.map((i) {
-                        final has =
-                            i.events.hasForDate(timelineController.currentDate);
+            child: () {
+              if (!timelineController.initialized) {
+                return const SizedBox.shrink();
+              } else if (timelineController.tiles.isEmpty) {
+                return Center(
+                    child: Text(AppLocalizations.of(context).selectACamera));
+              } else {
+                return _StaticGrid(
+                  crossAxisCount: calculateCrossAxisCount(
+                    timelineController.tiles.length,
+                  ),
+                  childAspectRatio: 16 / 9,
+                  mainAxisSpacing: kGridInnerPadding,
+                  crossAxisSpacing: kGridInnerPadding,
+                  children: timelineController.tiles.map((i) {
+                    final has =
+                        i.events.hasForDate(timelineController.currentDate);
 
-                        if (!has) {
-                          return Container(
-                            color: Colors.black,
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.all(6.0),
-                            child: AutoSizeText(
-                              AppLocalizations.of(context).noRecords,
-                              maxLines: 1,
-                            ),
-                          );
+                    if (!has) {
+                      return Container(
+                        color: Colors.black,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(6.0),
+                        child: AutoSizeText(
+                          AppLocalizations.of(context).noRecords,
+                          maxLines: 1,
+                        ),
+                      );
+                    }
+
+                    return UnityVideoView(
+                      player: i.player,
+                      paneBuilder: (context, player) {
+                        if (player.dataSource == null) {
+                          return const ErrorWarning(message: '');
+                        } else {
+                          debugPrint('${player.dataSource}');
                         }
 
-                        return UnityVideoView(
-                          player: i.player,
-                          paneBuilder: (context, player) {
-                            if (player.dataSource == null) {
-                              return const ErrorWarning(message: '');
-                            } else {
-                              debugPrint('${player.dataSource}');
-                            }
-
-                            return const SizedBox.shrink();
-                          },
-                        );
-                      }).toList(),
+                        return const SizedBox.shrink();
+                      },
                     );
-                  }),
+                  }).toList(),
+                );
+              }
+            }(),
           ),
           SizedBox(
             height: kTimelineViewHeight,
@@ -192,7 +193,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                                 borderRadius: BorderRadius.circular(100.0),
                                 onTap: () {
                                   if (timelineController.isPaused) {
-                                    timelineController.play();
+                                    timelineController.play(context);
                                   } else {
                                     timelineController.pause();
                                   }
@@ -229,11 +230,11 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         width: kDeviceNameWidth,
                         child: Text(AppLocalizations.of(context).device),
                       ),
-                      Text(
-                        widget.filter == null
-                            ? '--'
-                            : settings.dateFormat.format(widget.filter!.from),
-                      ),
+                      // Text(
+                      //   widget.filter == null
+                      //       ? '--'
+                      //       : settings.dateFormat.format(widget.filter!.from),
+                      // ),
                       const Spacer(),
                       if (timelineController.initialized)
                         RepaintBoundary(
@@ -251,11 +252,11 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           ),
                         ),
                       const Spacer(),
-                      Text(
-                        widget.filter == null
-                            ? '--'
-                            : settings.dateFormat.format(widget.filter!.to),
-                      ),
+                      // Text(
+                      //   widget.filter == null
+                      //       ? '--'
+                      //       : settings.dateFormat.format(widget.filter!.to),
+                      // ),
                     ]),
                     Expanded(
                       child: SingleChildScrollView(
@@ -330,6 +331,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                             return _DeviceTile(
                               device: device,
                               selected: selected,
+                              onUpdate: () async {
+                                initialize();
+                              },
                             );
                           },
                         );
@@ -411,17 +415,11 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         onChanged: widget.filter == null
                             ? null
                             : (v) {
-                                if (v == null) {
-                                  widget.onFilter(
-                                    widget.filter!.copyWith(allowAlarms: true),
-                                  );
-                                } else {
-                                  widget.onFilter(
-                                    widget.filter!.copyWith(
-                                      allowAlarms: !widget.filter!.allowAlarms,
-                                    ),
-                                  );
-                                }
+                                widget.onFilter(
+                                  widget.filter!.copyWith(
+                                    allowAlarms: !widget.filter!.allowAlarms,
+                                  ),
+                                );
                               },
                         title: Text(AppLocalizations.of(context).allowAlarms),
                       ),
@@ -442,10 +440,12 @@ class _DeviceTile extends StatefulWidget {
     Key? key,
     required this.device,
     required this.selected,
+    required this.onUpdate,
   }) : super(key: key);
 
   final Device device;
   final bool selected;
+  final VoidCallback onUpdate;
 
   @override
   State<_DeviceTile> createState() => _DesktopDeviceSelectorTileState();
@@ -459,17 +459,18 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
     // subscribe to media query updates
     MediaQuery.of(context);
     final theme = Theme.of(context);
-    final events = context.watch<EventsProvider>();
+    final events = context.read<EventsProvider>();
 
     return InkWell(
       onTap: !widget.device.status
           ? null
-          : () {
+          : () async {
               if (widget.selected) {
-                events.remove(widget.device);
+                await events.remove(widget.device);
               } else {
-                events.add(widget.device);
+                await events.add(widget.device);
               }
+              widget.onUpdate();
             },
       child: SizedBox(
         height: 40.0,
@@ -548,7 +549,7 @@ class FilterTile extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: AutoSizeText(
                 trailing,
                 maxLines: 1,
@@ -559,5 +560,83 @@ class FilterTile extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+/// A non-scrollable grid view
+class _StaticGrid extends StatelessWidget {
+  final int crossAxisCount;
+  final List<Widget> children;
+
+  final double childAspectRatio;
+
+  final double mainAxisSpacing;
+  final double crossAxisSpacing;
+
+  const _StaticGrid({
+    Key? key,
+    required this.crossAxisCount,
+    required this.children,
+    this.childAspectRatio = 1.0,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final realChildren =
+        children.fold<List<List<Widget>>>([[]], (lists, child) {
+      if (lists.last.length == crossAxisCount) lists.add([]);
+
+      lists.last.add(AspectRatio(
+        aspectRatio: childAspectRatio,
+        child: child,
+      ));
+
+      return lists;
+    });
+
+    return Padding(
+      padding: kGridPadding.add(EdgeInsetsDirectional.only(
+        start: crossAxisSpacing,
+        top: mainAxisSpacing,
+      )),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        ...List.generate(realChildren.length, (index) {
+          return Flexible(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                bottom: mainAxisSpacing,
+              ),
+              child: buildRow(realChildren[index]),
+            ),
+          );
+        }),
+      ]),
+    );
+  }
+
+  Widget buildRow(List<Widget> children) {
+    assert(children.length <= crossAxisCount);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(
+        crossAxisCount,
+        (index) {
+          if (children.length < index + 1) {
+            return const Expanded(child: SizedBox.shrink());
+          }
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                end: crossAxisSpacing,
+              ),
+              child: children[index],
+            ),
+          );
+        },
+      ),
+    );
   }
 }

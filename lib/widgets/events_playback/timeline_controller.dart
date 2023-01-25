@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -16,10 +17,12 @@ const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
 
+const kTimelineThumbWidth = 2.5;
+const kTimelineThumbOverflowPadding = 20.0;
+
 /// The width of a millisecond
-const kPeriodWidth = 0.01;
-const kGapDuration = Duration(seconds: 6);
-final kGapWidth = kGapDuration.inMilliseconds * kPeriodWidth;
+const kPeriodWidth = 0.008;
+const kGapDuration = Duration(seconds: 5);
 
 class TimelineTile {
   final String deviceId;
@@ -60,9 +63,17 @@ abstract class TimelineItem {
     var currentDateTime = oldest;
     TimelineItem? currentItem;
 
+    // The interval time is the duration of the shortest event
+    final intervalTime = () {
+      final eventsDuration = allEvents
+          .map((e) => e.mediaDuration ?? e.updated.difference(e.published))
+          .toList()
+        ..sort((a, b) => a.compareTo(b));
+      return eventsDuration.first;
+    }();
+
     while (!currentDateTime.hasForDate(newest)) {
-      void increment() =>
-          currentDateTime = currentDateTime.add(const Duration(minutes: 1));
+      void increment() => currentDateTime = currentDateTime.add(intervalTime);
 
       if (currentItem == null) {
         final forDate = allEvents.forDateList(currentDateTime);
@@ -246,14 +257,40 @@ class TimelineController extends ChangeNotifier {
     } else {
       _thumbPosition = _thumbPosition + duration;
     }
+
+    _updateThumbPosition();
+  }
+
+  void _updateThumbPosition() {
+    if (scrollController.hasClients) {
+      final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
+          scrollController.offset;
+
+      if (thumbX >
+          scrollController.position.viewportDimension -
+              kTimelineThumbOverflowPadding) {
+        // print('overflowed');
+
+        // scrollController.offset + scrollController.position.viewportDimension;
+
+        scrollController.jumpTo(
+          scrollController.offset + kTimelineThumbOverflowPadding / 2,
+          // duration: Duration(
+          //   milliseconds: kTimelineThumbOverflowPadding.round() + 875,
+          // ),
+          // curve: Curves.linear,
+        );
+      }
+    }
   }
 
   Timer? timer;
-  void startTimer() {
+  void startTimer(BuildContext context) {
     // do not initialize it twice, otherwise it may cause inconsistency
     if (timer != null && timer!.isActive) return;
     if (oldest == null || newest == null) return;
 
+    final home = context.read<HomeProvider>();
     const interval = Duration(milliseconds: 25);
 
     void reset() {
@@ -331,15 +368,22 @@ class TimelineController extends ChangeNotifier {
 
         if (events.hasForDate(currentDate)) {
           final event = events.forDate(currentDate);
-          final tile = tiles.firstWhere((tile) => tile.events.contains(event));
-          if (event.mediaURL != null) {
-            if (tile.player.dataSource == event.mediaURL!.toString()) {
-              await tile.player.start();
-            } else {
-              await tile.player.setDataSource(
-                event.mediaURL!.toString(),
-              );
-              notifyListeners();
+          if (tiles.any((tile) => tile.events.contains(event))) {
+            final tile =
+                tiles.firstWhere((tile) => tile.events.contains(event));
+            if (event.mediaURL != null) {
+              if (tile.player.dataSource == event.mediaURL!.toString()) {
+                if (!tile.player.isPlaying) {
+                  await tile.player.start();
+                }
+              } else {
+                home.loading(UnityLoadingReason.timelineEventLoading);
+                await tile.player.setDataSource(
+                  event.mediaURL!.toString(),
+                );
+                home.notLoading(UnityLoadingReason.timelineEventLoading);
+                notifyListeners();
+              }
             }
           }
         }
@@ -376,6 +420,7 @@ class TimelineController extends ChangeNotifier {
   ///
   /// [allEvents] all events in the history
   Future<void> initialize(
+    BuildContext context,
     EventsData events,
     List<Event> allEvents,
   ) async {
@@ -386,7 +431,13 @@ class TimelineController extends ChangeNotifier {
 
     positionNotifier.notifyListeners();
 
-    for (final event in events.entries) {
+    // ignore: use_build_context_synchronously
+    if (!context.mounted) return;
+
+    final selectedIds = context.read<EventsProvider>().selectedIds;
+
+    for (final event
+        in events.entries.where((e) => selectedIds.contains(e.key))) {
       final id = event.key;
       final events = event.value;
       final item = TimelineTile(
@@ -395,23 +446,35 @@ class TimelineController extends ChangeNotifier {
         player: UnityVideoPlayer.create(),
       );
       var previousPos = Duration.zero;
-      item.player.onCurrentPosUpdate.listen((pos) {
-        if (pos < previousPos) previousPos = pos;
+      item.player
+        ..onCurrentPosUpdate.listen((pos) {
+          if (pos < previousPos) previousPos = pos;
 
-        final has = item.events.hasForDate(currentDate);
-        if (has) {
-          add(pos - previousPos);
-          debugPrint('$pos - $previousPos - ${pos - previousPos}');
+          final has = item.events.hasForDate(currentDate);
+          if (has) {
+            add(pos - previousPos);
+            debugPrint('$pos - $previousPos - ${pos - previousPos}');
 
-          previousPos = pos;
-        }
-      });
-      item.player.onPlayingStateUpdate.listen((playing) {
-        if (playing && isPaused) {
-          pause();
-        }
-        notifyListeners();
-      });
+            previousPos = pos;
+          }
+        })
+        ..onPlayingStateUpdate.listen((playing) {
+          if (playing && isPaused) {
+            pause();
+          }
+          notifyListeners();
+        })
+        ..onBufferStateUpdate.listen((buffering) {
+          if (buffering) {
+            context
+                .read<HomeProvider>()
+                .loading(UnityLoadingReason.timelineEventLoading);
+          } else {
+            context
+                .read<HomeProvider>()
+                .notLoading(UnityLoadingReason.timelineEventLoading);
+          }
+        });
       tiles.add(item);
     }
 
@@ -429,13 +492,13 @@ class TimelineController extends ChangeNotifier {
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
     );
 
-    startTimer();
+    if (context.mounted) startTimer(context);
     notifyListeners();
   }
 
   /// Starts all players
-  Future<void> play() async {
-    startTimer();
+  Future<void> play(BuildContext context) async {
+    startTimer(context);
     // if (currentItem is TimelineValue) {
     //   // await (currentItem as TimelineValue).;
     //   if (tiles.any((tile) => tile.events.hasForDate(currentDate))) {
@@ -465,11 +528,12 @@ class TimelineController extends ChangeNotifier {
 
   @protected
   Future<void> _clear() async {
+    timer?.cancel();
+
     for (final item in tiles) {
-      await item.player.release();
+      item.player.release();
       item.player.dispose();
     }
-
     tiles.clear();
     timelineEvents.clear();
 
@@ -500,6 +564,9 @@ class TimelineView extends StatelessWidget {
     final maxHeight = timelineController.tiles.length * kTimelineTileHeight;
 
     final servers = context.watch<ServersProvider>().servers;
+
+    const periodWidth = kPeriodWidth;
+    final kGapWidth = kGapDuration.inMilliseconds * periodWidth;
 
     return SizedBox(
       height: maxHeight,
@@ -550,7 +617,7 @@ class TimelineView extends StatelessWidget {
                             alignment: Alignment.center,
                             color: Colors.grey.shade400,
                             child: AutoSizeText(
-                              i.duration.humanReadableCompact(context, true),
+                              i.duration.humanReadableCompact(context),
                               maxLines: 1,
                               minFontSize: 8.0,
                               maxFontSize: 10.0,
@@ -561,7 +628,7 @@ class TimelineView extends StatelessWidget {
                         } else if (i is TimelineValue) {
                           return SizedBox(
                             height: kTimelineTileHeight,
-                            width: i.duration.inMilliseconds * kPeriodWidth,
+                            width: i.duration.inMilliseconds * periodWidth,
                             child: () {
                               final events =
                                   tile.events.inBetween(i.start, i.end);
@@ -578,7 +645,8 @@ class TimelineView extends StatelessWidget {
                                   message:
                                       duration.humanReadableCompact(context),
                                   preferBelow: false,
-                                  verticalOffset: 14.0,
+                                  verticalOffset: -12.0,
+                                  decoration: const BoxDecoration(),
                                   child: Container(
                                     height: kTimelineTileHeight,
                                     width:
@@ -588,9 +656,9 @@ class TimelineView extends StatelessWidget {
                                         : event.isAlarm
                                             ? Colors.amber
                                             : Colors.green,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
+                                    // padding: const EdgeInsets.symmetric(
+                                    //   horizontal: 4,
+                                    // ),
                                   ),
                                 );
                               }
@@ -666,7 +734,7 @@ class TimelineView extends StatelessWidget {
                   child: IgnorePointer(
                     child: Container(
                       height: kTimelineViewHeight,
-                      width: 4.0,
+                      width: kTimelineThumbWidth,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),

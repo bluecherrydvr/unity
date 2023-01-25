@@ -45,6 +45,9 @@ enum UnityLoadingReason {
 
   /// Downloading an event media
   downloadEvent,
+
+  /// Whether a timeline event is loading
+  timelineEventLoading,
 }
 
 class HomeProvider extends ChangeNotifier {

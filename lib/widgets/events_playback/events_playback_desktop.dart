@@ -33,6 +33,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -58,8 +59,10 @@ class EventsPlaybackDesktop extends StatefulWidget {
 
 class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   late final timelineController = TimelineController();
+  final focusNode = FocusNode();
 
-  double _volume = 1;
+  double? _volume = 1;
+  double? _speed = 1;
 
   @override
   void initState() {
@@ -94,6 +97,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   @override
   void dispose() {
     timelineController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -102,7 +106,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
     final events = context.watch<EventsProvider>();
     final settings = context.watch<SettingsProvider>();
 
-    return Row(children: [
+    final page = Row(children: [
       Expanded(
         child: Column(children: [
           Expanded(
@@ -173,14 +177,19 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${timelineController.speed == 1.0 ? '1' : timelineController.speed.toStringAsFixed(1)}x',
+                          '${(_speed ?? timelineController.speed) == 1.0 ? '1' : (_speed ?? timelineController.speed).toStringAsFixed(1)}x',
                         ),
                         SizedBox(
                           width: 120.0,
                           child: Slider(
-                            value: timelineController.speed,
-                            max: 2,
-                            onChanged: (v) => timelineController.speed = v,
+                            value: _speed ?? timelineController.speed,
+                            min: 0.5,
+                            max: 2.0,
+                            onChanged: (s) => setState(() => _speed = s),
+                            onChangeEnd: (s) {
+                              _speed = null;
+                              timelineController.speed = s;
+                            },
                           ),
                         ),
                         Tooltip(
@@ -213,11 +222,16 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         SizedBox(
                           width: 120.0,
                           child: Slider(
-                            value: _volume,
+                            value: _volume ?? timelineController.volume,
                             onChanged: (v) => setState(() => _volume = v),
+                            onChangeEnd: (v) {
+                              _volume = null;
+                              timelineController.volume = v;
+                            },
                           ),
                         ),
-                        Text(_volume.toStringAsFixed(1)),
+                        Text(((_volume ?? timelineController.volume) * 100)
+                            .toStringAsFixed(0)),
                         if (kDebugMode)
                           IconButton(
                             icon: const Icon(Icons.refresh),
@@ -423,6 +437,21 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
         ),
       ),
     ]);
+
+    return KeyboardListener(
+      focusNode: focusNode,
+      onKeyEvent: (event) {
+        print(event.logicalKey);
+        if (event.logicalKey == LogicalKeyboardKey.space) {
+          if (timelineController.isPaused) {
+            timelineController.play(context);
+          } else {
+            timelineController.pause();
+          }
+        }
+      },
+      child: page,
+    );
   }
 }
 

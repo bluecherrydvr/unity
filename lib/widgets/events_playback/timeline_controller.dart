@@ -295,7 +295,7 @@ class TimelineController extends ChangeNotifier {
       return e.duration;
     }).reduce((a, b) => a + b);
 
-    print('$fullDuration $pos');
+    debugPrint('$fullDuration $pos');
   }
 
   Timer? timer;
@@ -364,7 +364,7 @@ class TimelineController extends ChangeNotifier {
       } else if (itemForDate is TimelineValue) {
         if (itemForDate.events.hasForDate(currentDate)) {
           final event = itemForDate.events.forDate(currentDate);
-          if (event.isAlarm) add(interval);
+          if (event.isAlarm) add(interval * speed);
         } else {
           notifyListeners();
         }
@@ -415,7 +415,27 @@ class TimelineController extends ChangeNotifier {
   DateTime currentDate = DateTime(0);
   TimelineItem? currentItem;
 
-  double speed = 1;
+  double _speed = 1;
+  double get speed => _speed;
+  set speed(double speed) {
+    for (final tile in tiles) {
+      tile.player.setSpeed(speed);
+    }
+
+    _speed = speed;
+    notifyListeners();
+  }
+
+  double _volume = 1;
+  double get volume => _volume;
+  set volume(double volume) {
+    for (final tile in tiles) {
+      tile.player.setVolume(volume);
+    }
+
+    _volume = volume;
+    notifyListeners();
+  }
 
   TimelineController();
 
@@ -459,6 +479,8 @@ class TimelineController extends ChangeNotifier {
       );
       var previousPos = Duration.zero;
       item.player
+        ..setSpeed(speed)
+        ..setVolume(volume)
         ..onCurrentPosUpdate.listen((pos) {
           if (pos < previousPos) previousPos = pos;
 

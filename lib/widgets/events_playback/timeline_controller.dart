@@ -23,6 +23,7 @@ const kTimelineThumbOverflowPadding = 20.0;
 /// The width of a millisecond
 const kPeriodWidth = 0.008;
 const kGapDuration = Duration(seconds: 5);
+final kGapWidth = kGapDuration.inMilliseconds * kPeriodWidth;
 
 class TimelineTile {
   final String deviceId;
@@ -269,19 +270,32 @@ class TimelineController extends ChangeNotifier {
       if (thumbX >
           scrollController.position.viewportDimension -
               kTimelineThumbOverflowPadding) {
-        // print('overflowed');
-
-        // scrollController.offset + scrollController.position.viewportDimension;
-
         scrollController.jumpTo(
           scrollController.offset + kTimelineThumbOverflowPadding / 2,
-          // duration: Duration(
-          //   milliseconds: kTimelineThumbOverflowPadding.round() + 875,
-          // ),
-          // curve: Curves.linear,
         );
       }
     }
+  }
+
+  double? _placeholderSeekX;
+  void seek(double x) {
+    final viewport = scrollController.position.viewportDimension;
+
+    if (x > viewport) return;
+
+    final pos = scrollController.offset + x;
+
+    // final fullDuration = newest!.published.add(
+    //   newest!.mediaDuration ?? newest!.updated.difference(newest!.published),
+    // );
+
+    final fullDuration = timelineEvents.map((e) {
+      if (e is TimelineGap) return kGapDuration;
+
+      return e.duration;
+    }).reduce((a, b) => a + b);
+
+    print('$fullDuration $pos');
   }
 
   Timer? timer;
@@ -303,8 +317,6 @@ class TimelineController extends ChangeNotifier {
         tile.player.reset();
       }
     }
-
-    // print('${_allEvents.hasForDate(currentDate)}');
 
     bool has() {
       return timelineEvents.any((e) {
@@ -551,7 +563,7 @@ class TimelineController extends ChangeNotifier {
   }
 }
 
-class TimelineView extends StatelessWidget {
+class TimelineView extends StatefulWidget {
   final TimelineController timelineController;
 
   const TimelineView({
@@ -560,19 +572,22 @@ class TimelineView extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<TimelineView> createState() => _TimelineViewState();
+}
+
+class _TimelineViewState extends State<TimelineView> {
+  @override
   Widget build(BuildContext context) {
-    final maxHeight = timelineController.tiles.length * kTimelineTileHeight;
+    final maxHeight =
+        widget.timelineController.tiles.length * kTimelineTileHeight;
 
     final servers = context.watch<ServersProvider>().servers;
-
-    const periodWidth = kPeriodWidth;
-    final kGapWidth = kGapDuration.inMilliseconds * periodWidth;
 
     return SizedBox(
       height: maxHeight,
       child: Row(children: [
         Column(
-            children: timelineController.tiles.map((i) {
+            children: widget.timelineController.tiles.map((i) {
           final device = servers.findDevice(i.deviceId)!;
           // final server = servers.firstWhere((s) => s.ip == device.server.ip);
 
@@ -597,18 +612,19 @@ class TimelineView extends StatelessWidget {
           child: Stack(children: [
             Positioned.fill(
               child: SingleChildScrollView(
-                controller: timelineController.scrollController,
+                controller: widget.timelineController.scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: timelineController.tiles.map((tile) {
+                  children: widget.timelineController.tiles.map((tile) {
                     return Container(
                       height: kTimelineTileHeight,
                       decoration: const BoxDecoration(
                         border: Border(bottom: BorderSide()),
                       ),
                       child: Row(
-                          children: timelineController.timelineEvents.map((i) {
+                          children:
+                              widget.timelineController.timelineEvents.map((i) {
                         if (i is TimelineGap) {
                           return Container(
                             width: kGapWidth,
@@ -628,7 +644,7 @@ class TimelineView extends StatelessWidget {
                         } else if (i is TimelineValue) {
                           return SizedBox(
                             height: kTimelineTileHeight,
-                            width: i.duration.inMilliseconds * periodWidth,
+                            width: i.duration.inMilliseconds * kPeriodWidth,
                             child: () {
                               final events =
                                   tile.events.inBetween(i.start, i.end);
@@ -704,19 +720,20 @@ class TimelineView extends StatelessWidget {
                 ),
               ),
             ),
-            if (timelineController.initialized)
+            if (widget.timelineController.initialized)
               RepaintBoundary(
                 child: AnimatedBuilder(
                   animation: Listenable.merge([
-                    timelineController.scrollController,
-                    timelineController.positionNotifier,
+                    widget.timelineController.scrollController,
+                    widget.timelineController.positionNotifier,
                   ]),
                   builder: (context, child) {
                     final scrollOffset =
-                        timelineController.scrollController.hasClients
-                            ? timelineController.scrollController.offset
+                        widget.timelineController.scrollController.hasClients
+                            ? widget.timelineController.scrollController.offset
                             : 0.0;
-                    final x = timelineController._thumbPosition.inMilliseconds *
+                    final x = widget.timelineController._thumbPosition
+                                .inMilliseconds *
                             kPeriodWidth -
                         scrollOffset;
 
@@ -727,14 +744,32 @@ class TimelineView extends StatelessWidget {
                     }
 
                     return Padding(
-                      padding: EdgeInsets.only(left: x),
+                      padding: EdgeInsets.only(
+                        left: widget.timelineController._placeholderSeekX ?? x,
+                      ),
                       child: child!,
                     );
                   },
-                  child: IgnorePointer(
+                  child: GestureDetector(
+                    // onHorizontalDragUpdate: (d) {
+                    //   setState(
+                    //     () => widget.timelineController._placeholderSeekX =
+                    //         d.localPosition.dx,
+                    //   );
+                    // },
+                    // onHorizontalDragEnd: (d) {
+                    //   widget.timelineController.seek(
+                    //     widget.timelineController._placeholderSeekX!,
+                    //   );
+                    //   setState(
+                    //     () =>
+                    //         widget.timelineController._placeholderSeekX = null,
+                    //   );
+                    // },
                     child: Container(
                       height: kTimelineViewHeight,
                       width: kTimelineThumbWidth,
+                      margin: const EdgeInsetsDirectional.only(end: 2.5),
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),

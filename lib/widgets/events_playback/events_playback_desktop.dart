@@ -111,7 +111,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                 return const SizedBox.shrink();
               } else if (timelineController.tiles.isEmpty) {
                 return Center(
-                    child: Text(AppLocalizations.of(context).selectACamera));
+                  child: Text(AppLocalizations.of(context).selectACamera),
+                );
               } else {
                 return _StaticGrid(
                   crossAxisCount: calculateCrossAxisCount(
@@ -230,11 +231,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         width: kDeviceNameWidth,
                         child: Text(AppLocalizations.of(context).device),
                       ),
-                      // Text(
-                      //   widget.filter == null
-                      //       ? '--'
-                      //       : settings.dateFormat.format(widget.filter!.from),
-                      // ),
                       const Spacer(),
                       if (timelineController.initialized)
                         RepaintBoundary(
@@ -252,11 +248,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           ),
                         ),
                       const Spacer(),
-                      // Text(
-                      //   widget.filter == null
-                      //       ? '--'
-                      //       : settings.dateFormat.format(widget.filter!.to),
-                      // ),
                     ]),
                     Expanded(
                       child: SingleChildScrollView(

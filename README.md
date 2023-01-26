@@ -23,9 +23,9 @@ This project & work under this repository is licensed under [GNU General Public 
 
 ## Download
 
-- iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
+- iOS (https://apps.apple.com/us/app/bluecherry-mobile/id1555805139)
 - [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
-- [Windows](https://github.com/bluecherrydvr/unity/releases/tag/vnextw)
+- [Windows](https://github.com/bluecherrydvr/unity/releases/)
 
 ## Features
 

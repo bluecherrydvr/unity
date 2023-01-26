@@ -118,8 +118,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  String? get dataSource =>
-      mkPlayer.state.playlist.medias[mkPlayer.state.playlist.index].uri;
+  String? get dataSource {
+    if (mkPlayer.state.playlist.medias.isEmpty) return null;
+
+    var index = mkPlayer.state.playlist.index;
+    if (index.isNegative) return null;
+
+    return mkPlayer.state.playlist.medias[index].uri;
+  }
 
   @override
   String? get error {

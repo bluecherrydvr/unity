@@ -83,7 +83,7 @@ class WindowButtons extends StatefulWidget {
   State<WindowButtons> createState() => _WindowButtonsState();
 }
 
-class _WindowButtonsState extends State<WindowButtons> {
+class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) return const SizedBox.shrink();

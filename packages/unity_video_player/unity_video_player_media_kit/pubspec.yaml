@@ -15,17 +15,17 @@ dependencies:
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: df91b60499e67229a1c95cd9048919500460e542
+      ref: 20c46b58bb5c8a9e749b6b9760234281e7bf2e02
       path: media_kit/
   media_kit_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: df91b60499e67229a1c95cd9048919500460e542
+      ref: 20c46b58bb5c8a9e749b6b9760234281e7bf2e02
       path: media_kit_video/
   media_kit_libs_windows_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: df91b60499e67229a1c95cd9048919500460e542
+      ref: 20c46b58bb5c8a9e749b6b9760234281e7bf2e02
       path: media_kit_libs_windows_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/

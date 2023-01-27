@@ -43,6 +43,7 @@ Future<void> configureWindow() async {
     // await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.show();
+    windowManager.setPreventClose(true);
   });
 }
 

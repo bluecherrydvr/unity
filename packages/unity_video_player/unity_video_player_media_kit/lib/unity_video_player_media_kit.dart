@@ -16,7 +16,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {
-    return UnityVideoPlayerMediaKit();
+    final player = UnityVideoPlayerMediaKit(width: width, height: height);
+    UnityVideoPlayerInterface.registerPlayer(player);
+    return player;
   }
 
   @override
@@ -194,5 +196,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   void dispose() async {
     await (await mkVideoController).dispose();
     await mkPlayer.dispose();
+
+    UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

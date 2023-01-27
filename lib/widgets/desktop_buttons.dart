@@ -18,7 +18,6 @@
  */
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
@@ -29,6 +28,7 @@ import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigationStream = StreamController.broadcast();
@@ -183,27 +183,6 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     ),
                   ),
                 ),
-                // if (!canPop && widget.showNavigator) ...[
-                //   ...navigatorData(context).entries.map((entry) {
-                //     final icon = entry.key;
-                //     final text = entry.value;
-                //     final index =
-                //         navigatorData(context).keys.toList().indexOf(icon);
-
-                //     return IconButton(
-                //       icon: Icon(
-                //         icon,
-                //         color: home.tab == index
-                //             ? theme.colorScheme.primary
-                //             : theme.hintColor,
-                //       ),
-                //       iconSize: 22.0,
-                //       tooltip: text,
-                //       onPressed: () => home.setTab(index),
-                //     );
-                //   }),
-                //   divider,
-                // ],
                 SizedBox(
                   width: 138,
                   height: 40,
@@ -236,9 +215,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     ),
                     WindowCaptionButton.close(
                       brightness: theme.brightness,
-                      onPressed: () {
-                        exit(0);
-                      },
+                      onPressed: windowManager.close,
                     ),
                   ]),
                 ),
@@ -275,11 +252,18 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     );
   }
 
-  // @override
-  // void onWindowClose() {
-  //   if (Platform.isWindows) {
-  //     debugger();
-  //     exit(0);
-  //   }
-  // }
+  @override
+  Future<void> onWindowClose() async {
+    final isPreventClose = await windowManager.isPreventClose();
+    // We ensure all the players are disposed in order to not keep the app alive
+    // in background, wasting unecessary resources!
+    if (isPreventClose) {
+      for (final player in UnityVideoPlayerInterface.players) {
+        debugPrint('Disposing player ${player.hashCode}');
+        player.dispose();
+      }
+      windowManager.destroy();
+      exit(0);
+    }
+  }
 }

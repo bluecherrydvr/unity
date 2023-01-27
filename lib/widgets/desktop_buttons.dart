@@ -18,6 +18,8 @@
  */
 
 import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -84,6 +86,18 @@ class WindowButtons extends StatefulWidget {
 }
 
 class _WindowButtonsState extends State<WindowButtons> with WindowListener {
+  @override
+  void initState() {
+    windowManager.addListener(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) return const SizedBox.shrink();
@@ -193,10 +207,40 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                 SizedBox(
                   width: 138,
                   height: 40,
-                  child: WindowCaption(
-                    brightness: theme.brightness,
-                    backgroundColor: Colors.transparent,
-                  ),
+                  child: Row(children: [
+                    WindowCaptionButton.minimize(
+                      brightness: theme.brightness,
+                      onPressed: () async {
+                        var isMinimized = await windowManager.isMinimized();
+                        if (isMinimized) {
+                          windowManager.restore();
+                        } else {
+                          windowManager.minimize();
+                        }
+                      },
+                    ),
+                    FutureBuilder<bool>(
+                      future: windowManager.isMaximized(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == true) {
+                          return WindowCaptionButton.unmaximize(
+                            brightness: theme.brightness,
+                            onPressed: windowManager.unmaximize,
+                          );
+                        }
+                        return WindowCaptionButton.maximize(
+                          brightness: theme.brightness,
+                          onPressed: windowManager.maximize,
+                        );
+                      },
+                    ),
+                    WindowCaptionButton.close(
+                      brightness: theme.brightness,
+                      onPressed: () {
+                        exit(0);
+                      },
+                    ),
+                  ]),
                 ),
               ]),
             ),
@@ -230,4 +274,12 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
       },
     );
   }
+
+  // @override
+  // void onWindowClose() {
+  //   if (Platform.isWindows) {
+  //     debugger();
+  //     exit(0);
+  //   }
+  // }
 }

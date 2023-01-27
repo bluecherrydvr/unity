@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com" "\0"
-            VALUE "FileDescription", "unity" "\0"
+            VALUE "CompanyName", "com.bluecherry" "\0"
+            VALUE "FileDescription", "Bluecherry" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "unity" "\0"
+            VALUE "InternalName", "Bluecherry" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com. All rights reserved." "\0"
-            VALUE "OriginalFilename", "unity.exe" "\0"
-            VALUE "ProductName", "unity" "\0"
+            VALUE "OriginalFilename", "bluecherry_client.exe" "\0"
+            VALUE "ProductName", "Bluecherry DVR" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

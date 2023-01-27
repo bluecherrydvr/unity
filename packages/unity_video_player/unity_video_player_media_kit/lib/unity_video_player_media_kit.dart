@@ -109,8 +109,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   UnityVideoPlayerMediaKit({int? width, int? height}) {
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      height: height,
-      width: width,
+      // height: height,
+      // width: width,
     );
   }
 

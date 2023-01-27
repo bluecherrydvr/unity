@@ -208,17 +208,6 @@ class LayoutTile extends StatelessWidget {
   }
 }
 
-IconData iconForLayout(DesktopLayoutType type) {
-  switch (type) {
-    case DesktopLayoutType.singleView:
-      return Icons.crop_square;
-    case DesktopLayoutType.multipleView:
-      return Icons.view_comfy_outlined;
-    case DesktopLayoutType.compactView:
-      return Icons.view_compact_outlined;
-  }
-}
-
 String textForLayout(BuildContext context, DesktopLayoutType type) {
   switch (type) {
     case DesktopLayoutType.singleView:
@@ -230,14 +219,25 @@ String textForLayout(BuildContext context, DesktopLayoutType type) {
   }
 }
 
+IconData iconForLayout(DesktopLayoutType type) {
+  switch (type) {
+    case DesktopLayoutType.singleView:
+      return Icons.crop_square;
+    case DesktopLayoutType.multipleView:
+      return Icons.view_compact_outlined;
+    case DesktopLayoutType.compactView:
+      return Icons.view_comfy_outlined;
+  }
+}
+
 IconData selectedIconForLayout(DesktopLayoutType type) {
   switch (type) {
     case DesktopLayoutType.singleView:
       return Icons.square_rounded;
     case DesktopLayoutType.multipleView:
-      return Icons.view_comfy;
-    case DesktopLayoutType.compactView:
       return Icons.view_compact;
+    case DesktopLayoutType.compactView:
+      return Icons.view_comfy;
   }
 }
 

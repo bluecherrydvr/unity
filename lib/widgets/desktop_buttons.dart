@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -27,6 +28,7 @@ import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigationStream = StreamController.broadcast();
@@ -83,7 +85,26 @@ class WindowButtons extends StatefulWidget {
   State<WindowButtons> createState() => _WindowButtonsState();
 }
 
-class _WindowButtonsState extends State<WindowButtons> {
+class _WindowButtonsState extends State<WindowButtons> with WindowListener {
+  @override
+  void initState() {
+    windowManager.addListener(this);
+    _init();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  Future<void> _init() async {
+    // Add this line to override the default close handler
+    await windowManager.setPreventClose(true);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) return const SizedBox.shrink();
@@ -229,5 +250,20 @@ class _WindowButtonsState extends State<WindowButtons> {
         );
       },
     );
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    final isPreventClose = await windowManager.isPreventClose();
+    // We ensure all the players are disposed in order to not keep the app alive
+    // in background, wasting unecessary resources!
+    if (isPreventClose) {
+      for (final player in UnityVideoPlayerInterface.players) {
+        debugPrint('Disposing player ${player.hashCode}');
+        player.dispose();
+      }
+      windowManager.destroy();
+      exit(0);
+    }
   }
 }

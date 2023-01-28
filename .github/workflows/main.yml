@@ -89,7 +89,7 @@ jobs:
 
       - name: Building the installer
         run: |
-          "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/installer-test.iss"
+          "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/windows-installer.iss"
         shell: cmd
 
       - run: cp installer\Output\bluecherry-dvr-setup.exe bluecherry-dvr-setup.exe

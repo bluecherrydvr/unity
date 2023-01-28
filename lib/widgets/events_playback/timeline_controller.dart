@@ -291,10 +291,6 @@ class TimelineController extends ChangeNotifier {
 
     final pos = scrollController.offset + x;
 
-    // final fullDuration = newest!.published.add(
-    //   newest!.mediaDuration ?? newest!.updated.difference(newest!.published),
-    // );
-
     final fullDuration = timelineEvents.map((e) {
       if (e is TimelineGap) return kGapDuration;
 
@@ -304,6 +300,7 @@ class TimelineController extends ChangeNotifier {
     debugPrint('$fullDuration $pos');
   }
 
+  /// A ticker that runs every [interval]
   Timer? timer;
   void startTimer(BuildContext context) {
     // do not initialize it twice, otherwise it may cause inconsistency
@@ -324,16 +321,9 @@ class TimelineController extends ChangeNotifier {
       }
     }
 
+    /// Whether this is past the end
     bool has() {
-      return timelineEvents.any((e) {
-        if (e is TimelineGap) {
-          return currentDate.isInBetween(e.start, e.end);
-        } else if (e is TimelineValue) {
-          return currentDate.isInBetween(e.start, e.end);
-        } else {
-          throw UnsupportedError('${e.runtimeType} is not a supported type');
-        }
-      });
+      return timelineEvents.any((e) => currentDate.isInBetween(e.start, e.end));
     }
 
     if (!has()) {
@@ -349,25 +339,59 @@ class TimelineController extends ChangeNotifier {
         return;
       }
 
-      bool check(TimelineItem e) {
+      bool checkForDate(TimelineItem e, DateTime date) {
         if (e is TimelineGap) {
-          return currentDate.isInBetween(e.start, e.end);
+          return date.isInBetween(e.start, e.end);
         } else if (e is TimelineValue) {
-          return e.events.hasForDate(currentDate);
+          return e.events.hasForDate(date);
         } else {
           throw UnsupportedError('${e.runtimeType} is not supported');
         }
       }
 
-      // Usually, if no events were found, it probably means there is a gap between
-      // events in a single [TimelineItem]. >>should<< be normal
-      final itemForDate = timelineEvents.any(check)
-          ? timelineEvents.firstWhere(check)
-          : currentItem;
+      /// Usually, if no events were found, it probably means there is a gap between
+      /// events in a single [TimelineItem]. >>should<< be normal.
+      final itemForDate =
+          timelineEvents.any((e) => checkForDate(e, currentDate))
+              ? timelineEvents.firstWhere((e) => checkForDate(e, currentDate))
+              : currentItem;
 
+      /// If the current item is a gap, we add it according to the (current ticker duration * speed)
+      /// When it reaches the max gap duration (kGapDuration), it preloads the next item.
       if (itemForDate is TimelineGap) {
         addGap(itemForDate.duration, interval * speed);
+
+        final nextDate = currentDate.add(itemForDate.duration);
+
+        if (timelineEvents.any(
+          (e) => e is TimelineValue && checkForDate(e, nextDate),
+        )) {
+          final next = timelineEvents.firstWhere(
+            (e) => e is TimelineValue && checkForDate(e, nextDate),
+          ) as TimelineValue;
+
+          for (final event in next.events) {
+            final tile =
+                tiles.firstWhere((tile) => tile.events.contains(event));
+
+            final mediaUrl = event.mediaURL!.toString();
+
+            if (!event.isAlarm && tile.player.dataSource != mediaUrl) {
+              tile.player.setDataSource(
+                mediaUrl,
+                autoPlay: false,
+              );
+            }
+          }
+        }
       } else if (itemForDate is TimelineValue) {
+        /// If the event is an alarm, we add it according to the (current ticker duration * speed)
+        ///
+        /// Otherwise, the duration that is added is the *difference* between the
+        /// last added position and the current position
+        ///
+        /// Check the listener for [onCurrentPosUpdate] in [initialize] for more
+        /// info on how this is done
         if (itemForDate.events.hasForDate(currentDate)) {
           final event = itemForDate.events.forDate(currentDate);
           if (event.isAlarm) add(interval * speed);
@@ -376,6 +400,7 @@ class TimelineController extends ChangeNotifier {
         }
       }
 
+      /// When the item changes, we ensure to change it and update the ticker
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
         notifyListeners();

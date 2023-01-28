@@ -60,7 +60,7 @@ abstract class TimelineItem {
     final oldest = oldestEvent.published;
     final newest = newestEvent.published;
 
-    final timelineEvents = <TimelineItem>[];
+    final items = <TimelineItem>[];
     var currentDateTime = oldest;
     TimelineItem? currentItem;
 
@@ -73,6 +73,21 @@ abstract class TimelineItem {
       return eventsDuration.first;
     }();
 
+    /// A loop that runs until the newest event date has been reached
+    ///
+    /// [currentItem] means current item for the current date time.
+    ///
+    /// If null, we create a new timeline item:
+    ///   * If there is events for the current date time, a [TimelineValue] is
+    ///     created
+    ///   * Otherwise, a [TimelineGap] is created
+    ///
+    /// If not null, we check for the current date time and update the current
+    /// item accordingly:
+    ///   * If it's a gap but there is an event for the current date time, the
+    ///     gap is ended
+    ///   * If it's a value but there is no longer any event in the current time
+    ///     span, the value is ended
     while (!currentDateTime.hasForDate(newest)) {
       void increment() => currentDateTime = currentDateTime.add(intervalTime);
 
@@ -89,9 +104,7 @@ abstract class TimelineItem {
           // currentDateTime = start;
           increment();
         } else {
-          final start = timelineEvents.isEmpty
-              ? currentDateTime
-              : timelineEvents.last.end;
+          final start = items.isEmpty ? currentDateTime : items.last.end;
           currentItem = TimelineGap(
             start: start,
             gapDuration: Duration.zero,
@@ -110,8 +123,8 @@ abstract class TimelineItem {
               end: event.published,
               gapDuration: event.published.difference(currentItem.start),
             );
-            timelineEvents.add(currentItem);
-            // currentDateTime = timelineEvents.last.end;
+            items.add(currentItem);
+            // currentDateTime = items.last.end;
             currentItem = null;
           } else {
             increment();
@@ -153,8 +166,8 @@ abstract class TimelineItem {
               duration: duration,
               events: events,
             );
-            timelineEvents.add(currentItem);
-            // currentDateTime = timelineEvents.last.end;
+            items.add(currentItem);
+            // currentDateTime = items.last.end;
             currentItem = null;
           } else {
             increment();
@@ -163,7 +176,7 @@ abstract class TimelineItem {
       }
     }
 
-    final duration = timelineEvents.map((item) {
+    final duration = items.map((item) {
       if (item is TimelineValue) {
         return item.duration;
       } else if (item is TimelineGap) {
@@ -174,7 +187,7 @@ abstract class TimelineItem {
     }).reduce((a, b) => a + b);
 
     return [
-      timelineEvents,
+      items,
       duration,
       oldestEvent,
       newestEvent,
@@ -242,14 +255,27 @@ class TimelineGap extends TimelineItem {
 class TimelineController extends ChangeNotifier {
   final scrollController = ScrollController();
 
+  /// All the tiles of the timeline. Usually represents the devices in a server
   List<TimelineTile> tiles = [];
+
+  /// The oldest event of the timeline
   Event? oldest;
+
+  /// The newest event of the timeline
   Event? newest;
 
-  /// The duration of all events summed
+  /// The duration of the entire timeline
   Duration duration = Duration.zero;
-  List<TimelineItem> timelineEvents = [];
 
+  /// All the events in the timeline
+  ///
+  /// See also:
+  ///
+  ///  * [TimelineValue], an item that can play media
+  ///  * [TimelineGap], an item that doesn't have any media during a timespan
+  List<TimelineItem> items = [];
+
+  /// Adds a [duration] to the current position
   void add(Duration duration, {bool isGap = false}) {
     _position = _position + duration;
     currentDate = oldest!.published.add(_position);
@@ -257,6 +283,9 @@ class TimelineController extends ChangeNotifier {
     _updateThumbPosition();
   }
 
+  /// If the gap duration has ended, it [add]s into the current position
+  ///
+  /// Otherwise, it adds [position] to the current thumb position
   void addGap(Duration gapDuration, Duration position) {
     if (currentGapDuration >= kGapDuration) {
       add(gapDuration, isGap: true);
@@ -268,6 +297,8 @@ class TimelineController extends ChangeNotifier {
     }
   }
 
+  /// Checks for the current scroll position of the timeline. If the thumb is
+  /// reaching the end of the timeline, scroll to ensure the thumb is visible
   void _updateThumbPosition() {
     if (scrollController.hasClients) {
       final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
@@ -291,7 +322,7 @@ class TimelineController extends ChangeNotifier {
 
     final pos = scrollController.offset + x;
 
-    final fullDuration = timelineEvents.map((e) {
+    final fullDuration = items.map((e) {
       if (e is TimelineGap) return kGapDuration;
 
       return e.duration;
@@ -300,7 +331,7 @@ class TimelineController extends ChangeNotifier {
     debugPrint('$fullDuration $pos');
   }
 
-  /// A ticker that runs every [interval]
+  /// A ticker that runs every interval
   Timer? timer;
   void startTimer(BuildContext context) {
     // do not initialize it twice, otherwise it may cause inconsistency
@@ -323,7 +354,7 @@ class TimelineController extends ChangeNotifier {
 
     /// Whether this is past the end
     bool has() {
-      return timelineEvents.any((e) => currentDate.isInBetween(e.start, e.end));
+      return items.any((e) => currentDate.isInBetween(e.start, e.end));
     }
 
     if (!has()) {
@@ -339,6 +370,11 @@ class TimelineController extends ChangeNotifier {
         return;
       }
 
+      /// Checks if the item [e] is in between the span of the given [date]
+      ///
+      /// See also:
+      ///
+      ///  * [DateTime.isInBetween]
       bool checkForDate(TimelineItem e, DateTime date) {
         if (e is TimelineGap) {
           return date.isInBetween(e.start, e.end);
@@ -351,10 +387,14 @@ class TimelineController extends ChangeNotifier {
 
       /// Usually, if no events were found, it probably means there is a gap between
       /// events in a single [TimelineItem]. >>should<< be normal.
-      final itemForDate =
-          timelineEvents.any((e) => checkForDate(e, currentDate))
-              ? timelineEvents.firstWhere((e) => checkForDate(e, currentDate))
-              : currentItem;
+      ///
+      /// This usually doesn't happen because, when creating the timeline (See TimelineItem.calculateTimeline),
+      /// the span used is the duration of the smallest event. If it happens, something
+      /// may have gone wrong. Yet, this is not going to break the timeline, since
+      /// the next event is going to be played after the next gap
+      final itemForDate = items.any((e) => checkForDate(e, currentDate))
+          ? items.firstWhere((e) => checkForDate(e, currentDate))
+          : currentItem;
 
       /// If the current item is a gap, we add it according to the (current ticker duration * speed)
       /// When it reaches the max gap duration (kGapDuration), it preloads the next item.
@@ -363,10 +403,9 @@ class TimelineController extends ChangeNotifier {
 
         final nextDate = currentDate.add(itemForDate.duration);
 
-        if (timelineEvents.any(
-          (e) => e is TimelineValue && checkForDate(e, nextDate),
-        )) {
-          final next = timelineEvents.firstWhere(
+        /// We check for the next event and assign its media source, if necessary
+        if (items.any((e) => e is TimelineValue && checkForDate(e, nextDate))) {
+          final next = items.firstWhere(
             (e) => e is TimelineValue && checkForDate(e, nextDate),
           ) as TimelineValue;
 
@@ -385,7 +424,8 @@ class TimelineController extends ChangeNotifier {
           }
         }
       } else if (itemForDate is TimelineValue) {
-        /// If the event is an alarm, we add it according to the (current ticker duration * speed)
+        /// If all the events in the timeline are alarms, we add it according to
+        /// the (current ticker duration * speed)
         ///
         /// Otherwise, the duration that is added is the *difference* between the
         /// last added position and the current position
@@ -393,8 +433,11 @@ class TimelineController extends ChangeNotifier {
         /// Check the listener for [onCurrentPosUpdate] in [initialize] for more
         /// info on how this is done
         if (itemForDate.events.hasForDate(currentDate)) {
-          final event = itemForDate.events.forDate(currentDate);
-          if (event.isAlarm) add(interval * speed);
+          final allEvents = itemForDate.events.forDateList(currentDate);
+          if (allEvents.where((event) => event.isAlarm).length ==
+              allEvents.length) {
+            add(interval * speed);
+          }
         } else {
           notifyListeners();
         }
@@ -409,12 +452,14 @@ class TimelineController extends ChangeNotifier {
       if (currentItem is TimelineValue) {
         final events = (currentItem as TimelineValue).events;
 
+        /// Ensure the current event is playing
         if (events.hasForDate(currentDate)) {
-          final event = events.forDate(currentDate);
-          if (tiles.any((tile) => tile.events.contains(event))) {
-            final tile =
-                tiles.firstWhere((tile) => tile.events.contains(event));
-            if (event.mediaURL != null) {
+          for (final event in events.forDateList(currentDate)) {
+            if (event.mediaURL == null) continue;
+
+            if (tiles.any((tile) => tile.events.contains(event))) {
+              final tile =
+                  tiles.firstWhere((tile) => tile.events.contains(event));
               if (tile.player.dataSource == event.mediaURL!.toString()) {
                 if (!tile.player.isPlaying) {
                   await tile.player.start();
@@ -448,7 +493,13 @@ class TimelineController extends ChangeNotifier {
   /// When it reaches [kGapDuration], we move to the next item. While the gap is
   /// running, we precache the next items
   Duration currentGapDuration = Duration.zero;
+
+  /// The current date of the timeline, in real time
+  ///
+  /// The initial date is the date of start of the oldest event
   DateTime currentDate = DateTime(0);
+
+  /// The current item span of the timeline
   TimelineItem? currentItem;
 
   double _speed = 1;
@@ -473,15 +524,13 @@ class TimelineController extends ChangeNotifier {
     notifyListeners();
   }
 
-  TimelineController();
-
   /// Whether this controller is initialized
   ///
   /// See also:
   ///
   /// * [initialize], which initializes the timeline view
   bool get initialized {
-    return timelineEvents.isNotEmpty;
+    return items.isNotEmpty;
   }
 
   /// [events] all the events split by device
@@ -502,8 +551,8 @@ class TimelineController extends ChangeNotifier {
     // ignore: use_build_context_synchronously
     if (!context.mounted) return;
 
+    /// Only generate tiles for the devices that are selected
     final selectedIds = context.read<EventsProvider>().selectedIds;
-
     for (final event
         in events.entries.where((e) => selectedIds.contains(e.key))) {
       final id = event.key;
@@ -518,6 +567,10 @@ class TimelineController extends ChangeNotifier {
         ..setSpeed(speed)
         ..setVolume(volume)
         ..onCurrentPosUpdate.listen((pos) {
+          /// When the current position changes, we add it to the timeline position
+          ///
+          /// The amount of duration added is the difference between the previous
+          /// position and the current position
           if (pos < previousPos) previousPos = pos;
 
           final has = item.events.hasForDate(currentDate);
@@ -535,24 +588,26 @@ class TimelineController extends ChangeNotifier {
           notifyListeners();
         })
         ..onBufferStateUpdate.listen((buffering) {
+          /// If the current item is paused to buffer, we show the loading indicator
+          /// and pause the current timeline
           if (buffering) {
             context
                 .read<HomeProvider>()
                 .loading(UnityLoadingReason.timelineEventLoading);
+            // pause();
           } else {
             context
                 .read<HomeProvider>()
                 .notLoading(UnityLoadingReason.timelineEventLoading);
+            // play(context);
           }
         });
       tiles.add(item);
     }
 
     final result = await compute(TimelineItem.calculateTimeline, [allEvents]);
-    timelineEvents = result[0] as List<TimelineItem>;
-
+    items = result[0] as List<TimelineItem>;
     duration = result[1] as Duration;
-
     oldest = result[2] as Event;
     newest = result[3] as Event;
 
@@ -569,15 +624,6 @@ class TimelineController extends ChangeNotifier {
   /// Starts all players
   Future<void> play(BuildContext context) async {
     startTimer(context);
-    // if (currentItem is TimelineValue) {
-    //   // await (currentItem as TimelineValue).;
-    //   if (tiles.any((tile) => tile.events.hasForDate(currentDate))) {
-    //     final tile =
-    //         tiles.firstWhere((tile) => tile.events.hasForDate(currentDate));
-    //     tile.player.start();
-    //   }
-    // }
-
     notifyListeners();
   }
 
@@ -605,7 +651,7 @@ class TimelineController extends ChangeNotifier {
       item.player.dispose();
     }
     tiles.clear();
-    timelineEvents.clear();
+    items.clear();
 
     _thumbPosition = Duration.zero;
     _position = Duration.zero;
@@ -621,7 +667,7 @@ class TimelineController extends ChangeNotifier {
   }
 }
 
-class TimelineView extends StatefulWidget {
+class TimelineView extends StatelessWidget {
   final TimelineController timelineController;
 
   const TimelineView({
@@ -630,14 +676,8 @@ class TimelineView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<TimelineView> createState() => _TimelineViewState();
-}
-
-class _TimelineViewState extends State<TimelineView> {
-  @override
   Widget build(BuildContext context) {
-    final maxHeight =
-        widget.timelineController.tiles.length * kTimelineTileHeight;
+    final maxHeight = timelineController.tiles.length * kTimelineTileHeight;
 
     final servers = context.watch<ServersProvider>().servers;
 
@@ -645,12 +685,8 @@ class _TimelineViewState extends State<TimelineView> {
       height: maxHeight,
       child: Row(children: [
         Column(
-            children: widget.timelineController.tiles.map((i) {
+            children: timelineController.tiles.map((i) {
           final device = servers.findDevice(i.deviceId)!;
-          // final server = servers.firstWhere((s) => s.ip == device.server.ip);
-
-          // device.fullName
-
           return SizedBox(
             height: kTimelineTileHeight,
             width: kDeviceNameWidth,
@@ -670,19 +706,18 @@ class _TimelineViewState extends State<TimelineView> {
           child: Stack(children: [
             Positioned.fill(
               child: SingleChildScrollView(
-                controller: widget.timelineController.scrollController,
+                controller: timelineController.scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.timelineController.tiles.map((tile) {
+                  children: timelineController.tiles.map((tile) {
                     return Container(
                       height: kTimelineTileHeight,
                       decoration: const BoxDecoration(
                         border: Border(bottom: BorderSide()),
                       ),
                       child: Row(
-                          children:
-                              widget.timelineController.timelineEvents.map((i) {
+                          children: timelineController.items.map((i) {
                         if (i is TimelineGap) {
                           return Container(
                             width: kGapWidth,
@@ -778,20 +813,19 @@ class _TimelineViewState extends State<TimelineView> {
                 ),
               ),
             ),
-            if (widget.timelineController.initialized)
+            if (timelineController.initialized)
               RepaintBoundary(
                 child: AnimatedBuilder(
                   animation: Listenable.merge([
-                    widget.timelineController.scrollController,
-                    widget.timelineController.positionNotifier,
+                    timelineController.scrollController,
+                    timelineController.positionNotifier,
                   ]),
                   builder: (context, child) {
                     final scrollOffset =
-                        widget.timelineController.scrollController.hasClients
-                            ? widget.timelineController.scrollController.offset
+                        timelineController.scrollController.hasClients
+                            ? timelineController.scrollController.offset
                             : 0.0;
-                    final x = widget.timelineController._thumbPosition
-                                .inMilliseconds *
+                    final x = timelineController._thumbPosition.inMilliseconds *
                             kPeriodWidth -
                         scrollOffset;
 
@@ -803,7 +837,7 @@ class _TimelineViewState extends State<TimelineView> {
 
                     return Padding(
                       padding: EdgeInsets.only(
-                        left: widget.timelineController._placeholderSeekX ?? x,
+                        left: timelineController._placeholderSeekX ?? x,
                       ),
                       child: child!,
                     );
@@ -811,17 +845,17 @@ class _TimelineViewState extends State<TimelineView> {
                   child: GestureDetector(
                     // onHorizontalDragUpdate: (d) {
                     //   setState(
-                    //     () => widget.timelineController._placeholderSeekX =
+                    //     () => timelineController._placeholderSeekX =
                     //         d.localPosition.dx,
                     //   );
                     // },
                     // onHorizontalDragEnd: (d) {
-                    //   widget.timelineController.seek(
-                    //     widget.timelineController._placeholderSeekX!,
+                    //   timelineController.seek(
+                    //     timelineController._placeholderSeekX!,
                     //   );
                     //   setState(
                     //     () =>
-                    //         widget.timelineController._placeholderSeekX = null,
+                    //         timelineController._placeholderSeekX = null,
                     //   );
                     // },
                     child: Container(

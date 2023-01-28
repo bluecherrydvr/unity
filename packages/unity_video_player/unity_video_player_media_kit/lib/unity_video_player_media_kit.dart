@@ -86,7 +86,7 @@ class __MKVideoState extends State<_MKVideo> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (!widget.player.state.isPlaying) widget.player.play();
+    // if (!widget.player.state.isPlaying) widget.player.play();
   }
 
   @override

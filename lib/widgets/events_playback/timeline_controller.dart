@@ -253,13 +253,19 @@ class TimelineController extends ChangeNotifier {
   void add(Duration duration, {bool isGap = false}) {
     _position = _position + duration;
     currentDate = oldest!.published.add(_position);
-    if (isGap) {
-      _thumbPosition = _thumbPosition + kGapDuration;
-    } else {
-      _thumbPosition = _thumbPosition + duration;
-    }
-
+    if (!isGap) _thumbPosition = _thumbPosition + duration;
     _updateThumbPosition();
+  }
+
+  void addGap(Duration gapDuration, Duration position) {
+    if (currentGapDuration >= kGapDuration) {
+      add(gapDuration, isGap: true);
+      currentGapDuration = Duration.zero;
+    } else {
+      _thumbPosition = _thumbPosition + position;
+      currentGapDuration = currentGapDuration + position;
+      _updateThumbPosition();
+    }
   }
 
   void _updateThumbPosition() {
@@ -360,7 +366,7 @@ class TimelineController extends ChangeNotifier {
           : currentItem;
 
       if (itemForDate is TimelineGap) {
-        add(itemForDate.duration, isGap: true);
+        addGap(itemForDate.duration, interval * speed);
       } else if (itemForDate is TimelineValue) {
         if (itemForDate.events.hasForDate(currentDate)) {
           final event = itemForDate.events.forDate(currentDate);
@@ -412,6 +418,11 @@ class TimelineController extends ChangeNotifier {
   /// The position of the thumb, considering gaps with the duration of [kGapDuration]
   Duration _thumbPosition = Duration.zero;
 
+  /// This makes animating with gap possible
+  ///
+  /// When it reaches [kGapDuration], we move to the next item. While the gap is
+  /// running, we precache the next items
+  Duration currentGapDuration = Duration.zero;
   DateTime currentDate = DateTime(0);
   TimelineItem? currentItem;
 

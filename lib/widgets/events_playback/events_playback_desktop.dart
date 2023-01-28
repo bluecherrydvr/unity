@@ -441,7 +441,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
     return KeyboardListener(
       focusNode: focusNode,
       onKeyEvent: (event) {
-        print(event.logicalKey);
+        debugPrint(event.logicalKey.toString());
         if (event.logicalKey == LogicalKeyboardKey.space) {
           if (timelineController.isPaused) {
             timelineController.play(context);

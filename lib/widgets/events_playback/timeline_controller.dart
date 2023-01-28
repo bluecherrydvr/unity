@@ -36,7 +36,7 @@ const kDeviceNameWidth = 140.0;
 const kTimelineViewHeight = 190.0;
 const kTimelineTileHeight = 24.0;
 
-const kTimelineThumbWidth = 2.5;
+const kTimelineThumbWidth = 10.0;
 const kTimelineThumbOverflowPadding = 20.0;
 
 /// The width of a millisecond
@@ -705,222 +705,249 @@ class TimelineView extends StatelessWidget {
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>().servers;
 
-    return SizedBox(
-      height: kTimelineTileHeight *
-          // at least the height of 4
-          timelineController.tiles.length.clamp(
-            4,
-            double.infinity,
-          ),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: timelineController.tiles.map((i) {
-            final device = servers.findDevice(i.deviceId)!;
-            final server =
-                servers.firstWhere((s) => s.devices.contains(device));
-            return Tooltip(
-              message: '${server.name}/${device.name}',
-              preferBelow: false,
-              verticalOffset: 12.0,
-              child: Container(
-                height: kTimelineTileHeight,
-                width: kDeviceNameWidth,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(children: [
-                  Flexible(
-                    flex: 2,
-                    child: AutoSizeText(
-                      server.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      maxFontSize: 12.0,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: AutoSizeText(
-                      '/${device.name}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      maxFontSize: 12.0,
-                    ),
-                  ),
-                ]),
-              ),
-            );
-          }).toList(),
-        ),
-        const VerticalDivider(width: 2.0),
-        Expanded(
-          child: Stack(children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                controller: timelineController.scrollController,
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: timelineController.tiles.map((tile) {
-                    return Container(
+    final maxHeight = kTimelineTileHeight *
+        // at least the height of 4
+        timelineController.tiles.length.clamp(
+          4,
+          double.infinity,
+        );
+    return Stack(children: [
+      Positioned.fill(
+        child: SingleChildScrollView(
+          child: SizedBox(
+            height: maxHeight,
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: timelineController.tiles.map((i) {
+                  final device = servers.findDevice(i.deviceId)!;
+                  final server =
+                      servers.firstWhere((s) => s.devices.contains(device));
+                  return Tooltip(
+                    message: '${server.name}/${device.name}',
+                    preferBelow: false,
+                    verticalOffset: 12.0,
+                    child: Container(
                       height: kTimelineTileHeight,
-                      decoration: const BoxDecoration(
-                        border: Border(bottom: BorderSide()),
-                      ),
-                      child: Row(
-                          children: timelineController.items.map((i) {
-                        if (i is TimelineGap) {
-                          return Container(
-                            width: kGapWidth,
-                            height: kTimelineTileHeight,
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            alignment: Alignment.center,
-                            color: Colors.grey.shade400,
-                            child: AutoSizeText(
-                              i.duration.humanReadableCompact(context),
-                              maxLines: 1,
-                              minFontSize: 8.0,
-                              maxFontSize: 10.0,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          );
-                        } else if (i is TimelineValue) {
-                          return SizedBox(
-                            height: kTimelineTileHeight,
-                            width: i.duration.inMilliseconds * kPeriodWidth,
-                            child: () {
-                              final events =
-                                  tile.events.inBetween(i.start, i.end);
+                      width: kDeviceNameWidth,
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(children: [
+                        Flexible(
+                          flex: 2,
+                          child: AutoSizeText(
+                            server.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            maxFontSize: 12.0,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: AutoSizeText(
+                            '/${device.name}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            maxFontSize: 12.0,
+                          ),
+                        ),
+                      ]),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const VerticalDivider(width: 2.0),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: timelineController.scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: timelineController.tiles.map((tile) {
+                      return Container(
+                        height: kTimelineTileHeight,
+                        decoration: const BoxDecoration(
+                          border: Border(bottom: BorderSide()),
+                        ),
+                        child: Row(
+                            children: timelineController.items.map((i) {
+                          if (i is TimelineGap) {
+                            return Container(
+                              width: kGapWidth,
+                              height: kTimelineTileHeight,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              alignment: Alignment.center,
+                              color: Colors.grey.shade400,
+                              child: AutoSizeText(
+                                i.duration.humanReadableCompact(context),
+                                maxLines: 1,
+                                minFontSize: 8.0,
+                                maxFontSize: 10.0,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            );
+                          } else if (i is TimelineValue) {
+                            return SizedBox(
+                              height: kTimelineTileHeight,
+                              width: i.duration.inMilliseconds * kPeriodWidth,
+                              child: () {
+                                final events =
+                                    tile.events.inBetween(i.start, i.end);
 
-                              if (events.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-
-                              Widget buildForEvent(
-                                Event? event,
-                                Duration duration,
-                              ) {
-                                return Tooltip(
-                                  message:
-                                      duration.humanReadableCompact(context),
-                                  preferBelow: false,
-                                  verticalOffset: -12.0,
-                                  decoration: const BoxDecoration(),
-                                  child: Container(
-                                    height: kTimelineTileHeight,
-                                    width:
-                                        duration.inMilliseconds * kPeriodWidth,
-                                    color: event == null
-                                        ? null
-                                        : event.isAlarm
-                                            ? Colors.amber
-                                            : Colors.green,
-                                    // padding: const EdgeInsets.symmetric(
-                                    //   horizontal: 4,
-                                    // ),
-                                  ),
-                                );
-                              }
-
-                              var widgets = <Widget>[];
-
-                              Event? previous;
-                              for (final event in events) {
-                                if (previous == null) {
-                                  previous = event;
-                                  final duration = event.mediaDuration ??
-                                      event.updated.difference(event.published);
-
-                                  widgets.add(buildForEvent(event, duration));
-                                } else {
-                                  final previousEnd = previous.published.add(
-                                    previous.mediaDuration ??
-                                        (previous.updated
-                                            .difference(previous.published)),
-                                  );
-                                  final difference =
-                                      previousEnd.difference(event.published);
-
-                                  widgets.add(buildForEvent(null, difference));
-
-                                  final duration = event.mediaDuration ??
-                                      event.updated.difference(event.published);
-                                  widgets.add(buildForEvent(event, duration));
+                                if (events.isEmpty) {
+                                  return const SizedBox.shrink();
                                 }
-                              }
 
-                              return Row(children: widgets);
-                            }(),
-                          );
-                        } else {
-                          throw UnsupportedError(
-                            '${i.runtimeType} is not a supported type',
-                          );
-                        }
-                      }).toList()),
-                    );
-                  }).toList(),
+                                Widget buildForEvent(
+                                  Event? event,
+                                  Duration duration,
+                                ) {
+                                  return Tooltip(
+                                    message:
+                                        duration.humanReadableCompact(context),
+                                    preferBelow: false,
+                                    verticalOffset: -12.0,
+                                    decoration: const BoxDecoration(),
+                                    child: Container(
+                                      height: kTimelineTileHeight,
+                                      width: duration.inMilliseconds *
+                                          kPeriodWidth,
+                                      color: event == null
+                                          ? null
+                                          : event.isAlarm
+                                              ? Colors.amber
+                                              : Colors.green,
+                                    ),
+                                  );
+                                }
+
+                                var widgets = <Widget>[];
+
+                                Event? previous;
+                                for (final event in events) {
+                                  if (previous == null) {
+                                    previous = event;
+                                    final duration = event.mediaDuration ??
+                                        event.updated
+                                            .difference(event.published);
+
+                                    widgets.add(buildForEvent(event, duration));
+                                  } else {
+                                    final previousEnd = previous.published.add(
+                                      previous.mediaDuration ??
+                                          (previous.updated
+                                              .difference(previous.published)),
+                                    );
+                                    final difference =
+                                        previousEnd.difference(event.published);
+
+                                    widgets
+                                        .add(buildForEvent(null, difference));
+
+                                    final duration = event.mediaDuration ??
+                                        event.updated
+                                            .difference(event.published);
+                                    widgets.add(buildForEvent(event, duration));
+                                  }
+                                }
+
+                                return Row(children: widgets);
+                              }(),
+                            );
+                          } else {
+                            throw UnsupportedError(
+                              '${i.runtimeType} is not a supported type',
+                            );
+                          }
+                        }).toList()),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ),
+      if (timelineController.initialized) ...[
+        Positioned.fill(
+          left: kDeviceNameWidth,
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                timelineController.scrollController,
+                timelineController.positionNotifier,
+              ]),
+              builder: (context, child) {
+                final scrollOffset =
+                    timelineController.scrollController.hasClients
+                        ? timelineController.scrollController.offset
+                        : 0.0;
+                final x = timelineController._thumbPosition.inMilliseconds *
+                        kPeriodWidth -
+                    scrollOffset;
+
+                if (x.isNegative) {
+                  return const SizedBox(
+                    height: kTimelineViewHeight,
+                  );
+                }
+
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onHorizontalDragUpdate: (d) {
+                    debugPrint(d.localPosition.dx.toString());
+                    // setState(
+                    //   () => timelineController._placeholderSeekX =
+                    //       d.localPosition.dx,
+                    // );
+                  },
+                  // onHorizontalDragEnd: (d) {
+                  //   timelineController.seek(
+                  //     timelineController._placeholderSeekX!,
+                  //   );
+                  //   setState(
+                  //     () =>
+                  //         timelineController._placeholderSeekX = null,
+                  //   );
+                  // },
+                  child: Stack(children: [
+                    Positioned(
+                      top: 0.0,
+                      bottom: 0.0,
+                      left: timelineController._placeholderSeekX ?? x,
+                      child: child!,
+                    ),
+                    Positioned(
+                      left: (timelineController._placeholderSeekX ?? x) - 7,
+                      top: 0.0,
+                      bottom: -10.0,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Icon(
+                          Icons.arrow_drop_up,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ]),
+                );
+              },
+              child: SizedBox(
+                width: kTimelineThumbWidth,
+                child: Center(
+                  child: Container(
+                    width: 2.5,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
-            if (timelineController.initialized)
-              RepaintBoundary(
-                child: AnimatedBuilder(
-                  animation: Listenable.merge([
-                    timelineController.scrollController,
-                    timelineController.positionNotifier,
-                  ]),
-                  builder: (context, child) {
-                    final scrollOffset =
-                        timelineController.scrollController.hasClients
-                            ? timelineController.scrollController.offset
-                            : 0.0;
-                    final x = timelineController._thumbPosition.inMilliseconds *
-                            kPeriodWidth -
-                        scrollOffset;
-
-                    if (x.isNegative) {
-                      return const SizedBox(
-                        height: kTimelineViewHeight,
-                      );
-                    }
-
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: timelineController._placeholderSeekX ?? x,
-                      ),
-                      child: child!,
-                    );
-                  },
-                  child: GestureDetector(
-                    // onHorizontalDragUpdate: (d) {
-                    //   setState(
-                    //     () => timelineController._placeholderSeekX =
-                    //         d.localPosition.dx,
-                    //   );
-                    // },
-                    // onHorizontalDragEnd: (d) {
-                    //   timelineController.seek(
-                    //     timelineController._placeholderSeekX!,
-                    //   );
-                    //   setState(
-                    //     () =>
-                    //         timelineController._placeholderSeekX = null,
-                    //   );
-                    // },
-                    child: Container(
-                      height: kTimelineViewHeight,
-                      width: kTimelineThumbWidth,
-                      margin: const EdgeInsetsDirectional.only(end: 2.5),
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-          ]),
+          ),
         ),
-      ]),
-    );
+      ],
+    ]);
   }
 }

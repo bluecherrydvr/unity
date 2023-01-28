@@ -264,11 +264,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       const Spacer(),
                     ]),
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: Material(
-                          child: TimelineView(
-                            timelineController: timelineController,
-                          ),
+                      child: Material(
+                        child: TimelineView(
+                          timelineController: timelineController,
                         ),
                       ),
                     ),

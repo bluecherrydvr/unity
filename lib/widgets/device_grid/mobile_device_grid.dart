@@ -64,7 +64,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
             child: Container(
               height: kMobileBottomBarHeight,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery.sizeOf(context).width,
               child: Row(children: <Widget>[
                 if (Scaffold.of(context).hasDrawer)
                   IconButton(
@@ -184,23 +184,23 @@ class _MobileDeviceGridChild extends StatelessWidget {
           }[tab]!,
           childAspectRatio: <int, double>{
             if (Platform.isIOS) ...{
-              4: (MediaQuery.of(context).size.width) /
-                  (MediaQuery.of(context).size.height - kMobileBottomBarHeight),
-              2: (MediaQuery.of(context).size.width) *
+              4: (MediaQuery.sizeOf(context).width) /
+                  (MediaQuery.sizeOf(context).height - kMobileBottomBarHeight),
+              2: (MediaQuery.sizeOf(context).width) *
                   0.5 /
-                  (MediaQuery.of(context).size.height - kMobileBottomBarHeight),
+                  (MediaQuery.sizeOf(context).height - kMobileBottomBarHeight),
             } else ...{
-              4: (MediaQuery.of(context).size.width -
-                      MediaQuery.of(context).padding.horizontal) /
-                  (MediaQuery.of(context).size.height -
+              4: (MediaQuery.sizeOf(context).width -
+                      MediaQuery.paddingOf(context).horizontal) /
+                  (MediaQuery.sizeOf(context).height -
                       kMobileBottomBarHeight -
-                      MediaQuery.of(context).padding.bottom),
-              2: (MediaQuery.of(context).size.width -
-                      MediaQuery.of(context).padding.horizontal) *
+                      MediaQuery.paddingOf(context).bottom),
+              2: (MediaQuery.sizeOf(context).width -
+                      MediaQuery.paddingOf(context).horizontal) *
                   0.5 /
-                  (MediaQuery.of(context).size.height -
+                  (MediaQuery.sizeOf(context).height -
                       kMobileBottomBarHeight -
-                      MediaQuery.of(context).padding.bottom),
+                      MediaQuery.paddingOf(context).bottom),
             }
           }[tab]!,
           padding: EdgeInsets.zero,

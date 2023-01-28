@@ -149,7 +149,7 @@ class CorrectedListTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: height ?? 88.0,
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery.sizeOf(context).width,
         padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(
           children: [

@@ -1,3 +1,22 @@
+/*
+ * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
+ *
+ * Copyright 2022 Bluecherry, LLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -304,11 +323,17 @@ class TimelineController extends ChangeNotifier {
       final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
           scrollController.offset;
 
-      if (thumbX >
+      final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
+
+      if (thumbX > scrollController.position.viewportDimension) {
+        scrollController.jumpTo(to);
+      } else if (thumbX >
           scrollController.position.viewportDimension -
               kTimelineThumbOverflowPadding) {
-        scrollController.jumpTo(
-          scrollController.offset + kTimelineThumbOverflowPadding / 2,
+        scrollController.animateTo(
+          to,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.linear,
         );
       }
     }
@@ -413,9 +438,11 @@ class TimelineController extends ChangeNotifier {
             final tile =
                 tiles.firstWhere((tile) => tile.events.contains(event));
 
-            final mediaUrl = event.mediaURL!.toString();
+            final mediaUrl = event.mediaURL?.toString();
 
-            if (!event.isAlarm && tile.player.dataSource != mediaUrl) {
+            if (!event.isAlarm &&
+                mediaUrl != null &&
+                tile.player.dataSource != mediaUrl) {
               tile.player.setDataSource(
                 mediaUrl,
                 autoPlay: false,
@@ -661,7 +688,6 @@ class TimelineController extends ChangeNotifier {
   Future<void> dispose() async {
     super.dispose();
     _clear();
-    timer?.cancel();
     positionNotifier.dispose();
     scrollController.dispose();
   }
@@ -677,30 +703,55 @@ class TimelineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = timelineController.tiles.length * kTimelineTileHeight;
-
     final servers = context.watch<ServersProvider>().servers;
 
     return SizedBox(
-      height: maxHeight,
-      child: Row(children: [
+      height: kTimelineTileHeight *
+          // at least the height of 4
+          timelineController.tiles.length.clamp(
+            4,
+            double.infinity,
+          ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Column(
-            children: timelineController.tiles.map((i) {
-          final device = servers.findDevice(i.deviceId)!;
-          return SizedBox(
-            height: kTimelineTileHeight,
-            width: kDeviceNameWidth,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: AutoSizeText(
-                device.fullName,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-                maxFontSize: 12.0,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: timelineController.tiles.map((i) {
+            final device = servers.findDevice(i.deviceId)!;
+            final server =
+                servers.firstWhere((s) => s.devices.contains(device));
+            return Tooltip(
+              message: '${server.name}/${device.name}',
+              preferBelow: false,
+              verticalOffset: 12.0,
+              child: Container(
+                height: kTimelineTileHeight,
+                width: kDeviceNameWidth,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(children: [
+                  Flexible(
+                    flex: 2,
+                    child: AutoSizeText(
+                      server.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      maxFontSize: 12.0,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: AutoSizeText(
+                      '/${device.name}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      maxFontSize: 12.0,
+                    ),
+                  ),
+                ]),
               ),
-            ),
-          );
-        }).toList()),
+            );
+          }).toList(),
+        ),
         const VerticalDivider(width: 2.0),
         Expanded(
           child: Stack(children: [

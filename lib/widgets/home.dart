@@ -242,7 +242,7 @@ class _MobileHomeState extends State<Home> {
         children: [
           Container(
             width: double.infinity,
-            height: MediaQuery.of(context).padding.top,
+            height: MediaQuery.paddingOf(context).top,
             color: Color.lerp(
               Theme.of(context).drawerTheme.backgroundColor,
               Colors.black,

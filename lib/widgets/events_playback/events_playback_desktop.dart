@@ -133,10 +133,10 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       return Container(
                         color: Colors.black,
                         alignment: Alignment.center,
-                        padding: const EdgeInsets.all(6.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: AutoSizeText(
                           AppLocalizations.of(context).noRecords,
-                          maxLines: 1,
+                          textAlign: TextAlign.center,
                         ),
                       );
                     }
@@ -493,7 +493,7 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
               widget.onUpdate();
             },
       child: SizedBox(
-        height: 40.0,
+        height: 30.0,
         child: Row(children: [
           const SizedBox(width: 16.0),
           Container(

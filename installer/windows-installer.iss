@@ -135,7 +135,7 @@ Source: "..\build\windows\runner\Release\vk_swiftshader.dll"; DestDir: "{app}"; 
 Source: "..\build\windows\runner\Release\vulkan-1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\build\windows\runner\Release\window_manager_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\build\windows\runner\Release\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\runner\Release\data\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

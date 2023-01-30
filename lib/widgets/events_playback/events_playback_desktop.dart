@@ -57,7 +57,17 @@ class EventsPlaybackDesktop extends StatefulWidget {
   State<EventsPlaybackDesktop> createState() => _EventsPlaybackDesktopState();
 }
 
-class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
+class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController collapseController;
+  Animation<double> get collapseAnimation => CurvedAnimation(
+        curve: Curves.easeIn,
+        reverseCurve: Curves.easeOut,
+        parent: collapseController,
+      );
+  final collapseButtonKey = GlobalKey();
+  final sidebarKey = GlobalKey();
+
   late final timelineController = TimelineController();
   final focusNode = FocusNode();
 
@@ -68,6 +78,11 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   void initState() {
     super.initState();
     timelineController.addListener(() => setState(() {}));
+
+    collapseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
   }
 
   @override
@@ -103,7 +118,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
 
   @override
   Widget build(BuildContext context) {
-    final events = context.watch<EventsProvider>();
     final settings = context.watch<SettingsProvider>();
 
     final page = Row(children: [
@@ -222,7 +236,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         const SizedBox(width: 20.0),
                         Icon(() {
                           final volume = _volume ?? timelineController.volume;
-                          print(_volume);
                           if ((_volume == null || _volume == 0.0) &&
                               (timelineController.isMuted || volume == 0.0)) {
                             return Icons.volume_off;
@@ -300,162 +313,53 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
           ),
         ]),
       ),
-      ConstrainedBox(
-        constraints: kSidebarConstraints,
-        child: Material(
-          child: Column(children: [
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.viewPaddingOf(context).bottom,
-                ),
-                itemCount: ServersProvider.instance.servers.length,
-                itemBuilder: (context, i) {
-                  final server = ServersProvider.instance.servers[i];
-                  return FutureBuilder(
-                    future: (() async => server.devices.isEmpty
-                        ? API.instance.getDevices(
-                            await API.instance.checkServerCredentials(server))
-                        : true)(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(
-                          child: Container(
-                            alignment: AlignmentDirectional.center,
-                            height: 156.0,
-                            child: const CircularProgressIndicator.adaptive(),
-                          ),
-                        );
-                      }
-
-                      if (server.devices.any((d) => widget.events.keys
-                          .contains(EventsProvider.idForDevice(d)))) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: server.devices.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return SubHeader(
-                                server.name,
-                                subtext: AppLocalizations.of(context).nDevices(
-                                  server.devices.length,
-                                ),
-                              );
-                            }
-
-                            index--;
-                            final device = server.devices[index];
-                            if (!widget.events.keys
-                                .contains(EventsProvider.idForDevice(device))) {
-                              return const SizedBox.shrink();
-                            }
-
-                            final selected = events.selectedIds
-                                .contains(EventsProvider.idForDevice(device));
-
-                            return _DeviceTile(
-                              device: device,
-                              selected: selected,
-                              onUpdate: () async {
-                                initialize();
-                              },
-                            );
-                          },
-                        );
-                      }
-
-                      return const SizedBox.shrink();
-                    },
-                  );
-                },
+      AnimatedBuilder(
+        animation: collapseAnimation,
+        builder: (context, child) {
+          final collapseButton = IconButton(
+            key: collapseButtonKey,
+            icon: RotationTransition(
+              turns: Tween(
+                begin: 1.0,
+                end: 0.5,
+              ).animate(collapseAnimation),
+              child: const Icon(
+                Icons.keyboard_arrow_right,
               ),
             ),
-            SizedBox(
-              height: kTimelineViewHeight,
-              child: Card(
-                margin: EdgeInsets.zero,
-                shape: const RoundedRectangleBorder(),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 8.0,
-                    bottom: 8.0,
-                    left: 8.0,
-                    right: 16.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SubHeader(
-                        AppLocalizations.of(context).filter,
-                        padding: const EdgeInsets.only(bottom: 6.0),
-                        height: null,
-                      ),
-                      FilterTile(
-                        title: AppLocalizations.of(context).fromDate,
-                        trailing: widget.filter == null
-                            ? '--'
-                            : settings.dateFormat.format(widget.filter!.from),
-                        onTap: widget.filter == null
-                            ? null
-                            : () async {
-                                final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: widget.filter!.from,
-                                  firstDate: widget.filter!.fromLimit,
-                                  lastDate: widget.filter!.to,
-                                );
+            onPressed: () {
+              if (collapseController.isCompleted) {
+                collapseController.reverse();
+              } else {
+                collapseController.forward();
+              }
+            },
+          );
+          return ConstrainedBox(
+            constraints: BoxConstraintsTween(
+              begin: kSidebarConstraints,
+              end: kCompactSidebarConstraints,
+            ).evaluate(collapseAnimation),
+            child: () {
+              if (collapseAnimation.value > 0.35) {
+                return Container(
+                  margin: const EdgeInsetsDirectional.only(end: 6.0, top: 6.0),
+                  alignment: AlignmentDirectional.topEnd,
+                  child: collapseButton,
+                );
+              }
 
-                                if (date != null) {
-                                  widget.onFilter(widget.filter!.copyWith(
-                                    from: date,
-                                  ));
-                                }
-                              },
-                      ),
-                      FilterTile(
-                        title: AppLocalizations.of(context).toDate,
-                        trailing: widget.filter == null
-                            ? '--'
-                            : settings.dateFormat.format(widget.filter!.to),
-                        onTap: widget.filter == null
-                            ? null
-                            : () async {
-                                final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: widget.filter!.to,
-                                  firstDate: widget.filter!.from,
-                                  lastDate: widget.filter!.toLimit,
-                                );
-
-                                if (date != null) {
-                                  widget.onFilter(widget.filter!.copyWith(
-                                    to: date,
-                                  ));
-                                }
-                              },
-                      ),
-                      const Divider(),
-                      FilterTile.checkbox(
-                        checked: widget.filter?.allowAlarms,
-                        onChanged: widget.filter == null
-                            ? null
-                            : (v) {
-                                widget.onFilter(
-                                  widget.filter!.copyWith(
-                                    allowAlarms: !widget.filter!.allowAlarms,
-                                  ),
-                                );
-                              },
-                        title: Text(AppLocalizations.of(context).allowAlarms),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ]),
-        ),
+              return Sidebar(
+                key: sidebarKey,
+                collapseButton: collapseButton,
+                events: widget.events,
+                filter: widget.filter,
+                onFilter: widget.onFilter,
+                onUpdate: initialize,
+              );
+            }(),
+          );
+        },
       ),
     ]);
 
@@ -480,6 +384,190 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
         }
       },
       child: page,
+    );
+  }
+}
+
+class Sidebar extends StatelessWidget {
+  final EventsData events;
+  final FilterData? filter;
+  final Widget collapseButton;
+  final FutureValueChanged<FilterData> onFilter;
+  final VoidCallback onUpdate;
+
+  const Sidebar({
+    Key? key,
+    required this.events,
+    required this.filter,
+    required this.collapseButton,
+    required this.onFilter,
+    required this.onUpdate,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final events = context.watch<EventsProvider>();
+    final settings = context.watch<SettingsProvider>();
+
+    final servers = ServersProvider.instance.servers.where((server) => server
+        .devices
+        .any((d) => this.events.keys.contains(EventsProvider.idForDevice(d))));
+
+    return Material(
+      child: Column(children: [
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.viewPaddingOf(context).bottom,
+            ),
+            itemCount: servers.length,
+            itemBuilder: (context, i) {
+              final server = servers.elementAt(i);
+              return FutureBuilder(
+                future: (() async => server.devices.isEmpty
+                    ? API.instance.getDevices(
+                        await API.instance.checkServerCredentials(server))
+                    : true)(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: Container(
+                        alignment: AlignmentDirectional.center,
+                        height: 156.0,
+                        child: const LinearProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: server.devices.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return SubHeader(
+                          server.name,
+                          subtext: AppLocalizations.of(context).nDevices(
+                            server.devices.length,
+                          ),
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 16.0,
+                            end: 6.0,
+                          ),
+                          trailing: i == 0 ? collapseButton : null,
+                        );
+                      }
+
+                      index--;
+                      final device = server.devices[index];
+                      if (!this
+                          .events
+                          .keys
+                          .contains(EventsProvider.idForDevice(device))) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final selected = events.selectedIds
+                          .contains(EventsProvider.idForDevice(device));
+
+                      return _DeviceTile(
+                        device: device,
+                        selected: selected,
+                        onUpdate: () async {
+                          onUpdate();
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          height: kTimelineViewHeight,
+          child: Card(
+            margin: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 8.0,
+                bottom: 8.0,
+                left: 8.0,
+                right: 16.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SubHeader(
+                    AppLocalizations.of(context).filter,
+                    padding: const EdgeInsets.only(bottom: 6.0),
+                    height: null,
+                  ),
+                  FilterTile(
+                    title: AppLocalizations.of(context).fromDate,
+                    trailing: filter == null
+                        ? '--'
+                        : settings.dateFormat.format(filter!.from),
+                    onTap: filter == null
+                        ? null
+                        : () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: filter!.from,
+                              firstDate: filter!.fromLimit,
+                              lastDate: filter!.to,
+                            );
+
+                            if (date != null) {
+                              onFilter(filter!.copyWith(
+                                from: date,
+                              ));
+                            }
+                          },
+                  ),
+                  FilterTile(
+                    title: AppLocalizations.of(context).toDate,
+                    trailing: filter == null
+                        ? '--'
+                        : settings.dateFormat.format(filter!.to),
+                    onTap: filter == null
+                        ? null
+                        : () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: filter!.to,
+                              firstDate: filter!.from,
+                              lastDate: filter!.toLimit,
+                            );
+
+                            if (date != null) {
+                              onFilter(filter!.copyWith(
+                                to: date,
+                              ));
+                            }
+                          },
+                  ),
+                  const Divider(),
+                  FilterTile.checkbox(
+                    checked: filter?.allowAlarms,
+                    onChanged: filter == null
+                        ? null
+                        : (v) {
+                            onFilter(
+                              filter!.copyWith(
+                                allowAlarms: !filter!.allowAlarms,
+                              ),
+                            );
+                          },
+                    title: Text(AppLocalizations.of(context).allowAlarms),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }

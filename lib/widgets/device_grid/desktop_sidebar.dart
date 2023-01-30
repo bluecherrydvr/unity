@@ -20,6 +20,7 @@
 part of 'device_grid.dart';
 
 const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
+const kCompactSidebarConstraints = BoxConstraints(maxWidth: 65.0);
 
 class DesktopSidebar extends StatefulWidget {
   const DesktopSidebar({Key? key}) : super(key: key);

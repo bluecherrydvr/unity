@@ -443,6 +443,7 @@ class TimelineController extends ChangeNotifier {
             if (!event.isAlarm &&
                 mediaUrl != null &&
                 tile.player.dataSource != mediaUrl) {
+              debugPrint('PRELOADING $mediaUrl');
               tile.player.setDataSource(
                 mediaUrl,
                 autoPlay: false,

@@ -143,29 +143,35 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                     final has =
                         i.events.hasForDate(timelineController.currentDate);
 
-                    if (!has) {
-                      return Container(
-                        color: Colors.black,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(12.0),
-                        child: AutoSizeText(
-                          AppLocalizations.of(context).noRecords,
-                          textAlign: TextAlign.center,
+                    return IndexedStack(
+                      index: !has ? 0 : 1,
+                      children: [
+                        Container(
+                          color: Colors.black,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(12.0),
+                          child: AutoSizeText(
+                            AppLocalizations.of(context).noRecords,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      );
-                    }
 
-                    return UnityVideoView(
-                      player: i.player,
-                      paneBuilder: (context, player) {
-                        if (player.dataSource == null) {
-                          return const ErrorWarning(message: '');
-                        } else {
-                          debugPrint('${player.dataSource}');
-                        }
+                        /// This ensures a faster initialization of the video view
+                        /// providing a smoother experience. This isn't a good solution,
+                        /// just a workaround for now
+                        UnityVideoView(
+                          player: i.player,
+                          paneBuilder: (context, player) {
+                            if (player.dataSource == null) {
+                              return const ErrorWarning(message: '');
+                            } else {
+                              debugPrint('${player.dataSource}');
+                            }
 
-                        return const SizedBox.shrink();
-                      },
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
                     );
                   }).toList(),
                 );

@@ -547,7 +547,27 @@ class TimelineController extends ChangeNotifier {
       tile.player.setVolume(volume);
     }
 
+    _muted = false;
     _volume = volume;
+    notifyListeners();
+  }
+
+  bool _muted = false;
+  bool get isMuted => _muted;
+  void mute() {
+    _muted = true;
+    for (final tile in tiles) {
+      tile.player.setVolume(0);
+    }
+
+    notifyListeners();
+  }
+
+  void unmute() {
+    _muted = false;
+    for (final tile in tiles) {
+      tile.player.setVolume(volume);
+    }
     notifyListeners();
   }
 
@@ -896,7 +916,7 @@ class TimelineView extends StatelessWidget {
                 }
 
                 return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                  behavior: HitTestBehavior.translucent,
                   onHorizontalDragUpdate: (d) {
                     debugPrint(d.localPosition.dx.toString());
                     // setState(
@@ -918,10 +938,12 @@ class TimelineView extends StatelessWidget {
                       top: 0.0,
                       bottom: 0.0,
                       left: timelineController._placeholderSeekX ?? x,
+                      width: kTimelineThumbWidth,
                       child: child!,
                     ),
                     Positioned(
                       left: (timelineController._placeholderSeekX ?? x) - 7,
+                      width: kTimelineThumbWidth,
                       top: 0.0,
                       bottom: -10.0,
                       child: Align(

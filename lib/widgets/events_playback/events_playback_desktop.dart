@@ -61,8 +61,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   late final timelineController = TimelineController();
   final focusNode = FocusNode();
 
-  double? _volume = 1;
-  double? _speed = 1;
+  double? _volume;
+  double? _speed;
 
   @override
   void initState() {
@@ -219,10 +219,26 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 20.0),
+                        Icon(() {
+                          final volume = _volume ?? timelineController.volume;
+                          print(_volume);
+                          if ((_volume == null || _volume == 0.0) &&
+                              (timelineController.isMuted || volume == 0.0)) {
+                            return Icons.volume_off;
+                          } else if (volume < 0.5) {
+                            return Icons.volume_down;
+                          } else {
+                            return Icons.volume_up;
+                          }
+                        }()),
                         SizedBox(
                           width: 120.0,
                           child: Slider(
-                            value: _volume ?? timelineController.volume,
+                            value: _volume ??
+                                (timelineController.isMuted
+                                    ? 0.0
+                                    : timelineController.volume),
                             onChanged: (v) => setState(() => _volume = v),
                             onChangeEnd: (v) {
                               _volume = null;
@@ -230,8 +246,15 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                             },
                           ),
                         ),
-                        Text(((_volume ?? timelineController.volume) * 100)
-                            .toStringAsFixed(0)),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 26.0),
+                          child: Text(
+                            timelineController.isMuted
+                                ? '0'
+                                : ((_volume ?? timelineController.volume) * 100)
+                                    .toStringAsFixed(0),
+                          ),
+                        ),
                         if (kDebugMode)
                           IconButton(
                             icon: const Icon(Icons.refresh),
@@ -438,13 +461,21 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
 
     return KeyboardListener(
       focusNode: focusNode,
+      autofocus: true,
       onKeyEvent: (event) {
-        debugPrint(event.logicalKey.toString());
-        if (event.logicalKey == LogicalKeyboardKey.space) {
-          if (timelineController.isPaused) {
-            timelineController.play(context);
-          } else {
-            timelineController.pause();
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            if (timelineController.isPaused) {
+              timelineController.play(context);
+            } else {
+              timelineController.pause();
+            }
+          } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
+            if (timelineController.isMuted) {
+              timelineController.unmute();
+            } else {
+              timelineController.mute();
+            }
           }
         }
       },

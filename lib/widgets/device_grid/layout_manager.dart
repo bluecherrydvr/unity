@@ -28,7 +28,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class LayoutManager extends StatefulWidget {
-  const LayoutManager({Key? key}) : super(key: key);
+  final Widget collapseButton;
+
+  const LayoutManager({
+    Key? key,
+    required this.collapseButton,
+  }) : super(key: key);
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
@@ -74,11 +79,17 @@ class _LayoutManagerState extends State<LayoutManager> {
             padding: const EdgeInsetsDirectional.only(
               top: 2.0,
               bottom: 2.0,
-              start: 16.0,
               end: 16.0,
             ),
             child: Row(children: [
-              Expanded(child: Text(AppLocalizations.of(context).view)),
+              widget.collapseButton,
+              const SizedBox(width: 5.0),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context).view,
+                  maxLines: 1,
+                ),
+              ),
               IconButton(
                 icon: Icon(
                   Icons.cyclone,
@@ -166,9 +177,10 @@ class LayoutTile extends StatelessWidget {
           start: 12.0,
           end: 16.0,
         ),
-        title: Text(layout.name),
+        title: Text(layout.name, maxLines: 1),
         subtitle: Text(
           AppLocalizations.of(context).nDevices(layout.devices.length),
+          maxLines: 1,
         ),
         trailing: IconButton(
           padding: EdgeInsets.zero,

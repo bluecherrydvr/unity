@@ -20,7 +20,12 @@
 part of 'device_grid.dart';
 
 class DesktopSidebar extends StatefulWidget {
-  const DesktopSidebar({Key? key}) : super(key: key);
+  final Widget collapseButton;
+
+  const DesktopSidebar({
+    Key? key,
+    required this.collapseButton,
+  }) : super(key: key);
 
   @override
   State<DesktopSidebar> createState() => _DesktopSidebarState();
@@ -34,73 +39,68 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
     final view = context.watch<DesktopViewProvider>();
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 220.0,
-      ),
-      child: Material(
-        color: theme.canvasColor,
-        child: Column(children: [
-          const LayoutManager(),
-          Expanded(
-            child: Material(
-              type: MaterialType.transparency,
-              child: ListView.builder(
-                padding: EdgeInsets.only(
-                  bottom: mq.viewPadding.bottom,
-                ),
-                itemCount: ServersProvider.instance.servers.length,
-                itemBuilder: (context, i) {
-                  final server = ServersProvider.instance.servers[i];
-                  return FutureBuilder(
-                    future: (() async => server.devices.isEmpty
-                        ? API.instance.getDevices(
-                            await API.instance.checkServerCredentials(server))
-                        : true)(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: server.devices.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return SubHeader(
-                                server.name,
-                                subtext: AppLocalizations.of(context).nDevices(
-                                  server.devices.length,
-                                ),
-                              );
-                            }
-
-                            index--;
-                            final device = server.devices[index];
-                            final selected =
-                                view.currentLayout.devices.contains(device);
-
-                            return DesktopDeviceSelectorTile(
-                              device: device,
-                              selected: selected,
-                            );
-                          },
-                        );
-                      } else {
-                        return Center(
-                          child: Container(
-                            alignment: AlignmentDirectional.center,
-                            height: 156.0,
-                            child: const CircularProgressIndicator.adaptive(),
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
+    return Material(
+      color: theme.canvasColor,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        LayoutManager(collapseButton: widget.collapseButton),
+        Expanded(
+          child: Material(
+            type: MaterialType.transparency,
+            child: ListView.builder(
+              padding: EdgeInsets.only(
+                bottom: mq.viewPadding.bottom,
               ),
+              itemCount: ServersProvider.instance.servers.length,
+              itemBuilder: (context, i) {
+                final server = ServersProvider.instance.servers[i];
+                return FutureBuilder(
+                  future: (() async => server.devices.isEmpty
+                      ? API.instance.getDevices(
+                          await API.instance.checkServerCredentials(server))
+                      : true)(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: server.devices.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return SubHeader(
+                              server.name,
+                              subtext: AppLocalizations.of(context).nDevices(
+                                server.devices.length,
+                              ),
+                            );
+                          }
+
+                          index--;
+                          final device = server.devices[index];
+                          final selected =
+                              view.currentLayout.devices.contains(device);
+
+                          return DesktopDeviceSelectorTile(
+                            device: device,
+                            selected: selected,
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(
+                        child: Container(
+                          alignment: AlignmentDirectional.center,
+                          height: 156.0,
+                          child: const CircularProgressIndicator.adaptive(),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
             ),
           ),
-        ]),
-      ),
+        ),
+      ]),
     );
   }
 }
@@ -156,41 +156,46 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   view.add(widget.device);
                 }
               },
-        child: Row(children: [
-          const SizedBox(width: 16.0),
-          Container(
-            height: 6.0,
-            width: 6.0,
-            margin: const EdgeInsetsDirectional.only(end: 8.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: widget.device.status ? Colors.green.shade100 : Colors.red,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              widget.device.name.uppercaseFirst(),
-              style: theme.textTheme.titleMedium!.copyWith(
-                color: widget.selected
-                    ? theme.colorScheme.primary
-                    : !widget.device.status
-                        ? theme.disabledColor
-                        : null,
+        child: SizedBox(
+          height: 32.0,
+          child: Row(children: [
+            const SizedBox(width: 16.0),
+            Container(
+              height: 6.0,
+              width: 6.0,
+              margin: const EdgeInsetsDirectional.only(end: 8.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color:
+                    widget.device.status ? Colors.green.shade100 : Colors.red,
               ),
             ),
-          ),
-          // if (isMobile)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1.0),
-            child: IconButton(
-              onPressed:
-                  widget.device.status ? () => _displayOptions(context) : null,
-              icon: Icon(moreIconData),
-              iconSize: 22.0,
+            Expanded(
+              child: Text(
+                widget.device.name.uppercaseFirst(),
+                style: theme.textTheme.titleMedium!.copyWith(
+                  color: widget.selected
+                      ? theme.colorScheme.primary
+                      : !widget.device.status
+                          ? theme.disabledColor
+                          : null,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: 16.0),
-        ]),
+            if (isMobile)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1.0),
+                child: IconButton(
+                  onPressed: widget.device.status
+                      ? () => _displayOptions(context)
+                      : null,
+                  icon: Icon(moreIconData),
+                  iconSize: 22.0,
+                ),
+              ),
+            const SizedBox(width: 16.0),
+          ]),
+        ),
       ),
     );
   }

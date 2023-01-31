@@ -48,7 +48,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();
     final children = [
-      const DesktopSidebar(),
+      CollapsableSidebar(
+        builder: (context, collapseButton) {
+          return DesktopSidebar(collapseButton: collapseButton);
+        },
+      ),
       Expanded(
         child: Material(
           color: Colors.black,

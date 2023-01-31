@@ -201,19 +201,23 @@ class DeviceTileState extends State<DeviceTile> {
                               .split(' ')
                               .map((e) => e[0].toUpperCase() + e.substring(1))
                               .join(' '),
-                          style:
-                              Theme.of(context).textTheme.displayLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 14.0,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontSize: 14.0,
+                              ),
                         ),
                         Text(
                           widget.device.uri,
-                          style:
-                              Theme.of(context).textTheme.displaySmall?.copyWith(
-                                    color: Colors.white70,
-                                    fontSize: 10.0,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.copyWith(
+                                color: Colors.white70,
+                                fontSize: 10.0,
+                              ),
                         ),
                       ],
                     ),

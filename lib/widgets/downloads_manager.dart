@@ -59,6 +59,12 @@ class DownloadsManagerScreen extends StatelessWidget {
         ),
       ),
       body: LayoutBuilder(builder: (context, consts) {
+        if (downloads.isEmpty) {
+          return Center(
+            child: Text(AppLocalizations.of(context).noDownloads),
+          );
+        }
+
         final size = consts.biggest;
         return CustomScrollView(
           slivers: [

@@ -16,7 +16,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {
-    return UnityVideoPlayerMediaKit();
+    final player = UnityVideoPlayerMediaKit(width: width, height: height);
+    UnityVideoPlayerInterface.registerPlayer(player);
+    return player;
   }
 
   @override
@@ -78,7 +80,8 @@ class __MKVideoState extends State<_MKVideo> {
     super.initState();
 
     widget.videoController.then((value) {
-      setState(() => videoController = value);
+      videoController = value;
+      if (mounted) setState(() {});
     });
   }
 
@@ -106,8 +109,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   UnityVideoPlayerMediaKit({int? width, int? height}) {
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      height: height,
-      width: width,
+      // height: height,
+      // width: width,
     );
   }
 
@@ -118,8 +121,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  String? get dataSource =>
-      mkPlayer.state.playlist.medias[mkPlayer.state.playlist.index].uri;
+  String? get dataSource {
+    if (mkPlayer.state.playlist.medias.isEmpty) return null;
+
+    var index = mkPlayer.state.playlist.index;
+    if (index.isNegative) return null;
+
+    return mkPlayer.state.playlist.medias[index].uri;
+  }
 
   @override
   String? get error {
@@ -188,5 +197,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   void dispose() async {
     await (await mkVideoController).dispose();
     await mkPlayer.dispose();
+    UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

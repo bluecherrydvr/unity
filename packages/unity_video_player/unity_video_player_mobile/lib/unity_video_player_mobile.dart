@@ -15,7 +15,9 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {
-    return UnityVideoPlayerMobile();
+    final player = UnityVideoPlayerMobile();
+    UnityVideoPlayerInterface.registerPlayer(player);
+    return player;
   }
 
   /// Creates a video view
@@ -120,5 +122,6 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   @override
   void dispose() {
     ijkPlayer.dispose();
+    UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

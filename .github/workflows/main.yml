@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -41,6 +42,8 @@ jobs:
       - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-android-armeabi-v7a-release.apk
       - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-android-x86_64-release.apk
       - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
           draft: true
@@ -95,6 +98,8 @@ jobs:
       - run: cp installer\Output\bluecherry-dvr-setup.exe bluecherry-dvr-setup.exe
 
       - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
           draft: true

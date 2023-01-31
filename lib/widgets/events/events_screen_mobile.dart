@@ -90,10 +90,10 @@ class EventsScreenMobile extends StatelessWidget {
                           [
                             event.title.split('event on').first.trim(),
                             '${DateFormat(
-                                  SettingsProvider.instance.dateFormat.pattern,
-                                ).format(event.updated)} ${DateFormat(
-                                  SettingsProvider.instance.timeFormat.pattern,
-                                ).format(event.updated).toUpperCase()}',
+                              SettingsProvider.instance.dateFormat.pattern,
+                            ).format(event.updated)} ${DateFormat(
+                              SettingsProvider.instance.timeFormat.pattern,
+                            ).format(event.updated).toUpperCase()}',
                           ].join('\n'),
                           overflow: TextOverflow.ellipsis,
                         ),

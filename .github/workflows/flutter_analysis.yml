@@ -1,0 +1,27 @@
+name: Flutter Analysis
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  package-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Flutter
+        uses: subosito/flutter-action@master
+        with:
+          channel: stable
+
+      - run: flutter pub get
+      - run: flutter gen-l10n
+
+      - name: Check formatting
+        run: flutter format --set-exit-if-changed .
+
+      - name: Run analysis
+        run: flutter analyze

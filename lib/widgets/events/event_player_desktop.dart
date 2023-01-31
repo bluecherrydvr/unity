@@ -26,11 +26,14 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+
+const kSliderControlerWidth = 100.0;
 
 class EventPlayerDesktop extends StatefulWidget {
   final Event event;
@@ -43,7 +46,12 @@ class EventPlayerDesktop extends StatefulWidget {
 
 class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     with SingleTickerProviderStateMixin {
-  final videoController = UnityVideoPlayer.create();
+  final focusNode = FocusNode();
+
+  final videoController = UnityVideoPlayer.create(
+    width: 640,
+    height: 360,
+  );
   late final StreamSubscription playingSubscription;
   late final playingAnimationController = AnimationController(
     vsync: this,
@@ -53,6 +61,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   double speed = 1.0;
   double volume = 1.0;
   double? _position;
+
+  /// Whether the video should automatically play after seeking
+  ///
+  /// This is true if the video was playing when the user started seeking
+  bool shouldAutoplay = false;
 
   @override
   void initState() {
@@ -71,7 +84,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   @override
   void didChangeDependencies() {
     final downloads = context.read<DownloadsManager>();
-
     final mediaUrl = downloads.isEventDownloaded(widget.event.id)
         ? Uri.file(
             downloads.getDownloadedPathForEvent(widget.event.id),
@@ -80,10 +92,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         : widget.event.mediaURL.toString();
 
     debugPrint(mediaUrl);
-    videoController
-      ..setDataSource(mediaUrl)
-      ..setVolume(volume)
-      ..setSpeed(speed);
+
+    if (mediaUrl != videoController.dataSource) {
+      videoController
+        ..setDataSource(mediaUrl)
+        ..setVolume(volume)
+        ..setSpeed(speed);
+    }
 
     super.didChangeDependencies();
   }
@@ -95,6 +110,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       ..dispose();
     playingSubscription.cancel();
     playingAnimationController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -103,158 +119,188 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return SliderTheme(
-      data: SliderThemeData(trackShape: _CustomTrackShape()),
-      child: Material(
-        color: Colors.grey.shade900,
-        child: Column(children: [
-          const WindowButtons(),
-          Expanded(
-            child: Row(children: [
-              Expanded(
-                child: UnityVideoView(
-                  player: videoController,
-                  paneBuilder: (context, controller) {
-                    if (controller.error != null) {
-                      return ErrorWarning(message: controller.error!);
-                    } else if (!controller.isSeekable) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      );
-                    }
+    const padd = SizedBox(width: 16.0);
 
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-              Container(
-                width: 200,
-                margin: const EdgeInsets.symmetric(
-                  vertical: 12.0,
-                  horizontal: 16.0,
-                ),
-                child: Column(children: [
-                  Text(
-                    '${widget.event.deviceName} (${widget.event.server.name})',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                  ),
-                  Text(
-                    settings.dateFormat.format(widget.event.published),
-                    style: const TextStyle(fontSize: 12.0),
-                  ),
-                  Text(widget.event.title),
-                  const Spacer(),
-                  Consumer<DownloadsManager>(
-                    builder: (context, downloads, child) {
-                      return Row(children: [
-                        Expanded(child: child!),
-                        DownloadIndicator(event: widget.event),
-                      ]);
-                    },
-                    child: Text(AppLocalizations.of(context).downloaded),
-                  ),
-                  Row(children: [
-                    Expanded(
-                      child: SubHeader(
-                        loc.playbackOptions,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        if (videoController.isPlaying) {
-                          await videoController.pause();
-                        } else {
-                          await videoController.start();
-                        }
-                        setState(() {});
-                      },
-                      tooltip: videoController.isPlaying ? loc.pause : loc.play,
-                      iconSize: 22.0,
-                      icon: AnimatedBuilder(
-                        animation: playingAnimationController,
-                        builder: (context, _) => AnimatedIcon(
-                          icon: AnimatedIcons.play_pause,
-                          progress: playingAnimationController,
-                        ),
-                      ),
-                    ),
-                  ]),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(loc.volume(volume.toStringAsFixed(1))),
-                  ),
-                  Slider(
-                    value: volume,
-                    onChanged: (v) {
-                      setState(() => volume = v);
-                    },
-                    onChangeEnd: (v) {
-                      videoController.setVolume(v);
-                      setState(() => volume = v);
-                    },
-                  ),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(loc.speed(speed.toStringAsFixed(2))),
-                  ),
-                  Slider(
-                    value: speed,
-                    min: 0.25,
-                    max: 2,
-                    divisions: 7,
-                    label: speed.toStringAsFixed(2),
-                    onChanged: (v) => setState(() => speed = v),
-                    onChangeEnd: (v) async {
-                      await videoController.setSpeed(v);
-                      setState(() => speed = v);
-                    },
-                  ),
-                ]),
-              ),
-            ]),
-          ),
-          Row(children: [
-            const SizedBox(width: 16.0),
-            Text(settings.timeFormat.format(widget.event.published)),
-            const SizedBox(width: 16.0),
+    return KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            _playPause();
+          }
+        }
+      },
+      child: SliderTheme(
+        data: SliderThemeData(trackShape: _CustomTrackShape()),
+        child: Material(
+          child: Column(children: [
+            WindowButtons(
+              title: '${widget.event.deviceName} (${widget.event.server.name})',
+            ),
             Expanded(
-              child: StreamBuilder<Duration>(
-                stream: videoController.onCurrentPosUpdate,
-                builder: (context, snapshot) => Slider(
-                  value: _position ??
-                      (snapshot.data ?? videoController.currentPos)
-                          .inMicroseconds
-                          .toDouble(),
-                  max: videoController.duration.inMicroseconds.toDouble(),
-                  onChangeStart: (v) => videoController.pause(),
-                  onChanged: (v) => setState(() => _position = v),
-                  onChangeEnd: (v) async {
-                    await videoController
-                        .seekTo(Duration(microseconds: v.toInt()));
-                    await videoController.start();
+              child: Row(children: [
+                Expanded(
+                  child: UnityVideoView(
+                    player: videoController,
+                    paneBuilder: (context, controller) {
+                      if (controller.error != null) {
+                        return ErrorWarning(message: controller.error!);
+                      } else if (!controller.isSeekable) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        );
+                      }
 
-                    setState(() => _position = null);
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+                Container(
+                  width: 200,
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
+                  ),
+                  child: Column(children: [
+                    Text(
+                      '${widget.event.deviceName} (${widget.event.server.name})',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                    ),
+                    Text(
+                      settings.dateFormat.format(widget.event.published),
+                      style: const TextStyle(fontSize: 12.0),
+                    ),
+                    Text(widget.event.title),
+                  ]),
+                ),
+              ]),
+            ),
+            Row(children: [
+              padd,
+              Text(DateFormat.Hms().format(widget.event.published)),
+              padd,
+              Expanded(
+                child: StreamBuilder<Duration>(
+                  stream: videoController.onCurrentPosUpdate,
+                  builder: (context, snapshot) => Slider(
+                    value: _position ??
+                        (snapshot.data ?? videoController.currentPos)
+                            .inMilliseconds
+                            .toDouble(),
+                    max: videoController.duration.inMilliseconds.toDouble(),
+                    onChangeStart: (v) {
+                      shouldAutoplay = videoController.isPlaying;
+                      videoController.pause();
+                    },
+                    onChanged: (v) async {
+                      /// Since it's just a preview, we don't need to show every
+                      /// millisecond of the video on seek. This, in theory, should
+                      /// improve performance by 50%
+                      if (v.toInt().isEven) {
+                        videoController
+                            .seekTo(Duration(milliseconds: v.toInt()));
+                      }
+                      setState(() => _position = v);
+                    },
+                    onChangeEnd: (v) async {
+                      await videoController
+                          .seekTo(Duration(milliseconds: v.toInt()));
+
+                      if (shouldAutoplay) await videoController.start();
+
+                      setState(() {
+                        _position = null;
+                        shouldAutoplay = false;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              padd,
+              Text(
+                DateFormat.Hms().format(
+                  widget.event.published.add(videoController.duration),
+                ),
+              ),
+              padd,
+            ]),
+            Row(children: [
+              padd,
+              IconButton(
+                onPressed: _playPause,
+                tooltip: videoController.isPlaying ? loc.pause : loc.play,
+                iconSize: 22.0,
+                icon: AnimatedBuilder(
+                  animation: playingAnimationController,
+                  builder: (context, _) => AnimatedIcon(
+                    icon: AnimatedIcons.play_pause,
+                    progress: playingAnimationController,
+                  ),
+                ),
+              ),
+              Consumer<DownloadsManager>(builder: (context, downloads, child) {
+                return DownloadIndicator(event: widget.event);
+              }),
+              padd,
+              Text(loc.volume(volume.toStringAsFixed(1))),
+              const SizedBox(width: 6.0),
+              SizedBox(
+                width: kSliderControlerWidth,
+                child: Slider(
+                  value: volume,
+                  onChanged: (v) {
+                    setState(() => volume = v);
+                  },
+                  onChangeEnd: (v) {
+                    videoController.setVolume(v);
+                    setState(() => volume = v);
                   },
                 ),
               ),
-            ),
-            const SizedBox(width: 16.0),
-            Text(
-              settings.timeFormat.format(
-                widget.event.published.add(videoController.duration),
+              padd,
+              padd,
+              padd,
+              Text(loc.speed(speed.toStringAsFixed(2))),
+              SizedBox(
+                width: kSliderControlerWidth,
+                child: Slider(
+                  value: speed,
+                  min: 0.25,
+                  max: 2,
+                  divisions: 7,
+                  label: speed.toStringAsFixed(2),
+                  onChanged: (v) => setState(() => speed = v),
+                  onChangeEnd: (v) async {
+                    await videoController.setSpeed(v);
+                    setState(() => speed = v);
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 16.0),
+              padd,
+            ]),
           ]),
-        ]),
+        ),
       ),
     );
+  }
+
+  Future<void> _playPause() async {
+    if (videoController.isPlaying) {
+      await videoController.pause();
+    } else {
+      if (videoController.currentPos.inSeconds ==
+          videoController.duration.inSeconds) {
+        await videoController.seekTo(Duration.zero);
+      }
+      await videoController.start();
+    }
+    setState(() {});
   }
 }
 

@@ -117,9 +117,18 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Adds a new camera [device]
   Future<void> add(Device device) {
-    // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
+    // Only create new video player instance, if no other camera tile in the
+    // same tab is showing the same camera device.
     if (!currentLayout.devices.contains(device)) {
+      // If it's a single view layout, ensure the player will be disposed
+      // properly before adding one
       if (currentLayout.layoutType == DesktopLayoutType.singleView) {
+        for (final device in currentLayout.devices) {
+          if (!players.containsKey(device)) continue;
+          players[device]!
+            ..release()
+            ..dispose();
+        }
         currentLayout.devices.clear();
       }
 

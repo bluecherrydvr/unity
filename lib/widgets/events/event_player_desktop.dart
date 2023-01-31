@@ -183,43 +183,52 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
             ),
             Row(children: [
               padd,
-              Text(DateFormat.Hms().format(widget.event.published)),
-              padd,
               Expanded(
                 child: StreamBuilder<Duration>(
                   stream: videoController.onCurrentPosUpdate,
-                  builder: (context, snapshot) => Slider(
-                    value: _position ??
-                        (snapshot.data ?? videoController.currentPos)
-                            .inMilliseconds
-                            .toDouble(),
-                    max: videoController.duration.inMilliseconds.toDouble(),
-                    onChangeStart: (v) {
-                      shouldAutoplay = videoController.isPlaying;
-                      videoController.pause();
-                    },
-                    onChanged: (v) async {
-                      /// Since it's just a preview, we don't need to show every
-                      /// millisecond of the video on seek. This, in theory, should
-                      /// improve performance by 50%
-                      if (v.toInt().isEven) {
-                        videoController
-                            .seekTo(Duration(milliseconds: v.toInt()));
-                      }
-                      setState(() => _position = v);
-                    },
-                    onChangeEnd: (v) async {
-                      await videoController
-                          .seekTo(Duration(milliseconds: v.toInt()));
+                  builder: (context, snapshot) {
+                    final pos = snapshot.data ?? videoController.currentPos;
+                    return Row(children: [
+                      Text(
+                        DateFormat.Hms().format(
+                          widget.event.published.add(pos),
+                        ),
+                      ),
+                      padd,
+                      Expanded(
+                        child: Slider(
+                          value: _position ?? pos.inMilliseconds.toDouble(),
+                          max: videoController.duration.inMilliseconds
+                              .toDouble(),
+                          onChangeStart: (v) {
+                            shouldAutoplay = videoController.isPlaying;
+                            videoController.pause();
+                          },
+                          onChanged: (v) async {
+                            /// Since it's just a preview, we don't need to show every
+                            /// millisecond of the video on seek. This, in theory, should
+                            /// improve performance by 50%
+                            if (v.toInt().isEven) {
+                              videoController
+                                  .seekTo(Duration(milliseconds: v.toInt()));
+                            }
+                            setState(() => _position = v);
+                          },
+                          onChangeEnd: (v) async {
+                            await videoController
+                                .seekTo(Duration(milliseconds: v.toInt()));
 
-                      if (shouldAutoplay) await videoController.start();
+                            if (shouldAutoplay) await videoController.start();
 
-                      setState(() {
-                        _position = null;
-                        shouldAutoplay = false;
-                      });
-                    },
-                  ),
+                            setState(() {
+                              _position = null;
+                              shouldAutoplay = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ]);
+                  },
                 ),
               ),
               padd,
@@ -277,6 +286,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   label: speed.toStringAsFixed(2),
                   onChanged: (v) => setState(() => speed = v),
                   onChangeEnd: (v) async {
+                    print(v);
                     await videoController.setSpeed(v);
                     setState(() => speed = v);
                   },

@@ -38,6 +38,7 @@ class EventsScreenDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     final now = DateTime.now();
     final hourRange = {
@@ -98,13 +99,6 @@ class EventsScreenDesktop extends StatelessWidget {
           rows: events.map<DataRow>((Event event) {
             final index = events.indexOf(event);
 
-            final dateFormatter = DateFormat(
-              SettingsProvider.instance.dateFormat.pattern,
-            );
-            final timeFormatter = DateFormat(
-              SettingsProvider.instance.timeFormat.pattern,
-            );
-
             final parsedCategory = event.category?.split('/');
             final priority = parsedCategory?[1] ?? '';
 
@@ -152,7 +146,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // date
                 DataCell(
                   Text(
-                    '${dateFormatter.format(event.updated)} ${timeFormatter.format(event.updated).toUpperCase()}',
+                    '${settings.formatDate(event.updated.toLocal())} ${settings.formatTime(event.updated).toUpperCase()}',
                   ),
                 ),
               ],

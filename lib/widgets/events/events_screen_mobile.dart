@@ -35,6 +35,8 @@ class EventsScreenMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(
@@ -89,11 +91,8 @@ class EventsScreenMobile extends StatelessWidget {
                         subtitle: Text(
                           [
                             event.title.split('event on').first.trim(),
-                            '${DateFormat(
-                                  SettingsProvider.instance.dateFormat.pattern,
-                                ).format(event.updated)} ${DateFormat(
-                                  SettingsProvider.instance.timeFormat.pattern,
-                                ).format(event.updated).toUpperCase()}',
+                            '${settings.formatDate(event.updated)}'
+                                ' ${settings.formatTime(event.updated).toUpperCase()}',
                           ].join('\n'),
                           overflow: TextOverflow.ellipsis,
                         ),

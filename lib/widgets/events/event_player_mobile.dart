@@ -377,7 +377,7 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
         start: 12.0,
         end: 12.0,
         child: Row(children: [
-          Text(settings.timeFormat.format(widget.event.published)),
+          Text(settings.formatTime(widget.event.published)),
           Expanded(
             child: Slider(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
@@ -388,7 +388,7 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
             ),
           ),
           Text(
-            settings.timeFormat.format(
+            settings.formatTime(
               widget.event.published
                   .add(widget.event.mediaDuration ?? Duration.zero),
             ),

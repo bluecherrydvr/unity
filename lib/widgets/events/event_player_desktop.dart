@@ -173,7 +173,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                       maxLines: 1,
                     ),
                     Text(
-                      settings.dateFormat.format(widget.event.published),
+                      settings.formatDate(widget.event.published),
                       style: const TextStyle(fontSize: 12.0),
                     ),
                     Text(widget.event.title),
@@ -191,7 +191,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                     return Row(children: [
                       Text(
                         DateFormat.Hms().format(
-                          widget.event.published.add(pos),
+                          widget.event.published.add(pos).toLocal(),
                         ),
                       ),
                       padd,
@@ -234,7 +234,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
               padd,
               Text(
                 DateFormat.Hms().format(
-                  widget.event.published.add(videoController.duration),
+                  widget.event.published
+                      .add(videoController.duration)
+                      .toLocal(),
                 ),
               ),
               padd,

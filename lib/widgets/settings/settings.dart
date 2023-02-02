@@ -165,10 +165,8 @@ class _SettingsState extends State<Settings> {
                       [
                         if (settings.snoozedUntil.difference(DateTime.now()) >
                             const Duration(hours: 24))
-                          SettingsProvider.instance.dateFormat
-                              .format(settings.snoozedUntil),
-                        SettingsProvider.instance.timeFormat
-                            .format(settings.snoozedUntil),
+                          settings.formatDate(settings.snoozedUntil),
+                        settings.formatTime(settings.snoozedUntil),
                       ].join(' '),
                     )
                   : AppLocalizations.of(context).notSnoozed,

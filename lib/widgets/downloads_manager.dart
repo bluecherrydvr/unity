@@ -156,8 +156,7 @@ class _DownloadTileState extends State<DownloadTile> {
 
     final parsedCategory = widget.event.category?.split('/');
     final eventType = (parsedCategory?.last ?? '').uppercaseFirst();
-    final at =
-        SettingsProvider.instance.dateFormat.format(widget.event.published);
+    final at = SettingsProvider.instance.formatDate(widget.event.published);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),

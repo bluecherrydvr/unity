@@ -205,5 +205,12 @@
     "placeholders": {
       "s": {}
     }
-  }
+  },
+  "warn": "Warning",
+  "alarm": "Alarm",
+  "motion": "Motion",
+  "continuous": "Continouous",
+  "notFound": "Not found",
+  "close": "Close",
+  "open": "Open"
 }

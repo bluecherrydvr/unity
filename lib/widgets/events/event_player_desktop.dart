@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -158,26 +159,46 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                     },
                   ),
                 ),
-                Container(
-                  width: 200,
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 16.0,
-                  ),
-                  child: Column(children: [
-                    Text(
-                      '${widget.event.deviceName} (${widget.event.server.name})',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                CollapsableSidebar(
+                  left: false,
+                  builder: (context, collapsableButton) {
+                    return Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        bottom: 12.0,
+                        start: 16.0,
                       ),
-                      maxLines: 1,
-                    ),
-                    Text(
-                      settings.formatDate(widget.event.published),
-                      style: const TextStyle(fontSize: 12.0),
-                    ),
-                    Text(widget.event.title),
-                  ]),
+                      child: Column(children: [
+                        Align(
+                          alignment: AlignmentDirectional.topEnd,
+                          child: collapsableButton,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              end: 16.0,
+                            ),
+                            child: Column(children: [
+                              Text(
+                                '${widget.event.deviceName} (${widget.event.server.name})',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                              ),
+                              Text(
+                                settings.formatDate(widget.event.published),
+                                style: const TextStyle(fontSize: 12.0),
+                              ),
+                              Text(
+                                '(${widget.event.priority.locale(context)})'
+                                ' ${widget.event.type.locale(context)}',
+                              ),
+                            ]),
+                          ),
+                        ),
+                      ]),
+                    );
+                  },
                 ),
               ]),
             ),

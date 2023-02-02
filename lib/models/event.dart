@@ -18,6 +18,8 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// An [Event] received from the [Server] logs.
 class Event {
@@ -53,14 +55,6 @@ class Event {
         .split(' ')
         .map((e) => e.isEmpty ? '' : e[0].toUpperCase() + e.substring(1))
         .join(' ');
-  }
-
-  bool get isAlarm {
-    final parsedCategory = category?.split('/');
-    final priority = parsedCategory?[1] ?? '';
-    final isAlarm = priority == 'alarm' || priority == 'alrm';
-
-    return isAlarm;
   }
 
   @override
@@ -144,5 +138,71 @@ class Event {
       Duration(microseconds: json['mediaDuration']),
       Uri.parse(json['mediaURL']),
     );
+  }
+
+  bool get isAlarm => priority == EventPriority.alarm;
+
+  EventPriority get priority {
+    final parsedCategory = category?.split('/');
+    final priority = parsedCategory?[1] ?? '';
+
+    switch (priority) {
+      case 'alarm':
+      case 'alrm':
+        return EventPriority.alarm;
+      case 'warn':
+        return EventPriority.warning;
+      default:
+        return EventPriority.notFound;
+    }
+  }
+
+  EventType get type {
+    final parsedCategory = category?.split('/');
+
+    switch (parsedCategory?.last ?? '') {
+      case 'motion':
+        return EventType.motion;
+      case 'continuous':
+        return EventType.continuous;
+      default:
+        return EventType.notFound;
+    }
+  }
+}
+
+enum EventPriority {
+  warning,
+  alarm,
+  notFound;
+
+  String locale(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    switch (this) {
+      case EventPriority.warning:
+        return localizations.warn;
+      case EventPriority.alarm:
+        return localizations.alarm;
+      case EventPriority.notFound:
+        return localizations.notFound;
+    }
+  }
+}
+
+enum EventType {
+  motion,
+  continuous,
+  notFound;
+
+  String locale(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    switch (this) {
+      case EventType.motion:
+        return localizations.motion;
+      case EventType.continuous:
+        return localizations.continuous;
+      case EventType.notFound:
+        return localizations.notFound;
+    }
   }
 }

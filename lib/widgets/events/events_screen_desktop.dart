@@ -61,16 +61,12 @@ class EventsScreenDesktop extends StatelessWidget {
           if (now.difference(event.published).inHours > hourRange) continue;
         }
 
-        final parsedCategory = event.category?.split('/');
-        final priority = parsedCategory?[1] ?? '';
-        final isAlarm = priority == 'alarm' || priority == 'alrm';
-
         switch (levelFilter) {
           case EventsMinLevelFilter.alarming:
-            if (!isAlarm) continue;
+            if (!event.isAlarm) continue;
             break;
           case EventsMinLevelFilter.warning:
-            if (priority != 'warn') continue;
+            if (event.priority != EventPriority.warning) continue;
             break;
           default:
             break;
@@ -98,9 +94,6 @@ class EventsScreenDesktop extends StatelessWidget {
           showCheckboxColumn: false,
           rows: events.map<DataRow>((Event event) {
             final index = events.indexOf(event);
-
-            final parsedCategory = event.category?.split('/');
-            final priority = parsedCategory?[1] ?? '';
 
             return DataRow(
               key: ValueKey<Event>(event),
@@ -133,7 +126,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // device
                 DataCell(Text(event.deviceName)),
                 // event
-                DataCell(Text((parsedCategory?.last ?? '').uppercaseFirst())),
+                DataCell(Text(event.type.locale(context).uppercaseFirst())),
                 // duration
                 DataCell(
                   Text(
@@ -142,7 +135,7 @@ class EventsScreenDesktop extends StatelessWidget {
                   ),
                 ),
                 // priority
-                DataCell(Text(priority.uppercaseFirst())),
+                DataCell(Text(event.priority.locale(context).uppercaseFirst())),
                 // date
                 DataCell(
                   Text(

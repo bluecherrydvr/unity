@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
 const kCompactSidebarConstraints = BoxConstraints(maxWidth: 50.0);
@@ -52,6 +53,8 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
     return AnimatedBuilder(
       animation: collapseAnimation,
       builder: (context, child) {
@@ -61,6 +64,9 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
               : const EdgeInsetsDirectional.only(end: 5.0),
           child: IconButton(
             key: collapseButtonKey,
+            tooltip: collapseController.isCompleted
+                ? localizations.open
+                : localizations.close,
             icon: RotationTransition(
               turns: (widget.left
                       ? Tween(

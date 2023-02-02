@@ -153,10 +153,10 @@ class _DownloadTileState extends State<DownloadTile> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
-    final parsedCategory = widget.event.category?.split('/');
-    final eventType = (parsedCategory?.last ?? '').uppercaseFirst();
-    final at = SettingsProvider.instance.formatDate(widget.event.published);
+    final eventType = widget.event.type.locale(context).uppercaseFirst();
+    final at = settings.formatDate(widget.event.published);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),

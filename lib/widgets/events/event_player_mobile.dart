@@ -21,13 +21,18 @@ part of 'events_screen.dart';
 
 class EventPlayerScreen extends StatelessWidget {
   final Event event;
+  final List<Event> upcomingEvents;
 
-  const EventPlayerScreen({Key? key, required this.event}) : super(key: key);
+  const EventPlayerScreen({
+    Key? key,
+    required this.event,
+    required this.upcomingEvents,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (isDesktop) {
-      return EventPlayerDesktop(event: event);
+      return EventPlayerDesktop(event: event, upcomingEvents: upcomingEvents);
     } else {
       return _EventPlayerMobile(event: event);
     }

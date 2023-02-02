@@ -110,8 +110,13 @@ class EventsScreenDesktop extends StatelessWidget {
                   ? null
                   : (_) {
                       debugPrint('Displaying event $event');
-                      Navigator.of(context)
-                          .pushNamed('/events', arguments: event);
+                      Navigator.of(context).pushNamed(
+                        '/events',
+                        arguments: {
+                          'event': event,
+                          'upcoming': events,
+                        },
+                      );
                     },
               cells: [
                 // icon

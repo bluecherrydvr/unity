@@ -83,7 +83,10 @@ class EventsScreenMobile extends StatelessWidget {
                         onTap: () async {
                           await Navigator.of(context).pushNamed(
                             '/events',
-                            arguments: event,
+                            arguments: {
+                              'event': event,
+                              'upcoming': events,
+                            },
                           );
                         },
                         title: Text(event.deviceName),

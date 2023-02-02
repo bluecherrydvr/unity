@@ -4,6 +4,8 @@
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/bluecherrydvr/unity/graphs/commit-activity)
 [![Github all releases](https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg)](https://GitHub.com/bluecherrydvr/unity/releases/)
+![Build status](https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg)
+
 
 
 **Bluecherry DVR client to run across range of devices.**

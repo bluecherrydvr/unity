@@ -19,10 +19,6 @@
 
 import 'package:uuid/uuid.dart';
 
-/// Interpreted as the current application version.
-/// Update the [String]'s value before an update.
-const kAppVersion = '3.0.0-beta2';
-
 /// Default port used in Bluecherry DVR server.
 const kDefaultPort = 7001;
 

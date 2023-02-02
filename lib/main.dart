@@ -198,7 +198,9 @@ class UnityApp extends StatelessWidget {
           },
           onGenerateRoute: (settings) {
             if (settings.name == '/events') {
-              final event = settings.arguments! as Event;
+              final data = settings.arguments! as Map;
+              final event = data['event'] as Event;
+              final upcomingEvents = data['upcoming'] as List<Event>;
 
               return MaterialPageRoute(
                 settings: RouteSettings(
@@ -206,7 +208,10 @@ class UnityApp extends StatelessWidget {
                   arguments: event,
                 ),
                 builder: (context) {
-                  return EventPlayerScreen(event: event);
+                  return EventPlayerScreen(
+                    event: event,
+                    upcomingEvents: upcomingEvents,
+                  );
                 },
               );
             }

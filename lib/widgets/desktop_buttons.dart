@@ -134,14 +134,21 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
             DragToMoveArea(
               child: Row(children: [
                 if (canPop)
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    iconSize: 20.0,
-                    color: theme.hintColor,
-                    onPressed: () async {
+                  InkWell(
+                    onTap: () async {
                       await navigatorKey.currentState?.maybePop();
                       setState(() {});
                     },
+                    child: Container(
+                      height: 40.0,
+                      width: 40.0,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 20.0,
+                        color: theme.hintColor,
+                      ),
+                    ),
                   )
                 else
                   Padding(

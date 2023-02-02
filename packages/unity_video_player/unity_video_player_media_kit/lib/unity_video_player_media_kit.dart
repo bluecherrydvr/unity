@@ -107,16 +107,29 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late Future<VideoController> mkVideoController;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
+    // final finalSize = width == null || height == null
+    //     ? const Size(640, 360)
+    //     : Size(
+    //         width.toDouble(),
+    //         width * (9 / 16),
+    // );
+
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      // height: height,
+      // height: finalSize.height.toInt(),
+      // width: finalSize.width.toInt(),
       // width: width,
+      // height: height,
+      width: 640,
+      height: 360,
     );
   }
 
-  void ensureVideoControllerInitialized(VoidCallback cb) {
-    mkVideoController.then((_) {
-      cb();
+  Future<void> ensureVideoControllerInitialized(
+    Future<void> Function() cb,
+  ) async {
+    await mkVideoController.then((_) async {
+      return await cb();
     });
   }
 
@@ -163,9 +176,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    ensureVideoControllerInitialized(() {
+    await ensureVideoControllerInitialized(() async {
+      mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
-      mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
+      await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
     });
   }
 
@@ -179,7 +193,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;
   @override
-  Future<void> seekTo(Duration position) async => mkPlayer.seek(position);
+  Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
   Future<void> start() async => mkPlayer.play();

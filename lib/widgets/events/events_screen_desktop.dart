@@ -38,6 +38,7 @@ class EventsScreenDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     final now = DateTime.now();
     final hourRange = {
@@ -60,16 +61,12 @@ class EventsScreenDesktop extends StatelessWidget {
           if (now.difference(event.published).inHours > hourRange) continue;
         }
 
-        final parsedCategory = event.category?.split('/');
-        final priority = parsedCategory?[1] ?? '';
-        final isAlarm = priority == 'alarm' || priority == 'alrm';
-
         switch (levelFilter) {
           case EventsMinLevelFilter.alarming:
-            if (!isAlarm) continue;
+            if (!event.isAlarm) continue;
             break;
           case EventsMinLevelFilter.warning:
-            if (priority != 'warn') continue;
+            if (event.priority != EventPriority.warning) continue;
             break;
           default:
             break;
@@ -98,16 +95,6 @@ class EventsScreenDesktop extends StatelessWidget {
           rows: events.map<DataRow>((Event event) {
             final index = events.indexOf(event);
 
-            final dateFormatter = DateFormat(
-              SettingsProvider.instance.dateFormat.pattern,
-            );
-            final timeFormatter = DateFormat(
-              SettingsProvider.instance.timeFormat.pattern,
-            );
-
-            final parsedCategory = event.category?.split('/');
-            final priority = parsedCategory?[1] ?? '';
-
             return DataRow(
               key: ValueKey<Event>(event),
               color: index.isEven
@@ -123,8 +110,13 @@ class EventsScreenDesktop extends StatelessWidget {
                   ? null
                   : (_) {
                       debugPrint('Displaying event $event');
-                      Navigator.of(context)
-                          .pushNamed('/events', arguments: event);
+                      Navigator.of(context).pushNamed(
+                        '/events',
+                        arguments: {
+                          'event': event,
+                          'upcoming': events,
+                        },
+                      );
                     },
               cells: [
                 // icon
@@ -139,7 +131,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 // device
                 DataCell(Text(event.deviceName)),
                 // event
-                DataCell(Text((parsedCategory?.last ?? '').uppercaseFirst())),
+                DataCell(Text(event.type.locale(context).uppercaseFirst())),
                 // duration
                 DataCell(
                   Text(
@@ -148,11 +140,11 @@ class EventsScreenDesktop extends StatelessWidget {
                   ),
                 ),
                 // priority
-                DataCell(Text(priority.uppercaseFirst())),
+                DataCell(Text(event.priority.locale(context).uppercaseFirst())),
                 // date
                 DataCell(
                   Text(
-                    '${dateFormatter.format(event.updated)} ${timeFormatter.format(event.updated).toUpperCase()}',
+                    '${settings.formatDate(event.updated.toLocal())} ${settings.formatTime(event.updated).toUpperCase()}',
                   ),
                 ),
               ],

@@ -83,6 +83,8 @@ class DownloadsManagerScreen extends StatelessWidget {
                   return DownloadTile(
                     key: ValueKey(event.id),
                     event: event,
+                    upcomingEvents:
+                        downloads.downloadedEvents.map((e) => e.event).toList(),
                     size: size,
                     progress: progress,
                     initiallyExpanded: initiallyExpandedEventId == event.id,
@@ -98,6 +100,8 @@ class DownloadsManagerScreen extends StatelessWidget {
                 return DownloadTile(
                   key: ValueKey(de.event.id),
                   event: de.event,
+                  upcomingEvents:
+                      downloads.downloadedEvents.map((e) => e.event).toList(),
                   size: size,
                   downloadPath: de.downloadPath,
                   initiallyExpanded: initiallyExpandedEventId == de.event.id,
@@ -116,6 +120,7 @@ class DownloadTile extends StatefulWidget {
     Key? key,
     required this.size,
     required this.event,
+    this.upcomingEvents = const [],
     this.progress = 1.0,
     this.downloadPath,
     this.initiallyExpanded = true,
@@ -123,6 +128,7 @@ class DownloadTile extends StatefulWidget {
 
   final Size size;
   final Event event;
+  final List<Event> upcomingEvents;
   final double progress;
   final String? downloadPath;
   final bool initiallyExpanded;
@@ -153,11 +159,10 @@ class _DownloadTileState extends State<DownloadTile> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
-    final parsedCategory = widget.event.category?.split('/');
-    final eventType = (parsedCategory?.last ?? '').uppercaseFirst();
-    final at =
-        SettingsProvider.instance.dateFormat.format(widget.event.published);
+    final eventType = widget.event.type.locale(context).uppercaseFirst();
+    final at = settings.formatDate(widget.event.published);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
@@ -284,7 +289,10 @@ class _DownloadTileState extends State<DownloadTile> {
                                   ? () {
                                       Navigator.of(context).pushNamed(
                                         '/events',
-                                        arguments: widget.event,
+                                        arguments: {
+                                          'event': widget.event,
+                                          'upcoming': widget.upcomingEvents,
+                                        },
                                       );
                                     }
                                   : null,

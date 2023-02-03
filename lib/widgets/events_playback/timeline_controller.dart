@@ -73,6 +73,8 @@ abstract class TimelineItem {
   static List calculateTimeline(List data) {
     final allEvents = data[0] as Iterable<Event>;
 
+    if (allEvents.isEmpty) return [];
+
     final oldestEvent = allEvents.oldest;
     final newestEvent = allEvents.newest;
 
@@ -597,7 +599,12 @@ class TimelineController extends ChangeNotifier {
     positionNotifier.notifyListeners();
 
     // ignore: use_build_context_synchronously
-    if (!context.mounted) return;
+    if (!context.mounted || allEvents.isEmpty) {
+      HomeProvider.instance.notLoading(
+        UnityLoadingReason.fetchingEventsPlaybackPeriods,
+      );
+      return;
+    }
 
     /// Only generate tiles for the devices that are selected
     final selectedIds = context.read<EventsProvider>().selectedIds;

@@ -100,7 +100,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
     final realEvents = ({...widget.events}
       ..removeWhere((key, value) => !selectedIds.contains(key)));
 
-    final allEvents = widget.events.isEmpty
+    final allEvents = realEvents.isEmpty
         ? <Event>[]
         : realEvents.values.reduce((value, element) => value + element);
 

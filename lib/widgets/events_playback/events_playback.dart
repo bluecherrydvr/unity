@@ -23,6 +23,7 @@ import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -158,19 +159,21 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       debugPrint(stacktrace.toString());
     }
 
-    final allEvents = eventsForDevice.values.reduce((a, b) => a + b);
-    final from = allEvents.oldest;
-    final to = allEvents.newest;
-    filterData = FilterData(
-      devices: null,
-      from: from.published,
-      fromLimit: from.published,
-      to: to.published,
-      toLimit: to.published,
-      allowAlarms: false,
-    );
+    if (eventsForDevice.isNotEmpty) {
+      final allEvents = eventsForDevice.values.reduce((a, b) => a + b);
+      final from = allEvents.oldest;
+      final to = allEvents.newest;
+      filterData = FilterData(
+        devices: null,
+        from: from.published,
+        fromLimit: from.published,
+        to: to.published,
+        toLimit: to.published,
+        allowAlarms: false,
+      );
 
-    await updateFilteredData();
+      await updateFilteredData();
+    }
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
@@ -221,6 +224,11 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
+    final servers = context.watch<ServersProvider>();
+    if (servers.servers.isEmpty) {
+      return const NoServerWarning();
+    }
+
     final home = context.watch<HomeProvider>();
 
     return EventsPlaybackDesktop(

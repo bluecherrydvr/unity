@@ -52,8 +52,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();
+    final isReversed = widget.width <= 900;
+
     final children = [
       CollapsableSidebar(
+        left: !isReversed,
         builder: (context, collapseButton) {
           return DesktopSidebar(collapseButton: collapseButton);
         },
@@ -198,7 +201,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
       ),
     ];
 
-    if (widget.width <= 900) {
+    if (isReversed) {
       return Row(children: children.reversed.toList());
     }
 

@@ -205,6 +205,24 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Formats the date according to the current [dateFormat].
+  ///
+  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
+  String formatDate(DateTime date, {bool toLocal = true}) {
+    if (toLocal) date = date.toLocal();
+
+    return dateFormat.format(date);
+  }
+
+  /// Formats the date according to the current [dateFormat].
+  ///
+  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
+  String formatTime(DateTime time, {bool toLocal = true}) {
+    if (toLocal) time = time.toLocal();
+
+    return timeFormat.format(time);
+  }
+
   @override
   // ignore: must_call_super
   void dispose() {}

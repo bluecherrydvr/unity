@@ -53,7 +53,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();
     final children = [
-      const DesktopSidebar(),
+      CollapsableSidebar(
+        builder: (context, collapseButton) {
+          return DesktopSidebar(collapseButton: collapseButton);
+        },
+      ),
       Expanded(
         child: Material(
           color: Colors.black,
@@ -79,12 +83,15 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                 if (dl == 1) {
                   final device = devices.first;
-                  return Padding(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    padding: kGridPadding,
-                    child: DesktopDeviceTile(
-                      key: ValueKey('$device.${device.server.serverUUID}'),
-                      device: device,
+                  return AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Padding(
+                      key: ValueKey(view.currentLayout.hashCode),
+                      padding: kGridPadding,
+                      child: DesktopDeviceTile(
+                        key: ValueKey('$device.${device.server.serverUUID}'),
+                        device: device,
+                      ),
                     ),
                   );
                 }
@@ -231,6 +238,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
+          debugPrint(controller.dataSource);
           return DesktopTileViewport(
             controller: controller,
             device: widget.device,

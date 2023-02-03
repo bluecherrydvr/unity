@@ -19,7 +19,9 @@ class UnityVideoPlayerDesktopInterface extends UnityVideoPlayerInterface {
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {
-    return UnityVideoPlayerDesktop();
+    final player = UnityVideoPlayerDesktop(width: width, height: height);
+    UnityVideoPlayerInterface.registerPlayer(player);
+    return player;
   }
 
   @override
@@ -149,5 +151,6 @@ class UnityVideoPlayerDesktop extends UnityVideoPlayer {
   @override
   void dispose() {
     vlcPlayer.dispose();
+    UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

@@ -147,6 +147,11 @@ class DownloadsManager extends ChangeNotifier {
     }
   }
 
+  /// Whether there are no events downloaded, nor downloading events
+  bool get isEmpty {
+    return downloadedEvents.isEmpty && downloading.isEmpty;
+  }
+
   /// Whether the given event is downloaded
   bool isEventDownloaded(int eventId) {
     return downloadedEvents.any((de) => de.event.id == eventId);

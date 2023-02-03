@@ -24,7 +24,6 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
@@ -165,10 +164,8 @@ class _SettingsState extends State<Settings> {
                       [
                         if (settings.snoozedUntil.difference(DateTime.now()) >
                             const Duration(hours: 24))
-                          SettingsProvider.instance.dateFormat
-                              .format(settings.snoozedUntil),
-                        SettingsProvider.instance.timeFormat
-                            .format(settings.snoozedUntil),
+                          settings.formatDate(settings.snoozedUntil),
+                        settings.formatTime(settings.snoozedUntil),
                       ].join(' '),
                     )
                   : AppLocalizations.of(context).notSnoozed,
@@ -308,9 +305,11 @@ class _SettingsState extends State<Settings> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8.0),
-                  Text(
-                    kAppVersion,
-                    style: Theme.of(context).textTheme.displayMedium,
+                  FutureBuilder<String>(
+                    future: appVersion,
+                    builder: (context, snapshot) {
+                      return Text(snapshot.data ?? '');
+                    },
                   ),
                   const SizedBox(height: 8.0),
                   Text(
@@ -346,7 +345,7 @@ class _SettingsState extends State<Settings> {
 }
 
 // ignore: non_constant_identifier_names
-Widget SubHeader(String text) {
+Widget SubHeader(String text, {Widget? trailing}) {
   return SliverToBoxAdapter(
     child: Builder(builder: (context) {
       return Material(
@@ -355,14 +354,19 @@ Widget SubHeader(String text) {
           height: 56.0,
           alignment: AlignmentDirectional.centerStart,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            text.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).textTheme.displaySmall?.color,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
+          child: Row(children: [
+            Expanded(
+              child: Text(
+                text.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).textTheme.displaySmall?.color,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+            if (trailing != null) trailing,
+          ]),
         ),
       );
     }),

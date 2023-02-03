@@ -114,3 +114,19 @@ T? showIf<T extends Widget>(bool condition, {required T child}) {
 
   return null;
 }
+
+/// The current app version
+///
+/// To update it, update it in the windows installer
+Future<String> get appVersion async {
+  final installer = await rootBundle.loadString(
+    'version.txt',
+  );
+
+  return installer
+      .split('\n')
+      .firstWhere((line) => line.startsWith('#define MyAppVersion'))
+      .replaceAll('#define MyAppVersion', '')
+      .replaceAll('"', '')
+      .trim();
+}

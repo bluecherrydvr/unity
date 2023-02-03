@@ -210,5 +210,12 @@
   "filter": "Filter",
   "fromDate": "From",
   "toDate": "To",
-  "allowAlarms": "Allow alarms"
+  "allowAlarms": "Allow alarms",
+  "warn": "Warning",
+  "alarm": "Alarm",
+  "motion": "Motion",
+  "continuous": "Continouous",
+  "notFound": "Not found",
+  "close": "Close",
+  "open": "Open"
 }

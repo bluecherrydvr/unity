@@ -16,7 +16,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {
-    return UnityVideoPlayerMediaKit();
+    final player = UnityVideoPlayerMediaKit(width: width, height: height);
+    UnityVideoPlayerInterface.registerPlayer(player);
+    return player;
   }
 
   @override
@@ -78,7 +80,8 @@ class __MKVideoState extends State<_MKVideo> {
     super.initState();
 
     widget.videoController.then((value) {
-      if (mounted) setState(() => videoController = value);
+      videoController = value;
+      if (mounted) setState(() {});
     });
   }
 
@@ -104,19 +107,30 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late Future<VideoController> mkVideoController;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
+    // final finalSize = width == null || height == null
+    //     ? const Size(640, 360)
+    //     : Size(
+    //         width.toDouble(),
+    //         width * (9 / 16),
+    // );
+
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      height: height,
-      width: width,
+      // height: finalSize.height.toInt(),
+      // width: finalSize.width.toInt(),
+      // width: width,
+      // height: height,
+      width: 640,
+      height: 360,
     );
   }
 
-  Future<void> ensureVideoControllerInitialized(Function cb) async {
-    // mkVideoController.then((_) {
-    //   cb();
-    // });
-    await mkVideoController;
-    await cb();
+  Future<void> ensureVideoControllerInitialized(
+    Future<void> Function() cb,
+  ) async {
+    await mkVideoController.then((_) async {
+      return await cb();
+    });
   }
 
   @override
@@ -163,6 +177,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     await ensureVideoControllerInitialized(() async {
+      mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
     });
@@ -189,7 +204,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;
   @override
-  Future<void> seekTo(Duration position) async => mkPlayer.seek(position);
+  Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
   Future<void> start() async => mkPlayer.play();
@@ -207,5 +222,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   void dispose() async {
     await (await mkVideoController).dispose();
     await mkPlayer.dispose();
+    UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

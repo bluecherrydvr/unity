@@ -43,6 +43,17 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     UnityVideoPaneBuilder? paneBuilder,
     Color color = const Color(0xFF000000),
   });
+
+  static final _appPlayers = <UnityVideoPlayer>[];
+  static List<UnityVideoPlayer> get players => _appPlayers;
+
+  static void registerPlayer(UnityVideoPlayer player) {
+    _appPlayers.add(player);
+  }
+
+  static void unregisterPlayer(UnityVideoPlayer player) {
+    _appPlayers.remove(player);
+  }
 }
 
 // ignore: non_constant_identifier_names

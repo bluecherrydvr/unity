@@ -61,6 +61,11 @@ Future<void> main(List<String> args) async {
   if (isDesktop) runApp(const SplashScreen());
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Skips bad certificate
+  // See: https://github.com/bluecherrydvr/unity/discussions/42
+  HttpOverrides.global = DevHttpOverrides();
+
   await UnityVideoPlayerInterface.instance.initialize();
 
   if (isDesktop && args.isNotEmpty) {
@@ -195,7 +200,9 @@ class UnityApp extends StatelessWidget {
           },
           onGenerateRoute: (settings) {
             if (settings.name == '/events') {
-              final event = settings.arguments! as Event;
+              final data = settings.arguments! as Map;
+              final event = data['event'] as Event;
+              final upcomingEvents = data['upcoming'] as List<Event>;
 
               return MaterialPageRoute(
                 settings: RouteSettings(
@@ -203,7 +210,10 @@ class UnityApp extends StatelessWidget {
                   arguments: event,
                 ),
                 builder: (context) {
-                  return EventPlayerScreen(event: event);
+                  return EventPlayerScreen(
+                    event: event,
+                    upcomingEvents: upcomingEvents,
+                  );
                 },
               );
             }

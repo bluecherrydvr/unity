@@ -2,6 +2,12 @@
 
 <h1 align="left"><a href="https://www.bluecherrydvr.com/">Bluecherry Client</a></h1>
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/bluecherrydvr/unity/graphs/commit-activity)
+[![Github all releases](https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg)](https://GitHub.com/bluecherrydvr/unity/releases/)
+![Build status](https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg)
+
+
+
 **Bluecherry DVR client to run across range of devices.**
 
 <a href="https://www.bluecherrydvr.com/">Website</a> •
@@ -19,9 +25,9 @@ This project & work under this repository is licensed under [GNU General Public 
 
 ## Download
 
-- iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
+- iOS (https://apps.apple.com/us/app/bluecherry-mobile/id1555805139)
 - [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
-- [Windows](https://github.com/bluecherrydvr/unity/releases/tag/vnextw)
+- [Windows](https://github.com/bluecherrydvr/unity/releases/)
 
 ## Features
 

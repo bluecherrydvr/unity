@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:unity_video_player/unity_video_player.dart';
@@ -63,6 +64,21 @@ abstract class TimelineItem {
   final Duration duration;
 
   const TimelineItem(this.start, this.end, this.duration);
+
+  /// Checks if the item [e] is in between the span of the given [date]
+  ///
+  /// See also:
+  ///
+  ///  * [DateTime.isInBetween]
+  bool checkForDate(DateTime date) {
+    if (this is TimelineGap) {
+      return date.isInBetween(start, end);
+    } else if (this is TimelineValue) {
+      return (this as TimelineValue).events.hasForDate(date);
+    } else {
+      throw UnsupportedError('$runtimeType is not supported');
+    }
+  }
 
   /// Returns a list with useful data
   ///
@@ -296,6 +312,64 @@ class TimelineController extends ChangeNotifier {
   ///  * [TimelineGap], an item that doesn't have any media during a timespan
   List<TimelineItem> items = [];
 
+  /// Usually, if no events were found, it probably means there is a gap between
+  /// events in a single [TimelineItem]. >>should<< be normal.
+  ///
+  /// This usually doesn't happen because, when creating the timeline (See TimelineItem.calculateTimeline),
+  /// the span used is the duration of the smallest event. If it happens, something
+  /// may have gone wrong. Yet, this is not going to break the timeline, since
+  /// the next event is going to be played after the next gap
+  TimelineItem? itemForDate(DateTime date) {
+    return items.any((e) => e.checkForDate(date))
+        ? items.firstWhere((e) => e.checkForDate(date))
+        : currentItem;
+  }
+
+  /// Sets the timeline at the current position
+  void setDate(DateTime date) {
+    final item = itemForDate(date);
+
+    if (item == null) {
+      throw ArgumentError(
+        '$date is not a valid timespan of the current timeline',
+      );
+    }
+
+    final previousItems = items.where((i) => i.end.isBefore(date));
+
+    /// The position of the timeline of the current date
+    ///
+    /// This takes account the whole time span
+    final position = () {
+      if (previousItems.isEmpty) return date.difference(item.start);
+
+      final dur = previousItems.map((e) => e.duration).reduce((a, b) => a + b);
+      final last = previousItems.last.end;
+      return dur + date.difference(last);
+    }();
+
+    var thumbPosition = () {
+      return previousItems.fold(
+        Duration.zero,
+        (duration, item) {
+          if (item is TimelineGap) return duration + kGapDuration;
+
+          return duration + item.duration;
+        },
+      );
+    }();
+
+    if (item is! TimelineGap) {
+      thumbPosition = thumbPosition + date.difference(item.start);
+    }
+
+    _position = position;
+    _thumbPosition = thumbPosition;
+    add(Duration.zero); // updates the screen
+
+    debugPrint('$date = i${item.start} pos $position thumb $thumbPosition');
+  }
+
   /// Adds a [duration] to the current position
   void add(Duration duration, {bool isGap = false}) {
     _position = _position + duration;
@@ -321,41 +395,24 @@ class TimelineController extends ChangeNotifier {
   /// Checks for the current scroll position of the timeline. If the thumb is
   /// reaching the end of the timeline, scroll to ensure the thumb is visible
   void _updateThumbPosition() {
-    if (scrollController.hasClients) {
-      final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
-          scrollController.offset;
+    // if (scrollController.hasClients) {
+    //   final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
+    //       scrollController.offset;
 
-      final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
+    //   final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
 
-      if (thumbX > scrollController.position.viewportDimension) {
-        scrollController.jumpTo(to);
-      } else if (thumbX >
-          scrollController.position.viewportDimension -
-              kTimelineThumbOverflowPadding) {
-        scrollController.animateTo(
-          to,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.linear,
-        );
-      }
-    }
-  }
-
-  double? _placeholderSeekX;
-  void seek(double x) {
-    final viewport = scrollController.position.viewportDimension;
-
-    if (x > viewport) return;
-
-    final pos = scrollController.offset + x;
-
-    final fullDuration = items.map((e) {
-      if (e is TimelineGap) return kGapDuration;
-
-      return e.duration;
-    }).reduce((a, b) => a + b);
-
-    debugPrint('$fullDuration $pos');
+    //   if (thumbX > scrollController.position.viewportDimension) {
+    //     scrollController.jumpTo(to);
+    //   } else if (thumbX >
+    //       scrollController.position.viewportDimension -
+    //           kTimelineThumbOverflowPadding) {
+    //     scrollController.animateTo(
+    //       to,
+    //       duration: const Duration(milliseconds: 200),
+    //       curve: Curves.linear,
+    //     );
+    //   }
+    // }
   }
 
   /// A ticker that runs every interval
@@ -397,21 +454,6 @@ class TimelineController extends ChangeNotifier {
         return;
       }
 
-      /// Checks if the item [e] is in between the span of the given [date]
-      ///
-      /// See also:
-      ///
-      ///  * [DateTime.isInBetween]
-      bool checkForDate(TimelineItem e, DateTime date) {
-        if (e is TimelineGap) {
-          return date.isInBetween(e.start, e.end);
-        } else if (e is TimelineValue) {
-          return e.events.hasForDate(date);
-        } else {
-          throw UnsupportedError('${e.runtimeType} is not supported');
-        }
-      }
-
       /// Usually, if no events were found, it probably means there is a gap between
       /// events in a single [TimelineItem]. >>should<< be normal.
       ///
@@ -419,21 +461,30 @@ class TimelineController extends ChangeNotifier {
       /// the span used is the duration of the smallest event. If it happens, something
       /// may have gone wrong. Yet, this is not going to break the timeline, since
       /// the next event is going to be played after the next gap
-      final itemForDate = items.any((e) => checkForDate(e, currentDate))
-          ? items.firstWhere((e) => checkForDate(e, currentDate))
+      final itemForDate = items.any((i) => i.checkForDate(currentDate))
+          ? items.firstWhere((i) => i.checkForDate(currentDate))
           : currentItem;
 
       /// If the current item is a gap, we add it according to the (current ticker duration * speed)
       /// When it reaches the max gap duration (kGapDuration), it preloads the next item.
       if (itemForDate is TimelineGap) {
+        // if (currentItem is! TimelineGap) {
+        // if it's the first tick of the timeline gap, we retrack the timeline
+        // to show it at the correct position
+        // currentDate = itemForDate.start;
+        // }
         addGap(itemForDate.duration, interval * speed);
+
+        // for (final tile in tiles) {
+        //   // tile.player.set
+        // }
 
         final nextDate = currentDate.add(itemForDate.duration);
 
         /// We check for the next event and assign its media source, if necessary
-        if (items.any((e) => e is TimelineValue && checkForDate(e, nextDate))) {
+        if (items.any((e) => e is TimelineValue && e.checkForDate(nextDate))) {
           final next = items.firstWhere(
-            (e) => e is TimelineValue && checkForDate(e, nextDate),
+            (e) => e is TimelineValue && e.checkForDate(nextDate),
           ) as TimelineValue;
 
           for (final event in next.events) {
@@ -800,45 +851,45 @@ class TimelineView extends StatelessWidget {
                         child: Row(
                             children: timelineController.items.map((i) {
                           if (i is TimelineGap) {
-                            return Container(
+                            return _TimelineItemGestures(
+                              controller: timelineController,
                               width: kGapWidth,
-                              height: kTimelineTileHeight,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              alignment: Alignment.center,
-                              color: Colors.grey.shade400,
-                              child: AutoSizeText(
-                                i.duration.humanReadableCompact(context),
-                                maxLines: 1,
-                                minFontSize: 8.0,
-                                maxFontSize: 10.0,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.black),
+                              item: i,
+                              child: Container(
+                                height: kTimelineTileHeight,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                alignment: Alignment.center,
+                                color: Colors.grey.shade400,
+                                child: AutoSizeText(
+                                  i.duration.humanReadableCompact(context),
+                                  maxLines: 1,
+                                  minFontSize: 8.0,
+                                  maxFontSize: 10.0,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
                               ),
                             );
                           } else if (i is TimelineValue) {
-                            return SizedBox(
-                              height: kTimelineTileHeight,
+                            final events =
+                                tile.events.inBetween(i.start, i.end);
+
+                            if (events.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return _TimelineItemGestures(
+                              controller: timelineController,
                               width: i.duration.inMilliseconds * kPeriodWidth,
-                              child: () {
-                                final events =
-                                    tile.events.inBetween(i.start, i.end);
-
-                                if (events.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
-
-                                Widget buildForEvent(
-                                  Event? event,
-                                  Duration duration,
-                                ) {
-                                  return Tooltip(
-                                    message:
-                                        duration.humanReadableCompact(context),
-                                    preferBelow: false,
-                                    verticalOffset: -12.0,
-                                    decoration: const BoxDecoration(),
-                                    child: Container(
+                              item: i,
+                              child: SizedBox(
+                                height: kTimelineTileHeight,
+                                child: () {
+                                  Widget buildForEvent(
+                                    Event? event,
+                                    Duration duration,
+                                  ) {
+                                    return Container(
                                       height: kTimelineTileHeight,
                                       width: duration.inMilliseconds *
                                           kPeriodWidth,
@@ -847,42 +898,53 @@ class TimelineView extends StatelessWidget {
                                           : event.isAlarm
                                               ? Colors.amber
                                               : Colors.green,
-                                    ),
-                                  );
-                                }
-
-                                var widgets = <Widget>[];
-
-                                Event? previous;
-                                for (final event in events) {
-                                  if (previous == null) {
-                                    previous = event;
-                                    final duration = event.mediaDuration ??
-                                        event.updated
-                                            .difference(event.published);
-
-                                    widgets.add(buildForEvent(event, duration));
-                                  } else {
-                                    final previousEnd = previous.published.add(
-                                      previous.mediaDuration ??
-                                          (previous.updated
-                                              .difference(previous.published)),
+                                      alignment: Alignment.center,
+                                      child: AutoSizeText(
+                                        duration.humanReadableCompact(context),
+                                        maxLines: 1,
+                                        maxFontSize: 12,
+                                        minFontSize: 8,
+                                        textAlign: TextAlign.center,
+                                      ),
                                     );
-                                    final difference =
-                                        previousEnd.difference(event.published);
-
-                                    widgets
-                                        .add(buildForEvent(null, difference));
-
-                                    final duration = event.mediaDuration ??
-                                        event.updated
-                                            .difference(event.published);
-                                    widgets.add(buildForEvent(event, duration));
                                   }
-                                }
 
-                                return Row(children: widgets);
-                              }(),
+                                  var widgets = <Widget>[];
+
+                                  Event? previous;
+                                  for (final event in events) {
+                                    if (previous == null) {
+                                      previous = event;
+                                      final duration = event.mediaDuration ??
+                                          event.updated
+                                              .difference(event.published);
+
+                                      widgets
+                                          .add(buildForEvent(event, duration));
+                                    } else {
+                                      final previousEnd =
+                                          previous.published.add(
+                                        previous.mediaDuration ??
+                                            (previous.updated.difference(
+                                                previous.published)),
+                                      );
+                                      final difference = previousEnd
+                                          .difference(event.published);
+
+                                      widgets
+                                          .add(buildForEvent(null, difference));
+
+                                      final duration = event.mediaDuration ??
+                                          event.updated
+                                              .difference(event.published);
+                                      widgets
+                                          .add(buildForEvent(event, duration));
+                                    }
+                                  }
+
+                                  return Row(children: widgets);
+                                }(),
+                              ),
                             );
                           } else {
                             throw UnsupportedError(
@@ -923,47 +985,28 @@ class TimelineView extends StatelessWidget {
                   );
                 }
 
-                return GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onHorizontalDragUpdate: (d) {
-                    debugPrint(d.localPosition.dx.toString());
-                    // setState(
-                    //   () => timelineController._placeholderSeekX =
-                    //       d.localPosition.dx,
-                    // );
-                  },
-                  // onHorizontalDragEnd: (d) {
-                  //   timelineController.seek(
-                  //     timelineController._placeholderSeekX!,
-                  //   );
-                  //   setState(
-                  //     () =>
-                  //         timelineController._placeholderSeekX = null,
-                  //   );
-                  // },
-                  child: Stack(children: [
-                    Positioned(
-                      top: 0.0,
-                      bottom: 0.0,
-                      left: timelineController._placeholderSeekX ?? x,
-                      width: kTimelineThumbWidth,
-                      child: child!,
-                    ),
-                    Positioned(
-                      left: (timelineController._placeholderSeekX ?? x) - 7,
-                      width: kTimelineThumbWidth,
-                      top: 0.0,
-                      bottom: -10.0,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Icon(
-                          Icons.arrow_drop_up,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                return Stack(clipBehavior: Clip.none, children: [
+                  Positioned(
+                    top: 0.0,
+                    bottom: 0.0,
+                    left: x - 3,
+                    width: kTimelineThumbWidth,
+                    child: child!,
+                  ),
+                  Positioned(
+                    left: x - 10,
+                    width: kTimelineThumbWidth,
+                    top: 0.0,
+                    bottom: -10.0,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Icon(
+                        Icons.arrow_drop_up,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                  ]),
-                );
+                  ),
+                ]);
               },
               child: SizedBox(
                 width: kTimelineThumbWidth,
@@ -979,5 +1022,110 @@ class TimelineView extends StatelessWidget {
         ),
       ],
     ]);
+  }
+}
+
+class _TimelineItemGestures extends StatefulWidget {
+  final TimelineController controller;
+  final TimelineItem item;
+  final double width;
+  final Widget child;
+
+  const _TimelineItemGestures({
+    Key? key,
+    required this.controller,
+    required this.item,
+    required this.width,
+    required this.child,
+  }) : super(key: key);
+
+  static const kPopupWidth = 160.0;
+
+  @override
+  State<_TimelineItemGestures> createState() => _TimelineItemGesturesState();
+}
+
+class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
+  Offset? localPosition;
+  DateTime? date;
+
+  @override
+  Widget build(BuildContext context) {
+    // final realDuration = () {
+    //   if (widget.item is TimelineValue) {
+    //     return widget.item.duration;
+    //   } else if (widget.item is TimelineGap) {
+    //     return kGapDuration;
+    //   } else {
+    //     throw UnsupportedError(
+    //         '${widget.item.runtimeType} is not a supported type');
+    //   }
+    // }();
+
+    final previous =
+        widget.controller.items.where((e) => e.end.isBefore(widget.item.start));
+
+    return MouseRegion(
+      onEnter: (d) {
+        widget.controller.pause();
+      },
+      onHover: (d) {
+        final ms = d.localPosition.dx / kPeriodWidth;
+        final duration = Duration(milliseconds: ms.toInt());
+
+        DateTime? date;
+        if (previous.isEmpty) {
+          date = widget.item.start.add(duration);
+        } else if (widget.item is TimelineValue) {
+          date = widget.item.start.add(duration);
+        } else if (widget.item is TimelineGap) {
+          date = widget.item.start.add(widget.item.duration);
+        }
+
+        setState(() {
+          localPosition = d.localPosition;
+          this.date = date;
+        });
+
+        if (date != null) widget.controller.setDate(date);
+      },
+      onExit: (d) {
+        widget.controller.play(context);
+        setState(() {
+          localPosition = null;
+          date = null;
+        });
+      },
+      child: IgnorePointer(
+        child: SizedBox(
+          width: widget.width,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              widget.child,
+              if (localPosition != null && date != null)
+                PositionedDirectional(
+                  start: localPosition!.dx - _TimelineItemGestures.kPopupWidth,
+                  child: IgnorePointer(
+                    child: Container(
+                      height: kTimelineTileHeight,
+                      width: _TimelineItemGestures.kPopupWidth,
+                      color: Colors.grey,
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      margin: const EdgeInsets.only(bottom: 2.5),
+                      alignment: Alignment.center,
+                      child: AutoSizeText(
+                        '${DateFormat.Hms().format(date!)} - ${DateFormat.Hms().format(widget.item.start)}',
+                        maxLines: 1,
+                        minFontSize: 8.0,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

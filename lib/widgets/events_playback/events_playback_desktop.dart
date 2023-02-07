@@ -274,12 +274,18 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                                     .toStringAsFixed(0),
                           ),
                         ),
-                        if (kDebugMode)
+                        if (kDebugMode) ...[
                           IconButton(
                             icon: const Icon(Icons.refresh),
                             tooltip: 'Recompute',
                             onPressed: initialize,
                           ),
+                          Text(
+                            timelineController.currentItem?.runtimeType
+                                    .toString() ??
+                                '',
+                          ),
+                        ]
                       ],
                     ),
                     Row(children: [

@@ -57,6 +57,20 @@ class TimelineTile {
   });
 }
 
+extension TimelineTileExtension on List<TimelineTile> {
+  /// Get the correspondent tile for the given events
+  ///
+  /// Returns null if there is no correspondent tile
+  TimelineTile? forEvent(Event event) {
+    if (any((tile) => tile.events.contains(event))) {
+      final tile = firstWhere((tile) => tile.events.contains(event));
+      return tile;
+    }
+
+    return null;
+  }
+}
+
 abstract class TimelineItem {
   final DateTime start;
   final DateTime end;
@@ -337,12 +351,38 @@ class TimelineController extends ChangeNotifier {
       );
     }
 
+    final previousItems = items.where((i) => i.end.isBefore(date));
+
+    // If it's the current item, we seek for the precision
     if (currentItem == item) {
       debugPrint('Item for date $date is already the current item');
+      if (item is TimelineValue) {
+        for (final event in item.events) {
+          final tile = tiles.forEvent(event);
+          if (tile == null) continue;
+
+          final mediaUrl = event.mediaURL?.toString();
+
+          if (!event.isAlarm &&
+              mediaUrl != null &&
+              tile.player.dataSource == mediaUrl) {
+            debugPrint('SEEKING $mediaUrl TO $precision');
+            tile.player.seekTo(precision);
+          }
+        }
+      } else if (item is TimelineGap) {
+        currentGapDuration = precision;
+        thumbPrecision = thumbPrecision;
+        debugPrint('seeking gap to $precision');
+      } else {
+        throw UnsupportedError(
+          '${item.runtimeType} is not a supported type for seeking',
+        );
+      }
+
+      notifyListeners();
       return;
     }
-
-    final previousItems = items.where((i) => i.end.isBefore(date));
 
     /// The position of the timeline of the current date
     ///
@@ -352,39 +392,26 @@ class TimelineController extends ChangeNotifier {
 
       // duration of the timeline until the previous events
       final dur = previousItems.map((e) => e.duration).reduce((a, b) => a + b);
-      return dur + precision;
-    }();
-
-    var thumbPosition = () {
-      var pos = previousItems.fold(
-        Duration.zero,
-        (duration, item) {
-          if (item is TimelineGap) return duration + kGapDuration;
-
-          return duration + item.duration;
-        },
-      );
-      // if (item is! TimelineGap) pos = pos + precision;
-
-      return pos;
+      return dur;
     }();
 
     _position = position;
-    _thumbPosition = thumbPosition;
-    add(Duration.zero, isGap: true); // updates the screen
+    thumbPrecision = thumbPrecision;
+    add(Duration.zero); // updates the screen
 
     debugPrint(
       '(${item.runtimeType})'
       ' $date = i${item.start}'
-      ' pos $position thumb $thumbPosition',
+      ' pos $position'
+      ' precision $precision',
     );
   }
 
   /// Adds a [duration] to the current position
-  void add(Duration duration, {bool isGap = false}) {
+  void add(Duration duration, {Duration? precision}) {
     _position = _position + duration;
     currentDate = oldest!.published.add(_position);
-    if (!isGap) _thumbPosition = _thumbPosition + duration;
+    if (precision != null) thumbPrecision = precision;
     _updateThumbPosition();
   }
 
@@ -393,10 +420,11 @@ class TimelineController extends ChangeNotifier {
   /// Otherwise, it adds [position] to the current thumb position
   void addGap(Duration gapDuration, Duration position) {
     if (currentGapDuration >= kGapDuration) {
-      add(gapDuration, isGap: true);
+      add(gapDuration);
       currentGapDuration = Duration.zero;
+      thumbPrecision = Duration.zero;
     } else {
-      _thumbPosition = _thumbPosition + position;
+      thumbPrecision = thumbPrecision + position;
       currentGapDuration = currentGapDuration + position;
       _updateThumbPosition();
     }
@@ -405,24 +433,24 @@ class TimelineController extends ChangeNotifier {
   /// Checks for the current scroll position of the timeline. If the thumb is
   /// reaching the end of the timeline, scroll to ensure the thumb is visible
   void _updateThumbPosition() {
-    // if (scrollController.hasClients) {
-    //   final thumbX = _thumbPosition.inMilliseconds * kPeriodWidth -
-    //       scrollController.offset;
+    if (scrollController.hasClients) {
+      final thumbX =
+          thumbPosition.inMilliseconds * kPeriodWidth - scrollController.offset;
 
-    //   final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
+      final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
 
-    //   if (thumbX > scrollController.position.viewportDimension) {
-    //     scrollController.jumpTo(to);
-    //   } else if (thumbX >
-    //       scrollController.position.viewportDimension -
-    //           kTimelineThumbOverflowPadding) {
-    //     scrollController.animateTo(
-    //       to,
-    //       duration: const Duration(milliseconds: 200),
-    //       curve: Curves.linear,
-    //     );
-    //   }
-    // }
+      if (thumbX > scrollController.position.viewportDimension) {
+        scrollController.jumpTo(to);
+      } else if (thumbX >
+          scrollController.position.viewportDimension -
+              kTimelineThumbOverflowPadding) {
+        scrollController.animateTo(
+          to,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.linear,
+        );
+      }
+    }
   }
 
   /// A ticker that runs every interval
@@ -439,7 +467,7 @@ class TimelineController extends ChangeNotifier {
       currentDate = oldest!.published;
       currentItem = null;
       _position = Duration.zero;
-      _thumbPosition = Duration.zero;
+      thumbPrecision = Duration.zero;
 
       for (final tile in tiles) {
         tile.player.reset();
@@ -498,8 +526,8 @@ class TimelineController extends ChangeNotifier {
           ) as TimelineValue;
 
           for (final event in next.events) {
-            final tile =
-                tiles.firstWhere((tile) => tile.events.contains(event));
+            final tile = tiles.forEvent(event);
+            if (tile == null) continue;
 
             final mediaUrl = event.mediaURL?.toString();
 
@@ -527,7 +555,10 @@ class TimelineController extends ChangeNotifier {
           final allEvents = itemForDate.events.forDateList(currentDate);
           if (allEvents.where((event) => event.isAlarm).length ==
               allEvents.length) {
-            add(interval * speed);
+            add(
+              interval * speed,
+              precision: itemForDate.start.difference(currentDate),
+            );
           }
         } else {
           notifyListeners();
@@ -537,6 +568,7 @@ class TimelineController extends ChangeNotifier {
       /// When the item changes, we ensure to change it and update the ticker
       if (currentItem != itemForDate) {
         currentItem = itemForDate;
+        thumbPrecision = Duration.zero;
         notifyListeners();
       }
 
@@ -548,21 +580,20 @@ class TimelineController extends ChangeNotifier {
           for (final event in events.forDateList(currentDate)) {
             if (event.mediaURL == null) continue;
 
-            if (tiles.any((tile) => tile.events.contains(event))) {
-              final tile =
-                  tiles.firstWhere((tile) => tile.events.contains(event));
-              if (tile.player.dataSource == event.mediaURL!.toString()) {
-                if (!tile.player.isPlaying) {
-                  await tile.player.start();
-                }
-              } else {
-                home.loading(UnityLoadingReason.timelineEventLoading);
-                await tile.player.setDataSource(
-                  event.mediaURL!.toString(),
-                );
-                home.notLoading(UnityLoadingReason.timelineEventLoading);
-                notifyListeners();
+            final tile = tiles.forEvent(event);
+            if (tile == null) continue;
+
+            if (tile.player.dataSource == event.mediaURL!.toString()) {
+              if (!tile.player.isPlaying) {
+                await tile.player.start();
               }
+            } else {
+              home.loading(UnityLoadingReason.timelineEventLoading);
+              await tile.player.setDataSource(
+                event.mediaURL!.toString(),
+              );
+              home.notLoading(UnityLoadingReason.timelineEventLoading);
+              notifyListeners();
             }
           }
         }
@@ -576,8 +607,29 @@ class TimelineController extends ChangeNotifier {
   Duration _position = Duration.zero;
   late final positionNotifier = ValueNotifier<Duration>(_position);
 
-  /// The position of the thumb, considering gaps with the duration of [kGapDuration]
-  Duration _thumbPosition = Duration.zero;
+  /// The thumb is calculated in the following way:
+  ///
+  /// We account all the previous items and their respective duration, and position
+  /// the thumb accordingly. For a precise match, [thumbPrecision] is used. It is
+  /// updated by the current player (if any) or the ticker.
+  ///
+  /// [thumbPrecision] is reset every time the current item changes
+  Duration thumbPrecision = Duration.zero;
+  Duration get thumbPosition {
+    final previousItems = items.where((i) => i.end.isBefore(currentDate));
+
+    var pos = previousItems.fold(
+      Duration.zero,
+      (duration, item) {
+        if (item is TimelineGap) return duration + kGapDuration;
+
+        return duration + item.duration;
+      },
+    );
+    // if (item is TimelineGap) pos = pos + precision;
+
+    return pos + thumbPrecision;
+  }
 
   /// This makes animating with gap possible
   ///
@@ -691,7 +743,7 @@ class TimelineController extends ChangeNotifier {
 
           final has = item.events.hasForDate(currentDate);
           if (has) {
-            add(pos - previousPos);
+            add(pos - previousPos, precision: pos);
             debugPrint('$pos - $previousPos - ${pos - previousPos}');
 
             previousPos = pos;
@@ -769,7 +821,7 @@ class TimelineController extends ChangeNotifier {
     tiles.clear();
     items.clear();
 
-    _thumbPosition = Duration.zero;
+    thumbPrecision = Duration.zero;
     _position = Duration.zero;
   }
 
@@ -985,7 +1037,7 @@ class TimelineView extends StatelessWidget {
                     timelineController.scrollController.hasClients
                         ? timelineController.scrollController.offset
                         : 0.0;
-                final x = timelineController._thumbPosition.inMilliseconds *
+                final x = timelineController.thumbPosition.inMilliseconds *
                         kPeriodWidth -
                     scrollOffset;
 
@@ -1018,12 +1070,14 @@ class TimelineView extends StatelessWidget {
                   ),
                 ]);
               },
-              child: SizedBox(
-                width: kTimelineThumbWidth,
-                child: Center(
-                  child: Container(
-                    width: 2.5,
-                    color: Theme.of(context).colorScheme.onSurface,
+              child: IgnorePointer(
+                child: SizedBox(
+                  width: kTimelineThumbWidth,
+                  child: Center(
+                    child: Container(
+                      width: 2.5,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),
@@ -1109,31 +1163,26 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
       child: IgnorePointer(
         child: SizedBox(
           width: widget.width,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              widget.child,
-              if (localPosition != null && date != null)
-                PositionedDirectional(
-                  start: localPosition!.dx - _TimelineItemGestures.kPopupWidth,
-                  child: IgnorePointer(
-                    child: Container(
-                      height: kTimelineTileHeight,
-                      width: _TimelineItemGestures.kPopupWidth,
-                      color: Colors.grey,
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      margin: const EdgeInsets.only(bottom: 2.5),
-                      alignment: Alignment.center,
-                      child: AutoSizeText(
-                        '${DateFormat.Hms().format(date!)} - ${DateFormat.Hms().format(widget.item.start)}',
-                        maxLines: 1,
-                        minFontSize: 8.0,
-                      ),
-                    ),
+          child: Stack(clipBehavior: Clip.none, children: [
+            widget.child,
+            if (localPosition != null && date != null)
+              PositionedDirectional(
+                start: localPosition!.dx - _TimelineItemGestures.kPopupWidth,
+                child: Container(
+                  height: kTimelineTileHeight,
+                  width: _TimelineItemGestures.kPopupWidth,
+                  color: Colors.grey,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  margin: const EdgeInsets.only(bottom: 2.5),
+                  alignment: Alignment.center,
+                  child: AutoSizeText(
+                    '${DateFormat.Hms().format(date!)} - ${DateFormat.Hms().format(widget.item.start)}',
+                    maxLines: 1,
+                    minFontSize: 8.0,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ]),
         ),
       ),
     );

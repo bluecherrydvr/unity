@@ -303,7 +303,24 @@ class TimelineGap extends TimelineItem {
   int get hashCode => duration.hashCode ^ start.hashCode ^ end.hashCode;
 }
 
+/// Controls the state of a [TimelineView].
+///
+/// Before using, make sure the controller is initialize by caling [initialize].
+/// If tried to use without being initialized, an error is thrown.
+///
+/// This controller ensures all the timeline items are in sync with each other.
+/// It also manages the gaps between [TimelineValue]s and skip them properly
+///
+/// While in a gap, the upcoming video is precached for a smooth transition.
+///
+/// Use [setDate] for seeking. It requires the initial item position and its
+/// precision. It is responsible for seeking the tile player as well.
+///
+/// See also:
+///
+///   * [kGapDuration], which is the duration of a skipped gap
 class TimelineController extends ChangeNotifier {
+  /// Controls the timeline view scrolling
   final scrollController = ScrollController();
 
   /// All the tiles of the timeline. Usually represents the devices in a server
@@ -319,8 +336,7 @@ class TimelineController extends ChangeNotifier {
   Duration duration = Duration.zero;
 
   /// The position of the current item, considering the gaps
-  Duration _position = Duration.zero;
-  late final positionNotifier = ValueNotifier<Duration>(_position);
+  late final positionNotifier = ChangeNotifier();
 
   /// The thumb position is calculated in the following way:
   ///
@@ -436,12 +452,12 @@ class TimelineController extends ChangeNotifier {
     void reset() {
       currentDate = oldest!.published;
       currentItem = null;
-      _position = Duration.zero;
       thumbPrecision = Duration.zero;
 
       for (final tile in tiles) {
         tile.player.reset();
       }
+      positionNotifier.notifyListeners();
     }
 
     /// Whether this is past the end
@@ -473,27 +489,30 @@ class TimelineController extends ChangeNotifier {
           ? items.firstWhere((i) => i.checkForDate(currentDate))
           : currentItem;
 
+      /// When the item changes, we ensure to change it and update the ticker
+      if (currentItem != itemForDate) {
+        debugPrint(
+          'Changing item ${currentItem.runtimeType} to ${itemForDate.runtimeType}',
+        );
+
+        currentItem = itemForDate;
+        thumbPrecision = Duration.zero;
+        notifyListeners();
+        positionNotifier.notifyListeners();
+      }
+
       /// If the current item is a gap, we add it according to the (current ticker duration * speed)
       /// When it reaches the max gap duration (kGapDuration), it preloads the next item.
-      if (itemForDate is TimelineGap) {
-        // if (currentItem is! TimelineGap) {
-        // if it's the first tick of the timeline gap, we retrack the timeline
-        // to show it at the correct position
-        // currentDate = itemForDate.start;
-        // }
-        addGap(itemForDate.duration, interval * speed);
+      if (currentItem is TimelineGap) {
+        addGap(currentItem!.duration, interval * speed);
 
-        // for (final tile in tiles) {
-        //   // tile.player.set
-        // }
-
-        final nextDate = currentDate.add(itemForDate.duration);
+        final nextDate = currentDate.add(currentItem!.duration);
 
         /// We check for the next event and assign its media source, if necessary
         if (items.any((e) => e is TimelineValue && e.checkForDate(nextDate))) {
-          final next = items.firstWhere(
-            (e) => e is TimelineValue && e.checkForDate(nextDate),
-          ) as TimelineValue;
+          final next = items
+              .whereType<TimelineValue>()
+              .firstWhere((value) => value.checkForDate(nextDate));
 
           for (final event in next.events) {
             final tile = tiles.forEvent(event);
@@ -512,7 +531,7 @@ class TimelineController extends ChangeNotifier {
             }
           }
         }
-      } else if (itemForDate is TimelineValue) {
+      } else if (currentItem is TimelineValue) {
         /// If all the events in the timeline are alarms, we add it according to
         /// the (current ticker duration * speed)
         ///
@@ -521,25 +540,17 @@ class TimelineController extends ChangeNotifier {
         ///
         /// Check the listener for [onCurrentPosUpdate] in [initialize] for more
         /// info on how this is done
-        if (itemForDate.events.hasForDate(currentDate)) {
-          final allEvents = itemForDate.events.forDateList(currentDate);
+        if ((currentItem! as TimelineValue).events.hasForDate(currentDate)) {
+          final allEvents =
+              (currentItem! as TimelineValue).events.forDateList(currentDate);
           if (allEvents.where((event) => event.isAlarm).length ==
               allEvents.length) {
-            add(
-              interval * speed,
-              precision: itemForDate.start.difference(currentDate),
-            );
+            final precision = interval * speed;
+            currentDate = currentDate.add(precision);
+            thumbPrecision = thumbPrecision + precision;
+            positionNotifier.notifyListeners();
           }
-        } else {
-          notifyListeners();
         }
-      }
-
-      /// When the item changes, we ensure to change it and update the ticker
-      if (currentItem != itemForDate) {
-        currentItem = itemForDate;
-        thumbPrecision = Duration.zero;
-        notifyListeners();
       }
 
       if (currentItem is TimelineValue) {
@@ -568,8 +579,6 @@ class TimelineController extends ChangeNotifier {
           }
         }
       }
-
-      positionNotifier.notifyListeners();
     });
   }
 
@@ -585,83 +594,72 @@ class TimelineController extends ChangeNotifier {
       );
     }
 
-    final previousItems = items.where((i) => i.end.isBefore(date));
-
     // If it's the current item, we seek for the precision
-    if (currentItem == item) {
+    if (currentItem == item && item is TimelineValue) {
       debugPrint('Item for date $date is already the current item');
-      if (item is TimelineValue) {
-        for (final event in item.events) {
-          final tile = tiles.forEvent(event);
-          if (tile == null) continue;
+      for (final event in item.events) {
+        final tile = tiles.forEvent(event);
+        if (tile == null) continue;
 
-          final mediaUrl = event.mediaURL?.toString();
+        final mediaUrl = event.mediaURL?.toString();
 
-          if (!event.isAlarm &&
-              mediaUrl != null &&
-              tile.player.dataSource == mediaUrl) {
-            debugPrint('SEEKING $mediaUrl TO $precision');
-            tile.player.seekTo(precision);
-          }
+        if (!event.isAlarm &&
+            mediaUrl != null &&
+            tile.player.dataSource == mediaUrl) {
+          debugPrint('SEEKING $mediaUrl TO $precision');
+          tile.player.seekTo(precision);
         }
-      } else if (item is TimelineGap) {
-        currentGapDuration = precision;
-        thumbPrecision = thumbPrecision;
-        debugPrint('seeking gap to $precision');
-      } else {
-        throw UnsupportedError(
-          '${item.runtimeType} is not a supported type for seeking',
-        );
       }
-
-      notifyListeners();
       return;
     }
 
-    /// The position of the timeline of the current date
-    ///
-    /// This takes account the whole time span
-    final position = () {
-      if (previousItems.isEmpty) return date.difference(item.start);
+    currentDate = item.start.add(precision);
+    if (item is TimelineGap) {
+      currentGapDuration = precision;
+      thumbPrecision = precision;
+      debugPrint('seeking gap to $precision');
+    }
 
-      // duration of the timeline until the previous events
-      final dur = previousItems.map((e) => e.duration).reduce((a, b) => a + b);
-      return dur;
-    }();
-
-    _position = position;
-    thumbPrecision = thumbPrecision;
-    add(Duration.zero); // updates the screen
+    notifyListeners();
+    positionNotifier.notifyListeners();
 
     debugPrint(
       '(${item.runtimeType})'
       ' $date = i${item.start}'
-      ' pos $position'
       ' precision $precision',
     );
   }
 
-  /// Adds a [duration] to the current position
-  void add(Duration duration, {Duration? precision}) {
-    _position = _position + duration;
-    currentDate = oldest!.published.add(_position);
-    if (precision != null) thumbPrecision = precision;
+  void setVideoPosition(Duration precision) {
+    assert(currentItem != null);
+    assert(currentItem is TimelineValue);
+
+    final desiredDate = currentItem!.start.add(precision);
+
+    if (currentDate.isAfter(desiredDate)) return;
+
+    currentDate = desiredDate;
+    thumbPrecision = precision;
     _updateThumbPosition();
+    positionNotifier.notifyListeners();
   }
 
   /// If the gap duration has ended, it [add]s into the current position
   ///
   /// Otherwise, it adds [position] to the current thumb position
   void addGap(Duration gapDuration, Duration position) {
+    assert(currentItem is TimelineGap);
+
     if (currentGapDuration >= kGapDuration) {
-      add(gapDuration);
       currentGapDuration = Duration.zero;
       thumbPrecision = Duration.zero;
+      currentDate = currentItem!.start.add(gapDuration + position);
     } else {
       thumbPrecision = thumbPrecision + position;
       currentGapDuration = currentGapDuration + position;
-      _updateThumbPosition();
     }
+    positionNotifier.notifyListeners();
+    _updateThumbPosition();
   }
 
   /// Checks for the current scroll position of the timeline. If the thumb is
@@ -743,8 +741,9 @@ class TimelineController extends ChangeNotifier {
 
           final has = item.events.hasForDate(currentDate);
           if (has) {
-            add(pos - previousPos, precision: pos);
-            debugPrint('$pos - $previousPos - ${pos - previousPos}');
+            // add(pos - previousPos, precision: pos);
+            setVideoPosition(pos);
+            debugPrint('pos $pos ; previous $previousPos');
 
             previousPos = pos;
           }
@@ -822,7 +821,7 @@ class TimelineController extends ChangeNotifier {
     items.clear();
 
     thumbPrecision = Duration.zero;
-    _position = Duration.zero;
+    currentDate = DateTime(0);
   }
 
   @override

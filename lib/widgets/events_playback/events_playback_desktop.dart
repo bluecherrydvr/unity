@@ -141,7 +141,8 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop>
                   crossAxisSpacing: kGridInnerPadding,
                   children: timelineController.tiles.map((i) {
                     final has =
-                        i.events.hasForDate(timelineController.currentDate);
+                        timelineController.currentItem is! TimelineGap &&
+                            i.events.hasForDate(timelineController.currentDate);
 
                     return IndexedStack(
                       index: !has ? 0 : 1,

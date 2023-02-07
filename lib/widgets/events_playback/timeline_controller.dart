@@ -325,14 +325,21 @@ class TimelineController extends ChangeNotifier {
         : currentItem;
   }
 
-  /// Sets the timeline at the current position
-  void setDate(DateTime date) {
+  /// Sets the timeline at the provided [date]
+  ///
+  /// [precision] determines the precision of the pointer
+  void setDate(DateTime date, Duration precision) {
     final item = itemForDate(date);
 
     if (item == null) {
       throw ArgumentError(
         '$date is not a valid timespan of the current timeline',
       );
+    }
+
+    if (currentItem == item) {
+      debugPrint('Item for date $date is already the current item');
+      return;
     }
 
     final previousItems = items.where((i) => i.end.isBefore(date));
@@ -343,13 +350,13 @@ class TimelineController extends ChangeNotifier {
     final position = () {
       if (previousItems.isEmpty) return date.difference(item.start);
 
+      // duration of the timeline until the previous events
       final dur = previousItems.map((e) => e.duration).reduce((a, b) => a + b);
-      final last = previousItems.last.end;
-      return dur + date.difference(last);
+      return dur + precision;
     }();
 
     var thumbPosition = () {
-      return previousItems.fold(
+      var pos = previousItems.fold(
         Duration.zero,
         (duration, item) {
           if (item is TimelineGap) return duration + kGapDuration;
@@ -357,17 +364,20 @@ class TimelineController extends ChangeNotifier {
           return duration + item.duration;
         },
       );
-    }();
+      // if (item is! TimelineGap) pos = pos + precision;
 
-    if (item is! TimelineGap) {
-      thumbPosition = thumbPosition + date.difference(item.start);
-    }
+      return pos;
+    }();
 
     _position = position;
     _thumbPosition = thumbPosition;
-    add(Duration.zero); // updates the screen
+    add(Duration.zero, isGap: true); // updates the screen
 
-    debugPrint('$date = i${item.start} pos $position thumb $thumbPosition');
+    debugPrint(
+      '(${item.runtimeType})'
+      ' $date = i${item.start}'
+      ' pos $position thumb $thumbPosition',
+    );
   }
 
   /// Adds a [duration] to the current position
@@ -564,7 +574,7 @@ class TimelineController extends ChangeNotifier {
 
   /// The position of the current item, considering the gaps
   Duration _position = Duration.zero;
-  final positionNotifier = ChangeNotifier();
+  late final positionNotifier = ValueNotifier<Duration>(_position);
 
   /// The position of the thumb, considering gaps with the duration of [kGapDuration]
   Duration _thumbPosition = Duration.zero;
@@ -1087,7 +1097,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
           this.date = date;
         });
 
-        if (date != null) widget.controller.setDate(date);
+        if (date != null) widget.controller.setDate(date, duration);
       },
       onExit: (d) {
         widget.controller.play(context);

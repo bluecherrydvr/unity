@@ -123,6 +123,17 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       width: 640,
       height: 360,
     );
+
+    // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
+    if (mkPlayer.platform is libmpvPlayer) {
+      final platform = (mkPlayer.platform as libmpvPlayer?);
+      // https://mpv.io/manual/stable/#options-cache
+      platform?.setProperty("cache", "yes");
+      // https://mpv.io/manual/stable/#options-cache-pause-initial
+      platform?.setProperty("cache-pause-initial", "yes");
+      // https://mpv.io/manual/stable/#options-cache-pause-wait
+      platform?.setProperty("cache-pause-wait", "3");
+    }
   }
 
   Future<void> ensureVideoControllerInitialized(

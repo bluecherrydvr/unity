@@ -610,14 +610,25 @@ class TimelineController extends ChangeNotifier {
           tile.player.seekTo(precision);
         }
       }
-      return;
     }
 
+    currentItem = currentItem;
     currentDate = item.start.add(precision);
     if (item is TimelineGap) {
       currentGapDuration = precision;
       thumbPrecision = precision;
+
+      // this avoids reseting the thumbPrecision, since it's reset when the item
+      // is changed
+      currentItem = item;
+
       debugPrint('seeking gap to $precision');
+    } else if (item is TimelineValue) {
+      thumbPrecision = Duration.zero;
+    } else {
+      throw UnsupportedError(
+        '${currentItem.runtimeType} is not a supported item',
+      );
     }
 
     notifyListeners();
@@ -640,6 +651,11 @@ class TimelineController extends ChangeNotifier {
 
     currentDate = desiredDate;
     thumbPrecision = precision;
+
+    if (thumbPrecision > currentItem!.duration) {
+      thumbPrecision = Duration.zero;
+    }
+
     _updateThumbPosition();
     positionNotifier.notifyListeners();
   }
@@ -651,8 +667,7 @@ class TimelineController extends ChangeNotifier {
     assert(currentItem is TimelineGap);
 
     if (currentGapDuration >= kGapDuration) {
-      currentGapDuration = Duration.zero;
-      thumbPrecision = Duration.zero;
+      currentGapDuration = thumbPrecision = Duration.zero;
       currentDate = currentItem!.start.add(gapDuration + position);
     } else {
       thumbPrecision = thumbPrecision + position;
@@ -728,24 +743,14 @@ class TimelineController extends ChangeNotifier {
         events: events,
         player: UnityVideoPlayer.create(),
       );
-      var previousPos = Duration.zero;
       item.player
         ..setSpeed(speed)
         ..setVolume(volume)
         ..onCurrentPosUpdate.listen((pos) {
-          /// When the current position changes, we add it to the timeline position
-          ///
-          /// The amount of duration added is the difference between the previous
-          /// position and the current position
-          if (pos < previousPos) previousPos = pos;
-
-          final has = item.events.hasForDate(currentDate);
-          if (has) {
+          if (item.events.hasForDate(currentDate)) {
             // add(pos - previousPos, precision: pos);
             setVideoPosition(pos);
-            debugPrint('pos $pos ; previous $previousPos');
-
-            previousPos = pos;
+            debugPrint('pos $pos');
           }
         })
         ..onPlayingStateUpdate.listen((playing) {
@@ -1102,7 +1107,7 @@ class _TimelineItemGestures extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
-  static const kPopupWidth = 160.0;
+  static const kPopupWidth = 60.0;
 
   @override
   State<_TimelineItemGestures> createState() => _TimelineItemGesturesState();
@@ -1112,24 +1117,17 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
   Offset? localPosition;
   DateTime? date;
 
+  /// Used by [MouseRegion.onExit] to pause/play the timeline according to the initial value
+  bool _initiallyPaused = false;
+
   @override
   Widget build(BuildContext context) {
-    // final realDuration = () {
-    //   if (widget.item is TimelineValue) {
-    //     return widget.item.duration;
-    //   } else if (widget.item is TimelineGap) {
-    //     return kGapDuration;
-    //   } else {
-    //     throw UnsupportedError(
-    //         '${widget.item.runtimeType} is not a supported type');
-    //   }
-    // }();
-
     final previous =
         widget.controller.items.where((e) => e.end.isBefore(widget.item.start));
 
     return MouseRegion(
       onEnter: (d) {
+        _initiallyPaused = widget.controller.isPaused;
         widget.controller.pause();
       },
       onHover: (d) {
@@ -1153,11 +1151,8 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
         if (date != null) widget.controller.setDate(date, duration);
       },
       onExit: (d) {
-        widget.controller.play(context);
-        setState(() {
-          localPosition = null;
-          date = null;
-        });
+        if (!_initiallyPaused) widget.controller.play(context);
+        setState(() => localPosition = date = null);
       },
       child: IgnorePointer(
         child: SizedBox(
@@ -1175,7 +1170,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
                   margin: const EdgeInsets.only(bottom: 2.5),
                   alignment: Alignment.center,
                   child: AutoSizeText(
-                    '${DateFormat.Hms().format(date!)} - ${DateFormat.Hms().format(widget.item.start)}',
+                    DateFormat.Hms().format(date!),
                     maxLines: 1,
                     minFontSize: 8.0,
                   ),

@@ -73,6 +73,10 @@ class Event {
         .join(' ');
   }
 
+  Duration get duration {
+    return mediaDuration ?? updated.difference(published);
+  }
+
   @override
   bool operator ==(dynamic other) {
     return other is Event &&

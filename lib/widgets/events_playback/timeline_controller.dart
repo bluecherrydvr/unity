@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +102,9 @@ abstract class TimelineItem {
   /// * 2 - Oldest [Event]
   /// * 3 - Newest [Event]
   static List calculateTimeline(List data) {
-    final allEvents = data[0] as Iterable<Event>;
+    final allEvents = (data[0] as Iterable<Event>).where(
+      (e) => e.duration > Duration.zero,
+    );
 
     if (allEvents.isEmpty) return [];
 
@@ -117,12 +120,15 @@ abstract class TimelineItem {
 
     // The interval time is the duration of the shortest event
     final intervalTime = () {
-      final eventsDuration = allEvents
-          .map((e) => e.mediaDuration ?? e.updated.difference(e.published))
-          .toList()
+      final eventsDuration = allEvents.map((e) => e.duration).toList()
         ..sort((a, b) => a.compareTo(b));
       return eventsDuration.first;
     }();
+
+    debugPrint(
+      'Generating timeline with ${allEvents.length}, '
+      'and with an interval time of $intervalTime',
+    );
 
     void increment() => currentDateTime = currentDateTime.add(intervalTime);
 
@@ -192,21 +198,16 @@ abstract class TimelineItem {
             for (final event in events) {
               if (previous == null) {
                 previous = event;
-                final eventDuration = event.mediaDuration ??
-                    event.updated.difference(event.published);
+                final eventDuration = event.duration;
 
                 duration = duration + eventDuration;
               } else {
                 // the gap between the two events
-                final previousEnd = previous.published.add(
-                  previous.mediaDuration ??
-                      (previous.updated.difference(previous.published)),
-                );
+                final previousEnd = previous.published.add(previous.duration);
                 final difference = previousEnd.difference(event.published);
                 duration = duration + difference;
 
-                final eventDuration = event.mediaDuration ??
-                    event.updated.difference(event.published);
+                final eventDuration = event.duration;
                 duration = duration + eventDuration;
               }
             }
@@ -266,7 +267,7 @@ class TimelineValue extends TimelineItem {
     if (identical(this, other)) return true;
 
     return other is TimelineValue &&
-        other.events == events &&
+        other.events.length == events.length &&
         other.start == start &&
         other.end == end &&
         other.duration == duration;
@@ -347,6 +348,8 @@ class TimelineController extends ChangeNotifier {
   ///   [thumbPrecision] is reset every time the current item changes
   Duration thumbPrecision = Duration.zero;
   Duration get thumbPosition {
+    if (currentItem == null) return Duration.zero;
+
     final previousItems = items.where((i) => i.end.isBefore(currentDate));
 
     var pos = previousItems.fold(
@@ -359,7 +362,10 @@ class TimelineController extends ChangeNotifier {
     );
     // if (item is TimelineGap) pos = pos + precision;
 
-    return pos + thumbPrecision;
+    final precision =
+        thumbPrecision > currentItem!.duration ? Duration.zero : thumbPrecision;
+
+    return pos + precision;
   }
 
   /// This makes animating with gap possible
@@ -374,7 +380,29 @@ class TimelineController extends ChangeNotifier {
   DateTime currentDate = DateTime(0);
 
   /// The current item span of the timeline
-  TimelineItem? currentItem;
+  @protected
+  TimelineItem? _currentItem;
+  TimelineItem? get currentItem => _currentItem;
+
+  /// Sets the current item and resets the player for the given tile
+  ///
+  /// When the item is updated, it's found necessary to reset the player position
+  /// for a smooth experience. It's more noticable in a multiple tile situation
+  set currentItem(TimelineItem? item) {
+    debugPrint(
+      'Changing item '
+      '${currentItem.runtimeType} (${currentItem?.start}) '
+      'to ${item.runtimeType} (${item?.start})',
+    );
+
+    if (currentItem is TimelineValue) {
+      final tile = tiles.forEvent((currentItem as TimelineValue).events.first);
+      if (tile != null) {
+        tile.player.reset();
+      }
+    }
+    _currentItem = item;
+  }
 
   double _speed = 1;
   double get speed => _speed;
@@ -491,10 +519,6 @@ class TimelineController extends ChangeNotifier {
 
       /// When the item changes, we ensure to change it and update the ticker
       if (currentItem != itemForDate) {
-        debugPrint(
-          'Changing item ${currentItem.runtimeType} to ${itemForDate.runtimeType}',
-        );
-
         currentItem = itemForDate;
         thumbPrecision = Duration.zero;
         notifyListeners();
@@ -624,7 +648,7 @@ class TimelineController extends ChangeNotifier {
 
       debugPrint('seeking gap to $precision');
     } else if (item is TimelineValue) {
-      thumbPrecision = Duration.zero;
+      thumbPrecision = precision;
     } else {
       throw UnsupportedError(
         '${currentItem.runtimeType} is not a supported item',
@@ -647,14 +671,10 @@ class TimelineController extends ChangeNotifier {
 
     final desiredDate = currentItem!.start.add(precision);
 
-    if (currentDate.isAfter(desiredDate)) return;
-
-    currentDate = desiredDate;
-    thumbPrecision = precision;
-
-    if (thumbPrecision > currentItem!.duration) {
-      thumbPrecision = Duration.zero;
+    if (currentDate.isBefore(desiredDate)) {
+      currentDate = desiredDate;
     }
+    thumbPrecision = precision;
 
     _updateThumbPosition();
     positionNotifier.notifyListeners();
@@ -748,7 +768,6 @@ class TimelineController extends ChangeNotifier {
         ..setVolume(volume)
         ..onCurrentPosUpdate.listen((pos) {
           if (item.events.hasForDate(currentDate)) {
-            // add(pos - previousPos, precision: pos);
             setVideoPosition(pos);
             debugPrint('pos $pos');
           }
@@ -856,6 +875,8 @@ class TimelineView extends StatelessWidget {
           4,
           double.infinity,
         );
+
+    final theme = Theme.of(context).extension<TimelineTheme>()!;
     return Stack(children: [
       Positioned.fill(
         child: SingleChildScrollView(
@@ -926,7 +947,7 @@ class TimelineView extends StatelessWidget {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 5),
                                 alignment: Alignment.center,
-                                color: Colors.grey.shade400,
+                                color: theme.gapColor,
                                 child: AutoSizeText(
                                   i.duration.humanReadableCompact(context),
                                   maxLines: 1,
@@ -941,12 +962,15 @@ class TimelineView extends StatelessWidget {
                             final events =
                                 tile.events.inBetween(i.start, i.end);
 
+                            final width =
+                                i.duration.inMilliseconds * kPeriodWidth;
+
                             if (events.isEmpty) {
-                              return const SizedBox.shrink();
+                              return SizedBox(width: width);
                             }
                             return _TimelineItemGestures(
                               controller: timelineController,
-                              width: i.duration.inMilliseconds * kPeriodWidth,
+                              width: width,
                               item: i,
                               child: SizedBox(
                                 height: kTimelineTileHeight,
@@ -962,8 +986,8 @@ class TimelineView extends StatelessWidget {
                                       color: event == null
                                           ? null
                                           : event.isAlarm
-                                              ? Colors.amber
-                                              : Colors.green,
+                                              ? theme.alarmColor
+                                              : theme.eventColor,
                                       alignment: Alignment.center,
                                       child: AutoSizeText(
                                         duration.humanReadableCompact(context),
@@ -981,28 +1005,20 @@ class TimelineView extends StatelessWidget {
                                   for (final event in events) {
                                     if (previous == null) {
                                       previous = event;
-                                      final duration = event.mediaDuration ??
-                                          event.updated
-                                              .difference(event.published);
+                                      final duration = event.duration;
 
                                       widgets
                                           .add(buildForEvent(event, duration));
                                     } else {
-                                      final previousEnd =
-                                          previous.published.add(
-                                        previous.mediaDuration ??
-                                            (previous.updated.difference(
-                                                previous.published)),
-                                      );
+                                      final previousEnd = previous.published
+                                          .add(previous.duration);
                                       final difference = previousEnd
                                           .difference(event.published);
 
                                       widgets
                                           .add(buildForEvent(null, difference));
 
-                                      final duration = event.mediaDuration ??
-                                          event.updated
-                                              .difference(event.published);
+                                      final duration = event.duration;
                                       widgets
                                           .add(buildForEvent(event, duration));
                                     }
@@ -1125,6 +1141,8 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
     final previous =
         widget.controller.items.where((e) => e.end.isBefore(widget.item.start));
 
+    final theme = Theme.of(context).extension<TimelineTheme>()!;
+
     return MouseRegion(
       onEnter: (d) {
         _initiallyPaused = widget.controller.isPaused;
@@ -1165,7 +1183,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
                 child: Container(
                   height: kTimelineTileHeight,
                   width: _TimelineItemGestures.kPopupWidth,
-                  color: Colors.grey,
+                  color: theme.seekPopupColor,
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   margin: const EdgeInsets.only(bottom: 2.5),
                   alignment: Alignment.center,

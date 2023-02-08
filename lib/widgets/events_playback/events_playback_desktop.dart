@@ -139,6 +139,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                         child: AutoSizeText(
                           AppLocalizations.of(context).noRecords,
                           textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
 
@@ -151,7 +152,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           if (player.dataSource == null) {
                             return const ErrorWarning(message: '');
                           } else {
-                            debugPrint('${player.dataSource}');
+                            // debugPrint('${player.dataSource}');
                           }
 
                           return const SizedBox.shrink();

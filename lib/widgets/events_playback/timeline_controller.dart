@@ -634,9 +634,10 @@ class TimelineController extends ChangeNotifier {
           tile.player.seekTo(precision);
         }
       }
+      return;
     }
 
-    currentItem = currentItem;
+    currentItem = item;
     currentDate = item.start.add(precision);
     if (item is TimelineGap) {
       currentGapDuration = precision;
@@ -648,7 +649,7 @@ class TimelineController extends ChangeNotifier {
 
       debugPrint('seeking gap to $precision');
     } else if (item is TimelineValue) {
-      thumbPrecision = precision;
+      thumbPrecision = Duration.zero;
     } else {
       throw UnsupportedError(
         '${currentItem.runtimeType} is not a supported item',

@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
+import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -107,9 +108,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
 
-    final page = Row(children: [
+    final page = Column(children: [
       Expanded(
-        child: Column(children: [
+        child: Row(children: [
           Expanded(
             child: () {
               if (!timelineController.initialized) {
@@ -164,183 +165,177 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
               }
             }(),
           ),
-          SizedBox(
-            height: kTimelineViewHeight,
+          CollapsableSidebar(
+            left: false,
+            onCollapseStateChange: (v) {
+              setState(() {});
+            },
+            builder: (context, collapseButton) {
+              return Sidebar(
+                key: sidebarKey,
+                collapseButton: collapseButton,
+                events: widget.events,
+                filter: widget.filter,
+                onFilter: widget.onFilter,
+                onUpdate: initialize,
+              );
+            },
+          ),
+        ]),
+      ),
+      SizedBox(
+        height: kTimelineViewHeight,
+        child: Row(children: [
+          Expanded(
             child: Card(
               margin: EdgeInsets.zero,
               shape: const RoundedRectangleBorder(),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: 16.0,
-                  end: 16.0,
-                  top: 6.0,
-                  bottom: 4.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text(
-                        '${(_speed ?? timelineController.speed) == 1.0 ? '1' : (_speed ?? timelineController.speed).toStringAsFixed(1)}x',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    const Icon(null),
+                    const Spacer(),
+                    Text(
+                      '${(_speed ?? timelineController.speed) == 1.0 ? '1' : (_speed ?? timelineController.speed).toStringAsFixed(1)}x',
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120.0),
+                      child: Slider(
+                        value: _speed ?? timelineController.speed,
+                        min: 0.5,
+                        max: 2.0,
+                        onChanged: (s) => setState(() => _speed = s),
+                        onChangeEnd: (s) {
+                          _speed = null;
+                          timelineController.speed = s;
+                        },
                       ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120.0),
-                        child: Slider(
-                          value: _speed ?? timelineController.speed,
-                          min: 0.5,
-                          max: 2.0,
-                          onChanged: (s) => setState(() => _speed = s),
-                          onChangeEnd: (s) {
-                            _speed = null;
-                            timelineController.speed = s;
-                          },
-                        ),
-                      ),
-                      Tooltip(
-                        message: timelineController.isPaused
-                            ? AppLocalizations.of(context).play
-                            : AppLocalizations.of(context).pause,
-                        child: CircleAvatar(
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(100.0),
-                              onTap: () {
-                                if (timelineController.isPaused) {
-                                  timelineController.play(context);
-                                } else {
-                                  timelineController.pause();
-                                }
-                              },
-                              child: Center(
-                                child: Icon(
-                                  timelineController.isPaused
-                                      ? Icons.play_arrow
-                                      : Icons.pause,
-                                ),
+                    ),
+                    Tooltip(
+                      message: timelineController.isPaused
+                          ? AppLocalizations.of(context).play
+                          : AppLocalizations.of(context).pause,
+                      child: CircleAvatar(
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(100.0),
+                            onTap: () {
+                              if (timelineController.isPaused) {
+                                timelineController.play(context);
+                              } else {
+                                timelineController.pause();
+                              }
+                            },
+                            child: Center(
+                              child: Icon(
+                                timelineController.isPaused
+                                    ? Icons.play_arrow
+                                    : Icons.pause,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 20.0),
-                      Icon(() {
-                        final volume = _volume ?? timelineController.volume;
-                        if ((_volume == null || _volume == 0.0) &&
-                            (timelineController.isMuted || volume == 0.0)) {
-                          return Icons.volume_off;
-                        } else if (volume < 0.5) {
-                          return Icons.volume_down;
-                        } else {
-                          return Icons.volume_up;
-                        }
-                      }()),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120.0),
-                        child: Slider(
-                          value: _volume ??
-                              (timelineController.isMuted
-                                  ? 0.0
-                                  : timelineController.volume),
-                          onChanged: (v) => setState(() => _volume = v),
-                          onChangeEnd: (v) {
-                            _volume = null;
-                            timelineController.volume = v;
+                    ),
+                    const SizedBox(width: 20.0),
+                    Icon(() {
+                      final volume = _volume ?? timelineController.volume;
+                      if ((_volume == null || _volume == 0.0) &&
+                          (timelineController.isMuted || volume == 0.0)) {
+                        return Icons.volume_off;
+                      } else if (volume < 0.5) {
+                        return Icons.volume_down;
+                      } else {
+                        return Icons.volume_up;
+                      }
+                    }()),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120.0),
+                      child: Slider(
+                        value: _volume ??
+                            (timelineController.isMuted
+                                ? 0.0
+                                : timelineController.volume),
+                        onChanged: (v) => setState(() => _volume = v),
+                        onChangeEnd: (v) {
+                          _volume = null;
+                          timelineController.volume = v;
+                        },
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 26.0),
+                      child: Text(
+                        timelineController.isMuted
+                            ? '0'
+                            : ((_volume ?? timelineController.volume) * 100)
+                                .toStringAsFixed(0),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.filter_list),
+                      onPressed: () => showFilter(context),
+                    ),
+                  ]),
+                  Row(children: [
+                    const SizedBox(width: 8.0),
+                    SizedBox(
+                      width: kDeviceNameWidth,
+                      child: Text(AppLocalizations.of(context).device),
+                    ),
+                    const Spacer(),
+                    if (timelineController.initialized)
+                      RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: timelineController.positionNotifier,
+                          builder: (context, child) {
+                            final date = timelineController.currentItem!.start;
+
+                            return AutoSizeText(
+                              '${settings.dateFormat.format(date)}'
+                              ' '
+                              '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
+                              minFontSize: 8.0,
+                              maxFontSize: 13.0,
+                            );
                           },
                         ),
                       ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 26.0),
-                        child: Text(
-                          timelineController.isMuted
-                              ? '0'
-                              : ((_volume ?? timelineController.volume) * 100)
-                                  .toStringAsFixed(0),
-                        ),
-                      ),
-                      // if (kDebugMode) ...[
-                      //   IconButton(
-                      //     icon: const Icon(Icons.refresh),
-                      //     tooltip: 'Recompute',
-                      //     onPressed: initialize,
-                      //   ),
-                      //   Text(
-                      //     timelineController.currentItem?.runtimeType
-                      //             .toString() ??
-                      //         '',
-                      //   ),
-                      // ]
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120.0),
-                        child: Slider(
-                          value: timelineController.zoom,
-                          min: TimelineController.minZoom,
-                          max: TimelineController.maxZoom,
-                          onChanged: (v) => timelineController.zoom = v,
-                        ),
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 26.0),
-                        child: Text(
-                          timelineController.zoom.toInt().toString(),
-                        ),
-                      ),
-                    ]),
-                    Row(children: [
-                      SizedBox(
-                        width: kDeviceNameWidth,
-                        child: Text(AppLocalizations.of(context).device),
-                      ),
-                      const Spacer(),
-                      if (timelineController.initialized)
-                        RepaintBoundary(
-                          child: AnimatedBuilder(
-                            animation: timelineController.positionNotifier,
-                            builder: (context, child) {
-                              final date =
-                                  timelineController.currentItem!.start;
-
-                              return AutoSizeText(
-                                '${settings.dateFormat.format(date)}'
-                                ' '
-                                '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
-                                minFontSize: 8.0,
-                                maxFontSize: 13.0,
-                              );
-                            },
-                          ),
-                        ),
-                      const Spacer(),
-                    ]),
-                    Expanded(
-                      child: Material(
-                        child: TimelineView(
-                          timelineController: timelineController,
-                        ),
+                    const Spacer(),
+                  ]),
+                  Expanded(
+                    child: Material(
+                      child: TimelineView(
+                        timelineController: timelineController,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 220.0,
+            height: kTimelineViewHeight,
+            child: Card(
+              margin: EdgeInsets.zero,
+              shape: const RoundedRectangleBorder(),
+              child: Container(
+                alignment: AlignmentDirectional.center,
+                padding: const EdgeInsets.all(14.0),
+                child: timelineController.currentEvent == null
+                    ? const Center(child: Text('No events'))
+                    : EventTile.buildContent(
+                        context,
+                        timelineController.currentEvent!,
+                      ),
               ),
             ),
           ),
         ]),
-      ),
-      CollapsableSidebar(
-        left: false,
-        onCollapseStateChange: (v) {
-          setState(() {});
-        },
-        builder: (context, collapseButton) {
-          return Sidebar(
-            key: sidebarKey,
-            collapseButton: collapseButton,
-            events: widget.events,
-            filter: widget.filter,
-            onFilter: widget.onFilter,
-            onUpdate: initialize,
-          );
-        },
       ),
     ]);
 
@@ -365,6 +360,21 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
         }
       },
       child: page,
+    );
+  }
+
+  void showFilter(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context).filter),
+          content: FilterCard(
+            filter: widget.filter,
+            onFilter: widget.onFilter,
+          ),
+        );
+      },
     );
   }
 }
@@ -464,10 +474,6 @@ class Sidebar extends StatelessWidget {
             },
           ),
         ),
-        FilterCard(
-          filter: filter,
-          onFilter: onFilter,
-        ),
       ]),
     );
   }
@@ -555,86 +561,79 @@ class FilterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    return SizedBox(
-      height: kTimelineViewHeight,
-      child: Card(
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.only(
-            top: 8.0,
-            bottom: 8.0,
-            left: 8.0,
-            right: 16.0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SubHeader(
-                AppLocalizations.of(context).filter,
-                padding: const EdgeInsets.only(bottom: 6.0),
-                height: null,
-              ),
-              FilterTile(
-                title: AppLocalizations.of(context).fromDate,
-                trailing: filter == null
-                    ? '--'
-                    : settings.dateFormat.format(filter!.from),
-                onTap: filter == null
-                    ? null
-                    : () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: filter!.from,
-                          firstDate: filter!.fromLimit,
-                          lastDate: filter!.to,
-                        );
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(),
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 8.0,
+          bottom: 8.0,
+          left: 8.0,
+          right: 16.0,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilterTile(
+              title: AppLocalizations.of(context).fromDate,
+              trailing: filter == null
+                  ? '--'
+                  : settings.dateFormat.format(filter!.from),
+              onTap: filter == null
+                  ? null
+                  : () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: filter!.from,
+                        firstDate: filter!.fromLimit,
+                        lastDate: filter!.to,
+                      );
 
-                        if (date != null) {
-                          onFilter(filter!.copyWith(
-                            from: date,
-                          ));
-                        }
-                      },
-              ),
-              FilterTile(
-                title: AppLocalizations.of(context).toDate,
-                trailing: filter == null
-                    ? '--'
-                    : settings.dateFormat.format(filter!.to),
-                onTap: filter == null
-                    ? null
-                    : () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: filter!.to,
-                          firstDate: filter!.from,
-                          lastDate: filter!.toLimit,
-                        );
+                      if (date != null) {
+                        onFilter(filter!.copyWith(
+                          from: date,
+                        ));
+                      }
+                    },
+            ),
+            FilterTile(
+              title: AppLocalizations.of(context).toDate,
+              trailing: filter == null
+                  ? '--'
+                  : settings.dateFormat.format(filter!.to),
+              onTap: filter == null
+                  ? null
+                  : () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: filter!.to,
+                        firstDate: filter!.from,
+                        lastDate: filter!.toLimit,
+                      );
 
-                        if (date != null) {
-                          onFilter(filter!.copyWith(
-                            to: date,
-                          ));
-                        }
-                      },
-              ),
-              const Divider(),
-              FilterTile.checkbox(
-                checked: filter?.allowAlarms,
-                onChanged: filter == null
-                    ? null
-                    : (v) {
-                        onFilter(
-                          filter!.copyWith(
-                            allowAlarms: !filter!.allowAlarms,
-                          ),
-                        );
-                      },
-                title: Text(AppLocalizations.of(context).allowAlarms),
-              ),
-            ],
-          ),
+                      if (date != null) {
+                        onFilter(filter!.copyWith(
+                          to: date,
+                        ));
+                      }
+                    },
+            ),
+            const Divider(),
+            FilterTile.checkbox(
+              checked: filter?.allowAlarms,
+              onChanged: filter == null
+                  ? null
+                  : (v) {
+                      onFilter(
+                        filter!.copyWith(
+                          allowAlarms: !filter!.allowAlarms,
+                        ),
+                      );
+                    },
+              title: Text(AppLocalizations.of(context).allowAlarms),
+            ),
+          ],
         ),
       ),
     );

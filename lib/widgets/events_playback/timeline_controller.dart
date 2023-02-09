@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/event.dart';
@@ -28,6 +29,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -332,6 +334,7 @@ class TimelineController extends ChangeNotifier {
   }
 
   double get periodWidth {
+    if (items.isEmpty) return 0.0;
     final timelineDuration = items
         .map((e) {
           if (e is TimelineGap) return gapDuration;
@@ -349,14 +352,12 @@ class TimelineController extends ChangeNotifier {
   /// This should not be used to calculate the current item. Instead, this should
   /// only be used to calculate the width and position of the timeline thumb
   Duration get gapDuration {
-    if (zoom < maxZoom / 2) return Duration.zero;
+    if (zoom < maxZoom / 4) return Duration.zero;
 
     return kGapDuration;
   }
 
   double get gapWidth {
-    if (zoom < maxZoom / 2) return 0.0;
-
     return gapDuration.inMilliseconds * periodWidth;
   }
 
@@ -462,6 +463,12 @@ class TimelineController extends ChangeNotifier {
     _currentItem = item;
   }
 
+  Event? get currentEvent {
+    if (currentItem == null || currentItem is TimelineGap) return null;
+
+    return (currentItem as TimelineValue).events.forDate(currentDate);
+  }
+
   double _speed = 1;
   double get speed => _speed;
   set speed(double speed) {
@@ -514,13 +521,16 @@ class TimelineController extends ChangeNotifier {
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double zoom) {
-    _zoom = zoom;
+    if (zoom < minZoom || zoom > maxZoom) return;
+
+    _zoom = zoom.clamp(minZoom, maxZoom);
+    positionNotifier.notifyListeners();
     notifyListeners();
     ensureThumbVisible();
   }
 
   static const double minZoom = 1.0;
-  static const double maxZoom = 18.0;
+  static const double maxZoom = 40.0;
 
   /// All the events in the timeline
   ///
@@ -784,7 +794,7 @@ class TimelineController extends ChangeNotifier {
 
       final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
 
-      if (thumbX > timelineExtent) {
+      if (thumbX.toInt() >= timelineExtent.toInt()) {
         scrollController.jumpTo(to);
       } else if (thumbX > timelineExtent - kTimelineThumbOverflowPadding) {
         scrollController.animateTo(
@@ -821,7 +831,7 @@ class TimelineController extends ChangeNotifier {
   ///
   /// * [initialize], which initializes the timeline view
   bool get initialized {
-    return items.isNotEmpty;
+    return items.isNotEmpty && currentItem != null;
   }
 
   /// [events] all the events split by device
@@ -962,7 +972,6 @@ class TimelineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('${timelineController.periodWidth}');
     final servers = context.watch<ServersProvider>().servers;
 
     final maxHeight = kTimelineTileHeight *
@@ -973,7 +982,7 @@ class TimelineView extends StatelessWidget {
         );
 
     final theme = Theme.of(context).extension<TimelineTheme>()!;
-    return Stack(children: [
+    final timelineBox = Stack(children: [
       Positioned.fill(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -1202,6 +1211,41 @@ class TimelineView extends StatelessWidget {
         ),
       ],
     ]);
+
+    return Listener(
+      onPointerSignal: _receivedPointerSignal,
+      child: SizedBox(
+        height: maxHeight,
+        width: double.infinity,
+        child: timelineBox,
+      ),
+    );
+  }
+
+  // Handle mousewheel and web trackpad scroll events.
+  //
+  // See [InteractiveViewer._receivedPointerSignal]
+  void _receivedPointerSignal(PointerSignalEvent event) {
+    final double scaleChange;
+    if (event is PointerScrollEvent) {
+      if (event.kind == PointerDeviceKind.trackpad) {
+        return;
+      }
+      // Ignore left and right mouse wheel scroll.
+      if (event.scrollDelta.dy == 0.0) {
+        return;
+      }
+      scaleChange = math.exp(event.scrollDelta.dy / 200);
+    } else if (event is PointerScaleEvent) {
+      scaleChange = event.scale;
+    } else {
+      return;
+    }
+    if (scaleChange < 1.0) {
+      timelineController.zoom -= 0.8;
+    } else {
+      timelineController.zoom += 0.6;
+    }
   }
 }
 

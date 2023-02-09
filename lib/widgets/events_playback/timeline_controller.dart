@@ -42,9 +42,7 @@ const kTimelineThumbWidth = 10.0;
 const kTimelineThumbOverflowPadding = 20.0;
 
 /// The width of a millisecond
-const kPeriodWidth = 0.008;
 const kGapDuration = Duration(seconds: 5);
-final kGapWidth = kGapDuration.inMilliseconds * kPeriodWidth;
 
 class TimelineTile {
   final String deviceId;
@@ -324,6 +322,44 @@ class TimelineController extends ChangeNotifier {
   /// Controls the timeline view scrolling
   final scrollController = ScrollController();
 
+  /// The horizontal extent of the timeline
+  double get timelineExtent {
+    if (!scrollController.hasClients ||
+        !scrollController.position.hasViewportDimension) {
+      return 0.0;
+    }
+    return scrollController.position.viewportDimension;
+  }
+
+  double get periodWidth {
+    final timelineDuration = items
+        .map((e) {
+          if (e is TimelineGap) return gapDuration;
+
+          return e.duration;
+        })
+        .reduce((a, b) => a + b)
+        .inMilliseconds;
+
+    return timelineExtent / timelineDuration * zoom;
+  }
+
+  /// The duration of a gap in the timeline
+  ///
+  /// This should not be used to calculate the current item. Instead, this should
+  /// only be used to calculate the width and position of the timeline thumb
+  Duration get gapDuration {
+    if (zoom < maxZoom / 2) return Duration.zero;
+
+    return kGapDuration;
+  }
+
+  double get gapWidth {
+    if (zoom < maxZoom / 2) return 0.0;
+
+    return gapDuration.inMilliseconds * periodWidth;
+  }
+
   /// All the tiles of the timeline. Usually represents the devices in a server
   List<TimelineTile> tiles = [];
 
@@ -348,24 +384,46 @@ class TimelineController extends ChangeNotifier {
   ///   [thumbPrecision] is reset every time the current item changes
   Duration thumbPrecision = Duration.zero;
   Duration get thumbPosition {
-    if (currentItem == null) return Duration.zero;
+    return _thumbPosition(currentDate, thumbPrecision);
+    // if (currentItem == null) return Duration.zero;
 
-    final previousItems = items.where((i) => i.end.isBefore(currentDate));
+    // final previousItems = items.where((i) => i.end.isBefore(currentDate));
+
+    // var pos = previousItems.fold(
+    //   Duration.zero,
+    //   (duration, item) {
+    //     if (item is TimelineGap) return duration + gapDuration;
+
+    //     return duration + item.duration;
+    //   },
+    // );
+    // // if (item is TimelineGap) pos = pos + precision;
+
+    // final precision =
+    //     thumbPrecision > currentItem!.duration ? Duration.zero : thumbPrecision;
+
+    // return pos + precision;
+  }
+
+  Duration _thumbPosition(DateTime forDate, Duration precision) {
+    final item = itemForDate(forDate);
+    if (item == null) return Duration.zero;
+
+    final previousItems = items.where((i) => i.end.isBefore(forDate));
 
     var pos = previousItems.fold(
       Duration.zero,
       (duration, item) {
-        if (item is TimelineGap) return duration + kGapDuration;
+        if (item is TimelineGap) return duration + gapDuration;
 
         return duration + item.duration;
       },
     );
-    // if (item is TimelineGap) pos = pos + precision;
 
-    final precision =
-        thumbPrecision > currentItem!.duration ? Duration.zero : thumbPrecision;
+    final thumbPrecision =
+        precision > item.duration ? Duration.zero : precision;
 
-    return pos + precision;
+    return pos + thumbPrecision;
   }
 
   /// This makes animating with gap possible
@@ -445,6 +503,24 @@ class TimelineController extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  /// Zoom represents the expansion of the timeline
+  ///
+  /// 1.0 is the smaller state. It is also the initial state. On this state, all
+  /// [items] will fit within the timeline.
+  ///
+  /// 2.0 is the max value. On this state, all items can be easily viewed and
+  /// differentiated to the human eye
+  double _zoom = 1.0;
+  double get zoom => _zoom;
+  set zoom(double zoom) {
+    _zoom = zoom;
+    notifyListeners();
+    ensureThumbVisible();
+  }
+
+  static const double minZoom = 1.0;
+  static const double maxZoom = 18.0;
 
   /// All the events in the timeline
   ///
@@ -674,6 +750,7 @@ class TimelineController extends ChangeNotifier {
 
     if (currentDate.isBefore(desiredDate)) {
       currentDate = desiredDate;
+      // notifyListeners();
     }
     thumbPrecision = precision;
 
@@ -703,15 +780,13 @@ class TimelineController extends ChangeNotifier {
   void _updateThumbPosition() {
     if (scrollController.hasClients) {
       final thumbX =
-          thumbPosition.inMilliseconds * kPeriodWidth - scrollController.offset;
+          thumbPosition.inMilliseconds * periodWidth - scrollController.offset;
 
       final to = scrollController.offset + kTimelineThumbOverflowPadding / 2;
 
-      if (thumbX > scrollController.position.viewportDimension) {
+      if (thumbX > timelineExtent) {
         scrollController.jumpTo(to);
-      } else if (thumbX >
-          scrollController.position.viewportDimension -
-              kTimelineThumbOverflowPadding) {
+      } else if (thumbX > timelineExtent - kTimelineThumbOverflowPadding) {
         scrollController.animateTo(
           to,
           duration: const Duration(milliseconds: 200),
@@ -719,6 +794,25 @@ class TimelineController extends ChangeNotifier {
         );
       }
     }
+  }
+
+  /// Makes the thumb visible in the start-ish of the timeline
+  ///
+  /// It jumps to the start of the [currentItem]. If the thumb is overflown,
+  /// we ensure it is visible by calling [_updateThumbPosition]
+  void ensureThumbVisible() {
+    if (currentItem == null) return;
+
+    scrollController.jumpTo(
+      _thumbPosition(
+            currentItem!.start,
+            Duration.zero,
+          ).inMilliseconds *
+          periodWidth,
+    );
+
+    // avoid any overflow
+    _updateThumbPosition();
   }
 
   /// Whether this controller is initialized
@@ -868,6 +962,7 @@ class TimelineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('${timelineController.periodWidth}');
     final servers = context.watch<ServersProvider>().servers;
 
     final maxHeight = kTimelineTileHeight *
@@ -941,7 +1036,7 @@ class TimelineView extends StatelessWidget {
                           if (i is TimelineGap) {
                             return _TimelineItemGestures(
                               controller: timelineController,
-                              width: kGapWidth,
+                              width: timelineController.gapWidth,
                               item: i,
                               child: Container(
                                 height: kTimelineTileHeight,
@@ -963,8 +1058,8 @@ class TimelineView extends StatelessWidget {
                             final events =
                                 tile.events.inBetween(i.start, i.end);
 
-                            final width =
-                                i.duration.inMilliseconds * kPeriodWidth;
+                            final width = i.duration.inMilliseconds *
+                                timelineController.periodWidth;
 
                             if (events.isEmpty) {
                               return SizedBox(width: width);
@@ -983,20 +1078,20 @@ class TimelineView extends StatelessWidget {
                                     return Container(
                                       height: kTimelineTileHeight,
                                       width: duration.inMilliseconds *
-                                          kPeriodWidth,
+                                          timelineController.periodWidth,
                                       color: event == null
                                           ? null
                                           : event.isAlarm
                                               ? theme.alarmColor
                                               : theme.eventColor,
                                       alignment: Alignment.center,
-                                      child: AutoSizeText(
-                                        duration.humanReadableCompact(context),
-                                        maxLines: 1,
-                                        maxFontSize: 12,
-                                        minFontSize: 8,
-                                        textAlign: TextAlign.center,
-                                      ),
+                                      // child: AutoSizeText(
+                                      //   duration.humanReadableCompact(context),
+                                      //   maxLines: 1,
+                                      //   maxFontSize: 12,
+                                      //   minFontSize: 8,
+                                      //   textAlign: TextAlign.center,
+                                      // ),
                                     );
                                   }
 
@@ -1059,7 +1154,7 @@ class TimelineView extends StatelessWidget {
                         ? timelineController.scrollController.offset
                         : 0.0;
                 final x = timelineController.thumbPosition.inMilliseconds *
-                        kPeriodWidth -
+                        timelineController.periodWidth -
                     scrollOffset;
 
                 if (x.isNegative) {
@@ -1139,6 +1234,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.width == 0.0) return const SizedBox.shrink();
     final previous =
         widget.controller.items.where((e) => e.end.isBefore(widget.item.start));
 
@@ -1150,7 +1246,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
         widget.controller.pause();
       },
       onHover: (d) {
-        final ms = d.localPosition.dx / kPeriodWidth;
+        final ms = d.localPosition.dx / widget.controller.periodWidth;
         final duration = Duration(milliseconds: ms.toInt());
 
         DateTime? date;

@@ -270,6 +270,21 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                       //         '',
                       //   ),
                       // ]
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120.0),
+                        child: Slider(
+                          value: timelineController.zoom,
+                          min: TimelineController.minZoom,
+                          max: TimelineController.maxZoom,
+                          onChanged: (v) => timelineController.zoom = v,
+                        ),
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 26.0),
+                        child: Text(
+                          timelineController.zoom.toInt().toString(),
+                        ),
+                      ),
                     ]),
                     Row(children: [
                       SizedBox(
@@ -282,10 +297,13 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                           child: AnimatedBuilder(
                             animation: timelineController.positionNotifier,
                             builder: (context, child) {
+                              final date =
+                                  timelineController.currentItem!.start;
+
                               return AutoSizeText(
-                                '${settings.dateFormat.format(timelineController.currentDate)}'
+                                '${settings.dateFormat.format(date)}'
                                 ' '
-                                '${DateFormat.Hms().format(timelineController.currentDate)}',
+                                '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
                                 minFontSize: 8.0,
                                 maxFontSize: 13.0,
                               );
@@ -310,6 +328,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
       ),
       CollapsableSidebar(
         left: false,
+        onCollapseStateChange: (v) {
+          setState(() {});
+        },
         builder: (context, collapseButton) {
           return Sidebar(
             key: sidebarKey,

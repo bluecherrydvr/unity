@@ -93,4 +93,14 @@ class EventsProvider extends ChangeNotifier {
 
     _save();
   }
+
+  void onReorder(int a, int b) {
+    final aItem = selectedIds[a];
+    final bItem = selectedIds[b];
+
+    selectedIds[a] = bItem;
+    selectedIds[b] = aItem;
+
+    _save();
+  }
 }

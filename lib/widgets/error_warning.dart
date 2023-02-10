@@ -36,14 +36,16 @@ class ErrorWarning extends StatelessWidget {
             color: Colors.white70,
             size: 32.0,
           ),
-          const SizedBox(height: 8.0),
-          Text(
-            message.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12.0,
+          if (message.isNotEmpty) ...[
+            const SizedBox(height: 8.0),
+            Text(
+              message.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.0,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

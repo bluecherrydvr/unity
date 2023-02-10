@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -38,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 typedef FutureValueChanged<T> = Future<void> Function(T data);
@@ -105,63 +107,93 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final eventsProvider = context.watch<EventsProvider>();
+
+    final minTimelineHeight = kTimelineTileHeight *
+        // at least the height of 4
+        timelineController.tiles.length.clamp(
+          4,
+          double.infinity,
+        );
+    final maxTimelineHeight =
+        (kTimelineTileHeight * timelineController.tiles.length)
+                .clamp(minTimelineHeight, double.infinity) +
+            70.0; // 70 is the height of the controls bar
 
     final page = Column(children: [
       Expanded(
         child: Row(children: [
           Expanded(
-            child: () {
-              if (!timelineController.initialized) {
-                return const SizedBox.shrink();
-              } else if (timelineController.tiles.isEmpty) {
-                return Center(
-                  child: Text(AppLocalizations.of(context).selectACamera),
-                );
-              } else {
-                return _StaticGrid(
-                  crossAxisCount: calculateCrossAxisCount(
-                    timelineController.tiles.length,
-                  ),
-                  childAspectRatio: 16 / 9,
-                  mainAxisSpacing: kGridInnerPadding,
-                  crossAxisSpacing: kGridInnerPadding,
-                  children: timelineController.tiles.map((i) {
-                    final has =
-                        timelineController.currentItem is! TimelineGap &&
-                            i.events.hasForDate(timelineController.currentDate);
-
-                    return IndexedStack(index: !has ? 0 : 1, children: [
-                      Container(
-                        color: Colors.black,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(12.0),
-                        child: AutoSizeText(
-                          AppLocalizations.of(context).noRecords,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white),
-                        ),
+            child: ColoredBox(
+              color: Colors.black,
+              child: () {
+                if (!timelineController.initialized) {
+                  return const SizedBox.expand();
+                } else if (timelineController.tiles.isEmpty) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).selectACamera,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                } else {
+                  return AspectRatio(
+                    aspectRatio: 1,
+                    child: _StaticGrid(
+                      crossAxisCount: calculateCrossAxisCount(
+                        timelineController.tiles.length,
                       ),
+                      childAspectRatio: 16 / 9,
+                      mainAxisSpacing: kGridInnerPadding,
+                      crossAxisSpacing: kGridInnerPadding,
+                      onReorder: eventsProvider.onReorder,
+                      children: timelineController.tiles.map((tile) {
+                        final has =
+                            timelineController.currentItem is! TimelineGap &&
+                                tile.events
+                                    .hasForDate(timelineController.currentDate);
 
-                      /// This ensures a faster initialization of the video view
-                      /// providing a smoother experience. This isn't a good solution,
-                      /// just a workaround for now
-                      UnityVideoView(
-                        player: i.player,
-                        paneBuilder: (context, player) {
-                          if (player.dataSource == null) {
-                            return const ErrorWarning(message: '');
-                          } else {
-                            // debugPrint('${player.dataSource}');
-                          }
+                        final color =
+                            createTheme(themeMode: ThemeMode.dark).canvasColor;
 
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ]);
-                  }).toList(),
-                );
-              }
-            }(),
+                        return IndexedStack(
+                          index: !has ? 0 : 1,
+                          children: [
+                            Container(
+                              color: color,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.all(12.0),
+                              child: AutoSizeText(
+                                AppLocalizations.of(context).noRecords,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+
+                            /// This ensures a faster initialization of the video view
+                            /// providing a smoother experience. This isn't a good solution,
+                            /// just a workaround for now
+                            UnityVideoView(
+                              player: tile.player,
+                              color: color,
+                              paneBuilder: (context, player) {
+                                if (player.dataSource == null) {
+                                  return const ErrorWarning(message: '');
+                                } else {
+                                  // debugPrint('${player.dataSource}');
+                                }
+
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }
+              }(),
+            ),
           ),
           CollapsableSidebar(
             left: false,
@@ -179,160 +211,168 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
           ),
         ]),
       ),
-      SizedBox(
-        height: kTimelineViewHeight,
-        child: Row(children: [
-          Expanded(
-            child: Card(
-              margin: EdgeInsets.zero,
-              shape: const RoundedRectangleBorder(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    const Icon(null),
-                    const Spacer(),
-                    Text(
-                      '${(_speed ?? timelineController.speed) == 1.0 ? '1' : (_speed ?? timelineController.speed).toStringAsFixed(1)}x',
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 120.0),
-                      child: Slider(
-                        value: _speed ?? timelineController.speed,
-                        min: 0.5,
-                        max: 2.0,
-                        onChanged: (s) => setState(() => _speed = s),
-                        onChangeEnd: (s) {
-                          _speed = null;
-                          timelineController.speed = s;
-                        },
+      PhysicalModel(
+        color: Colors.transparent,
+        elevation: 4.0,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: minTimelineHeight,
+            maxHeight: maxTimelineHeight,
+            minWidth: double.infinity,
+          ),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              child: Card(
+                margin: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      const Icon(null),
+                      const Spacer(),
+                      Text(
+                        '${(_speed ?? timelineController.speed) == 1.0 ? '1' : (_speed ?? timelineController.speed).toStringAsFixed(1)}x',
                       ),
-                    ),
-                    Tooltip(
-                      message: timelineController.isPaused
-                          ? AppLocalizations.of(context).play
-                          : AppLocalizations.of(context).pause,
-                      child: CircleAvatar(
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(100.0),
-                            onTap: () {
-                              if (timelineController.isPaused) {
-                                timelineController.play(context);
-                              } else {
-                                timelineController.pause();
-                              }
-                            },
-                            child: Center(
-                              child: Icon(
-                                timelineController.isPaused
-                                    ? Icons.play_arrow
-                                    : Icons.pause,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120.0),
+                        child: Slider(
+                          value: _speed ?? timelineController.speed,
+                          min: 0.5,
+                          max: 2.0,
+                          onChanged: (s) => setState(() => _speed = s),
+                          onChangeEnd: (s) {
+                            _speed = null;
+                            timelineController.speed = s;
+                          },
+                        ),
+                      ),
+                      Tooltip(
+                        message: timelineController.isPaused
+                            ? AppLocalizations.of(context).play
+                            : AppLocalizations.of(context).pause,
+                        child: CircleAvatar(
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(100.0),
+                              onTap: () {
+                                if (timelineController.isPaused) {
+                                  timelineController.play(context);
+                                } else {
+                                  timelineController.pause();
+                                }
+                              },
+                              child: Center(
+                                child: Icon(
+                                  timelineController.isPaused
+                                      ? Icons.play_arrow
+                                      : Icons.pause,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20.0),
-                    Icon(() {
-                      final volume = _volume ?? timelineController.volume;
-                      if ((_volume == null || _volume == 0.0) &&
-                          (timelineController.isMuted || volume == 0.0)) {
-                        return Icons.volume_off;
-                      } else if (volume < 0.5) {
-                        return Icons.volume_down;
-                      } else {
-                        return Icons.volume_up;
-                      }
-                    }()),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 120.0),
-                      child: Slider(
-                        value: _volume ??
-                            (timelineController.isMuted
-                                ? 0.0
-                                : timelineController.volume),
-                        onChanged: (v) => setState(() => _volume = v),
-                        onChangeEnd: (v) {
-                          _volume = null;
-                          timelineController.volume = v;
-                        },
-                      ),
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 26.0),
-                      child: Text(
-                        timelineController.isMuted
-                            ? '0'
-                            : ((_volume ?? timelineController.volume) * 100)
-                                .toStringAsFixed(0),
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.filter_list),
-                      tooltip: AppLocalizations.of(context).filter,
-                      onPressed: () => showFilter(context),
-                    ),
-                  ]),
-                  Row(children: [
-                    const SizedBox(width: 8.0),
-                    SizedBox(
-                      width: kDeviceNameWidth,
-                      child: Text(AppLocalizations.of(context).device),
-                    ),
-                    const Spacer(),
-                    if (timelineController.initialized)
-                      RepaintBoundary(
-                        child: AnimatedBuilder(
-                          animation: timelineController.positionNotifier,
-                          builder: (context, child) {
-                            final date = timelineController.currentItem!.start;
-
-                            return AutoSizeText(
-                              '${settings.dateFormat.format(date)}'
-                              ' '
-                              '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
-                              minFontSize: 8.0,
-                              maxFontSize: 13.0,
-                            );
+                      const SizedBox(width: 20.0),
+                      Icon(() {
+                        final volume = _volume ?? timelineController.volume;
+                        if ((_volume == null || _volume == 0.0) &&
+                            (timelineController.isMuted || volume == 0.0)) {
+                          return Icons.volume_off;
+                        } else if (volume < 0.5) {
+                          return Icons.volume_down;
+                        } else {
+                          return Icons.volume_up;
+                        }
+                      }()),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120.0),
+                        child: Slider(
+                          value: _volume ??
+                              (timelineController.isMuted
+                                  ? 0.0
+                                  : timelineController.volume),
+                          onChanged: (v) => setState(() => _volume = v),
+                          onChangeEnd: (v) {
+                            _volume = null;
+                            timelineController.volume = v;
                           },
                         ),
                       ),
-                    const Spacer(),
-                  ]),
-                  Expanded(
-                    child: Material(
-                      child: TimelineView(
-                        timelineController: timelineController,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 26.0),
+                        child: Text(
+                          timelineController.isMuted
+                              ? '0'
+                              : ((_volume ?? timelineController.volume) * 100)
+                                  .toStringAsFixed(0),
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.filter_list),
+                        tooltip: AppLocalizations.of(context).filter,
+                        onPressed: () => showFilter(context),
+                      ),
+                    ]),
+                    Row(children: [
+                      const SizedBox(width: 8.0),
+                      SizedBox(
+                        width: kDeviceNameWidth,
+                        child: Text(AppLocalizations.of(context).device),
+                      ),
+                      const Spacer(),
+                      if (timelineController.initialized)
+                        RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: timelineController.positionNotifier,
+                            builder: (context, child) {
+                              final date =
+                                  timelineController.currentItem!.start;
+
+                              return AutoSizeText(
+                                '${settings.dateFormat.format(date)}'
+                                ' '
+                                '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
+                                minFontSize: 8.0,
+                                maxFontSize: 13.0,
+                              );
+                            },
+                          ),
+                        ),
+                      const Spacer(),
+                    ]),
+                    Expanded(
+                      child: Material(
+                        child: TimelineView(
+                          timelineController: timelineController,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            width: 220.0,
-            height: kTimelineViewHeight,
-            child: Card(
-              margin: EdgeInsets.zero,
-              shape: const RoundedRectangleBorder(),
-              child: Container(
-                alignment: AlignmentDirectional.center,
-                padding: const EdgeInsets.all(14.0),
-                child: timelineController.currentEvent == null
-                    ? const Center(child: Text('No events'))
-                    : EventTile.buildContent(
-                        context,
-                        timelineController.currentEvent!,
-                      ),
+            SizedBox(
+              width: 220.0,
+              child: Card(
+                margin: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(),
+                child: Container(
+                  alignment: AlignmentDirectional.center,
+                  padding: const EdgeInsets.all(14.0),
+                  child: timelineController.currentEvent == null
+                      ? const Center(child: Text('No events'))
+                      : EventTile.buildContent(
+                          context,
+                          timelineController.currentEvent!,
+                        ),
+                ),
               ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     ]);
 
@@ -701,7 +741,7 @@ class FilterTile extends StatelessWidget {
 }
 
 /// A non-scrollable grid view
-class _StaticGrid extends StatelessWidget {
+class _StaticGrid extends StatefulWidget {
   final int crossAxisCount;
   final List<Widget> children;
 
@@ -710,6 +750,8 @@ class _StaticGrid extends StatelessWidget {
   final double mainAxisSpacing;
   final double crossAxisSpacing;
 
+  final ReorderCallback onReorder;
+
   const _StaticGrid({
     Key? key,
     required this.crossAxisCount,
@@ -717,63 +759,88 @@ class _StaticGrid extends StatelessWidget {
     this.childAspectRatio = 1.0,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
+    required this.onReorder,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final realChildren =
-        children.fold<List<List<Widget>>>([[]], (lists, child) {
-      if (lists.last.length == crossAxisCount) lists.add([]);
+  State<_StaticGrid> createState() => _StaticGridState();
+}
 
-      lists.last.add(AspectRatio(
-        aspectRatio: childAspectRatio,
-        child: child,
-      ));
+class _StaticGridState extends State<_StaticGrid> {
+  List<Widget> realChildren = [];
+  int get gridFactor => (realChildren.length / widget.crossAxisCount).round();
+  void generateRealChildren() {
+    realChildren = [...widget.children];
 
-      return lists;
-    });
+    bool check() {
+      if (realChildren.isEmpty) return false;
 
-    return Padding(
-      padding: kGridPadding.add(EdgeInsetsDirectional.only(
-        start: crossAxisSpacing,
-        top: mainAxisSpacing,
-      )),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ...List.generate(realChildren.length, (index) {
-          return Flexible(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                bottom: mainAxisSpacing,
-              ),
-              child: buildRow(realChildren[index]),
-            ),
-          );
-        }),
-      ]),
-    );
+      // if the children length is multiple of the crossAxisCount, return. This
+      // avoids adding multiple emtpy areas in the view
+      if (realChildren.length % widget.crossAxisCount == 0) return false;
+      if (gridFactor == 1) return false;
+
+      return true;
+    }
+
+    while (check()) {
+      realChildren.add(const SizedBox.shrink());
+    }
   }
 
-  Widget buildRow(List<Widget> children) {
-    assert(children.length <= crossAxisCount);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(
-        crossAxisCount,
-        (index) {
-          if (children.length < index + 1) {
-            return const Expanded(child: SizedBox.shrink());
-          }
+  @override
+  void initState() {
+    super.initState();
+    generateRealChildren();
+  }
 
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                end: crossAxisSpacing,
-              ),
-              child: children[index],
-            ),
-          );
-        },
-      ),
+  @override
+  void didUpdateWidget(covariant _StaticGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.children != widget.children) {
+      generateRealChildren();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: kGridPadding.add(EdgeInsetsDirectional.only(
+        start: widget.crossAxisSpacing,
+        top: widget.mainAxisSpacing,
+      )),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final width = (constraints.biggest.width / widget.crossAxisCount) -
+            widget.mainAxisSpacing;
+        // final height = (constraints.biggest.height / widget.crossAxisCount) -
+        //     widget.crossAxisSpacing;
+        return ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: ReorderableWrap(
+            spacing: widget.mainAxisSpacing,
+            runSpacing: widget.crossAxisSpacing,
+            onReorder: widget.onReorder,
+            needsLongPressDraggable: isMobile,
+            alignment: WrapAlignment.center,
+            runAlignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            scrollPhysics: const NeverScrollableScrollPhysics(),
+            children: List.generate(realChildren.length, (index) {
+              return SizedBox(
+                key: ValueKey(index),
+                // height: height,
+                width: width,
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: widget.childAspectRatio,
+                    child: realChildren[index],
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      }),
     );
   }
 }

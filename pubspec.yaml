@@ -15,10 +15,6 @@ dependencies:
     sdk: flutter
   unity_video_player:
     path: packages/unity_video_player/unity_video_player/
-  reorderable_grid_view:
-    git:
-      url: https://github.com/alexmercerind/reorderable_grid_view.git
-      ref: master
 
   http: ^0.13.5
   # Dio is used by DownloadManager to show the donwload progress of the file. This is currently not possible by using http
@@ -30,6 +26,8 @@ dependencies:
   auto_size_text: ^3.0.0
   animations: ^2.0.7
   provider: ^6.0.5
+  reorderable_grid_view: ^2.2.6-alpha.14
+  reorderables: ^0.6.0
 
   intl: ^0.17.0
   intl_utils: ^2.1.0

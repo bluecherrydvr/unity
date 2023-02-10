@@ -92,9 +92,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
         ? <Event>[]
         : realEvents.values.reduce((value, element) => value + element);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      timelineController.initialize(context, realEvents, allEvents);
-    });
+    timelineController.initialize(context, realEvents, allEvents);
   }
 
   @override
@@ -175,8 +173,6 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                 key: sidebarKey,
                 collapseButton: collapseButton,
                 events: widget.events,
-                filter: widget.filter,
-                onFilter: widget.onFilter,
                 onUpdate: initialize,
               );
             },
@@ -277,6 +273,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.filter_list),
+                      tooltip: AppLocalizations.of(context).filter,
                       onPressed: () => showFilter(context),
                     ),
                   ]),
@@ -363,35 +360,40 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
     );
   }
 
-  void showFilter(BuildContext context) {
-    showDialog(
+  Future<void> showFilter(BuildContext context) async {
+    final initiallyPaused = timelineController.isPaused;
+    timelineController.pause();
+
+    var localFilter = widget.filter;
+    await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context).filter),
-          content: FilterCard(
-            filter: widget.filter,
-            onFilter: widget.onFilter,
-          ),
-        );
+        return StatefulBuilder(builder: (context, setState) {
+          return FilterDialog(
+            filter: localFilter,
+            onFilter: (filter) async => setState(() => localFilter = filter),
+          );
+        });
       },
     );
+    if (widget.filter != localFilter && localFilter != null) {
+      widget.onFilter(localFilter!);
+    }
+
+    // ignore: use_build_context_synchronously
+    if (!initiallyPaused) timelineController.play(context);
   }
 }
 
 class Sidebar extends StatelessWidget {
   final EventsData events;
-  final FilterData? filter;
   final Widget collapseButton;
-  final FutureValueChanged<FilterData> onFilter;
   final VoidCallback onUpdate;
 
   const Sidebar({
     Key? key,
     required this.events,
-    required this.filter,
     required this.collapseButton,
-    required this.onFilter,
     required this.onUpdate,
   }) : super(key: key);
 
@@ -548,11 +550,11 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
   }
 }
 
-class FilterCard extends StatelessWidget {
+class FilterDialog extends StatelessWidget {
   final FilterData? filter;
   final FutureValueChanged<FilterData> onFilter;
 
-  const FilterCard({
+  const FilterDialog({
     Key? key,
     required this.filter,
     required this.onFilter,
@@ -560,20 +562,15 @@ class FilterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(),
-      child: Padding(
-        padding: const EdgeInsets.only(
-          top: 8.0,
-          bottom: 8.0,
-          left: 8.0,
-          right: 16.0,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final settings = SettingsProvider.instance;
+
+    return SizedBox(
+      width: 280.0,
+      child: AlertDialog(
+        title: Text(AppLocalizations.of(context).filter),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FilterTile(
               title: AppLocalizations.of(context).fromDate,
@@ -619,7 +616,6 @@ class FilterCard extends StatelessWidget {
                       }
                     },
             ),
-            const Divider(),
             FilterTile.checkbox(
               checked: filter?.allowAlarms,
               onChanged: filter == null
@@ -635,6 +631,12 @@ class FilterCard extends StatelessWidget {
             ),
           ],
         ),
+        actions: [
+          ElevatedButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text(AppLocalizations.of(context).finish),
+          ),
+        ],
       ),
     );
   }
@@ -658,8 +660,7 @@ class FilterTile extends StatelessWidget {
     required Widget title,
   }) {
     return Row(children: [
-      title,
-      const Spacer(),
+      Expanded(child: title),
       Checkbox(
         value: checked,
         onChanged: onChanged,
@@ -671,10 +672,10 @@ class FilterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
+    return Row(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(
         width: 40.0,
-        child: AutoSizeText(
+        child: Text(
           title,
           maxLines: 1,
         ),
@@ -686,7 +687,7 @@ class FilterTile extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: AutoSizeText(
+              child: Text(
                 trailing,
                 maxLines: 1,
                 textAlign: TextAlign.end,

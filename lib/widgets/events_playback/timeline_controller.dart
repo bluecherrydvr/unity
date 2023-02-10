@@ -43,9 +43,6 @@ const kTimelineTileHeight = 24.0;
 const kTimelineThumbWidth = 10.0;
 const kTimelineThumbOverflowPadding = 20.0;
 
-/// The width of a millisecond
-const kGapDuration = Duration(seconds: 5);
-
 class TimelineTile {
   final String deviceId;
   final List<Event> events;
@@ -158,7 +155,6 @@ abstract class TimelineItem {
             duration: Duration.zero,
             events: forDate,
           );
-          // currentDateTime = start;
           increment();
         } else {
           final start = items.isEmpty ? currentDateTime : items.last.end;
@@ -167,7 +163,6 @@ abstract class TimelineItem {
             gapDuration: Duration.zero,
             end: currentDateTime,
           );
-          // currentDateTime = start;
           increment();
         }
       } else {
@@ -181,7 +176,6 @@ abstract class TimelineItem {
               gapDuration: event.published.difference(currentItem.start),
             );
             items.add(currentItem);
-            // currentDateTime = items.last.end;
             currentItem = null;
           } else {
             increment();
@@ -219,7 +213,6 @@ abstract class TimelineItem {
               events: events,
             );
             items.add(currentItem);
-            // currentDateTime = items.last.end;
             currentItem = null;
           } else {
             increment();
@@ -228,19 +221,8 @@ abstract class TimelineItem {
       }
     }
 
-    final duration = items.map((item) {
-      if (item is TimelineValue) {
-        return item.duration;
-      } else if (item is TimelineGap) {
-        return kGapDuration;
-      } else {
-        throw UnsupportedError('${item.runtimeType} is not supported');
-      }
-    }).reduce((a, b) => a + b);
-
     return [
       items,
-      duration,
       oldestEvent,
       newestEvent,
     ];
@@ -316,15 +298,11 @@ class TimelineGap extends TimelineItem {
 ///
 /// Use [setDate] for seeking. It requires the initial item position and its
 /// precision. It is responsible for seeking the tile player as well.
-///
-/// See also:
-///
-///   * [kGapDuration], which is the duration of a skipped gap
 class TimelineController extends ChangeNotifier {
   /// Controls the timeline view scrolling
   final scrollController = ScrollController();
 
-  /// The horizontal extent of the timeline
+  /// The horizontal extent of the timeline in pixels
   double get timelineExtent {
     if (!scrollController.hasClients ||
         !scrollController.position.hasViewportDimension) {
@@ -333,6 +311,11 @@ class TimelineController extends ChangeNotifier {
     return scrollController.position.viewportDimension;
   }
 
+  /// The width of a millisecond. This takes [zoom] into consideration
+  ///
+  /// See also:
+  ///
+  ///  * [zoom], which represents if the timeline is compacted or expanded
   double get periodWidth {
     if (items.isEmpty) return 0.0;
     final timelineDuration = items
@@ -354,7 +337,7 @@ class TimelineController extends ChangeNotifier {
   Duration get gapDuration {
     if (zoom < maxZoom / 4) return Duration.zero;
 
-    return kGapDuration;
+    return const Duration(seconds: 5);
   }
 
   double get gapWidth {
@@ -370,9 +353,6 @@ class TimelineController extends ChangeNotifier {
   /// The newest event of the timeline
   Event? newest;
 
-  /// The duration of the entire timeline
-  Duration duration = Duration.zero;
-
   /// The position of the current item, considering the gaps
   late final positionNotifier = ChangeNotifier();
 
@@ -385,29 +365,15 @@ class TimelineController extends ChangeNotifier {
   ///   [thumbPrecision] is reset every time the current item changes
   Duration thumbPrecision = Duration.zero;
   Duration get thumbPosition {
-    return _thumbPosition(currentDate, thumbPrecision);
-    // if (currentItem == null) return Duration.zero;
-
-    // final previousItems = items.where((i) => i.end.isBefore(currentDate));
-
-    // var pos = previousItems.fold(
-    //   Duration.zero,
-    //   (duration, item) {
-    //     if (item is TimelineGap) return duration + gapDuration;
-
-    //     return duration + item.duration;
-    //   },
-    // );
-    // // if (item is TimelineGap) pos = pos + precision;
-
-    // final precision =
-    //     thumbPrecision > currentItem!.duration ? Duration.zero : thumbPrecision;
-
-    // return pos + precision;
+    return _thumbPosition(currentDate, thumbPrecision, item: currentItem);
   }
 
-  Duration _thumbPosition(DateTime forDate, Duration precision) {
-    final item = itemForDate(forDate);
+  Duration _thumbPosition(
+    DateTime forDate,
+    Duration precision, {
+    TimelineItem? item,
+  }) {
+    item ??= itemForDate(forDate);
     if (item == null) return Duration.zero;
 
     final previousItems = items.where((i) => i.end.isBefore(forDate));
@@ -429,7 +395,7 @@ class TimelineController extends ChangeNotifier {
 
   /// This makes animating with gap possible
   ///
-  /// When it reaches [kGapDuration], we move to the next item. While the gap is
+  /// When it reaches [gapDuration], we move to the next item. While the gap is
   /// running, we precache the next items
   Duration currentGapDuration = Duration.zero;
 
@@ -439,7 +405,6 @@ class TimelineController extends ChangeNotifier {
   DateTime currentDate = DateTime(0);
 
   /// The current item span of the timeline
-  @protected
   TimelineItem? _currentItem;
   TimelineItem? get currentItem => _currentItem;
 
@@ -463,10 +428,16 @@ class TimelineController extends ChangeNotifier {
     _currentItem = item;
   }
 
+  /// The current event in the currentItem
+  ///
+  /// If there is no events available, null is returned
   Event? get currentEvent {
     if (currentItem == null || currentItem is TimelineGap) return null;
 
-    return (currentItem as TimelineValue).events.forDate(currentDate);
+    final events = (currentItem as TimelineValue).events;
+    if (!events.hasForDate(currentDate)) return null;
+
+    return events.forDate(currentDate);
   }
 
   double _speed = 1;
@@ -524,7 +495,6 @@ class TimelineController extends ChangeNotifier {
     if (zoom < minZoom || zoom > maxZoom) return;
 
     _zoom = zoom.clamp(minZoom, maxZoom);
-    positionNotifier.notifyListeners();
     notifyListeners();
     ensureThumbVisible();
   }
@@ -608,11 +578,10 @@ class TimelineController extends ChangeNotifier {
         currentItem = itemForDate;
         thumbPrecision = Duration.zero;
         notifyListeners();
-        positionNotifier.notifyListeners();
       }
 
       /// If the current item is a gap, we add it according to the (current ticker duration * speed)
-      /// When it reaches the max gap duration (kGapDuration), it preloads the next item.
+      /// When it reaches the max gap duration (gapDuration), it preloads the next item.
       if (currentItem is TimelineGap) {
         addGap(currentItem!.duration, interval * speed);
 
@@ -743,7 +712,6 @@ class TimelineController extends ChangeNotifier {
     }
 
     notifyListeners();
-    positionNotifier.notifyListeners();
 
     debugPrint(
       '(${item.runtimeType})'
@@ -760,23 +728,22 @@ class TimelineController extends ChangeNotifier {
 
     if (currentDate.isBefore(desiredDate)) {
       currentDate = desiredDate;
-      // notifyListeners();
     }
     thumbPrecision = precision;
 
-    _updateThumbPosition();
     positionNotifier.notifyListeners();
+    _updateThumbPosition();
   }
 
   /// If the gap duration has ended, it [add]s into the current position
   ///
   /// Otherwise, it adds [position] to the current thumb position
-  void addGap(Duration gapDuration, Duration position) {
+  void addGap(Duration duration, Duration position) {
     assert(currentItem is TimelineGap);
 
-    if (currentGapDuration >= kGapDuration) {
+    if (currentGapDuration >= gapDuration) {
       currentGapDuration = thumbPrecision = Duration.zero;
-      currentDate = currentItem!.start.add(gapDuration + position);
+      currentDate = currentItem!.start.add(duration + position);
     } else {
       thumbPrecision = thumbPrecision + position;
       currentGapDuration = currentGapDuration + position;
@@ -787,6 +754,11 @@ class TimelineController extends ChangeNotifier {
 
   /// Checks for the current scroll position of the timeline. If the thumb is
   /// reaching the end of the timeline, scroll to ensure the thumb is visible
+  ///
+  /// See also:
+  ///
+  ///  * [ensureThumbVisible], which ensure the thumb is somewhere in between
+  ///    [timelineExtent]
   void _updateThumbPosition() {
     if (scrollController.hasClients) {
       final thumbX =
@@ -844,12 +816,10 @@ class TimelineController extends ChangeNotifier {
   ) async {
     HomeProvider.instance
         .loading(UnityLoadingReason.fetchingEventsPlaybackPeriods);
-    await _clear();
+
+    _clear();
     notifyListeners();
 
-    positionNotifier.notifyListeners();
-
-    // ignore: use_build_context_synchronously
     if (!context.mounted || allEvents.isEmpty) {
       HomeProvider.instance.notLoading(
         UnityLoadingReason.fetchingEventsPlaybackPeriods,
@@ -903,9 +873,8 @@ class TimelineController extends ChangeNotifier {
 
     final result = await compute(TimelineItem.calculateTimeline, [allEvents]);
     items = result[0] as List<TimelineItem>;
-    duration = result[1] as Duration;
-    oldest = result[2] as Event;
-    newest = result[3] as Event;
+    oldest = result[1] as Event;
+    newest = result[2] as Event;
 
     currentDate = oldest!.published;
 
@@ -913,8 +882,10 @@ class TimelineController extends ChangeNotifier {
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
     );
 
-    if (context.mounted) startTimer(context);
-    notifyListeners();
+    if (context.mounted) {
+      startTimer(context);
+      notifyListeners();
+    }
   }
 
   /// Starts all players
@@ -939,8 +910,9 @@ class TimelineController extends ChangeNotifier {
   }
 
   @protected
-  Future<void> _clear() async {
+  void _clear() {
     timer?.cancel();
+    timer = null;
 
     for (final item in tiles) {
       item.player.release();
@@ -949,16 +921,18 @@ class TimelineController extends ChangeNotifier {
     tiles.clear();
     items.clear();
 
-    thumbPrecision = Duration.zero;
+    oldest = newest = _currentItem = null;
+
+    thumbPrecision = currentGapDuration = Duration.zero;
     currentDate = DateTime(0);
   }
 
   @override
   Future<void> dispose() async {
-    super.dispose();
     _clear();
     positionNotifier.dispose();
     scrollController.dispose();
+    super.dispose();
   }
 }
 
@@ -972,6 +946,9 @@ class TimelineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // subscribe to window size changes
+    MediaQuery.sizeOf(context);
+
     final servers = context.watch<ServersProvider>().servers;
 
     final maxHeight = kTimelineTileHeight *

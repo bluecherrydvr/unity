@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /*
  * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
  *
@@ -25,8 +27,6 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -76,7 +76,6 @@ class FilterData {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    final listEquals = const DeepCollectionEquality().equals;
 
     return other is FilterData &&
         listEquals(other.devices, devices) &&
@@ -133,9 +132,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           );
 
           for (final event in events) {
-            if (!server.devices.any((d) => d.name == event.deviceName)
-                //  || event.isAlarm
-                ) {
+            if (!server.devices.any((d) => d.name == event.deviceName) ||
+                event.duration == Duration.zero) {
               continue;
             }
 

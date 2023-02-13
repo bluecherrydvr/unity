@@ -1,6 +1,8 @@
 library unity_video_player_mobile;
 
-import 'package:fijkplayer/fijkplayer.dart';
+import 'dart:async';
+
+import 'package:video_player/video_player.dart';
 import 'package:flutter/widgets.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
@@ -28,100 +30,106 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
     UnityVideoPaneBuilder? paneBuilder,
     Color color = const Color(0xFF000000),
   }) {
-    return FijkView(
-      player: (player as UnityVideoPlayerMobile).ijkPlayer,
+    return ColoredBox(
       color: color,
-      fit: {
-        UnityVideoFit.contain: FijkFit.contain,
-        UnityVideoFit.fill: FijkFit.fill,
-        UnityVideoFit.cover: FijkFit.cover,
-      }[fit]!,
-      panelBuilder: (p, v, c, s, t) {
-        return paneBuilder?.call(c, player) ?? const SizedBox.shrink();
-      },
+      child: Builder(builder: (context) {
+        final controller = (player as UnityVideoPlayerMobile)._controller;
+        return Stack(children: [
+          if (controller != null) VideoPlayer(controller),
+          if (paneBuilder != null) paneBuilder(context, player),
+        ]);
+      }),
     );
   }
 }
 
 class UnityVideoPlayerMobile extends UnityVideoPlayer {
-  FijkPlayer ijkPlayer = FijkPlayer();
+  VideoPlayerController? _controller;
 
-  // stores the current volume, since ijkPlayer do not provide it
-  double _currentVolume = 1.0;
+  final _listenerBroadcaster = StreamController.broadcast();
 
   @override
   String? get dataSource {
-    return ijkPlayer.dataSource;
+    return _controller?.dataSource;
   }
 
   @override
-  String? get error => ijkPlayer.value.exception.message;
+  String? get error => _controller?.value.errorDescription;
 
   @override
-  Duration get duration => ijkPlayer.value.duration;
+  Duration get duration => _controller?.value.duration ?? Duration.zero;
 
   @override
-  Duration get currentPos => ijkPlayer.currentPos;
+  Duration get currentPos => _controller?.value.position ?? Duration.zero;
 
   @override
-  Stream<Duration> get onCurrentPosUpdate => ijkPlayer.onCurrentPosUpdate;
+  Stream<Duration> get onCurrentPosUpdate =>
+      _listenerBroadcaster.stream.map((_) => duration);
 
   @override
-  bool get isBuffering => ijkPlayer.isBuffering;
-  @override
-  Stream<bool> get onBufferStateUpdate => ijkPlayer.onBufferStateUpdate;
+  bool get isBuffering => _controller?.value.isBuffering ?? false;
 
   @override
-  bool get isPlaying => ijkPlayer.state == FijkState.started;
+  Stream<bool> get onBufferStateUpdate =>
+      _listenerBroadcaster.stream.map((_) => isBuffering);
+
+  @override
+  bool get isPlaying => _controller?.value.isPlaying ?? false;
 
   @override
   Stream<bool> get onPlayingStateUpdate =>
-      Stream.fromFuture(Future.value(ijkPlayer.isPlayable()));
+      _listenerBroadcaster.stream.map((_) => isPlaying);
 
   @override
-  bool get isSeekable => ijkPlayer.state == FijkState.asyncPreparing;
+  bool get isSeekable => _controller?.value.isInitialized ?? false;
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    await ijkPlayer.setDataSource(
+    _controller = VideoPlayerController.network(
       url,
-      autoPlay: autoPlay,
+      videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: false),
     );
-
-    await ijkPlayer.setOption(
-      FijkOption.playerCategory,
-      'packet-buffering',
-      '0',
-    );
+    await _controller!.initialize();
+    _controller!.addListener(() {
+      _listenerBroadcaster.add(null);
+    });
   }
 
   @override
   Future<void> setVolume(double volume) async {
-    await ijkPlayer.setVolume(volume);
-    _currentVolume = volume;
+    await _controller?.setVolume(volume);
   }
 
   @override
-  Future<double> get volume async => _currentVolume;
+  Future<double> get volume async => _controller?.value.volume ?? 0.0;
 
   @override
-  Future<void> setSpeed(double speed) => ijkPlayer.setSpeed(speed);
-  @override
-  Future<void> seekTo(Duration position) =>
-      ijkPlayer.seekTo(position.inMilliseconds);
+  Future<void> setSpeed(double speed) async {
+    await _controller?.setPlaybackSpeed(speed);
+  }
 
   @override
-  Future<void> start() => ijkPlayer.start();
+  Future<void> seekTo(Duration position) async {
+    await _controller?.seekTo(position);
+  }
+
   @override
-  Future<void> pause() => ijkPlayer.pause();
+  Future<void> start() async => await _controller?.play();
   @override
-  Future<void> release() => ijkPlayer.release();
+  Future<void> pause() async => await _controller?.pause();
   @override
-  Future<void> reset() => ijkPlayer.reset();
+  Future<void> release() async {}
+
+  @override
+  Future<void> reset() async {
+    await pause();
+    await seekTo(Duration.zero);
+  }
 
   @override
   void dispose() {
-    ijkPlayer.dispose();
+    _controller?.dispose();
+    _listenerBroadcaster.close();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

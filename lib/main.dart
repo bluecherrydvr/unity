@@ -45,6 +45,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:status_bar_control/status_bar_control.dart';
@@ -66,10 +67,11 @@ Future<void> main(List<String> args) async {
   HttpOverrides.global = DevHttpOverrides();
 
   await UnityVideoPlayerInterface.instance.initialize();
+  final hivePath = (await getApplicationSupportDirectory()).path;
 
   if (isDesktop && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
-    await Hive.initFlutter();
+    await Hive.initFlutter(hivePath);
 
     final device = Device.fromJson(json.decode(args[0]));
     final mode = ThemeMode.values[int.tryParse(args[1]) ?? 0];
@@ -111,7 +113,7 @@ Future<void> main(List<String> args) async {
         }
       }
     }(),
-    Hive.initFlutter(),
+    Hive.initFlutter(hivePath),
 
     /// Firebase messaging isn't available on desktop platforms
     if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS)

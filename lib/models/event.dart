@@ -32,7 +32,6 @@ class Event {
   final DateTime updated;
   final String? category;
   final int? mediaID;
-  final Duration? mediaDuration;
   final Uri? mediaURL;
 
   const Event(
@@ -44,7 +43,6 @@ class Event {
     this.updated,
     this.category,
     this.mediaID,
-    this.mediaDuration,
     this.mediaURL,
   );
 
@@ -57,7 +55,6 @@ class Event {
     DateTime? updated,
     this.category,
     this.mediaID,
-    this.mediaDuration,
     this.mediaURL,
   })  : server = server ?? ServersProvider.instance.servers.first,
         published = published ?? DateTime.now(),
@@ -74,7 +71,9 @@ class Event {
   }
 
   Duration get duration {
-    return mediaDuration ?? updated.difference(published);
+    // return mediaDuration ?? updated.difference(published);
+    // TODO(bdlukaa): for some reason, the diff is off by a few seconds. use this to counterpart the issue
+    return updated.difference(published) - const Duration(seconds: 5);
   }
 
   @override
@@ -87,7 +86,6 @@ class Event {
         updated == other.updated &&
         category == other.category &&
         mediaID == other.mediaID &&
-        mediaDuration == other.mediaDuration &&
         mediaURL == other.mediaURL;
   }
 
@@ -100,12 +98,11 @@ class Event {
       updated.hashCode ^
       category.hashCode ^
       mediaID.hashCode ^
-      mediaDuration.hashCode ^
       mediaURL.hashCode;
 
   @override
   String toString() =>
-      'Event($id, $deviceID, $title, $published, $updated, $category, $mediaID, $mediaDuration, $mediaURL)';
+      'Event($id, $deviceID, $title, $published, $updated, $category, $mediaID, $mediaURL)';
 
   Event copyWith(
     Server? server,
@@ -116,7 +113,6 @@ class Event {
     DateTime? updated,
     String? category,
     int? mediaID,
-    Duration? mediaDuration,
     Uri? mediaURL,
   ) =>
       Event(
@@ -128,7 +124,6 @@ class Event {
         updated ?? this.updated,
         category ?? this.category,
         mediaID ?? this.mediaID,
-        mediaDuration ?? this.mediaDuration,
         mediaURL ?? this.mediaURL,
       );
 
@@ -141,7 +136,6 @@ class Event {
         'updated': updated.toIso8601String(),
         'category': category,
         'mediaID': mediaID,
-        'mediaDuration': mediaDuration?.inMicroseconds,
         'mediaURL': mediaURL.toString(),
       };
 
@@ -155,7 +149,6 @@ class Event {
       DateTime.parse(json['updated']),
       json['category'],
       json['mediaID'],
-      Duration(microseconds: json['mediaDuration']),
       Uri.parse(json['mediaURL']),
     );
   }
@@ -172,8 +165,11 @@ class Event {
         return EventPriority.alarm;
       case 'warn':
         return EventPriority.warning;
+      case 'critical':
+        return EventPriority.critical;
+      case 'info':
       default:
-        return EventPriority.notFound;
+        return EventPriority.info;
     }
   }
 
@@ -185,25 +181,46 @@ class Event {
         return EventType.motion;
       case 'continuous':
         return EventType.continuous;
-      default:
+      case 'not found':
         return EventType.notFound;
+      case 'video signal loss':
+        return EventType.cameraVideoLost;
+      case 'audio signal loss':
+        return EventType.cameraAudioLost;
+      case 'disk-space':
+        return EventType.systemDiskSpace;
+      case 'crash':
+        return EventType.systemCrash;
+      case 'boot':
+        return EventType.systemBoot;
+      case 'shutdown':
+        return EventType.systemShutdown;
+      case 'reboot':
+        return EventType.systemReboot;
+      case 'power-outage':
+        return EventType.systemPowerOutage;
+      default:
+        return EventType.unknown;
     }
   }
 }
 
+// TODO(bdlukaa): locale for these
 enum EventPriority {
+  info,
   warning,
   alarm,
-  notFound;
+  critical;
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     switch (this) {
+      case EventPriority.info:
       case EventPriority.warning:
         return localizations.warn;
       case EventPriority.alarm:
         return localizations.alarm;
-      case EventPriority.notFound:
+      case EventPriority.critical:
         return localizations.notFound;
     }
   }
@@ -212,7 +229,16 @@ enum EventPriority {
 enum EventType {
   motion,
   continuous,
-  notFound;
+  notFound,
+  cameraVideoLost,
+  cameraAudioLost,
+  systemDiskSpace,
+  systemCrash,
+  systemBoot,
+  systemShutdown,
+  systemReboot,
+  systemPowerOutage,
+  unknown;
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -222,6 +248,7 @@ enum EventType {
       case EventType.continuous:
         return localizations.continuous;
       case EventType.notFound:
+      default:
         return localizations.notFound;
     }
   }

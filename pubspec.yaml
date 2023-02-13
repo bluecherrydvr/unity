@@ -29,14 +29,23 @@ dependencies:
   reorderable_grid_view: ^2.2.6-alpha.14
   reorderables: ^0.6.0
 
-  intl: ^0.17.0
-  intl_utils: ^2.1.0
+  intl: ^0.18.0
+  # Use jonjomckay branch until https://github.com/localizely/intl_utils/pull/98 is merged
+  # TODO: Remove this
+  intl_utils:
+    git:
+      url: https://github.com/jonjomckay/intl_utils.git
+      ref: update-intl
 
   firebase_core: ^2.4.1
   # Firebase Messaging 11.2.8 seems to be the most stable version.
   firebase_messaging: ^14.2.1
   # Pinning awesome_notifications to this specific version, since stability of newer releases hasn't been confirmed yet.
-  awesome_notifications: 0.7.4
+  # Use HannesGitH branch until https://github.com/rafaelsetragni/awesome_notifications/pull/727 is merged
+  # TODO: remove this
+  awesome_notifications:
+    git:
+      url: https://github.com/HannesGitH/awesome_notifications.git
   
   device_info_plus: ^8.0.0
   url_launcher: ^6.1.3

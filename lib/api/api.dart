@@ -147,11 +147,6 @@ class API {
               : int.parse(e['content']['media_id']),
           !e.containsKey('content')
               ? null
-              : Duration(
-                  microseconds: int.tryParse(e['content']['media_size']) ?? 0,
-                ),
-          !e.containsKey('content')
-              ? null
               : Uri.parse(
                   e['content'][r'$t'].replaceAll(
                     'https://',

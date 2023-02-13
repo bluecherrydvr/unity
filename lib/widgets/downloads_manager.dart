@@ -259,9 +259,8 @@ class _DownloadTileState extends State<DownloadTile> {
                                 Text(eventType),
                                 Text(widget.event.deviceName),
                                 Text(widget.event.server.name),
-                                Text(widget.event.mediaDuration
-                                        ?.humanReadable(context) ??
-                                    '--'),
+                                Text(widget.event.duration
+                                    .humanReadable(context)),
                                 Text(at),
                               ],
                             ),
@@ -296,16 +295,14 @@ class _DownloadTileState extends State<DownloadTile> {
                                       );
                                     }
                                   : null,
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.play_arrow, size: 20.0),
-                                  if (widget.size.width >=
-                                      DownloadTile._breakpoint) ...[
-                                    const SizedBox(width: 8.0),
-                                    Text(loc.play),
-                                  ],
+                              child: Row(children: [
+                                const Icon(Icons.play_arrow, size: 20.0),
+                                if (widget.size.width >=
+                                    DownloadTile._breakpoint) ...[
+                                  const SizedBox(width: 8.0),
+                                  Text(loc.play),
                                 ],
-                              ),
+                              ]),
                             ),
                           ),
                           TextButton(

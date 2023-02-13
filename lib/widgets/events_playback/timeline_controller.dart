@@ -950,13 +950,6 @@ class TimelineView extends StatelessWidget {
 
     final servers = context.watch<ServersProvider>().servers;
 
-    final minHeight = kTimelineTileHeight *
-        // at least the height of 4
-        timelineController.tiles.length.clamp(
-          4,
-          double.infinity,
-        );
-
     final theme = Theme.of(context).extension<TimelineTheme>()!;
     final timelineBox = Stack(children: [
       Positioned.fill(

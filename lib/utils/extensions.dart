@@ -165,9 +165,7 @@ extension EventsExtension on Iterable<Event> {
     return any((event) {
       final start = event.published;
 
-      final end = event.mediaDuration == null
-          ? event.published.add(event.updated.difference(event.published))
-          : event.published.add(event.mediaDuration!);
+      final end = event.published.add(event.duration);
 
       return date.isInBetween(start, end);
     });
@@ -181,9 +179,7 @@ extension EventsExtension on Iterable<Event> {
     return where((event) {
       final start = event.published;
 
-      final end = event.mediaDuration == null
-          ? event.published.add(event.updated.difference(event.published))
-          : event.published.add(event.mediaDuration!);
+      final end = event.published.add(event.duration);
 
       return date.isInBetween(start, end);
     });

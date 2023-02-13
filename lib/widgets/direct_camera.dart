@@ -92,7 +92,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
               setState(() {});
             },
             child: ListView.builder(
-              padding: MediaQuery.of(context).viewPadding,
+              padding: MediaQuery.viewPaddingOf(context),
               itemCount: ServersProvider.instance.servers.length,
               itemBuilder: (context, i) {
                 final server = ServersProvider.instance.servers[i];

@@ -64,8 +64,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                 child: Image.asset(
                   'assets/images/background.webp',
                   fit: BoxFit.cover,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.sizeOf(context).width,
+                  height: MediaQuery.sizeOf(context).height,
                 ),
               ),
               Container(
@@ -78,7 +78,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         horizontal: 16.0,
                         vertical: 16.0,
                       ) +
-                      MediaQuery.of(context).padding,
+                      MediaQuery.paddingOf(context),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -225,16 +225,16 @@ class _AddServerWizardState extends State<AddServerWizard> {
               ),
               if (Scaffold.of(context).hasDrawer)
                 Positioned.fill(
-                  bottom: MediaQuery.of(context).size.height * 3 / 4,
+                  bottom: MediaQuery.sizeOf(context).height * 3 / 4,
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
                       color: Colors.transparent,
                       padding: EdgeInsetsDirectional.only(
-                        top: MediaQuery.of(context).padding.top,
+                        top: MediaQuery.paddingOf(context).top,
                       ),
                       height:
-                          kToolbarHeight + MediaQuery.of(context).padding.top,
+                          kToolbarHeight + MediaQuery.paddingOf(context).top,
                       alignment: AlignmentDirectional.topStart,
                       child: Row(children: [
                         const SizedBox(width: 8.0),

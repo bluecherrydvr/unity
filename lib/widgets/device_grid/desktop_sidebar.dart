@@ -35,7 +35,6 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mq = MediaQuery.of(context);
 
     final view = context.watch<DesktopViewProvider>();
 
@@ -48,7 +47,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
             type: MaterialType.transparency,
             child: ListView.builder(
               padding: EdgeInsets.only(
-                bottom: mq.viewPadding.bottom,
+                bottom: MediaQuery.viewPaddingOf(context).bottom,
               ),
               itemCount: ServersProvider.instance.servers.length,
               itemBuilder: (context, i) {

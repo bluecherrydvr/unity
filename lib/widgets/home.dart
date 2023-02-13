@@ -123,20 +123,26 @@ class _MobileHomeState extends State<MobileHome> {
       // desktop environments, but I like it compact (just like vscode)
       // final isExtraWide = constraints.biggest.width >= 1008;
       const isExtraWide = false;
+
+      /// whether there is enough space for a navigation rail to pop off. if false
+      /// the drawer is displayed
+      final isVerticallyLarge = constraints.biggest.height >= 340;
+
+      final showNavigationRail =
+          (isWide || isExtraWide) && isVerticallyLarge && !isDesktop;
+
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: isWide ? null : buildDrawer(context),
+        drawer: showNavigationRail ? null : buildDrawer(context),
         body: Column(children: [
           const WindowButtons(),
           Expanded(
             child: Row(children: [
-              // if it's desktop, we show the navigation in the window bar
-              if ((isWide || isExtraWide) && !isDesktop) ...[
-                buildNavigationRail(context, isExtraWide: isExtraWide),
-                // SizedBox(
-                //   width: 4.0,
-                // ),
-              ],
+              if (showNavigationRail)
+                SafeArea(
+                  right: Directionality.of(context) == TextDirection.rtl,
+                  child: buildNavigationRail(context, isExtraWide: isExtraWide),
+                ),
               Expanded(
                 child: ClipRect(
                   child: PageTransitionSwitcher(
@@ -338,49 +344,43 @@ class _MobileHomeState extends State<MobileHome> {
             height: imageSize,
           ),
         ),
-        const Spacer(),
         Expanded(
-          flex: 3,
-          child: Center(
-            child: NavigationRail(
-              minExtendedWidth: 220,
-              backgroundColor: Colors.transparent,
-              extended: isExtraWide,
-              useIndicator: !isExtraWide,
-              indicatorColor: theme.selectedBackgroundColor,
-              selectedLabelTextStyle: TextStyle(
-                color: theme.selectedForegroundColor,
-              ),
-              unselectedLabelTextStyle: TextStyle(
-                color: theme.unselectedForegroundColor,
-              ),
-              destinations: navigatorData(context).entries.map((entry) {
-                final icon = entry.key;
-                final text = entry.value;
-                final index =
-                    navigatorData(context).keys.toList().indexOf(icon);
-
-                return NavigationRailDestination(
-                  icon: Icon(
-                    icon,
-                    color: index == home.tab
-                        ? theme.selectedForegroundColor
-                        : theme.unselectedForegroundColor,
-                  ),
-                  label: Text(text),
-                );
-              }).toList(),
-              selectedIndex: home.tab,
-              onDestinationSelected: (index) {
-                if (home.tab != index) {
-                  home.setTab(index);
-                }
-              },
+          child: NavigationRail(
+            minExtendedWidth: 220,
+            backgroundColor: Colors.transparent,
+            extended: isExtraWide,
+            useIndicator: !isExtraWide,
+            indicatorColor: theme.selectedBackgroundColor,
+            selectedLabelTextStyle: TextStyle(
+              color: theme.selectedForegroundColor,
             ),
+            unselectedLabelTextStyle: TextStyle(
+              color: theme.unselectedForegroundColor,
+            ),
+            destinations: navigatorData(context).entries.map((entry) {
+              final icon = entry.key;
+              final text = entry.value;
+              final index = navigatorData(context).keys.toList().indexOf(icon);
+
+              return NavigationRailDestination(
+                icon: Icon(
+                  icon,
+                  color: index == home.tab
+                      ? theme.selectedForegroundColor
+                      : theme.unselectedForegroundColor,
+                ),
+                label: Text(text),
+              );
+            }).toList(),
+            selectedIndex: home.tab,
+            onDestinationSelected: (index) {
+              if (home.tab != index) {
+                home.setTab(index);
+              }
+            },
           ),
         ),
-        const Spacer(),
-        const SizedBox(height: imageSize + 16.0),
+        // const SizedBox(height: imageSize + 16.0),
       ]),
     );
   }

@@ -14,8 +14,6 @@ dependencies:
     sdk: flutter
   unity_video_player_media_kit:
     path: ../unity_video_player_media_kit
-  # unity_video_player_desktop:
-  #   path: ../unity_video_player_desktop
   unity_video_player_mobile:
     path: ../unity_video_player_mobile
 
@@ -31,9 +29,9 @@ flutter:
         default_package: unity_video_player_mobile
       ios:
         default_package: unity_video_player_mobile
-      macos:
-        default_package: unity_video_player_desktop
+      # macos:
+      #   default_package: unity_video_player_desktop
       linux:
-        default_package: unity_video_player_desktop
+        default_package: unity_video_player_media_kit
       windows:
         default_package: unity_video_player_media_kit

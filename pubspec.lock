@@ -426,17 +426,26 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
-      resolved-ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
+      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
+  media_kit_libs_linux:
+    dependency: transitive
+    description:
+      path: media_kit_libs_linux
+      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.0"
   media_kit_libs_windows_video:
     dependency: transitive
     description:
       path: media_kit_libs_windows_video
-      ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
-      resolved-ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
+      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -444,8 +453,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
-      resolved-ref: "5bf3a17cdb8d68cc5b43141d791b27cac837a4e9"
+      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
@@ -782,10 +791,10 @@ packages:
     dependency: transitive
     description:
       name: uri_parser
-      sha256: a41b242c319cdc30958963b362ad2f9c63ede569bdab106c7a926638963d53e7
+      sha256: f47b97479d6c818f739135e3abdd64d629804ea4fff7a5e394a37ca6fe8dce0a
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "2.0.0"
   url_launcher:
     dependency: "direct main"
     description:

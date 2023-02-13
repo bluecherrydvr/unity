@@ -48,7 +48,7 @@ This project & work under this repository is licensed under [GNU General Public 
 - Directionality support for right-to-left languages
 - Cross-platform. Currently targets mobile platforms. Desktop support coming in future.
   - [x] Android
-  - [ ] iOS ([_coming soon_](https://github.com/bluecherrydvr/unity/issues/5))
+  - [x] iOS ([_App store link_](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139))
   - [x] Windows
   - [ ] Linux
   - [ ] macOS

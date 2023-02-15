@@ -31,6 +31,7 @@ import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -935,13 +936,51 @@ class TimelineController extends ChangeNotifier {
   }
 }
 
-class TimelineView extends StatelessWidget {
+class TimelineView extends StatefulWidget {
   final TimelineController timelineController;
 
   const TimelineView({
     Key? key,
     required this.timelineController,
   }) : super(key: key);
+
+  @override
+  State<TimelineView> createState() => _TimelineViewState();
+}
+
+class _TimelineViewState extends State<TimelineView> {
+  TimelineController get controller => widget.timelineController;
+
+  /// Whether the mouse is being pressed
+  bool isPressing = false;
+  Offset pointerPosition = Offset.zero;
+  bool _initiallyPaused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
+  }
+
+  @override
+  void dispose() {
+    GestureBinding.instance.pointerRouter
+        .removeGlobalRoute(_handlePointerEvent);
+    super.dispose();
+  }
+
+  void _handlePointerEvent(PointerEvent event) {
+    if (event is PointerUpEvent || event is PointerCancelEvent) {
+      isPressing = false;
+    } else if (event is PointerDownEvent) {
+      isPressing = true;
+    }
+    final renderBox = context.findRenderObject() as RenderBox;
+    final renderRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+    if (renderRect.contains(event.position)) {
+      setState(() => pointerPosition = event.position);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -954,65 +993,69 @@ class TimelineView extends StatelessWidget {
     final timelineBox = Stack(children: [
       Positioned.fill(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: timelineController.tiles.map((i) {
-              final device = servers.findDevice(i.deviceId)!;
-              final server =
-                  servers.firstWhere((s) => s.devices.contains(device));
-              return Tooltip(
-                message: '${server.name}/${device.name}',
-                preferBelow: false,
-                verticalOffset: 12.0,
-                child: Container(
-                  height: kTimelineTileHeight,
-                  width: kDeviceNameWidth,
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(children: [
-                    Flexible(
-                      flex: 2,
-                      child: AutoSizeText(
-                        server.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        maxFontSize: 12.0,
+          SizedBox(
+            width: kDeviceNameWidth + 2.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: controller.tiles.map((i) {
+                final device = servers.findDevice(i.deviceId)!;
+                final server =
+                    servers.firstWhere((s) => s.devices.contains(device));
+                return Tooltip(
+                  message: '${server.name}/${device.name}',
+                  preferBelow: false,
+                  verticalOffset: 12.0,
+                  child: Container(
+                    height: kTimelineTileHeight,
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(children: [
+                      Flexible(
+                        flex: 2,
+                        child: AutoSizeText(
+                          server.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          maxFontSize: 12.0,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: AutoSizeText(
-                        '/${device.name}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        maxFontSize: 12.0,
+                      Expanded(
+                        flex: 3,
+                        child: AutoSizeText(
+                          '/${device.name}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          maxFontSize: 12.0,
+                        ),
                       ),
-                    ),
-                  ]),
-                ),
-              );
-            }).toList(),
+                    ]),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
           const VerticalDivider(width: 2.0),
           Expanded(
             child: SingleChildScrollView(
-              controller: timelineController.scrollController,
+              controller: controller.scrollController,
               scrollDirection: Axis.horizontal,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: timelineController.tiles.map((tile) {
+                children: controller.tiles.map((tile) {
                   return Container(
                     height: kTimelineTileHeight,
                     decoration: const BoxDecoration(
                       border: Border(bottom: BorderSide()),
                     ),
                     child: Row(
-                        children: timelineController.items.map((i) {
+                        children: controller.items.map((i) {
                       if (i is TimelineGap) {
                         return _TimelineItemGestures(
-                          controller: timelineController,
-                          width: timelineController.gapWidth,
+                          controller: controller,
+                          width: controller.gapWidth,
                           item: i,
+                          isPressing: isPressing,
+                          pointerPosition: pointerPosition,
                           child: Container(
                             height: kTimelineTileHeight,
                             padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -1031,16 +1074,18 @@ class TimelineView extends StatelessWidget {
                       } else if (i is TimelineValue) {
                         final events = tile.events.inBetween(i.start, i.end);
 
-                        final width = i.duration.inMilliseconds *
-                            timelineController.periodWidth;
+                        final width =
+                            i.duration.inMilliseconds * controller.periodWidth;
 
                         if (events.isEmpty) {
                           return SizedBox(width: width);
                         }
                         return _TimelineItemGestures(
-                          controller: timelineController,
+                          controller: controller,
                           width: width,
                           item: i,
+                          isPressing: isPressing,
+                          pointerPosition: pointerPosition,
                           child: SizedBox(
                             height: kTimelineTileHeight,
                             child: () {
@@ -1051,7 +1096,7 @@ class TimelineView extends StatelessWidget {
                                 return Container(
                                   height: kTimelineTileHeight,
                                   width: duration.inMilliseconds *
-                                      timelineController.periodWidth,
+                                      controller.periodWidth,
                                   color: event == null
                                       ? null
                                       : event.isAlarm
@@ -1107,22 +1152,21 @@ class TimelineView extends StatelessWidget {
           ),
         ]),
       ),
-      if (timelineController.initialized) ...[
+      if (controller.initialized) ...[
         Positioned.fill(
           left: kDeviceNameWidth,
           child: RepaintBoundary(
             child: AnimatedBuilder(
               animation: Listenable.merge([
-                timelineController.scrollController,
-                timelineController.positionNotifier,
+                controller.scrollController,
+                controller.positionNotifier,
               ]),
               builder: (context, child) {
-                final scrollOffset =
-                    timelineController.scrollController.hasClients
-                        ? timelineController.scrollController.offset
-                        : 0.0;
-                final x = timelineController.thumbPosition.inMilliseconds *
-                        timelineController.periodWidth -
+                final scrollOffset = controller.scrollController.hasClients
+                    ? controller.scrollController.offset
+                    : 0.0;
+                final x = controller.thumbPosition.inMilliseconds *
+                        controller.periodWidth -
                     scrollOffset;
 
                 if (x.isNegative) {
@@ -1176,8 +1220,6 @@ class TimelineView extends StatelessWidget {
   }
 
   // Handle mousewheel and web trackpad scroll events.
-  //
-  // See [InteractiveViewer._receivedPointerSignal]
   void _receivedPointerSignal(PointerSignalEvent event) {
     final double scaleChange;
     if (event is PointerScrollEvent) {
@@ -1195,9 +1237,9 @@ class TimelineView extends StatelessWidget {
       return;
     }
     if (scaleChange < 1.0) {
-      timelineController.zoom -= 0.8;
+      controller.zoom -= 0.8;
     } else {
-      timelineController.zoom += 0.6;
+      controller.zoom += 0.6;
     }
   }
 }
@@ -1206,6 +1248,10 @@ class _TimelineItemGestures extends StatefulWidget {
   final TimelineController controller;
   final TimelineItem item;
   final double width;
+
+  final bool isPressing;
+  final Offset pointerPosition;
+
   final Widget child;
 
   const _TimelineItemGestures({
@@ -1213,6 +1259,8 @@ class _TimelineItemGestures extends StatefulWidget {
     required this.controller,
     required this.item,
     required this.width,
+    required this.isPressing,
+    required this.pointerPosition,
     required this.child,
   }) : super(key: key);
 
@@ -1226,70 +1274,73 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
   Offset? localPosition;
   DateTime? date;
 
-  /// Used by [MouseRegion.onExit] to pause/play the timeline according to the initial value
-  bool _initiallyPaused = false;
+  bool get showIndicator {
+    if (!mounted || !widget.isPressing) return false;
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    final pos = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+
+    return pos.contains(widget.pointerPosition);
+  }
+
+  @override
+  void didUpdateWidget(_TimelineItemGestures oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (showIndicator) {
+      final previous = widget.controller.items
+          .where((e) => e.end.isBefore(widget.item.start));
+
+      final renderBox = context.findRenderObject() as RenderBox;
+      localPosition = renderBox.globalToLocal(widget.pointerPosition);
+
+      final ms = localPosition!.dx / widget.controller.periodWidth;
+      final duration = Duration(milliseconds: ms.toInt());
+
+      DateTime? date;
+      if (previous.isEmpty) {
+        date = widget.item.start.add(duration);
+      } else if (widget.item is TimelineValue) {
+        date = widget.item.start.add(duration);
+      } else if (widget.item is TimelineGap) {
+        date = widget.item.start.add(widget.item.duration);
+      }
+
+      this.date = date;
+
+      if (date != null) widget.controller.setDate(date, duration);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     if (widget.width == 0.0) return const SizedBox.shrink();
-    final previous =
-        widget.controller.items.where((e) => e.end.isBefore(widget.item.start));
 
     final theme = Theme.of(context).extension<TimelineTheme>()!;
 
-    return MouseRegion(
-      onEnter: (d) {
-        _initiallyPaused = widget.controller.isPaused;
-        widget.controller.pause();
-      },
-      onHover: (d) {
-        final ms = d.localPosition.dx / widget.controller.periodWidth;
-        final duration = Duration(milliseconds: ms.toInt());
-
-        DateTime? date;
-        if (previous.isEmpty) {
-          date = widget.item.start.add(duration);
-        } else if (widget.item is TimelineValue) {
-          date = widget.item.start.add(duration);
-        } else if (widget.item is TimelineGap) {
-          date = widget.item.start.add(widget.item.duration);
-        }
-
-        setState(() {
-          localPosition = d.localPosition;
-          this.date = date;
-        });
-
-        if (date != null) widget.controller.setDate(date, duration);
-      },
-      onExit: (d) {
-        if (!_initiallyPaused) widget.controller.play(context);
-        setState(() => localPosition = date = null);
-      },
-      child: IgnorePointer(
-        child: SizedBox(
-          width: widget.width,
-          child: Stack(clipBehavior: Clip.none, children: [
-            widget.child,
-            if (localPosition != null && date != null)
-              PositionedDirectional(
-                start: localPosition!.dx - _TimelineItemGestures.kPopupWidth,
-                child: Container(
-                  height: kTimelineTileHeight,
-                  width: _TimelineItemGestures.kPopupWidth,
-                  color: theme.seekPopupColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  margin: const EdgeInsets.only(bottom: 2.5),
-                  alignment: Alignment.center,
-                  child: AutoSizeText(
-                    DateFormat.Hms().format(date!),
-                    maxLines: 1,
-                    minFontSize: 8.0,
-                  ),
+    return IgnorePointer(
+      child: SizedBox(
+        width: widget.width,
+        child: Stack(clipBehavior: Clip.none, children: [
+          widget.child,
+          if (localPosition != null && date != null && showIndicator)
+            PositionedDirectional(
+              start: localPosition!.dx - _TimelineItemGestures.kPopupWidth,
+              child: Container(
+                height: kTimelineTileHeight,
+                width: _TimelineItemGestures.kPopupWidth,
+                color: theme.seekPopupColor,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                margin: const EdgeInsets.only(bottom: 2.5),
+                alignment: Alignment.center,
+                child: AutoSizeText(
+                  DateFormat.Hms().format(date!),
+                  maxLines: 1,
+                  minFontSize: 8.0,
                 ),
               ),
-          ]),
-        ),
+            ),
+        ]),
       ),
     );
   }

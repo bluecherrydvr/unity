@@ -72,7 +72,9 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
   @override
   void initState() {
     super.initState();
-    timelineController.addListener(() => setState(() {}));
+    timelineController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override

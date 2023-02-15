@@ -31,7 +31,6 @@ import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -971,13 +970,19 @@ class _TimelineViewState extends State<TimelineView> {
 
   void _handlePointerEvent(PointerEvent event) {
     if (event is PointerUpEvent || event is PointerCancelEvent) {
+      if (!_initiallyPaused) controller.play(context);
+      _initiallyPaused = false;
       isPressing = false;
     } else if (event is PointerDownEvent) {
+      _initiallyPaused = controller.isPaused;
+      controller.pause();
       isPressing = true;
     }
+
     final renderBox = context.findRenderObject() as RenderBox;
     final renderRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
-    if (renderRect.contains(event.position)) {
+    if (isPressing && renderRect.contains(event.position)) {
+      isPressing = event.down;
       setState(() => pointerPosition = event.position);
     }
   }

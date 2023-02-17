@@ -47,7 +47,17 @@ class HomeProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    refreshDeviceOrientation(context);
+  }
 
+  int? initiallyExpandedDownloadEventId;
+  void toDownloads(int eventId, BuildContext context) {
+    initiallyExpandedDownloadEventId = eventId;
+
+    setTab(UnityTab.downloads.index, context);
+  }
+
+  Future<void> refreshDeviceOrientation(BuildContext context) async {
     if (isMobile) {
       final theme = Theme.of(context);
       final home = context.read<HomeProvider>();
@@ -87,12 +97,5 @@ class HomeProvider extends ChangeNotifier {
         );
       }
     }
-  }
-
-  int? initiallyExpandedDownloadEventId;
-  void toDownloads(int eventId, BuildContext context) {
-    initiallyExpandedDownloadEventId = eventId;
-
-    setTab(UnityTab.downloads.index, context);
   }
 }

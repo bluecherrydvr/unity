@@ -65,7 +65,18 @@ class MobileHome extends StatefulWidget {
 
 class _MobileHomeState extends State<MobileHome> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<HomeProvider>().refreshDeviceOrientation(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // subscribe to updates to media query
+    MediaQuery.of(context);
+
     final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final tab = home.tab;

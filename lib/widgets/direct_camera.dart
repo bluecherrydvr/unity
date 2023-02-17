@@ -38,9 +38,6 @@ class DirectCameraScreen extends StatefulWidget {
 class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
-    // subscribe to updates to media query
-    MediaQuery.of(context);
-
     return Scaffold(
       appBar: showIf(
         isMobile,

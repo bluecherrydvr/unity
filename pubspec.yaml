@@ -35,7 +35,6 @@ dependencies:
   firebase_core: ^2.4.1
   # Firebase Messaging 11.2.8 seems to be the most stable version.
   firebase_messaging: ^14.2.1
-  # Pinning awesome_notifications to this specific version, since stability of newer releases hasn't been confirmed yet.
   # Use HannesGitH branch until https://github.com/rafaelsetragni/awesome_notifications/pull/727 is merged
   # TODO: remove this
   awesome_notifications:
@@ -71,7 +70,7 @@ dependency_overrides:
   fijkplayer:
     git:
       # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
-      url: https://github.com/alexmercerind/fijkplayer.git
+      url: https://github.com/bdlukaa/fijkplayer.git
       ref: master
 
 flutter:

@@ -32,12 +32,6 @@ dependencies:
   provider: ^6.0.5
 
   intl: ^0.18.0
-  # Use jonjomckay branch until https://github.com/localizely/intl_utils/pull/98 is merged
-  # TODO: Remove this
-  intl_utils:
-    git:
-      url: https://github.com/jonjomckay/intl_utils.git
-      ref: update-intl
   firebase_core: ^2.4.1
   # Firebase Messaging 11.2.8 seems to be the most stable version.
   firebase_messaging: ^14.2.1

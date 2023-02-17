@@ -109,3 +109,34 @@ jobs:
           files: |
             bluecherry-dvr-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_linux:
+    name: Bluecherry Client Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - run: sudo apt-get update
+      - run: sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "master"
+      - run: flutter pub get
+      - run: flutter build linux --verbose
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "vnext"
+          files: |
+            bluecherry_linux_x64.7z
+          token: ${{ secrets.GITHUB_TOKEN }}

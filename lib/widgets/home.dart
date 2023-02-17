@@ -65,52 +65,6 @@ class MobileHome extends StatefulWidget {
 
 class _MobileHomeState extends State<MobileHome> {
   @override
-  void initState() {
-    super.initState();
-    if (!isDesktop) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final theme = Theme.of(context);
-        final home = context.watch<HomeProvider>();
-        final tab = home.tab;
-
-        if (tab == 0) {
-          await StatusBarControl.setHidden(true);
-          await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(theme.brightness),
-          );
-          DeviceOrientations.instance.set(
-            [
-              DeviceOrientation.landscapeLeft,
-              DeviceOrientation.landscapeRight,
-            ],
-          );
-        } else if (tab == 3) {
-          // Use portrait orientation in "Add Server" tab.
-          // See #14.
-          await StatusBarControl.setHidden(false);
-          await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(theme.brightness),
-          );
-          DeviceOrientations.instance.set(
-            [
-              DeviceOrientation.portraitUp,
-              DeviceOrientation.portraitDown,
-            ],
-          );
-        } else {
-          await StatusBarControl.setHidden(false);
-          await StatusBarControl.setStyle(
-            getStatusBarStyleFromBrightness(theme.brightness),
-          );
-          DeviceOrientations.instance.set(
-            DeviceOrientation.values,
-          );
-        }
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
@@ -153,7 +107,7 @@ class _MobileHomeState extends State<MobileHome> {
                       UnityTab.eventsScreen: () => const EventsScreen(),
                       UnityTab.addServer: () => AddServerWizard(
                             onFinish: () async {
-                              home.setTab(0);
+                              home.setTab(0, context);
                               if (!isDesktop) {
                                 await StatusBarControl.setHidden(true);
                                 await StatusBarControl.setStyle(
@@ -173,8 +127,10 @@ class _MobileHomeState extends State<MobileHome> {
                             initiallyExpandedEventId:
                                 home.initiallyExpandedDownloadEventId,
                           ),
-                      UnityTab.settings: () =>
-                          Settings(changeCurrentTab: home.setTab),
+                      UnityTab.settings: () => Settings(
+                            changeCurrentTab: (index) =>
+                                home.setTab(index, context),
+                          ),
                     }[UnityTab.values[tab]]!(),
                     transitionBuilder: (child, animation, secondaryAnimation) {
                       return SharedAxisTransition(
@@ -280,8 +236,8 @@ class _MobileHomeState extends State<MobileHome> {
 
                     await Future.delayed(const Duration(milliseconds: 200));
                     navigator.pop();
-                    if (tab != index) {
-                      home.setTab(index);
+                    if (tab != index && mounted) {
+                      home.setTab(index, context);
                     }
                   },
                   child: DecoratedBox(
@@ -375,7 +331,7 @@ class _MobileHomeState extends State<MobileHome> {
             selectedIndex: home.tab,
             onDestinationSelected: (index) {
               if (home.tab != index) {
-                home.setTab(index);
+                home.setTab(index, context);
               }
             },
           ),

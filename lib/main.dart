@@ -114,10 +114,6 @@ Future<void> main(List<String> args) async {
       }
     }(),
     Hive.initFlutter(hivePath),
-
-    /// Firebase messaging isn't available on desktop platforms
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
-      FirebaseConfiguration.ensureInitialized(),
   ]);
 
   debugPrint(
@@ -131,6 +127,11 @@ Future<void> main(List<String> args) async {
     ServersProvider.ensureInitialized(),
     DownloadsManager.ensureInitialized(),
   ]);
+
+  /// Firebase messaging isn't available on desktop platforms
+  if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+    FirebaseConfiguration.ensureInitialized();
+  }
 
   if (!isDesktop) {
     // Restore the navigation bar & status bar styling.

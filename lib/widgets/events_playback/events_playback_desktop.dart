@@ -139,58 +139,60 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                     ),
                   );
                 } else {
-                  return AspectRatio(
-                    aspectRatio: 1,
-                    child: _StaticGrid(
-                      crossAxisCount: calculateCrossAxisCount(
-                        timelineController.tiles.length,
-                      ),
-                      childAspectRatio: 16 / 9,
-                      mainAxisSpacing: kGridInnerPadding,
-                      crossAxisSpacing: kGridInnerPadding,
-                      onReorder: eventsProvider.onReorder,
-                      children: timelineController.tiles.map((tile) {
-                        final has =
-                            timelineController.currentItem is! TimelineGap &&
-                                tile.events
-                                    .hasForDate(timelineController.currentDate);
+                  return Center(
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: _StaticGrid(
+                        crossAxisCount: calculateCrossAxisCount(
+                          timelineController.tiles.length,
+                        ),
+                        childAspectRatio: 16 / 9,
+                        mainAxisSpacing: kGridInnerPadding,
+                        crossAxisSpacing: kGridInnerPadding,
+                        onReorder: eventsProvider.onReorder,
+                        children: timelineController.tiles.map((tile) {
+                          final has = timelineController.currentItem
+                                  is! TimelineGap &&
+                              tile.events
+                                  .hasForDate(timelineController.currentDate);
 
-                        final color =
-                            createTheme(themeMode: ThemeMode.dark).canvasColor;
+                          final color = createTheme(themeMode: ThemeMode.dark)
+                              .canvasColor;
 
-                        return IndexedStack(
-                          index: !has ? 0 : 1,
-                          children: [
-                            Container(
-                              color: color,
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.all(12.0),
-                              child: AutoSizeText(
-                                AppLocalizations.of(context).noRecords,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.white),
+                          return IndexedStack(
+                            index: !has ? 0 : 1,
+                            children: [
+                              Container(
+                                color: color,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(12.0),
+                                child: AutoSizeText(
+                                  AppLocalizations.of(context).noRecords,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
-                            ),
 
-                            /// This ensures a faster initialization of the video view
-                            /// providing a smoother experience. This isn't a good solution,
-                            /// just a workaround for now
-                            UnityVideoView(
-                              player: tile.player,
-                              color: color,
-                              paneBuilder: (context, player) {
-                                if (player.dataSource == null) {
-                                  return const ErrorWarning(message: '');
-                                } else {
-                                  // debugPrint('${player.dataSource}');
-                                }
+                              /// This ensures a faster initialization of the video view
+                              /// providing a smoother experience. This isn't a good solution,
+                              /// just a workaround for now
+                              UnityVideoView(
+                                player: tile.player,
+                                color: color,
+                                paneBuilder: (context, player) {
+                                  if (player.dataSource == null) {
+                                    return const ErrorWarning(message: '');
+                                  } else {
+                                    // debugPrint('${player.dataSource}');
+                                  }
 
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     ),
                   );
                 }
@@ -814,13 +816,12 @@ class _StaticGridState extends State<_StaticGrid> {
       child: LayoutBuilder(builder: (context, constraints) {
         final width = (constraints.biggest.width / widget.crossAxisCount) -
             widget.mainAxisSpacing;
-        // final height = (constraints.biggest.height / widget.crossAxisCount) -
-        //     widget.crossAxisSpacing;
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ReorderableWrap(
             spacing: widget.mainAxisSpacing,
             runSpacing: widget.crossAxisSpacing,
+            maxMainAxisCount: widget.crossAxisCount,
             onReorder: widget.onReorder,
             needsLongPressDraggable: isMobile,
             alignment: WrapAlignment.center,

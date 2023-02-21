@@ -49,6 +49,24 @@ class FilterData {
     required this.allowAlarms,
   });
 
+  factory FilterData.standard({
+    required List<String>? devices,
+    required DateTime fromLimit,
+    required DateTime toLimit,
+  }) {
+    final now = DateTime.now();
+    final desiredFrom = now.subtract(const Duration(days: 1));
+
+    return FilterData(
+      allowAlarms: false,
+      from: desiredFrom.isBefore(fromLimit) ? fromLimit : desiredFrom,
+      to: now,
+      fromLimit: fromLimit,
+      toLimit: toLimit,
+      devices: devices,
+    );
+  }
+
   FilterData copyWith({
     List<String>? devices,
     DateTime? fromLimit,
@@ -160,13 +178,10 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       final allEvents = eventsForDevice.values.reduce((a, b) => a + b);
       final from = allEvents.oldest;
       final to = allEvents.newest;
-      filterData = FilterData(
+      filterData = FilterData.standard(
         devices: null,
-        from: from.published,
         fromLimit: from.published,
-        to: to.published,
         toLimit: to.published,
-        allowAlarms: false,
       );
 
       await updateFilteredData();

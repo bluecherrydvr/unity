@@ -97,8 +97,8 @@ abstract class TimelineItem {
   /// * 1 - Duration
   /// * 2 - Oldest [Event]
   /// * 3 - Newest [Event]
-  static List calculateTimeline(List data) {
-    final allEvents = (data[0] as Iterable<Event>).where(
+  static List calculateTimeline(Iterable data) {
+    final allEvents = (data as Iterable<Event>).where(
       (e) => e.duration > Duration.zero,
     );
 
@@ -115,11 +115,17 @@ abstract class TimelineItem {
     TimelineItem? currentItem;
 
     // The interval time is the duration of the shortest event
-    final intervalTime = () {
+    final intervalMs = () {
       final eventsDuration = allEvents.map((e) => e.duration).toList()
         ..sort((a, b) => a.compareTo(b));
       return eventsDuration.first;
-    }();
+    }()
+        .inMilliseconds;
+
+    final intervalTime = Duration(
+      /// min interval time is 0.5 seconds, max is 3 seconds
+      milliseconds: intervalMs.clamp(500, 3000),
+    );
 
     debugPrint(
       'Generating timeline with ${allEvents.length}, '
@@ -499,7 +505,7 @@ class TimelineController extends ChangeNotifier {
   }
 
   static const double minZoom = 1.0;
-  static const double maxZoom = 40.0;
+  double get maxZoom => (items.length) / 6;
 
   /// All the events in the timeline
   ///
@@ -870,21 +876,22 @@ class TimelineController extends ChangeNotifier {
       tiles.add(item);
     }
 
-    final result = await compute(TimelineItem.calculateTimeline, [allEvents]);
-    items = result[0] as List<TimelineItem>;
-    oldest = result[1] as Event;
-    newest = result[2] as Event;
+    final result = await compute(TimelineItem.calculateTimeline, allEvents);
+    if (result.isNotEmpty) {
+      items = result[0] as List<TimelineItem>;
+      oldest = result[1] as Event;
+      newest = result[2] as Event;
+      currentDate = oldest!.published;
 
-    currentDate = oldest!.published;
+      if (context.mounted) {
+        startTimer(context);
+        notifyListeners();
+      }
+    }
 
     HomeProvider.instance.notLoading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
     );
-
-    if (context.mounted) {
-      startTimer(context);
-      notifyListeners();
-    }
   }
 
   /// Starts all players
@@ -979,11 +986,13 @@ class _TimelineViewState extends State<TimelineView> {
       isPressing = true;
     }
 
-    final renderBox = context.findRenderObject() as RenderBox;
-    final renderRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
-    if (isPressing && renderRect.contains(event.position)) {
-      isPressing = event.down;
-      setState(() => pointerPosition = event.position);
+    if (isPressing && context.mounted) {
+      final renderBox = context.findRenderObject() as RenderBox;
+      final renderRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+      if (renderRect.contains(event.position)) {
+        isPressing = event.down;
+        setState(() => pointerPosition = event.position);
+      }
     }
   }
 
@@ -991,6 +1000,8 @@ class _TimelineViewState extends State<TimelineView> {
   Widget build(BuildContext context) {
     // subscribe to window size changes
     MediaQuery.sizeOf(context);
+
+    print(controller.maxZoom);
 
     final servers = context.watch<ServersProvider>().servers;
 

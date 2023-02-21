@@ -73,7 +73,9 @@ class Event {
   Duration get duration {
     // return mediaDuration ?? updated.difference(published);
     // TODO(bdlukaa): for some reason, the diff is off by a few seconds. use this to counterpart the issue
-    return updated.difference(published) - const Duration(seconds: 5);
+    final dur = updated.difference(published) - const Duration(seconds: 5);
+    if (dur < Duration.zero) return updated.difference(published);
+    return dur;
   }
 
   @override

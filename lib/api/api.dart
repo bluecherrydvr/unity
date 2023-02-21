@@ -45,13 +45,16 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      debugPrint(body.toString());
-      debugPrint(response.headers.toString());
-      final json = jsonDecode(body);
-      return server.copyWith(
-        serverUUID: json['server_uuid'],
-        cookie: response.headers['set-cookie'],
-      );
+
+      if (response.statusCode == 200) {
+        debugPrint(body.toString());
+        debugPrint(response.headers.toString());
+        final json = await compute(jsonDecode, body);
+        return server.copyWith(
+          serverUUID: json['server_uuid'],
+          cookie: response.headers['set-cookie'],
+        );
+      }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

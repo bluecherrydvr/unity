@@ -26,7 +26,6 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
@@ -186,10 +185,10 @@ class _MobileHomeState extends State<Home> {
                     },
                   ),
                 ),
-              ]),
-            ),
-          ]),
-        ),
+              ),
+            ]),
+          ),
+        ]),
       );
     });
   }
@@ -361,15 +360,17 @@ class _MobileHomeState extends State<Home> {
             unselectedLabelTextStyle: TextStyle(
               color: theme.unselectedForegroundColor,
             ),
-            destinations: navigatorData(context).entries.map((entry) {
-              final icon = entry.key;
-              final text = entry.value;
-              final index = navigatorData(context).keys.toList().indexOf(icon);
+            destinations: navData.map((data) {
+              final index = navData.indexOf(data);
+              final isSelected = home.tab == index;
+
+              final icon = isSelected ? data.selectedIcon : data.icon;
+              final text = data.text;
 
               return NavigationRailDestination(
                 icon: Icon(
                   icon,
-                  color: index == home.tab
+                  color: isSelected
                       ? theme.selectedForegroundColor
                       : theme.unselectedForegroundColor,
                 ),

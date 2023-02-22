@@ -70,8 +70,6 @@ class HomeProvider extends ChangeNotifier {
 
   List<UnityLoadingReason> loadReasons = [];
 
-  void setTab(int tab) {
-
   Future<void> setTab(int tab, BuildContext context) async {
     if (tab.isNegative) return;
     this.tab = tab;

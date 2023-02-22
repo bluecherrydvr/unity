@@ -12,12 +12,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # fijkplayer:
-  #   git:
-  #     # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
-  #     url: https://github.com/alexmercerind/fijkplayer.git
-  #     ref: master
-  video_player: ^2.5.1
+  fijkplayer:
+    git:
+      # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
+      url: https://github.com/bdlukaa/fijkplayer.git
+      ref: master
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
 

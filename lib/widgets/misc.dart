@@ -148,43 +148,45 @@ class CorrectedListTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        height: height ?? 88.0,
-        width: MediaQuery.sizeOf(context).width,
-        padding: const EdgeInsetsDirectional.only(start: 16.0),
-        child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsetsDirectional.only(end: 16.0),
-              alignment: AlignmentDirectional.center,
-              width: 40.0,
-              height: 40.0,
-              child: Icon(iconData),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (subtitle != null) const SizedBox(height: 4.0),
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16.0),
-          ],
+        constraints: BoxConstraints(
+          minHeight: height ?? 88.0,
+          minWidth: MediaQuery.sizeOf(context).width,
+          maxWidth: MediaQuery.sizeOf(context).width,
         ),
+        padding: const EdgeInsetsDirectional.only(start: 16.0),
+        child: Row(children: [
+          Container(
+            margin: const EdgeInsetsDirectional.only(end: 16.0),
+            alignment: AlignmentDirectional.center,
+            width: 40.0,
+            height: 40.0,
+            child: Icon(iconData),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (subtitle != null) const SizedBox(height: 4.0),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16.0),
+        ]),
       ),
     );
   }

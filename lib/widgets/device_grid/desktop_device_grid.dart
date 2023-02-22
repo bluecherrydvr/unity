@@ -233,10 +233,8 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final mq = MediaQuery.of(context);
-
     return SizedBox(
-      height: mq.size.height,
+      height: MediaQuery.sizeOf(context).height,
       child: UnityVideoView(
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,

@@ -29,8 +29,8 @@ flutter:
         default_package: unity_video_player_mobile
       ios:
         default_package: unity_video_player_mobile
-      macos:
-        default_package: unity_video_player_media_kit
+      # macos:
+      #   default_package: unity_video_player_desktop
       linux:
         default_package: unity_video_player_media_kit
       windows:

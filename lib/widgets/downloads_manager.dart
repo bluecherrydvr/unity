@@ -409,7 +409,7 @@ class DownloadIndicator extends StatelessWidget {
         if (downloads.isEventDownloaded(event.id)) {
           return IconButton(
             onPressed: () {
-              context.read<HomeProvider>().toDownloads(event.id);
+              context.read<HomeProvider>().toDownloads(event.id, context);
             },
             tooltip: AppLocalizations.of(context).seeInDownloads,
             icon: const Icon(

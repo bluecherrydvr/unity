@@ -20,7 +20,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -44,70 +43,26 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 typedef FutureValueChanged<T> = Future<void> Function(T data);
 
-class EventsPlaybackDesktop extends StatefulWidget {
-  final EventsData events;
-  final FilterData? filter;
-  final FutureValueChanged<FilterData> onFilter;
-
+class EventsPlaybackDesktop extends EventsPlaybackWidget {
   const EventsPlaybackDesktop({
-    Key? key,
-    required this.events,
-    required this.filter,
-    required this.onFilter,
-  }) : super(key: key);
+    super.key,
+    required super.events,
+    required super.filter,
+    required super.onFilter,
+  });
 
   @override
-  State<EventsPlaybackDesktop> createState() => _EventsPlaybackDesktopState();
+  State<EventsPlaybackWidget> createState() => _EventsPlaybackDesktopState();
 }
 
-class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
+class _EventsPlaybackDesktopState extends EventsPlaybackState {
   final sidebarKey = GlobalKey();
-
-  late final timelineController = TimelineController();
-  final focusNode = FocusNode();
 
   double? _volume;
   double? _speed;
 
   @override
-  void initState() {
-    super.initState();
-    timelineController.addListener(() {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant EventsPlaybackDesktop oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.filter != widget.filter) {
-      initialize();
-    }
-  }
-
-  void initialize() {
-    final selectedIds = context.read<EventsProvider>().selectedIds;
-
-    final realEvents = ({...widget.events}
-      ..removeWhere((key, value) => !selectedIds.contains(key)));
-
-    final allEvents = realEvents.isEmpty
-        ? <Event>[]
-        : realEvents.values.reduce((value, element) => value + element);
-
-    timelineController.initialize(context, realEvents, allEvents);
-  }
-
-  @override
-  void dispose() {
-    timelineController.dispose();
-    focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildChild(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final eventsProvider = context.watch<EventsProvider>();
 
@@ -142,7 +97,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
                   return Center(
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
-                      child: _StaticGrid(
+                      child: StaticGrid(
                         crossAxisCount: calculateCrossAxisCount(
                           timelineController.tiles.length,
                         ),
@@ -380,52 +335,7 @@ class _EventsPlaybackDesktopState extends State<EventsPlaybackDesktop> {
       ),
     ]);
 
-    return KeyboardListener(
-      focusNode: focusNode,
-      autofocus: true,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.space) {
-            if (timelineController.isPaused) {
-              timelineController.play(context);
-            } else {
-              timelineController.pause();
-            }
-          } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
-            if (timelineController.isMuted) {
-              timelineController.unmute();
-            } else {
-              timelineController.mute();
-            }
-          }
-        }
-      },
-      child: page,
-    );
-  }
-
-  Future<void> showFilter(BuildContext context) async {
-    final initiallyPaused = timelineController.isPaused;
-    timelineController.pause();
-
-    var localFilter = widget.filter;
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return FilterDialog(
-            filter: localFilter,
-            onFilter: (filter) async => setState(() => localFilter = filter),
-          );
-        });
-      },
-    );
-    if (widget.filter != localFilter && localFilter != null) {
-      widget.onFilter(localFilter!);
-    }
-
-    // ignore: use_build_context_synchronously
-    if (!initiallyPaused) timelineController.play(context);
+    return page;
   }
 }
 
@@ -549,7 +459,7 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
     // subscribe to media query updates
     MediaQuery.of(context);
     final theme = Theme.of(context);
-    final events = context.read<EventsProvider>();
+    final events = context.watch<EventsProvider>();
 
     return InkWell(
       onTap: !widget.device.status
@@ -745,7 +655,7 @@ class FilterTile extends StatelessWidget {
 }
 
 /// A non-scrollable grid view
-class _StaticGrid extends StatefulWidget {
+class StaticGrid extends StatefulWidget {
   final int crossAxisCount;
   final List<Widget> children;
 
@@ -755,8 +665,9 @@ class _StaticGrid extends StatefulWidget {
   final double crossAxisSpacing;
 
   final ReorderCallback onReorder;
+  final bool reorderable;
 
-  const _StaticGrid({
+  const StaticGrid({
     Key? key,
     required this.crossAxisCount,
     required this.children,
@@ -764,13 +675,14 @@ class _StaticGrid extends StatefulWidget {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
     required this.onReorder,
+    this.reorderable = true,
   }) : super(key: key);
 
   @override
-  State<_StaticGrid> createState() => _StaticGridState();
+  State<StaticGrid> createState() => StaticGridState();
 }
 
-class _StaticGridState extends State<_StaticGrid> {
+class StaticGridState extends State<StaticGrid> {
   List<Widget> realChildren = [];
   int get gridFactor => (realChildren.length / widget.crossAxisCount).round();
   void generateRealChildren() {
@@ -799,7 +711,7 @@ class _StaticGridState extends State<_StaticGrid> {
   }
 
   @override
-  void didUpdateWidget(covariant _StaticGrid oldWidget) {
+  void didUpdateWidget(covariant StaticGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.children != widget.children) {
       generateRealChildren();
@@ -819,6 +731,7 @@ class _StaticGridState extends State<_StaticGrid> {
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ReorderableWrap(
+            enableReorder: widget.reorderable,
             spacing: widget.mainAxisSpacing,
             runSpacing: widget.crossAxisSpacing,
             maxMainAxisCount: widget.crossAxisCount,

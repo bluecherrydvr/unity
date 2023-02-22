@@ -25,8 +25,11 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
+import 'package:bluecherry_client/widgets/events_playback/events_playback_mobile.dart';
+import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class FilterData {
@@ -243,18 +246,138 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
     final home = context.watch<HomeProvider>();
 
-    return EventsPlaybackDesktop(
-      events: filteredData,
-      filter: filterData,
-      onFilter: (filter) async {
-        home.loading(UnityLoadingReason.fetchingEventsPlayback);
+    Future<void> onFilter(FilterData filter) async {
+      home.loading(UnityLoadingReason.fetchingEventsPlayback);
 
-        filterData = filter;
-        await updateFilteredData();
-        setState(() {});
+      filterData = filter;
+      await updateFilteredData();
+      setState(() {});
 
-        home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+      home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+    }
+
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth >= 800) {
+        return EventsPlaybackDesktop(
+          events: filteredData,
+          filter: filterData,
+          onFilter: onFilter,
+        );
+      } else {
+        return EventsPlaybackMobile(
+          events: filteredData,
+          filter: filterData,
+          onFilter: onFilter,
+        );
+      }
+    });
+  }
+}
+
+abstract class EventsPlaybackWidget extends StatefulWidget {
+  final EventsData events;
+  final FilterData? filter;
+  final FutureValueChanged<FilterData> onFilter;
+
+  const EventsPlaybackWidget({
+    super.key,
+    required this.events,
+    required this.filter,
+    required this.onFilter,
+  });
+}
+
+abstract class EventsPlaybackState extends State<EventsPlaybackWidget> {
+  late final timelineController = TimelineController();
+
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    timelineController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant EventsPlaybackWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.filter != widget.filter) {
+      initialize();
+    }
+  }
+
+  void initialize() {
+    final selectedIds = context.read<EventsProvider>().selectedIds;
+
+    final realEvents = ({...widget.events}
+      ..removeWhere((key, value) => !selectedIds.contains(key)));
+
+    final allEvents = realEvents.isEmpty
+        ? <Event>[]
+        : realEvents.values.reduce((value, element) => value + element);
+
+    timelineController.initialize(context, realEvents, allEvents);
+  }
+
+  @override
+  void dispose() {
+    timelineController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  Widget buildChild(BuildContext context);
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            if (timelineController.isPaused) {
+              timelineController.play(context);
+            } else {
+              timelineController.pause();
+            }
+          } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
+            if (timelineController.isMuted) {
+              timelineController.unmute();
+            } else {
+              timelineController.mute();
+            }
+          }
+        }
+      },
+      child: buildChild(context),
+    );
+  }
+
+  Future<void> showFilter(BuildContext context) async {
+    final initiallyPaused = timelineController.isPaused;
+    timelineController.pause();
+
+    var localFilter = widget.filter;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return FilterDialog(
+            filter: localFilter,
+            onFilter: (filter) async => setState(() => localFilter = filter),
+          );
+        });
       },
     );
+    if (widget.filter != localFilter && localFilter != null) {
+      widget.onFilter(localFilter!);
+    }
+
+    // ignore: use_build_context_synchronously
+    if (!initiallyPaused) timelineController.play(context);
   }
 }

@@ -82,16 +82,25 @@ class EventsProvider extends ChangeNotifier {
     return '${device.server.ip}:${device.server.port}/${device.name}';
   }
 
-  Future<void> add(Device device) async {
-    selectedIds.add(idForDevice(device));
-
-    _save();
+  Future<void> clear() {
+    selectedIds.clear();
+    return _save();
   }
 
-  Future<void> remove(Device device) async {
+  bool contains(Device device) {
+    return selectedIds.contains(idForDevice(device));
+  }
+
+  Future<void> add(Device device) {
+    selectedIds.add(idForDevice(device));
+
+    return _save();
+  }
+
+  Future<void> remove(Device device) {
     selectedIds.remove(idForDevice(device));
 
-    _save();
+    return _save();
   }
 
   void onReorder(int a, int b) {

@@ -819,8 +819,10 @@ class TimelineController extends ChangeNotifier {
     EventsData events,
     List<Event> allEvents,
   ) async {
-    HomeProvider.instance
-        .loading(UnityLoadingReason.fetchingEventsPlaybackPeriods);
+    HomeProvider.instance.loading(
+      UnityLoadingReason.fetchingEventsPlaybackPeriods,
+      notify: false,
+    );
 
     _clear();
     notifyListeners();
@@ -944,10 +946,12 @@ class TimelineController extends ChangeNotifier {
 
 class TimelineView extends StatefulWidget {
   final TimelineController timelineController;
+  final bool showDevicesName;
 
   const TimelineView({
     Key? key,
     required this.timelineController,
+    this.showDevicesName = true,
   }) : super(key: key);
 
   @override
@@ -988,10 +992,13 @@ class _TimelineViewState extends State<TimelineView> {
 
     if (isPressing && context.mounted) {
       final renderBox = context.findRenderObject() as RenderBox;
-      final renderRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
-      if (renderRect.contains(event.position)) {
-        isPressing = event.down;
-        setState(() => pointerPosition = event.position);
+      if (renderBox.attached) {
+        final renderRect =
+            renderBox.localToGlobal(Offset.zero) & renderBox.size;
+        if (renderRect.contains(event.position)) {
+          isPressing = event.down;
+          setState(() => pointerPosition = event.position);
+        }
       }
     }
   }
@@ -1001,56 +1008,58 @@ class _TimelineViewState extends State<TimelineView> {
     // subscribe to window size changes
     MediaQuery.sizeOf(context);
 
-    print(controller.maxZoom);
-
     final servers = context.watch<ServersProvider>().servers;
+
+    final deviceNameWidth = widget.showDevicesName ? kDeviceNameWidth : 0.0;
 
     final theme = Theme.of(context).extension<TimelineTheme>()!;
     final timelineBox = Stack(children: [
       Positioned.fill(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(
-            width: kDeviceNameWidth + 2.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: controller.tiles.map((i) {
-                final device = servers.findDevice(i.deviceId)!;
-                final server =
-                    servers.firstWhere((s) => s.devices.contains(device));
-                return Tooltip(
-                  message: '${server.name}/${device.name}',
-                  preferBelow: false,
-                  verticalOffset: 12.0,
-                  child: Container(
-                    height: kTimelineTileHeight,
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(children: [
-                      Flexible(
-                        flex: 2,
-                        child: AutoSizeText(
-                          server.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          maxFontSize: 12.0,
+          if (widget.showDevicesName) ...[
+            SizedBox(
+              width: deviceNameWidth + 2.0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: controller.tiles.map((i) {
+                  final device = servers.findDevice(i.deviceId)!;
+                  final server =
+                      servers.firstWhere((s) => s.devices.contains(device));
+                  return Tooltip(
+                    message: '${server.name}/${device.name}',
+                    preferBelow: false,
+                    verticalOffset: 12.0,
+                    child: Container(
+                      height: kTimelineTileHeight,
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(children: [
+                        Flexible(
+                          flex: 2,
+                          child: AutoSizeText(
+                            server.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            maxFontSize: 12.0,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: AutoSizeText(
-                          '/${device.name}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          maxFontSize: 12.0,
+                        Expanded(
+                          flex: 3,
+                          child: AutoSizeText(
+                            '/${device.name}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            maxFontSize: 12.0,
+                          ),
                         ),
-                      ),
-                    ]),
-                  ),
-                );
-              }).toList(),
+                      ]),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-          const VerticalDivider(width: 2.0),
+            const VerticalDivider(width: 2.0),
+          ],
           Expanded(
             child: SingleChildScrollView(
               controller: controller.scrollController,
@@ -1170,7 +1179,7 @@ class _TimelineViewState extends State<TimelineView> {
       ),
       if (controller.initialized) ...[
         Positioned.fill(
-          left: kDeviceNameWidth,
+          left: deviceNameWidth,
           child: RepaintBoundary(
             child: AnimatedBuilder(
               animation: Listenable.merge([

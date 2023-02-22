@@ -78,7 +78,6 @@ flutter:
   generate: true
   assets:
     - assets/images/
-    - assets/videos/
     - version.txt
 
 flutter_icons:

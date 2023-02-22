@@ -107,7 +107,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    if (!isDesktop) return const SizedBox.shrink();
+    if (!isDesktop || isMobile) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
 
@@ -248,7 +248,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                       ),
                       iconSize: 22.0,
                       tooltip: text,
-                      onPressed: () => home.setTab(index),
+                      onPressed: () => home.setTab(index, context),
                     );
                   }),
                 ]),

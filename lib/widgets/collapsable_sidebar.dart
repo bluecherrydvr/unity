@@ -15,10 +15,13 @@ class CollapsableSidebar extends StatefulWidget {
   /// Whether the sidebar is positioned at the left
   final bool left;
 
+  final ValueChanged<bool>? onCollapseStateChange;
+
   const CollapsableSidebar({
     Key? key,
     required this.builder,
     this.left = true,
+    this.onCollapseStateChange,
   }) : super(key: key);
 
   @override
@@ -43,6 +46,13 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
+    collapseController.addListener(() {
+      if (collapseController.isCompleted) {
+        widget.onCollapseStateChange?.call(true);
+      } else if (collapseController.isDismissed) {
+        widget.onCollapseStateChange?.call(false);
+      }
+    });
   }
 
   @override

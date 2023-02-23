@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
@@ -38,8 +39,12 @@ Future<void> configureWindow() async {
       TitleBarStyle.hidden,
       windowButtonVisibility: false,
     );
-    await windowManager.setSize(kInitialWindowSize);
-    await windowManager.setMinimumSize(kInitialWindowSize);
+    // await windowManager.setMinimumSize(kInitialWindowSize);
+    if (kDebugMode) {
+      await windowManager.setMinimumSize(const Size(100, 100));
+    } else {
+      await windowManager.setSize(kInitialWindowSize);
+    }
     // await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.show();

@@ -20,6 +20,7 @@
 part of 'device_grid.dart';
 
 const kGridInnerPadding = 8.0;
+const kGridPadding = EdgeInsets.all(10.0);
 
 typedef FoldedDevices = List<List<Device>>;
 
@@ -32,23 +33,30 @@ class DesktopDeviceGrid extends StatefulWidget {
   State<DesktopDeviceGrid> createState() => _DesktopDeviceGridState();
 }
 
-class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
-  /// Calculates how many views there will be in the grid view
-  ///
-  /// Basically, we take the square root of the provided [deviceAmount], and round
-  /// it to the next number. We can do this because the grid displays only numbers
-  /// that have an exact square root (1, 4, 9, etc).
-  ///
-  /// For example, if [deviceAmount] is between 17-25, the returned value is is 5
-  int calculateCrossAxisCount(int deviceAmount) {
-    return sqrt(deviceAmount).ceil();
-  }
+/// Calculates how many views there will be in the grid view
+///
+/// Basically, we take the square root of the provided [deviceAmount], and round
+/// it to the next number. We can do this because the grid displays only numbers
+/// that have an exact square root (1, 4, 9, etc).
+///
+/// For example, if [deviceAmount] is between 17-25, the returned value is is 5
+int calculateCrossAxisCount(int deviceAmount) {
+  final count = sqrt(deviceAmount).ceil();
 
+  if (count == 0) return 1;
+
+  return count;
+}
+
+class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();
+    final isReversed = widget.width <= 900;
+
     final children = [
       CollapsableSidebar(
+        left: !isReversed,
         builder: (context, collapseButton) {
           return DesktopSidebar(collapseButton: collapseButton);
         },
@@ -74,8 +82,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   );
                 }
 
-                const gridPadding = EdgeInsets.all(10.0);
-
                 final dl = devices.length;
 
                 if (dl == 1) {
@@ -84,7 +90,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                     aspectRatio: 16 / 9,
                     child: Padding(
                       key: ValueKey(view.currentLayout.hashCode),
-                      padding: gridPadding,
+                      padding: kGridPadding,
                       child: DesktopDeviceTile(
                         key: ValueKey('$device.${device.server.serverUUID}'),
                         device: device,
@@ -143,7 +149,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       crossAxisSpacing: kGridInnerPadding,
                       childAspectRatio: 16 / 9,
                     ),
-                    padding: gridPadding,
+                    padding: kGridPadding,
                     itemCount: foldedDevices.length,
                     itemBuilder: (context, index) {
                       final fold = foldedDevices[index];
@@ -176,7 +182,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                     crossAxisSpacing: kGridInnerPadding,
                     childAspectRatio: 16 / 9,
                   ),
-                  padding: gridPadding,
+                  padding: kGridPadding,
                   onReorder: view.reorder,
                   itemCount: devices.length,
                   itemBuilder: (context, index) {
@@ -195,7 +201,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
       ),
     ];
 
-    if (widget.width <= 900) {
+    if (isReversed) {
       return Row(children: children.reversed.toList());
     }
 

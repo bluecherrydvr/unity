@@ -30,6 +30,7 @@ linter:
     avoid_void_async: true
     await_only_futures: true
     avoid_escaping_inner_quotes: true
+    depend_on_referenced_packages: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

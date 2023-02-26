@@ -387,8 +387,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
-      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
@@ -396,8 +396,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_linux
-      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
-      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -405,8 +405,17 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_windows_video
-      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
-      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.0"
+  media_kit_native_event_loop:
+    dependency: transitive
+    description:
+      path: media_kit_native_event_loop
+      ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -414,8 +423,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
-      resolved-ref: "4b02f9caba41df042d59f44b2f65ce8fde2cf1c9"
+      ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"

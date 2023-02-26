@@ -23,7 +23,7 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
 
@@ -45,13 +45,16 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      debugPrint(body.toString());
-      debugPrint(response.headers.toString());
-      final json = jsonDecode(body);
-      return server.copyWith(
-        serverUUID: json['server_uuid'],
-        cookie: response.headers['set-cookie'],
-      );
+
+      if (response.statusCode == 200) {
+        debugPrint(body.toString());
+        debugPrint(response.headers.toString());
+        final json = await compute(jsonDecode, body);
+        return server.copyWith(
+          serverUUID: json['server_uuid'],
+          cookie: response.headers['set-cookie'],
+        );
+      }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
@@ -80,7 +83,7 @@ class API {
       final parser = Xml2Json()..parse(response.body);
       server.devices.clear();
       server.devices.addAll(
-        jsonDecode(parser.toParker())['devices']['device']
+        (await compute(jsonDecode, parser.toParker()))['devices']['device']
             .map(
               (e) => Device(
                 e['device_name'],
@@ -127,8 +130,9 @@ class API {
         },
       );
       final parser = Xml2Json()..parse(response.body);
-      return jsonDecode(parser.toGData())['feed']['entry'].map((e) {
-        debugPrint(e.toString());
+      return (await compute(jsonDecode, parser.toGData()))['feed']['entry']
+          .map((e) {
+        if (!e.containsKey('content')) debugPrint(e.toString());
         return Event(
           server,
           int.parse(e['id']['raw']),
@@ -144,11 +148,6 @@ class API {
           !e.containsKey('content')
               ? null
               : int.parse(e['content']['media_id']),
-          !e.containsKey('content')
-              ? null
-              : Duration(
-                  microseconds: int.tryParse(e['content']['media_size']) ?? 0,
-                ),
           !e.containsKey('content')
               ? null
               : Uri.parse(

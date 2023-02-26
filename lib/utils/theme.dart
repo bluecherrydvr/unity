@@ -255,6 +255,14 @@ ThemeData createTheme({
       shape: RoundedRectangleBorder(),
       collapsedShape: RoundedRectangleBorder(),
     ),
+    extensions: [
+      TimelineTheme(
+        gapColor: light ? Colors.grey.shade200 : Colors.grey.shade400,
+        alarmColor: Colors.amber,
+        eventColor: light ? Colors.green.shade300 : Colors.green,
+        seekPopupColor: light ? Colors.grey.shade400 : Colors.grey,
+      ),
+    ],
   );
 }
 
@@ -270,5 +278,49 @@ Color colorFromBrightness(
       return dark;
     case Brightness.light:
       return light;
+  }
+}
+
+class TimelineTheme extends ThemeExtension<TimelineTheme> {
+  final Color gapColor;
+  final Color alarmColor;
+  final Color eventColor;
+  final Color seekPopupColor;
+
+  const TimelineTheme({
+    required this.gapColor,
+    required this.alarmColor,
+    required this.eventColor,
+    required this.seekPopupColor,
+  });
+
+  @override
+  ThemeExtension<TimelineTheme> copyWith({
+    Color? gapColor,
+    Color? alarmColor,
+    Color? eventColor,
+    Color? seekPopupColor,
+  }) {
+    return TimelineTheme(
+      gapColor: gapColor ?? this.gapColor,
+      alarmColor: alarmColor ?? this.alarmColor,
+      eventColor: eventColor ?? this.eventColor,
+      seekPopupColor: seekPopupColor ?? this.seekPopupColor,
+    );
+  }
+
+  @override
+  ThemeExtension<TimelineTheme> lerp(
+      covariant ThemeExtension<TimelineTheme>? other, double t) {
+    if (other is! TimelineTheme) {
+      return this;
+    }
+
+    return TimelineTheme(
+      gapColor: Color.lerp(gapColor, other.gapColor, t)!,
+      alarmColor: Color.lerp(alarmColor, other.alarmColor, t)!,
+      eventColor: Color.lerp(eventColor, other.eventColor, t)!,
+      seekPopupColor: Color.lerp(seekPopupColor, other.seekPopupColor, t)!,
+    );
   }
 }

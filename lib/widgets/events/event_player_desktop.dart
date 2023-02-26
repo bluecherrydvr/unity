@@ -329,7 +329,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                             //   '(${currentEvent.priority.locale(context)})'
                             //   ' ${currentEvent.type.locale(context)}',
                             // ),
-                            _EventTile(
+                            EventTile(
                               key: ValueKey(currentEvent),
                               event: currentEvent,
                             ),
@@ -339,7 +339,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                               }
                               return Padding(
                                 padding: const EdgeInsets.only(top: 6.0),
-                                child: _EventTile(
+                                child: EventTile(
                                   event: event,
                                   onPlay: () => setEvent(event),
                                 ),
@@ -391,27 +391,74 @@ class _CustomTrackShape extends RoundedRectSliderTrackShape {
   }
 }
 
-class _EventTile extends StatelessWidget {
+class EventTile extends StatelessWidget {
   final Event event;
   final VoidCallback? onPlay;
 
-  const _EventTile({
+  const EventTile({
     Key? key,
     required this.event,
     this.onPlay,
   }) : super(key: key);
 
+  static Widget buildContent(BuildContext context, Event event) {
+    final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
+
+    final eventType = event.type.locale(context).uppercaseFirst();
+    final at = settings.formatDate(event.published);
+
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.fade,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(loc.eventType),
+                Text(loc.device),
+                Text(loc.server),
+                Text(loc.duration),
+                Text(loc.date),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AutoSizeText(eventType, maxLines: 1),
+                AutoSizeText(event.deviceName, maxLines: 1),
+                AutoSizeText(event.server.name, maxLines: 1),
+                AutoSizeText(
+                  event.duration.humanReadableCompact(context),
+                  maxLines: 1,
+                ),
+                AutoSizeText(at),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final settings = context.watch<SettingsProvider>();
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
     );
-
-    final eventType = event.type.locale(context).uppercaseFirst();
-    final at = settings.formatDate(event.published);
 
     return ClipPath.shape(
       shape: shape,
@@ -437,49 +484,7 @@ class _EventTile extends StatelessWidget {
           ),
           expandedCrossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(loc.eventType),
-                        Text(loc.device),
-                        Text(loc.server),
-                        Text(loc.duration),
-                        Text(loc.date),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 6.0),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AutoSizeText(eventType, maxLines: 1),
-                        AutoSizeText(event.deviceName, maxLines: 1),
-                        AutoSizeText(event.server.name, maxLines: 1),
-                        AutoSizeText(
-                          event.mediaDuration?.humanReadableCompact(context) ??
-                              '--',
-                          maxLines: 1,
-                        ),
-                        AutoSizeText(at),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            buildContent(context, event),
             if (onPlay != null)
               TextButton(
                 onPressed: onPlay,

@@ -206,6 +206,11 @@
       "s": {}
     }
   },
+  "noRecords": "This camera has no records in the current period",
+  "filter": "Filter",
+  "fromDate": "From",
+  "toDate": "To",
+  "allowAlarms": "Allow alarms",
   "warn": "Warning",
   "alarm": "Alarm",
   "motion": "Motion",

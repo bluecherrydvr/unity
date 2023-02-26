@@ -26,6 +26,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -65,19 +66,19 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await fetch();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
   Future<void> fetch() async {
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsHistory);
     try {
       for (final server in ServersProvider.instance.servers) {
         try {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
           );
-          events[server] = iterable.toList().cast<Event>();
+          events[server] = iterable.toList();
           invalid[server] = false;
         } catch (exception, stacktrace) {
           debugPrint(exception.toString());
@@ -89,6 +90,7 @@ class _EventsScreenState extends State<EventsScreen> {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+    home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     if (mounted) {
       setState(() {
         isFirstTimeLoading = false;
@@ -114,26 +116,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       body: () {
         if (ServersProvider.instance.servers.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.dns,
-                  size: 72.0,
-                  color: Theme.of(context).iconTheme.color?.withOpacity(0.8),
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  AppLocalizations.of(context).noServersAdded,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontSize: 16.0),
-                ),
-              ],
-            ),
-          );
+          return const NoServerWarning();
         }
 
         return LayoutBuilder(builder: (context, consts) {

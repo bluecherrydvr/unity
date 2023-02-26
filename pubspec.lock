@@ -551,10 +551,10 @@ packages:
     dependency: transitive
     description:
       name: petitparser
-      sha256: "49392a45ced973e8d94a85fdb21293fbb40ba805fc49f2965101ae748a3683b4"
+      sha256: "32e46db8021f6d027d9221b937653f5c8aa043e0dc093998e18331912f22936b"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   platform:
     dependency: transitive
     description:
@@ -606,12 +606,19 @@ packages:
   reorderable_grid_view:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: b11dc33d38947c8196ad4ef56b21b66e7a4e1453
-      url: "https://github.com/alexmercerind/reorderable_grid_view.git"
-    source: git
-    version: "2.2.2"
+      name: reorderable_grid_view
+      sha256: "56d84da3b0ea459b3da2c21e844c0f125a9db5100bc909c7eb807c4c41aa27b1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.6-alpha.14"
+  reorderables:
+    dependency: "direct main"
+    description:
+      name: reorderables
+      sha256: "004a886e4878df1ee27321831c838bc1c976311f4ca6a74ce7d561e506540a77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   safe_local_storage:
     dependency: transitive
     description:

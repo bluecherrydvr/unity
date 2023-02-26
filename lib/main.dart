@@ -25,6 +25,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -126,6 +127,7 @@ Future<void> main(List<String> args) async {
     DesktopViewProvider.ensureInitialized(),
     ServersProvider.ensureInitialized(),
     DownloadsManager.ensureInitialized(),
+    EventsProvider.ensureInitialized(),
   ]);
 
   /// Firebase messaging isn't available on desktop platforms
@@ -259,11 +261,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<MobileViewProvider>(
-          create: (context) => MobileViewProvider.instance,
+        ChangeNotifierProvider<MobileViewProvider>.value(
+          value: MobileViewProvider.instance,
         ),
-        ChangeNotifierProvider<ServersProvider>(
-          create: (context) => ServersProvider.instance,
+        ChangeNotifierProvider<ServersProvider>.value(
+          value: ServersProvider.instance,
+        ),
+        ChangeNotifierProvider<EventsProvider>.value(
+          value: EventsProvider.instance,
         ),
       ],
       builder: (context, child) => const Home(),

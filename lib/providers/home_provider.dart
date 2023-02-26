@@ -27,6 +27,7 @@ import 'package:status_bar_control/status_bar_control.dart';
 
 enum UnityTab {
   deviceGrid,
+  eventsPlayback,
   directCameraScreen,
   eventsScreen,
   addServer,
@@ -34,12 +35,43 @@ enum UnityTab {
   settings,
 }
 
+enum UnityLoadingReason {
+  /// Fetching the events in the [EventsPlayback] screen
+  fetchingEventsPlayback,
+
+  /// Fetching the periods in [EventsPlayback] screen.
+  ///
+  /// It is a heavy computational task, so it's useful to warn the user something
+  /// is going on
+  fetchingEventsPlaybackPeriods,
+
+  /// Fetching the events in the [EventsScreen] screen
+  fetchingEventsHistory,
+
+  /// Downloading an event media
+  downloadEvent,
+
+  /// Whether a timeline event is loading
+  timelineEventLoading,
+}
+
 class HomeProvider extends ChangeNotifier {
+  static late HomeProvider _instance;
+
+  HomeProvider() {
+    _instance = this;
+  }
+
+  static HomeProvider get instance => _instance;
+
   int tab = ServersProvider.instance.serverAdded
       ? UnityTab.deviceGrid.index
       : UnityTab.addServer.index;
 
+  List<UnityLoadingReason> loadReasons = [];
+
   Future<void> setTab(int tab, BuildContext context) async {
+    if (tab.isNegative) return;
     this.tab = tab;
 
     if (tab != UnityTab.downloads.index) {
@@ -97,5 +129,19 @@ class HomeProvider extends ChangeNotifier {
         );
       }
     }
+  }
+
+  /// Whether something in the app is loading
+  bool get isLoading => loadReasons.isNotEmpty;
+  void loading(UnityLoadingReason reason, {bool notify = true}) {
+    loadReasons.add(reason);
+
+    if (notify) notifyListeners();
+  }
+
+  void notLoading(UnityLoadingReason reason) {
+    loadReasons.remove(reason);
+
+    notifyListeners();
   }
 }

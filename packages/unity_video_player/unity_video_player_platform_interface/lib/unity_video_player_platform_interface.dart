@@ -107,6 +107,10 @@ abstract class UnityVideoPlayer {
   bool get isSeekable;
 
   Future<void> setDataSource(String url, {bool autoPlay = true});
+  Future<void> setMultipleDataSource(
+    List<String> url, {
+    bool autoPlay = true,
+  });
   Future<void> setVolume(double volume);
 
   /// The current media volume

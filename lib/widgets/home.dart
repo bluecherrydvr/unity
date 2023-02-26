@@ -34,36 +34,68 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class NavigatorData {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String text;
 
-  @override
-  Widget build(BuildContext context) {
-    return const MobileHome();
+  const NavigatorData({
+    required this.icon,
+    required this.selectedIcon,
+    required this.text,
+  });
+
+  static List<NavigatorData> of(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return [
+      NavigatorData(
+        icon: Icons.window_outlined,
+        selectedIcon: Icons.window,
+        text: loc.screens,
+      ),
+      const NavigatorData(
+        icon: Icons.subscriptions_outlined,
+        selectedIcon: Icons.subscriptions,
+        text: 'Events Playback',
+      ),
+      NavigatorData(
+        icon: Icons.camera_outlined,
+        selectedIcon: Icons.camera,
+        text: loc.directCamera,
+      ),
+      NavigatorData(
+        icon: Icons.featured_play_list_outlined,
+        selectedIcon: Icons.featured_play_list,
+        text: loc.eventBrowser,
+      ),
+      NavigatorData(
+        icon: Icons.dns_outlined,
+        selectedIcon: Icons.dns,
+        text: loc.addServer,
+      ),
+      NavigatorData(
+        icon: Icons.download_outlined,
+        selectedIcon: Icons.download,
+        text: loc.downloads,
+      ),
+      NavigatorData(
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings,
+        text: loc.settings,
+      ),
+    ];
   }
 }
 
-Map<IconData, String> navigatorData(BuildContext context) {
-  final loc = AppLocalizations.of(context);
-
-  return {
-    Icons.window: loc.screens,
-    Icons.camera: loc.directCamera,
-    Icons.description: loc.eventBrowser,
-    Icons.dns: loc.addServer,
-    Icons.download: loc.downloads,
-    Icons.settings: loc.settings,
-  };
-}
-
-class MobileHome extends StatefulWidget {
-  const MobileHome({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
-  State<MobileHome> createState() => _MobileHomeState();
+  State<Home> createState() => _MobileHomeState();
 }
 
-class _MobileHomeState extends State<MobileHome> {
+class _MobileHomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
@@ -167,6 +199,8 @@ class _MobileHomeState extends State<MobileHome> {
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
+    final navData = NavigatorData.of(context);
+
     return Drawer(
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
@@ -182,10 +216,12 @@ class _MobileHomeState extends State<MobileHome> {
             ),
           ),
           const SizedBox(height: 8.0),
-          ...navigatorData(context).entries.map((entry) {
-            final icon = entry.key;
-            final text = entry.value;
-            final index = navigatorData(context).keys.toList().indexOf(icon);
+          ...navData.map((data) {
+            final index = navData.indexOf(data);
+            final isSelected = tab == index;
+
+            final icon = isSelected ? data.selectedIcon : data.icon;
+            final text = data.text;
 
             return Container(
               padding: const EdgeInsetsDirectional.only(
@@ -253,8 +289,7 @@ class _MobileHomeState extends State<MobileHome> {
                   },
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color:
-                          index == tab ? theme.selectedBackgroundColor : null,
+                      color: isSelected ? theme.selectedBackgroundColor : null,
                       borderRadius: const BorderRadiusDirectional.only(
                         topEnd: Radius.circular(28.0),
                         bottomEnd: Radius.circular(28.0),
@@ -266,7 +301,7 @@ class _MobileHomeState extends State<MobileHome> {
                         backgroundColor: Colors.transparent,
                         child: Icon(
                           icon,
-                          color: index == tab
+                          color: isSelected
                               ? theme.selectedForegroundColor
                               : theme.unselectedForegroundColor,
                         ),
@@ -276,7 +311,7 @@ class _MobileHomeState extends State<MobileHome> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: index == tab
+                              color: isSelected
                                   ? theme.selectedForegroundColor
                                   : null,
                             ),
@@ -300,6 +335,7 @@ class _MobileHomeState extends State<MobileHome> {
     final home = context.watch<HomeProvider>();
 
     const imageSize = 42.0;
+    final navData = NavigatorData.of(context);
 
     return Card(
       child: Column(children: [
@@ -324,15 +360,17 @@ class _MobileHomeState extends State<MobileHome> {
             unselectedLabelTextStyle: TextStyle(
               color: theme.unselectedForegroundColor,
             ),
-            destinations: navigatorData(context).entries.map((entry) {
-              final icon = entry.key;
-              final text = entry.value;
-              final index = navigatorData(context).keys.toList().indexOf(icon);
+            destinations: navData.map((data) {
+              final index = navData.indexOf(data);
+              final isSelected = home.tab == index;
+
+              final icon = isSelected ? data.selectedIcon : data.icon;
+              final text = data.text;
 
               return NavigationRailDestination(
                 icon: Icon(
                   icon,
-                  color: index == home.tab
+                  color: isSelected
                       ? theme.selectedForegroundColor
                       : theme.unselectedForegroundColor,
                 ),
@@ -347,7 +385,14 @@ class _MobileHomeState extends State<MobileHome> {
             },
           ),
         ),
-        // const SizedBox(height: imageSize + 16.0),
+        SizedBox(
+          height: imageSize + 16.0,
+          child: () {
+            if (home.isLoading) {
+              return const Center(child: UnityLoadingIndicator());
+            }
+          }(),
+        ),
       ]),
     );
   }

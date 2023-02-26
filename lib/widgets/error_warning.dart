@@ -18,6 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ErrorWarning extends StatelessWidget {
   const ErrorWarning({Key? key, required this.message}) : super(key: key);
@@ -35,13 +36,43 @@ class ErrorWarning extends StatelessWidget {
             color: Colors.white70,
             size: 32.0,
           ),
+          if (message.isNotEmpty) ...[
+            const SizedBox(height: 8.0),
+            Text(
+              message.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.0,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class NoServerWarning extends StatelessWidget {
+  const NoServerWarning({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.dns,
+            size: 72.0,
+            color: Theme.of(context).iconTheme.color?.withOpacity(0.8),
+          ),
           const SizedBox(height: 8.0),
           Text(
-            message.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12.0,
-            ),
+            AppLocalizations.of(context).noServersAdded,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 16.0),
           ),
         ],
       ),

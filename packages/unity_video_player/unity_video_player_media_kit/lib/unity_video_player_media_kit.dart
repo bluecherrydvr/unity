@@ -89,7 +89,7 @@ class __MKVideoState extends State<_MKVideo> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (!widget.player.state.isPlaying) widget.player.play();
+    // if (!widget.player.state.isPlaying) widget.player.play();
   }
 
   @override
@@ -123,6 +123,17 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       width: 640,
       height: 360,
     );
+
+    // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
+    if (mkPlayer.platform is libmpvPlayer) {
+      final platform = (mkPlayer.platform as libmpvPlayer?);
+      // https://mpv.io/manual/stable/#options-cache
+      platform?.setProperty("cache", "yes");
+      // https://mpv.io/manual/stable/#options-cache-pause-initial
+      platform?.setProperty("cache-pause-initial", "yes");
+      // https://mpv.io/manual/stable/#options-cache-pause-wait
+      platform?.setProperty("cache-pause-wait", "3");
+    }
   }
 
   Future<void> ensureVideoControllerInitialized(
@@ -181,6 +192,17 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
     });
+  }
+
+  @override
+  Future<void> setMultipleDataSource(
+    List<String> url, {
+    bool autoPlay = true,
+  }) async {
+    await mkPlayer.open(
+      Playlist(url.map((source) => Media(source)).toList()),
+      play: autoPlay,
+    );
   }
 
   // Volume in media kit goes from 0 to 100

@@ -135,7 +135,8 @@ class EventsScreenDesktop extends StatelessWidget {
                 // duration
                 DataCell(
                   Text(
-                    (event.mediaDuration?.humanReadableCompact(context) ?? '')
+                    event.duration
+                        .humanReadableCompact(context)
                         .uppercaseFirst(),
                   ),
                 ),

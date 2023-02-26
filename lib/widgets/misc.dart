@@ -196,43 +196,53 @@ class SubHeader extends StatelessWidget {
   final String text;
   final String? subtext;
   final EdgeInsetsGeometry padding;
+  final double? height;
+
+  final Widget? trailing;
 
   const SubHeader(
     this.text, {
     this.subtext,
+    this.trailing,
     Key? key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+    this.height = 56.0,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56.0,
+      height: height,
       alignment: AlignmentDirectional.centerStart,
       padding: padding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            text.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).textTheme.displaySmall?.color,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w600,
-                ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                text.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).textTheme.displaySmall?.color,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (subtext != null)
+                Text(
+                  subtext!.toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).hintColor,
+                        fontSize: 10.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                )
+            ],
           ),
-          if (subtext != null)
-            Text(
-              subtext!.toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).hintColor,
-                    fontSize: 10.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-            )
-        ],
-      ),
+        ),
+        if (trailing != null) trailing!,
+      ]),
     );
   }
 }

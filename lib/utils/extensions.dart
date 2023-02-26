@@ -17,6 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -68,7 +72,7 @@ extension DurationExtension on Duration {
     return finalStrings.join(', ');
   }
 
-  String humanReadableCompact(BuildContext context) {
+  String humanReadableCompact(BuildContext context, [bool allowEmpty = false]) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final hours = twoDigits(inHours);
     final minutes = twoDigits(inMinutes.remainder(60));
@@ -78,15 +82,15 @@ extension DurationExtension on Duration {
 
     final localizations = AppLocalizations.of(context);
 
-    if (hours.isNotEmpty && hours != '00') {
+    if (hours.isNotEmpty && hours != '00' || allowEmpty) {
       finalStrings.add(localizations.hoursCompact(hours));
     }
 
-    if (minutes.isNotEmpty && minutes != '00') {
+    if (minutes.isNotEmpty && minutes != '00' || allowEmpty) {
       finalStrings.add(localizations.minutesCompact(minutes));
     }
 
-    if (seconds.isNotEmpty && seconds != '00') {
+    if (seconds.isNotEmpty && seconds != '00' || allowEmpty) {
       finalStrings.add(localizations.secondsCompact(seconds));
     }
 
@@ -124,5 +128,80 @@ extension NumberExtension on num {
   num ensurePositive() {
     if (isNegative) return -this;
     return this;
+  }
+}
+
+extension ServerExtension on List<Server> {
+  Device? findDevice(String id) {
+    for (final server in this) {
+      if (server.devices.any((d) => EventsProvider.idForDevice(d) == id)) {
+        return server.devices
+            .firstWhere((d) => EventsProvider.idForDevice(d) == id);
+      }
+    }
+
+    return null;
+  }
+}
+
+extension DateTimeExtension on DateTime {
+  bool hasForDate(DateTime date) {
+    return year == date.year &&
+        month == date.month &&
+        day == date.day &&
+        hour == date.hour &&
+        minute == date.minute;
+  }
+
+  bool isInBetween(DateTime first, DateTime second) {
+    return isAfter(first) && isBefore(second) ||
+        this == first ||
+        this == second;
+  }
+}
+
+extension EventsExtension on Iterable<Event> {
+  bool hasForDate(DateTime date) {
+    return any((event) {
+      final start = event.published;
+
+      final end = event.published.add(event.duration);
+
+      return date.isInBetween(start, end);
+    });
+  }
+
+  Event forDate(DateTime date) {
+    return forDateList(date).first;
+  }
+
+  Iterable<Event> forDateList(DateTime date) {
+    return where((event) {
+      final start = event.published;
+
+      final end = event.published.add(event.duration);
+
+      return date.isInBetween(start, end);
+    });
+  }
+
+  Event get oldest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.published.compareTo(e2.published);
+      });
+
+    return copy.first;
+  }
+
+  Event get newest {
+    final copy = [...this]..sort((e1, e2) {
+        return e1.published.compareTo(e2.published);
+      });
+
+    return copy.last;
+  }
+
+  Iterable<Event> inBetween(DateTime d1, DateTime d2) {
+    return where((e) => e.published.isInBetween(d1, d2));
   }
 }

@@ -394,8 +394,7 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
           ),
           Text(
             settings.formatTime(
-              widget.event.published
-                  .add(widget.event.mediaDuration ?? Duration.zero),
+              widget.event.published.add(widget.event.duration),
             ),
           ),
         ]),

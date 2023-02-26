@@ -1,5 +1,6 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '10.0'
+# 11 is the min version required for a lot of packages declared in pubspec
+platform :ios, '11.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -26,6 +27,11 @@ end
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
 
 flutter_ios_podfile_setup
+
+# https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#optional-permissions
+Pod::PICKER_MEDIA = false
+Pod::PICKER_AUDIO = false
+Pod::PICKER_DOCUMENT = false
 
 target 'Runner' do
   use_frameworks!

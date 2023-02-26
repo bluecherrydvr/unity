@@ -30,9 +30,8 @@ dependencies:
   reorderables: ^0.6.0
 
   intl: ^0.18.0
-  firebase_core: ^2.4.1
-  # Firebase Messaging 11.2.8 seems to be the most stable version.
-  firebase_messaging: ^14.2.1
+  firebase_core: ^2.7.0
+  firebase_messaging: ^14.2.5
   # Use HannesGitH branch until https://github.com/rafaelsetragni/awesome_notifications/pull/727 is merged
   # TODO: remove this
   awesome_notifications:
@@ -46,8 +45,6 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   file_picker: ^5.2.5
-
-  video_thumbnail: ^0.5.3
 
   permission_handler: ^10.2.0
   uuid: ^3.0.7

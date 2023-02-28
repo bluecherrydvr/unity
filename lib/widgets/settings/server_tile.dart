@@ -272,6 +272,7 @@ class _ServerCardState extends State<ServerCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final home = context.watch<HomeProvider>();
 
     return SizedBox(
       height: 180,
@@ -360,8 +361,7 @@ class _ServerCardState extends State<ServerCard> {
                   PopupMenuItem(
                     child: Text(AppLocalizations.of(context).browseEvents),
                     onTap: () {
-                      // TODO(bdlukaa): browse events
-                      // launchUrl(Uri.parse(widget.server.ip));
+                      home.setTab(UnityTab.eventsScreen.index, context);
                     },
                   ),
                   PopupMenuItem(

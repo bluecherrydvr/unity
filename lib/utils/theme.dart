@@ -174,8 +174,10 @@ ThemeData createTheme({
         },
       ),
     ),
-    buttonTheme:
-        ButtonThemeData(disabledColor: light ? Colors.black12 : Colors.white24),
+    buttonTheme: ButtonThemeData(
+      disabledColor: light ? Colors.black12 : Colors.white24,
+      alignedDropdown: true,
+    ),
     splashFactory: InkSparkle.splashFactory,
     highlightColor: defaultTargetPlatform == TargetPlatform.android
         ? Colors.transparent

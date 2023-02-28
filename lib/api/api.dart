@@ -139,7 +139,7 @@ class API {
         return Event(
           server,
           int.parse(e['id']['raw']),
-          int.parse(e['category']['term'].split('/').first),
+          int.parse((e['category']['term'] as String).split('/').first),
           e['title']['\$t'],
           e['published'] == null || e['published']['\$t'] == null
               ? DateTime.now()

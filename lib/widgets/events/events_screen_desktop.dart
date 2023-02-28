@@ -24,6 +24,7 @@ class EventsScreenDesktop extends StatelessWidget {
 
   // filters
   final List<Server> allowedServers;
+  final List<String> disabledDevices;
   final EventsTimeFilter timeFilter;
   final EventsMinLevelFilter levelFilter;
 
@@ -31,6 +32,7 @@ class EventsScreenDesktop extends StatelessWidget {
     Key? key,
     required this.events,
     required this.allowedServers,
+    required this.disabledDevices,
     required this.timeFilter,
     required this.levelFilter,
   }) : super(key: key);
@@ -70,6 +72,14 @@ class EventsScreenDesktop extends StatelessWidget {
             break;
           default:
             break;
+        }
+
+        // This is hacky. Maybe find a way to move this logic to [API.getEvents]
+        // It'd also be useful to find a way to get the device at Event creation time
+        final devices = event.server.devices.where((device) =>
+            device.name.toLowerCase() == event.deviceName.toLowerCase());
+        if (devices.isNotEmpty) {
+          if (disabledDevices.contains(devices.first.streamURL)) continue;
         }
 
         yield event;

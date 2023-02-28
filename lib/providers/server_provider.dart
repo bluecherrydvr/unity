@@ -57,6 +57,17 @@ class ServersProvider extends ChangeNotifier {
     } else {
       await _restore();
     }
+
+    /// Fetch for any new device at startup
+    // for (final server in servers) {
+    //   final devices = await API.instance.getDevices(server);
+    //   if (devices != null) {
+    //     server.devices
+    //       ..clear()
+    //       ..addAll(devices);
+    //   }
+    // }
+    // await _save();
   }
 
   /// Adds a new [Server] to the cache.

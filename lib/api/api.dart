@@ -45,10 +45,10 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
+      debugPrint(body.toString());
+      debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {
-        debugPrint(body.toString());
-        debugPrint(response.headers.toString());
         final json = await compute(jsonDecode, body);
         return server.copyWith(
           serverUUID: json['server_uuid'],
@@ -65,46 +65,49 @@ class API {
   /// Gets [Device] devices present on the [server] after login.
   /// Returns `true` if it is a success or `false` if it failed.
   /// The found [Device] devices are saved in [Server.devices].
-  Future<bool> getDevices(Server server) async {
+  Future<List<Device>?> getDevices(Server server) async {
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/devices.php',
+          '/ajax/devices.php',
           {
             'XML': '1',
           },
         ),
         headers: {
-          'Cookie': server.cookie!,
+          if (server.cookie != null) 'Cookie': server.cookie!,
         },
       );
+      debugPrint(response.body);
       final parser = Xml2Json()..parse(response.body);
-      server.devices.clear();
-      server.devices.addAll(
-        (await compute(jsonDecode, parser.toParker()))['devices']['device']
-            .map(
-              (e) => Device(
-                e['device_name'],
-                'live/${e['id']}',
-                e['status'] == 'OK',
-                e['resolutionX'] == null ? null : int.parse(e['resolutionX']),
-                e['resolutionX'] == null ? null : int.parse(e['resolutionY']),
-                server,
-              ),
-            )
-            .toList()
-            .cast<Device>()
-          // cause `online` devies to show on top.
-          ..sort((a, b) => a.status ? 0 : 1),
-      );
-      return true;
+      final devices =
+          (await compute(jsonDecode, parser.toParker()))['devices']['device']
+              .map(
+                (e) => Device(
+                  e['device_name'],
+                  'live/${e['id']}',
+                  e['status'] == 'OK',
+                  e['resolutionX'] == null ? null : int.parse(e['resolutionX']),
+                  e['resolutionX'] == null ? null : int.parse(e['resolutionY']),
+                  server,
+                ),
+              )
+              .toList()
+              .cast<Device>()
+            // cause `online` devies to show on top.
+            ..sort((Device a, Device b) => a.status ? 0 : 1);
+
+      server.devices
+        ..clear()
+        ..addAll(devices);
+      return devices;
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
-    return false;
+    return null;
   }
 
   /// Gets [Event]s present on the [server] after login.

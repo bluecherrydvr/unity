@@ -75,7 +75,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
               itemCount: ServersProvider.instance.servers.length,
               itemBuilder: (context, i) {
                 final server = ServersProvider.instance.servers[i];
-                return CustomFutureBuilder<bool>(
+                return CustomFutureBuilder(
                   future: () async {
                     if (server.devices.isEmpty) {
                       return API.instance.getDevices(
@@ -122,6 +122,8 @@ class _DevicesForServer extends StatelessWidget {
         ),
       );
     }
+
+    final devices = server.devices.sorted();
     return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= 800) {
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -129,7 +131,7 @@ class _DevicesForServer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Wrap(
-              children: server.devices.map<Widget>((device) {
+              children: devices.map<Widget>((device) {
                 final foregroundColor = device.status
                     ? colorFromBrightness(
                         context,
@@ -180,7 +182,7 @@ class _DevicesForServer extends StatelessWidget {
       }
       return Column(children: [
         SubHeader(server.name),
-        ...server.devices.map((device) {
+        ...devices.map((device) {
           return ListTile(
             enabled: device.status,
             leading: CircleAvatar(

@@ -370,7 +370,7 @@ class Sidebar extends StatelessWidget {
               final server = servers.elementAt(i);
               return FutureBuilder(
                 future: (() async => server.devices.isEmpty
-                    ? API.instance.getDevices(
+                    ? await API.instance.getDevices(
                         await API.instance.checkServerCredentials(server))
                     : true)(),
                 builder: (context, snapshot) {
@@ -384,16 +384,18 @@ class Sidebar extends StatelessWidget {
                     );
                   }
 
+                  final devices = server.devices.sorted();
+
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: server.devices.length + 1,
+                    itemCount: devices.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         return SubHeader(
                           server.name,
                           subtext: AppLocalizations.of(context).nDevices(
-                            server.devices.length,
+                            devices.length,
                           ),
                           padding: const EdgeInsetsDirectional.only(
                             start: 16.0,
@@ -404,7 +406,7 @@ class Sidebar extends StatelessWidget {
                       }
 
                       index--;
-                      final device = server.devices[index];
+                      final device = devices[index];
                       if (!this
                           .events
                           .keys

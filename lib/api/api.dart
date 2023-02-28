@@ -71,7 +71,7 @@ class API {
       final response = await get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/ajax/devices.php',
+          '/devices.php',
           {
             'XML': '1',
           },

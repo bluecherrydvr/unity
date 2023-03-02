@@ -295,8 +295,10 @@ abstract class EventsPlaybackState extends State<EventsPlaybackWidget> {
   @override
   void initState() {
     super.initState();
-    timelineController.addListener(() {
-      if (mounted) setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((timestamp) {
+      timelineController.addListener(() {
+        if (mounted) setState(() {});
+      });
     });
   }
 

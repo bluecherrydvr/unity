@@ -114,6 +114,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                               .canvasColor;
 
                           return IndexedStack(
+                            key: ValueKey(tile),
                             index: !has ? 0 : 1,
                             children: [
                               Container(

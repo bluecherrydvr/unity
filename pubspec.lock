@@ -395,8 +395,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: "6cc242355decc163d377dcfc611fd0300556c222"
-      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
@@ -404,8 +404,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_linux
-      ref: "6cc242355decc163d377dcfc611fd0300556c222"
-      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -413,8 +413,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_windows_video
-      ref: "6cc242355decc163d377dcfc611fd0300556c222"
-      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -422,8 +422,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_native_event_loop
-      ref: "6cc242355decc163d377dcfc611fd0300556c222"
-      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -431,8 +431,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "6cc242355decc163d377dcfc611fd0300556c222"
-      resolved-ref: "6cc242355decc163d377dcfc611fd0300556c222"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"

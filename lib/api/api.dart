@@ -56,6 +56,7 @@ class API {
         );
       }
     } catch (exception, stacktrace) {
+      debugPrint('Failed to checkServerCredentials on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
@@ -104,6 +105,7 @@ class API {
         ..addAll(devices);
       return devices;
     } catch (exception, stacktrace) {
+      debugPrint('Failed to getDevices on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
@@ -162,6 +164,7 @@ class API {
         );
       }).cast<Event>();
     } catch (exception, stacktrace) {
+      debugPrint('Failed to getEvents on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
@@ -187,6 +190,7 @@ class API {
       final body = jsonDecode(response.body);
       return body['notification_api_endpoint'];
     } catch (exception, stacktrace) {
+      debugPrint('Failed to getNotificationAPIEndpoint on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
@@ -228,6 +232,7 @@ class API {
       debugPrint(response.body);
       return true;
     } catch (exception, stacktrace) {
+      debugPrint('Failed to registerNotificationToToken on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
       return false;
@@ -261,6 +266,7 @@ class API {
       debugPrint(response.body);
       return true;
     } catch (exception, stacktrace) {
+      debugPrint('Failed to unregisterNotificationToken on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
       return false;

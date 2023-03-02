@@ -207,7 +207,6 @@ class Event {
   }
 }
 
-// TODO(bdlukaa): locale for these
 enum EventPriority {
   info,
   warning,
@@ -218,12 +217,13 @@ enum EventPriority {
     final localizations = AppLocalizations.of(context);
     switch (this) {
       case EventPriority.info:
+        return localizations.info;
       case EventPriority.warning:
         return localizations.warn;
       case EventPriority.alarm:
         return localizations.alarm;
       case EventPriority.critical:
-        return localizations.notFound;
+        return localizations.critical;
     }
   }
 }
@@ -250,8 +250,25 @@ enum EventType {
       case EventType.continuous:
         return localizations.continuous;
       case EventType.notFound:
-      default:
         return localizations.notFound;
+      case EventType.cameraVideoLost:
+        return localizations.cameraVideoLost;
+      case EventType.cameraAudioLost:
+        return localizations.cameraAudioLost;
+      case EventType.systemDiskSpace:
+        return localizations.systemDiskSpace;
+      case EventType.systemCrash:
+        return localizations.systemCrash;
+      case EventType.systemBoot:
+        return localizations.systemBoot;
+      case EventType.systemShutdown:
+        return localizations.systemShutdown;
+      case EventType.systemReboot:
+        return localizations.systemReboot;
+      case EventType.systemPowerOutage:
+        return localizations.systemPowerOutage;
+      case EventType.unknown:
+        return localizations.unknown;
     }
   }
 }

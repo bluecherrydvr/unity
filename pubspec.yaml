@@ -28,6 +28,7 @@ dependencies:
   provider: ^6.0.5
   reorderable_grid_view: ^2.2.6-alpha.14
   reorderables: ^0.6.0
+  flutter_simple_treeview: ^3.0.2
 
   intl: ^0.18.0
   firebase_core: ^2.7.0

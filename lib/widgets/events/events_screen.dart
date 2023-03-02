@@ -31,6 +31,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -62,6 +63,9 @@ class _EventsScreenState extends State<EventsScreen> {
   bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
+
+  /// The devices that can't be displayed in the list
+  List<String> disabledDevices = [];
 
   @override
   void initState() {
@@ -121,43 +125,21 @@ class _EventsScreenState extends State<EventsScreen> {
 
         return LayoutBuilder(builder: (context, consts) {
           if (consts.maxWidth >= 800) {
-            final servers = context.watch<ServersProvider>();
-
             return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               SizedBox(
                 width: 220,
-                child: Material(
-                  color: Theme.of(context).appBarTheme.backgroundColor,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  shape: const RoundedRectangleBorder(),
+                  // color: Theme.of(context).appBarTheme.backgroundColor,
                   child: DropdownButtonHideUnderline(
                     child: Column(children: [
                       SubHeader(AppLocalizations.of(context).servers),
-                      ...servers.servers.map((server) {
-                        return CheckboxListTile(
-                          value: allowedServers.contains(server),
-                          onChanged: (v) {
-                            setState(() {
-                              if (v == null || !v) {
-                                allowedServers.remove(server);
-                              } else {
-                                allowedServers.add(server);
-                              }
-                            });
-                          },
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: const EdgeInsetsDirectional.only(
-                            start: 8.0,
-                            end: 16.0,
-                          ),
-                          title: Text(
-                            server.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14.0),
-                          ),
-                        );
-                      }),
-                      const Spacer(),
-                      // TODO(bdlukaa): THIS IS BLOCKED BY https://github.com/flutter/flutter/pull/115806
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: buildTreeView(context),
+                        ),
+                      ),
                       DropdownButton<EventsTimeFilter>(
                         isExpanded: true,
                         value: timeFilter,
@@ -215,6 +197,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 child: EventsScreenDesktop(
                   events: events,
                   allowedServers: allowedServers,
+                  disabledDevices: disabledDevices,
                   timeFilter: timeFilter,
                   levelFilter: levelFilter,
                 ),
@@ -230,6 +213,109 @@ class _EventsScreenState extends State<EventsScreen> {
           }
         });
       }(),
+    );
+  }
+
+  Widget buildTreeView(BuildContext context) {
+    final servers = context.watch<ServersProvider>();
+    const checkboxScale = 0.8;
+    return TreeView(
+      indent: 56,
+      iconSize: 18.0,
+      nodes: servers.servers
+          .where((server) => server.devices.isNotEmpty)
+          .map((server) {
+        final isTriState = disabledDevices
+            .any((d) => server.devices.any((device) => device.streamURL == d));
+        return TreeNode(
+          content: Row(children: [
+            Transform.scale(
+              scale: checkboxScale,
+              child: Checkbox(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: const VisualDensity(
+                  horizontal: -4,
+                  vertical: -4,
+                ),
+                splashRadius: 0.0,
+                tristate: true,
+                value: !allowedServers.contains(server)
+                    ? false
+                    : isTriState
+                        ? null
+                        : true,
+                onChanged: (v) {
+                  setState(() {
+                    if (isTriState) {
+                      disabledDevices.removeWhere((d) => server.devices
+                          .any((device) => device.streamURL == d));
+                    } else if (v == null || !v) {
+                      allowedServers.remove(server);
+                    } else {
+                      allowedServers.add(server);
+                    }
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: Text(
+                server.name,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                softWrap: false,
+              ),
+            ),
+            Text(
+              '${server.devices.length}',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            const SizedBox(width: 6.0),
+          ]),
+          children: server.devices.sorted().map((device) {
+            final enabled = !allowedServers.contains(server)
+                ? false
+                : !disabledDevices.contains(device.streamURL);
+            return TreeNode(
+              content: Row(children: [
+                Transform.scale(
+                  scale: checkboxScale,
+                  child: IgnorePointer(
+                    ignoring: !device.status,
+                    child: Checkbox(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: const VisualDensity(
+                        horizontal: -4,
+                        vertical: -4,
+                      ),
+                      splashRadius: 0.0,
+                      isError: !device.status,
+                      value: device.status ? enabled : false,
+                      onChanged: (v) {
+                        if (!device.status) return;
+
+                        setState(() {
+                          if (enabled) {
+                            disabledDevices.add(device.streamURL);
+                          } else {
+                            disabledDevices.remove(device.streamURL);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Text(
+                  device.name,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ]),
+            );
+          }).toList(),
+        );
+      }).toList(),
     );
   }
 }

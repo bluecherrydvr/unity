@@ -205,3 +205,12 @@ extension EventsExtension on Iterable<Event> {
     return where((e) => e.published.isInBetween(d1, d2));
   }
 }
+
+extension DeviceListExtension on List<Device> {
+  /// Returns this device list sorted properly
+  List<Device> sorted() {
+    return [...this]
+      ..sort((a, b) => a.name.compareTo(b.name))
+      ..sort((a, b) => a.status ? 0 : 1);
+  }
+}

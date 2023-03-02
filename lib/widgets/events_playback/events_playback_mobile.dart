@@ -26,8 +26,8 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
-import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
+import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -85,8 +85,6 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
                       timelineController.tiles.length,
                     ),
                     childAspectRatio: 16 / 9,
-                    mainAxisSpacing: kGridInnerPadding,
-                    crossAxisSpacing: kGridInnerPadding,
                     onReorder: eventsProvider.onReorder,
                     children: timelineController.tiles.map((tile) {
                       final has =

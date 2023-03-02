@@ -26,7 +26,6 @@ dependencies:
   auto_size_text: ^3.0.0
   animations: ^2.0.7
   provider: ^6.0.5
-  reorderable_grid_view: ^2.2.6-alpha.14
   reorderables: ^0.6.0
   flutter_simple_treeview: ^3.0.2
 

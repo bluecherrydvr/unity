@@ -34,14 +34,13 @@ import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/layout_manager.dart';
 import 'package:bluecherry_client/widgets/device_tile_selector.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 part 'desktop_device_grid.dart';

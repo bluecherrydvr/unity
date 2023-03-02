@@ -19,9 +19,6 @@
 
 part of 'device_grid.dart';
 
-const kGridInnerPadding = 8.0;
-const kGridPadding = EdgeInsets.all(10.0);
-
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
@@ -176,8 +173,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                   key: ValueKey(view.currentLayout.hashCode),
                   crossAxisCount: crossAxisCount.clamp(1, 50),
                   childAspectRatio: 16 / 9,
-                  mainAxisSpacing: kGridInnerPadding,
-                  crossAxisSpacing: kGridInnerPadding,
                   onReorder: view.reorder,
                   children: devices.map((device) {
                     return DesktopDeviceTile(

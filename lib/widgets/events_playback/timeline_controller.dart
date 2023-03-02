@@ -726,6 +726,9 @@ class TimelineController extends ChangeNotifier {
   }
 
   void setVideoPosition(Duration precision) {
+    // to avoid issues on the client
+    if (currentItem == null) return;
+
     assert(currentItem != null);
     assert(currentItem is TimelineValue);
 

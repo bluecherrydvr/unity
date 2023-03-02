@@ -12,30 +12,32 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # We lock the version to a commit because of the inconsistency of the pub cache
+  # If an upgrade is necessary, change the [ref] of all packages below to the desired commit
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 6cc242355decc163d377dcfc611fd0300556c222
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit/
   media_kit_native_event_loop:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 6cc242355decc163d377dcfc611fd0300556c222
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_native_event_loop/
   media_kit_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 6cc242355decc163d377dcfc611fd0300556c222
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_video/
   media_kit_libs_windows_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 6cc242355decc163d377dcfc611fd0300556c222
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_libs_windows_video/
   media_kit_libs_linux:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 6cc242355decc163d377dcfc611fd0300556c222
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_libs_linux/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/

@@ -175,9 +175,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
         color: Colors.black,
         height: double.infinity,
         width: double.infinity,
-        child: ReorderableGridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
+        child: StaticGrid(
           crossAxisCount: <int, int>{
             4: 2,
             2: 2,

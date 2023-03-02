@@ -32,12 +32,12 @@ import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:reorderables/reorderables.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 typedef FutureValueChanged<T> = Future<void> Function(T data);
@@ -101,8 +101,6 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                           timelineController.tiles.length,
                         ),
                         childAspectRatio: 16 / 9,
-                        mainAxisSpacing: kGridInnerPadding,
-                        crossAxisSpacing: kGridInnerPadding,
                         onReorder: eventsProvider.onReorder,
                         children: timelineController.tiles.map((tile) {
                           final has = timelineController.currentItem
@@ -114,6 +112,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                               .canvasColor;
 
                           return IndexedStack(
+                            key: ValueKey(tile),
                             index: !has ? 0 : 1,
                             children: [
                               Container(
@@ -652,112 +651,5 @@ class FilterTile extends StatelessWidget {
         ),
       ),
     ]);
-  }
-}
-
-/// A non-scrollable grid view
-class StaticGrid extends StatefulWidget {
-  final int crossAxisCount;
-  final List<Widget> children;
-
-  final double childAspectRatio;
-
-  final double mainAxisSpacing;
-  final double crossAxisSpacing;
-
-  final ReorderCallback onReorder;
-  final bool reorderable;
-
-  const StaticGrid({
-    Key? key,
-    required this.crossAxisCount,
-    required this.children,
-    this.childAspectRatio = 1.0,
-    this.mainAxisSpacing = 0.0,
-    this.crossAxisSpacing = 0.0,
-    required this.onReorder,
-    this.reorderable = true,
-  }) : super(key: key);
-
-  @override
-  State<StaticGrid> createState() => StaticGridState();
-}
-
-class StaticGridState extends State<StaticGrid> {
-  List<Widget> realChildren = [];
-  int get gridFactor => (realChildren.length / widget.crossAxisCount).round();
-  void generateRealChildren() {
-    realChildren = [...widget.children];
-
-    bool check() {
-      if (realChildren.isEmpty) return false;
-
-      // if the children length is multiple of the crossAxisCount, return. This
-      // avoids adding multiple emtpy areas in the view
-      if (realChildren.length % widget.crossAxisCount == 0) return false;
-      if (gridFactor == 1) return false;
-
-      return true;
-    }
-
-    while (check()) {
-      realChildren.add(const SizedBox.shrink());
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    generateRealChildren();
-  }
-
-  @override
-  void didUpdateWidget(covariant StaticGrid oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.children != widget.children) {
-      generateRealChildren();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: kGridPadding.add(EdgeInsetsDirectional.only(
-        start: widget.crossAxisSpacing,
-        top: widget.mainAxisSpacing,
-      )),
-      child: LayoutBuilder(builder: (context, constraints) {
-        final width = (constraints.biggest.width / widget.crossAxisCount) -
-            widget.mainAxisSpacing;
-        return ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: ReorderableWrap(
-            enableReorder: widget.reorderable,
-            spacing: widget.mainAxisSpacing,
-            runSpacing: widget.crossAxisSpacing,
-            maxMainAxisCount: widget.crossAxisCount,
-            onReorder: widget.onReorder,
-            needsLongPressDraggable: isMobile,
-            alignment: WrapAlignment.center,
-            runAlignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            scrollPhysics: const NeverScrollableScrollPhysics(),
-            children: List.generate(realChildren.length, (index) {
-              return SizedBox(
-                key: ValueKey(index),
-                // height: height,
-                width: width,
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: widget.childAspectRatio,
-                    child: realChildren[index],
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      }),
-    );
   }
 }

@@ -19,9 +19,6 @@
 
 part of 'device_grid.dart';
 
-const kGridInnerPadding = 8.0;
-const kGridPadding = EdgeInsets.all(10.0);
-
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
@@ -172,27 +169,17 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                 final crossAxisCount = calculateCrossAxisCount(dl);
 
-                return ReorderableGridView.builder(
+                return StaticGrid(
                   key: ValueKey(view.currentLayout.hashCode),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount.clamp(1, 50),
-                    mainAxisSpacing: kGridInnerPadding,
-                    crossAxisSpacing: kGridInnerPadding,
-                    childAspectRatio: 16 / 9,
-                  ),
-                  padding: kGridPadding,
+                  crossAxisCount: crossAxisCount.clamp(1, 50),
+                  childAspectRatio: 16 / 9,
                   onReorder: view.reorder,
-                  itemCount: devices.length,
-                  itemBuilder: (context, index) {
-                    final device = devices[index];
-
+                  children: devices.map((device) {
                     return DesktopDeviceTile(
                       key: ValueKey('$device.${device.server.serverUUID}'),
                       device: device,
                     );
-                  },
+                  }).toList(),
                 );
               }(),
             ),

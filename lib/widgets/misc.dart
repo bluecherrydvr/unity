@@ -195,6 +195,7 @@ class CorrectedListTile extends StatelessWidget {
 class SubHeader extends StatelessWidget {
   final String text;
   final String? subtext;
+  final TextStyle? subtextStyle;
   final EdgeInsetsGeometry padding;
   final double? height;
 
@@ -203,6 +204,7 @@ class SubHeader extends StatelessWidget {
   const SubHeader(
     this.text, {
     this.subtext,
+    this.subtextStyle,
     this.trailing,
     Key? key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
@@ -232,11 +234,15 @@ class SubHeader extends StatelessWidget {
               if (subtext != null)
                 Text(
                   subtext!.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(
                         color: Theme.of(context).hintColor,
                         fontSize: 10.0,
                         fontWeight: FontWeight.w600,
-                      ),
+                      )
+                      .merge(subtextStyle),
                 )
             ],
           ),

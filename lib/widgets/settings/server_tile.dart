@@ -224,57 +224,61 @@ class ServerCard extends StatelessWidget {
 
     final isLoading = servers.isServerLoading(server);
 
+    final loc = AppLocalizations.of(context);
+
     return SizedBox(
       height: 180,
       width: 180,
       child: Card(
         child: Stack(children: [
           Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                    child: const Icon(Icons.dns, size: 30.0),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    server.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  Text(
-                    !isLoading
-                        ? [
-                            if (server.name != server.ip) server.ip,
-                          ].join()
-                        : AppLocalizations.of(context).gettingDevices,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    !isLoading
-                        ? AppLocalizations.of(context)
-                            .nDevices(server.devices.length)
-                        : '',
-                  ),
-                  const SizedBox(height: 15.0),
-                  Transform.scale(
-                    scale: 0.9,
-                    child: OutlinedButton(
-                      child:
-                          Text(AppLocalizations.of(context).disconnectServer),
-                      onPressed: () {
-                        onRemoveServer(context, server);
-                      },
-                    ),
-                  ),
-                ],
+            bottom: 8.0,
+            left: 8.0,
+            right: 8.0,
+            top: 8.0,
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: theme.iconTheme.color,
+                child: const Icon(Icons.dns, size: 30.0),
               ),
-            ),
+              const SizedBox(height: 8.0),
+              Text(
+                server.name,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall,
+              ),
+              Text(
+                !isLoading
+                    ? [
+                        if (server.name != server.ip) server.ip,
+                      ].join()
+                    : loc.gettingDevices,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall,
+              ),
+              Text(
+                !server.online
+                    ? loc.offline
+                    : !isLoading
+                        ? loc.nDevices(server.devices.length)
+                        : '',
+                style: TextStyle(
+                  color: !server.online ? theme.colorScheme.error : null,
+                ),
+              ),
+              const SizedBox(height: 15.0),
+              Transform.scale(
+                scale: 0.9,
+                child: OutlinedButton(
+                  child: Text(loc.disconnectServer),
+                  onPressed: () {
+                    onRemoveServer(context, server);
+                  },
+                ),
+              ),
+            ]),
           ),
           PositionedDirectional(
             top: 4,
@@ -285,11 +289,11 @@ class ServerCard extends StatelessWidget {
               position: PopupMenuPosition.under,
               offset: const Offset(-128, 4.0),
               constraints: const BoxConstraints(maxWidth: 180.0),
-              tooltip: AppLocalizations.of(context).serverOptions,
+              tooltip: loc.serverOptions,
               itemBuilder: (context) {
                 return [
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).editServerInfo),
+                    child: Text(loc.editServerInfo),
                     onTap: () {
                       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                         if (context.mounted) showEditServer(context, server);
@@ -297,7 +301,7 @@ class ServerCard extends StatelessWidget {
                     },
                   ),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).disconnectServer),
+                    child: Text(loc.disconnectServer),
                     onTap: () {
                       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                         if (context.mounted) {
@@ -308,20 +312,20 @@ class ServerCard extends StatelessWidget {
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).browseEvents),
+                    child: Text(loc.browseEvents),
                     onTap: () {
                       home.setTab(UnityTab.eventsScreen.index, context);
                     },
                   ),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).configureServer),
+                    child: Text(loc.configureServer),
                     onTap: () {
                       launchUrl(Uri.parse(server.ip));
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).refreshDevices),
+                    child: Text(loc.refreshDevices),
                     onTap: () async {
                       servers.refreshDevices([server.id]);
                     },

@@ -39,6 +39,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final servers = context.watch<ServersProvider>();
     final view = context.watch<DesktopViewProvider>();
 
     return Material(
@@ -56,17 +57,35 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
               itemBuilder: (context, i) {
                 final server = ServersProvider.instance.servers[i];
                 final devices = server.devices.sorted();
+                final isLoading = servers.isServerLoading(server);
+
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: devices.length + 1,
+                  itemCount:
+                      !server.online || isLoading ? 1 : devices.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return SubHeader(
                         server.name,
-                        subtext: AppLocalizations.of(context).nDevices(
-                          devices.length,
+                        subtext: server.online
+                            ? AppLocalizations.of(context).nDevices(
+                                devices.length,
+                              )
+                            : AppLocalizations.of(context).offline,
+                        subtextStyle: TextStyle(
+                          color:
+                              !server.online ? theme.colorScheme.error : null,
                         ),
+                        trailing: isLoading
+                            ? const SizedBox(
+                                height: 16.0,
+                                width: 16.0,
+                                child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 1.5,
+                                ),
+                              )
+                            : null,
                       );
                     }
 

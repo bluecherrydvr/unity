@@ -83,26 +83,55 @@ class _DevicesForServer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final servers = context.watch<ServersProvider>();
+
+    final isLoading = servers.isServerLoading(server);
+
+    final serverIndicator = SubHeader(
+      server.name,
+      subtext: server.online
+          ? AppLocalizations.of(context).nDevices(
+              server.devices.length,
+            )
+          : AppLocalizations.of(context).offline,
+      subtextStyle: TextStyle(
+        color: !server.online ? theme.colorScheme.error : null,
+      ),
+      trailing: isLoading
+          ? const SizedBox(
+              height: 16.0,
+              width: 16.0,
+              child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+            )
+          : null,
+    );
+
+    if (isLoading || !server.online) return serverIndicator;
+
     if (server.devices.isEmpty) {
-      return SizedBox(
-        height: 72.0,
-        child: Center(
-          child: Text(
-            AppLocalizations.of(context).noDevices,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 16.0),
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        serverIndicator,
+        SizedBox(
+          height: 72.0,
+          child: Center(
+            child: Text(
+              AppLocalizations.of(context).noDevices,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontSize: 16.0),
+            ),
           ),
         ),
-      );
+      ]);
     }
 
     final devices = server.devices.sorted();
     return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= 800) {
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SubHeader(server.name),
+          serverIndicator,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Wrap(
@@ -155,6 +184,7 @@ class _DevicesForServer extends StatelessWidget {
           ),
         ]);
       }
+
       return Column(children: [
         SubHeader(server.name),
         ...devices.map((device) {

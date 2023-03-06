@@ -219,44 +219,60 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget buildTreeView(BuildContext context) {
     final servers = context.watch<ServersProvider>();
     const checkboxScale = 0.8;
+
+    Widget buildCheckbox({
+      required Server server,
+      required bool? value,
+      required ValueChanged<bool?> onChanged,
+      required bool isError,
+    }) {
+      return Transform.scale(
+        scale: checkboxScale,
+        child: Checkbox(
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: const VisualDensity(
+            horizontal: -4,
+            vertical: -4,
+          ),
+          splashRadius: 0.0,
+          tristate: true,
+          value: value,
+          isError: isError,
+          onChanged: onChanged,
+        ),
+      );
+    }
+
     return TreeView(
       indent: 56,
       iconSize: 18.0,
-      nodes: servers.servers
-          .where((server) => server.devices.isNotEmpty)
-          .map((server) {
+      nodes: servers.servers.map((server) {
         final isTriState = disabledDevices
             .any((d) => server.devices.any((device) => device.streamURL == d));
+        final isOffline = !server.online;
+
         return TreeNode(
           content: Row(children: [
-            Transform.scale(
-              scale: checkboxScale,
-              child: Checkbox(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: const VisualDensity(
-                  horizontal: -4,
-                  vertical: -4,
-                ),
-                splashRadius: 0.0,
-                tristate: true,
-                value: !allowedServers.contains(server)
-                    ? false
-                    : isTriState
-                        ? null
-                        : true,
-                onChanged: (v) {
-                  setState(() {
-                    if (isTriState) {
-                      disabledDevices.removeWhere((d) => server.devices
-                          .any((device) => device.streamURL == d));
-                    } else if (v == null || !v) {
-                      allowedServers.remove(server);
-                    } else {
-                      allowedServers.add(server);
-                    }
-                  });
-                },
-              ),
+            buildCheckbox(
+              server: server,
+              value: !allowedServers.contains(server) || isOffline
+                  ? false
+                  : isTriState
+                      ? null
+                      : true,
+              isError: isOffline,
+              onChanged: (v) {
+                setState(() {
+                  if (isTriState) {
+                    disabledDevices.removeWhere((d) =>
+                        server.devices.any((device) => device.streamURL == d));
+                  } else if (v == null || !v) {
+                    allowedServers.remove(server);
+                  } else {
+                    allowedServers.add(server);
+                  }
+                });
+              },
             ),
             Expanded(
               child: Text(
@@ -272,48 +288,46 @@ class _EventsScreenState extends State<EventsScreen> {
             ),
             const SizedBox(width: 6.0),
           ]),
-          children: server.devices.sorted().map((device) {
-            final enabled = !allowedServers.contains(server)
-                ? false
-                : !disabledDevices.contains(device.streamURL);
-            return TreeNode(
-              content: Row(children: [
-                Transform.scale(
-                  scale: checkboxScale,
-                  child: IgnorePointer(
-                    ignoring: !device.status,
-                    child: Checkbox(
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: const VisualDensity(
-                        horizontal: -4,
-                        vertical: -4,
-                      ),
-                      splashRadius: 0.0,
-                      isError: !device.status,
-                      value: device.status ? enabled : false,
-                      onChanged: (v) {
-                        if (!device.status) return;
+          children: () {
+            if (isOffline) {
+              return <TreeNode>[];
+            } else {
+              return server.devices.sorted().map((device) {
+                final enabled = isOffline || !allowedServers.contains(server)
+                    ? false
+                    : !disabledDevices.contains(device.streamURL);
+                return TreeNode(
+                  content: Row(children: [
+                    IgnorePointer(
+                      ignoring: !device.status,
+                      child: buildCheckbox(
+                        server: server,
+                        value: device.status ? enabled : false,
+                        isError: !device.status,
+                        onChanged: (v) {
+                          if (!device.status) return;
 
-                        setState(() {
-                          if (enabled) {
-                            disabledDevices.add(device.streamURL);
-                          } else {
-                            disabledDevices.remove(device.streamURL);
-                          }
-                        });
-                      },
+                          setState(() {
+                            if (enabled) {
+                              disabledDevices.add(device.streamURL);
+                            } else {
+                              disabledDevices.remove(device.streamURL);
+                            }
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  device.name,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  softWrap: false,
-                ),
-              ]),
-            );
-          }).toList(),
+                    Text(
+                      device.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
+                  ]),
+                );
+              }).toList();
+            }
+          }(),
         );
       }).toList(),
     );

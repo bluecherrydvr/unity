@@ -359,68 +359,74 @@ class Sidebar extends StatelessWidget {
     return Material(
       child: Column(children: [
         Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.viewPaddingOf(context).bottom,
-            ),
-            itemCount: servers.length,
-            itemBuilder: (context, index) {
-              final server = servers.elementAt(index);
-
-              if (!serversProvider.isServerLoading(server)) {
-                return Center(
-                  child: Container(
-                    alignment: AlignmentDirectional.center,
-                    height: 156.0,
-                    child: const LinearProgressIndicator(),
+          child: servers.isEmpty
+              ? Center(
+                  child: Text(
+                    AppLocalizations.of(context).noServersAvailable,
                   ),
-                );
-              }
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.viewPaddingOf(context).bottom,
+                  ),
+                  itemCount: servers.length,
+                  itemBuilder: (context, index) {
+                    final server = servers.elementAt(index);
 
-              final devices = server.devices.sorted();
+                    if (!serversProvider.isServerLoading(server)) {
+                      return Center(
+                        child: Container(
+                          alignment: AlignmentDirectional.center,
+                          height: 156.0,
+                          child: const LinearProgressIndicator(),
+                        ),
+                      );
+                    }
 
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: devices.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return SubHeader(
-                      server.name,
-                      subtext: AppLocalizations.of(context).nDevices(
-                        devices.length,
-                      ),
-                      padding: const EdgeInsetsDirectional.only(
-                        start: 16.0,
-                        end: 6.0,
-                      ),
-                      trailing: collapseButton,
+                    final devices = server.devices.sorted();
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: devices.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return SubHeader(
+                            server.name,
+                            subtext: AppLocalizations.of(context).nDevices(
+                              devices.length,
+                            ),
+                            padding: const EdgeInsetsDirectional.only(
+                              start: 16.0,
+                              end: 6.0,
+                            ),
+                            trailing: collapseButton,
+                          );
+                        }
+
+                        index--;
+                        final device = devices[index];
+                        if (!this
+                            .events
+                            .keys
+                            .contains(EventsProvider.idForDevice(device))) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final selected = events.selectedIds
+                            .contains(EventsProvider.idForDevice(device));
+
+                        return _DeviceTile(
+                          device: device,
+                          selected: selected,
+                          onUpdate: () async {
+                            onUpdate();
+                          },
+                        );
+                      },
                     );
-                  }
-
-                  index--;
-                  final device = devices[index];
-                  if (!this
-                      .events
-                      .keys
-                      .contains(EventsProvider.idForDevice(device))) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final selected = events.selectedIds
-                      .contains(EventsProvider.idForDevice(device));
-
-                  return _DeviceTile(
-                    device: device,
-                    selected: selected,
-                    onUpdate: () async {
-                      onUpdate();
-                    },
-                  );
-                },
-              );
-            },
-          ),
+                  },
+                ),
         ),
       ]),
     );

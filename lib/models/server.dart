@@ -35,6 +35,8 @@ class Server {
   final String? serverUUID;
   final String? cookie;
 
+  bool online = true;
+
   Server(
     this.name,
     this.ip,
@@ -47,7 +49,12 @@ class Server {
     this.cookie,
     this.savePassword = false,
     this.connectAutomaticallyAtStartup = true,
+    this.online = true,
   });
+
+  String get id {
+    return '$name;$ip;$port';
+  }
 
   @override
   String toString() =>
@@ -81,6 +88,7 @@ class Server {
     List<Device>? devices,
     String? serverUUID,
     String? cookie,
+    bool? online,
   }) {
     return Server(
       name ?? this.name,

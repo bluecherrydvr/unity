@@ -49,6 +49,11 @@ class ServersProvider extends ChangeNotifier {
 
   List<Server> servers = <Server>[];
 
+  /// The list of servers that are being loaded
+  List<String> loadingServer = <String>[];
+
+  bool isServerLoading(Server server) => loadingServer.contains(server.id);
+
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
     final hive = await Hive.openBox('hive');
@@ -58,16 +63,7 @@ class ServersProvider extends ChangeNotifier {
       await _restore();
     }
 
-    /// Fetch for any new device at startup
-    // for (final server in servers) {
-    //   final devices = await API.instance.getDevices(server);
-    //   if (devices != null) {
-    //     server.devices
-    //       ..clear()
-    //       ..addAll(devices);
-    //   }
-    // }
-    // await _save();
+    refreshDevices();
   }
 
   /// Adds a new [Server] to the cache.
@@ -136,6 +132,36 @@ class ServersProvider extends ChangeNotifier {
     servers[serverIndex] = server;
 
     await _save();
+  }
+
+  /// If [ids] is provided, only the provided ids will be refreshed
+  Future<List<Server>> refreshDevices([List<String>? ids]) async {
+    await Future.wait(servers.map((server) async {
+      if (ids != null && !ids.contains(server.id)) return;
+
+      if (!loadingServer.contains(server.id)) {
+        loadingServer.add(server.id);
+        notifyListeners();
+      }
+
+      API.instance.checkServerCredentials(server).then((server) {
+        API.instance.getDevices(server).then((devices) {
+          if (devices != null) {
+            server.devices
+              ..clear()
+              ..addAll(devices);
+          }
+
+          if (loadingServer.contains(server.id)) {
+            loadingServer.remove(server.id);
+            notifyListeners();
+          }
+        });
+      });
+    }));
+    await _save();
+
+    return servers;
   }
 
   /// Save currently added [Server]s to `package:hive` cache.

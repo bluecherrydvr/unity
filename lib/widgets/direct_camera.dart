@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -28,6 +27,7 @@ import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class DirectCameraScreen extends StatefulWidget {
   const DirectCameraScreen({Key? key}) : super(key: key);
@@ -39,6 +39,8 @@ class DirectCameraScreen extends StatefulWidget {
 class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
+    final serversProviders = context.watch<ServersProvider>();
+
     return Scaffold(
       appBar: showIf(
         isMobile,
@@ -54,44 +56,17 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
         ),
       ),
       body: () {
-        if (ServersProvider.instance.servers.isEmpty) {
+        if (serversProviders.servers.isEmpty) {
           return const NoServerWarning();
         } else {
           return RefreshIndicator(
-            onRefresh: () async {
-              for (final server in ServersProvider.instance.servers) {
-                try {
-                  await API.instance.getDevices(
-                      await API.instance.checkServerCredentials(server));
-                } catch (exception, stacktrace) {
-                  debugPrint(exception.toString());
-                  debugPrint(stacktrace.toString());
-                }
-              }
-              setState(() {});
-            },
+            onRefresh: serversProviders.refreshDevices,
             child: ListView.builder(
               padding: MediaQuery.viewPaddingOf(context),
-              itemCount: ServersProvider.instance.servers.length,
+              itemCount: serversProviders.servers.length,
               itemBuilder: (context, i) {
-                final server = ServersProvider.instance.servers[i];
-                return CustomFutureBuilder(
-                  future: () async {
-                    if (server.devices.isEmpty) {
-                      return API.instance.getDevices(
-                        await API.instance.checkServerCredentials(server),
-                      );
-                    }
-                    return Future.value(true);
-                  }(),
-                  loadingBuilder: (context) => const SizedBox(
-                    height: 96.0,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  builder: (context, data) {
-                    return _DevicesForServer(server: server);
-                  },
-                );
+                final server = serversProviders.servers[i];
+                return _DevicesForServer(server: server);
               },
             ),
           );

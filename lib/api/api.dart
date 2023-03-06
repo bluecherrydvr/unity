@@ -35,16 +35,32 @@ class API {
   /// returned object will have [Server.serverUUID] & [Server.cookie]
   /// present in it otherwise `null`.
   Future<Server> checkServerCredentials(Server server) async {
+    debugPrint('Checking server credentials for server ${server.id}');
     try {
-      final uri =
-          Uri.https('${server.ip}:${server.port}', '/ajax/loginapp.php');
-      final request = MultipartRequest('POST', uri)
-        ..fields.addAll({
+      final uri = Uri.https(
+        '${server.ip}:${server.port}',
+        '/ajax/login.php',
+        {
           'login': server.login,
           'password': server.password,
-        });
-      final response = await request.send();
-      final body = await response.stream.bytesToString();
+          'from_client': true.toString(),
+        },
+      );
+      // final request = MultipartRequest('POST', uri)
+      //   // ..fields.addAll({
+      //   //   'login': server.login,
+      //   //   'password': server.password,
+      //   //   'from_client': true.toString(),
+      //   // })
+      //   ..headers.addAll({
+      //     'Content-Type': 'application/x-www-form-urlencoded',
+      //   });
+      // final response = await request.send();
+      // final body = await response.stream.bytesToString();
+      final response = await post(uri, headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      });
+      final body = response.body;
       debugPrint(body.toString());
       debugPrint(response.headers.toString());
 
@@ -53,12 +69,14 @@ class API {
         return server.copyWith(
           serverUUID: json['server_uuid'],
           cookie: response.headers['set-cookie'],
+          online: true,
         );
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to checkServerCredentials on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
+      server.online = false;
     }
     return server;
   }

@@ -158,9 +158,30 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
+  /// Removes all the [devices] provided
+  ///
+  /// This is usually used when a server is deleted
+  Future<void> removeDevices(List<Device> devices) {
+    for (final layout in layouts) {
+      layout.devices.removeWhere(
+        (d1) => devices.any((d2) => d1.uri == d2.uri),
+      );
+    }
+
+    for (final device in devices) {
+      if (!players.containsKey(device)) continue;
+      players[device]?.release();
+      players[device]?.dispose();
+    }
+
+    return _save();
+  }
+
   /// Moves a device tile from [initial] position to [end] position inside a [tab].
   /// Used for re-ordering camera [DeviceTile]s when dragging.
   Future<void> reorder(int initial, int end) {
+    if (initial == end) return Future.value();
+
     currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();

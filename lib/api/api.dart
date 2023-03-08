@@ -39,30 +39,26 @@ class API {
     try {
       final uri = Uri.https(
         '${server.ip}:${server.port}',
-        '/ajax/login.php',
+        '/ajax/loginapp.php',
         {
           'login': server.login,
           'password': server.password,
-          'from_client': true.toString(),
+          'from_client': 'true',
         },
       );
-      // final request = MultipartRequest('POST', uri)
-      //   // ..fields.addAll({
-      //   //   'login': server.login,
-      //   //   'password': server.password,
-      //   //   'from_client': true.toString(),
-      //   // })
-      //   ..headers.addAll({
-      //     'Content-Type': 'application/x-www-form-urlencoded',
-      //   });
-      // final response = await request.send();
-      // final body = await response.stream.bytesToString();
-      final response = await post(uri, headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      });
-      final body = response.body;
-      debugPrint(body.toString());
-      debugPrint(response.headers.toString());
+      final request = MultipartRequest('POST', uri)
+        ..fields.addAll({
+          'login': server.login,
+          'password': server.password,
+          'from_client': true.toString(),
+        })
+        ..headers.addAll({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        });
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
+      // debugPrint(body.toString());
+      // debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {
         final json = await compute(jsonDecode, body);

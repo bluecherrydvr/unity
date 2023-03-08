@@ -21,8 +21,10 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -75,15 +77,20 @@ class ServersProvider extends ChangeNotifier {
     }
     servers.add(server);
     await _save();
-    // Register notification token.
-    try {
-      final instance = await Hive.openBox('hive');
-      final notificationToken = instance.get(kHiveNotificationToken);
-      assert(notificationToken != null, '[kHiveNotificationToken] is null.');
-      await API.instance.registerNotificationToken(server, notificationToken!);
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    refreshDevices();
+
+    if (isMobile) {
+      // Register notification token.
+      try {
+        final instance = await Hive.openBox('hive');
+        final notificationToken = instance.get(kHiveNotificationToken);
+        assert(notificationToken != null, '[kHiveNotificationToken] is null.');
+        await API.instance
+            .registerNotificationToken(server, notificationToken!);
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+      }
     }
   }
 
@@ -92,6 +99,7 @@ class ServersProvider extends ChangeNotifier {
   Future<void> remove(Server server) async {
     servers.remove(server);
     await _save();
+
     // Remove the device camera tiles showing devices from this server.
     try {
       final provider = MobileViewProvider.instance;
@@ -105,6 +113,9 @@ class ServersProvider extends ChangeNotifier {
           }
         }
       }
+
+      final desktopProvider = DesktopViewProvider.instance;
+      await desktopProvider.removeDevices(server.devices);
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

@@ -77,7 +77,8 @@ class _EventsScreenState extends State<EventsScreen> {
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
     try {
-      for (final server in ServersProvider.instance.servers) {
+      // Load the events at the same time
+      await Future.wait(ServersProvider.instance.servers.map((server) async {
         try {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
@@ -89,7 +90,7 @@ class _EventsScreenState extends State<EventsScreen> {
           debugPrint(stacktrace.toString());
           invalid[server] = true;
         }
-      }
+      }));
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());

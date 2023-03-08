@@ -81,6 +81,11 @@ class API {
   /// Returns `true` if it is a success or `false` if it failed.
   /// The found [Device] devices are saved in [Server.devices].
   Future<List<Device>?> getDevices(Server server) async {
+    if (!server.online) {
+      debugPrint('Can not get devices of an offline server: $server');
+      return [];
+    }
+
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
@@ -133,6 +138,11 @@ class API {
     Server server, {
     int limit = 50,
   }) async {
+    if (!server.online) {
+      debugPrint('Can not get events of an offline server: $server');
+      return [];
+    }
+
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(

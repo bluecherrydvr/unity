@@ -373,15 +373,7 @@ class Sidebar extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final server = servers.elementAt(index);
 
-                    if (!serversProvider.isServerLoading(server)) {
-                      return Center(
-                        child: Container(
-                          alignment: AlignmentDirectional.center,
-                          height: 156.0,
-                          child: const LinearProgressIndicator(),
-                        ),
-                      );
-                    }
+                    final isLoading = serversProvider.isServerLoading(server);
 
                     final devices = server.devices.sorted();
 
@@ -393,14 +385,29 @@ class Sidebar extends StatelessWidget {
                         if (index == 0) {
                           return SubHeader(
                             server.name,
-                            subtext: AppLocalizations.of(context).nDevices(
-                              devices.length,
+                            subtext: server.online
+                                ? AppLocalizations.of(context).nDevices(
+                                    devices.length,
+                                  )
+                                : AppLocalizations.of(context).offline,
+                            subtextStyle: TextStyle(
+                              color: !server.online
+                                  ? Theme.of(context).colorScheme.error
+                                  : null,
                             ),
                             padding: const EdgeInsetsDirectional.only(
                               start: 16.0,
                               end: 6.0,
                             ),
-                            trailing: collapseButton,
+                            trailing: isLoading
+                                ? const SizedBox(
+                                    height: 16.0,
+                                    width: 16.0,
+                                    child: CircularProgressIndicator.adaptive(
+                                      strokeWidth: 1.5,
+                                    ),
+                                  )
+                                : collapseButton,
                           );
                         }
 

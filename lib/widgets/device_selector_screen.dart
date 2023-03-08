@@ -34,72 +34,93 @@ class DeviceSelectorScreen extends StatefulWidget {
 class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
+    final viewPadding = MediaQuery.viewPaddingOf(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).selectACamera),
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: () {
-          if (servers.servers.isEmpty) {
-            return const NoServerWarning();
-          }
+      appBar: AppBar(title: Text(loc.selectACamera)),
+      body: () {
+        if (servers.servers.isEmpty) {
+          return const NoServerWarning();
+        }
 
-          return ListView.builder(
-            itemCount: servers.servers.length,
-            itemBuilder: (context, index) {
-              final server = servers.servers[index];
-              final isLoading = servers.isServerLoading(server);
+        return ListView.builder(
+          itemCount: servers.servers.length,
+          itemBuilder: (context, index) {
+            final server = servers.servers[index];
+            final isLoading = servers.isServerLoading(server);
 
-              if (isLoading) {
-                return Center(
-                  child: Container(
-                    alignment: AlignmentDirectional.center,
-                    height: 156.0,
-                    child: const CircularProgressIndicator(),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: server.devices.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) return SubHeader(server.name);
-                  index--;
-                  return ListTile(
-                    enabled: server.devices[index].status,
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Theme.of(context).iconTheme.color,
-                      child: const Icon(Icons.camera_alt),
-                    ),
-                    title: Text(
-                      server.devices[index].name
-                          .split(' ')
-                          .map((e) => e[0].toUpperCase() + e.substring(1))
-                          .join(' '),
-                    ),
-                    subtitle: Text([
-                      server.devices[index].status
-                          ? AppLocalizations.of(context).online
-                          : AppLocalizations.of(context).offline,
-                      server.devices[index].uri,
-                      '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                    ].join(' • ')),
-                    onTap: () {
-                      Navigator.of(context).pop(server.devices[index]);
-                    },
-                  );
-                },
+            if (isLoading) {
+              return Center(
+                child: Container(
+                  alignment: AlignmentDirectional.center,
+                  height: 156.0,
+                  child: const CircularProgressIndicator(),
+                ),
               );
-            },
-          );
-        }(),
-      ),
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: server.devices.length + 1,
+              padding: EdgeInsets.only(
+                left: viewPadding.left,
+                right: viewPadding.right,
+                bottom: viewPadding.bottom,
+              ),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return SubHeader(
+                    server.name,
+                    subtext: server.online
+                        ? loc.nDevices(server.devices.length)
+                        : loc.offline,
+                    subtextStyle: TextStyle(
+                      color: !server.online ? theme.colorScheme.error : null,
+                    ),
+                    trailing: isLoading
+                        ? const SizedBox(
+                            height: 16.0,
+                            width: 16.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 1.5,
+                            ),
+                          )
+                        : null,
+                  );
+                }
+
+                index--;
+                return ListTile(
+                  enabled: server.devices[index].status,
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.camera_alt),
+                  ),
+                  title: Text(
+                    server.devices[index].name
+                        .split(' ')
+                        .map((e) => e[0].toUpperCase() + e.substring(1))
+                        .join(' '),
+                  ),
+                  subtitle: Text([
+                    server.devices[index].status ? loc.online : loc.offline,
+                    server.devices[index].uri,
+                    '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                  ].join(' • ')),
+                  onTap: () {
+                    Navigator.of(context).pop(server.devices[index]);
+                  },
+                );
+              },
+            );
+          },
+        );
+      }(),
     );
   }
 }

@@ -18,7 +18,6 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -352,83 +351,89 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
+    final serversProvider = context.watch<ServersProvider>();
 
-    final servers = ServersProvider.instance.servers.where((server) => server
-        .devices
+    final servers = serversProvider.servers.where((server) => server.devices
         .any((d) => this.events.keys.contains(EventsProvider.idForDevice(d))));
 
     return Material(
       child: Column(children: [
         Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.viewPaddingOf(context).bottom,
-            ),
-            itemCount: servers.length,
-            itemBuilder: (context, i) {
-              final server = servers.elementAt(i);
-              return FutureBuilder(
-                future: (() async => server.devices.isEmpty
-                    ? await API.instance.getDevices(
-                        await API.instance.checkServerCredentials(server))
-                    : true)(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: Container(
-                        alignment: AlignmentDirectional.center,
-                        height: 156.0,
-                        child: const LinearProgressIndicator(),
-                      ),
-                    );
-                  }
+          child: servers.isEmpty
+              ? Center(
+                  child: Text(
+                    AppLocalizations.of(context).noServersAvailable,
+                  ),
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.viewPaddingOf(context).bottom,
+                  ),
+                  itemCount: servers.length,
+                  itemBuilder: (context, index) {
+                    final server = servers.elementAt(index);
 
-                  final devices = server.devices.sorted();
+                    final isLoading = serversProvider.isServerLoading(server);
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: devices.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return SubHeader(
-                          server.name,
-                          subtext: AppLocalizations.of(context).nDevices(
-                            devices.length,
-                          ),
-                          padding: const EdgeInsetsDirectional.only(
-                            start: 16.0,
-                            end: 6.0,
-                          ),
-                          trailing: i == 0 ? collapseButton : null,
+                    final devices = server.devices.sorted();
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: devices.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return SubHeader(
+                            server.name,
+                            subtext: server.online
+                                ? AppLocalizations.of(context).nDevices(
+                                    devices.length,
+                                  )
+                                : AppLocalizations.of(context).offline,
+                            subtextStyle: TextStyle(
+                              color: !server.online
+                                  ? Theme.of(context).colorScheme.error
+                                  : null,
+                            ),
+                            padding: const EdgeInsetsDirectional.only(
+                              start: 16.0,
+                              end: 6.0,
+                            ),
+                            trailing: isLoading
+                                ? const SizedBox(
+                                    height: 16.0,
+                                    width: 16.0,
+                                    child: CircularProgressIndicator.adaptive(
+                                      strokeWidth: 1.5,
+                                    ),
+                                  )
+                                : collapseButton,
+                          );
+                        }
+
+                        index--;
+                        final device = devices[index];
+                        if (!this
+                            .events
+                            .keys
+                            .contains(EventsProvider.idForDevice(device))) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final selected = events.selectedIds
+                            .contains(EventsProvider.idForDevice(device));
+
+                        return _DeviceTile(
+                          device: device,
+                          selected: selected,
+                          onUpdate: () async {
+                            onUpdate();
+                          },
                         );
-                      }
-
-                      index--;
-                      final device = devices[index];
-                      if (!this
-                          .events
-                          .keys
-                          .contains(EventsProvider.idForDevice(device))) {
-                        return const SizedBox.shrink();
-                      }
-
-                      final selected = events.selectedIds
-                          .contains(EventsProvider.idForDevice(device));
-
-                      return _DeviceTile(
-                        device: device,
-                        selected: selected,
-                        onUpdate: () async {
-                          onUpdate();
-                        },
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
+                      },
+                    );
+                  },
+                ),
         ),
       ]),
     );

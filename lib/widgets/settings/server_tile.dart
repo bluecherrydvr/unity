@@ -156,7 +156,7 @@ class ServersList extends StatelessWidget {
   }
 }
 
-class ServerTile extends StatefulWidget {
+class ServerTile extends StatelessWidget {
   final Server server;
   final OnRemoveServer onRemoveServer;
 
@@ -167,35 +167,11 @@ class ServerTile extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ServerTile> createState() => _ServerTileState();
-}
-
-class _ServerTileState extends State<ServerTile> {
-  bool fetched = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.server.devices.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) async {
-          await API.instance.getDevices(
-            await API.instance.checkServerCredentials(widget.server),
-          );
-          if (mounted) {
-            setState(() {
-              fetched = true;
-            });
-          }
-        },
-      );
-    } else {
-      setState(() => fetched = true);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final servers = context.watch<ServersProvider>();
+
+    final isLoading = servers.isServerLoading(server);
+
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.transparent,
@@ -203,15 +179,14 @@ class _ServerTileState extends State<ServerTile> {
         child: const Icon(Icons.dns),
       ),
       title: Text(
-        widget.server.name,
+        server.name,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        fetched
+        !isLoading
             ? [
-                if (widget.server.name != widget.server.ip) widget.server.ip,
-                AppLocalizations.of(context)
-                    .nDevices(widget.server.devices.length),
+                if (server.name != server.ip) server.ip,
+                AppLocalizations.of(context).nDevices(server.devices.length),
               ].join(' • ')
             : AppLocalizations.of(context).gettingDevices,
         overflow: TextOverflow.ellipsis,
@@ -222,16 +197,16 @@ class _ServerTileState extends State<ServerTile> {
         ),
         tooltip: AppLocalizations.of(context).disconnectServer,
         splashRadius: 24.0,
-        onPressed: () => widget.onRemoveServer(context, widget.server),
+        onPressed: () => onRemoveServer(context, server),
       ),
       onTap: () {
-        showEditServer(context, widget.server);
+        showEditServer(context, server);
       },
     );
   }
 }
 
-class ServerCard extends StatefulWidget {
+class ServerCard extends StatelessWidget {
   final Server server;
   final OnRemoveServer onRemoveServer;
 
@@ -242,37 +217,14 @@ class ServerCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ServerCard> createState() => _ServerCardState();
-}
-
-class _ServerCardState extends State<ServerCard> {
-  bool fetched = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.server.devices.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) async {
-          await API.instance.getDevices(
-            await API.instance.checkServerCredentials(widget.server),
-          );
-          if (mounted) {
-            setState(() {
-              fetched = true;
-            });
-          }
-        },
-      );
-    } else {
-      setState(() => fetched = true);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
+    final servers = context.watch<ServersProvider>();
+
+    final isLoading = servers.isServerLoading(server);
+
+    final loc = AppLocalizations.of(context);
 
     return SizedBox(
       height: 180,
@@ -280,52 +232,53 @@ class _ServerCardState extends State<ServerCard> {
       child: Card(
         child: Stack(children: [
           Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
-                    child: const Icon(Icons.dns, size: 30.0),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    widget.server.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  Text(
-                    fetched
-                        ? [
-                            if (widget.server.name != widget.server.ip)
-                              widget.server.ip,
-                          ].join()
-                        : AppLocalizations.of(context).gettingDevices,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    fetched
-                        ? AppLocalizations.of(context)
-                            .nDevices(widget.server.devices.length)
-                        : '',
-                  ),
-                  const SizedBox(height: 15.0),
-                  Transform.scale(
-                    scale: 0.9,
-                    child: OutlinedButton(
-                      child:
-                          Text(AppLocalizations.of(context).disconnectServer),
-                      onPressed: () {
-                        widget.onRemoveServer(context, widget.server);
-                      },
-                    ),
-                  ),
-                ],
+            bottom: 8.0,
+            left: 8.0,
+            right: 8.0,
+            top: 8.0,
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: theme.iconTheme.color,
+                child: const Icon(Icons.dns, size: 30.0),
               ),
-            ),
+              const SizedBox(height: 8.0),
+              Text(
+                server.name,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall,
+              ),
+              Text(
+                !isLoading
+                    ? [
+                        if (server.name != server.ip) server.ip,
+                      ].join()
+                    : loc.gettingDevices,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall,
+              ),
+              Text(
+                !server.online
+                    ? loc.offline
+                    : !isLoading
+                        ? loc.nDevices(server.devices.length)
+                        : '',
+                style: TextStyle(
+                  color: !server.online ? theme.colorScheme.error : null,
+                ),
+              ),
+              const SizedBox(height: 15.0),
+              Transform.scale(
+                scale: 0.9,
+                child: OutlinedButton(
+                  child: Text(loc.disconnectServer),
+                  onPressed: () {
+                    onRemoveServer(context, server);
+                  },
+                ),
+              ),
+            ]),
           ),
           PositionedDirectional(
             top: 4,
@@ -336,57 +289,61 @@ class _ServerCardState extends State<ServerCard> {
               position: PopupMenuPosition.under,
               offset: const Offset(-128, 4.0),
               constraints: const BoxConstraints(maxWidth: 180.0),
-              tooltip: AppLocalizations.of(context).serverOptions,
+              tooltip: loc.serverOptions,
               itemBuilder: (context) {
                 return [
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).editServerInfo),
+                    child: Text(loc.editServerInfo),
                     onTap: () {
                       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                        if (mounted) showEditServer(context, widget.server);
+                        if (context.mounted) showEditServer(context, server);
                       });
                     },
                   ),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).disconnectServer),
+                    child: Text(loc.disconnectServer),
                     onTap: () {
                       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                        if (mounted) {
-                          widget.onRemoveServer(context, widget.server);
+                        if (context.mounted) {
+                          onRemoveServer(context, server);
                         }
                       });
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).browseEvents),
+                    child: Text(loc.browseEvents),
                     onTap: () {
                       home.setTab(UnityTab.eventsScreen.index, context);
                     },
                   ),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).configureServer),
+                    child: Text(loc.configureServer),
                     onTap: () {
-                      launchUrl(Uri.parse(widget.server.ip));
+                      launchUrl(Uri.parse(server.ip));
                     },
                   ),
                   const PopupMenuDivider(height: 1.0),
                   PopupMenuItem(
-                    child: Text(AppLocalizations.of(context).refreshDevices),
+                    child: Text(loc.refreshDevices),
                     onTap: () async {
-                      try {
-                        await API.instance.getDevices(await API.instance
-                            .checkServerCredentials(widget.server));
-                      } catch (exception, stacktrace) {
-                        debugPrint(exception.toString());
-                        debugPrint(stacktrace.toString());
-                      }
+                      servers.refreshDevices([server.id]);
                     },
                   ),
                 ];
               },
             ),
           ),
+          if (isLoading)
+            const PositionedDirectional(
+              start: 10,
+              top: 12,
+              child: SizedBox(
+                height: 18.0,
+                width: 18.0,
+                child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+              ),
+            ),
         ]),
       ),
     );

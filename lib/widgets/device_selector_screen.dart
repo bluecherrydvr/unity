@@ -17,17 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class DeviceSelectorScreen extends StatefulWidget {
-  const DeviceSelectorScreen({
-    Key? key,
-  }) : super(key: key);
+  const DeviceSelectorScreen({Key? key}) : super(key: key);
 
   @override
   State<DeviceSelectorScreen> createState() => _DeviceSelectorScreenState();
@@ -36,77 +34,92 @@ class DeviceSelectorScreen extends StatefulWidget {
 class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final servers = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
+    final viewPadding = MediaQuery.viewPaddingOf(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).selectACamera),
-      ),
+      appBar: AppBar(title: Text(loc.selectACamera)),
       body: () {
-        if (ServersProvider.instance.servers.isEmpty) {
+        if (servers.servers.isEmpty) {
           return const NoServerWarning();
-        } else {
-          return SafeArea(
-            bottom: false,
-            child: ListView.builder(
-              itemCount: ServersProvider.instance.servers.length,
-              itemBuilder: (context, i) {
-                final server = ServersProvider.instance.servers[i];
-                return FutureBuilder(
-                  future: (() async => server.devices.isEmpty
-                      ? API.instance.getDevices(
-                          await API.instance.checkServerCredentials(server))
-                      : true)(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: server.devices.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == 0) return SubHeader(server.name);
-                          index--;
-                          return ListTile(
-                            enabled: server.devices[index].status,
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              foregroundColor:
-                                  Theme.of(context).iconTheme.color,
-                              child: const Icon(Icons.camera_alt),
+        }
+
+        return ListView.builder(
+          itemCount: servers.servers.length,
+          itemBuilder: (context, index) {
+            final server = servers.servers[index];
+            final isLoading = servers.isServerLoading(server);
+
+            if (isLoading) {
+              return Center(
+                child: Container(
+                  alignment: AlignmentDirectional.center,
+                  height: 156.0,
+                  child: const CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: server.devices.length + 1,
+              padding: EdgeInsets.only(
+                left: viewPadding.left,
+                right: viewPadding.right,
+                bottom: viewPadding.bottom,
+              ),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return SubHeader(
+                    server.name,
+                    subtext: server.online
+                        ? loc.nDevices(server.devices.length)
+                        : loc.offline,
+                    subtextStyle: TextStyle(
+                      color: !server.online ? theme.colorScheme.error : null,
+                    ),
+                    trailing: isLoading
+                        ? const SizedBox(
+                            height: 16.0,
+                            width: 16.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 1.5,
                             ),
-                            title: Text(
-                              server.devices[index].name
-                                  .split(' ')
-                                  .map((e) =>
-                                      e[0].toUpperCase() + e.substring(1))
-                                  .join(' '),
-                            ),
-                            subtitle: Text([
-                              server.devices[index].status
-                                  ? AppLocalizations.of(context).online
-                                  : AppLocalizations.of(context).offline,
-                              server.devices[index].uri,
-                              '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                            ].join(' • ')),
-                            onTap: () {
-                              Navigator.of(context).pop(server.devices[index]);
-                            },
-                          );
-                        },
-                      );
-                    } else {
-                      return Center(
-                        child: Container(
-                          alignment: AlignmentDirectional.center,
-                          height: 156.0,
-                          child: const CircularProgressIndicator(),
-                        ),
-                      );
-                    }
+                          )
+                        : null,
+                  );
+                }
+
+                index--;
+                return ListTile(
+                  enabled: server.devices[index].status,
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.camera_alt),
+                  ),
+                  title: Text(
+                    server.devices[index].name
+                        .split(' ')
+                        .map((e) => e[0].toUpperCase() + e.substring(1))
+                        .join(' '),
+                  ),
+                  subtitle: Text([
+                    server.devices[index].status ? loc.online : loc.offline,
+                    server.devices[index].uri,
+                    '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
+                  ].join(' • ')),
+                  onTap: () {
+                    Navigator.of(context).pop(server.devices[index]);
                   },
                 );
               },
-            ),
-          );
-        }
+            );
+          },
+        );
       }(),
     );
   }

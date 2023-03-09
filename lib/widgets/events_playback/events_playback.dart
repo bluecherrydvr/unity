@@ -145,33 +145,35 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       ..loading(UnityLoadingReason.fetchingEventsPlayback);
 
     try {
-      for (final server in ServersProvider.instance.servers) {
-        try {
-          final events = await API.instance.getEvents(
-            await API.instance.checkServerCredentials(server),
-          );
+      await Future.wait(ServersProvider.instance.servers.map((server) async {
+        for (final server in ServersProvider.instance.servers) {
+          try {
+            final events = await API.instance.getEvents(
+              await API.instance.checkServerCredentials(server),
+            );
 
-          for (final event in events) {
-            if (!server.devices.any((d) => d.name == event.deviceName) ||
-                event.duration == Duration.zero) {
-              continue;
+            for (final event in events) {
+              if (!server.devices.any((d) => d.name == event.deviceName) ||
+                  event.duration == Duration.zero) {
+                continue;
+              }
+
+              final device =
+                  server.devices.firstWhere((d) => d.name == event.deviceName);
+              final id = EventsProvider.idForDevice(device);
+
+              if (eventsForDevice.containsKey(id)) {
+                eventsForDevice[id]!.add(event);
+              } else {
+                eventsForDevice[id] = [event];
+              }
             }
-
-            final device =
-                server.devices.firstWhere((d) => d.name == event.deviceName);
-            final id = EventsProvider.idForDevice(device);
-
-            if (eventsForDevice.containsKey(id)) {
-              eventsForDevice[id]!.add(event);
-            } else {
-              eventsForDevice[id] = [event];
-            }
+          } catch (exception, stacktrace) {
+            debugPrint(exception.toString());
+            debugPrint(stacktrace.toString());
           }
-        } catch (exception, stacktrace) {
-          debugPrint(exception.toString());
-          debugPrint(stacktrace.toString());
         }
-      }
+      }));
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
@@ -289,18 +291,7 @@ abstract class EventsPlaybackWidget extends StatefulWidget {
 
 abstract class EventsPlaybackState extends State<EventsPlaybackWidget> {
   late final timelineController = TimelineController();
-
   final focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timestamp) {
-      timelineController.addListener(() {
-        if (mounted) setState(() {});
-      });
-    });
-  }
 
   @override
   void didUpdateWidget(covariant EventsPlaybackWidget oldWidget) {
@@ -355,7 +346,10 @@ abstract class EventsPlaybackState extends State<EventsPlaybackWidget> {
           }
         }
       },
-      child: buildChild(context),
+      child: ListenableBuilder(
+        listenable: timelineController,
+        builder: (context, child) => buildChild(context),
+      ),
     );
   }
 

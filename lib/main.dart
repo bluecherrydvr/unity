@@ -181,6 +181,15 @@ class UnityApp extends StatelessWidget {
         ChangeNotifierProvider<DownloadsManager>.value(
           value: DownloadsManager.instance,
         ),
+        ChangeNotifierProvider<MobileViewProvider>.value(
+          value: MobileViewProvider.instance,
+        ),
+        ChangeNotifierProvider<ServersProvider>.value(
+          value: ServersProvider.instance,
+        ),
+        ChangeNotifierProvider<EventsProvider>.value(
+          value: EventsProvider.instance,
+        ),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
@@ -199,7 +208,7 @@ class UnityApp extends StatelessWidget {
           darkTheme: createTheme(themeMode: ThemeMode.dark),
           initialRoute: '/',
           routes: {
-            '/': (context) => const MyHomePage(),
+            '/': (context) => const Home(),
           },
           onGenerateRoute: (settings) {
             if (settings.name == '/events') {
@@ -245,33 +254,6 @@ class UnityApp extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<MobileViewProvider>.value(
-          value: MobileViewProvider.instance,
-        ),
-        ChangeNotifierProvider<ServersProvider>.value(
-          value: ServersProvider.instance,
-        ),
-        ChangeNotifierProvider<EventsProvider>.value(
-          value: EventsProvider.instance,
-        ),
-      ],
-      builder: (context, child) => const Home(),
     );
   }
 }

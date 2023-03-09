@@ -20,6 +20,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
@@ -48,8 +49,13 @@ class EventsPlaybackMobile extends EventsPlaybackWidget {
 class _EventsPlaybackMobileState extends EventsPlaybackState {
   @override
   Widget buildChild(BuildContext context) {
-    final eventsProvider = context.watch<EventsProvider>();
+    final serversProvider = context.watch<ServersProvider>();
 
+    final servers = serversProvider.servers.where((server) => server.devices
+        .any(
+            (d) => widget.events.keys.contains(EventsProvider.idForDevice(d))));
+
+    final eventsProvider = context.watch<EventsProvider>();
     final minTimelineHeight = kTimelineTileHeight *
         // at least the height of 2
         timelineController.tiles.length.clamp(
@@ -201,10 +207,16 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
             minWidth: double.infinity,
           ),
           child: Material(
-            child: TimelineView(
-              timelineController: timelineController,
-              showDevicesName: false,
-            ),
+            child: servers.isEmpty
+                ? Center(
+                    child: Text(
+                      AppLocalizations.of(context).noServersAvailable,
+                    ),
+                  )
+                : TimelineView(
+                    timelineController: timelineController,
+                    showDevicesName: false,
+                  ),
           ),
         ),
       ),

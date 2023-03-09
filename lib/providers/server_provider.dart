@@ -21,8 +21,10 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -49,6 +51,11 @@ class ServersProvider extends ChangeNotifier {
 
   List<Server> servers = <Server>[];
 
+  /// The list of servers that are being loaded
+  List<String> loadingServer = <String>[];
+
+  bool isServerLoading(Server server) => loadingServer.contains(server.id);
+
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
     final hive = await Hive.openBox('hive');
@@ -58,16 +65,7 @@ class ServersProvider extends ChangeNotifier {
       await _restore();
     }
 
-    /// Fetch for any new device at startup
-    // for (final server in servers) {
-    //   final devices = await API.instance.getDevices(server);
-    //   if (devices != null) {
-    //     server.devices
-    //       ..clear()
-    //       ..addAll(devices);
-    //   }
-    // }
-    // await _save();
+    refreshDevices();
   }
 
   /// Adds a new [Server] to the cache.
@@ -79,15 +77,20 @@ class ServersProvider extends ChangeNotifier {
     }
     servers.add(server);
     await _save();
-    // Register notification token.
-    try {
-      final instance = await Hive.openBox('hive');
-      final notificationToken = instance.get(kHiveNotificationToken);
-      assert(notificationToken != null, '[kHiveNotificationToken] is null.');
-      await API.instance.registerNotificationToken(server, notificationToken!);
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    refreshDevices();
+
+    if (isMobile) {
+      // Register notification token.
+      try {
+        final instance = await Hive.openBox('hive');
+        final notificationToken = instance.get(kHiveNotificationToken);
+        assert(notificationToken != null, '[kHiveNotificationToken] is null.');
+        await API.instance
+            .registerNotificationToken(server, notificationToken!);
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+      }
     }
   }
 
@@ -96,6 +99,7 @@ class ServersProvider extends ChangeNotifier {
   Future<void> remove(Server server) async {
     servers.remove(server);
     await _save();
+
     // Remove the device camera tiles showing devices from this server.
     try {
       final provider = MobileViewProvider.instance;
@@ -109,6 +113,9 @@ class ServersProvider extends ChangeNotifier {
           }
         }
       }
+
+      final desktopProvider = DesktopViewProvider.instance;
+      await desktopProvider.removeDevices(server.devices);
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
@@ -136,6 +143,36 @@ class ServersProvider extends ChangeNotifier {
     servers[serverIndex] = server;
 
     await _save();
+  }
+
+  /// If [ids] is provided, only the provided ids will be refreshed
+  Future<List<Server>> refreshDevices([List<String>? ids]) async {
+    await Future.wait(servers.map((server) async {
+      if (ids != null && !ids.contains(server.id)) return;
+
+      if (!loadingServer.contains(server.id)) {
+        loadingServer.add(server.id);
+        notifyListeners();
+      }
+
+      API.instance.checkServerCredentials(server).then((server) {
+        API.instance.getDevices(server).then((devices) {
+          if (devices != null) {
+            server.devices
+              ..clear()
+              ..addAll(devices);
+          }
+
+          if (loadingServer.contains(server.id)) {
+            loadingServer.remove(server.id);
+            notifyListeners();
+          }
+        });
+      });
+    }));
+    await _save();
+
+    return servers;
   }
 
   /// Save currently added [Server]s to `package:hive` cache.

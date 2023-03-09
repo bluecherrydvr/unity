@@ -35,30 +35,44 @@ class API {
   /// returned object will have [Server.serverUUID] & [Server.cookie]
   /// present in it otherwise `null`.
   Future<Server> checkServerCredentials(Server server) async {
+    debugPrint('Checking server credentials for server ${server.id}');
     try {
-      final uri =
-          Uri.https('${server.ip}:${server.port}', '/ajax/loginapp.php');
+      final uri = Uri.https(
+        '${server.ip}:${server.port}',
+        '/ajax/loginapp.php',
+        {
+          'login': server.login,
+          'password': server.password,
+          'from_client': 'true',
+        },
+      );
       final request = MultipartRequest('POST', uri)
         ..fields.addAll({
           'login': server.login,
           'password': server.password,
+          'from_client': true.toString(),
+        })
+        ..headers.addAll({
+          'Content-Type': 'application/x-www-form-urlencoded',
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      debugPrint(body.toString());
-      debugPrint(response.headers.toString());
+      // debugPrint(body.toString());
+      // debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {
         final json = await compute(jsonDecode, body);
         return server.copyWith(
           serverUUID: json['server_uuid'],
           cookie: response.headers['set-cookie'],
+          online: true,
         );
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to checkServerCredentials on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
+      server.online = false;
     }
     return server;
   }
@@ -67,6 +81,11 @@ class API {
   /// Returns `true` if it is a success or `false` if it failed.
   /// The found [Device] devices are saved in [Server.devices].
   Future<List<Device>?> getDevices(Server server) async {
+    if (!server.online) {
+      debugPrint('Can not get devices of an offline server: $server');
+      return [];
+    }
+
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
@@ -119,6 +138,11 @@ class API {
     Server server, {
     int limit = 50,
   }) async {
+    if (!server.online) {
+      debugPrint('Can not get events of an offline server: $server');
+      return [];
+    }
+
     try {
       assert(server.serverUUID != null && server.cookie != null);
       final response = await get(
@@ -134,6 +158,10 @@ class API {
           'Cookie': server.cookie!,
         },
       );
+
+      debugPrint('Getting events for server ${server.name}');
+      debugPrint(response.body);
+
       final parser = Xml2Json()..parse(response.body);
       return (await compute(jsonDecode, parser.toGData()))['feed']['entry']
           .map((e) {

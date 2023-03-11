@@ -136,21 +136,7 @@ Future<void> main(List<String> args) async {
   }
 
   if (!isDesktop) {
-    // Restore the navigation bar & status bar styling.
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarDividerColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    StatusBarControl.setStyle(
-      getStatusBarStyleFromBrightness(
-        SettingsProvider.instance.themeMode == ThemeMode.light
-            ? Brightness.dark
-            : Brightness.light,
-      ),
-    );
+    HomeProvider.setDefaultStatusBarStyle();
   }
 
   runApp(const UnityApp());

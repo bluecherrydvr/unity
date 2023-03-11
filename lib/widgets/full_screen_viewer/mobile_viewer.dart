@@ -45,7 +45,7 @@ class _DeviceFullscreenViewerMobileState
   @override
   void initState() {
     super.initState();
-    if (!isDesktop) {
+    if (isMobile) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         brightness = Theme.of(context).brightness;
         await StatusBarControl.setHidden(true);
@@ -62,7 +62,7 @@ class _DeviceFullscreenViewerMobileState
 
   @override
   void dispose() {
-    if (!isDesktop &&
+    if (isMobile &&
         widget.restoreStatusBarStyleOnDispose &&
         brightness != null) {
       StatusBarControl.setHidden(false);

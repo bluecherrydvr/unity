@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -89,13 +90,37 @@ class HomeProvider extends ChangeNotifier {
     setTab(UnityTab.downloads.index, context);
   }
 
+  static Future<void> setDefaultStatusBarStyle() async {
+    if (isMobile) {
+      // Restore the navigation bar & status bar styling.
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.black,
+          systemNavigationBarDividerColor: Colors.black,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      );
+      StatusBarControl.setStyle(
+        getStatusBarStyleFromBrightness(
+          SettingsProvider.instance.themeMode == ThemeMode.light
+              ? Brightness.dark
+              : Brightness.light,
+        ),
+      );
+    }
+  }
+
   Future<void> refreshDeviceOrientation(BuildContext context) async {
     if (isMobile) {
       final theme = Theme.of(context);
       final home = context.read<HomeProvider>();
       final tab = home.tab;
 
-      if (tab == UnityTab.deviceGrid.index) {
+      /// On device grid or in eventsPlayback, use landscape
+      if ([
+        UnityTab.deviceGrid.index,
+        UnityTab.eventsPlayback.index,
+      ].contains(tab)) {
         await StatusBarControl.setHidden(true);
         await StatusBarControl.setStyle(
           getStatusBarStyleFromBrightness(theme.brightness),
@@ -106,12 +131,13 @@ class HomeProvider extends ChangeNotifier {
             DeviceOrientation.landscapeRight,
           ],
         );
-      } else if (tab == UnityTab.addServer.index) {
+      } else if ([UnityTab.addServer.index].contains(tab)) {
         // Use portrait orientation in "Add Server" tab.
         // See #14.
         await StatusBarControl.setHidden(false);
         await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(theme.brightness),
+          // getStatusBarStyleFromBrightness(theme.brightness),
+          StatusBarStyle.LIGHT_CONTENT,
         );
         DeviceOrientations.instance.set(
           [

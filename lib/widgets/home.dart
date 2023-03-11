@@ -19,7 +19,6 @@
 
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
@@ -30,10 +29,8 @@ import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
 class NavigatorData {
   final IconData icon;
@@ -110,7 +107,6 @@ class _MobileHomeState extends State<Home> {
     // subscribe to updates to media query
     MediaQuery.of(context);
 
-    final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
@@ -151,22 +147,7 @@ class _MobileHomeState extends State<Home> {
                       UnityTab.eventsPlayback: () => const EventsPlayback(),
                       UnityTab.eventsScreen: () => const EventsScreen(),
                       UnityTab.addServer: () => AddServerWizard(
-                            onFinish: () async {
-                              home.setTab(0, context);
-                              if (!isDesktop) {
-                                await StatusBarControl.setHidden(true);
-                                await StatusBarControl.setStyle(
-                                  getStatusBarStyleFromBrightness(
-                                      theme.brightness),
-                                );
-                                await SystemChrome.setPreferredOrientations(
-                                  [
-                                    DeviceOrientation.landscapeLeft,
-                                    DeviceOrientation.landscapeRight,
-                                  ],
-                                );
-                              }
-                            },
+                            onFinish: () async => home.setTab(0, context),
                           ),
                       UnityTab.downloads: () => DownloadsManagerScreen(
                             initiallyExpandedEventId:
@@ -240,48 +221,7 @@ class _MobileHomeState extends State<Home> {
                     bottomEnd: Radius.circular(28.0),
                   ).resolve(Directionality.of(context)),
                   onTap: () async {
-                    final theme = Theme.of(context);
                     final navigator = Navigator.of(context);
-
-                    if (!isDesktop) {
-                      if (index == 0 && tab != 0) {
-                        debugPrint(index.toString());
-                        await StatusBarControl.setHidden(true);
-                        await StatusBarControl.setStyle(
-                          getStatusBarStyleFromBrightness(theme.brightness),
-                        );
-                        DeviceOrientations.instance.set(
-                          [
-                            DeviceOrientation.landscapeLeft,
-                            DeviceOrientation.landscapeRight,
-                          ],
-                        );
-                      } else if (index == 3 && tab != 3) {
-                        debugPrint(index.toString());
-                        // Use portrait orientation in "Add Server" tab. See #14.
-                        await StatusBarControl.setHidden(false);
-                        await StatusBarControl.setStyle(
-                          // Always white status bar style in [AddServerWizard].
-                          StatusBarStyle.LIGHT_CONTENT,
-                        );
-                        DeviceOrientations.instance.set(
-                          [
-                            DeviceOrientation.portraitUp,
-                            DeviceOrientation.portraitDown,
-                          ],
-                        );
-                      } else if (![0, 3].contains(index) &&
-                          [0, 3].contains(tab)) {
-                        debugPrint(index.toString());
-                        await StatusBarControl.setHidden(false);
-                        await StatusBarControl.setStyle(
-                          getStatusBarStyleFromBrightness(theme.brightness),
-                        );
-                        DeviceOrientations.instance.set(
-                          DeviceOrientation.values,
-                        );
-                      }
-                    }
 
                     await Future.delayed(const Duration(milliseconds: 200));
                     navigator.pop();

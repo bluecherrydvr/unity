@@ -111,19 +111,21 @@ class _MobileHomeState extends State<Home> {
     final tab = home.tab;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final isWide = constraints.biggest.width >= 640;
+      /// Whether there is enough space for a navigation rail to pop off.
+      ///
+      /// The screen must be horizontally wide ([isWide]) and vertically tall ([isTall]), since
+      /// the navigation rail requires space. The environment must not be a desktop environment [!isDesktop].
+      /// On desktop, [WindowButtons] is the responsible to handle navigation-related tasks.
+      ///
+      /// If the conditions are not met, the drawer is displayed instead.
+      ///
+      /// When a navigation item is added, for example, these breakpoints need to be updated
+      /// in order to delight a good user experience
+      final isWide = constraints.biggest.width > 640;
+      final isTall = constraints.biggest.height > 440;
+      final showNavigationRail = isWide && isTall && !isDesktop;
 
-      // if isExtraWide is true, the rail will be extended. This is good for
-      // desktop environments, but I like it compact (just like vscode)
-      // final isExtraWide = constraints.biggest.width >= 1008;
-      const isExtraWide = false;
-
-      /// whether there is enough space for a navigation rail to pop off. if false
-      /// the drawer is displayed
-      final isVerticallyLarge = constraints.biggest.height >= 340;
-
-      final showNavigationRail =
-          (isWide || isExtraWide) && isVerticallyLarge && !isDesktop;
+      print(constraints.biggest);
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -135,29 +137,11 @@ class _MobileHomeState extends State<Home> {
               if (showNavigationRail)
                 SafeArea(
                   right: Directionality.of(context) == TextDirection.rtl,
-                  child: buildNavigationRail(context, isExtraWide: isExtraWide),
+                  child: buildNavigationRail(context),
                 ),
               Expanded(
                 child: ClipRect(
                   child: PageTransitionSwitcher(
-                    child: <UnityTab, Widget Function()>{
-                      UnityTab.deviceGrid: () => const DeviceGrid(),
-                      UnityTab.directCameraScreen: () =>
-                          const DirectCameraScreen(),
-                      UnityTab.eventsPlayback: () => const EventsPlayback(),
-                      UnityTab.eventsScreen: () => const EventsScreen(),
-                      UnityTab.addServer: () => AddServerWizard(
-                            onFinish: () async => home.setTab(0, context),
-                          ),
-                      UnityTab.downloads: () => DownloadsManagerScreen(
-                            initiallyExpandedEventId:
-                                home.initiallyExpandedDownloadEventId,
-                          ),
-                      UnityTab.settings: () => Settings(
-                            changeCurrentTab: (index) =>
-                                home.setTab(index, context),
-                          ),
-                    }[UnityTab.values[tab]]!(),
                     transitionBuilder: (child, animation, secondaryAnimation) {
                       return SharedAxisTransition(
                         animation: animation,
@@ -166,6 +150,29 @@ class _MobileHomeState extends State<Home> {
                         child: child,
                       );
                     },
+                    child: <UnityTab, Widget Function()>{
+                      UnityTab.deviceGrid: () => const DeviceGrid(),
+                      UnityTab.directCameraScreen: () {
+                        return const DirectCameraScreen();
+                      },
+                      UnityTab.eventsPlayback: () => const EventsPlayback(),
+                      UnityTab.eventsScreen: () => const EventsScreen(),
+                      UnityTab.addServer: () => AddServerWizard(
+                            onFinish: () async => home.setTab(0, context),
+                          ),
+                      UnityTab.downloads: () {
+                        return DownloadsManagerScreen(
+                          initiallyExpandedEventId:
+                              home.initiallyExpandedDownloadEventId,
+                        );
+                      },
+                      UnityTab.settings: () {
+                        return Settings(
+                          changeCurrentTab: (index) =>
+                              home.setTab(index, context),
+                        );
+                      },
+                    }[UnityTab.values[tab]]!(),
                   ),
                 ),
               ),
@@ -269,10 +276,7 @@ class _MobileHomeState extends State<Home> {
     );
   }
 
-  Widget buildNavigationRail(
-    BuildContext context, {
-    required bool isExtraWide,
-  }) {
+  Widget buildNavigationRail(BuildContext context) {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
     final home = context.watch<HomeProvider>();
 
@@ -293,8 +297,7 @@ class _MobileHomeState extends State<Home> {
           child: NavigationRail(
             minExtendedWidth: 220,
             backgroundColor: Colors.transparent,
-            extended: isExtraWide,
-            useIndicator: !isExtraWide,
+            // useIndicator: true,
             indicatorColor: theme.selectedBackgroundColor,
             selectedLabelTextStyle: TextStyle(
               color: theme.selectedForegroundColor,

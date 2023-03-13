@@ -142,9 +142,6 @@ ThemeData createTheme({
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-
-    // ignore: deprecated_member_use
-    androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
       selectionColor: primary.withOpacity(0.2),
@@ -224,10 +221,6 @@ ThemeData createTheme({
         color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
         fontWeight: FontWeight.w500,
       ),
-      centerTitle: [
-        TargetPlatform.iOS,
-        TargetPlatform.macOS,
-      ].contains(defaultTargetPlatform),
     ),
     iconTheme: IconThemeData(
       color: light ? const Color(0xFF757575) : const Color(0xFF8A8A8A),

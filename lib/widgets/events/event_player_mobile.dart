@@ -221,8 +221,8 @@ class _VideoViewportState extends State<VideoViewport> {
                   return ErrorWarning(message: player.error!);
                 } else if (player.isBuffering) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
+                    child: CircularProgressIndicator.adaptive(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   );
                 } else {

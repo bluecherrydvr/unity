@@ -70,7 +70,7 @@ class EventsScreenMobile extends StatelessWidget {
                     const SizedBox(
                       height: 96.0,
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator.adaptive(),
                       ),
                     )
                   ]

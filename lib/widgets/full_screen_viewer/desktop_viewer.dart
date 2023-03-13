@@ -52,7 +52,7 @@ class _DeviceFullscreenViewerDesktopState
                 return ErrorWarning(message: controller.error!);
               } else if (!controller.isSeekable) {
                 return const Center(
-                  child: CircularProgressIndicator(
+                  child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
                     strokeWidth: 4.4,
                   ),

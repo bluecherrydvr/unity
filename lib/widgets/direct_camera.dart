@@ -41,38 +41,35 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
 
-    return Scaffold(
-      appBar: showIf(
-        isMobile,
-        child: AppBar(
-          leading: Scaffold.of(context).hasDrawer
-              ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  splashRadius: 20.0,
-                  onPressed: Scaffold.of(context).openDrawer,
-                )
-              : null,
-          title: Text(AppLocalizations.of(context).directCamera),
-        ),
-      ),
-      body: () {
-        if (serversProviders.servers.isEmpty) {
-          return const NoServerWarning();
-        } else {
-          return RefreshIndicator(
-            onRefresh: serversProviders.refreshDevices,
-            child: ListView.builder(
-              padding: MediaQuery.viewPaddingOf(context),
-              itemCount: serversProviders.servers.length,
-              itemBuilder: (context, i) {
-                final server = serversProviders.servers[i];
-                return _DevicesForServer(server: server);
-              },
+    return Column(children: [
+      showIf(
+            isMobile,
+            child: AppBar(
+              leading: MaybeUnityDrawerButton(context),
+              title: Text(AppLocalizations.of(context).directCamera),
             ),
-          );
-        }
-      }(),
-    );
+          ) ??
+          const SizedBox.shrink(),
+      Expanded(
+        child: () {
+          if (serversProviders.servers.isEmpty) {
+            return const NoServerWarning();
+          } else {
+            return RefreshIndicator(
+              onRefresh: serversProviders.refreshDevices,
+              child: ListView.builder(
+                padding: MediaQuery.viewPaddingOf(context),
+                itemCount: serversProviders.servers.length,
+                itemBuilder: (context, i) {
+                  final server = serversProviders.servers[i];
+                  return _DevicesForServer(server: server);
+                },
+              ),
+            );
+          }
+        }(),
+      ),
+    ]);
   }
 }
 

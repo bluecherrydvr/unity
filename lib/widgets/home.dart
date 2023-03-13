@@ -125,11 +125,10 @@ class _MobileHomeState extends State<Home> {
       final isTall = constraints.biggest.height > 440;
       final showNavigationRail = isWide && isTall && !isDesktop;
 
-      print(constraints.biggest);
-
       return Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: showNavigationRail ? null : buildDrawer(context),
+        // drawer: buildDrawer(context),
         body: Column(children: [
           const WindowButtons(),
           Expanded(

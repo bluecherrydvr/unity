@@ -66,14 +66,11 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               width: MediaQuery.sizeOf(context).width,
               child: Row(children: <Widget>[
-                if (Scaffold.of(context).hasDrawer)
-                  IconButton(
-                    onPressed: Scaffold.of(context).openDrawer,
-                    icon: const Icon(Icons.menu),
-                    iconSize: 18.0,
-                    color: Colors.white,
-                    splashRadius: 24.0,
-                  ),
+                const UnityDrawerButton(
+                  iconColor: Colors.white,
+                  iconSize: 18.0,
+                  splashRadius: 24.0,
+                ),
                 const Spacer(),
                 ...[1, 2, 4].map((e) {
                   final child = view.tab == e

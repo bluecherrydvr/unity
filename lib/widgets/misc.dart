@@ -25,7 +25,7 @@ import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
 bool get isDesktop {
-  // return false;
+  return false;
   if (kIsWeb) return false;
   return [
     TargetPlatform.windows,
@@ -36,7 +36,7 @@ bool get isDesktop {
 
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
 
-final isMobile = Platform.isAndroid || Platform.isIOS;
+bool get isMobile => true || Platform.isAndroid || Platform.isIOS;
 final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 
 class NavigatorPopButton extends StatelessWidget {
@@ -288,5 +288,49 @@ class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
     return data == null
         ? widget.loadingBuilder(context)
         : widget.builder(context, data);
+  }
+}
+
+// ignore: non_constant_identifier_names
+Widget? MaybeUnityDrawerButton(BuildContext context) {
+  if (Scaffold.hasDrawer(context)) return UnityDrawerButton();
+
+  return null;
+}
+
+/// A button that listen to updates to the parent [Scaffold] and display the
+/// drawer button accordingly
+class UnityDrawerButton extends StatelessWidget {
+  final Color? iconColor;
+  final double? iconSize;
+  final double splashRadius;
+
+  const UnityDrawerButton({
+    Key? key,
+    this.iconColor,
+    this.iconSize = 22.0,
+    this.splashRadius = 20.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (Scaffold.hasDrawer(context)) {
+      return Tooltip(
+        message: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        child: Center(
+          child: SizedBox(
+            height: 44.0,
+            width: 44.0,
+            child: InkWell(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              radius: 10.0,
+              borderRadius: BorderRadius.circular(100.0),
+              child: Icon(Icons.menu, color: iconColor, size: iconSize),
+            ),
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

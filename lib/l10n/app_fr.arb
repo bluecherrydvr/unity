@@ -1,0 +1,235 @@
+{
+  "@@locale": "fr",
+  "welcome": "Bienvenue",
+  "welcomeDescription": "Bienvenue au DVR de surveillance Bluecherry !\nConnectons-nous rapidement à votre serveur DVR.",
+  "configure": "Configurer un serveur DVR",
+  "configureDescription": "Configurons une connexion à votre serveur DVR distant",
+  "hostname": "Nom d'hôte",
+  "port": "Port",
+  "name": "Nom",
+  "username": "Nom d'utilisateur",
+  "password": "Mot de passe",
+  "savePassword": "Sauvegarder mot de passe",
+  "useDefault": "Par défaut",
+  "connect": "Connecter",
+  "connectAutomaticallyAtStartup": "Connecter automatiquement au démarrage",
+  "skip": "Sauter",
+  "cancel": "Annuler",
+  "letsGo": "C'EST PARTI!",
+  "finish": "Terminé",
+  "letsGoDescription": "Voici quelques astuces pour bien commencer",
+  "projectName": "Bluecherry",
+  "projectDescription": "Puissant Logiciel de Surveillance Vidéo",
+  "website": "Site internet",
+  "purchase": "Acheter",
+  "tip0": "Les caméras sont listés à gauche. Double-cliquez ou glissez une caméra sur la zone vue en direct pour la voir.",
+  "tip1": "Utilisez les boutons au dessus de la zone vue en direct pour créer, sauvegarder et charger une disposition - même avec des caméras provenant de plusieurs serveurs.",
+  "tip2": "Double-cliquez sur un serveur pour ouvrir sa page de configuration dans une nouvelle fenêtre où vous pouvez configurer les caméras et les enregistrements.",
+  "tip3": "Cliquez sur l'icône d'événements pour ouvrir l'historique et regarder ou sauvegarder les enregistrements.",
+  "errorTextField": "{field} n'est pas entré.",
+  "@errorTextField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
+  "serverAdded": "Le serveur à été ajouté",
+  "serverNotAddedError": "{serverName} n'a pas pu être ajouté. S.V.P. vérifiez les informations entrées.",
+  "@serverNotAddedError": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
+  "error": "Erreur",
+  "ok": "OK",
+  "removeCamera": "Enlever caméra",
+  "replaceCamera": "Remplacer caméra",
+  "reloadCamera": "Recharger caméra",
+  "selectACamera": "Sélectionner une caméra",
+  "online": "En ligne",
+  "offline": "Hors ligne",
+  "removeFromView": "Retirer de la vue",
+  "addToView": "Ajouter à la vue",
+  "eventBrowser": "Historique d'événements",
+  "server": "Serveur",
+  "device": "Appareil",
+  "event": "Évènement",
+  "duration": "Durée",
+  "priority": "Priorité",
+  "date": "Date",
+  "lastUpdate": "Dernière mise à jour",
+  "theme": "Thème",
+  "system": "Système",
+  "light": "Clair",
+  "dark": "Sombre",
+  "screens": "Écrans",
+  "directCamera": "Caméra direct",
+  "addServer": "Ajouter serveur",
+  "settings": "Paramètres",
+  "noServersAdded": "Aucun serveur ajouté",
+  "editServerInfo": "Modifier les info serveur",
+  "editServer": "Modifier le serveur {serverName}",
+  "@editServer": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
+  "pressBackAgainToExit": "Appuyez sur le bouton retour de nouveau pour quitter",
+  "servers": "Serveurs",
+  "dateFormat": "Format de la date",
+  "timeFormat": "Format de l'heure",
+  "nDevices": "{n} appareils",
+  "@nDevices": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "hours": "{h} heures",
+  "@hours": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "hoursCompact": "{h}h",
+  "@hoursCompact": {
+    "placeholders": {
+      "h": {}
+    }
+  },
+  "minutes": "{m} minutes",
+  "@minutes": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "minutesCompact": "{m}m",
+  "@minutesCompact": {
+    "placeholders": {
+      "m": {}
+    }
+  },
+  "seconds": "{s} secondes",
+  "@seconds": {
+    "placeholders": {
+      "s": {}
+    }
+  },
+  "secondsCompact": "{s}s",
+  "@secondsCompact": {
+    "placeholders": {
+      "s": {}
+    }
+  },
+  "remove": "Remove ?",
+  "removeServerDescription": "{serverName} sera retiré de l'application. Vous ne pourrez plus voir les caméras de ce serveur & ne pourrez plus recevoir des notifications.",
+  "@removeServerDescription": {
+    "placeholders": {
+      "serverName": {}
+    }
+  },
+  "yes": "Oui",
+  "no": "Non",
+  "version": "Version",
+  "versionText": "Copyright © 2022, Bluecherry LLC.\nTout droit réservé.",
+  "snooze15": "15 minutes",
+  "snooze30": "30 minutes",
+  "snooze60": "1 heure",
+  "miscellaneous": "Divers",
+  "snoozeNotifications": "Mise en pause des notifications",
+  "notSnoozed": "Notifications actives",
+  "snoozeNotificationsUntil": "Notifications en pause jusqu'à",
+  "snoozedUntil": "Mis en pause jusqu'à {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "cameraViewFit": "Ajustement de la vue caméra",
+  "contain": "Contenir",
+  "fill": "Remplir",
+  "cover": "Couvrir",
+  "gettingDevices": "Obtention des appareils...",
+  "noDevices": "Aucun appareil",
+  "noEventsFound": "Aucun événement trouvé",
+  "invalidResponse": "Réponse invalide reçu du serveur",
+  "notificationClickAction": "Action de clic sur les notifications",
+  "showFullscreenCamera": "Montrer en plein écran",
+  "openInANewWindow": "Ouvrir dans une nouvelle fenêtre",
+  "enableAudio": "Activer l'audio",
+  "disableAudio": "Désactiver l'audio",
+  "showEventsScreen": "Montrer l'historique d'événements",
+  "addNewServer": "Ajouter un nouveau serveur",
+  "disconnectServer": "Déconnecter",
+  "serverOptions": "Options serveur",
+  "browseEvents": "Naviguer les événements",
+  "eventType": "Type d'événement",
+  "configureServer": "Configurer le serveur",
+  "refreshDevices": "Actualiser les appareils",
+  "refresh": "Actualiser",
+  "view": "Vue",
+  "cycle": "Cycle",
+  "newLayout": "Nouvelle disposition",
+  "singleView": "Vue unique",
+  "multipleView": "Vue multiple",
+  "compactView": "Vue compacte",
+  "createNewLayout": "Créer une nouvelle disposition",
+  "layoutNameHint": "Nom de la disposition",
+  "layoutTypeHint": "Type de disposition",
+  "downloads": "Téléchargements",
+  "download": "Télécharger",
+  "downloaded": "Téléchargé",
+  "seeInDownloads": "Voir dans téléchargements",
+  "delete": "Supprimer",
+  "showInFiles": "Voir dans les fichiers",
+  "noDownloads": "Vous n'avez aucun téléchargements",
+  "downloadTitle": "{event} sur {device} du serveur {server} à {date}",
+  "@downloadTitle": {
+    "placeholders": {
+      "event": {},
+      "device": {},
+      "server": {},
+      "date": {}
+    }
+  },
+  "downloadPath": "Emplacement de téléchargement",
+  "playbackOptions": "OPTION DE LECTURE",
+  "play": "Jouer",
+  "pause": "Pause",
+  "volume": "Volume • {v}",
+  "@volume": {
+    "placeholders": {
+      "v": {}
+    }
+  },
+  "speed": "Vitesse • {s}",
+  "@speed": {
+    "placeholders": {
+      "s": {}
+    }
+  },
+  "noRecords": "Cette caméra n'a aucun enregistrement dans la période actuelle",
+  "filter": "Filtrer",
+  "fromDate": "De",
+  "toDate": "À",
+  "allowAlarms": "Permettre les alarmes",
+  "@Event Priorities": {},
+  "info": "Information",
+  "warn": "Avertissement",
+  "alarm": "Alarme",
+  "critical": "Critique",
+  "@Event Types": {},
+  "motion": "Mouvement",
+  "continuous": "Continu",
+  "notFound": "Non trouvé",
+  "cameraVideoLost": "Perte du vidéo",
+  "cameraAudioLost": "Perte de l'audio",
+  "systemDiskSpace": "Espace disque",
+  "systemCrash": "Crash",
+  "systemBoot": "Démarrage",
+  "systemShutdown": "Mise hors tension",
+  "systemReboot": "Redémarrage",
+  "systemPowerOutage": "Perte de courant",
+  "unknown": "Inconnu",
+  "@": {},
+  "close": "Ouvert",
+  "open": "Fermé"
+}

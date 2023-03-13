@@ -168,15 +168,17 @@ class ServerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
-
     final isLoading = servers.isServerLoading(server);
+    final loc = AppLocalizations.of(context);
 
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).iconTheme.color,
-        child: const Icon(Icons.dns),
+        foregroundColor:
+            server.online ? theme.iconTheme.color : theme.colorScheme.error,
+        child: Icon(server.online ? Icons.dns : Icons.desktop_access_disabled),
       ),
       title: Text(
         server.name,
@@ -186,16 +188,20 @@ class ServerTile extends StatelessWidget {
         !isLoading
             ? [
                 if (server.name != server.ip) server.ip,
-                AppLocalizations.of(context).nDevices(server.devices.length),
+                if (server.online)
+                  loc.nDevices(server.devices.length)
+                else
+                  loc.offline,
               ].join(' • ')
             : AppLocalizations.of(context).gettingDevices,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.delete,
+          color: theme.colorScheme.error,
         ),
-        tooltip: AppLocalizations.of(context).disconnectServer,
+        tooltip: loc.disconnectServer,
         splashRadius: 24.0,
         onPressed: () => onRemoveServer(context, server),
       ),

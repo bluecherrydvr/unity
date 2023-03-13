@@ -36,108 +36,133 @@ class EventsScreenMobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
 
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: ServersProvider.instance.servers.length,
-        itemBuilder: (context, index) {
-          final server = ServersProvider.instance.servers[index];
-          return ExpansionTile(
-            initiallyExpanded:
-                ServersProvider.instance.servers.length.compareTo(1) == 0,
-            maintainState: true,
-            leading: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              child: Icon(
-                Icons.language,
-                color: Theme.of(context).iconTheme.color,
-              ),
-            ),
-            title: Row(children: [
-              Expanded(child: Text(server.name)),
-              if (isDesktop)
-                IconButton(
-                  onPressed: refresh,
-                  tooltip: AppLocalizations.of(context).refresh,
-                  icon: const Icon(Icons.refresh),
-                ),
-            ]),
-            subtitle: server.name != server.ip ? Text(server.ip) : null,
-            children: isFirstTimeLoading
-                ? <Widget>[
-                    const SizedBox(
-                      height: 96.0,
-                      child: Center(
-                        child: CircularProgressIndicator.adaptive(),
+    return Material(
+      child: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: ServersProvider.instance.servers.length,
+          itemBuilder: (context, index) {
+            final server = ServersProvider.instance.servers[index];
+            return IgnorePointer(
+              ignoring: isFirstTimeLoading || !server.online,
+              child: ExpansionTile(
+                initiallyExpanded:
+                    ServersProvider.instance.servers.length.compareTo(1) == 0,
+                maintainState: true,
+                leading: !server.online
+                    ? CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
+                          Icons.desktop_access_disabled,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      )
+                    : isFirstTimeLoading
+                        ? const SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 2.0,
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            child: Icon(
+                              Icons.language,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                          ),
+                trailing: server.online ? null : const SizedBox.shrink(),
+                title: Row(children: [
+                  Expanded(child: Text(server.name)),
+                  if (isDesktop)
+                    IconButton(
+                      onPressed: refresh,
+                      tooltip: loc.refresh,
+                      icon: const Icon(Icons.refresh),
+                    ),
+                ]),
+                subtitle: !server.online
+                    ? Text(
+                        loc.offline,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      )
+                    : Text(
+                        '${loc.nDevices(server.devices.length)} • ${server.ip}',
                       ),
-                    )
-                  ]
-                : events[server]?.map((event) {
-                      return ListTile(
-                        contentPadding: const EdgeInsetsDirectional.only(
-                          start: 64.0,
-                          end: 16.0,
-                        ),
-                        onTap: () async {
-                          await Navigator.of(context).pushNamed(
-                            '/events',
-                            arguments: {
-                              'event': event,
-                              'upcoming': events,
+                children: isFirstTimeLoading
+                    ? []
+                    : events[server]?.map((event) {
+                          return ListTile(
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 70.0,
+                              end: 16.0,
+                            ),
+                            onTap: () async {
+                              await Navigator.of(context).pushNamed(
+                                '/events',
+                                arguments: {
+                                  'event': event,
+                                  'upcoming': events[server],
+                                },
+                              );
                             },
+                            title: Text(event.deviceName),
+                            isThreeLine: true,
+                            subtitle: Text(
+                              [
+                                '${event.priority.locale(context)} • ${event.duration.humanReadable(context)}',
+                                '${settings.formatDate(event.updated)}'
+                                    ' ${settings.formatTime(event.updated).toUpperCase()}',
+                              ].join('\n'),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            // leading: CircleAvatar(
+                            //   backgroundColor: Colors.transparent,
+                            //   child: Icon(
+                            //     Icons.warning,
+                            //     color: Colors.amber.shade300,
+                            //   ),
+                            // ),
                           );
-                        },
-                        title: Text(event.deviceName),
-                        isThreeLine: true,
-                        subtitle: Text(
-                          [
-                            event.title.split('event on').first.trim(),
-                            '${settings.formatDate(event.updated)}'
-                                ' ${settings.formatTime(event.updated).toUpperCase()}',
-                          ].join('\n'),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: Icon(
-                            Icons.warning,
-                            color: Colors.amber.shade300,
-                          ),
-                        ),
-                      );
-                    }).toList() ??
-                    [
-                      if (invalid[server] ?? true)
-                        SizedBox(
-                          height: 72.0,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(context).invalidResponse,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(fontSize: 16.0),
+                        }).toList() ??
+                        [
+                          if (invalid[server] ?? true)
+                            SizedBox(
+                              height: 72.0,
+                              child: Center(
+                                child: Text(
+                                  loc.invalidResponse,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontSize: 16.0),
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 72.0,
+                              child: Center(
+                                child: Text(
+                                  loc.noEventsFound,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontSize: 16.0),
+                                ),
+                              ),
                             ),
-                          ),
-                        )
-                      else
-                        SizedBox(
-                          height: 72.0,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(context).noEventsFound,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(fontSize: 16.0),
-                            ),
-                          ),
-                        ),
-                    ],
-          );
-        },
+                        ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -75,269 +75,273 @@ class _SettingsState extends State<Settings> {
       ),
     );
 
-    return SafeArea(
-      bottom: false,
-      child: Column(children: [
-        showIf(
-              isMobile,
-              child: AppBar(
-                leading: MaybeUnityDrawerButton(context),
-                title: Text(AppLocalizations.of(context).settings),
+    return Material(
+      type: MaterialType.transparency,
+      child: SafeArea(
+        bottom: false,
+        child: Column(children: [
+          showIf(
+                isMobile,
+                child: AppBar(
+                  leading: MaybeUnityDrawerButton(context),
+                  title: Text(AppLocalizations.of(context).settings),
+                ),
+              ) ??
+              const SizedBox.shrink(),
+          Expanded(
+            child: CustomScrollView(slivers: [
+              SubHeader(AppLocalizations.of(context).servers),
+              SliverToBoxAdapter(
+                child: ServersList(changeCurrentTab: widget.changeCurrentTab),
               ),
-            ) ??
-            const SizedBox.shrink(),
-        Expanded(
-          child: CustomScrollView(slivers: [
-            SubHeader(AppLocalizations.of(context).servers),
-            SliverToBoxAdapter(
-              child: ServersList(changeCurrentTab: widget.changeCurrentTab),
-            ),
-            SubHeader(AppLocalizations.of(context).theme),
-            SliverList(
-              delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
-                return ListTile(
+              SubHeader(AppLocalizations.of(context).theme),
+              SliverList(
+                delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Theme.of(context).iconTheme.color,
+                      child: Icon({
+                        ThemeMode.system: Icons.brightness_auto,
+                        ThemeMode.light: Icons.light_mode,
+                        ThemeMode.dark: Icons.dark_mode,
+                      }[e]!),
+                    ),
+                    onTap: () {
+                      settings.themeMode = e;
+                    },
+                    trailing: Radio(
+                      value: e,
+                      groupValue: settings.themeMode,
+                      onChanged: (value) {
+                        settings.themeMode = e;
+                      },
+                    ),
+                    title: Text({
+                      ThemeMode.system: AppLocalizations.of(context).system,
+                      ThemeMode.light: AppLocalizations.of(context).light,
+                      ThemeMode.dark: AppLocalizations.of(context).dark,
+                    }[e]!),
+                  );
+                }).toList()),
+              ),
+              divider,
+              SubHeader(AppLocalizations.of(context).miscellaneous),
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                CorrectedListTile(
+                  iconData: Icons.message,
+                  onTap: () async {
+                    if (settings.snoozedUntil.isAfter(DateTime.now())) {
+                      settings.snoozedUntil =
+                          SettingsProvider.defaultSnoozedUntil;
+                    } else {
+                      final timeOfDay = await showTimePicker(
+                        context: context,
+                        helpText: AppLocalizations.of(context)
+                            .snoozeNotificationsUntil
+                            .toUpperCase(),
+                        initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+                        useRootNavigator: false,
+                      );
+                      if (timeOfDay != null) {
+                        settings.snoozedUntil = DateTime(
+                          DateTime.now().year,
+                          DateTime.now().month,
+                          DateTime.now().day,
+                          timeOfDay.hour,
+                          timeOfDay.minute,
+                        );
+                      }
+                    }
+                  },
+                  title: AppLocalizations.of(context).snoozeNotifications,
+                  height: 72.0,
+                  subtitle: settings.snoozedUntil.isAfter(DateTime.now())
+                      ? AppLocalizations.of(context).snoozedUntil(
+                          [
+                            if (settings.snoozedUntil
+                                    .difference(DateTime.now()) >
+                                const Duration(hours: 24))
+                              settings.formatDate(settings.snoozedUntil),
+                            settings.formatTime(settings.snoozedUntil),
+                          ].join(' '),
+                        )
+                      : AppLocalizations.of(context).notSnoozed,
+                ),
+                ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     foregroundColor: Theme.of(context).iconTheme.color,
-                    child: Icon({
-                      ThemeMode.system: Icons.brightness_auto,
-                      ThemeMode.light: Icons.light_mode,
-                      ThemeMode.dark: Icons.dark_mode,
-                    }[e]!),
+                    child: const Icon(Icons.beenhere_rounded),
                   ),
+                  title: Text(
+                      AppLocalizations.of(context).notificationClickAction),
+                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  subtitle: Text(
+                    settings.notificationClickAction.str(context),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                  ),
+                  children: NotificationClickAction.values.map((e) {
+                    return RadioListTile(
+                      value: e,
+                      groupValue: settings.notificationClickAction,
+                      onChanged: (value) {
+                        settings.notificationClickAction = e;
+                      },
+                      secondary: const Icon(null),
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      title: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 8.0),
+                        child: Text(
+                          e.str(context),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.camera_alt),
+                  ),
+                  title: Text(AppLocalizations.of(context).cameraViewFit),
+                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  subtitle: Text(
+                    settings.cameraViewFit.str(context),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                  ),
+                  children: UnityVideoFit.values.map((e) {
+                    return RadioListTile(
+                      value: e,
+                      groupValue: settings.cameraViewFit,
+                      onChanged: (value) {
+                        settings.cameraViewFit = e;
+                      },
+                      secondary: const Icon(null),
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      title: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 8.0),
+                        child: Text(
+                          e.str(context),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                CorrectedListTile(
+                  iconData: Icons.download,
+                  title: AppLocalizations.of(context).downloadPath,
+                  subtitle: settings.downloadsDirectory,
+                  height: 72.0,
+                  onTap: () async {
+                    final selectedDirectory =
+                        await FilePicker.platform.getDirectoryPath(
+                      dialogTitle: AppLocalizations.of(context).downloadPath,
+                      initialDirectory:
+                          SettingsProvider.instance.downloadsDirectory,
+                      lockParentWindow: true,
+                    );
+
+                    if (selectedDirectory != null) {
+                      settings.downloadsDirectory =
+                          Directory(selectedDirectory).path;
+                    }
+                  },
+                ),
+              ])),
+              divider,
+              SubHeader(AppLocalizations.of(context).dateFormat),
+              const SliverToBoxAdapter(child: DateFormatSection()),
+              divider,
+              SubHeader(AppLocalizations.of(context).timeFormat),
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                'HH:mm',
+                'hh:mm a',
+              ].map((e) {
+                return ListTile(
                   onTap: () {
-                    settings.themeMode = e;
+                    settings.timeFormat = DateFormat(e, 'en_US');
                   },
                   trailing: Radio(
                     value: e,
-                    groupValue: settings.themeMode,
+                    groupValue: settings.timeFormat.pattern,
                     onChanged: (value) {
-                      settings.themeMode = e;
+                      settings.timeFormat = DateFormat(e, 'en_US');
                     },
                   ),
-                  title: Text({
-                    ThemeMode.system: AppLocalizations.of(context).system,
-                    ThemeMode.light: AppLocalizations.of(context).light,
-                    ThemeMode.dark: AppLocalizations.of(context).dark,
-                  }[e]!),
+                  title: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: Text(
+                      DateFormat(e, 'en_US')
+                          .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                    ),
+                  ),
                 );
-              }).toList()),
-            ),
-            divider,
-            SubHeader(AppLocalizations.of(context).miscellaneous),
-            SliverList(
-                delegate: SliverChildListDelegate([
-              CorrectedListTile(
-                iconData: Icons.message,
-                onTap: () async {
-                  if (settings.snoozedUntil.isAfter(DateTime.now())) {
-                    settings.snoozedUntil =
-                        SettingsProvider.defaultSnoozedUntil;
-                  } else {
-                    final timeOfDay = await showTimePicker(
-                      context: context,
-                      helpText: AppLocalizations.of(context)
-                          .snoozeNotificationsUntil
-                          .toUpperCase(),
-                      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
-                      useRootNavigator: false,
-                    );
-                    if (timeOfDay != null) {
-                      settings.snoozedUntil = DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        DateTime.now().day,
-                        timeOfDay.hour,
-                        timeOfDay.minute,
-                      );
-                    }
-                  }
-                },
-                title: AppLocalizations.of(context).snoozeNotifications,
-                height: 72.0,
-                subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                    ? AppLocalizations.of(context).snoozedUntil(
-                        [
-                          if (settings.snoozedUntil.difference(DateTime.now()) >
-                              const Duration(hours: 24))
-                            settings.formatDate(settings.snoozedUntil),
-                          settings.formatTime(settings.snoozedUntil),
-                        ].join(' '),
-                      )
-                    : AppLocalizations.of(context).notSnoozed,
-              ),
-              ExpansionTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
-                  child: const Icon(Icons.beenhere_rounded),
-                ),
-                title:
-                    Text(AppLocalizations.of(context).notificationClickAction),
-                textColor: Theme.of(context).textTheme.bodyLarge?.color,
-                subtitle: Text(
-                  settings.notificationClickAction.str(context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
+              }).toList())),
+              divider,
+              // SubHeader('Language'),
+              // SliverList(
+              //   delegate: SliverChildListDelegate(
+              //     AppLocalizations.supportedLocales.map((locale) {
+              //       return ListTile(
+              //         title: Text(locale.languageCode),
+              //       );
+              //     }).toList(),
+              //   ),
+              // ),
+              // divider,
+              SubHeader(AppLocalizations.of(context).version),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8.0),
+                      FutureBuilder<String>(
+                        future: appVersion,
+                        builder: (context, snapshot) {
+                          return Text(snapshot.data ?? '');
+                        },
                       ),
-                ),
-                children: NotificationClickAction.values.map((e) {
-                  return RadioListTile(
-                    value: e,
-                    groupValue: settings.notificationClickAction,
-                    onChanged: (value) {
-                      settings.notificationClickAction = e;
-                    },
-                    secondary: const Icon(null),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    title: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: Text(
-                        e.str(context),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        AppLocalizations.of(context).versionText,
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              ExpansionTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).iconTheme.color,
-                  child: const Icon(Icons.camera_alt),
-                ),
-                title: Text(AppLocalizations.of(context).cameraViewFit),
-                textColor: Theme.of(context).textTheme.bodyLarge?.color,
-                subtitle: Text(
-                  settings.cameraViewFit.str(context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                ),
-                children: UnityVideoFit.values.map((e) {
-                  return RadioListTile(
-                    value: e,
-                    groupValue: settings.cameraViewFit,
-                    onChanged: (value) {
-                      settings.cameraViewFit = e;
-                    },
-                    secondary: const Icon(null),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    title: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: Text(
-                        e.str(context),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              CorrectedListTile(
-                iconData: Icons.download,
-                title: AppLocalizations.of(context).downloadPath,
-                subtitle: settings.downloadsDirectory,
-                height: 72.0,
-                onTap: () async {
-                  final selectedDirectory =
-                      await FilePicker.platform.getDirectoryPath(
-                    dialogTitle: AppLocalizations.of(context).downloadPath,
-                    initialDirectory:
-                        SettingsProvider.instance.downloadsDirectory,
-                    lockParentWindow: true,
-                  );
-
-                  if (selectedDirectory != null) {
-                    settings.downloadsDirectory =
-                        Directory(selectedDirectory).path;
-                  }
-                },
-              ),
-            ])),
-            divider,
-            SubHeader(AppLocalizations.of(context).dateFormat),
-            const SliverToBoxAdapter(child: DateFormatSection()),
-            divider,
-            SubHeader(AppLocalizations.of(context).timeFormat),
-            SliverList(
-                delegate: SliverChildListDelegate([
-              'HH:mm',
-              'hh:mm a',
-            ].map((e) {
-              return ListTile(
-                onTap: () {
-                  settings.timeFormat = DateFormat(e, 'en_US');
-                },
-                trailing: Radio(
-                  value: e,
-                  groupValue: settings.timeFormat.pattern,
-                  onChanged: (value) {
-                    settings.timeFormat = DateFormat(e, 'en_US');
-                  },
-                ),
-                title: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8.0),
-                  child: Text(
-                    DateFormat(e, 'en_US')
-                        .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-                  ),
-                ),
-              );
-            }).toList())),
-            divider,
-            // SubHeader('Language'),
-            // SliverList(
-            //   delegate: SliverChildListDelegate(
-            //     AppLocalizations.supportedLocales.map((locale) {
-            //       return ListTile(
-            //         title: Text(locale.languageCode),
-            //       );
-            //     }).toList(),
-            //   ),
-            // ),
-            // divider,
-            SubHeader(AppLocalizations.of(context).version),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8.0),
-                    FutureBuilder<String>(
-                      future: appVersion,
-                      builder: (context, snapshot) {
-                        return Text(snapshot.data ?? '');
-                      },
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      AppLocalizations.of(context).versionText,
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    const SizedBox(height: 8.0),
-                    MaterialButton(
-                      onPressed: () {
-                        launchUrl(
-                          Uri.https('www.bluecherrydvr.com', '/'),
-                          mode: LaunchMode.externalApplication,
-                        );
-                      },
-                      padding: EdgeInsets.zero,
-                      minWidth: 0.0,
-                      child: Text(
-                        AppLocalizations.of(context).website,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                      const SizedBox(height: 8.0),
+                      MaterialButton(
+                        onPressed: () {
+                          launchUrl(
+                            Uri.https('www.bluecherrydvr.com', '/'),
+                            mode: LaunchMode.externalApplication,
+                          );
+                        },
+                        padding: EdgeInsets.zero,
+                        minWidth: 0.0,
+                        child: Text(
+                          AppLocalizations.of(context).website,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
-          ]),
-        ),
-      ]),
+              const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
+            ]),
+          ),
+        ]),
+      ),
     );
   }
 }

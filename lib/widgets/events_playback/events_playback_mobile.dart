@@ -143,70 +143,74 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
         ),
       ),
       const SizedBox(height: 8.0),
-      Stack(children: [
-        PositionedDirectional(
-          start: 8.0,
-          child: Row(children: [
-            const UnityDrawerButton(),
-            const SizedBox(width: 8.0),
-            IconButton(
-              icon: const Icon(Icons.device_hub),
-              onPressed: () async {
-                final device = await Navigator.of(context).push<Device>(
-                  MaterialPageRoute(
-                    builder: (context) => const DeviceSelectorScreen(),
-                  ),
-                );
-                if (device is Device && !eventsProvider.contains(device)) {
-                  eventsProvider
-                    ..clear()
-                    ..add(device);
-                  initialize();
-                }
-              },
-            )
-          ]),
-        ),
-        PositionedDirectional(
-          end: 8.0,
-          child: IconButton(
-            icon: const Icon(Icons.filter_list),
-            tooltip: AppLocalizations.of(context).filter,
-            onPressed: () => showFilter(context),
+      Material(
+        type: MaterialType.transparency,
+        child: Stack(children: [
+          const SizedBox(height: kToolbarHeight),
+          PositionedDirectional(
+            start: 8.0,
+            child: Row(children: [
+              const UnityDrawerButton(),
+              const SizedBox(width: 8.0),
+              IconButton(
+                icon: const Icon(Icons.device_hub),
+                onPressed: () async {
+                  final device = await Navigator.of(context).push<Device>(
+                    MaterialPageRoute(
+                      builder: (context) => const DeviceSelectorScreen(),
+                    ),
+                  );
+                  if (device is Device && !eventsProvider.contains(device)) {
+                    eventsProvider
+                      ..clear()
+                      ..add(device);
+                    initialize();
+                  }
+                },
+              )
+            ]),
           ),
-        ),
-        Row(children: [
-          const Spacer(),
-          Tooltip(
-            message: timelineController.isPaused
-                ? AppLocalizations.of(context).play
-                : AppLocalizations.of(context).pause,
-            child: CircleAvatar(
-              child: Material(
-                type: MaterialType.transparency,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(100.0),
-                  onTap: () {
-                    if (timelineController.isPaused) {
-                      timelineController.play(context);
-                    } else {
-                      timelineController.pause();
-                    }
-                  },
-                  child: Center(
-                    child: Icon(
-                      timelineController.isPaused
-                          ? Icons.play_arrow
-                          : Icons.pause,
+          PositionedDirectional(
+            end: 8.0,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: AppLocalizations.of(context).filter,
+              onPressed: () => showFilter(context),
+            ),
+          ),
+          Row(children: [
+            const Spacer(),
+            Tooltip(
+              message: timelineController.isPaused
+                  ? AppLocalizations.of(context).play
+                  : AppLocalizations.of(context).pause,
+              child: CircleAvatar(
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(100.0),
+                    onTap: () {
+                      if (timelineController.isPaused) {
+                        timelineController.play(context);
+                      } else {
+                        timelineController.pause();
+                      }
+                    },
+                    child: Center(
+                      child: Icon(
+                        timelineController.isPaused
+                            ? Icons.play_arrow
+                            : Icons.pause,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          const Spacer(),
+            const Spacer(),
+          ]),
         ]),
-      ]),
+      ),
       const SizedBox(height: 6.0),
       PhysicalModel(
         color: Colors.transparent,

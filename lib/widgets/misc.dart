@@ -292,8 +292,16 @@ class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
 }
 
 // ignore: non_constant_identifier_names
-Widget? MaybeUnityDrawerButton(BuildContext context) {
-  if (Scaffold.hasDrawer(context)) return UnityDrawerButton();
+Widget? MaybeUnityDrawerButton(
+  BuildContext context, {
+  EdgeInsetsGeometry padding = EdgeInsets.zero,
+}) {
+  if (Scaffold.hasDrawer(context)) {
+    return Padding(
+      padding: padding,
+      child: const UnityDrawerButton(),
+    );
+  }
 
   return null;
 }

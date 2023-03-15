@@ -20,7 +20,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
@@ -32,6 +34,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -50,8 +53,9 @@ class EventsPlaybackMobile extends EventsPlaybackWidget {
 class _EventsPlaybackMobileState extends EventsPlaybackState {
   @override
   Widget buildChild(BuildContext context) {
+    // final home = context.watch<HomeProvider>();
+    final settings = context.watch<SettingsProvider>();
     final serversProvider = context.watch<ServersProvider>();
-
     final servers = serversProvider.servers.where((server) => server.devices
         .any(
             (d) => widget.events.keys.contains(EventsProvider.idForDevice(d))));
@@ -211,6 +215,25 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
           ]),
         ]),
       ),
+      if (timelineController.initialized)
+        RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: timelineController.positionNotifier,
+            builder: (context, child) {
+              final date = timelineController.currentItem!.start;
+
+              return AutoSizeText(
+                '${settings.dateFormat.format(date)}'
+                ' '
+                '${DateFormat.Hms().format(date.add(timelineController.thumbPrecision))}',
+                minFontSize: 8.0,
+                maxFontSize: 13.0,
+              );
+            },
+          ),
+        )
+      else
+        const Text(''),
       const SizedBox(height: 6.0),
       PhysicalModel(
         color: Colors.transparent,
@@ -222,16 +245,20 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
             minWidth: double.infinity,
           ),
           child: Material(
-            child: servers.isEmpty
-                ? Center(
-                    child: Text(
-                      AppLocalizations.of(context).noServersAvailable,
-                    ),
-                  )
-                : TimelineView(
-                    timelineController: timelineController,
-                    showDevicesName: false,
-                  ),
+            child: !timelineController.initialized
+                // home.loadReasons
+                //         .contains(UnityLoadingReason.fetchingEventsPlaybackPeriods)
+                ? const Center(child: CircularProgressIndicator.adaptive())
+                : servers.isEmpty
+                    ? Center(
+                        child: Text(
+                          AppLocalizations.of(context).noServersAvailable,
+                        ),
+                      )
+                    : TimelineView(
+                        timelineController: timelineController,
+                        showDevicesName: false,
+                      ),
           ),
         ),
       ),

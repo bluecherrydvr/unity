@@ -41,6 +41,7 @@ import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -97,20 +98,20 @@ Future<void> main(List<String> args) async {
   // With it, all these functions will be running at the same time.
   await Future.wait([
     if (isDesktop) configureWindow(),
-    () async {
-      // Request notifications permission for iOS, Android 13+ and Windows.
-      //
-      // permission_handler only supports these platforms
-      if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
-        try {
-          final result = await Permission.notification.request();
-          debugPrint(result.toString());
-        } catch (exception, stacktrace) {
-          debugPrint(exception.toString());
-          debugPrint(stacktrace.toString());
+    // Request notifications permission for iOS, Android 13+ and Windows.
+    //
+    // permission_handler only supports these platforms
+    if (isMobile || Platform.isWindows)
+      () async {
+        if (await Permission.notification.isDenied ||
+            await Permission.notification.isPermanentlyDenied) {
+          final state = await Permission.notification.request();
+          if (!state.isGranted) {
+            SystemNavigator.pop();
+            return;
+          }
         }
-      }
-    }(),
+      }(),
     Hive.initFlutter(hivePath),
   ]);
 
@@ -128,11 +129,11 @@ Future<void> main(List<String> args) async {
   ]);
 
   /// Firebase messaging isn't available on desktop platforms
-  if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+  if (kIsWeb || isMobile || Platform.isMacOS) {
     FirebaseConfiguration.ensureInitialized();
   }
 
-  if (!isDesktop) {
+  if (!isMobile) {
     HomeProvider.setDefaultStatusBarStyle();
   }
 

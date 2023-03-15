@@ -22,20 +22,19 @@ part of 'events_screen.dart';
 class EventsScreenMobile extends StatelessWidget {
   final EventsData events;
   final RefreshCallback refresh;
-  final bool isFirstTimeLoading;
   final Map<Server, bool> invalid;
 
   const EventsScreenMobile({
     Key? key,
     required this.events,
     required this.refresh,
-    required this.isFirstTimeLoading,
     required this.invalid,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final servers = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
 
     return Material(
@@ -43,38 +42,36 @@ class EventsScreenMobile extends StatelessWidget {
         onRefresh: refresh,
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: ServersProvider.instance.servers.length,
+          itemCount: servers.servers.length,
           itemBuilder: (context, index) {
-            final server = ServersProvider.instance.servers[index];
+            final server = servers.servers[index];
+            final hasEvents =
+                events.containsKey(server) && events[server]!.isNotEmpty;
             return IgnorePointer(
-              ignoring: isFirstTimeLoading || !server.online,
+              ignoring: !server.online || !hasEvents,
               child: ExpansionTile(
-                initiallyExpanded:
-                    ServersProvider.instance.servers.length.compareTo(1) == 0,
+                initiallyExpanded: servers.servers.length.compareTo(1) == 0,
                 maintainState: true,
-                leading: !server.online
-                    ? CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        child: Icon(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  child: !server.online
+                      ? Icon(
                           Icons.desktop_access_disabled,
                           color: Theme.of(context).colorScheme.error,
-                        ),
-                      )
-                    : isFirstTimeLoading
-                        ? const SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator.adaptive(
-                              strokeWidth: 2.0,
-                            ),
-                          )
-                        : CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            child: Icon(
+                        )
+                      : !hasEvents
+                          ? const SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 2.0,
+                              ),
+                            )
+                          : Icon(
                               Icons.language,
                               color: Theme.of(context).iconTheme.color,
                             ),
-                          ),
+                ),
                 trailing: server.online ? null : const SizedBox.shrink(),
                 title: Row(children: [
                   Expanded(child: Text(server.name)),
@@ -95,7 +92,7 @@ class EventsScreenMobile extends StatelessWidget {
                     : Text(
                         '${loc.nDevices(server.devices.length)} • ${server.ip}',
                       ),
-                children: isFirstTimeLoading
+                children: !hasEvents
                     ? []
                     : events[server]?.map((event) {
                           return ListTile(
@@ -116,7 +113,7 @@ class EventsScreenMobile extends StatelessWidget {
                             isThreeLine: true,
                             subtitle: Text(
                               [
-                                '${event.priority.locale(context)} • ${event.duration.humanReadable(context)}',
+                                '${event.type.locale(context)} • ${event.duration.humanReadable(context)}',
                                 '${settings.formatDate(event.updated)}'
                                     ' ${settings.formatTime(event.updated).toUpperCase()}',
                               ].join('\n'),

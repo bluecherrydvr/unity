@@ -80,14 +80,11 @@ class _SettingsState extends State<Settings> {
       child: SafeArea(
         bottom: false,
         child: Column(children: [
-          showIf(
-                isMobile,
-                child: AppBar(
-                  leading: MaybeUnityDrawerButton(context),
-                  title: Text(AppLocalizations.of(context).settings),
-                ),
-              ) ??
-              const SizedBox.shrink(),
+          if (isMobile)
+            AppBar(
+              leading: MaybeUnityDrawerButton(context),
+              title: Text(AppLocalizations.of(context).settings),
+            ),
           Expanded(
             child: CustomScrollView(slivers: [
               SubHeader(AppLocalizations.of(context).servers),

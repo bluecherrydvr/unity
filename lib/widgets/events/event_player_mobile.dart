@@ -175,9 +175,11 @@ class _VideoViewportState extends State<VideoViewport> {
                   });
                   if (timer.isActive) timer.cancel();
                   timer = Timer(const Duration(seconds: 5), () {
-                    setState(() {
-                      visible = false;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        visible = false;
+                      });
+                    }
                   });
                 } else {
                   setState(() {

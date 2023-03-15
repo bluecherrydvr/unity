@@ -24,8 +24,10 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:status_bar_control/status_bar_control.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -47,18 +49,18 @@ class DeviceFullscreenViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= 800) {
-        return DeviceFullscreenViewerDesktop(
-          device: device,
-          videoPlayerController: videoPlayerController,
-        );
-      } else {
-        return DeviceFullscreenViewerMobile(
-          device: device,
-          videoPlayerController: videoPlayerController,
-          restoreStatusBarStyleOnDispose: restoreStatusBarStyleOnDispose,
-        );
-      }
+      // if (consts.maxWidth >= 800) {
+      //   return DeviceFullscreenViewerDesktop(
+      //     device: device,
+      //     videoPlayerController: videoPlayerController,
+      //   );
+      // } else {
+      return DeviceFullscreenViewerMobile(
+        device: device,
+        videoPlayerController: videoPlayerController,
+        restoreStatusBarStyleOnDispose: restoreStatusBarStyleOnDispose,
+      );
+      // }
     });
   }
 }

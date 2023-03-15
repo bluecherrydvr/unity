@@ -142,7 +142,6 @@ ThemeData createTheme({
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-    platform: TargetPlatform.iOS,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
       selectionColor: primary.withOpacity(0.2),

@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
 bool get isDesktop {
-  return false;
   if (kIsWeb) return false;
   return [
     TargetPlatform.windows,
@@ -36,7 +35,7 @@ bool get isDesktop {
 
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
 
-bool get isMobile => true || Platform.isAndroid || Platform.isIOS;
+bool get isMobile => Platform.isAndroid || Platform.isIOS;
 final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 
 class NavigatorPopButton extends StatelessWidget {

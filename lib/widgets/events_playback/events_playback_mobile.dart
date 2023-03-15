@@ -20,7 +20,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
-import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';

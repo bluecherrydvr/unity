@@ -52,6 +52,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   final videoController = UnityVideoPlayer.create();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     final downloads = context.read<DownloadsManager>();
 
@@ -81,7 +86,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
     return Scaffold(
       appBar: showIf(
         isMobile,
-        child: AppBar(title: Text(widget.event.deviceName)),
+        child: AppBar(
+          title: Text(
+            '${widget.event.deviceName} (${widget.event.server.name})',
+          ),
+        ),
       ),
       body: Column(children: [
         const WindowButtons(),

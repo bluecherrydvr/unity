@@ -93,25 +93,23 @@ Future<void> main(List<String> args) async {
     return;
   }
 
+  // Request notifications permission for iOS, Android 13+ and Windows.
+  //
+  // permission_handler only supports these platforms
+  if (isMobile || Platform.isWindows) {
+    () async {
+      if (await Permission.notification.isDenied) {
+        final state = await Permission.notification.request();
+        debugPrint('Notification permission state $state');
+      }
+    }();
+  }
+
   // We use [Future.wait] to decrease startup time.
   //
   // With it, all these functions will be running at the same time.
   await Future.wait([
     if (isDesktop) configureWindow(),
-    // Request notifications permission for iOS, Android 13+ and Windows.
-    //
-    // permission_handler only supports these platforms
-    if (isMobile || Platform.isWindows)
-      () async {
-        if (await Permission.notification.isDenied ||
-            await Permission.notification.isPermanentlyDenied) {
-          final state = await Permission.notification.request();
-          if (!state.isGranted) {
-            SystemNavigator.pop();
-            return;
-          }
-        }
-      }(),
     Hive.initFlutter(hivePath),
   ]);
 

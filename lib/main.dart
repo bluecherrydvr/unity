@@ -41,7 +41,6 @@ import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';

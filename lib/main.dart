@@ -30,7 +30,6 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -42,14 +41,12 @@ import 'package:bluecherry_client/widgets/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -95,25 +92,23 @@ Future<void> main(List<String> args) async {
     return;
   }
 
+  // Request notifications permission for iOS, Android 13+ and Windows.
+  //
+  // permission_handler only supports these platforms
+  if (isMobile || Platform.isWindows) {
+    () async {
+      if (await Permission.notification.isDenied) {
+        final state = await Permission.notification.request();
+        debugPrint('Notification permission state $state');
+      }
+    }();
+  }
+
   // We use [Future.wait] to decrease startup time.
   //
   // With it, all these functions will be running at the same time.
   await Future.wait([
     if (isDesktop) configureWindow(),
-    () async {
-      // Request notifications permission for iOS, Android 13+ and Windows.
-      //
-      // permission_handler only supports these platforms
-      if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
-        try {
-          final result = await Permission.notification.request();
-          debugPrint(result.toString());
-        } catch (exception, stacktrace) {
-          debugPrint(exception.toString());
-          debugPrint(stacktrace.toString());
-        }
-      }
-    }(),
     Hive.initFlutter(hivePath),
   ]);
 
@@ -131,26 +126,12 @@ Future<void> main(List<String> args) async {
   ]);
 
   /// Firebase messaging isn't available on desktop platforms
-  if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+  if (kIsWeb || isMobile || Platform.isMacOS) {
     FirebaseConfiguration.ensureInitialized();
   }
 
-  if (!isDesktop) {
-    // Restore the navigation bar & status bar styling.
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarDividerColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    StatusBarControl.setStyle(
-      getStatusBarStyleFromBrightness(
-        SettingsProvider.instance.themeMode == ThemeMode.light
-            ? Brightness.dark
-            : Brightness.light,
-      ),
-    );
+  if (!isMobile) {
+    HomeProvider.setDefaultStatusBarStyle();
   }
 
   runApp(const UnityApp());

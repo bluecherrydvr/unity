@@ -165,8 +165,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                             return ErrorWarning(message: controller.error!);
                           } else if (!controller.isSeekable) {
                             return const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
+                              child: CircularProgressIndicator.adaptive(
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             );
                           }

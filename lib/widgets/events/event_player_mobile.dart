@@ -52,6 +52,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   final videoController = UnityVideoPlayer.create();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     final downloads = context.read<DownloadsManager>();
 
@@ -81,7 +86,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
     return Scaffold(
       appBar: showIf(
         isMobile,
-        child: AppBar(title: Text(widget.event.deviceName)),
+        child: AppBar(
+          title: Text(
+            '${widget.event.deviceName} (${widget.event.server.name})',
+          ),
+        ),
       ),
       body: Column(children: [
         const WindowButtons(),
@@ -175,9 +184,11 @@ class _VideoViewportState extends State<VideoViewport> {
                   });
                   if (timer.isActive) timer.cancel();
                   timer = Timer(const Duration(seconds: 5), () {
-                    setState(() {
-                      visible = false;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        visible = false;
+                      });
+                    }
                   });
                 } else {
                   setState(() {
@@ -221,8 +232,8 @@ class _VideoViewportState extends State<VideoViewport> {
                   return ErrorWarning(message: player.error!);
                 } else if (player.isBuffering) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
+                    child: CircularProgressIndicator.adaptive(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   );
                 } else {

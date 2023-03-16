@@ -22,122 +22,144 @@ part of 'events_screen.dart';
 class EventsScreenMobile extends StatelessWidget {
   final EventsData events;
   final RefreshCallback refresh;
-  final bool isFirstTimeLoading;
   final Map<Server, bool> invalid;
 
   const EventsScreenMobile({
     Key? key,
     required this.events,
     required this.refresh,
-    required this.isFirstTimeLoading,
     required this.invalid,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final servers = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
 
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: ServersProvider.instance.servers.length,
-        itemBuilder: (context, index) {
-          final server = ServersProvider.instance.servers[index];
-          return ExpansionTile(
-            initiallyExpanded:
-                ServersProvider.instance.servers.length.compareTo(1) == 0,
-            maintainState: true,
-            leading: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              child: Icon(
-                Icons.language,
-                color: Theme.of(context).iconTheme.color,
-              ),
-            ),
-            title: Row(children: [
-              Expanded(child: Text(server.name)),
-              if (isDesktop)
-                IconButton(
-                  onPressed: refresh,
-                  tooltip: AppLocalizations.of(context).refresh,
-                  icon: const Icon(Icons.refresh),
-                ),
-            ]),
-            subtitle: server.name != server.ip ? Text(server.ip) : null,
-            children: isFirstTimeLoading
-                ? <Widget>[
-                    const SizedBox(
-                      height: 96.0,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  ]
-                : events[server]?.map((event) {
-                      return ListTile(
-                        contentPadding: const EdgeInsetsDirectional.only(
-                          start: 64.0,
-                          end: 16.0,
-                        ),
-                        onTap: () async {
-                          await Navigator.of(context).pushNamed(
-                            '/events',
-                            arguments: {
-                              'event': event,
-                              'upcoming': events,
-                            },
-                          );
-                        },
-                        title: Text(event.deviceName),
-                        isThreeLine: true,
-                        subtitle: Text(
-                          [
-                            event.title.split('event on').first.trim(),
-                            '${settings.formatDate(event.updated)}'
-                                ' ${settings.formatTime(event.updated).toUpperCase()}',
-                          ].join('\n'),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: Icon(
-                            Icons.warning,
-                            color: Colors.amber.shade300,
-                          ),
-                        ),
-                      );
-                    }).toList() ??
-                    [
-                      if (invalid[server] ?? true)
-                        SizedBox(
-                          height: 72.0,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(context).invalidResponse,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(fontSize: 16.0),
-                            ),
-                          ),
+    return Material(
+      child: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: servers.servers.length,
+          itemBuilder: (context, index) {
+            final server = servers.servers[index];
+            final hasEvents =
+                events.containsKey(server) && events[server]!.isNotEmpty;
+            return IgnorePointer(
+              ignoring: !server.online || !hasEvents,
+              child: ExpansionTile(
+                initiallyExpanded: servers.servers.length.compareTo(1) == 0,
+                maintainState: true,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  child: !server.online
+                      ? Icon(
+                          Icons.desktop_access_disabled,
+                          color: Theme.of(context).colorScheme.error,
                         )
-                      else
-                        SizedBox(
-                          height: 72.0,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.of(context).noEventsFound,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(fontSize: 16.0),
+                      : !hasEvents
+                          ? const SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 2.0,
+                              ),
+                            )
+                          : Icon(
+                              Icons.language,
+                              color: Theme.of(context).iconTheme.color,
                             ),
-                          ),
+                ),
+                trailing: server.online ? null : const SizedBox.shrink(),
+                title: Row(children: [
+                  Expanded(child: Text(server.name)),
+                  if (isDesktop)
+                    IconButton(
+                      onPressed: refresh,
+                      tooltip: loc.refresh,
+                      icon: const Icon(Icons.refresh),
+                    ),
+                ]),
+                subtitle: !server.online
+                    ? Text(
+                        loc.offline,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
                         ),
-                    ],
-          );
-        },
+                      )
+                    : Text(
+                        '${loc.nDevices(server.devices.length)} • ${server.ip}',
+                      ),
+                children: !hasEvents
+                    ? []
+                    : events[server]?.map((event) {
+                          return ListTile(
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 70.0,
+                              end: 16.0,
+                            ),
+                            onTap: () async {
+                              await Navigator.of(context).pushNamed(
+                                '/events',
+                                arguments: {
+                                  'event': event,
+                                  'upcoming': events[server],
+                                },
+                              );
+                            },
+                            title: Text(event.deviceName),
+                            isThreeLine: true,
+                            subtitle: Text(
+                              [
+                                '${event.type.locale(context)} • ${event.duration.humanReadable(context)}',
+                                '${settings.formatDate(event.updated)}'
+                                    ' ${settings.formatTime(event.updated).toUpperCase()}',
+                              ].join('\n'),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            // leading: CircleAvatar(
+                            //   backgroundColor: Colors.transparent,
+                            //   child: Icon(
+                            //     Icons.warning,
+                            //     color: Colors.amber.shade300,
+                            //   ),
+                            // ),
+                          );
+                        }).toList() ??
+                        [
+                          if (invalid[server] ?? true)
+                            SizedBox(
+                              height: 72.0,
+                              child: Center(
+                                child: Text(
+                                  loc.invalidResponse,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontSize: 16.0),
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 72.0,
+                              child: Center(
+                                child: Text(
+                                  loc.noEventsFound,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontSize: 16.0),
+                                ),
+                              ),
+                            ),
+                        ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

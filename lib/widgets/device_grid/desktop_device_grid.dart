@@ -217,7 +217,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   @override
   Widget build(BuildContext context) {
     if (videoPlayer == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator.adaptive());
     }
 
     return SizedBox(
@@ -325,7 +325,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       return ErrorWarning(message: widget.controller.error!);
     } else if (!widget.controller.isSeekable) {
       return const Center(
-        child: CircularProgressIndicator(
+        child: CircularProgressIndicator.adaptive(
           valueColor: AlwaysStoppedAnimation(Colors.white),
           strokeWidth: 4.4,
         ),

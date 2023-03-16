@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -57,15 +58,17 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                 child: Container(
                   alignment: AlignmentDirectional.center,
                   height: 156.0,
-                  child: const CircularProgressIndicator(),
+                  child: const CircularProgressIndicator.adaptive(),
                 ),
               );
             }
 
+            final devices = server.devices.sorted();
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: server.devices.length + 1,
+              itemCount: devices.length + 1,
               padding: EdgeInsets.only(
                 left: viewPadding.left,
                 right: viewPadding.right,
@@ -76,7 +79,7 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                   return SubHeader(
                     server.name,
                     subtext: server.online
-                        ? loc.nDevices(server.devices.length)
+                        ? loc.nDevices(devices.length)
                         : loc.offline,
                     subtextStyle: TextStyle(
                       color: !server.online ? theme.colorScheme.error : null,
@@ -94,27 +97,30 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                 }
 
                 index--;
+
+                final device = devices[index];
                 return ListTile(
-                  enabled: server.devices[index].status,
+                  enabled: device.status,
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
+                    foregroundColor: device.status
+                        ? Colors.green.shade100
+                        : Theme.of(context).colorScheme.error,
                     child: const Icon(Icons.camera_alt),
                   ),
                   title: Text(
-                    server.devices[index].name
+                    device.name
                         .split(' ')
                         .map((e) => e[0].toUpperCase() + e.substring(1))
                         .join(' '),
                   ),
-                  subtitle: Text([
-                    server.devices[index].status ? loc.online : loc.offline,
-                    server.devices[index].uri,
-                    '${server.devices[index].resolutionX}x${server.devices[index].resolutionY}',
-                  ].join(' • ')),
-                  onTap: () {
-                    Navigator.of(context).pop(server.devices[index]);
-                  },
+                  subtitle: Text(
+                    [
+                      device.uri,
+                      '${device.resolutionX}x${device.resolutionY}',
+                    ].join(' • '),
+                  ),
+                  onTap: () => Navigator.of(context).pop(device),
                 );
               },
             );

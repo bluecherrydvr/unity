@@ -44,74 +44,73 @@ class DownloadsManagerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final downloads = context.watch<DownloadsManager>();
-    return Scaffold(
-      appBar: showIf(
-        isMobile,
-        child: AppBar(
-          leading: Scaffold.of(context).hasDrawer
-              ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  splashRadius: 20.0,
-                  onPressed: Scaffold.of(context).openDrawer,
-                )
-              : null,
-          title: Text(AppLocalizations.of(context).downloads),
-        ),
-      ),
-      body: LayoutBuilder(builder: (context, consts) {
-        if (downloads.isEmpty) {
-          return Center(
-            child: Text(AppLocalizations.of(context).noDownloads),
-          );
-        }
+    return Column(children: [
+      showIf(
+            isMobile,
+            child: AppBar(
+              leading: MaybeUnityDrawerButton(context),
+              title: Text(AppLocalizations.of(context).downloads),
+            ),
+          ) ??
+          const SizedBox.shrink(),
+      Expanded(
+        child: LayoutBuilder(builder: (context, consts) {
+          if (downloads.isEmpty) {
+            return Center(
+              child: Text(AppLocalizations.of(context).noDownloads),
+            );
+          }
 
-        final size = consts.biggest;
-        return CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsetsDirectional.only(
-                top: _kDownloadsManagerPadding / 2,
-                bottom: _kDownloadsManagerPadding / 2,
+          final size = consts.biggest;
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsetsDirectional.only(
+                  top: _kDownloadsManagerPadding / 2,
+                  bottom: _kDownloadsManagerPadding / 2,
+                ),
+                sliver: SliverList.builder(
+                  itemCount: downloads.downloading.length,
+                  itemBuilder: (context, index) {
+                    final entry =
+                        downloads.downloading.entries.elementAt(index);
+                    final event = entry.key;
+                    final progress = entry.value;
+
+                    return DownloadTile(
+                      key: ValueKey(event.id),
+                      event: event,
+                      upcomingEvents: downloads.downloadedEvents
+                          .map((e) => e.event)
+                          .toList(),
+                      size: size,
+                      progress: progress,
+                      initiallyExpanded: initiallyExpandedEventId == event.id,
+                    );
+                  },
+                ),
               ),
-              sliver: SliverList.builder(
-                itemCount: downloads.downloading.length,
+              SliverList.builder(
+                itemCount: downloads.downloadedEvents.length,
                 itemBuilder: (context, index) {
-                  final entry = downloads.downloading.entries.elementAt(index);
-                  final event = entry.key;
-                  final progress = entry.value;
+                  final de = downloads.downloadedEvents[index];
 
                   return DownloadTile(
-                    key: ValueKey(event.id),
-                    event: event,
+                    key: ValueKey(de.event.id),
+                    event: de.event,
                     upcomingEvents:
                         downloads.downloadedEvents.map((e) => e.event).toList(),
                     size: size,
-                    progress: progress,
-                    initiallyExpanded: initiallyExpandedEventId == event.id,
+                    downloadPath: de.downloadPath,
+                    initiallyExpanded: initiallyExpandedEventId == de.event.id,
                   );
                 },
               ),
-            ),
-            SliverList.builder(
-              itemCount: downloads.downloadedEvents.length,
-              itemBuilder: (context, index) {
-                final de = downloads.downloadedEvents[index];
-
-                return DownloadTile(
-                  key: ValueKey(de.event.id),
-                  event: de.event,
-                  upcomingEvents:
-                      downloads.downloadedEvents.map((e) => e.event).toList(),
-                  size: size,
-                  downloadPath: de.downloadPath,
-                  initiallyExpanded: initiallyExpandedEventId == de.event.id,
-                );
-              },
-            ),
-          ],
-        );
-      }),
-    );
+            ],
+          );
+        }),
+      ),
+    ]);
   }
 }
 

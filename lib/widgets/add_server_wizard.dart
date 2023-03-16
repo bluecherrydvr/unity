@@ -53,216 +53,200 @@ class _AddServerWizardState extends State<AddServerWizard> {
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: PageView(
-          controller: controller,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            Stack(children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/images/background.webp',
-                  fit: BoxFit.cover,
-                  width: MediaQuery.sizeOf(context).width,
-                  height: MediaQuery.sizeOf(context).height,
-                ),
+      child: PageView(
+        controller: controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          Stack(children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/background.webp',
+                fit: BoxFit.cover,
+                width: MediaQuery.sizeOf(context).width,
+                height: MediaQuery.sizeOf(context).height,
               ),
-              Container(
-                alignment: AlignmentDirectional.center,
-                child: Card(
-                  color: Theme.of(context).cardColor,
-                  elevation: 4.0,
-                  clipBehavior: Clip.antiAlias,
-                  margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 16.0,
-                      ) +
-                      MediaQuery.paddingOf(context),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.all(16.0),
-                        child: Column(children: [
-                          Image.asset(
-                            'assets/images/icon.png',
-                            height: 124.0,
-                            width: 124.0,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(height: 24.0),
-                          Text(
-                            AppLocalizations.of(context).projectName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayLarge
-                                ?.copyWith(
-                                  fontSize: 36.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          const SizedBox(height: 4.0),
-                          Text(
-                            AppLocalizations.of(context).projectDescription,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 16.0),
-                          Container(
-                            alignment: AlignmentDirectional.centerEnd,
-                            padding: const EdgeInsetsDirectional.all(8.0),
-                            child: Row(children: [
-                              const Spacer(),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    launchUrl(
-                                      Uri.https(
-                                        'www.bluecherrydvr.com',
-                                        '/',
-                                      ),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context).website,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16.0),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    launchUrl(
-                                      Uri.https(
-                                        'www.bluecherrydvr.com',
-                                        '/product/v3license/',
-                                      ),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context).purchase,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                            ]),
-                          ),
-                          const Divider(thickness: 1.0),
-                          const SizedBox(height: 16.0),
-                          Column(
-                            crossAxisAlignment: Platform.isIOS
-                                ? CrossAxisAlignment.center
-                                : CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context).welcome,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displayLarge
-                                    ?.copyWith(
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                AppLocalizations.of(context).welcomeDescription,
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ],
-                          ),
-                        ]),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Material(
-                        color: Theme.of(context).colorScheme.secondary,
-                        child: InkWell(
-                          onTap: () {
-                            controller.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          child: Container(
-                            alignment: AlignmentDirectional.center,
-                            width: double.infinity,
-                            height: 56.0,
-                            child: Text(
-                              AppLocalizations.of(context).letsGo.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
+            ),
+            Container(
+              alignment: AlignmentDirectional.center,
+              child: Card(
+                color: Theme.of(context).cardColor,
+                elevation: 4.0,
+                clipBehavior: Clip.antiAlias,
+                margin: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 16.0,
+                    ) +
+                    MediaQuery.paddingOf(context),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.all(16.0),
+                      child: Column(children: [
+                        Image.asset(
+                          'assets/images/icon.png',
+                          height: 124.0,
+                          width: 124.0,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 24.0),
+                        Text(
+                          AppLocalizations.of(context).projectName,
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge
+                              ?.copyWith(
+                                fontSize: 36.0,
                                 fontWeight: FontWeight.w600,
                               ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        Text(
+                          AppLocalizations.of(context).projectDescription,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 16.0),
+                        Container(
+                          alignment: AlignmentDirectional.centerEnd,
+                          padding: const EdgeInsetsDirectional.all(8.0),
+                          child: Row(children: [
+                            const Spacer(),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () {
+                                  launchUrl(
+                                    Uri.https(
+                                      'www.bluecherrydvr.com',
+                                      '/',
+                                    ),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context).website,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16.0),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () {
+                                  launchUrl(
+                                    Uri.https(
+                                      'www.bluecherrydvr.com',
+                                      '/product/v3license/',
+                                    ),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context).purchase,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ]),
+                        ),
+                        const Divider(thickness: 1.0),
+                        const SizedBox(height: 16.0),
+                        Column(
+                          crossAxisAlignment: Platform.isIOS
+                              ? CrossAxisAlignment.center
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context).welcome,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.copyWith(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text(
+                              AppLocalizations.of(context).welcomeDescription,
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Material(
+                      color: Theme.of(context).colorScheme.secondary,
+                      child: InkWell(
+                        onTap: () {
+                          controller.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: Container(
+                          alignment: AlignmentDirectional.center,
+                          width: double.infinity,
+                          height: 56.0,
+                          child: Text(
+                            AppLocalizations.of(context).letsGo.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (Scaffold.hasDrawer(context))
+              PositionedDirectional(
+                top: MediaQuery.paddingOf(context).top,
+                start: 0,
+                child: const Material(
+                  type: MaterialType.transparency,
+                  // color: Colors.transparent,
+                  // color: Colors.amber,
+                  child: SizedBox(
+                    height: kToolbarHeight,
+                    width: kToolbarHeight,
+                    child: UnityDrawerButton(iconColor: Colors.white),
                   ),
                 ),
               ),
-              if (Scaffold.of(context).hasDrawer)
-                Positioned.fill(
-                  bottom: MediaQuery.sizeOf(context).height * 3 / 4,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Container(
-                      color: Colors.transparent,
-                      padding: EdgeInsetsDirectional.only(
-                        top: MediaQuery.paddingOf(context).top,
-                      ),
-                      height:
-                          kToolbarHeight + MediaQuery.paddingOf(context).top,
-                      alignment: AlignmentDirectional.topStart,
-                      child: Row(children: [
-                        const SizedBox(width: 8.0),
-                        IconButton(
-                          splashRadius: 20.0,
-                          onPressed: Scaffold.of(context).openDrawer,
-                          icon: const Icon(
-                            Icons.menu,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ]),
-                    ),
-                  ),
-                ),
-            ]),
-            ConfigureDVRServerScreen(
-              controller: controller,
-              setServer: setServer,
-              getServer: getServer,
-            ),
-            LetsGoScreen(
-              controller: controller,
-              getServer: getServer,
-              onFinish: widget.onFinish,
-            ),
-          ],
-        ),
+          ]),
+          ConfigureDVRServerScreen(
+            controller: controller,
+            setServer: setServer,
+            getServer: getServer,
+          ),
+          LetsGoScreen(
+            controller: controller,
+            getServer: getServer,
+            onFinish: widget.onFinish,
+          ),
+        ],
       ),
     );
   }

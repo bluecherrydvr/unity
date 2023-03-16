@@ -42,7 +42,12 @@ class _DeviceFullscreenViewerDesktopState
   Widget build(BuildContext context) {
     return Material(
       child: Column(children: [
-        WindowButtons(title: widget.device.fullName, showNavigator: false),
+        if (isMobile)
+          AppBar(
+            title: Text(widget.device.fullName),
+          )
+        else
+          WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: widget.videoPlayerController,
@@ -52,7 +57,7 @@ class _DeviceFullscreenViewerDesktopState
                 return ErrorWarning(message: controller.error!);
               } else if (!controller.isSeekable) {
                 return const Center(
-                  child: CircularProgressIndicator(
+                  child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
                     strokeWidth: 4.4,
                   ),

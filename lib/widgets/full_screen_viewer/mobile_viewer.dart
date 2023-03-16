@@ -38,6 +38,7 @@ class DeviceFullscreenViewerMobile extends StatefulWidget {
 
 class _DeviceFullscreenViewerMobileState
     extends State<DeviceFullscreenViewerMobile> {
+  /// Whether to show the video controls overlay
   bool overlay = false;
   UnityVideoFit fit = UnityVideoFit.contain;
   Brightness? brightness;
@@ -45,7 +46,7 @@ class _DeviceFullscreenViewerMobileState
   @override
   void initState() {
     super.initState();
-    if (!isDesktop) {
+    if (isMobile) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         brightness = Theme.of(context).brightness;
         await StatusBarControl.setHidden(true);
@@ -62,7 +63,7 @@ class _DeviceFullscreenViewerMobileState
 
   @override
   void dispose() {
-    if (!isDesktop &&
+    if (isMobile &&
         widget.restoreStatusBarStyleOnDispose &&
         brightness != null) {
       StatusBarControl.setHidden(false);
@@ -76,89 +77,82 @@ class _DeviceFullscreenViewerMobileState
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
-      body: Stack(children: [
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              overlay = !overlay;
-            });
-          },
-          child: InteractiveViewer(
-            child: UnityVideoView(
-              player: widget.videoPlayerController,
-              fit: fit,
-              paneBuilder: (context, controller) {
-                return Scaffold(
-                  backgroundColor: Colors.transparent,
-                  body: () {
-                    if (controller.error != null) {
-                      return ErrorWarning(message: controller.error!);
-                    } else if (controller.isBuffering) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
-                          strokeWidth: 4.4,
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }(),
-                );
-              },
+      body: MouseRegion(
+        onEnter: (e) {
+          setState(() => overlay = true);
+        },
+        onExit: (e) {
+          setState(() => overlay = false);
+        },
+        child: Stack(children: [
+          GestureDetector(
+            onTapUp: (event) {
+              if (event.kind == PointerDeviceKind.touch) {
+                setState(() => overlay = !overlay);
+              }
+            },
+            child: InteractiveViewer(
+              child: UnityVideoView(
+                player: widget.videoPlayerController,
+                fit: fit,
+                paneBuilder: (context, controller) {
+                  if (controller.error != null) {
+                    return ErrorWarning(message: controller.error!);
+                  } else if (controller.isBuffering) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                        strokeWidth: 4.4,
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           ),
-        ),
-        PositionedDirectional(
-          top: 0.0,
-          start: 0.0,
-          end: 0.0,
-          child: AnimatedSlide(
-            offset: Offset(0, overlay ? 0.0 : -1.0),
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: AppBar(
-              backgroundColor: Colors.black38,
-              title: Text(
-                widget.device.name
-                    .split(' ')
-                    .map((e) => e[0].toUpperCase() + e.substring(1))
-                    .join(' '),
-                style: const TextStyle(color: Colors.white70),
-              ),
-              leading: IconButton(
-                splashRadius: 22.0,
-                onPressed: Navigator.of(context).maybePop,
-                icon: Icon(
-                  Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-                  color: Colors.white.withOpacity(0.87),
-                ),
-              ),
-              centerTitle: Platform.isIOS,
-              actions: [
-                IconButton(
-                  splashRadius: 20.0,
-                  onPressed: () {
-                    setState(() {
-                      fit = fit == UnityVideoFit.fill
-                          ? UnityVideoFit.contain
-                          : UnityVideoFit.fill;
-                    });
-                  },
+          PositionedDirectional(
+            top: 0.0,
+            start: 0.0,
+            end: 0.0,
+            child: AnimatedSlide(
+              offset: Offset(0, overlay ? 0.0 : -1.0),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: AppBar(
+                backgroundColor: Colors.black38,
+                foregroundColor: Colors.white.withOpacity(0.87),
+                title: Text(widget.device.fullName),
+                leading: IconButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
                   icon: Icon(
-                    Icons.aspect_ratio,
-                    color: fit == UnityVideoFit.fill
-                        ? Colors.white.withOpacity(0.87)
-                        : Colors.white.withOpacity(0.54),
+                    Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
                   ),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 ),
-                const SizedBox(width: 16.0),
-              ],
+                actions: [
+                  IconButton(
+                    tooltip: loc.cameraViewFit,
+                    onPressed: () {
+                      setState(() {
+                        fit = fit == UnityVideoFit.fill
+                            ? UnityVideoFit.contain
+                            : UnityVideoFit.fill;
+                      });
+                    },
+                    icon: const Icon(Icons.aspect_ratio),
+                  ),
+                  const SizedBox(width: 16.0),
+                ],
+              ),
             ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }

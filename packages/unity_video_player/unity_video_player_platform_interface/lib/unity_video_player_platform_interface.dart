@@ -89,10 +89,10 @@ abstract class UnityVideoPlayer {
   ///
   /// May be 0
   Duration get duration;
+  Stream<Duration> get onDurationUpdate;
 
   /// The current position of the current media.
   Duration get currentPos;
-
   Stream<Duration> get onCurrentPosUpdate;
 
   /// Whether the media is buffering

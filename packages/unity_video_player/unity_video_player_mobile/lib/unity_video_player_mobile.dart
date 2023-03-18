@@ -61,6 +61,10 @@ class UnityVideoPlayerMobile extends UnityVideoPlayer {
   Duration get duration => ijkPlayer.value.duration;
 
   @override
+  Stream<Duration> get onDurationUpdate =>
+      ijkPlayer.onBufferPosUpdate.map((_) => duration);
+
+  @override
   Duration get currentPos => ijkPlayer.currentPos;
 
   @override

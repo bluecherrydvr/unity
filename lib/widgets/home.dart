@@ -127,7 +127,7 @@ class _MobileHomeState extends State<Home> {
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: showNavigationRail ? null : buildDrawer(context),
+        drawer: isDesktop || showNavigationRail ? null : buildDrawer(context),
         // drawer: buildDrawer(context),
         body: Column(children: [
           const WindowButtons(),

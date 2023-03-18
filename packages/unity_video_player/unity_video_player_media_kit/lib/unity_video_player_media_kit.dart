@@ -166,7 +166,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Duration get duration => mkPlayer.state.duration;
 
   @override
+  Stream<Duration> get onDurationUpdate => mkPlayer.streams.duration;
+
+  @override
   Duration get currentPos => mkPlayer.state.position;
+
+  @override
+  Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
 
   @override
   bool get isBuffering => mkPlayer.state.isBuffering;
@@ -174,8 +180,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   bool get isSeekable => true;
 
-  @override
-  Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
   @override
   Stream<bool> get onBufferStateUpdate => mkPlayer.streams.isBuffering;
 

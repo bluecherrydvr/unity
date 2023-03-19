@@ -178,7 +178,9 @@ abstract class TimelineItem {
             currentItem = TimelineGap(
               start: currentItem.start,
               end: event.published,
-              gapDuration: event.published.difference(currentItem.start),
+              gapDuration: event.published
+                  .difference(currentItem.start)
+                  .ensurePositive(),
             );
             items.add(currentItem);
             currentItem = null;
@@ -190,7 +192,10 @@ abstract class TimelineItem {
           if (currentItem is TimelineValue) {
             final events = allEvents
                 .inBetween(currentItem.start, currentDateTime)
-                .toList();
+                .toList()
+                .sublist(0, 1);
+
+            if (events.length > 1) print(events);
 
             var duration = Duration.zero;
             Event? previous;
@@ -213,8 +218,8 @@ abstract class TimelineItem {
 
             currentItem = TimelineValue(
               start: currentItem.start,
-              end: currentItem.start.add(duration),
-              duration: duration,
+              end: currentItem.start.add(duration.ensurePositive()),
+              duration: duration.ensurePositive(),
               events: events,
             );
             items.add(currentItem);
@@ -246,7 +251,7 @@ class TimelineValue extends TimelineItem {
 
   @override
   String toString() {
-    return 'TimelineValue(events: $events, start: $start, end: $end, duration: $duration)';
+    return 'TimelineValue(events: ${events.length}, start: $start, end: $end, duration: $duration)';
   }
 
   @override
@@ -345,8 +350,13 @@ class TimelineController extends ChangeNotifier {
     return const Duration(seconds: 5);
   }
 
+  /// The width of a gap
   double get gapWidth {
-    return gapDuration.inMilliseconds * periodWidth;
+    return clampDouble(
+      gapDuration.inMilliseconds * periodWidth,
+      50,
+      double.infinity,
+    );
   }
 
   /// All the tiles of the timeline. Usually represents the devices in a server
@@ -506,6 +516,7 @@ class TimelineController extends ChangeNotifier {
 
   static const double minZoom = 1.0;
   double get maxZoom => (items.length) / 6;
+  // double get maxZoom => 30.0;
 
   /// All the events in the timeline
   ///
@@ -893,6 +904,7 @@ class TimelineController extends ChangeNotifier {
         notifyListeners();
       }
     }
+    debugPrint(items.toString());
 
     HomeProvider.instance.notLoading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
@@ -1121,27 +1133,31 @@ class _TimelineViewState extends State<TimelineView> {
                                 Event? event,
                                 Duration duration,
                               ) {
-                                return Container(
-                                  height: kTimelineTileHeight,
-                                  width: duration.inMilliseconds *
-                                      controller.periodWidth,
-                                  color: event == null
-                                      ? null
-                                      : event.isAlarm
-                                          ? theme.alarmColor
-                                          : theme.eventColor,
-                                  alignment: Alignment.center,
-                                  // child: AutoSizeText(
-                                  //   duration.humanReadableCompact(context),
-                                  //   maxLines: 1,
-                                  //   maxFontSize: 12,
-                                  //   minFontSize: 8,
-                                  //   textAlign: TextAlign.center,
-                                  // ),
+                                return Expanded(
+                                  child: Container(
+                                    height: kTimelineTileHeight,
+                                    // width: duration.inMilliseconds *
+                                    //     controller.periodWidth,
+                                    color: event == null
+                                        ? null
+                                        : event.isAlarm
+                                            ? theme.alarmColor
+                                            : theme.eventColor,
+                                    alignment: Alignment.center,
+                                    // child: AutoSizeText(
+                                    //   duration.humanReadableCompact(context),
+                                    //   maxLines: 1,
+                                    //   maxFontSize: 12,
+                                    //   minFontSize: 8,
+                                    //   textAlign: TextAlign.center,
+                                    // ),
+                                  ),
                                 );
                               }
 
                               var widgets = <Widget>[];
+
+                              print(events.length);
 
                               Event? previous;
                               for (final event in events) {
@@ -1157,6 +1173,8 @@ class _TimelineViewState extends State<TimelineView> {
                                       previousEnd.difference(event.published);
 
                                   widgets.add(buildForEvent(null, difference));
+
+                                  print(difference);
 
                                   final duration = event.duration;
                                   widgets.add(buildForEvent(event, duration));

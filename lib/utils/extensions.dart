@@ -96,6 +96,12 @@ extension DurationExtension on Duration {
 
     return finalStrings.join();
   }
+
+  Duration ensurePositive() {
+    if (isNegative) return this * -1;
+
+    return this;
+  }
 }
 
 extension NotificationExtensions on NotificationClickAction {

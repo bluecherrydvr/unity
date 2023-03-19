@@ -195,8 +195,6 @@ abstract class TimelineItem {
                 .toList()
                 .sublist(0, 1);
 
-            if (events.length > 1) print(events);
-
             var duration = Duration.zero;
             Event? previous;
             for (final event in events) {
@@ -1112,7 +1110,9 @@ class _TimelineViewState extends State<TimelineView> {
                           ),
                         );
                       } else if (i is TimelineValue) {
-                        final events = tile.events.inBetween(i.start, i.end);
+                        final events = i.events
+                            .where((event) => tile.events.contains(event));
+                        // .inBetween(i.start, i.end);
 
                         final width =
                             i.duration.inMilliseconds * controller.periodWidth;
@@ -1133,25 +1133,25 @@ class _TimelineViewState extends State<TimelineView> {
                                 Event? event,
                                 Duration duration,
                               ) {
-                                return Expanded(
-                                  child: Container(
-                                    height: kTimelineTileHeight,
-                                    // width: duration.inMilliseconds *
-                                    //     controller.periodWidth,
-                                    color: event == null
-                                        ? null
-                                        : event.isAlarm
-                                            ? theme.alarmColor
-                                            : theme.eventColor,
-                                    alignment: Alignment.center,
-                                    // child: AutoSizeText(
-                                    //   duration.humanReadableCompact(context),
-                                    //   maxLines: 1,
-                                    //   maxFontSize: 12,
-                                    //   minFontSize: 8,
-                                    //   textAlign: TextAlign.center,
-                                    // ),
-                                  ),
+                                print(
+                                    '${duration.inMilliseconds * controller.periodWidth} - $width');
+                                return Container(
+                                  height: kTimelineTileHeight,
+                                  width: duration.inMilliseconds *
+                                      controller.periodWidth,
+                                  color: event == null
+                                      ? null
+                                      : event.isAlarm
+                                          ? theme.alarmColor
+                                          : theme.eventColor,
+                                  alignment: Alignment.center,
+                                  // child: AutoSizeText(
+                                  //   duration.humanReadableCompact(context),
+                                  //   maxLines: 1,
+                                  //   maxFontSize: 12,
+                                  //   minFontSize: 8,
+                                  //   textAlign: TextAlign.center,
+                                  // ),
                                 );
                               }
 

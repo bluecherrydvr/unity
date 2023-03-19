@@ -352,89 +352,75 @@ class Sidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final events = context.watch<EventsProvider>();
     final serversProvider = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
 
     final servers = serversProvider.servers.where((server) => server.devices
         .any((d) => this.events.keys.contains(EventsProvider.idForDevice(d))));
 
     return Material(
       child: Column(children: [
-        Expanded(
-          child: servers.isEmpty
-              ? Center(
-                  child: Text(
-                    AppLocalizations.of(context).noServersAvailable,
-                  ),
-                )
-              : ListView.builder(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.viewPaddingOf(context).bottom,
-                  ),
-                  itemCount: servers.length,
-                  itemBuilder: (context, index) {
-                    final server = servers.elementAt(index);
+        if (servers.isEmpty)
+          Expanded(child: Center(child: Text(loc.noServersAvailable)))
+        else
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.viewPaddingOf(context).bottom,
+              ),
+              itemCount: servers.length,
+              itemBuilder: (context, index) {
+                final server = servers.elementAt(index);
 
-                    final isLoading = serversProvider.isServerLoading(server);
+                final isLoading = serversProvider.isServerLoading(server);
 
-                    final devices = server.devices.sorted();
+                final devices = server.devices
+                    .where((device) => this
+                        .events
+                        .keys
+                        .contains(EventsProvider.idForDevice(device)))
+                    .sorted();
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: devices.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return SubHeader(
-                            server.name,
-                            subtext: server.online
-                                ? AppLocalizations.of(context).nDevices(
-                                    devices.length,
-                                  )
-                                : AppLocalizations.of(context).offline,
-                            subtextStyle: TextStyle(
-                              color: !server.online
-                                  ? Theme.of(context).colorScheme.error
-                                  : null,
+                return Column(children: [
+                  SubHeader(
+                    server.name,
+                    subtext: server.online
+                        ? loc.nDevices(devices.length)
+                        : loc.offline,
+                    subtextStyle: TextStyle(
+                      color: !server.online
+                          ? Theme.of(context).colorScheme.error
+                          : null,
+                    ),
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 16.0,
+                      end: 6.0,
+                    ),
+                    trailing: isLoading
+                        ? const SizedBox(
+                            height: 16.0,
+                            width: 16.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 1.5,
                             ),
-                            padding: const EdgeInsetsDirectional.only(
-                              start: 16.0,
-                              end: 6.0,
-                            ),
-                            trailing: isLoading
-                                ? const SizedBox(
-                                    height: 16.0,
-                                    width: 16.0,
-                                    child: CircularProgressIndicator.adaptive(
-                                      strokeWidth: 1.5,
-                                    ),
-                                  )
-                                : collapseButton,
-                          );
-                        }
+                          )
+                        : collapseButton,
+                  ),
+                  ...devices.map((device) {
+                    final selected = events.selectedIds
+                        .contains(EventsProvider.idForDevice(device));
 
-                        index--;
-                        final device = devices[index];
-                        if (!this
-                            .events
-                            .keys
-                            .contains(EventsProvider.idForDevice(device))) {
-                          return const SizedBox.shrink();
-                        }
-
-                        final selected = events.selectedIds
-                            .contains(EventsProvider.idForDevice(device));
-
-                        return _DeviceTile(
-                          device: device,
-                          selected: selected,
-                          onUpdate: () async {
-                            onUpdate();
-                          },
-                        );
+                    return _DeviceTile(
+                      device: device,
+                      selected: selected,
+                      onUpdate: () async {
+                        onUpdate();
                       },
                     );
-                  },
-                ),
-        ),
+                  }),
+                ]);
+              },
+            ),
+          ),
       ]),
     );
   }

@@ -212,7 +212,7 @@ extension EventsExtension on Iterable<Event> {
   }
 }
 
-extension DeviceListExtension on List<Device> {
+extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
   List<Device> sorted() {
     return [...this]

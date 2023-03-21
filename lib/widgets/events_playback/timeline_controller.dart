@@ -863,13 +863,12 @@ class TimelineController extends ChangeNotifier {
         ..onCurrentPosUpdate.listen((pos) {
           if (item.events.hasForDate(currentDate)) {
             setVideoPosition(pos);
-            debugPrint('pos $pos');
+            if (pos.inMilliseconds.isEven) debugPrint('pos $pos');
           }
         })
-        ..onPlayingStateUpdate.listen((playing) {
-          if (playing && isPaused) {
-            pause();
-          }
+        ..onPlayingStateUpdate.listen((isPlayerPlaying) {
+          // If the video is being played but the timeline is paused for some reason
+          if (isPlayerPlaying && isPaused) pause();
           notifyListeners();
         })
         ..onBufferStateUpdate.listen((buffering) {
@@ -993,23 +992,28 @@ class _TimelineViewState extends State<TimelineView> {
   }
 
   void _handlePointerEvent(PointerEvent event) {
+    var pressing = false;
     if (event is PointerUpEvent || event is PointerCancelEvent) {
       if (!_initiallyPaused) controller.play(context);
       _initiallyPaused = false;
-      isPressing = false;
+      pressing = false;
     } else if (event is PointerDownEvent) {
       _initiallyPaused = controller.isPaused;
-      controller.pause();
-      isPressing = true;
+      pressing = true;
     }
 
-    if (isPressing && context.mounted) {
+    if (pressing && context.mounted) {
       final renderBox = context.findRenderObject() as RenderBox;
       if (renderBox.attached) {
         final renderRect =
             renderBox.localToGlobal(Offset.zero) & renderBox.size;
         if (renderRect.contains(event.position)) {
           isPressing = event.down;
+
+          if (isPressing) {
+            controller.pause();
+          }
+
           setState(() => pointerPosition = event.position);
         }
       }
@@ -1133,8 +1137,6 @@ class _TimelineViewState extends State<TimelineView> {
                                 Event? event,
                                 Duration duration,
                               ) {
-                                print(
-                                    '${duration.inMilliseconds * controller.periodWidth} - $width');
                                 return Container(
                                   height: kTimelineTileHeight,
                                   width: duration.inMilliseconds *
@@ -1157,8 +1159,6 @@ class _TimelineViewState extends State<TimelineView> {
 
                               var widgets = <Widget>[];
 
-                              print(events.length);
-
                               Event? previous;
                               for (final event in events) {
                                 if (previous == null) {
@@ -1173,8 +1173,6 @@ class _TimelineViewState extends State<TimelineView> {
                                       previousEnd.difference(event.published);
 
                                   widgets.add(buildForEvent(null, difference));
-
-                                  print(difference);
 
                                   final duration = event.duration;
                                   widgets.add(buildForEvent(event, duration));

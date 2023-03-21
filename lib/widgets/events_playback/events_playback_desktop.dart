@@ -403,7 +403,9 @@ class Sidebar extends StatelessWidget {
                               strokeWidth: 1.5,
                             ),
                           )
-                        : collapseButton,
+                        : index == 0
+                            ? collapseButton
+                            : null,
                   ),
                   ...devices.map((device) {
                     final selected = events.selectedIds

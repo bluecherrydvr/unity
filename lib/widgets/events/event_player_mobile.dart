@@ -179,21 +179,15 @@ class _VideoViewportState extends State<VideoViewport> {
             child: GestureDetector(
               onTap: () {
                 if (!visible) {
-                  setState(() {
-                    visible = true;
-                  });
+                  setState(() => visible = true);
                   if (timer.isActive) timer.cancel();
                   timer = Timer(const Duration(seconds: 5), () {
                     if (mounted) {
-                      setState(() {
-                        visible = false;
-                      });
+                      setState(() => visible = false);
                     }
                   });
                 } else {
-                  setState(() {
-                    visible = false;
-                  });
+                  setState(() => visible = false);
                 }
               },
               child: AnimatedContainer(
@@ -307,9 +301,6 @@ class _VideoViewportState extends State<VideoViewport> {
                             value: position.inMilliseconds.toDouble(),
                             max: player.duration.inMilliseconds.toDouble(),
                             onChanged: (value) async {
-                              // setState(() {
-                              //   state = FijkState.idle;
-                              // });
                               position = Duration(milliseconds: value.toInt());
                               await player.seekTo(position);
                               await player.start();

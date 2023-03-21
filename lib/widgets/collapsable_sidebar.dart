@@ -30,22 +30,25 @@ class CollapsableSidebar extends StatefulWidget {
 
 class _CollapsableSidebarState extends State<CollapsableSidebar>
     with SingleTickerProviderStateMixin {
-  late final AnimationController collapseController;
-  Animation<double> get collapseAnimation => CurvedAnimation(
-        curve: Curves.easeIn,
-        reverseCurve: Curves.easeOut,
-        parent: collapseController,
-      );
+  late final AnimationController collapseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 150),
+  );
+
+  Animation<double> get collapseAnimation {
+    return CurvedAnimation(
+      curve: Curves.easeIn,
+      reverseCurve: Curves.easeOut,
+      parent: collapseController,
+    );
+  }
+
   final collapseButtonKey = GlobalKey();
   final sidebarKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    collapseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
     collapseController.addListener(() {
       if (collapseController.isCompleted) {
         widget.onCollapseStateChange?.call(true);

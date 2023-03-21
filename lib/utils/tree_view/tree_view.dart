@@ -152,8 +152,13 @@ class _NodeWidgetState extends State<NodeWidget> {
 
     var onIconPressed = _isLeaf || !_isEnabled
         ? null
-        : () => setState(
-            () => widget.state.toggleNodeExpanded(widget.treeNode.key!));
+        : () {
+            if (mounted) {
+              setState(
+                () => widget.state.toggleNodeExpanded(widget.treeNode.key!),
+              );
+            }
+          };
 
     return IgnorePointer(
       ignoring: _isLeaf ? false : !_isEnabled,

@@ -107,11 +107,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
   void dispose() {
     videoController
       ..release()
@@ -232,10 +227,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                       await videoController.start();
                                     }
 
-                                    setState(() {
-                                      _position = null;
-                                      shouldAutoplay = false;
-                                    });
+                                    if (mounted) {
+                                      setState(() {
+                                        _position = null;
+                                        shouldAutoplay = false;
+                                      });
+                                    }
                                   },
                                 ),
                               ),
@@ -301,7 +298,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                           label: speed.toStringAsFixed(2),
                           onChanged: (v) => setState(() => speed = v),
                           onChangeEnd: (v) async {
-                            await videoController.setSpeed(v);
+                            videoController.setSpeed(v);
                             setState(() => speed = v);
                           },
                         ),
@@ -381,7 +378,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       }
       await videoController.start();
     }
-    setState(() {});
+
+    if (mounted) setState(() {});
   }
 }
 

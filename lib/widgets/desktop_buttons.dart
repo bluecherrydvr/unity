@@ -88,9 +88,10 @@ class WindowButtons extends StatefulWidget {
 class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   @override
   void initState() {
+    super.initState();
+
     windowManager.addListener(this);
     _init();
-    super.initState();
   }
 
   @override
@@ -102,7 +103,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   Future<void> _init() async {
     // Add this line to override the default close handler
     await windowManager.setPreventClose(true);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -139,7 +140,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                   InkWell(
                     onTap: () async {
                       await navigatorKey.currentState?.maybePop();
-                      setState(() {});
+                      if (mounted) setState(() {});
                     },
                     child: Container(
                       height: 40.0,

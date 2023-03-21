@@ -238,9 +238,7 @@ class _EditServerState extends State<EditServer> {
 
   Future<void> update() async {
     if (formKey.currentState?.validate() ?? false) {
-      setState(() {
-        disableFinishButton = true;
-      });
+      if (mounted) setState(() => disableFinishButton = true);
 
       final copyServer = server.copyWith(
         ip: textEditingControllers[0].text,
@@ -282,9 +280,8 @@ class _EditServerState extends State<EditServer> {
           ),
         );
       }
-      setState(() {
-        disableFinishButton = false;
-      });
+
+      if (mounted) setState(() => disableFinishButton = false);
     }
   }
 }

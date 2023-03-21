@@ -86,13 +86,6 @@ class __MKVideoState extends State<_MKVideo> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // if (!widget.player.state.isPlaying) widget.player.play();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Video(
       controller: videoController,
@@ -190,8 +183,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.isPlaying;
 
   @override
-  Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    await ensureVideoControllerInitialized(() async {
+  Future<void> setDataSource(String url, {bool autoPlay = true}) {
+    return ensureVideoControllerInitialized(() async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
@@ -202,11 +195,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> setMultipleDataSource(
     List<String> url, {
     bool autoPlay = true,
-  }) async {
-    await mkPlayer.open(
-      Playlist(url.map((source) => Media(source)).toList()),
-      play: autoPlay,
-    );
+  }) {
+    return ensureVideoControllerInitialized(() async {
+      await mkPlayer.open(
+        Playlist(url.map((source) => Media(source)).toList()),
+        play: autoPlay,
+      );
+    });
   }
 
   // Volume in media kit goes from 0 to 100
@@ -222,7 +217,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
-  Future<void> start() async => mkPlayer.play();
+  Future<void> start() {
+    return ensureVideoControllerInitialized(() async {
+      mkPlayer.play();
+    });
+  }
+
   @override
   Future<void> pause() async => mkPlayer.pause();
   @override

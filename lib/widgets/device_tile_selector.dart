@@ -84,9 +84,8 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                 case 0:
                   {
                     view.remove(widget.tab, widget.index);
-                    if (mounted) {
-                      setState(() {});
-                    }
+                    if (mounted) setState(() {});
+
                     break;
                   }
                 case 1:
@@ -98,9 +97,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
                     );
                     if (result is Device) {
                       view.replace(widget.tab, widget.index, result);
-                      if (mounted) {
-                        setState(() {});
-                      }
+                      if (mounted) setState(() {});
                     }
                     break;
                   }
@@ -156,9 +153,7 @@ class _DeviceTileSelectorState extends State<DeviceTileSelector> {
               );
               if (result is Device) {
                 view.add(widget.tab, widget.index, result);
-                if (mounted) {
-                  setState(() {});
-                }
+                if (mounted) setState(() {});
               }
             },
             child: Container(

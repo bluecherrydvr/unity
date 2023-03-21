@@ -87,11 +87,15 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
-              SubHeader(AppLocalizations.of(context).servers),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).servers),
+              ),
               SliverToBoxAdapter(
                 child: ServersList(changeCurrentTab: widget.changeCurrentTab),
               ),
-              SubHeader(AppLocalizations.of(context).theme),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).theme),
+              ),
               SliverList(
                 delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
                   return ListTile(
@@ -123,7 +127,9 @@ class _SettingsState extends State<Settings> {
                 }).toList()),
               ),
               divider,
-              SubHeader(AppLocalizations.of(context).miscellaneous),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).miscellaneous),
+              ),
               SliverList(
                   delegate: SliverChildListDelegate([
                 CorrectedListTile(
@@ -253,10 +259,14 @@ class _SettingsState extends State<Settings> {
                 ),
               ])),
               divider,
-              SubHeader(AppLocalizations.of(context).dateFormat),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).dateFormat),
+              ),
               const SliverToBoxAdapter(child: DateFormatSection()),
               divider,
-              SubHeader(AppLocalizations.of(context).timeFormat),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).timeFormat),
+              ),
               SliverList(
                   delegate: SliverChildListDelegate([
                 'HH:mm',
@@ -294,7 +304,9 @@ class _SettingsState extends State<Settings> {
               //   ),
               // ),
               // divider,
-              SubHeader(AppLocalizations.of(context).version),
+              SliverToBoxAdapter(
+                child: SubHeader(AppLocalizations.of(context).version),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),

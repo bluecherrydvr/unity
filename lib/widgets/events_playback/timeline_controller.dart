@@ -98,9 +98,12 @@ abstract class TimelineItem {
   /// * 2 - Oldest [Event]
   /// * 3 - Newest [Event]
   static List calculateTimeline(Iterable data) {
-    final allEvents = (data as Iterable<Event>).where(
-      (e) => e.duration > Duration.zero,
-    );
+    final allEvents = (data as Iterable<Event>)
+        .where(
+          (e) => e.duration > Duration.zero,
+        )
+        .toList(growable: false)
+      ..sort((a, b) => a.published.compareTo(b.published));
 
     if (allEvents.isEmpty) return [];
 
@@ -679,6 +682,7 @@ class TimelineController extends ChangeNotifier {
   ///
   /// [precision] determines the precision of the pointer
   void setDate(DateTime date, Duration precision) {
+    if (currentDate.hasForDate(date)) return;
     final item = itemForDate(date);
 
     if (item == null) {
@@ -725,7 +729,9 @@ class TimelineController extends ChangeNotifier {
       );
     }
 
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      notifyListeners();
+    });
 
     debugPrint(
       '(${item.runtimeType})'
@@ -934,9 +940,9 @@ class TimelineController extends ChangeNotifier {
     timer?.cancel();
     timer = null;
 
-    for (final item in tiles) {
-      item.player.release();
-      item.player.dispose();
+    for (final tile in tiles) {
+      tile.player.release();
+      tile.player.dispose();
     }
     tiles.clear();
     items.clear();
@@ -1039,8 +1045,8 @@ class _TimelineViewState extends State<TimelineView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: controller.tiles.map((i) {
-                  final device = servers.findDevice(i.deviceId)!;
+                children: controller.tiles.map((tile) {
+                  final device = servers.findDevice(tile.deviceId)!;
                   final server =
                       servers.firstWhere((s) => s.devices.contains(device));
                   return Tooltip(
@@ -1090,12 +1096,12 @@ class _TimelineViewState extends State<TimelineView> {
                       border: Border(bottom: BorderSide()),
                     ),
                     child: Row(
-                        children: controller.items.map((i) {
-                      if (i is TimelineGap) {
+                        children: controller.items.map((item) {
+                      if (item is TimelineGap) {
                         return _TimelineItemGestures(
                           controller: controller,
                           width: controller.gapWidth,
-                          item: i,
+                          item: item,
                           isPressing: isPressing,
                           pointerPosition: pointerPosition,
                           child: Container(
@@ -1104,7 +1110,7 @@ class _TimelineViewState extends State<TimelineView> {
                             alignment: Alignment.center,
                             color: theme.gapColor,
                             child: AutoSizeText(
-                              i.duration.humanReadableCompact(context),
+                              item.duration.humanReadableCompact(context),
                               maxLines: 1,
                               minFontSize: 8.0,
                               maxFontSize: 10.0,
@@ -1113,13 +1119,13 @@ class _TimelineViewState extends State<TimelineView> {
                             ),
                           ),
                         );
-                      } else if (i is TimelineValue) {
-                        final events = i.events
+                      } else if (item is TimelineValue) {
+                        final events = item.events
                             .where((event) => tile.events.contains(event));
                         // .inBetween(i.start, i.end);
 
-                        final width =
-                            i.duration.inMilliseconds * controller.periodWidth;
+                        final width = item.duration.inMilliseconds *
+                            controller.periodWidth;
 
                         if (events.isEmpty) {
                           return SizedBox(width: width);
@@ -1127,7 +1133,7 @@ class _TimelineViewState extends State<TimelineView> {
                         return _TimelineItemGestures(
                           controller: controller,
                           width: width,
-                          item: i,
+                          item: item,
                           isPressing: isPressing,
                           pointerPosition: pointerPosition,
                           child: SizedBox(
@@ -1185,7 +1191,7 @@ class _TimelineViewState extends State<TimelineView> {
                         );
                       } else {
                         throw UnsupportedError(
-                          '${i.runtimeType} is not a supported type',
+                          '${item.runtimeType} is not a supported type',
                         );
                       }
                     }).toList()),
@@ -1322,6 +1328,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
     if (!mounted || !widget.isPressing) return false;
 
     final renderBox = context.findRenderObject() as RenderBox;
+    if (!renderBox.hasSize) return false;
     final pos = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     return pos.contains(widget.pointerPosition);

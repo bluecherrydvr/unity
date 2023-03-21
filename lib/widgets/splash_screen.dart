@@ -22,7 +22,12 @@ import 'dart:ui' as ui;
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:flutter/material.dart';
 
+/// The local splash screen of the app
+///
+/// This is mainly used by desktop apps while the app is rendering. On mobile,
+/// the platform splash screen is used instead
 class SplashScreen extends StatelessWidget {
+  /// Creates an unity splash screen.
   const SplashScreen({Key? key}) : super(key: key);
 
   @override

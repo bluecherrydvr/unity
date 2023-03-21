@@ -36,7 +36,6 @@ bool get isDesktop {
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
 
 bool get isMobile => Platform.isAndroid || Platform.isIOS;
-final desktopTitleBarHeight = Platform.isWindows ? 0.0 : 0.0;
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;

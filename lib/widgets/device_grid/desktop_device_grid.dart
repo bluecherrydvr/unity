@@ -46,6 +46,21 @@ int calculateCrossAxisCount(int deviceAmount) {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
+  /// A list of global keys that represent every device
+  final devicesKeys = <Device, GlobalKey>{};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final view = context.watch<DesktopViewProvider>();
+
+    for (final device in view.currentLayout.devices) {
+      if (devicesKeys.containsKey(device)) continue;
+
+      devicesKeys[device] = GlobalKey(debugLabel: device.fullName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();
@@ -89,7 +104,8 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       key: ValueKey(view.currentLayout.hashCode),
                       padding: kGridPadding,
                       child: DesktopDeviceTile(
-                        key: ValueKey('$device.${device.server.serverUUID}'),
+                        // key: ValueKey('$device.${device.server.serverUUID}'),
+                        key: devicesKeys[device],
                         device: device,
                       ),
                     ),
@@ -169,17 +185,19 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                 final crossAxisCount = calculateCrossAxisCount(dl);
 
-                return StaticGrid(
-                  key: ValueKey(view.currentLayout.hashCode),
-                  crossAxisCount: crossAxisCount.clamp(1, 50),
-                  childAspectRatio: 16 / 9,
-                  onReorder: view.reorder,
-                  children: devices.map((device) {
-                    return DesktopDeviceTile(
-                      key: ValueKey('$device.${device.server.serverUUID}'),
-                      device: device,
-                    );
-                  }).toList(),
+                return RepaintBoundary(
+                  child: StaticGrid(
+                    key: ValueKey(view.currentLayout.hashCode),
+                    crossAxisCount: crossAxisCount.clamp(1, 50),
+                    childAspectRatio: 16 / 9,
+                    onReorder: view.reorder,
+                    children: devices.map((device) {
+                      return DesktopDeviceTile(
+                        key: devicesKeys[device],
+                        device: device,
+                      );
+                    }).toList(),
+                  ),
                 );
               }(),
             ),

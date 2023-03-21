@@ -29,16 +29,21 @@ class StaticGrid extends StatefulWidget {
   final int crossAxisCount;
   final List<Widget> children;
 
+  /// The aspect ratio of each child
   final double childAspectRatio;
 
   final double mainAxisSpacing;
   final double crossAxisSpacing;
 
   final ReorderCallback onReorder;
+
+  /// Whether reordering is enabled
   final bool reorderable;
 
+  /// The padding around the grid
   final EdgeInsetsGeometry padding;
 
+  /// Creates a static grid
   const StaticGrid({
     Key? key,
     required this.crossAxisCount,

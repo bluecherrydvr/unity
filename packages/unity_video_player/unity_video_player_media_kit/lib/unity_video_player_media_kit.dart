@@ -32,6 +32,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       return Stack(children: [
         Positioned.fill(
           child: _MKVideo(
+            key: ValueKey(player),
             player: (player as UnityVideoPlayerMediaKit).mkPlayer,
             videoController: player.mkVideoController,
             color: color,
@@ -54,7 +55,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 }
 
-class _MKVideo extends StatefulWidget {
+class _MKVideo extends StatelessWidget {
   const _MKVideo({
     Key? key,
     required this.player,
@@ -69,28 +70,16 @@ class _MKVideo extends StatefulWidget {
   final Color color;
 
   @override
-  State<_MKVideo> createState() => __MKVideoState();
-}
-
-class __MKVideoState extends State<_MKVideo> {
-  VideoController? videoController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.videoController.then((value) {
-      videoController = value;
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Video(
-      controller: videoController,
-      fill: widget.color,
-      fit: widget.fit,
+    return FutureBuilder<VideoController>(
+      future: videoController,
+      builder: (context, snapshot) {
+        return Video(
+          controller: snapshot.data,
+          fill: color,
+          fit: fit,
+        );
+      },
     );
   }
 }

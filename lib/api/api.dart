@@ -160,7 +160,7 @@ class API {
       );
 
       debugPrint('Getting events for server ${server.name}');
-      debugPrint(response.body);
+      // debugPrint(response.body);
 
       final parser = Xml2Json()..parse(response.body);
       return (await compute(jsonDecode, parser.toGData()))['feed']['entry']

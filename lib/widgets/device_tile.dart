@@ -58,8 +58,8 @@ class DeviceTileState extends State<DeviceTile> {
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           // setState(() {
-          //   MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
-          //       false;
+          // MobileViewProvider.instance.hoverStates[widget.tab]![widget.index] =
+          //     false;
           // });
         }
       });
@@ -144,9 +144,7 @@ class DeviceTileState extends State<DeviceTile> {
   Widget build(BuildContext context) {
     return GestureDetectorWithReducedDoubleTapTime(
       onTap: () {
-        setState(() {
-          hover = !hover;
-        });
+        if (mounted) setState(() => hover = !hover);
       },
       // Fullscreen on double-tap.
       onDoubleTap: () async {

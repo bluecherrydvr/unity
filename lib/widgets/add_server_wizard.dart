@@ -587,9 +587,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     if (formKey.currentState?.validate() ?? false) {
       final focusScope = FocusScope.of(context);
 
-      setState(() {
-        disableFinishButton = true;
-      });
+      if (mounted) setState(() => disableFinishButton = true);
       final server = await API.instance.checkServerCredentials(
         Server(
           textEditingControllers[2].text.trim(),
@@ -639,9 +637,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           );
         }
       }
-      setState(() {
-        disableFinishButton = false;
-      });
+
+      if (mounted) setState(() => disableFinishButton = false);
     }
   }
 }

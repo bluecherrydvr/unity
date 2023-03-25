@@ -96,6 +96,12 @@ extension DurationExtension on Duration {
 
     return finalStrings.join();
   }
+
+  Duration ensurePositive() {
+    if (isNegative) return this * -1;
+
+    return this;
+  }
 }
 
 extension NotificationExtensions on NotificationClickAction {
@@ -206,7 +212,7 @@ extension EventsExtension on Iterable<Event> {
   }
 }
 
-extension DeviceListExtension on List<Device> {
+extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
   List<Device> sorted() {
     return [...this]

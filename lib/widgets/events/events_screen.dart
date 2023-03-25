@@ -83,10 +83,12 @@ class _EventsScreenState extends State<EventsScreen> {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
           );
-          setState(() {
-            events[server] = iterable.toList();
-            invalid[server] = false;
-          });
+          if (mounted) {
+            setState(() {
+              events[server] = iterable.toList();
+              invalid[server] = false;
+            });
+          }
         } catch (exception, stacktrace) {
           debugPrint(exception.toString());
           debugPrint(stacktrace.toString());

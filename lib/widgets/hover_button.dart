@@ -127,7 +127,7 @@ class _HoverButtonState extends State<HoverButton> {
     super.initState();
     node = widget.focusNode ?? _createFocusNode();
     Future<void> handleActionTap() async {
-      if (!enabled) return;
+      if (!enabled || !mounted) return;
       setState(() => _pressing = true);
       widget.onPressed?.call();
       await Future.delayed(const Duration(milliseconds: 100));

@@ -63,6 +63,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     height: 360,
   );
   late final StreamSubscription playingSubscription;
+  late final StreamSubscription durationSubscription;
   late final playingAnimationController = AnimationController(
     vsync: this,
     duration: const Duration(microseconds: 500),
@@ -77,12 +78,21 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   /// This is true if the video was playing when the user started seeking
   bool shouldAutoplay = false;
 
+  Duration get duration {
+    if (widget.event.duration > videoController.duration) {
+      return widget.event.duration;
+    }
+    return videoController.duration;
+  }
+
   @override
   void initState() {
     super.initState();
     currentEvent = widget.event;
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
+      if (!mounted) return;
+
       setState(() {});
       if (isPlaying) {
         playingAnimationController.forward();
@@ -90,12 +100,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         playingAnimationController.reverse();
       }
     });
+    durationSubscription = videoController.onDurationUpdate.listen((_) {
+      if (mounted) setState(() {});
+    });
     setEvent(currentEvent);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -104,6 +112,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       ..release()
       ..dispose();
     playingSubscription.cancel();
+    durationSubscription.cancel();
     playingAnimationController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -195,8 +204,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                 child: Slider(
                                   value: _position ??
                                       pos.inMilliseconds.toDouble(),
-                                  max: videoController.duration.inMilliseconds
-                                      .toDouble(),
+                                  max: duration.inMilliseconds.toDouble(),
                                   onChangeStart: (v) {
                                     shouldAutoplay = videoController.isPlaying;
                                     videoController.pause();
@@ -219,10 +227,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                       await videoController.start();
                                     }
 
-                                    setState(() {
-                                      _position = null;
-                                      shouldAutoplay = false;
-                                    });
+                                    if (mounted) {
+                                      setState(() {
+                                        _position = null;
+                                        shouldAutoplay = false;
+                                      });
+                                    }
                                   },
                                 ),
                               ),
@@ -233,9 +243,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                       padd,
                       Text(
                         DateFormat.Hms().format(
-                          currentEvent.published
-                              .add(videoController.duration)
-                              .toLocal(),
+                          currentEvent.published.add(duration).toLocal(),
                         ),
                       ),
                       padd,
@@ -290,7 +298,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                           label: speed.toStringAsFixed(2),
                           onChanged: (v) => setState(() => speed = v),
                           onChangeEnd: (v) async {
-                            await videoController.setSpeed(v);
+                            videoController.setSpeed(v);
                             setState(() => speed = v);
                           },
                         ),
@@ -370,7 +378,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       }
       await videoController.start();
     }
-    setState(() {});
+
+    if (mounted) setState(() {});
   }
 }
 

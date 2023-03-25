@@ -32,6 +32,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       return Stack(children: [
         Positioned.fill(
           child: _MKVideo(
+            key: ValueKey(player),
             player: (player as UnityVideoPlayerMediaKit).mkPlayer,
             videoController: player.mkVideoController,
             color: color,
@@ -54,7 +55,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 }
 
-class _MKVideo extends StatefulWidget {
+class _MKVideo extends StatelessWidget {
   const _MKVideo({
     Key? key,
     required this.player,
@@ -69,35 +70,16 @@ class _MKVideo extends StatefulWidget {
   final Color color;
 
   @override
-  State<_MKVideo> createState() => __MKVideoState();
-}
-
-class __MKVideoState extends State<_MKVideo> {
-  VideoController? videoController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.videoController.then((value) {
-      videoController = value;
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // if (!widget.player.state.isPlaying) widget.player.play();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Video(
-      controller: videoController,
-      fill: widget.color,
-      fit: widget.fit,
+    return FutureBuilder<VideoController>(
+      future: videoController,
+      builder: (context, snapshot) {
+        return Video(
+          controller: snapshot.data,
+          fill: color,
+          fit: fit,
+        );
+      },
     );
   }
 }
@@ -166,7 +148,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Duration get duration => mkPlayer.state.duration;
 
   @override
+  Stream<Duration> get onDurationUpdate => mkPlayer.streams.duration;
+
+  @override
   Duration get currentPos => mkPlayer.state.position;
+
+  @override
+  Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
 
   @override
   bool get isBuffering => mkPlayer.state.isBuffering;
@@ -174,8 +162,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   bool get isSeekable => true;
 
-  @override
-  Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
   @override
   Stream<bool> get onBufferStateUpdate => mkPlayer.streams.isBuffering;
 
@@ -186,8 +172,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.isPlaying;
 
   @override
-  Future<void> setDataSource(String url, {bool autoPlay = true}) async {
-    await ensureVideoControllerInitialized(() async {
+  Future<void> setDataSource(String url, {bool autoPlay = true}) {
+    return ensureVideoControllerInitialized(() async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
@@ -198,11 +184,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> setMultipleDataSource(
     List<String> url, {
     bool autoPlay = true,
-  }) async {
-    await mkPlayer.open(
-      Playlist(url.map((source) => Media(source)).toList()),
-      play: autoPlay,
-    );
+  }) {
+    return ensureVideoControllerInitialized(() async {
+      await mkPlayer.open(
+        Playlist(url.map((source) => Media(source)).toList()),
+        play: autoPlay,
+      );
+    });
   }
 
   // Volume in media kit goes from 0 to 100
@@ -218,7 +206,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
-  Future<void> start() async => mkPlayer.play();
+  Future<void> start() {
+    return ensureVideoControllerInitialized(() async {
+      mkPlayer.play();
+    });
+  }
+
   @override
   Future<void> pause() async => mkPlayer.pause();
   @override

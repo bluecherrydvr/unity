@@ -98,9 +98,12 @@ abstract class TimelineItem {
   /// * 2 - Oldest [Event]
   /// * 3 - Newest [Event]
   static List calculateTimeline(Iterable data) {
-    final allEvents = (data as Iterable<Event>).where(
-      (e) => e.duration > Duration.zero,
-    );
+    final allEvents = (data as Iterable<Event>)
+        .where(
+          (e) => e.duration > Duration.zero,
+        )
+        .toList(growable: false)
+      ..sort((a, b) => a.published.compareTo(b.published));
 
     if (allEvents.isEmpty) return [];
 
@@ -178,7 +181,9 @@ abstract class TimelineItem {
             currentItem = TimelineGap(
               start: currentItem.start,
               end: event.published,
-              gapDuration: event.published.difference(currentItem.start),
+              gapDuration: event.published
+                  .difference(currentItem.start)
+                  .ensurePositive(),
             );
             items.add(currentItem);
             currentItem = null;
@@ -190,7 +195,8 @@ abstract class TimelineItem {
           if (currentItem is TimelineValue) {
             final events = allEvents
                 .inBetween(currentItem.start, currentDateTime)
-                .toList();
+                .toList()
+                .sublist(0, 1);
 
             var duration = Duration.zero;
             Event? previous;
@@ -213,8 +219,8 @@ abstract class TimelineItem {
 
             currentItem = TimelineValue(
               start: currentItem.start,
-              end: currentItem.start.add(duration),
-              duration: duration,
+              end: currentItem.start.add(duration.ensurePositive()),
+              duration: duration.ensurePositive(),
               events: events,
             );
             items.add(currentItem);
@@ -246,7 +252,7 @@ class TimelineValue extends TimelineItem {
 
   @override
   String toString() {
-    return 'TimelineValue(events: $events, start: $start, end: $end, duration: $duration)';
+    return 'TimelineValue(events: ${events.length}, start: $start, end: $end, duration: $duration)';
   }
 
   @override
@@ -345,8 +351,13 @@ class TimelineController extends ChangeNotifier {
     return const Duration(seconds: 5);
   }
 
+  /// The width of a gap
   double get gapWidth {
-    return gapDuration.inMilliseconds * periodWidth;
+    return clampDouble(
+      gapDuration.inMilliseconds * periodWidth,
+      50,
+      double.infinity,
+    );
   }
 
   /// All the tiles of the timeline. Usually represents the devices in a server
@@ -506,6 +517,7 @@ class TimelineController extends ChangeNotifier {
 
   static const double minZoom = 1.0;
   double get maxZoom => (items.length) / 6;
+  // double get maxZoom => 30.0;
 
   /// All the events in the timeline
   ///
@@ -670,6 +682,7 @@ class TimelineController extends ChangeNotifier {
   ///
   /// [precision] determines the precision of the pointer
   void setDate(DateTime date, Duration precision) {
+    if (currentDate.hasForDate(date)) return;
     final item = itemForDate(date);
 
     if (item == null) {
@@ -716,7 +729,9 @@ class TimelineController extends ChangeNotifier {
       );
     }
 
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      notifyListeners();
+    });
 
     debugPrint(
       '(${item.runtimeType})'
@@ -854,13 +869,12 @@ class TimelineController extends ChangeNotifier {
         ..onCurrentPosUpdate.listen((pos) {
           if (item.events.hasForDate(currentDate)) {
             setVideoPosition(pos);
-            debugPrint('pos $pos');
+            if (pos.inMilliseconds.isEven) debugPrint('pos $pos');
           }
         })
-        ..onPlayingStateUpdate.listen((playing) {
-          if (playing && isPaused) {
-            pause();
-          }
+        ..onPlayingStateUpdate.listen((isPlayerPlaying) {
+          // If the video is being played but the timeline is paused for some reason
+          if (isPlayerPlaying && isPaused) pause();
           notifyListeners();
         })
         ..onBufferStateUpdate.listen((buffering) {
@@ -893,6 +907,7 @@ class TimelineController extends ChangeNotifier {
         notifyListeners();
       }
     }
+    debugPrint(items.toString());
 
     HomeProvider.instance.notLoading(
       UnityLoadingReason.fetchingEventsPlaybackPeriods,
@@ -925,9 +940,9 @@ class TimelineController extends ChangeNotifier {
     timer?.cancel();
     timer = null;
 
-    for (final item in tiles) {
-      item.player.release();
-      item.player.dispose();
+    for (final tile in tiles) {
+      tile.player.release();
+      tile.player.dispose();
     }
     tiles.clear();
     items.clear();
@@ -983,23 +998,28 @@ class _TimelineViewState extends State<TimelineView> {
   }
 
   void _handlePointerEvent(PointerEvent event) {
+    var pressing = false;
     if (event is PointerUpEvent || event is PointerCancelEvent) {
       if (!_initiallyPaused) controller.play(context);
       _initiallyPaused = false;
-      isPressing = false;
+      pressing = false;
     } else if (event is PointerDownEvent) {
       _initiallyPaused = controller.isPaused;
-      controller.pause();
-      isPressing = true;
+      pressing = true;
     }
 
-    if (isPressing && context.mounted) {
+    if (pressing && context.mounted) {
       final renderBox = context.findRenderObject() as RenderBox;
       if (renderBox.attached) {
         final renderRect =
             renderBox.localToGlobal(Offset.zero) & renderBox.size;
         if (renderRect.contains(event.position)) {
           isPressing = event.down;
+
+          if (isPressing) {
+            controller.pause();
+          }
+
           setState(() => pointerPosition = event.position);
         }
       }
@@ -1025,8 +1045,8 @@ class _TimelineViewState extends State<TimelineView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: controller.tiles.map((i) {
-                  final device = servers.findDevice(i.deviceId)!;
+                children: controller.tiles.map((tile) {
+                  final device = servers.findDevice(tile.deviceId)!;
                   final server =
                       servers.firstWhere((s) => s.devices.contains(device));
                   return Tooltip(
@@ -1076,12 +1096,12 @@ class _TimelineViewState extends State<TimelineView> {
                       border: Border(bottom: BorderSide()),
                     ),
                     child: Row(
-                        children: controller.items.map((i) {
-                      if (i is TimelineGap) {
+                        children: controller.items.map((item) {
+                      if (item is TimelineGap) {
                         return _TimelineItemGestures(
                           controller: controller,
                           width: controller.gapWidth,
-                          item: i,
+                          item: item,
                           isPressing: isPressing,
                           pointerPosition: pointerPosition,
                           child: Container(
@@ -1090,7 +1110,7 @@ class _TimelineViewState extends State<TimelineView> {
                             alignment: Alignment.center,
                             color: theme.gapColor,
                             child: AutoSizeText(
-                              i.duration.humanReadableCompact(context),
+                              item.duration.humanReadableCompact(context),
                               maxLines: 1,
                               minFontSize: 8.0,
                               maxFontSize: 10.0,
@@ -1099,11 +1119,13 @@ class _TimelineViewState extends State<TimelineView> {
                             ),
                           ),
                         );
-                      } else if (i is TimelineValue) {
-                        final events = tile.events.inBetween(i.start, i.end);
+                      } else if (item is TimelineValue) {
+                        final events = item.events
+                            .where((event) => tile.events.contains(event));
+                        // .inBetween(i.start, i.end);
 
-                        final width =
-                            i.duration.inMilliseconds * controller.periodWidth;
+                        final width = item.duration.inMilliseconds *
+                            controller.periodWidth;
 
                         if (events.isEmpty) {
                           return SizedBox(width: width);
@@ -1111,7 +1133,7 @@ class _TimelineViewState extends State<TimelineView> {
                         return _TimelineItemGestures(
                           controller: controller,
                           width: width,
-                          item: i,
+                          item: item,
                           isPressing: isPressing,
                           pointerPosition: pointerPosition,
                           child: SizedBox(
@@ -1169,7 +1191,7 @@ class _TimelineViewState extends State<TimelineView> {
                         );
                       } else {
                         throw UnsupportedError(
-                          '${i.runtimeType} is not a supported type',
+                          '${item.runtimeType} is not a supported type',
                         );
                       }
                     }).toList()),
@@ -1306,6 +1328,7 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
     if (!mounted || !widget.isPressing) return false;
 
     final renderBox = context.findRenderObject() as RenderBox;
+    if (!renderBox.hasSize) return false;
     final pos = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     return pos.contains(widget.pointerPosition);

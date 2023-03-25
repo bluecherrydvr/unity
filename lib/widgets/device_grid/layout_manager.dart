@@ -327,7 +327,9 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
         _LayoutTypeChooser(
           selected: selected,
-          onSelect: (index) => setState(() => selected = index),
+          onSelect: (index) {
+            if (mounted) setState(() => selected = index);
+          },
         ),
       ]),
       actions: [
@@ -400,7 +402,9 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         ),
         _LayoutTypeChooser(
           selected: selected,
-          onSelect: (index) => setState(() => selected = index),
+          onSelect: (index) {
+            if (mounted) setState(() => selected = index);
+          },
         ),
       ]),
       actions: [

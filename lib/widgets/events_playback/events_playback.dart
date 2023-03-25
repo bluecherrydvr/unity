@@ -147,6 +147,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     try {
       await Future.wait(ServersProvider.instance.servers.map((server) async {
         for (final server in ServersProvider.instance.servers) {
+          if (!server.online) continue;
+
           try {
             final events = await API.instance.getEvents(
               await API.instance.checkServerCredentials(server),

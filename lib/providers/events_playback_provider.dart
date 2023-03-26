@@ -21,8 +21,8 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class EventsProvider extends ChangeNotifier {
   EventsProvider._();
@@ -40,8 +40,8 @@ class EventsProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('hive');
-    if (!hive.containsKey(kHiveEventsPlayback)) {
+    final data = await eventsPlayback.read() as Map;
+    if (!data.containsKey(kHiveEventsPlayback)) {
       await _save();
     } else {
       await _restore();
@@ -54,12 +54,7 @@ class EventsProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
-
-    await instance.put(
-      kHiveEventsPlayback,
-      jsonEncode(selectedIds),
-    );
+    await eventsPlayback.write({kHiveEventsPlayback: jsonEncode(selectedIds)});
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -68,10 +63,10 @@ class EventsProvider extends ChangeNotifier {
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
+    final data = await eventsPlayback.read() as Map;
 
     selectedIds =
-        (jsonDecode(instance.get(kHiveEventsPlayback)) as List).cast<String>();
+        (jsonDecode(data[kHiveEventsPlayback]) as List).cast<String>();
 
     if (notifyListeners) {
       this.notifyListeners();

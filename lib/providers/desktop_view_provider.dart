@@ -23,8 +23,8 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class DesktopViewProvider extends ChangeNotifier {
@@ -64,7 +64,7 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('hive');
+    final hive = await desktopView.read() as Map;
     if (!hive.containsKey(kHiveDesktopLayouts)) {
       await _save();
     } else {
@@ -79,14 +79,12 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
-
-    await instance.put(
-      kHiveDesktopLayouts,
-      jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
-    );
-    await instance.put(kHiveDesktopCurrentLayout, _currentLayout);
-    await instance.put(kHiveDesktopCycling, cycling);
+    await desktopView.write({
+      kHiveDesktopLayouts:
+          jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
+      kHiveDesktopCurrentLayout: _currentLayout,
+      kHiveDesktopCycling: cycling,
+    });
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -95,20 +93,19 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
+    final data = await desktopView.read() as Map;
 
     layouts = ((await compute(
               jsonDecode,
-              instance.get(kHiveDesktopLayouts) as String,
+              data[kHiveDesktopLayouts] as String,
             ) ??
             []) as List)
         .cast<Map>()
         .map<Layout>((item) {
       return Layout.fromMap(item.cast<String, dynamic>());
     }).toList();
-    _currentLayout = instance.get(kHiveDesktopCurrentLayout) ?? 0;
-
-    cycling = instance.get(kHiveDesktopCycling) ?? false;
+    _currentLayout = data[kHiveDesktopCurrentLayout] ?? 0;
+    cycling = data[kHiveDesktopCycling] ?? false;
 
     if (notifyListeners) {
       this.notifyListeners();

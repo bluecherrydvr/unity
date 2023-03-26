@@ -20,10 +20,9 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -59,70 +58,37 @@ class SettingsProvider extends ChangeNotifier {
   // Setters.
   set themeMode(ThemeMode value) {
     _themeMode = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(kHiveThemeMode, value.index);
-    });
+    _save();
   }
 
   set dateFormat(DateFormat value) {
     _dateFormat = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(kHiveDateFormat, value.pattern!);
-    });
+    _save();
   }
 
   set timeFormat(DateFormat value) {
     _timeFormat = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(kHiveTimeFormat, value.pattern!);
-    });
+    _save();
   }
 
   set snoozedUntil(DateTime value) {
     _snoozedUntil = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(
-        kHiveSnoozedUntil,
-        value.toIso8601String(),
-      );
-    });
+    _save();
   }
 
   set notificationClickAction(NotificationClickAction value) {
     _notificationClickAction = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(
-        kHiveNotificationClickAction,
-        value.index,
-      );
-    });
+    _save();
   }
 
   set cameraViewFit(UnityVideoFit value) {
     _cameraViewFit = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(
-        kHiveCameraViewFit,
-        value.index,
-      );
-    });
+    _save();
   }
 
   set downloadsDirectory(String value) {
     _downloadsDirectory = value;
-    notifyListeners();
-    Hive.openBox('hive').then((instance) {
-      instance.put(
-        kHiveDownloadsDirectorySetting,
-        value,
-      );
-    });
+    _save();
   }
 
   late ThemeMode _themeMode;
@@ -147,6 +113,20 @@ class SettingsProvider extends ChangeNotifier {
     return instance;
   }
 
+  Future<void> _save({bool notify = true}) async {
+    await settings.write({
+      kHiveThemeMode: themeMode.index,
+      kHiveDateFormat: dateFormat.pattern!,
+      kHiveTimeFormat: timeFormat.pattern!,
+      kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
+      kHiveNotificationClickAction: notificationClickAction.index,
+      kHiveCameraViewFit: cameraViewFit.index,
+      kHiveDownloadsDirectorySetting: downloadsDirectory,
+    });
+
+    if (notify) notifyListeners();
+  }
+
   Future<void> reload() => initialize();
 
   /// Called by [ensureInitialized].
@@ -155,50 +135,49 @@ class SettingsProvider extends ChangeNotifier {
     // i.e. the state of [Hive] [Box] is not reloaded/reflected immediately in the UI after changing the snooze time from that isolate.
     // To circumvent this, we are closing all the existing opened [Hive] [Box]es and re-opening them again. This fetches the latest data.
     // Though, changes are still not instant.
-    await Hive.close();
-    final hive = await Hive.openBox('hive');
-    if (hive.containsKey(kHiveThemeMode)) {
-      _themeMode = ThemeMode.values[hive.get(kHiveThemeMode)!];
+    final data = await settings.read() as Map;
+    if (data.containsKey(kHiveThemeMode)) {
+      _themeMode = ThemeMode.values[data[kHiveThemeMode]!];
     } else {
       _themeMode = kDefaultThemeMode;
     }
-    if (hive.containsKey(kHiveDateFormat)) {
+    if (data.containsKey(kHiveDateFormat)) {
       _dateFormat = DateFormat(
-        hive.get(kHiveDateFormat)!,
+        data[kHiveDateFormat]!,
         'en_US',
       );
     } else {
       _dateFormat = DateFormat(kDefaultDateFormat, 'en_US');
     }
-    if (hive.containsKey(kHiveTimeFormat)) {
+    if (data.containsKey(kHiveTimeFormat)) {
       _timeFormat = DateFormat(
-        hive.get(kHiveTimeFormat)!,
+        data[kHiveTimeFormat]!,
         'en_US',
       );
     } else {
       _timeFormat = DateFormat(kDefaultTimeFormat, 'en_US');
     }
-    if (hive.containsKey(kHiveSnoozedUntil)) {
+    if (data.containsKey(kHiveSnoozedUntil)) {
       _snoozedUntil = DateTime.parse(
-        hive.get(kHiveSnoozedUntil)!,
+        data[kHiveSnoozedUntil]!,
       );
     } else {
       _snoozedUntil = defaultSnoozedUntil;
     }
-    if (hive.containsKey(kHiveNotificationClickAction)) {
-      _notificationClickAction = NotificationClickAction
-          .values[hive.get(kHiveNotificationClickAction)!];
+    if (data.containsKey(kHiveNotificationClickAction)) {
+      _notificationClickAction =
+          NotificationClickAction.values[data[kHiveNotificationClickAction]!];
     } else {
       _notificationClickAction = kDefaultNotificationClickAction;
     }
-    if (hive.containsKey(kHiveCameraViewFit)) {
-      _cameraViewFit = UnityVideoFit.values[hive.get(kHiveCameraViewFit)!];
+    if (data.containsKey(kHiveCameraViewFit)) {
+      _cameraViewFit = UnityVideoFit.values[data[kHiveCameraViewFit]!];
     } else {
       _cameraViewFit = kDefaultCameraViewFit;
     }
 
-    if (hive.containsKey(kHiveDownloadsDirectorySetting)) {
-      _downloadsDirectory = hive.get(kHiveDownloadsDirectorySetting);
+    if (data.containsKey(kHiveDownloadsDirectorySetting)) {
+      _downloadsDirectory = data[kHiveDownloadsDirectorySetting];
     } else {
       _downloadsDirectory = (await kDefaultDownloadsDirectory()).path;
     }

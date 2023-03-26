@@ -39,7 +39,7 @@ class SplashScreen extends StatelessWidget {
 
     return Container(
       color: theme.scaffoldBackgroundColor,
-      alignment: AlignmentDirectional.center,
+      alignment: Alignment.center,
       child: Image.asset(
         'assets/images/icon.png',
         height: 100.0,

@@ -53,7 +53,7 @@ dependencies:
   uuid: ^3.0.7
 
   # Desktop
-  window_manager: ^0.3.0
+  window_manager: ^0.3.1
   unity_multi_window:
     path: packages/unity_multi_window/
 

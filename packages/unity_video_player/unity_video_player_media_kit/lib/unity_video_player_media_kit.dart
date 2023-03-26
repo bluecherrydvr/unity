@@ -89,19 +89,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late Future<VideoController> mkVideoController;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
-    // final finalSize = width == null || height == null
-    //     ? const Size(640, 360)
-    //     : Size(
-    //         width.toDouble(),
-    //         width * (9 / 16),
-    // );
-
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      // height: finalSize.height.toInt(),
-      // width: finalSize.width.toInt(),
-      // width: width,
-      // height: height,
       width: 640,
       height: 360,
     );

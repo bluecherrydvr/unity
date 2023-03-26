@@ -165,12 +165,7 @@ class _MobileHomeState extends State<Home> {
                               home.initiallyExpandedDownloadEventId,
                         );
                       },
-                      UnityTab.settings: () {
-                        return Settings(
-                          changeCurrentTab: (index) =>
-                              home.setTab(index, context),
-                        );
-                      },
+                      UnityTab.settings: () => const Settings(),
                     }[UnityTab.values[tab]]!(),
                   ),
                 ),
@@ -285,7 +280,7 @@ class _MobileHomeState extends State<Home> {
     return Card(
       child: Column(children: [
         Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsetsDirectional.only(top: 16.0),
           child: Image.asset(
             'assets/images/icon.png',
             width: imageSize,

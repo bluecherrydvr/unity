@@ -1107,7 +1107,7 @@ class _TimelineViewState extends State<TimelineView> {
                           child: Container(
                             height: kTimelineTileHeight,
                             padding: const EdgeInsets.symmetric(horizontal: 5),
-                            alignment: Alignment.center,
+                            alignment: AlignmentDirectional.center,
                             color: theme.gapColor,
                             child: AutoSizeText(
                               item.duration.humanReadableCompact(context),
@@ -1152,7 +1152,7 @@ class _TimelineViewState extends State<TimelineView> {
                                       : event.isAlarm
                                           ? theme.alarmColor
                                           : theme.eventColor,
-                                  alignment: Alignment.center,
+                                  alignment: AlignmentDirectional.center,
                                   // child: AutoSizeText(
                                   //   duration.humanReadableCompact(context),
                                   //   maxLines: 1,
@@ -1237,7 +1237,7 @@ class _TimelineViewState extends State<TimelineView> {
                     top: 0.0,
                     bottom: -10.0,
                     child: Align(
-                      alignment: Alignment.bottomCenter,
+                      alignment: AlignmentDirectional.bottomCenter,
                       child: Icon(
                         Icons.arrow_drop_up,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -1382,8 +1382,8 @@ class _TimelineItemGesturesState extends State<_TimelineItemGestures> {
                 width: _TimelineItemGestures.kPopupWidth,
                 color: theme.seekPopupColor,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                margin: const EdgeInsets.only(bottom: 2.5),
-                alignment: Alignment.center,
+                margin: const EdgeInsetsDirectional.only(bottom: 2.5),
+                alignment: AlignmentDirectional.center,
                 child: AutoSizeText(
                   DateFormat.Hms().format(date!),
                   maxLines: 1,

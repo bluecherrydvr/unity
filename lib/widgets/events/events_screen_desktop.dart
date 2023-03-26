@@ -133,7 +133,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 DataCell(Container(
                   width: 40.0,
                   height: 40.0,
-                  alignment: Alignment.center,
+                  alignment: AlignmentDirectional.center,
                   child: DownloadIndicator(event: event),
                 )),
                 // server

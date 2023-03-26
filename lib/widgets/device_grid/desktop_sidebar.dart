@@ -50,7 +50,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
           child: Material(
             type: MaterialType.transparency,
             child: ListView.builder(
-              padding: EdgeInsets.only(
+              padding: EdgeInsetsDirectional.only(
                 bottom: MediaQuery.viewPaddingOf(context).bottom,
               ),
               itemCount: ServersProvider.instance.servers.length,

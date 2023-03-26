@@ -69,6 +69,8 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: devices.length + 1,
+              // EdgeInsetsDirectional can not be used here because viewPadding
+              // is EdgeInsets. We are just avoiding the top
               padding: EdgeInsets.only(
                 left: viewPadding.left,
                 right: viewPadding.right,

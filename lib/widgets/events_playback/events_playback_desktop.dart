@@ -116,7 +116,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                             children: [
                               Container(
                                 color: color,
-                                alignment: Alignment.center,
+                                alignment: AlignmentDirectional.center,
                                 padding: const EdgeInsets.all(12.0),
                                 child: AutoSizeText(
                                   AppLocalizations.of(context).noRecords,
@@ -364,7 +364,7 @@ class Sidebar extends StatelessWidget {
         else
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.only(
+              padding: EdgeInsetsDirectional.only(
                 bottom: MediaQuery.viewPaddingOf(context).bottom,
               ),
               itemCount: servers.length,
@@ -451,6 +451,7 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
   Widget build(BuildContext context) {
     // subscribe to media query updates
     MediaQuery.of(context);
+
     final theme = Theme.of(context);
     final events = context.watch<EventsProvider>();
 

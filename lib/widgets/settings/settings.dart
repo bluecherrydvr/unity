@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';

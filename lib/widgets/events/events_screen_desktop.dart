@@ -86,6 +86,13 @@ class EventsScreenDesktop extends StatelessWidget {
       }
     }).toList();
 
+    if (events.isEmpty) {
+      return Text(
+        AppLocalizations.of(context).noEventsFound,
+        textAlign: TextAlign.center,
+      );
+    }
+
     return SingleChildScrollView(
       child: SizedBox(
         width: double.infinity,

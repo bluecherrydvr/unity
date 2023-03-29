@@ -24,9 +24,9 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 /// This class manages & saves (caching) the currently added [Server]s by the user.
 ///
@@ -58,8 +58,8 @@ class ServersProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('hive');
-    if (!hive.containsKey(kHiveServers)) {
+    final data = await serversStorage.read() as Map;
+    if (!data.containsKey(kHiveServers)) {
       await _save();
     } else {
       await _restore();
@@ -82,8 +82,8 @@ class ServersProvider extends ChangeNotifier {
     if (isMobile) {
       // Register notification token.
       try {
-        final instance = await Hive.openBox('hive');
-        final notificationToken = instance.get(kHiveNotificationToken);
+        final data = await serversStorage.read() as Map;
+        final notificationToken = data[kHiveNotificationToken];
         assert(notificationToken != null, '[kHiveNotificationToken] is null.');
         await API.instance
             .registerNotificationToken(server, notificationToken!);
@@ -177,21 +177,16 @@ class ServersProvider extends ChangeNotifier {
 
   /// Save currently added [Server]s to `package:hive` cache.
   Future<void> _save() async {
-    final instance = await Hive.openBox('hive');
-    await instance.put(
-      kHiveServers,
-      jsonEncode(servers.map((e) => e.toJson()).toList()),
-    );
+    await serversStorage.write({
+      kHiveServers: jsonEncode(servers.map((e) => e.toJson()).toList()),
+    });
     notifyListeners();
   }
 
   /// Restore currently added [Server]s from `package:hive` cache.
   Future<void> _restore() async {
-    final instance = await Hive.openBox('hive');
-    servers = (await compute(
-      jsonDecode,
-      instance.get(kHiveServers) as String,
-    ) as List)
+    final data = await serversStorage.read() as Map;
+    servers = (await compute(jsonDecode, data[kHiveServers] as String) as List)
         .cast<Map<String, dynamic>>()
         .map(Server.fromJson)
         .toList()

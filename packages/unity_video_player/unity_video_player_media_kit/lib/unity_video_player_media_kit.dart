@@ -89,19 +89,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late Future<VideoController> mkVideoController;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
-    // final finalSize = width == null || height == null
-    //     ? const Size(640, 360)
-    //     : Size(
-    //         width.toDouble(),
-    //         width * (9 / 16),
-    // );
-
     mkVideoController = VideoController.create(
       mkPlayer.handle,
-      // height: finalSize.height.toInt(),
-      // width: finalSize.width.toInt(),
-      // width: width,
-      // height: height,
       width: 640,
       height: 360,
     );
@@ -157,19 +146,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
 
   @override
-  bool get isBuffering => mkPlayer.state.isBuffering;
+  bool get isBuffering => mkPlayer.state.buffering;
 
   @override
   bool get isSeekable => true;
 
   @override
-  Stream<bool> get onBufferStateUpdate => mkPlayer.streams.isBuffering;
+  Stream<bool> get onBufferStateUpdate => mkPlayer.streams.buffering;
 
   @override
-  bool get isPlaying => mkPlayer.state.isPlaying;
+  bool get isPlaying => mkPlayer.state.playing;
 
   @override
-  Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.isPlaying;
+  Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.playing;
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
@@ -195,13 +184,15 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   // Volume in media kit goes from 0 to 100
   @override
-  Future<void> setVolume(double volume) async => mkPlayer.volume = volume * 100;
+  Future<void> setVolume(double volume) async =>
+      mkPlayer.setVolume(volume * 100);
 
   @override
   Future<double> get volume async => mkPlayer.state.volume / 100;
 
   @override
-  Future<void> setSpeed(double speed) async => mkPlayer.rate = speed;
+  Future<void> setSpeed(double speed) async => mkPlayer.setRate(speed);
+
   @override
   Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 

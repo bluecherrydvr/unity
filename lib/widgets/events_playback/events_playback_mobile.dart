@@ -110,7 +110,7 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
                         children: [
                           Container(
                             color: color,
-                            alignment: Alignment.center,
+                            alignment: AlignmentDirectional.center,
                             padding: const EdgeInsets.all(12.0),
                             child: AutoSizeText(
                               AppLocalizations.of(context).noRecords,

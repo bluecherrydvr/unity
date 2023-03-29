@@ -86,6 +86,13 @@ class EventsScreenDesktop extends StatelessWidget {
       }
     }).toList();
 
+    if (events.isEmpty) {
+      return Text(
+        AppLocalizations.of(context).noEventsFound,
+        textAlign: TextAlign.center,
+      );
+    }
+
     return SingleChildScrollView(
       child: SizedBox(
         width: double.infinity,
@@ -133,7 +140,7 @@ class EventsScreenDesktop extends StatelessWidget {
                 DataCell(Container(
                   width: 40.0,
                   height: 40.0,
-                  alignment: Alignment.center,
+                  alignment: AlignmentDirectional.center,
                   child: DownloadIndicator(event: event),
                 )),
                 // server

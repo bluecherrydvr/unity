@@ -30,12 +30,12 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 /// Notification buttons are not translated.
 final snooze15ButtonLabel =
@@ -49,7 +49,7 @@ final snooze60ButtonLabel = Platform.isIOS ? 'Snooze for 1 hour' : '1 hour';
 Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await Hive.initFlutter();
+  await configureStorage();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
@@ -184,7 +184,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   await Future.delayed(const Duration(seconds: 1));
   await Firebase.initializeApp();
   HttpOverrides.global = DevHttpOverrides();
-  await Hive.initFlutter();
+  await configureStorage();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
   debugPrint(action.toString());
@@ -434,11 +434,7 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.onTokenRefresh.listen(
       (token) async {
         debugPrint('[FirebaseMessaging.instance.onTokenRefresh]: $token');
-        final hive = await Hive.openBox('hive');
-        await hive.put(
-          kHiveNotificationToken,
-          token,
-        );
+        storage.add({kHiveNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
             await API.instance.checkServerCredentials(server),
@@ -452,15 +448,12 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.getToken().then((token) async {
       debugPrint('[FirebaseMessaging.instance.getToken]: $token');
       if (token != null) {
-        final hive = await Hive.openBox('hive');
+        final data = await storage.read() as Map;
         // Do not proceed, if token is already saved.
-        if (hive.get(kHiveNotificationToken) == token) {
+        if (data[kHiveNotificationToken] == token) {
           return;
         }
-        await hive.put(
-          kHiveNotificationToken,
-          token,
-        );
+        await storage.add({kHiveNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
             await API.instance.checkServerCredentials(server),

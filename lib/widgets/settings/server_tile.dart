@@ -22,28 +22,21 @@ part of 'settings.dart';
 typedef OnRemoveServer = void Function(BuildContext, Server);
 
 class ServersList extends StatelessWidget {
-  final ChangeTabCallback changeCurrentTab;
-
-  const ServersList({
-    Key? key,
-    required this.changeCurrentTab,
-  }) : super(key: key);
+  const ServersList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, consts) {
-      final theme = Theme.of(context);
-      final serversProvider = context.watch<ServersProvider>();
+    final theme = Theme.of(context);
+    final home = context.watch<HomeProvider>();
+    final serversProvider = context.watch<ServersProvider>();
 
+    return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= 800) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Wrap(children: [
             ...serversProvider.servers.map((server) {
-              return ServerCard(
-                server: server,
-                onRemoveServer: onRemoveServer,
-              );
+              return ServerCard(server: server, onRemoveServer: onRemoveServer);
             }),
             SizedBox(
               height: 180,
@@ -51,10 +44,7 @@ class ServersList extends StatelessWidget {
               child: Card(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8.0),
-                  onTap: () {
-                    // Go to the "Add Server" tab.
-                    changeCurrentTab.call(UnityTab.addServer.index);
-                  },
+                  onTap: () => home.setTab(UnityTab.addServer.index, context),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -81,34 +71,30 @@ class ServersList extends StatelessWidget {
           ]),
         );
       } else {
-        return Column(
-          children: [
-            ...serversProvider.servers.map((server) {
-              return ServerTile(
-                server: server,
-                onRemoveServer: onRemoveServer,
-              );
-            }),
-            ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Theme.of(context).iconTheme.color,
-                child: const Icon(Icons.add),
-              ),
-              title: Text(AppLocalizations.of(context).addNewServer),
-              onTap: () {
-                changeCurrentTab(UnityTab.addServer.index);
-              },
+        return Column(children: [
+          ...serversProvider.servers.map((server) {
+            return ServerTile(
+              server: server,
+              onRemoveServer: onRemoveServer,
+            );
+          }),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Theme.of(context).iconTheme.color,
+              child: const Icon(Icons.add),
             ),
-            const Padding(
-              padding: EdgeInsetsDirectional.only(top: 8.0),
-              child: Divider(
-                height: 1.0,
-                thickness: 1.0,
-              ),
+            title: Text(AppLocalizations.of(context).addNewServer),
+            onTap: () => home.setTab(UnityTab.addServer.index, context),
+          ),
+          const Padding(
+            padding: EdgeInsetsDirectional.only(top: 8.0),
+            child: Divider(
+              height: 1.0,
+              thickness: 1.0,
             ),
-          ],
-        );
+          ),
+        ]);
       }
     });
   }

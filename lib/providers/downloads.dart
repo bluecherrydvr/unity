@@ -24,10 +24,9 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
 
 class DownloadedEvent {
@@ -105,8 +104,8 @@ class DownloadsManager extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('hive');
-    if (!hive.containsKey(kHiveDownloads)) {
+    final data = await downloads.read() as Map;
+    if (!data.containsKey(kHiveDownloads)) {
       await _save();
     } else {
       await _restore();
@@ -115,26 +114,22 @@ class DownloadsManager extends ChangeNotifier {
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
-  Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
+  Future<void> _save({bool notify = true}) async {
+    await downloads.write({
+      kHiveDownloads:
+          jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
+    });
 
-    await instance.put(
-      kHiveDownloads,
-      jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
-    );
-
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    if (notify) notifyListeners();
   }
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
+    final data = await downloads.read() as Map;
 
     downloadedEvents = ((await compute(
               jsonDecode,
-              instance.get(kHiveDownloads) as String,
+              data[kHiveDownloads] as String,
             ) ??
             []) as List)
         .cast<Map>()

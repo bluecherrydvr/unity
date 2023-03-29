@@ -145,7 +145,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     child: Container(
                       height: 40.0,
                       width: 40.0,
-                      alignment: Alignment.center,
+                      alignment: AlignmentDirectional.center,
                       child: Icon(
                         Icons.arrow_back,
                         size: 20.0,
@@ -217,7 +217,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
             ),
             if (!canPop && widget.showNavigator)
               Padding(
-                padding: const EdgeInsets.only(top: 4.0),
+                padding: const EdgeInsetsDirectional.only(top: 4.0),
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ...navData.map((data) {

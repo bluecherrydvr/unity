@@ -347,7 +347,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                 return const SizedBox.shrink();
                               }
                               return Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
+                                padding:
+                                    const EdgeInsetsDirectional.only(top: 6.0),
                                 child: EventTile(
                                   event: event,
                                   onPlay: () => setEvent(event),

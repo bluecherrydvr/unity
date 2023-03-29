@@ -32,7 +32,8 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ui.window.platformBrightness == ui.Brightness.dark;
+    final isDark =
+        ui.PlatformDispatcher.instance.platformBrightness == ui.Brightness.dark;
     final theme = createTheme(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
     );

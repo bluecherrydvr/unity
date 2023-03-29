@@ -50,9 +50,11 @@ class DateFormatSection extends StatelessWidget {
                   settings.dateFormat = DateFormat(format, 'en_US');
                 },
                 controlAffinity: ListTileControlAffinity.trailing,
-                title: Text(
+                title: AutoSizeText(
                   DateFormat(format, 'en_US')
                       .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                  maxLines: 1,
+                  softWrap: false,
                 ),
               ),
             );

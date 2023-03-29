@@ -30,6 +30,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -43,8 +44,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -65,11 +64,10 @@ Future<void> main(List<String> args) async {
   HttpOverrides.global = DevHttpOverrides();
 
   await UnityVideoPlayerInterface.instance.initialize();
-  final hivePath = (await getApplicationSupportDirectory()).path;
+  await configureStorage();
 
   if (isDesktop && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
-    await Hive.initFlutter(hivePath);
 
     final device = Device.fromJson(json.decode(args[0]));
     final mode = ThemeMode.values[int.tryParse(args[1]) ?? 0];
@@ -107,17 +105,13 @@ Future<void> main(List<String> args) async {
   // We use [Future.wait] to decrease startup time.
   //
   // With it, all these functions will be running at the same time.
-  await Future.wait([
-    if (isDesktop) configureWindow(),
-    Hive.initFlutter(hivePath),
-  ]);
-
   debugPrint(
       'Video Playback\$${UnityVideoPlayerInterface.instance.runtimeType}');
 
   // settings provider needs to be initalized alone
   await SettingsProvider.ensureInitialized();
   await Future.wait([
+    if (isDesktop) configureWindow(),
     MobileViewProvider.ensureInitialized(),
     DesktopViewProvider.ensureInitialized(),
     ServersProvider.ensureInitialized(),

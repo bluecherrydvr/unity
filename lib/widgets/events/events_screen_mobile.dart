@@ -73,15 +73,7 @@ class EventsScreenMobile extends StatelessWidget {
                             ),
                 ),
                 trailing: server.online ? null : const SizedBox.shrink(),
-                title: Row(children: [
-                  Expanded(child: Text(server.name)),
-                  if (isDesktop)
-                    IconButton(
-                      onPressed: refresh,
-                      tooltip: loc.refresh,
-                      icon: const Icon(Icons.refresh),
-                    ),
-                ]),
+                title: Text(server.name),
                 subtitle: !server.online
                     ? Text(
                         loc.offline,
@@ -100,15 +92,17 @@ class EventsScreenMobile extends StatelessWidget {
                               start: 70.0,
                               end: 16.0,
                             ),
-                            onTap: () async {
-                              await Navigator.of(context).pushNamed(
-                                '/events',
-                                arguments: {
-                                  'event': event,
-                                  'upcoming': events[server],
-                                },
-                              );
-                            },
+                            onTap: event.mediaURL == null
+                                ? null
+                                : () async {
+                                    await Navigator.of(context).pushNamed(
+                                      '/events',
+                                      arguments: {
+                                        'event': event,
+                                        'upcoming': events[server],
+                                      },
+                                    );
+                                  },
                             title: Text(event.deviceName),
                             isThreeLine: true,
                             subtitle: Text(
@@ -119,13 +113,6 @@ class EventsScreenMobile extends StatelessWidget {
                               ].join('\n'),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            // leading: CircleAvatar(
-                            //   backgroundColor: Colors.transparent,
-                            //   child: Icon(
-                            //     Icons.warning,
-                            //     color: Colors.amber.shade300,
-                            //   ),
-                            // ),
                           );
                         }).toList() ??
                         [

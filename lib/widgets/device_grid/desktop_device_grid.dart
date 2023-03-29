@@ -244,7 +244,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
-          debugPrint(controller.dataSource);
+          // debugPrint(controller.dataSource);
           return DesktopTileViewport(
             controller: controller,
             device: widget.device,
@@ -377,7 +377,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             Container(
               height: 48.0,
               padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
-                const EdgeInsets.only(top: 8.0),
+                const EdgeInsetsDirectional.only(top: 8.0),
               ),
               alignment: AlignmentDirectional.centerStart,
               child: Row(children: [
@@ -417,7 +417,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             curve: Curves.easeInOut,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12.0)
-                  .add(const EdgeInsets.only(bottom: 4.0)),
+                  .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

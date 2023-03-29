@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -41,12 +42,7 @@ part 'server_tile.dart';
 typedef ChangeTabCallback = void Function(int tab);
 
 class Settings extends StatefulWidget {
-  final ChangeTabCallback changeCurrentTab;
-
-  const Settings({
-    Key? key,
-    required this.changeCurrentTab,
-  }) : super(key: key);
+  const Settings({Key? key}) : super(key: key);
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -90,9 +86,7 @@ class _SettingsState extends State<Settings> {
               SliverToBoxAdapter(
                 child: SubHeader(AppLocalizations.of(context).servers),
               ),
-              SliverToBoxAdapter(
-                child: ServersList(changeCurrentTab: widget.changeCurrentTab),
-              ),
+              const SliverToBoxAdapter(child: ServersList()),
               SliverToBoxAdapter(
                 child: SubHeader(AppLocalizations.of(context).theme),
               ),

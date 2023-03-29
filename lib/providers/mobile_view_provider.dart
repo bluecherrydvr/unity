@@ -22,8 +22,8 @@ import 'dart:convert';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
@@ -87,8 +87,8 @@ class MobileViewProvider extends ChangeNotifier {
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
-    final hive = await Hive.openBox('hive');
-    if (!hive.containsKey(kHiveMobileView)) {
+    final data = await mobileView.read() as Map;
+    if (!data.containsKey(kHiveMobileView)) {
       await _save();
     } else {
       await _restore();
@@ -215,7 +215,6 @@ class MobileViewProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
     final data = devices.map(
       (key, value) => MapEntry(
         key.toString(),
@@ -223,14 +222,11 @@ class MobileViewProvider extends ChangeNotifier {
       ),
     );
     debugPrint(data.toString());
-    await instance.put(
-      kHiveMobileView,
-      jsonEncode(data),
-    );
-    await instance.put(
-      kHiveMobileViewTab,
-      tab,
-    );
+    await mobileView.write({
+      kHiveMobileView: jsonEncode(data),
+      kHiveMobileViewTab: tab,
+    });
+
     if (notifyListeners) {
       this.notifyListeners();
     }
@@ -238,22 +234,21 @@ class MobileViewProvider extends ChangeNotifier {
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
-    final instance = await Hive.openBox('hive');
-    devices = (await compute(
-      jsonDecode,
-      instance.get(kHiveMobileView) as String,
-    ))
-        .map(
-          (key, value) => MapEntry<int, List<Device?>>(
-            int.parse(key),
-            value
-                .map((e) => e == null ? null : Device.fromJson(e))
-                .toList()
-                .cast<Device?>(),
-          ),
-        )
-        .cast<int, List<Device?>>();
-    tab = instance.get(kHiveMobileViewTab)!;
+    final data = await mobileView.read() as Map;
+    devices =
+        ((await compute(jsonDecode, data[kHiveMobileView] as String)) as Map)
+            .map(
+              (key, value) => MapEntry<int, List<Device?>>(
+                int.parse(key),
+                value
+                    .map((e) => e == null ? null : Device.fromJson(e))
+                    .toList()
+                    .cast<Device?>(),
+              ),
+            )
+            .cast<int, List<Device?>>();
+
+    tab = data[kHiveMobileViewTab]!;
     if (notifyListeners) {
       this.notifyListeners();
     }

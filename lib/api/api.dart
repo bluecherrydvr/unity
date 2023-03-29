@@ -100,7 +100,7 @@ class API {
           if (server.cookie != null) 'Cookie': server.cookie!,
         },
       );
-      debugPrint(response.body);
+      // debugPrint(response.body);
       final parser = Xml2Json()..parse(response.body);
       final devices =
           (await compute(jsonDecode, parser.toParker()))['devices']['device']

@@ -146,7 +146,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
-      - run: cp /build/linux/x64/release/bundle/unity bluecherry_unity.exe
+      - run: cp /build/linux/x64/release/bundle/bluecherry_client bluecherry_dvr_linux
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts

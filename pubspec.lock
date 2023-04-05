@@ -395,8 +395,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "0.0.1"
@@ -404,17 +404,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_linux
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      url: "https://github.com/alexmercerind/media_kit.git"
-    source: git
-    version: "1.0.0"
-  media_kit_libs_macos_video:
-    dependency: transitive
-    description:
-      path: media_kit_libs_macos_video
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -422,8 +413,8 @@ packages:
     dependency: transitive
     description:
       path: media_kit_libs_windows_video
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.0"
@@ -431,20 +422,20 @@ packages:
     dependency: transitive
     description:
       path: media_kit_native_event_loop
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.1"
+    version: "1.0.0"
   media_kit_video:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
-      resolved-ref: "03d8a702d5c0600e94548fd68a6b71c1485a0e49"
+      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "0.0.2"
+    version: "0.0.1"
   meta:
     dependency: transitive
     description:
@@ -638,7 +629,7 @@ packages:
     source: hosted
     version: "0.6.0"
   safe_local_storage:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: safe_local_storage
       sha256: "7ca14be87040e6badfcdb9c71e963846c4e7d827dbc9f62cab7496497352f8d8"

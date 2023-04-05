@@ -17,7 +17,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           cache: true
       # TODO: Signing Android application.
       # - name: Create Key Store
@@ -67,7 +67,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           architecture: x64
           
       - run: flutter gen-l10n
@@ -99,7 +99,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           cache: true
       - run: git config --system core.longpaths true
       - run: flutter gen-l10n
@@ -140,7 +140,7 @@ jobs:
       - run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           cache: true
       - run: flutter gen-l10n
       - run: flutter pub get

@@ -17,33 +17,28 @@ dependencies:
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit/
   media_kit_native_event_loop:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_native_event_loop/
   media_kit_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_video/
   media_kit_libs_windows_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_libs_windows_video/
   media_kit_libs_linux:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
+      ref: 618d78e495b5809191e23966c4932fb02a425ef3
       path: media_kit_libs_linux/
-  media_kit_libs_macos_video:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 03d8a702d5c0600e94548fd68a6b71c1485a0e49
-      path: media_kit_libs_macos_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
 

@@ -80,7 +80,7 @@ class API {
   /// Gets [Device] devices present on the [server] after login.
   /// Returns `true` if it is a success or `false` if it failed.
   /// The found [Device] devices are saved in [Server.devices].
-  Future<List<Device>?> getDevices(Server server) async {
+  Future<Iterable<Device>?> getDevices(Server server) async {
     if (!server.online) {
       debugPrint('Can not get devices of an offline server: $server');
       return [];
@@ -102,22 +102,23 @@ class API {
       );
       // debugPrint(response.body);
       final parser = Xml2Json()..parse(response.body);
-      final devices =
-          (await compute(jsonDecode, parser.toParker()))['devices']['device']
-              .map(
-                (e) => Device(
-                  e['device_name'],
-                  'live/${e['id']}',
-                  e['status'] == 'OK',
-                  e['resolutionX'] == null ? null : int.parse(e['resolutionX']),
-                  e['resolutionX'] == null ? null : int.parse(e['resolutionY']),
-                  server,
-                ),
-              )
-              .toList()
-              .cast<Device>()
-            // cause `online` devies to show on top.
-            ..sort((Device a, Device b) => a.status ? 0 : 1);
+      final devicesResult =
+          (await compute(jsonDecode, parser.toParker()))['devices']['device'];
+
+      Iterable<Device> devices;
+      if (devicesResult is List) {
+        devices = devicesResult.cast<Map>().map((device) {
+          // This is reached in the case the server has multiple cameras
+          return Device.fromServerJson(device, server);
+        });
+      } else if (devicesResult is Map) {
+        // This is reached in the case the server only has a single camera
+        devices = [Device.fromServerJson(devicesResult, server)];
+      } else {
+        throw UnsupportedError(
+          'The client could not parse the response from the server: $devicesResult',
+        );
+      }
 
       server.devices
         ..clear()

@@ -48,6 +48,17 @@ class Device {
     this.server,
   );
 
+  factory Device.fromServerJson(Map map, Server server) {
+    return Device(
+      map['device_name'],
+      'live/${map['id']}',
+      map['status'] == 'OK',
+      map['resolutionX'] == null ? null : int.parse(map['resolutionX']),
+      map['resolutionX'] == null ? null : int.parse(map['resolutionY']),
+      server,
+    );
+  }
+
   String get streamURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
 

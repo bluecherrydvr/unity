@@ -31,8 +31,8 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/widgets/device_grid/layout_manager.dart';
-import 'package:bluecherry_client/widgets/device_tile_selector.dart';
+import 'package:bluecherry_client/widgets/device_grid/desktop/layout_manager.dart';
+import 'package:bluecherry_client/widgets/device_grid/mobile/device_view.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -43,9 +43,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-part 'desktop_device_grid.dart';
-part 'desktop_sidebar.dart';
-part 'mobile_device_grid.dart';
+part 'desktop/desktop_device_grid.dart';
+part 'desktop/desktop_sidebar.dart';
+part 'mobile/mobile_device_grid.dart';
 
 const double kMobileBottomBarHeight = 48.0;
 

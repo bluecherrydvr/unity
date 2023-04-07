@@ -29,6 +29,7 @@ import 'package:bluecherry_client/providers/downloads.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
@@ -124,7 +125,7 @@ class _EventsScreenState extends State<EventsScreen> {
           }
 
           return LayoutBuilder(builder: (context, consts) {
-            if (hasDrawer || consts.maxWidth < 800) {
+            if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
               return EventsScreenMobile(
                 events: events,
                 refresh: fetch,

@@ -26,6 +26,7 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -61,7 +62,7 @@ class DeviceGrid extends StatelessWidget {
       child: LayoutBuilder(builder: (context, consts) {
         final width = consts.biggest.width;
 
-        if (hasDrawer || width < 800) {
+        if (hasDrawer || width < kMobileBreakpoint.width) {
           return const MobileDeviceGrid();
         } else {
           return DesktopDeviceGrid(width: width);

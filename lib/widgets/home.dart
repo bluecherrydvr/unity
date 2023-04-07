@@ -121,7 +121,7 @@ class _MobileHomeState extends State<Home> {
       ///
       /// When a navigation item is added, for example, these breakpoints need to be updated
       /// in order to delight a good user experience
-      final isWide = constraints.biggest.width > 640;
+      final isWide = constraints.biggest.width > 700;
       final isTall = constraints.biggest.height > 440;
       final showNavigationRail = isWide && isTall && !isDesktop;
 

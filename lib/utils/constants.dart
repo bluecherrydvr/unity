@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:ui' show Size;
+
 import 'package:uuid/uuid.dart';
 
 /// Default port used in Bluecherry DVR server.
@@ -61,3 +63,6 @@ const kCycleTogglePeriod = Duration(seconds: 5);
 
 /// Uuid generator
 const uuid = Uuid();
+
+/// If the screen size is smaller or equal to this, a mobile view shall be used
+const kMobileBreakpoint = Size(900, 500);

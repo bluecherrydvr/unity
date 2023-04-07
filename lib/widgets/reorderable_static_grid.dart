@@ -106,6 +106,7 @@ class StaticGridState extends State<StaticGrid> {
       child: LayoutBuilder(builder: (context, constraints) {
         final width = (constraints.biggest.width / widget.crossAxisCount) -
             widget.mainAxisSpacing;
+
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ReorderableWrap(

@@ -22,6 +22,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
@@ -263,7 +264,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     final hasDrawer = Scaffold.hasDrawer(context);
 
     return LayoutBuilder(builder: (context, constraints) {
-      if (hasDrawer || constraints.maxWidth < 800) {
+      print(constraints.maxWidth);
+      if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
         return EventsPlaybackMobile(
           events: filteredData,
           filter: filterData,

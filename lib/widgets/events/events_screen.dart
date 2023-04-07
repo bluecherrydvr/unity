@@ -134,7 +134,7 @@ class _EventsScreenState extends State<EventsScreen> {
               );
             }
 
-            return Row(children: [
+            return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               SizedBox(
                 width: 220,
                 child: Card(

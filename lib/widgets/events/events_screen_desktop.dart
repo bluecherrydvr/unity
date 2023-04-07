@@ -94,7 +94,7 @@ class EventsScreenDesktop extends StatelessWidget {
     }
 
     return SingleChildScrollView(
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
         child: DataTable(
           horizontalMargin: 20.0,

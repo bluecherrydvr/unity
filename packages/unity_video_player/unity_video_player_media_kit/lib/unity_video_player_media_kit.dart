@@ -26,21 +26,27 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
+    UnityVideoBuilder? videoBuilder,
     Color color = const Color(0xFF000000),
   }) {
+    videoBuilder ??= (context, video) => video;
+
     return Builder(builder: (context) {
       return Stack(children: [
         Positioned.fill(
-          child: _MKVideo(
-            key: ValueKey(player),
-            player: (player as UnityVideoPlayerMediaKit).mkPlayer,
-            videoController: player.mkVideoController,
-            color: color,
-            fit: {
-              UnityVideoFit.contain: BoxFit.contain,
-              UnityVideoFit.cover: BoxFit.cover,
-              UnityVideoFit.fill: BoxFit.fill,
-            }[fit]!,
+          child: videoBuilder!(
+            context,
+            _MKVideo(
+              key: ValueKey(player),
+              player: (player as UnityVideoPlayerMediaKit).mkPlayer,
+              videoController: player.mkVideoController,
+              color: color,
+              fit: {
+                UnityVideoFit.contain: BoxFit.contain,
+                UnityVideoFit.cover: BoxFit.cover,
+                UnityVideoFit.fill: BoxFit.fill,
+              }[fit]!,
+            ),
           ),
         ),
         if (paneBuilder != null)

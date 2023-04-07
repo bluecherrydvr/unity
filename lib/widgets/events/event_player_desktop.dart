@@ -167,22 +167,24 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                 Expanded(
                   child: Column(children: [
                     Expanded(
-                      child: UnityVideoView(
-                        player: videoController,
-                        paneBuilder: (context, controller) {
-                          if (controller.error != null) {
-                            return ErrorWarning(message: controller.error!);
-                          } else if (!controller.isSeekable) {
-                            return const Center(
-                              child: CircularProgressIndicator.adaptive(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            );
-                          }
+                      child: InteractiveViewer(
+                        child: UnityVideoView(
+                          player: videoController,
+                          paneBuilder: (context, controller) {
+                            if (controller.error != null) {
+                              return ErrorWarning(message: controller.error!);
+                            } else if (!controller.isSeekable) {
+                              return const Center(
+                                child: CircularProgressIndicator.adaptive(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              );
+                            }
 
-                          return const SizedBox.shrink();
-                        },
+                            return const SizedBox.shrink();
+                          },
+                        ),
                       ),
                     ),
                     Row(children: [

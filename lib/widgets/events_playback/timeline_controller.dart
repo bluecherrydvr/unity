@@ -848,6 +848,7 @@ class TimelineController extends ChangeNotifier {
     if (!context.mounted || allEvents.isEmpty) {
       HomeProvider.instance.notLoading(
         UnityLoadingReason.fetchingEventsPlaybackPeriods,
+        notify: false,
       );
       return;
     }

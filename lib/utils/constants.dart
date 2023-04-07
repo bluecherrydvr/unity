@@ -65,4 +65,4 @@ const kCycleTogglePeriod = Duration(seconds: 5);
 const uuid = Uuid();
 
 /// If the screen size is smaller or equal to this, a mobile view shall be used
-const kMobileBreakpoint = Size(900, 500);
+const kMobileBreakpoint = Size(800, 500);

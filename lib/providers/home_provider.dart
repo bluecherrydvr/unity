@@ -165,9 +165,9 @@ class HomeProvider extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  void notLoading(UnityLoadingReason reason) {
+  void notLoading(UnityLoadingReason reason, {bool notify = true}) {
     loadReasons.remove(reason);
 
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 }

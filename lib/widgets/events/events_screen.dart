@@ -109,8 +109,10 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasDrawer = Scaffold.hasDrawer(context);
+
     return Column(children: [
-      if (isMobile && Scaffold.hasDrawer(context))
+      if (hasDrawer)
         AppBar(
           leading: MaybeUnityDrawerButton(context),
           title: Text(AppLocalizations.of(context).eventBrowser),
@@ -122,85 +124,7 @@ class _EventsScreenState extends State<EventsScreen> {
           }
 
           return LayoutBuilder(builder: (context, consts) {
-            if (consts.maxWidth >= 800) {
-              return Row(children: [
-                SizedBox(
-                  width: 220,
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    shape: const RoundedRectangleBorder(),
-                    child: DropdownButtonHideUnderline(
-                      child: Column(children: [
-                        SubHeader(AppLocalizations.of(context).servers),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: buildTreeView(context),
-                          ),
-                        ),
-                        DropdownButton<EventsTimeFilter>(
-                          isExpanded: true,
-                          value: timeFilter,
-                          items: const [
-                            DropdownMenuItem(
-                              value: EventsTimeFilter.any,
-                              child: Text('Any'),
-                            ),
-                            DropdownMenuItem(
-                              value: EventsTimeFilter.lastHour,
-                              child: Text('Last hour'),
-                            ),
-                            DropdownMenuItem(
-                              value: EventsTimeFilter.last6Hours,
-                              child: Text('Last 6 hours'),
-                            ),
-                            DropdownMenuItem(
-                              value: EventsTimeFilter.last12Hours,
-                              child: Text('Last 12 hours'),
-                            ),
-                            DropdownMenuItem(
-                              value: EventsTimeFilter.last24Hours,
-                              child: Text('Last 24 hours'),
-                            ),
-                            // DropdownMenuItem(
-                            //   child: Text('Select time range'),
-                            //   value: EventsTimeFilter.custom,
-                            // ),
-                          ],
-                          onChanged: (v) => setState(
-                            () => timeFilter = v ?? timeFilter,
-                          ),
-                        ),
-                        const SubHeader('Minimum level'),
-                        DropdownButton<EventsMinLevelFilter>(
-                          isExpanded: true,
-                          value: levelFilter,
-                          items: EventsMinLevelFilter.values.map((level) {
-                            return DropdownMenuItem(
-                              value: level,
-                              child: Text(level.name.uppercaseFirst()),
-                            );
-                          }).toList(),
-                          onChanged: (v) => setState(
-                            () => levelFilter = v ?? levelFilter,
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                      ]),
-                    ),
-                  ),
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(
-                  child: EventsScreenDesktop(
-                    events: events,
-                    allowedServers: allowedServers,
-                    disabledDevices: disabledDevices,
-                    timeFilter: timeFilter,
-                    levelFilter: levelFilter,
-                  ),
-                ),
-              ]);
-            } else {
+            if (hasDrawer || consts.maxWidth < 800) {
               return EventsScreenMobile(
                 events: events,
                 refresh: fetch,
@@ -208,6 +132,84 @@ class _EventsScreenState extends State<EventsScreen> {
                 invalid: invalid,
               );
             }
+
+            return Row(children: [
+              SizedBox(
+                width: 220,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  shape: const RoundedRectangleBorder(),
+                  child: DropdownButtonHideUnderline(
+                    child: Column(children: [
+                      SubHeader(AppLocalizations.of(context).servers),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: buildTreeView(context),
+                        ),
+                      ),
+                      DropdownButton<EventsTimeFilter>(
+                        isExpanded: true,
+                        value: timeFilter,
+                        items: const [
+                          DropdownMenuItem(
+                            value: EventsTimeFilter.any,
+                            child: Text('Any'),
+                          ),
+                          DropdownMenuItem(
+                            value: EventsTimeFilter.lastHour,
+                            child: Text('Last hour'),
+                          ),
+                          DropdownMenuItem(
+                            value: EventsTimeFilter.last6Hours,
+                            child: Text('Last 6 hours'),
+                          ),
+                          DropdownMenuItem(
+                            value: EventsTimeFilter.last12Hours,
+                            child: Text('Last 12 hours'),
+                          ),
+                          DropdownMenuItem(
+                            value: EventsTimeFilter.last24Hours,
+                            child: Text('Last 24 hours'),
+                          ),
+                          // DropdownMenuItem(
+                          //   child: Text('Select time range'),
+                          //   value: EventsTimeFilter.custom,
+                          // ),
+                        ],
+                        onChanged: (v) => setState(
+                          () => timeFilter = v ?? timeFilter,
+                        ),
+                      ),
+                      const SubHeader('Minimum level'),
+                      DropdownButton<EventsMinLevelFilter>(
+                        isExpanded: true,
+                        value: levelFilter,
+                        items: EventsMinLevelFilter.values.map((level) {
+                          return DropdownMenuItem(
+                            value: level,
+                            child: Text(level.name.uppercaseFirst()),
+                          );
+                        }).toList(),
+                        onChanged: (v) => setState(
+                          () => levelFilter = v ?? levelFilter,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                    ]),
+                  ),
+                ),
+              ),
+              const VerticalDivider(width: 1),
+              Expanded(
+                child: EventsScreenDesktop(
+                  events: events,
+                  allowedServers: allowedServers,
+                  disabledDevices: disabledDevices,
+                  timeFilter: timeFilter,
+                  levelFilter: levelFilter,
+                ),
+              ),
+            ]);
           });
         }(),
       ),

@@ -54,15 +54,17 @@ class DeviceGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasDrawer = Scaffold.hasDrawer(context);
+
     return Material(
       type: MaterialType.transparency,
       child: LayoutBuilder(builder: (context, consts) {
         final width = consts.biggest.width;
 
-        if (width >= 800) {
-          return DesktopDeviceGrid(width: width);
-        } else {
+        if (hasDrawer || width < 800) {
           return const MobileDeviceGrid();
+        } else {
+          return DesktopDeviceGrid(width: width);
         }
       }),
     );

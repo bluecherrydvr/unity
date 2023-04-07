@@ -260,15 +260,17 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
     }
 
+    final hasDrawer = Scaffold.hasDrawer(context);
+
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth >= 800) {
-        return EventsPlaybackDesktop(
+      if (hasDrawer || constraints.maxWidth < 800) {
+        return EventsPlaybackMobile(
           events: filteredData,
           filter: filterData,
           onFilter: onFilter,
         );
       } else {
-        return EventsPlaybackMobile(
+        return EventsPlaybackDesktop(
           events: filteredData,
           filter: filterData,
           onFilter: onFilter,

@@ -264,7 +264,6 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     final hasDrawer = Scaffold.hasDrawer(context);
 
     return LayoutBuilder(builder: (context, constraints) {
-      print(constraints.maxWidth);
       if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
         return EventsPlaybackMobile(
           events: filteredData,

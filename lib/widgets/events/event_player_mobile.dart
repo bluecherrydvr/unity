@@ -221,8 +221,7 @@ class _VideoViewportState extends State<VideoViewport> {
           left: 0,
           right: 0,
           top: MediaQuery.paddingOf(context).top,
-          child: MediaQuery.removeViewPadding(
-            context: context,
+          child: SafeArea(
             child: Row(children: [
               const BackButton(),
               Expanded(
@@ -230,6 +229,7 @@ class _VideoViewportState extends State<VideoViewport> {
                   '${widget.event.deviceName} (${widget.event.server.name})',
                 ),
               ),
+              DownloadIndicator(event: widget.event),
             ]),
           ),
         ),

@@ -44,7 +44,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
 
     return Column(children: [
       showIf(
-            isMobile,
+            Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(AppLocalizations.of(context).directCamera),

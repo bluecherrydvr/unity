@@ -629,7 +629,7 @@ packages:
     source: hosted
     version: "0.6.0"
   safe_local_storage:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: safe_local_storage
       sha256: "7ca14be87040e6badfcdb9c71e963846c4e7d827dbc9f62cab7496497352f8d8"

@@ -40,13 +40,14 @@ class EventsScreenMobile extends StatelessWidget {
     return Material(
       child: RefreshIndicator(
         onRefresh: refresh,
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
         child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
           itemCount: servers.servers.length,
           itemBuilder: (context, index) {
             final server = servers.servers[index];
             final hasEvents =
                 events.containsKey(server) && events[server]!.isNotEmpty;
+
             return IgnorePointer(
               ignoring: !server.online || !hasEvents,
               child: ExpansionTile(

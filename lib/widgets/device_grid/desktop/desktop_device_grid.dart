@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-part of 'device_grid.dart';
+part of '../device_grid.dart';
 
 typedef FoldedDevices = List<List<Device>>;
 

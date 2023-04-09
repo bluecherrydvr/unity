@@ -31,7 +31,7 @@ class ServersList extends StatelessWidget {
     final serversProvider = context.watch<ServersProvider>();
 
     return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= 800) {
+      if (consts.maxWidth >= kMobileBreakpoint.width) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Wrap(children: [

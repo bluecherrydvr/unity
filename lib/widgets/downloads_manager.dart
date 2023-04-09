@@ -36,17 +36,15 @@ const _kDownloadsManagerPadding = 14.0;
 class DownloadsManagerScreen extends StatelessWidget {
   final int? initiallyExpandedEventId;
 
-  const DownloadsManagerScreen({
-    Key? key,
-    this.initiallyExpandedEventId,
-  }) : super(key: key);
+  const DownloadsManagerScreen({super.key, this.initiallyExpandedEventId});
 
   @override
   Widget build(BuildContext context) {
     final downloads = context.watch<DownloadsManager>();
+
     return Column(children: [
       showIf(
-            isMobile,
+            Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(AppLocalizations.of(context).downloads),

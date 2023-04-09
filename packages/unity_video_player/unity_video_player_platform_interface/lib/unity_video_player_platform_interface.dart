@@ -8,6 +8,11 @@ typedef UnityVideoPaneBuilder = Widget Function(
   UnityVideoPlayer controller,
 )?;
 
+typedef UnityVideoBuilder = Widget Function(
+  BuildContext context,
+  Widget video,
+)?;
+
 enum UnityVideoFit {
   contain,
   fill,
@@ -41,6 +46,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
+    UnityVideoBuilder? videoBuilder,
     Color color = const Color(0xFF000000),
   });
 
@@ -61,12 +67,14 @@ Widget UnityVideoView({
   required UnityVideoPlayer player,
   UnityVideoFit fit = UnityVideoFit.contain,
   UnityVideoPaneBuilder? paneBuilder,
+  UnityVideoBuilder? videoBuilder,
   Color color = const Color(0xFF000000),
 }) {
   return UnityVideoPlayerInterface.instance.createVideoView(
     player: player,
     color: color,
     fit: fit,
+    videoBuilder: videoBuilder,
     paneBuilder: paneBuilder,
   );
 }

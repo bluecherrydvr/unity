@@ -26,20 +26,29 @@ class UnityVideoPlayerMobileInterface extends UnityVideoPlayerInterface {
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
+    UnityVideoBuilder? videoBuilder,
     Color color = const Color(0xFF000000),
   }) {
-    return FijkView(
-      player: (player as UnityVideoPlayerMobile).ijkPlayer,
-      color: color,
-      fit: {
-        UnityVideoFit.contain: FijkFit.contain,
-        UnityVideoFit.fill: FijkFit.fill,
-        UnityVideoFit.cover: FijkFit.cover,
-      }[fit]!,
-      panelBuilder: (p, v, c, s, t) {
-        return paneBuilder?.call(c, player) ?? const SizedBox.shrink();
-      },
-    );
+    videoBuilder ??= (context, video) => video;
+
+    return Builder(builder: (context) {
+      return videoBuilder!(
+        context,
+        FijkView(
+          player: (player as UnityVideoPlayerMobile).ijkPlayer,
+          color: color,
+          fit: {
+            UnityVideoFit.contain: FijkFit.contain,
+            UnityVideoFit.fill: FijkFit.fill,
+            UnityVideoFit.cover: FijkFit.cover,
+          }[fit]!,
+          panelBuilder: (p, v, context, s, t) {
+            return paneBuilder?.call(context, player) ??
+                const SizedBox.shrink();
+          },
+        ),
+      );
+    });
   }
 }
 

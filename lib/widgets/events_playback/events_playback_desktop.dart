@@ -533,6 +533,7 @@ class FilterDialog extends StatelessWidget {
                         initialDate: filter!.from,
                         firstDate: filter!.fromLimit,
                         lastDate: filter!.to,
+                        initialEntryMode: DatePickerEntryMode.calendarOnly,
                       );
 
                       if (date != null) {
@@ -555,6 +556,7 @@ class FilterDialog extends StatelessWidget {
                         initialDate: filter!.to,
                         firstDate: filter!.from,
                         lastDate: filter!.toLimit,
+                        initialEntryMode: DatePickerEntryMode.calendarOnly,
                       );
 
                       if (date != null) {

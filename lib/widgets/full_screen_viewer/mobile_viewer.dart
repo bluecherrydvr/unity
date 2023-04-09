@@ -101,7 +101,8 @@ class _DeviceFullscreenViewerMobileState
                 paneBuilder: (context, controller) {
                   if (controller.error != null) {
                     return ErrorWarning(message: controller.error!);
-                  } else if (controller.isBuffering) {
+                  } else if (controller.isBuffering ||
+                      controller.dataSource == null) {
                     return const Center(
                       child: CircularProgressIndicator.adaptive(
                         valueColor: AlwaysStoppedAnimation(Colors.white),

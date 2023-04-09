@@ -49,7 +49,7 @@ class DeviceFullscreenViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      // if (consts.maxWidth >= 800) {
+      // if (consts.maxWidth >= kMobileBreakpoint.width) {
       //   return DeviceFullscreenViewerDesktop(
       //     device: device,
       //     videoPlayerController: videoPlayerController,

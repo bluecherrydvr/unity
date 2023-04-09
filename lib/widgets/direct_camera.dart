@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -43,7 +44,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
 
     return Column(children: [
       showIf(
-            isMobile,
+            Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(AppLocalizations.of(context).directCamera),
@@ -82,7 +83,7 @@ class _DevicesForServer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
-
+    final hasDrawer = Scaffold.hasDrawer(context);
     final isLoading = servers.isServerLoading(server);
 
     final serverIndicator = SubHeader(
@@ -128,89 +129,89 @@ class _DevicesForServer extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: LayoutBuilder(builder: (context, consts) {
-        if (consts.maxWidth >= 800) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              serverIndicator,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Wrap(
-                  children: devices.map<Widget>((device) {
-                    final foregroundColor = device.status
-                        ? colorFromBrightness(
-                            context,
-                            light: Colors.green.shade400,
-                            dark: Colors.green.shade100,
-                          )
-                        : colorFromBrightness(
-                            context,
-                            light: Colors.red.withOpacity(0.75),
-                            dark: Colors.red.shade400,
-                          );
-
-                    return Card(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10.0),
-                        onTap:
-                            device.status ? () => onTap(context, device) : null,
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            end: 8.0,
-                            // top: 8.0,
-                            // bottom: 8.0,
-                          ),
-                          child: Column(children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: foregroundColor,
-                                  child: const Icon(Icons.camera_alt),
-                                ),
-                                Text(
-                                  device.name,
-                                  style: TextStyle(
-                                    color: foregroundColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ]),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+        if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
+          return Column(children: [
+            SubHeader(server.name),
+            ...devices.map((device) {
+              return ListTile(
+                enabled: device.status,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: device.status
+                      ? Colors.green.shade100
+                      : Theme.of(context).colorScheme.error,
+                  child: const Icon(Icons.camera_alt),
                 ),
-              ),
-            ],
-          );
+                title: Text(
+                  device.name.uppercaseFirst(),
+                ),
+                subtitle: Text([
+                  device.uri,
+                  '${device.resolutionX}x${device.resolutionY}',
+                ].join(' • ')),
+                onTap: () => onTap(context, device),
+              );
+            }),
+          ]);
         }
 
-        return Column(children: [
-          SubHeader(server.name),
-          ...devices.map((device) {
-            return ListTile(
-              enabled: device.status,
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                foregroundColor: device.status
-                    ? Colors.green.shade100
-                    : Theme.of(context).colorScheme.error,
-                child: const Icon(Icons.camera_alt),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            serverIndicator,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Wrap(
+                children: devices.map<Widget>((device) {
+                  final foregroundColor = device.status
+                      ? colorFromBrightness(
+                          context,
+                          light: Colors.green.shade400,
+                          dark: Colors.green.shade100,
+                        )
+                      : colorFromBrightness(
+                          context,
+                          light: Colors.red.withOpacity(0.75),
+                          dark: Colors.red.shade400,
+                        );
+
+                  return Card(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10.0),
+                      onTap:
+                          device.status ? () => onTap(context, device) : null,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 8.0,
+                          // top: 8.0,
+                          // bottom: 8.0,
+                        ),
+                        child: Column(children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: foregroundColor,
+                                child: const Icon(Icons.camera_alt),
+                              ),
+                              Text(
+                                device.name,
+                                style: TextStyle(
+                                  color: foregroundColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ]),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-              title: Text(
-                device.name.uppercaseFirst(),
-              ),
-              subtitle: Text([
-                device.uri,
-                '${device.resolutionX}x${device.resolutionY}',
-              ].join(' • ')),
-              onTap: () => onTap(context, device),
-            );
-          }),
-        ]);
+            ),
+          ],
+        );
       }),
     );
   }

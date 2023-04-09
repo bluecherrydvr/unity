@@ -150,9 +150,7 @@ class HomeProvider extends ChangeNotifier {
         await StatusBarControl.setStyle(
           getStatusBarStyleFromBrightness(theme.brightness),
         );
-        DeviceOrientations.instance.set(
-          DeviceOrientation.values,
-        );
+        DeviceOrientations.instance.set(DeviceOrientation.values);
       }
     }
   }
@@ -165,9 +163,9 @@ class HomeProvider extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  void notLoading(UnityLoadingReason reason) {
+  void notLoading(UnityLoadingReason reason, {bool notify = true}) {
     loadReasons.remove(reason);
 
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 }

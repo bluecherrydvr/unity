@@ -54,6 +54,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   @override
   void initState() {
     super.initState();
+    DeviceOrientations.instance.set([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    HomeProvider.setDefaultStatusBarStyle();
   }
 
   @override
@@ -78,47 +83,41 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
     videoController
       ..release()
       ..dispose();
+    DeviceOrientations.instance.set(DeviceOrientation.values);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showIf(
-        isMobile,
-        child: AppBar(
-          title: Text(
-            '${widget.event.deviceName} (${widget.event.server.name})',
-          ),
-        ),
-      ),
       body: Column(children: [
         const WindowButtons(),
         Expanded(
-          child: Stack(children: [
-            Positioned.fill(
-              child: UnityVideoView(
-                player: videoController,
-                videoBuilder: (context, video) {
-                  return InteractiveViewer(
-                    minScale: 1.0,
-                    maxScale: 4.0,
-                    child: video,
+          child: SafeArea(
+            child: UnityVideoView(
+              player: videoController,
+              videoBuilder: (context, video) {
+                return InteractiveViewer(
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: video,
+                );
+              },
+              paneBuilder: (context, videoController) {
+                if (isDesktop) {
+                  return _DesktopVideoViewport(
+                    event: widget.event,
+                    player: videoController,
                   );
-                },
-                paneBuilder: (context, videoController) {
-                  if (isDesktop) {
-                    return _DesktopVideoViewport(
-                      event: widget.event,
-                      player: videoController,
-                    );
-                  } else {
-                    return VideoViewport(player: videoController);
-                  }
-                },
-              ),
+                } else {
+                  return VideoViewport(
+                    event: widget.event,
+                    player: videoController,
+                  );
+                }
+              },
             ),
-          ]),
+          ),
         ),
       ]),
     );
@@ -127,8 +126,9 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
 class VideoViewport extends StatefulWidget {
   final UnityVideoPlayer player;
+  final Event event;
 
-  const VideoViewport({super.key, required this.player});
+  const VideoViewport({super.key, required this.player, required this.event});
 
   @override
   State<VideoViewport> createState() => _VideoViewportState();
@@ -216,6 +216,23 @@ class _VideoViewportState extends State<VideoViewport> {
         ),
       ),
       if (visible || player.isBuffering) ...[
+        Positioned(
+          height: kToolbarHeight,
+          left: 0,
+          right: 0,
+          top: MediaQuery.paddingOf(context).top,
+          child: MediaQuery.removeViewPadding(
+            context: context,
+            child: Row(children: [
+              const BackButton(),
+              Expanded(
+                child: Text(
+                  '${widget.event.deviceName} (${widget.event.server.name})',
+                ),
+              ),
+            ]),
+          ),
+        ),
         Positioned.fill(
           child: () {
             if (player.error != null) {

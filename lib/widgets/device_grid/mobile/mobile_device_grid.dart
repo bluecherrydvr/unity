@@ -62,7 +62,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
           child: Container(
             height: kMobileBottomBarHeight,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            width: MediaQuery.sizeOf(context).width,
+            width: double.infinity,
             child: Row(children: <Widget>[
               const UnityDrawerButton(
                 iconColor: Colors.white,

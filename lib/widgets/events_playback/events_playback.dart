@@ -28,6 +28,7 @@ import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_mobile.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -246,7 +247,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
     if (servers.servers.isEmpty) {
-      return const NoServerWarning();
+      return const Stack(alignment: Alignment.center, children: [
+        PositionedDirectional(
+          top: 0,
+          start: 0,
+          child: SafeArea(child: UnityDrawerButton()),
+        ),
+        NoServerWarning(),
+      ]);
     }
 
     final home = context.watch<HomeProvider>();

@@ -150,9 +150,7 @@ class HomeProvider extends ChangeNotifier {
         await StatusBarControl.setStyle(
           getStatusBarStyleFromBrightness(theme.brightness),
         );
-        DeviceOrientations.instance.set(
-          DeviceOrientation.values,
-        );
+        DeviceOrientations.instance.set(DeviceOrientation.values);
       }
     }
   }

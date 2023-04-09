@@ -112,55 +112,46 @@ class _AddServerWizardState extends State<AddServerWizard> {
                           padding: const EdgeInsetsDirectional.all(8.0),
                           child: Row(children: [
                             const Spacer(),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  launchUrl(
-                                    Uri.https(
-                                      'www.bluecherrydvr.com',
-                                      '/',
+                            MaterialButton(
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.https(
+                                    'www.bluecherrydvr.com',
+                                    '/',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              },
+                              child: Text(
+                                AppLocalizations.of(context).website,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).website,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                ),
                               ),
                             ),
-                            const SizedBox(width: 16.0),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  launchUrl(
-                                    Uri.https(
-                                      'www.bluecherrydvr.com',
-                                      '/product/v3license/',
+                            MaterialButton(
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.https(
+                                    'www.bluecherrydvr.com',
+                                    '/product/v3license/',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              },
+                              child: Text(
+                                AppLocalizations.of(context).purchase,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).purchase,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                ),
                               ),
                             ),
                           ]),

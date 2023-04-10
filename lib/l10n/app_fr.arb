@@ -39,6 +39,7 @@
       "serverName": {}
     }
   },
+  "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "ok": "OK",
   "removeCamera": "Enlever caméra",

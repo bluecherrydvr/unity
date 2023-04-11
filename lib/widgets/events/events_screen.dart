@@ -143,12 +143,16 @@ class _EventsScreenState extends State<EventsScreen> {
                   shape: const RoundedRectangleBorder(),
                   child: DropdownButtonHideUnderline(
                     child: Column(children: [
-                      SubHeader(AppLocalizations.of(context).servers),
+                      SubHeader(
+                        AppLocalizations.of(context).servers,
+                        height: 40.0,
+                      ),
                       Expanded(
                         child: SingleChildScrollView(
                           child: buildTreeView(context),
                         ),
                       ),
+                      const SubHeader('Time filter', height: 24.0),
                       DropdownButton<EventsTimeFilter>(
                         isExpanded: true,
                         value: timeFilter,
@@ -182,7 +186,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           () => timeFilter = v ?? timeFilter,
                         ),
                       ),
-                      const SubHeader('Minimum level'),
+                      const SubHeader('Minimum level', height: 24.0),
                       DropdownButton<EventsMinLevelFilter>(
                         isExpanded: true,
                         value: levelFilter,

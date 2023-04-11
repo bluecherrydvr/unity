@@ -261,49 +261,50 @@ class ServerCard extends StatelessWidget {
               right: 8.0,
               top: 8.0,
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: theme.iconTheme.color,
-                      child: const Icon(Icons.dns, size: 30.0),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: theme.iconTheme.color,
+                    child: const Icon(Icons.dns, size: 30.0),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    server.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  Text(
+                    !isLoading
+                        ? [
+                            if (server.name != server.ip) server.ip,
+                          ].join()
+                        : loc.gettingDevices,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  Text(
+                    !server.online
+                        ? loc.offline
+                        : !isLoading
+                            ? loc.nDevices(server.devices.length)
+                            : '',
+                    style: TextStyle(
+                      color: !server.online ? theme.colorScheme.error : null,
                     ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      server.name,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 12.0),
+                  Transform.scale(
+                    scale: 0.9,
+                    child: OutlinedButton(
+                      child: Text(loc.disconnectServer),
+                      onPressed: () {
+                        onRemoveServer(context, server);
+                      },
                     ),
-                    Text(
-                      !isLoading
-                          ? [
-                              if (server.name != server.ip) server.ip,
-                            ].join()
-                          : loc.gettingDevices,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    Text(
-                      !server.online
-                          ? loc.offline
-                          : !isLoading
-                              ? loc.nDevices(server.devices.length)
-                              : '',
-                      style: TextStyle(
-                        color: !server.online ? theme.colorScheme.error : null,
-                      ),
-                    ),
-                    const SizedBox(height: 15.0),
-                    Transform.scale(
-                      scale: 0.9,
-                      child: OutlinedButton(
-                        child: Text(loc.disconnectServer),
-                        onPressed: () {
-                          onRemoveServer(context, server);
-                        },
-                      ),
-                    ),
-                  ]),
+                  ),
+                ],
+              ),
             ),
             PositionedDirectional(
               top: 4,

@@ -72,14 +72,13 @@ class _LayoutManagerState extends State<LayoutManager> {
     return SizedBox(
       height: 210.0,
       child: Column(children: [
-        // if (isDesktop) const Divider(height: 1.0),
         Material(
           color: theme.appBarTheme.backgroundColor,
           child: Padding(
             padding: const EdgeInsetsDirectional.only(
               top: 2.0,
               bottom: 2.0,
-              end: 16.0,
+              end: 12.0,
             ),
             child: Row(children: [
               widget.collapseButton,
@@ -175,7 +174,7 @@ class LayoutTile extends StatelessWidget {
         minLeadingWidth: 24.0,
         contentPadding: const EdgeInsetsDirectional.only(
           start: 12.0,
-          end: 16.0,
+          end: 8.0,
         ),
         title: Text(layout.name, maxLines: 1),
         subtitle: Text(

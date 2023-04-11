@@ -165,6 +165,7 @@
   "eventType": "Type d'événement",
   "configureServer": "Configurer le serveur",
   "refreshDevices": "Actualiser les appareils",
+  "refreshServer": "Actualiser le serveur",
   "refresh": "Actualiser",
   "view": "Vue",
   "cycle": "Cycle",

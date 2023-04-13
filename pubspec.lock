@@ -170,15 +170,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  fijkplayer:
-    dependency: "direct overridden"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: ce3f82ca9b5c8e8ace1bf35ef35a6e4e4448f7d9
-      url: "https://github.com/bdlukaa/fijkplayer.git"
-    source: git
-    version: "0.10.1"
   file:
     dependency: transitive
     description:

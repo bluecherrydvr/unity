@@ -225,6 +225,7 @@ class DesktopDeviceTile extends StatefulWidget {
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   UnityVideoPlayer? videoPlayer;
+  Size? size;
 
   @override
   void initState() {
@@ -238,9 +239,17 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height,
-      child: UnityVideoView(
+    return LayoutBuilder(builder: (context, consts) {
+      // TODO(bdlukaa): for some odd reason, this crashes
+      // if (size == null || size != consts.biggest) {
+      //   size = consts.biggest;
+      //   debugPrint('Resizing video controller');
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     videoPlayer!.setSize(size!);
+      //   });
+      // }
+
+      return UnityVideoView(
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
@@ -250,8 +259,8 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
             device: widget.device,
           );
         },
-      ),
-    );
+      );
+    });
   }
 }
 

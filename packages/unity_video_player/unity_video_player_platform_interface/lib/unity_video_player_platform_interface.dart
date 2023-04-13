@@ -127,6 +127,8 @@ abstract class UnityVideoPlayer {
   Future<void> setSpeed(double speed);
   Future<void> seekTo(Duration position);
 
+  Future<void> setSize(Size size);
+
   Future<void> start();
   Future<void> pause();
   Future<void> release();

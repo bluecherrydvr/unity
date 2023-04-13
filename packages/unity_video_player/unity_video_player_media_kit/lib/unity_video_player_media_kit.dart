@@ -114,10 +114,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   Future<void> ensureVideoControllerInitialized(
-    Future<void> Function() cb,
+    Future<void> Function(VideoController controller) cb,
   ) async {
-    await mkVideoController.then((_) async {
-      return await cb();
+    await mkVideoController.then((controller) async {
+      return await cb(controller);
     });
   }
 
@@ -168,7 +168,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
@@ -180,7 +180,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     List<String> url, {
     bool autoPlay = true,
   }) {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
         Playlist(url.map((source) => Media(source)).toList()),
         play: autoPlay,
@@ -202,8 +202,18 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
+  Future<void> setSize(Size size) {
+    return ensureVideoControllerInitialized((controller) async {
+      await controller.setSize(
+        width: size.width.toInt(),
+        height: size.height.toInt(),
+      );
+    });
+  }
+
+  @override
   Future<void> start() {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       mkPlayer.play();
     });
   }

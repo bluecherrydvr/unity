@@ -392,50 +392,77 @@ packages:
     source: hosted
     version: "0.2.0"
   media_kit:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: media_kit
-      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
-      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.4+1"
+  media_kit_libs_android_video:
+    dependency: transitive
+    description:
+      path: media_kit_libs_android_video
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.0"
+  media_kit_libs_ios_video:
+    dependency: transitive
+    description:
+      path: media_kit_libs_ios_video
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.3"
   media_kit_libs_linux:
     dependency: transitive
     description:
       path: media_kit_libs_linux
-      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
-      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.0"
+    version: "1.0.2"
+  media_kit_libs_macos_video:
+    dependency: transitive
+    description:
+      path: media_kit_libs_macos_video
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      url: "https://github.com/alexmercerind/media_kit.git"
+    source: git
+    version: "1.0.3"
   media_kit_libs_windows_video:
     dependency: transitive
     description:
       path: media_kit_libs_windows_video
-      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
-      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.0"
+    version: "1.0.2"
   media_kit_native_event_loop:
     dependency: transitive
     description:
       path: media_kit_native_event_loop
-      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
-      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.0"
+    version: "1.0.2"
   media_kit_video:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "618d78e495b5809191e23966c4932fb02a425ef3"
-      resolved-ref: "618d78e495b5809191e23966c4932fb02a425ef3"
+      ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
+      resolved-ref: "9bb37fcf509e7c71d4dcba696fb1d48bf3308f25"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.4"
   meta:
     dependency: transitive
     description:
@@ -632,10 +659,10 @@ packages:
     dependency: "direct main"
     description:
       name: safe_local_storage
-      sha256: "7ca14be87040e6badfcdb9c71e963846c4e7d827dbc9f62cab7496497352f8d8"
+      sha256: ede4eb6cb7d88a116b3d3bf1df70790b9e2038bc37cb19112e381217c74d9440
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.2"
   screen_retriever:
     dependency: transitive
     description:
@@ -742,13 +769,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  unity_video_player_mobile:
-    dependency: transitive
-    description:
-      path: "packages/unity_video_player/unity_video_player_mobile"
-      relative: true
-    source: path
-    version: "0.0.1"
   unity_video_player_platform_interface:
     dependency: transitive
     description:
@@ -760,10 +780,10 @@ packages:
     dependency: transitive
     description:
       name: uri_parser
-      sha256: f47b97479d6c818f739135e3abdd64d629804ea4fff7a5e394a37ca6fe8dce0a
+      sha256: "6543c9fd86d2862fac55d800a43e67c0dcd1a41677cb69c2f8edfe73bbcf1835"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.2"
   url_launcher:
     dependency: "direct main"
     description:
@@ -894,4 +914,4 @@ packages:
     version: "3.1.1"
 sdks:
   dart: ">=2.19.0 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

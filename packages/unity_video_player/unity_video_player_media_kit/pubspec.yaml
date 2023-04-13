@@ -14,31 +14,46 @@ dependencies:
     sdk: flutter
   # We lock the version to a commit because of the inconsistency of the pub cache
   # If an upgrade is necessary, change the [ref] of all packages below to the desired commit
-  media_kit:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 618d78e495b5809191e23966c4932fb02a425ef3
-      path: media_kit/
+  media_kit: 0.0.4
+    # git:
+    #   url: https://github.com/alexmercerind/media_kit.git
+    #   ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+    #   path: media_kit/
   media_kit_native_event_loop:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 618d78e495b5809191e23966c4932fb02a425ef3
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
       path: media_kit_native_event_loop/
   media_kit_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 618d78e495b5809191e23966c4932fb02a425ef3
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
       path: media_kit_video/
   media_kit_libs_windows_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 618d78e495b5809191e23966c4932fb02a425ef3
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
       path: media_kit_libs_windows_video/
   media_kit_libs_linux:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 618d78e495b5809191e23966c4932fb02a425ef3
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
       path: media_kit_libs_linux/
+  media_kit_libs_macos_video:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit_libs_macos_video/
+  media_kit_libs_android_video:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit_libs_android_video/
+  media_kit_libs_ios_video:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit_libs_ios_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
 
@@ -47,9 +62,24 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.0
 
+dependency_overrides:
+  media_kit:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit/
+
 flutter:
   plugin:
     implements: unity_video_player
     platforms:
       windows:
+        dartPluginClass: UnityVideoPlayerMediaKitInterface
+      linux:
+        dartPluginClass: UnityVideoPlayerMediaKitInterface
+      macos:
+        dartPluginClass: UnityVideoPlayerMediaKitInterface
+      ios:
+        dartPluginClass: UnityVideoPlayerMediaKitInterface
+      android:
         dartPluginClass: UnityVideoPlayerMediaKitInterface

@@ -65,11 +65,11 @@ dev_dependencies:
   flutter_launcher_icons: ^0.11.0
 
 dependency_overrides:
-  fijkplayer:
+  media_kit:
     git:
-      # Fixes the bad memory access on iOS, upon application quit from the App Switcher.
-      url: https://github.com/bdlukaa/fijkplayer.git
-      ref: master
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit/
 
 flutter:
   uses-material-design: true

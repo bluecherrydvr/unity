@@ -44,10 +44,10 @@ class MobileDeviceView extends StatefulWidget {
 
   /// Creates a device view used in mobile grids
   const MobileDeviceView({
-    Key? key,
+    super.key,
     required this.tab,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   State<MobileDeviceView> createState() => _MobileDeviceViewState();
@@ -188,13 +188,13 @@ class DeviceTile extends StatefulWidget {
   final double height;
 
   const DeviceTile({
-    Key? key,
+    super.key,
     required this.device,
     required this.tab,
     required this.index,
     this.width = 640.0,
     this.height = 360.0,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => DeviceTileState();

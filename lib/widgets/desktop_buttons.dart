@@ -63,10 +63,10 @@ class NObserver extends NavigatorObserver {
 
 class WindowButtons extends StatefulWidget {
   const WindowButtons({
-    Key? key,
+    super.key,
     this.title,
     this.showNavigator = true,
-  }) : super(key: key);
+  });
 
   /// The current window title.
   ///
@@ -270,7 +270,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
 /// A widget that shows whether something in the app is loading
 class UnityLoadingIndicator extends StatelessWidget {
-  const UnityLoadingIndicator({Key? key}) : super(key: key);
+  const UnityLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

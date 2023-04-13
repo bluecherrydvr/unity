@@ -63,12 +63,12 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
 class _MKVideo extends StatelessWidget {
   const _MKVideo({
-    Key? key,
+    super.key,
     required this.player,
     required this.videoController,
     required this.fit,
     required this.color,
-  }) : super(key: key);
+  });
 
   final Player player;
   final Future<VideoController> videoController;

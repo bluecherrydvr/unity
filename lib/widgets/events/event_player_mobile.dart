@@ -24,10 +24,10 @@ class EventPlayerScreen extends StatelessWidget {
   final List<Event> upcomingEvents;
 
   const EventPlayerScreen({
-    Key? key,
+    super.key,
     required this.event,
     required this.upcomingEvents,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class EventPlayerScreen extends StatelessWidget {
 class _EventPlayerMobile extends StatefulWidget {
   final Event event;
 
-  const _EventPlayerMobile({Key? key, required this.event}) : super(key: key);
+  const _EventPlayerMobile({required this.event});
 
   @override
   State<_EventPlayerMobile> createState() => __EventPlayerMobileState();
@@ -368,10 +368,9 @@ class _DesktopVideoViewport extends StatefulWidget {
   final UnityVideoPlayer player;
 
   const _DesktopVideoViewport({
-    Key? key,
     required this.event,
     required this.player,
-  }) : super(key: key);
+  });
 
   @override
   State<_DesktopVideoViewport> createState() => __DesktopVideoViewportState();

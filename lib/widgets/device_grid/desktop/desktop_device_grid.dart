@@ -22,7 +22,7 @@ part of '../device_grid.dart';
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
-  const DesktopDeviceGrid({Key? key, required this.width}) : super(key: key);
+  const DesktopDeviceGrid({super.key, required this.width});
 
   final double width;
 
@@ -215,7 +215,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 }
 
 class DesktopDeviceTile extends StatefulWidget {
-  const DesktopDeviceTile({Key? key, required this.device}) : super(key: key);
+  const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
@@ -257,10 +257,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
 
 class DesktopCompactTile extends StatelessWidget {
   const DesktopCompactTile({
-    Key? key,
+    super.key,
     required this.devices,
-  })  : assert(devices.length >= 2 && devices.length <= 4),
-        super(key: key);
+  }) : assert(devices.length >= 2 && devices.length <= 4);
 
   final List<Device> devices;
 
@@ -309,11 +308,11 @@ class DesktopTileViewport extends StatefulWidget {
   final bool isSubView;
 
   const DesktopTileViewport({
-    Key? key,
+    super.key,
     required this.controller,
     required this.device,
     this.isSubView = false,
-  }) : super(key: key);
+  });
 
   @override
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();

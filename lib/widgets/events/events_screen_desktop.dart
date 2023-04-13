@@ -29,13 +29,13 @@ class EventsScreenDesktop extends StatelessWidget {
   final EventsMinLevelFilter levelFilter;
 
   const EventsScreenDesktop({
-    Key? key,
+    super.key,
     required this.events,
     required this.allowedServers,
     required this.disabledDevices,
     required this.timeFilter,
     required this.levelFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

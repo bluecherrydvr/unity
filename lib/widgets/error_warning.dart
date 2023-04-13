@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ErrorWarning extends StatelessWidget {
-  const ErrorWarning({Key? key, required this.message}) : super(key: key);
+  const ErrorWarning({super.key, required this.message});
 
   final String message;
 
@@ -53,7 +53,7 @@ class ErrorWarning extends StatelessWidget {
 }
 
 class NoServerWarning extends StatelessWidget {
-  const NoServerWarning({Key? key}) : super(key: key);
+  const NoServerWarning({super.key});
 
   @override
   Widget build(BuildContext context) {

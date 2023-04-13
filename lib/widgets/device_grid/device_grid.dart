@@ -51,7 +51,7 @@ part 'mobile/mobile_device_grid.dart';
 const double kMobileBottomBarHeight = 48.0;
 
 class DeviceGrid extends StatelessWidget {
-  const DeviceGrid({Key? key}) : super(key: key);
+  const DeviceGrid({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -31,9 +31,9 @@ class DeviceSelectorScreen extends StatelessWidget {
   final Iterable<Device> selected;
 
   const DeviceSelectorScreen({
-    Key? key,
+    super.key,
     this.selected = const [],
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

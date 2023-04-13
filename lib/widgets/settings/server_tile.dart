@@ -22,7 +22,7 @@ part of 'settings.dart';
 typedef OnRemoveServer = void Function(BuildContext, Server);
 
 class ServersList extends StatelessWidget {
-  const ServersList({Key? key}) : super(key: key);
+  const ServersList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +147,10 @@ class ServerTile extends StatelessWidget {
   final OnRemoveServer onRemoveServer;
 
   const ServerTile({
-    Key? key,
+    super.key,
     required this.server,
     required this.onRemoveServer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,10 +222,10 @@ class ServerCard extends StatelessWidget {
   final OnRemoveServer onRemoveServer;
 
   const ServerCard({
-    Key? key,
+    super.key,
     required this.server,
     required this.onRemoveServer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

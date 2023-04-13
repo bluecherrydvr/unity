@@ -39,9 +39,9 @@ bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;
-  final void Function()? onTap;
-  const NavigatorPopButton({Key? key, this.onTap, this.color})
-      : super(key: key);
+  final VoidCallback? onTap;
+
+  const NavigatorPopButton({super.key, this.onTap, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +59,12 @@ class NavigatorPopButton extends StatelessWidget {
 // ignore: must_be_immutable
 class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   GestureDetectorWithReducedDoubleTapTime({
-    Key? key,
+    super.key,
     required this.child,
     required this.onTap,
     required this.onDoubleTap,
     this.doubleTapTime = const Duration(milliseconds: 200),
-  }) : super(key: key);
+  });
 
   final Widget child;
   final GestureTapCallback onTap;
@@ -134,13 +134,13 @@ class CorrectedListTile extends StatelessWidget {
   final double? height;
 
   const CorrectedListTile({
-    Key? key,
+    super.key,
     required this.iconData,
     required this.title,
     this.subtitle,
     this.onTap,
     this.height,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,10 +205,10 @@ class SubHeader extends StatelessWidget {
     this.subtext,
     this.subtextStyle,
     this.trailing,
-    Key? key,
+    super.key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
     this.height = 56.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -257,11 +257,11 @@ class CustomFutureBuilder<T> extends StatefulWidget {
   final Widget Function(BuildContext) loadingBuilder;
   final Widget Function(BuildContext, T?) builder;
   const CustomFutureBuilder({
-    Key? key,
+    super.key,
     required this.future,
     required this.loadingBuilder,
     required this.builder,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomFutureBuilder<T>> createState() => _CustomFutureBuilderState();
@@ -312,11 +312,11 @@ class UnityDrawerButton extends StatelessWidget {
   final double splashRadius;
 
   const UnityDrawerButton({
-    Key? key,
+    super.key,
     this.iconColor,
     this.iconSize = 22.0,
     this.splashRadius = 20.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -342,11 +342,11 @@ class Sidebar extends StatelessWidget {
   final VoidCallback onUpdate;
 
   const Sidebar({
-    Key? key,
+    super.key,
     required this.events,
     required this.collapseButton,
     required this.onUpdate,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -430,11 +430,10 @@ class Sidebar extends StatelessWidget {
 
 class _DeviceTile extends StatefulWidget {
   const _DeviceTile({
-    Key? key,
     required this.device,
     required this.selected,
     required this.onUpdate,
-  }) : super(key: key);
+  });
 
   final Device device;
   final bool selected;
@@ -503,10 +502,10 @@ class FilterDialog extends StatelessWidget {
   final FutureValueChanged<FilterData> onFilter;
 
   const FilterDialog({
-    Key? key,
+    super.key,
     required this.filter,
     required this.onFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -598,11 +597,11 @@ class FilterTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const FilterTile({
-    Key? key,
+    super.key,
     required this.title,
     required this.trailing,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   static Widget checkbox({
     required bool? checked,

@@ -31,7 +31,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class DirectCameraScreen extends StatefulWidget {
-  const DirectCameraScreen({Key? key}) : super(key: key);
+  const DirectCameraScreen({super.key});
 
   @override
   State<DirectCameraScreen> createState() => _DirectCameraScreenState();
@@ -77,7 +77,7 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
 class _DevicesForServer extends StatelessWidget {
   final Server server;
 
-  const _DevicesForServer({Key? key, required this.server}) : super(key: key);
+  const _DevicesForServer({required this.server});
 
   @override
   Widget build(BuildContext context) {

@@ -43,7 +43,7 @@ part 'server_tile.dart';
 typedef ChangeTabCallback = void Function(int tab);
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  const Settings({super.key});
 
   @override
   State<Settings> createState() => _SettingsState();

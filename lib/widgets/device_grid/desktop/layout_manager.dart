@@ -31,9 +31,9 @@ class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
   const LayoutManager({
-    Key? key,
+    super.key,
     required this.collapseButton,
-  }) : super(key: key);
+  });
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
@@ -137,10 +137,10 @@ class _LayoutManagerState extends State<LayoutManager> {
 
 class LayoutTile extends StatelessWidget {
   const LayoutTile({
-    Key? key,
+    super.key,
     required this.layout,
     required this.selected,
-  }) : super(key: key);
+  });
 
   final Layout layout;
   final bool selected;
@@ -257,10 +257,9 @@ class _LayoutTypeChooser extends StatelessWidget {
   final ValueChanged<int> onSelect;
 
   const _LayoutTypeChooser({
-    Key? key,
     required this.selected,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -290,7 +289,7 @@ class _LayoutTypeChooser extends StatelessWidget {
 }
 
 class NewLayoutDialog extends StatefulWidget {
-  const NewLayoutDialog({Key? key}) : super(key: key);
+  const NewLayoutDialog({super.key});
 
   @override
   State<NewLayoutDialog> createState() => _NewLayoutDialogState();
@@ -355,7 +354,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 }
 
 class EditLayoutDialog extends StatefulWidget {
-  const EditLayoutDialog({Key? key, required this.layout}) : super(key: key);
+  const EditLayoutDialog({super.key, required this.layout});
 
   final Layout layout;
 

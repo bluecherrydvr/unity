@@ -123,7 +123,7 @@ class FilterData {
 typedef EventsData = Map<String, List<Event>>;
 
 class EventsPlayback extends StatefulWidget {
-  const EventsPlayback({Key? key}) : super(key: key);
+  const EventsPlayback({super.key});
 
   @override
   State<EventsPlayback> createState() => _EventsPlaybackState();

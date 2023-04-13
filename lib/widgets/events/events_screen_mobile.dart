@@ -25,11 +25,11 @@ class EventsScreenMobile extends StatelessWidget {
   final Map<Server, bool> invalid;
 
   const EventsScreenMobile({
-    Key? key,
+    super.key,
     required this.events,
     required this.refresh,
     required this.invalid,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

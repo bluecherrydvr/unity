@@ -26,9 +26,9 @@ class DesktopSidebar extends StatefulWidget {
   final Widget collapseButton;
 
   const DesktopSidebar({
-    Key? key,
+    super.key,
     required this.collapseButton,
-  }) : super(key: key);
+  });
 
   @override
   State<DesktopSidebar> createState() => _DesktopSidebarState();
@@ -111,10 +111,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
 class DesktopDeviceSelectorTile extends StatefulWidget {
   const DesktopDeviceSelectorTile({
-    Key? key,
+    super.key,
     required this.device,
     required this.selected,
-  }) : super(key: key);
+  });
 
   final Device device;
   final bool selected;

@@ -33,9 +33,9 @@ import 'package:url_launcher/url_launcher.dart';
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
   const AddServerWizard({
-    Key? key,
+    super.key,
     required this.onFinish,
-  }) : super(key: key);
+  });
 
   @override
   State<AddServerWizard> createState() => _AddServerWizardState();
@@ -257,11 +257,11 @@ class ConfigureDVRServerScreen extends StatefulWidget {
   final Server? Function() getServer;
 
   const ConfigureDVRServerScreen({
-    Key? key,
+    super.key,
     required this.controller,
     required this.setServer,
     required this.getServer,
-  }) : super(key: key);
+  });
 
   @override
   State<ConfigureDVRServerScreen> createState() =>
@@ -640,11 +640,11 @@ class LetsGoScreen extends StatefulWidget {
   final VoidCallback onFinish;
 
   const LetsGoScreen({
-    Key? key,
+    super.key,
     required this.controller,
     required this.getServer,
     required this.onFinish,
-  }) : super(key: key);
+  });
 
   @override
   State<LetsGoScreen> createState() => _LetsGoScreenState();

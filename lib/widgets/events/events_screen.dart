@@ -51,7 +51,7 @@ part 'events_screen_mobile.dart';
 typedef EventsData = Map<Server, List<Event>>;
 
 class EventsScreen extends StatefulWidget {
-  const EventsScreen({Key? key}) : super(key: key);
+  const EventsScreen({super.key});
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();

@@ -25,11 +25,11 @@ class DeviceFullscreenViewerMobile extends StatefulWidget {
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewerMobile({
-    Key? key,
+    super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
-  }) : super(key: key);
+  });
 
   @override
   State<DeviceFullscreenViewerMobile> createState() =>

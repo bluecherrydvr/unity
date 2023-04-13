@@ -30,7 +30,10 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   @override
   Widget build(BuildContext context) {
     final view = context.watch<MobileViewProvider>();
+    final viewPadding = MediaQuery.viewPaddingOf(context);
+
     return Column(children: [
+      SizedBox(height: viewPadding.top),
       if (view.tab == -1)
         const Spacer()
       else
@@ -61,7 +64,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
           color: Theme.of(context).colorScheme.primary,
           child: Container(
             height: kMobileBottomBarHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.0 + viewPadding.horizontal,
+            ),
             width: double.infinity,
             child: Row(children: <Widget>[
               const UnityDrawerButton(

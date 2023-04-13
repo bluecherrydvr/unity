@@ -207,6 +207,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                   value: _position ??
                                       pos.inMilliseconds.toDouble(),
                                   max: duration.inMilliseconds.toDouble(),
+                                  secondaryTrackValue: videoController
+                                      .currentBuffer.inMilliseconds
+                                      .toDouble(),
                                   onChangeStart: (v) {
                                     shouldAutoplay = videoController.isPlaying;
                                     videoController.pause();

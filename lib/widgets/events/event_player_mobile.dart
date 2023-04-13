@@ -58,6 +58,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     HomeProvider.setDefaultStatusBarStyle();
   }
 
@@ -83,7 +84,10 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
     videoController
       ..release()
       ..dispose();
+
     DeviceOrientations.instance.set(DeviceOrientation.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     super.dispose();
   }
 
@@ -140,6 +144,7 @@ class _VideoViewportState extends State<VideoViewport> {
   Duration position = Duration.zero;
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
+  bool isSliding = false;
 
   late StreamSubscription positionStream;
   late StreamSubscription bufferStream;
@@ -153,13 +158,7 @@ class _VideoViewportState extends State<VideoViewport> {
         widget.player.onCurrentPosUpdate.listen(currentPosListener);
     bufferStream = widget.player.onBufferUpdate.listen(bufferListener);
 
-    timer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() {
-          visible = false;
-        });
-      }
-    });
+    startTimer();
   }
 
   void currentPosListener(Duration event) {
@@ -174,6 +173,17 @@ class _VideoViewportState extends State<VideoViewport> {
     if (mounted) setState(() {});
   }
 
+  void startTimer() {
+    if (timer.isActive) timer.cancel();
+    timer = Timer(const Duration(seconds: 5), () {
+      if (mounted && !isSliding) {
+        setState(() {
+          visible = false;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
@@ -183,12 +193,7 @@ class _VideoViewportState extends State<VideoViewport> {
           onTap: () {
             if (!visible) {
               setState(() => visible = true);
-              if (timer.isActive) timer.cancel();
-              timer = Timer(const Duration(seconds: 5), () {
-                if (mounted) {
-                  setState(() => visible = false);
-                }
-              });
+              startTimer();
             } else {
               setState(() => visible = false);
             }
@@ -246,6 +251,7 @@ class _VideoViewportState extends State<VideoViewport> {
               return const Center(
                 child: CircularProgressIndicator.adaptive(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2.0,
                 ),
               );
             } else {
@@ -310,14 +316,21 @@ class _VideoViewportState extends State<VideoViewport> {
                   child: Transform.translate(
                     offset: const Offset(0, 0.8),
                     child: Slider(
+                      divisions: player.duration.inMilliseconds,
+                      label: position.humanReadableCompact(context),
                       value: position.inMilliseconds.toDouble(),
                       max: player.duration.inMilliseconds.toDouble(),
                       secondaryTrackValue:
                           player.currentBuffer.inMilliseconds.toDouble(),
+                      onChangeStart: (_) => isSliding = true,
                       onChanged: (value) async {
                         position = Duration(milliseconds: value.toInt());
                         await player.seekTo(position);
                         await player.start();
+                      },
+                      onChangeEnd: (_) {
+                        isSliding = false;
+                        if (!timer.isActive) setState(() => visible = false);
                       },
                     ),
                   ),
@@ -336,26 +349,6 @@ class _VideoViewportState extends State<VideoViewport> {
                 ),
               ),
               const SizedBox(width: 8.0),
-              // TODO(bdlukaa): fullscreen. unity_video_player currently doesn't provide an
-              // interface for full screen handling
-              // IconButton(
-              //   padding: EdgeInsets.zero,
-              //   icon: Icon(
-              //     false
-              //         // widget.player.isFullScreen
-              //         ? Icons.fullscreen_exit
-              //         : Icons.fullscreen,
-              //     color: Colors.white,
-              //   ),
-              //   onPressed: () {
-              //     // if (widget.player.value.fullScreen) {
-              //     //   player.exitFullScreen();
-              //     // } else {
-              //     //   player.enterFullScreen();
-              //     // }
-              //   },
-              // ),
-              // const SizedBox(width: 8.0),
             ]),
           ),
       ],

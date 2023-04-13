@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,10 @@ class SettingsProvider extends ChangeNotifier {
   // Setters.
   set themeMode(ThemeMode value) {
     _themeMode = value;
-    _save();
+    _save().then((_) async {
+      await Future.delayed(const Duration(milliseconds: 500));
+      HomeProvider.setDefaultStatusBarStyle();
+    });
   }
 
   set dateFormat(DateFormat value) {

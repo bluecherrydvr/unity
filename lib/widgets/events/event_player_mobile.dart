@@ -141,13 +141,18 @@ class _VideoViewportState extends State<VideoViewport> {
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
 
+  late StreamSubscription positionStream;
+  late StreamSubscription bufferStream;
+
   @override
   void initState() {
     super.initState();
     // Set class attributes to match the current [FijkPlayer]'s state.
     position = widget.player.currentPos;
-    widget.player.onCurrentPosUpdate.listen(currentPosListener);
-    widget.player.onBufferStateUpdate.listen(bufferStateListener);
+    positionStream =
+        widget.player.onCurrentPosUpdate.listen(currentPosListener);
+    bufferStream = widget.player.onBufferUpdate.listen(bufferListener);
+
     timer = Timer(const Duration(seconds: 5), () {
       if (mounted) {
         setState(() {
@@ -165,7 +170,7 @@ class _VideoViewportState extends State<VideoViewport> {
     }
   }
 
-  void bufferStateListener(bool event) {
+  void bufferListener(Duration buffer) {
     if (mounted) setState(() {});
   }
 
@@ -307,6 +312,8 @@ class _VideoViewportState extends State<VideoViewport> {
                     child: Slider(
                       value: position.inMilliseconds.toDouble(),
                       max: player.duration.inMilliseconds.toDouble(),
+                      secondaryTrackValue:
+                          player.currentBuffer.inMilliseconds.toDouble(),
                       onChanged: (value) async {
                         position = Duration(milliseconds: value.toInt());
                         await player.seekTo(position);
@@ -392,6 +399,8 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
             child: Slider(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
               max: widget.player.duration.inMilliseconds.toDouble(),
+              secondaryTrackValue:
+                  widget.player.currentBuffer.inMilliseconds.toDouble(),
               onChanged: (v) {
                 widget.player.seekTo(Duration(milliseconds: v.toInt()));
               },

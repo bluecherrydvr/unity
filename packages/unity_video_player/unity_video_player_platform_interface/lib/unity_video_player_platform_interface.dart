@@ -107,6 +107,10 @@ abstract class UnityVideoPlayer {
   bool get isBuffering;
   Stream<bool> get onBufferStateUpdate;
 
+  /// The current buffer position
+  Duration get currentBuffer;
+  Stream<Duration> get onBufferUpdate;
+
   /// Whether the media is playing
   bool get isPlaying;
   Stream<bool> get onPlayingStateUpdate;

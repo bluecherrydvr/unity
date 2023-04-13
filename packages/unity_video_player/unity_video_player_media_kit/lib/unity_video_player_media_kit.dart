@@ -155,6 +155,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   bool get isBuffering => mkPlayer.state.buffering;
 
   @override
+  Duration get currentBuffer => mkPlayer.state.buffer;
+
+  @override
+  Stream<Duration> get onBufferUpdate => mkPlayer.streams.buffer;
+
+  @override
   bool get isSeekable => true;
 
   @override

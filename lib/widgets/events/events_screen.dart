@@ -118,6 +118,13 @@ class _EventsScreenState extends State<EventsScreen> {
         AppBar(
           leading: MaybeUnityDrawerButton(context),
           title: Text(AppLocalizations.of(context).eventBrowser),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: AppLocalizations.of(context).filter,
+              onPressed: () => showMobileFilter(context),
+            ),
+          ],
         ),
       Expanded(
         child: () {
@@ -222,9 +229,12 @@ class _EventsScreenState extends State<EventsScreen> {
     ]);
   }
 
-  Widget buildTreeView(BuildContext context) {
+  Widget buildTreeView(
+    BuildContext context, {
+    double checkboxScale = 0.8,
+    double gapCheckboxText = 0.0,
+  }) {
     final servers = context.watch<ServersProvider>();
-    const checkboxScale = 0.8;
 
     Widget buildCheckbox({
       required Server server,
@@ -280,6 +290,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 });
               },
             ),
+            SizedBox(width: gapCheckboxText),
             Expanded(
               child: Text(
                 server.name,
@@ -323,6 +334,7 @@ class _EventsScreenState extends State<EventsScreen> {
                         },
                       ),
                     ),
+                    SizedBox(width: gapCheckboxText),
                     Text(
                       device.name,
                       overflow: TextOverflow.ellipsis,
@@ -336,6 +348,92 @@ class _EventsScreenState extends State<EventsScreen> {
           }(),
         );
       }).toList(),
+    );
+  }
+
+  void showMobileFilter(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          maxChildSize: 0.8,
+          initialChildSize: 0.7,
+          builder: (context, controller) {
+            return ListView(controller: controller, children: [
+              Center(
+                child: Container(
+                  width: 50,
+                  height: 6.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Theme.of(context).dividerColor,
+                  ),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 12.0,
+                  ),
+                ),
+              ),
+              const SubHeader('Time filter'),
+              DropdownButton<EventsTimeFilter>(
+                isExpanded: true,
+                value: timeFilter,
+                items: const [
+                  DropdownMenuItem(
+                    value: EventsTimeFilter.any,
+                    child: Text('Any'),
+                  ),
+                  DropdownMenuItem(
+                    value: EventsTimeFilter.lastHour,
+                    child: Text('Last hour'),
+                  ),
+                  DropdownMenuItem(
+                    value: EventsTimeFilter.last6Hours,
+                    child: Text('Last 6 hours'),
+                  ),
+                  DropdownMenuItem(
+                    value: EventsTimeFilter.last12Hours,
+                    child: Text('Last 12 hours'),
+                  ),
+                  DropdownMenuItem(
+                    value: EventsTimeFilter.last24Hours,
+                    child: Text('Last 24 hours'),
+                  ),
+                  // DropdownMenuItem(
+                  //   child: Text('Select time range'),
+                  //   value: EventsTimeFilter.custom,
+                  // ),
+                ],
+                onChanged: (v) => setState(
+                  () => timeFilter = v ?? timeFilter,
+                ),
+              ),
+              const SubHeader('Minimum level'),
+              DropdownButton<EventsMinLevelFilter>(
+                isExpanded: true,
+                value: levelFilter,
+                items: EventsMinLevelFilter.values.map((level) {
+                  return DropdownMenuItem(
+                    value: level,
+                    child: Text(level.name.uppercaseFirst()),
+                  );
+                }).toList(),
+                onChanged: (v) => setState(
+                  () => levelFilter = v ?? levelFilter,
+                ),
+              ),
+              SubHeader(AppLocalizations.of(context).servers),
+              buildTreeView(
+                context,
+                gapCheckboxText: 10.0,
+                checkboxScale: 1.15,
+              ),
+            ]);
+          },
+        );
+      },
     );
   }
 }

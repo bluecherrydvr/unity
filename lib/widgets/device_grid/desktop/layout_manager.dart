@@ -22,7 +22,6 @@ import 'dart:async';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -41,12 +40,14 @@ class LayoutManager extends StatefulWidget {
 }
 
 class _LayoutManagerState extends State<LayoutManager> {
-  late Timer timer;
+  Timer? timer;
 
   @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.watch<SettingsProvider>();
+    timer?.cancel();
+    timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
       final settings = SettingsProvider.instance;
       final view = DesktopViewProvider.instance;
 
@@ -63,7 +64,7 @@ class _LayoutManagerState extends State<LayoutManager> {
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 

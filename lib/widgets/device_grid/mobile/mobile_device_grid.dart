@@ -27,12 +27,14 @@ class MobileDeviceGrid extends StatefulWidget {
 }
 
 class _MobileDeviceGridState extends State<MobileDeviceGrid> {
-  late Timer timer;
+  Timer? timer;
 
   @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.watch<SettingsProvider>();
+    timer?.cancel();
+    timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
       final settings = SettingsProvider.instance;
       final view = MobileViewProvider.instance;
 
@@ -50,7 +52,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 

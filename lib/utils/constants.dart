@@ -59,9 +59,6 @@ const kDeviceTileHeight = 360.0;
 /// Margin between & around a [DeviceTile]. Only relevant on desktop.
 const kDeviceTileMargin = 16.0;
 
-/// The period of cycle
-const kCycleTogglePeriod = Duration(seconds: 5);
-
 /// Uuid generator
 const uuid = Uuid();
 

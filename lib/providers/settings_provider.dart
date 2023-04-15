@@ -41,6 +41,8 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultNotificationClickAction =
       NotificationClickAction.showFullscreenCamera;
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
+  static const kDefaultLayoutCyclingEnabled = false;
+  static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 5);
   static Future<Directory> kDefaultDownloadsDirectory() async {
     final docsDir = await getApplicationSupportDirectory();
     return Directory('${docsDir.path}${path.separator}downloads').create();
@@ -55,6 +57,8 @@ class SettingsProvider extends ChangeNotifier {
       _notificationClickAction;
   UnityVideoFit get cameraViewFit => _cameraViewFit;
   String get downloadsDirectory => _downloadsDirectory;
+  bool get layoutCyclingEnabled => _layoutCyclingEnabled;
+  Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -95,6 +99,16 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
+  set layoutCyclingEnabled(bool value) {
+    _layoutCyclingEnabled = value;
+    _save();
+  }
+
+  set layoutCyclingTogglePeriod(Duration value) {
+    _layoutCyclingTogglePeriod = value;
+    _save();
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
@@ -102,8 +116,10 @@ class SettingsProvider extends ChangeNotifier {
   late NotificationClickAction _notificationClickAction;
   late UnityVideoFit _cameraViewFit;
   late String _downloadsDirectory;
+  late bool _layoutCyclingEnabled;
+  late Duration _layoutCyclingTogglePeriod;
 
-  /// Initializes the [ServersProvider] instance & fetches state from `async`
+  /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
     try {
@@ -126,6 +142,8 @@ class SettingsProvider extends ChangeNotifier {
       kHiveNotificationClickAction: notificationClickAction.index,
       kHiveCameraViewFit: cameraViewFit.index,
       kHiveDownloadsDirectorySetting: downloadsDirectory,
+      kHiveLayoutCycling: layoutCyclingEnabled,
+      kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
     });
 
     if (notify) notifyListeners();
@@ -185,6 +203,21 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _downloadsDirectory = (await kDefaultDownloadsDirectory()).path;
     }
+
+    if (data.containsKey(kHiveLayoutCycling)) {
+      _layoutCyclingEnabled = data[kHiveLayoutCycling];
+    } else {
+      _layoutCyclingEnabled = kDefaultLayoutCyclingEnabled;
+    }
+
+    if (data.containsKey(kHiveLayoutCyclingPeriod)) {
+      _layoutCyclingTogglePeriod = Duration(
+        milliseconds: data[kHiveLayoutCyclingPeriod],
+      );
+    } else {
+      _layoutCyclingTogglePeriod = kDefaultLayoutCyclingTogglePeriod;
+    }
+
     notifyListeners();
   }
 
@@ -204,6 +237,10 @@ class SettingsProvider extends ChangeNotifier {
     if (toLocal) time = time.toLocal();
 
     return timeFormat.format(time);
+  }
+
+  void toggleCycling() {
+    layoutCyclingEnabled = !layoutCyclingEnabled;
   }
 
   @override

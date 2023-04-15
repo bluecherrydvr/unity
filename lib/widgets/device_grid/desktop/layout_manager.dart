@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,10 @@ class _LayoutManagerState extends State<LayoutManager> {
   void initState() {
     super.initState();
     timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+      final settings = SettingsProvider.instance;
       final view = DesktopViewProvider.instance;
-      if (view.cycling) {
+
+      if (settings.layoutCyclingEnabled) {
         final currentIsLast =
             view.currentLayoutIndex == view.layouts.length - 1;
 
@@ -68,6 +71,7 @@ class _LayoutManagerState extends State<LayoutManager> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SizedBox(
       height: 210.0,
@@ -93,13 +97,13 @@ class _LayoutManagerState extends State<LayoutManager> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
-                  color: view.cycling
+                  color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: AppLocalizations.of(context).cycle,
-                onPressed: view.toggleCycling,
+                onPressed: settings.toggleCycling,
               ),
               IconButton(
                 icon: Icon(

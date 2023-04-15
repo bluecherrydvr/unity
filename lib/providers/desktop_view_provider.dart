@@ -51,9 +51,6 @@ class DesktopViewProvider extends ChangeNotifier {
 
   Layout get currentLayout => layouts[_currentLayout];
 
-  /// Whether the layouts are rotating in a cycle
-  bool cycling = false;
-
   /// Instances of video players corresponding to a particular [Device].
   ///
   /// This avoids redundantly creating new video player instance if a [Device]
@@ -83,7 +80,6 @@ class DesktopViewProvider extends ChangeNotifier {
       kHiveDesktopLayouts:
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
       kHiveDesktopCurrentLayout: _currentLayout,
-      kHiveDesktopCycling: cycling,
     });
 
     if (notifyListeners) {
@@ -105,7 +101,6 @@ class DesktopViewProvider extends ChangeNotifier {
       return Layout.fromMap(item.cast<String, dynamic>());
     }).toList();
     _currentLayout = data[kHiveDesktopCurrentLayout] ?? 0;
-    cycling = data[kHiveDesktopCycling] ?? false;
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -249,14 +244,6 @@ class DesktopViewProvider extends ChangeNotifier {
         players[device] = getVideoPlayerControllerForDevice(device);
       }
     }
-
-    notifyListeners();
-    return _save(notifyListeners: false);
-  }
-
-  /// Toggles cycling
-  Future<void> toggleCycling() {
-    cycling = !cycling;
 
     notifyListeners();
     return _save(notifyListeners: false);

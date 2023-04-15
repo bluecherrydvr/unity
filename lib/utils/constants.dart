@@ -37,7 +37,6 @@ const kHiveMobileView = 'mobile_view';
 const kHiveMobileViewTab = 'mobile_view_current_tab';
 const kHiveDesktopLayouts = 'desktop_view_layouts';
 const kHiveDesktopCurrentLayout = 'desktop_view_current_layout';
-const kHiveDesktopCycling = 'desktop_view_cycling';
 const kHiveNotificationToken = 'notification_token';
 const kHiveThemeMode = 'theme_mode';
 const kHiveDateFormat = 'date_format';
@@ -48,6 +47,8 @@ const kHiveCameraViewFit = 'camera_view_fit';
 const kHiveDownloadsDirectorySetting = 'downloads_dir';
 const kHiveDownloads = 'downloads';
 const kHiveEventsPlayback = 'events_playback';
+const kHiveLayoutCycling = 'layout_cycling';
+const kHiveLayoutCyclingPeriod = 'layout_cycling_period';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

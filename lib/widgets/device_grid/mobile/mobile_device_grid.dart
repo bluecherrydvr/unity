@@ -27,10 +27,39 @@ class MobileDeviceGrid extends StatefulWidget {
 }
 
 class _MobileDeviceGridState extends State<MobileDeviceGrid> {
+  late Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+      final settings = SettingsProvider.instance;
+      final view = MobileViewProvider.instance;
+
+      if (settings.layoutCyclingEnabled) {
+        if (view.tab == view.devices.keys.last) {
+          view.setTab(view.devices.keys.first);
+        } else {
+          final index = view.devices.keys.toList().indexOf(view.tab);
+          final next = view.devices.keys.toList()[index + 1];
+          view.setTab(next);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final view = context.watch<MobileViewProvider>();
+    final settings = context.watch<SettingsProvider>();
     final viewPadding = MediaQuery.viewPaddingOf(context);
+    final theme = Theme.of(context);
 
     return Column(children: [
       SizedBox(height: viewPadding.top),
@@ -72,6 +101,18 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 iconSize: 18.0,
                 splashRadius: 24.0,
               ),
+              IconButton(
+                icon: Icon(
+                  Icons.cyclone,
+                  size: 18.0,
+                  color: settings.layoutCyclingEnabled
+                      ? theme.colorScheme.primary
+                      : IconTheme.of(context).color,
+                ),
+                padding: EdgeInsets.zero,
+                tooltip: AppLocalizations.of(context).cycle,
+                onPressed: settings.toggleCycling,
+              ),
               const Spacer(),
               ...view.devices.keys.map((tab) {
                 return Container(
@@ -81,9 +122,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
-                      color: view.tab == tab
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
+                      color: view.tab == tab ? theme.colorScheme.primary : null,
                     ),
                     child: IconButton(
                       onPressed: () => view.setTab(tab),

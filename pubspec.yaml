@@ -30,6 +30,7 @@ dependencies:
   flutter_simple_treeview: ^3.0.2
 
   intl: ^0.18.0
+  duration: ^3.0.12
   firebase_core: ^2.7.0
   firebase_messaging: ^14.2.5
   # Use HannesGitH branch until https://github.com/rafaelsetragni/awesome_notifications/pull/727 is merged

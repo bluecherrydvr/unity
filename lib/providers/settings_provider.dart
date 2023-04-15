@@ -42,7 +42,7 @@ class SettingsProvider extends ChangeNotifier {
       NotificationClickAction.showFullscreenCamera;
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
   static const kDefaultLayoutCyclingEnabled = false;
-  static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 5);
+  static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
   static Future<Directory> kDefaultDownloadsDirectory() async {
     final docsDir = await getApplicationSupportDirectory();
     return Directory('${docsDir.path}${path.separator}downloads').create();

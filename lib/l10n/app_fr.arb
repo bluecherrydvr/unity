@@ -84,42 +84,6 @@
       "n": {}
     }
   },
-  "hours": "{h} heures",
-  "@hours": {
-    "placeholders": {
-      "h": {}
-    }
-  },
-  "hoursCompact": "{h}h",
-  "@hoursCompact": {
-    "placeholders": {
-      "h": {}
-    }
-  },
-  "minutes": "{m} minutes",
-  "@minutes": {
-    "placeholders": {
-      "m": {}
-    }
-  },
-  "minutesCompact": "{m}m",
-  "@minutesCompact": {
-    "placeholders": {
-      "m": {}
-    }
-  },
-  "seconds": "{s} secondes",
-  "@seconds": {
-    "placeholders": {
-      "s": {}
-    }
-  },
-  "secondsCompact": "{s}s",
-  "@secondsCompact": {
-    "placeholders": {
-      "s": {}
-    }
-  },
   "remove": "Remove ?",
   "removeServerDescription": "{serverName} sera retiré de l'application. Vous ne pourrez plus voir les caméras de ce serveur & ne pourrez plus recevoir des notifications.",
   "@removeServerDescription": {
@@ -169,6 +133,7 @@
   "refresh": "Actualiser",
   "view": "Vue",
   "cycle": "Cycle",
+  "cycleTogglePeriod": "Période de basculement de cycle",
   "newLayout": "Nouvelle disposition",
   "singleView": "Vue unique",
   "multipleView": "Vue multiple",

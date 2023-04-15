@@ -109,7 +109,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   size: 18.0,
                   color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
-                      : IconTheme.of(context).color,
+                      : Colors.white,
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: AppLocalizations.of(context).cycle,
@@ -196,7 +196,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
           // crossAxisSpacing: 0.0,
           // mainAxisSpacing: 0.0,
           crossAxisCount: <int, int>{
-            9: 3,
+            6: 3,
             4: 2,
             2: 2,
           }[tab]!,
@@ -210,6 +210,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
                 }
               }[tab] ??
               16 / 9,
+          reorderable: view.current.any((device) => device != null),
           padding: EdgeInsets.zero,
           onReorder: (initial, end) => view.reorder(tab, initial, end),
           children: children,

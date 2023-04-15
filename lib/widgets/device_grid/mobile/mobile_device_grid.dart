@@ -55,17 +55,16 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
           ),
         ),
       DecoratedBox(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(color: Colors.black45, blurRadius: 8.0),
-          ],
-        ),
+        decoration: const BoxDecoration(boxShadow: [
+          BoxShadow(color: Colors.black45, blurRadius: 8.0),
+        ]),
         child: Material(
-          color: Theme.of(context).colorScheme.primary,
           child: Container(
             height: kMobileBottomBarHeight,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.0 + viewPadding.horizontal,
+            padding: EdgeInsets.only(
+              left: 16.0 + viewPadding.horizontal,
+              right: 16.0 + viewPadding.horizontal,
+              bottom: viewPadding.bottom,
             ),
             width: double.infinity,
             child: Row(children: <Widget>[
@@ -75,54 +74,28 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 splashRadius: 24.0,
               ),
               const Spacer(),
-              ...[1, 2, 4].map((e) {
-                final child = view.tab == e
-                    ? Card(
-                        margin: EdgeInsets.zero,
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        color: Colors.white,
-                        child: Container(
-                          height: 40.0,
-                          width: 40.0,
-                          alignment: AlignmentDirectional.center,
-                          child: Container(
-                            height: 28.0,
-                            width: 28.0,
-                            alignment: AlignmentDirectional.center,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 2.0,
-                              ),
-                              borderRadius: BorderRadius.circular(14.0),
-                            ),
-                            child: Text(
-                              '$e',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Text(
-                        e.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                      );
+              ...[1, 2, 4].map((tab) {
                 return Container(
                   height: 48.0,
                   width: 48.0,
                   alignment: AlignmentDirectional.centerEnd,
-                  child: IconButton(
-                    onPressed: () => view.setTab(e),
-                    icon: child,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: view.tab == tab
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    child: IconButton(
+                      onPressed: () => view.setTab(tab),
+                      icon: Text(
+                        '$tab',
+                        style: TextStyle(
+                          color: view.tab == tab ? Colors.black : Colors.white,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               }),
@@ -172,40 +145,35 @@ class _MobileDeviceGridChild extends StatelessWidget {
       },
     ).toList();
 
-    return Container(
-      color: Colors.black,
-      height: double.infinity,
-      width: double.infinity,
-      child: StaticGrid(
-        crossAxisCount: <int, int>{
-          4: 2,
-          2: 2,
-        }[tab]!,
-        childAspectRatio: <int, double>{
-          if (Platform.isIOS) ...{
-            4: (MediaQuery.sizeOf(context).width) /
-                (MediaQuery.sizeOf(context).height - kMobileBottomBarHeight),
-            2: (MediaQuery.sizeOf(context).width) *
-                0.5 /
-                (MediaQuery.sizeOf(context).height - kMobileBottomBarHeight),
-          } else ...{
-            4: (MediaQuery.sizeOf(context).width -
-                    MediaQuery.paddingOf(context).horizontal) /
-                (MediaQuery.sizeOf(context).height -
-                    kMobileBottomBarHeight -
-                    MediaQuery.paddingOf(context).bottom),
-            2: (MediaQuery.sizeOf(context).width -
-                    MediaQuery.paddingOf(context).horizontal) *
-                0.5 /
-                (MediaQuery.sizeOf(context).height -
-                    kMobileBottomBarHeight -
-                    MediaQuery.paddingOf(context).bottom),
-          }
-        }[tab]!,
-        padding: EdgeInsets.zero,
-        onReorder: (initial, end) => view.reorder(tab, initial, end),
-        children: children,
-      ),
-    );
+    return LayoutBuilder(builder: (context, consts) {
+      final size = consts.biggest;
+
+      return Container(
+        color: Colors.black,
+        height: double.infinity,
+        width: double.infinity,
+        child: StaticGrid(
+          // crossAxisSpacing: 0.0,
+          // mainAxisSpacing: 0.0,
+          crossAxisCount: <int, int>{
+            4: 2,
+            2: 2,
+          }[tab]!,
+          childAspectRatio: <int, double>{
+                if (Platform.isIOS) ...{
+                  4: size.width / size.height,
+                  2: size.width * 0.5 / size.height,
+                } else ...{
+                  4: size.width / size.height,
+                  2: size.width * 0.5 / size.height,
+                }
+              }[tab] ??
+              16 / 9,
+          padding: EdgeInsets.zero,
+          onReorder: (initial, end) => view.reorder(tab, initial, end),
+          children: children,
+        ),
+      );
+    });
   }
 }

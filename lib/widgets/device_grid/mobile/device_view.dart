@@ -201,13 +201,8 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  UnityVideoPlayer? videoPlayer;
-
-  @override
-  void initState() {
-    super.initState();
-    videoPlayer = MobileViewProvider.instance.players[widget.device];
-  }
+  UnityVideoPlayer? get videoPlayer =>
+      MobileViewProvider.instance.players[widget.device];
 
   bool get hover =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]
@@ -219,67 +214,65 @@ class DeviceTileState extends State<DeviceTile> {
           ?[widget.index] = value;
 
   Widget get playerView {
-    return StatefulBuilder(builder: (context, _) {
-      videoPlayer = MobileViewProvider.instance.players[widget.device];
-      debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
+    debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
+    if (videoPlayer == null) return const SizedBox.shrink();
 
-      return UnityVideoView(
-        player: videoPlayer!,
-        paneBuilder: (context, controller) {
-          return Material(
-            color: Colors.transparent,
-            child: () {
-              if (controller.error != null) {
-                return ErrorWarning(message: controller.error!);
-              } else if (controller.isBuffering) {
-                return const Center(
-                  child: CircularProgressIndicator.adaptive(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 4.4,
-                  ),
-                );
-              } else if (hover) {
-                return TweenAnimationBuilder(
-                  tween: Tween<double>(
-                    begin: 0.0,
-                    end: hover ? 1.0 : 0.0,
-                  ),
-                  duration: const Duration(milliseconds: 300),
-                  builder: (context, value, child) {
-                    return Center(
-                      child: Opacity(
-                        opacity: value,
-                        child: IconButton(
-                          splashRadius: 20.0,
-                          onPressed: () async {
-                            if (videoPlayer == null) return;
+    return UnityVideoView(
+      player: videoPlayer!,
+      paneBuilder: (context, controller) {
+        return Material(
+          color: Colors.transparent,
+          child: () {
+            if (controller.error != null) {
+              return ErrorWarning(message: controller.error!);
+            } else if (controller.isBuffering) {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  strokeWidth: 4.4,
+                ),
+              );
+            } else if (hover) {
+              return TweenAnimationBuilder(
+                tween: Tween<double>(
+                  begin: 0.0,
+                  end: hover ? 1.0 : 0.0,
+                ),
+                duration: const Duration(milliseconds: 300),
+                builder: (context, value, child) {
+                  return Center(
+                    child: Opacity(
+                      opacity: value,
+                      child: IconButton(
+                        splashRadius: 20.0,
+                        onPressed: () async {
+                          if (videoPlayer == null) return;
 
-                            await Navigator.of(context).pushNamed(
-                              '/fullscreen',
-                              arguments: {
-                                'device': widget.device,
-                                'player': videoPlayer,
-                              },
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.fullscreen,
-                            color: Colors.white,
-                            size: 32.0,
-                          ),
+                          await Navigator.of(context).pushNamed(
+                            '/fullscreen',
+                            arguments: {
+                              'device': widget.device,
+                              'player': videoPlayer,
+                            },
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.fullscreen,
+                          color: Colors.white,
+                          size: 32.0,
                         ),
                       ),
-                    );
-                  },
-                );
-              }
+                    ),
+                  );
+                },
+              );
+            }
 
-              return const SizedBox.shrink();
-            }(),
-          );
-        },
-      );
-    });
+            return const SizedBox.shrink();
+          }(),
+        );
+      },
+    );
   }
 
   @override

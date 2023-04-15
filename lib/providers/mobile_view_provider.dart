@@ -53,12 +53,14 @@ class MobileViewProvider extends ChangeNotifier {
   ///    1 : [Device(...)],
   ///    2 : [Device(...), Device(...)],
   ///    4 : [Device(...), Device(...), Device(...), Device(...)]
+  ///    9 : [Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...)]
   /// }
   /// ```
   Map<int, List<Device?>> devices = {
     1: <Device?>[null],
     2: <Device?>[null, null],
     4: <Device?>[null, null, null, null],
+    9: <Device?>[null, null, null, null, null, null, null, null, null],
   };
 
   /// This map keeps the `bool`s to indicate whether the hover details of a [Device] is shown or not.
@@ -68,6 +70,7 @@ class MobileViewProvider extends ChangeNotifier {
     1: <bool>[false],
     2: <bool>[false, false],
     4: <bool>[false, false, false, false],
+    9: <bool>[false, false, false, false, false, false, false, false, false],
   };
 
   /// Instances of video players corresponding to a particular [Device].

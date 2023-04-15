@@ -40,10 +40,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
         Expanded(
           child: PageTransitionSwitcher(
             child: {
-              1: () => const _MobileDeviceGridChild(tab: 1),
-              2: () => const _MobileDeviceGridChild(tab: 2),
-              4: () => const _MobileDeviceGridChild(tab: 4),
-            }[view.tab]!(),
+              for (var key in view.devices.keys)
+                key: _MobileDeviceGridChild(tab: key)
+            }[view.tab],
             transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
               return FadeThroughTransition(
                 animation: primaryAnimation,
@@ -74,7 +73,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 splashRadius: 24.0,
               ),
               const Spacer(),
-              ...[1, 2, 4].map((tab) {
+              ...view.devices.keys.map((tab) {
                 return Container(
                   height: 48.0,
                   width: 48.0,
@@ -156,6 +155,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
           // crossAxisSpacing: 0.0,
           // mainAxisSpacing: 0.0,
           crossAxisCount: <int, int>{
+            9: 3,
             4: 2,
             2: 2,
           }[tab]!,

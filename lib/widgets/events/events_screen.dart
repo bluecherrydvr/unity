@@ -113,120 +113,159 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     final hasDrawer = Scaffold.hasDrawer(context);
 
-    return Column(children: [
-      if (hasDrawer)
-        AppBar(
-          leading: MaybeUnityDrawerButton(context),
-          title: Text(AppLocalizations.of(context).eventBrowser),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.filter_list),
-              tooltip: AppLocalizations.of(context).filter,
-              onPressed: () => showMobileFilter(context),
-            ),
-          ],
-        ),
-      Expanded(
-        child: () {
-          if (ServersProvider.instance.servers.isEmpty) {
-            return const NoServerWarning();
+    if (ServersProvider.instance.servers.isEmpty) {
+      return const NoServerWarning();
+    }
+
+    final now = DateTime.now();
+    final hourRange = {
+      EventsTimeFilter.last12Hours: 12,
+      EventsTimeFilter.last24Hours: 24,
+      EventsTimeFilter.last6Hours: 6,
+      EventsTimeFilter.lastHour: 1,
+      EventsTimeFilter.any: -1,
+    }[timeFilter]!;
+
+    final events = this.events.values.expand((events) sync* {
+      for (final event in events) {
+        // allow events from the allowed servers
+        if (!allowedServers.any((element) => event.server.ip == element.ip)) {
+          continue;
+        }
+
+        // allow events within the time range
+        if (timeFilter != EventsTimeFilter.any) {
+          if (now.difference(event.published).inHours > hourRange) {
+            continue;
           }
+        }
 
-          return LayoutBuilder(builder: (context, consts) {
-            if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
-              return EventsScreenMobile(
-                events: events,
-                refresh: fetch,
-                // isFirstTimeLoading: isFirstTimeLoading,
-                invalid: invalid,
-              );
-            }
+        switch (levelFilter) {
+          case EventsMinLevelFilter.alarming:
+            if (!event.isAlarm) continue;
+            break;
+          case EventsMinLevelFilter.warning:
+            if (event.priority != EventPriority.warning) continue;
+            break;
+          default:
+            break;
+        }
 
-            return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              SizedBox(
-                width: 220,
-                child: Card(
-                  margin: EdgeInsets.zero,
-                  shape: const RoundedRectangleBorder(),
-                  child: DropdownButtonHideUnderline(
-                    child: Column(children: [
-                      SubHeader(
-                        AppLocalizations.of(context).servers,
-                        height: 40.0,
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: buildTreeView(context, setState: setState),
-                        ),
-                      ),
-                      const SubHeader('Time filter', height: 24.0),
-                      DropdownButton<EventsTimeFilter>(
-                        isExpanded: true,
-                        value: timeFilter,
-                        items: const [
-                          DropdownMenuItem(
-                            value: EventsTimeFilter.any,
-                            child: Text('Any'),
-                          ),
-                          DropdownMenuItem(
-                            value: EventsTimeFilter.lastHour,
-                            child: Text('Last hour'),
-                          ),
-                          DropdownMenuItem(
-                            value: EventsTimeFilter.last6Hours,
-                            child: Text('Last 6 hours'),
-                          ),
-                          DropdownMenuItem(
-                            value: EventsTimeFilter.last12Hours,
-                            child: Text('Last 12 hours'),
-                          ),
-                          DropdownMenuItem(
-                            value: EventsTimeFilter.last24Hours,
-                            child: Text('Last 24 hours'),
-                          ),
-                          // DropdownMenuItem(
-                          //   child: Text('Select time range'),
-                          //   value: EventsTimeFilter.custom,
-                          // ),
-                        ],
-                        onChanged: (v) => setState(
-                          () => timeFilter = v ?? timeFilter,
-                        ),
-                      ),
-                      const SubHeader('Minimum level', height: 24.0),
-                      DropdownButton<EventsMinLevelFilter>(
-                        isExpanded: true,
-                        value: levelFilter,
-                        items: EventsMinLevelFilter.values.map((level) {
-                          return DropdownMenuItem(
-                            value: level,
-                            child: Text(level.name.uppercaseFirst()),
-                          );
-                        }).toList(),
-                        onChanged: (v) => setState(
-                          () => levelFilter = v ?? levelFilter,
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                    ]),
+        // This is hacky. Maybe find a way to move this logic to [API.getEvents]
+        // It'd also be useful to find a way to get the device at Event creation time
+        final devices = event.server.devices.where((device) =>
+            device.name.toLowerCase() == event.deviceName.toLowerCase());
+        if (devices.isNotEmpty) {
+          if (disabledDevices.contains(devices.first.streamURL)) continue;
+        }
+
+        yield event;
+      }
+    }).toList();
+
+    return LayoutBuilder(builder: (context, consts) {
+      if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
+        return Column(children: [
+          AppBar(
+            leading: MaybeUnityDrawerButton(context),
+            title: Text(AppLocalizations.of(context).eventBrowser),
+            actions: [
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 15.0),
+                child: IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  tooltip: AppLocalizations.of(context).filter,
+                  onPressed: () => showMobileFilter(context),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: EventsScreenMobile(
+              events: events,
+              loadedServers: this.events.keys,
+              refresh: fetch,
+              // isFirstTimeLoading: isFirstTimeLoading,
+              invalid: invalid,
+            ),
+          ),
+        ]);
+      }
+
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+          width: 220,
+          child: Card(
+            margin: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(),
+            child: DropdownButtonHideUnderline(
+              child: Column(children: [
+                SubHeader(
+                  AppLocalizations.of(context).servers,
+                  height: 40.0,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: buildTreeView(context, setState: setState),
                   ),
                 ),
-              ),
-              const VerticalDivider(width: 1),
-              Expanded(
-                child: EventsScreenDesktop(
-                  events: events,
-                  allowedServers: allowedServers,
-                  disabledDevices: disabledDevices,
-                  timeFilter: timeFilter,
-                  levelFilter: levelFilter,
+                const SubHeader('Time filter', height: 24.0),
+                DropdownButton<EventsTimeFilter>(
+                  isExpanded: true,
+                  value: timeFilter,
+                  items: const [
+                    DropdownMenuItem(
+                      value: EventsTimeFilter.any,
+                      child: Text('Any'),
+                    ),
+                    DropdownMenuItem(
+                      value: EventsTimeFilter.lastHour,
+                      child: Text('Last hour'),
+                    ),
+                    DropdownMenuItem(
+                      value: EventsTimeFilter.last6Hours,
+                      child: Text('Last 6 hours'),
+                    ),
+                    DropdownMenuItem(
+                      value: EventsTimeFilter.last12Hours,
+                      child: Text('Last 12 hours'),
+                    ),
+                    DropdownMenuItem(
+                      value: EventsTimeFilter.last24Hours,
+                      child: Text('Last 24 hours'),
+                    ),
+                    // DropdownMenuItem(
+                    //   child: Text('Select time range'),
+                    //   value: EventsTimeFilter.custom,
+                    // ),
+                  ],
+                  onChanged: (v) => setState(
+                    () => timeFilter = v ?? timeFilter,
+                  ),
                 ),
-              ),
-            ]);
-          });
-        }(),
-      ),
-    ]);
+                const SubHeader('Minimum level', height: 24.0),
+                DropdownButton<EventsMinLevelFilter>(
+                  isExpanded: true,
+                  value: levelFilter,
+                  items: EventsMinLevelFilter.values.map((level) {
+                    return DropdownMenuItem(
+                      value: level,
+                      child: Text(level.name.uppercaseFirst()),
+                    );
+                  }).toList(),
+                  onChanged: (v) => setState(
+                    () => levelFilter = v ?? levelFilter,
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+              ]),
+            ),
+          ),
+        ),
+        const VerticalDivider(width: 1),
+        Expanded(child: EventsScreenDesktop(events: events)),
+      ]);
+    });
   }
 
   Widget buildTreeView(

@@ -15,7 +15,7 @@ typedef ButtonStateWidgetBuilder = Widget Function(
 class HoverButton extends StatefulWidget {
   /// Creates a hover button.
   const HoverButton({
-    Key? key,
+    super.key,
     required this.builder,
     this.cursor,
     this.onPressed,
@@ -37,7 +37,7 @@ class HoverButton extends StatefulWidget {
     this.customActions,
     this.shortcuts,
     this.focusEnabled = true,
-  }) : super(key: key);
+  });
 
   /// {@template fluent_ui.controls.inputs.HoverButton.mouseCursor}
   /// The cursor for a mouse pointer when it enters or is hovering over the

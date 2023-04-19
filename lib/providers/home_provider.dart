@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -92,20 +92,13 @@ class HomeProvider extends ChangeNotifier {
 
   static Future<void> setDefaultStatusBarStyle() async {
     if (isMobile) {
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+
+      final isLight = Theme.of(context).brightness == Brightness.light;
       // Restore the navigation bar & status bar styling.
       SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.black,
-          systemNavigationBarDividerColor: Colors.black,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-      );
-      StatusBarControl.setStyle(
-        getStatusBarStyleFromBrightness(
-          SettingsProvider.instance.themeMode == ThemeMode.light
-              ? Brightness.dark
-              : Brightness.light,
-        ),
+        isLight ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       );
     }
   }

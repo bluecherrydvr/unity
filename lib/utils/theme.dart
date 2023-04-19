@@ -142,6 +142,12 @@ ThemeData createTheme({
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
+    visualDensity: VisualDensity.compact,
+    iconButtonTheme: const IconButtonThemeData(
+      style: ButtonStyle(
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
       selectionColor: primary.withOpacity(0.2),

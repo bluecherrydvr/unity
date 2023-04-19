@@ -45,7 +45,7 @@ class StaticGrid extends StatefulWidget {
 
   /// Creates a static grid
   const StaticGrid({
-    Key? key,
+    super.key,
     required this.crossAxisCount,
     required this.children,
     this.childAspectRatio = 1.0,
@@ -54,7 +54,7 @@ class StaticGrid extends StatefulWidget {
     required this.onReorder,
     this.reorderable = true,
     this.padding = kGridPadding,
-  }) : super(key: key);
+  });
 
   @override
   State<StaticGrid> createState() => StaticGridState();

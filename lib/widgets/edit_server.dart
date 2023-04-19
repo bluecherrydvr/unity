@@ -50,10 +50,10 @@ class EditServer extends StatefulWidget {
   final int serverPort;
 
   const EditServer({
-    Key? key,
+    super.key,
     required this.serverIp,
     required this.serverPort,
-  }) : super(key: key);
+  });
 
   @override
   State<EditServer> createState() => _EditServerState();

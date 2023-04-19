@@ -20,7 +20,7 @@
 part of 'settings.dart';
 
 class DateFormatSection extends StatelessWidget {
-  const DateFormatSection({Key? key}) : super(key: key);
+  const DateFormatSection({super.key});
 
   @override
   Widget build(BuildContext context) {

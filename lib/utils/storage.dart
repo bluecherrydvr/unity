@@ -30,8 +30,6 @@ Future<void> configureStorage() async {
             kHiveDesktopLayouts, hive.get(kHiveDesktopLayouts)),
         desktopView._replaceIfNotNull(
             kHiveDesktopCurrentLayout, hive.get(kHiveDesktopCurrentLayout)),
-        desktopView._replaceIfNotNull(
-            kHiveDesktopCycling, hive.get(kHiveDesktopCycling)),
         downloads._replaceIfNotNull(kHiveDownloads, hive.get(kHiveDownloads)),
         eventsPlayback._replaceIfNotNull(
             kHiveEventsPlayback, hive.get(kHiveEventsPlayback)),

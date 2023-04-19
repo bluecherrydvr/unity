@@ -20,16 +20,19 @@
 part of 'events_screen.dart';
 
 class EventsScreenMobile extends StatelessWidget {
-  final EventsData events;
+  final Iterable<Event> events;
+  final Iterable<Server> loadedServers;
+
   final RefreshCallback refresh;
   final Map<Server, bool> invalid;
 
   const EventsScreenMobile({
-    Key? key,
+    super.key,
     required this.events,
+    required this.loadedServers,
     required this.refresh,
     required this.invalid,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +48,13 @@ class EventsScreenMobile extends StatelessWidget {
           itemCount: servers.servers.length,
           itemBuilder: (context, index) {
             final server = servers.servers[index];
-            final hasEvents =
-                events.containsKey(server) && events[server]!.isNotEmpty;
+            final isLoaded = loadedServers.contains(server);
+            final serverEvents =
+                events.where((event) => event.server.id == server.id);
+            final hasEvents = serverEvents.isNotEmpty;
 
             return IgnorePointer(
-              ignoring: !server.online || !hasEvents,
+              ignoring: !server.online || !isLoaded,
               child: ExpansionTile(
                 initiallyExpanded: servers.servers.length.compareTo(1) == 0,
                 maintainState: true,
@@ -60,7 +65,7 @@ class EventsScreenMobile extends StatelessWidget {
                           Icons.desktop_access_disabled,
                           color: Theme.of(context).colorScheme.error,
                         )
-                      : !hasEvents
+                      : !isLoaded
                           ? const SizedBox(
                               height: 20.0,
                               width: 20.0,
@@ -86,37 +91,8 @@ class EventsScreenMobile extends StatelessWidget {
                         '${loc.nDevices(server.devices.length)} • ${server.ip}',
                       ),
                 children: !hasEvents
-                    ? []
-                    : events[server]?.map((event) {
-                          return ListTile(
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 70.0,
-                              end: 16.0,
-                            ),
-                            onTap: event.mediaURL == null
-                                ? null
-                                : () async {
-                                    await Navigator.of(context).pushNamed(
-                                      '/events',
-                                      arguments: {
-                                        'event': event,
-                                        'upcoming': events[server],
-                                      },
-                                    );
-                                  },
-                            title: Text(event.deviceName),
-                            isThreeLine: true,
-                            subtitle: Text(
-                              [
-                                '${event.type.locale(context)} • ${event.duration.humanReadable(context)}',
-                                '${settings.formatDate(event.updated)}'
-                                    ' ${settings.formatTime(event.updated).toUpperCase()}',
-                              ].join('\n'),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList() ??
-                        [
+                    ? [
+                        if (isLoaded)
                           if (invalid[server] ?? true)
                             SizedBox(
                               height: 72.0,
@@ -143,7 +119,36 @@ class EventsScreenMobile extends StatelessWidget {
                                 ),
                               ),
                             ),
-                        ],
+                      ]
+                    : serverEvents.map((event) {
+                        return ListTile(
+                          contentPadding: const EdgeInsetsDirectional.only(
+                            start: 70.0,
+                            end: 16.0,
+                          ),
+                          onTap: event.mediaURL == null
+                              ? null
+                              : () async {
+                                  await Navigator.of(context).pushNamed(
+                                    '/events',
+                                    arguments: {
+                                      'event': event,
+                                      'upcoming': serverEvents,
+                                    },
+                                  );
+                                },
+                          title: Text(event.deviceName),
+                          isThreeLine: true,
+                          subtitle: Text(
+                            [
+                              '${event.type.locale(context)} • ${event.duration.humanReadable(context)}',
+                              '${settings.formatDate(event.updated)}'
+                                  ' ${settings.formatTime(event.updated).toUpperCase()}',
+                            ].join('\n'),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
               ),
             );
           },

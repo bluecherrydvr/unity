@@ -44,10 +44,10 @@ class EventPlayerDesktop extends StatefulWidget {
   final List<Event> upcomingEvents;
 
   const EventPlayerDesktop({
-    Key? key,
+    super.key,
     required this.event,
     this.upcomingEvents = const [],
-  }) : super(key: key);
+  });
 
   @override
   State<EventPlayerDesktop> createState() => _EventPlayerDesktopState();
@@ -207,6 +207,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                   value: _position ??
                                       pos.inMilliseconds.toDouble(),
                                   max: duration.inMilliseconds.toDouble(),
+                                  secondaryTrackValue: videoController
+                                      .currentBuffer.inMilliseconds
+                                      .toDouble(),
                                   onChangeStart: (v) {
                                     shouldAutoplay = videoController.isPlaying;
                                     videoController.pause();
@@ -409,10 +412,10 @@ class EventTile extends StatelessWidget {
   final VoidCallback? onPlay;
 
   const EventTile({
-    Key? key,
+    super.key,
     required this.event,
     this.onPlay,
-  }) : super(key: key);
+  });
 
   static Widget buildContent(BuildContext context, Event event) {
     final settings = context.watch<SettingsProvider>();

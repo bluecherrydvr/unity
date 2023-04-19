@@ -14,23 +14,28 @@ dependencies:
     sdk: flutter
   unity_video_player_media_kit:
     path: ../unity_video_player_media_kit
-  unity_video_player_mobile:
-    path: ../unity_video_player_mobile
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
 
+dependency_overrides:
+  media_kit:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      path: media_kit/
+
 flutter:
   plugin:
     platforms:
       android:
-        default_package: unity_video_player_mobile
+        default_package: unity_video_player_media_kit
       ios:
-        default_package: unity_video_player_mobile
-      # macos:
-      #   default_package: unity_video_player_desktop
+        default_package: unity_video_player_media_kit
+      macos:
+        default_package: unity_video_player_media_kit
       linux:
         default_package: unity_video_player_media_kit
       windows:

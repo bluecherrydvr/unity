@@ -28,7 +28,7 @@ import 'package:flutter/material.dart';
 /// the platform splash screen is used instead
 class SplashScreen extends StatelessWidget {
   /// Creates an unity splash screen.
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

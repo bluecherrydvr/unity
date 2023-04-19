@@ -90,7 +90,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
         ]),
         child: Material(
           child: Container(
-            height: kMobileBottomBarHeight,
+            height: kMobileBottomBarHeight + viewPadding.bottom,
             padding: EdgeInsets.only(
               left: 16.0 + viewPadding.horizontal,
               right: 16.0 + viewPadding.horizontal,

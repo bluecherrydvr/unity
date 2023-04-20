@@ -92,7 +92,9 @@ lib
 │
 ├───providers                                          [core business logic of the application.]
 │   ├───desktop_view_provider.dart                     [stores, provides & caches desktop camera layout]
-│   │───home_provider.dart                             [stores, provides & caches data about the home page]
+│   ├───downloads_provider.dart                        [manages events downloading and progress]
+│   ├───events_playback_provider.dart                  [caches data about the events playback view]
+│   ├───home_provider.dart                             [stores, provides & caches data about the home page]
 │   ├───mobile_view_provider.dart                      [stores, provides & caches mobile camera layout etc.]
 │   ├───server_provider.dart                           [stores, provides & caches multiple DVR servers added by the user.]
 │   └───settings_provider.dart                         [stores, provides & caches various in-app configurations & settings.]
@@ -101,6 +103,7 @@ lib
 │   ├───constants.dart
 │   ├───extensions.dart
 │   ├───methods.dart
+│   ├───storage.dart
 │   ├───theme.dart
 │   └───window.dart
 │

@@ -20,7 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';

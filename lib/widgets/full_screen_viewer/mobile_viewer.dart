@@ -131,7 +131,12 @@ class _DeviceFullscreenViewerMobileState
                 leading: IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   icon: Icon(
-                    Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+                    [
+                      TargetPlatform.iOS,
+                      TargetPlatform.macOS,
+                    ].contains(Theme.of(context).platform)
+                        ? Icons.arrow_back_ios
+                        : Icons.arrow_back,
                   ),
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 ),

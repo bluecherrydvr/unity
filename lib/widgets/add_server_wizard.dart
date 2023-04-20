@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -159,9 +157,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const Divider(thickness: 1.0),
                         const SizedBox(height: 16.0),
                         Column(
-                          crossAxisAlignment: Platform.isIOS
-                              ? CrossAxisAlignment.center
-                              : CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              (Theme.of(context).appBarTheme.centerTitle ??
+                                      false)
+                                  ? CrossAxisAlignment.center
+                                  : CrossAxisAlignment.start,
                           children: [
                             Text(
                               AppLocalizations.of(context).welcome,

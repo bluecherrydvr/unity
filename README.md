@@ -25,9 +25,10 @@ This project & work under this repository is licensed under [GNU General Public 
 
 ## Download
 
-- iOS (https://apps.apple.com/us/app/bluecherry-mobile/id1555805139)
+- [iOS](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139)
 - [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
 - [Windows](https://github.com/bluecherrydvr/unity/releases/)
+- [Linux](https://snapcraft.io/bluecherry-client)
 
 ## Features
 
@@ -44,13 +45,13 @@ This project & work under this repository is licensed under [GNU General Public 
 - Configurable in-app date & time format.
 - System camera event notifications with screenshot thumbnails.
 - Ability to snooze notifications directly from notification or within the app.
-- Adaptive design for larger screens
+- Adaptive and responsive design for larger screens
 - Directionality support for right-to-left languages
-- Cross-platform. Currently targets mobile platforms. Desktop support coming in future.
+- Cross-platform
   - [x] Android
   - [x] iOS ([_App store link_](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139))
   - [x] Windows
-  - [ ] Linux
+  - [x] Linux ([_Snap store link_](https://snapcraft.io/bluecherry-client))
   - [ ] macOS
 
 ## Translate

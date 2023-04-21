@@ -201,13 +201,8 @@ class _MobileDeviceGridChild extends StatelessWidget {
             2: 2,
           }[tab]!,
           childAspectRatio: <int, double>{
-                if (Platform.isIOS) ...{
-                  4: size.width / size.height,
-                  2: size.width * 0.5 / size.height,
-                } else ...{
-                  4: size.width / size.height,
-                  2: size.width * 0.5 / size.height,
-                }
+                4: size.width / size.height,
+                2: size.width * 0.5 / size.height,
               }[tab] ??
               16 / 9,
           reorderable: view.current.any((device) => device != null),

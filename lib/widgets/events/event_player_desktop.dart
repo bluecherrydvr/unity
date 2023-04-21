@@ -22,7 +22,7 @@ import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';

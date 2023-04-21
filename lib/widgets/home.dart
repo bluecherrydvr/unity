@@ -87,7 +87,7 @@ class NavigatorData {
 }
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   State<Home> createState() => _MobileHomeState();
@@ -121,14 +121,13 @@ class _MobileHomeState extends State<Home> {
       ///
       /// When a navigation item is added, for example, these breakpoints need to be updated
       /// in order to delight a good user experience
-      final isWide = constraints.biggest.width > 640;
+      final isWide = constraints.biggest.width > 700;
       final isTall = constraints.biggest.height > 440;
       final showNavigationRail = isWide && isTall && !isDesktop;
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: isDesktop || showNavigationRail ? null : buildDrawer(context),
-        // drawer: buildDrawer(context),
         body: Column(children: [
           const WindowButtons(),
           Expanded(

@@ -16,7 +16,7 @@ void main(List<String> args) {
 }
 
 class HomeWindow extends StatelessWidget {
-  const HomeWindow({Key? key}) : super(key: key);
+  const HomeWindow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class HomeWindow extends StatelessWidget {
 }
 
 class SecondaryWindow extends StatelessWidget {
-  const SecondaryWindow({Key? key}) : super(key: key);
+  const SecondaryWindow({super.key});
 
   @override
   Widget build(BuildContext context) {

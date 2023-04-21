@@ -24,7 +24,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
-import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
@@ -140,7 +140,7 @@ class DevHttpOverrides extends HttpOverrides {
 }
 
 class UnityApp extends StatelessWidget {
-  const UnityApp({Key? key}) : super(key: key);
+  const UnityApp({super.key});
 
   @override
   Widget build(BuildContext context) {

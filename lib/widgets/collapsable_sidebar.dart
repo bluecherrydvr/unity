@@ -18,11 +18,11 @@ class CollapsableSidebar extends StatefulWidget {
   final ValueChanged<bool>? onCollapseStateChange;
 
   const CollapsableSidebar({
-    Key? key,
+    super.key,
     required this.builder,
     this.left = true,
     this.onCollapseStateChange,
-  }) : super(key: key);
+  });
 
   @override
   State<CollapsableSidebar> createState() => _CollapsableSidebarState();

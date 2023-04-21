@@ -22,7 +22,7 @@ import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
@@ -44,10 +44,10 @@ class EventPlayerDesktop extends StatefulWidget {
   final List<Event> upcomingEvents;
 
   const EventPlayerDesktop({
-    Key? key,
+    super.key,
     required this.event,
     this.upcomingEvents = const [],
-  }) : super(key: key);
+  });
 
   @override
   State<EventPlayerDesktop> createState() => _EventPlayerDesktopState();
@@ -167,22 +167,24 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                 Expanded(
                   child: Column(children: [
                     Expanded(
-                      child: UnityVideoView(
-                        player: videoController,
-                        paneBuilder: (context, controller) {
-                          if (controller.error != null) {
-                            return ErrorWarning(message: controller.error!);
-                          } else if (!controller.isSeekable) {
-                            return const Center(
-                              child: CircularProgressIndicator.adaptive(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            );
-                          }
+                      child: InteractiveViewer(
+                        child: UnityVideoView(
+                          player: videoController,
+                          paneBuilder: (context, controller) {
+                            if (controller.error != null) {
+                              return ErrorWarning(message: controller.error!);
+                            } else if (!controller.isSeekable) {
+                              return const Center(
+                                child: CircularProgressIndicator.adaptive(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              );
+                            }
 
-                          return const SizedBox.shrink();
-                        },
+                            return const SizedBox.shrink();
+                          },
+                        ),
                       ),
                     ),
                     Row(children: [
@@ -205,6 +207,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                                   value: _position ??
                                       pos.inMilliseconds.toDouble(),
                                   max: duration.inMilliseconds.toDouble(),
+                                  secondaryTrackValue: videoController
+                                      .currentBuffer.inMilliseconds
+                                      .toDouble(),
                                   onChangeStart: (v) {
                                     shouldAutoplay = videoController.isPlaying;
                                     videoController.pause();
@@ -407,10 +412,10 @@ class EventTile extends StatelessWidget {
   final VoidCallback? onPlay;
 
   const EventTile({
-    Key? key,
+    super.key,
     required this.event,
     this.onPlay,
-  }) : super(key: key);
+  });
 
   static Widget buildContent(BuildContext context, Event event) {
     final settings = context.watch<SettingsProvider>();

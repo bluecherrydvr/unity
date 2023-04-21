@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-part of 'device_grid.dart';
+part of '../device_grid.dart';
 
 const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
 const kCompactSidebarConstraints = BoxConstraints(maxWidth: 65.0);
@@ -26,9 +26,9 @@ class DesktopSidebar extends StatefulWidget {
   final Widget collapseButton;
 
   const DesktopSidebar({
-    Key? key,
+    super.key,
     required this.collapseButton,
-  }) : super(key: key);
+  });
 
   @override
   State<DesktopSidebar> createState() => _DesktopSidebarState();
@@ -111,10 +111,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
 class DesktopDeviceSelectorTile extends StatefulWidget {
   const DesktopDeviceSelectorTile({
-    Key? key,
+    super.key,
     required this.device,
     required this.selected,
-  }) : super(key: key);
+  });
 
   final Device device;
   final bool selected;

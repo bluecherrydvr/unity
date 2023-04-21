@@ -22,11 +22,13 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_desktop.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback_mobile.dart';
 import 'package:bluecherry_client/widgets/events_playback/timeline_controller.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -121,7 +123,7 @@ class FilterData {
 typedef EventsData = Map<String, List<Event>>;
 
 class EventsPlayback extends StatefulWidget {
-  const EventsPlayback({Key? key}) : super(key: key);
+  const EventsPlayback({super.key});
 
   @override
   State<EventsPlayback> createState() => _EventsPlaybackState();
@@ -245,7 +247,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
     if (servers.servers.isEmpty) {
-      return const NoServerWarning();
+      return const Stack(alignment: Alignment.center, children: [
+        PositionedDirectional(
+          top: 0,
+          start: 0,
+          child: SafeArea(child: UnityDrawerButton()),
+        ),
+        NoServerWarning(),
+      ]);
     }
 
     final home = context.watch<HomeProvider>();
@@ -260,15 +269,17 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
     }
 
+    final hasDrawer = Scaffold.hasDrawer(context);
+
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth >= 800) {
-        return EventsPlaybackDesktop(
+      if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
+        return EventsPlaybackMobile(
           events: filteredData,
           filter: filterData,
           onFilter: onFilter,
         );
       } else {
-        return EventsPlaybackMobile(
+        return EventsPlaybackDesktop(
           events: filteredData,
           filter: filterData,
           onFilter: onFilter,

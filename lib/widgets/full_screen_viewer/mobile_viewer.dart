@@ -25,11 +25,11 @@ class DeviceFullscreenViewerMobile extends StatefulWidget {
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewerMobile({
-    Key? key,
+    super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
-  }) : super(key: key);
+  });
 
   @override
   State<DeviceFullscreenViewerMobile> createState() =>
@@ -101,7 +101,8 @@ class _DeviceFullscreenViewerMobileState
                 paneBuilder: (context, controller) {
                   if (controller.error != null) {
                     return ErrorWarning(message: controller.error!);
-                  } else if (controller.isBuffering) {
+                  } else if (controller.isBuffering ||
+                      controller.dataSource == null) {
                     return const Center(
                       child: CircularProgressIndicator.adaptive(
                         valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -130,7 +131,12 @@ class _DeviceFullscreenViewerMobileState
                 leading: IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   icon: Icon(
-                    Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+                    [
+                      TargetPlatform.iOS,
+                      TargetPlatform.macOS,
+                    ].contains(Theme.of(context).platform)
+                        ? Icons.arrow_back_ios
+                        : Icons.arrow_back,
                   ),
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 ),

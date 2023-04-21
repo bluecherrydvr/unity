@@ -848,6 +848,7 @@ class TimelineController extends ChangeNotifier {
     if (!context.mounted || allEvents.isEmpty) {
       HomeProvider.instance.notLoading(
         UnityLoadingReason.fetchingEventsPlaybackPeriods,
+        notify: false,
       );
       return;
     }
@@ -967,10 +968,10 @@ class TimelineView extends StatefulWidget {
   final bool showDevicesName;
 
   const TimelineView({
-    Key? key,
+    super.key,
     required this.timelineController,
     this.showDevicesName = true,
-  }) : super(key: key);
+  });
 
   @override
   State<TimelineView> createState() => _TimelineViewState();
@@ -1305,14 +1306,13 @@ class _TimelineItemGestures extends StatefulWidget {
   final Widget child;
 
   const _TimelineItemGestures({
-    Key? key,
     required this.controller,
     required this.item,
     required this.width,
     required this.isPressing,
     required this.pointerPosition,
     required this.child,
-  }) : super(key: key);
+  });
 
   static const kPopupWidth = 60.0;
 

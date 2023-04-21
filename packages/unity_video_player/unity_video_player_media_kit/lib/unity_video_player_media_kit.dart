@@ -26,21 +26,27 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
+    UnityVideoBuilder? videoBuilder,
     Color color = const Color(0xFF000000),
   }) {
+    videoBuilder ??= (context, video) => video;
+
     return Builder(builder: (context) {
       return Stack(children: [
         Positioned.fill(
-          child: _MKVideo(
-            key: ValueKey(player),
-            player: (player as UnityVideoPlayerMediaKit).mkPlayer,
-            videoController: player.mkVideoController,
-            color: color,
-            fit: {
-              UnityVideoFit.contain: BoxFit.contain,
-              UnityVideoFit.cover: BoxFit.cover,
-              UnityVideoFit.fill: BoxFit.fill,
-            }[fit]!,
+          child: videoBuilder!(
+            context,
+            _MKVideo(
+              key: ValueKey(player),
+              player: (player as UnityVideoPlayerMediaKit).mkPlayer,
+              videoController: player.mkVideoController,
+              color: color,
+              fit: {
+                UnityVideoFit.contain: BoxFit.contain,
+                UnityVideoFit.cover: BoxFit.cover,
+                UnityVideoFit.fill: BoxFit.fill,
+              }[fit]!,
+            ),
           ),
         ),
         if (paneBuilder != null)
@@ -57,12 +63,12 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
 class _MKVideo extends StatelessWidget {
   const _MKVideo({
-    Key? key,
+    super.key,
     required this.player,
     required this.videoController,
     required this.fit,
     required this.color,
-  }) : super(key: key);
+  });
 
   final Player player;
   final Future<VideoController> videoController;
@@ -90,7 +96,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
     mkVideoController = VideoController.create(
-      mkPlayer.handle,
+      mkPlayer,
       width: 640,
       height: 360,
     );
@@ -108,10 +114,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   Future<void> ensureVideoControllerInitialized(
-    Future<void> Function() cb,
+    Future<void> Function(VideoController controller) cb,
   ) async {
-    await mkVideoController.then((_) async {
-      return await cb();
+    await mkVideoController.then((controller) async {
+      return await cb(controller);
     });
   }
 
@@ -149,6 +155,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   bool get isBuffering => mkPlayer.state.buffering;
 
   @override
+  Duration get currentBuffer => mkPlayer.state.buffer;
+
+  @override
+  Stream<Duration> get onBufferUpdate => mkPlayer.streams.buffer;
+
+  @override
   bool get isSeekable => true;
 
   @override
@@ -162,7 +174,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
@@ -174,7 +186,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     List<String> url, {
     bool autoPlay = true,
   }) {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
         Playlist(url.map((source) => Media(source)).toList()),
         play: autoPlay,
@@ -196,8 +208,18 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
 
   @override
+  Future<void> setSize(Size size) {
+    return ensureVideoControllerInitialized((controller) async {
+      await controller.setSize(
+        width: size.width.toInt(),
+        height: size.height.toInt(),
+      );
+    });
+  }
+
+  @override
   Future<void> start() {
-    return ensureVideoControllerInitialized(() async {
+    return ensureVideoControllerInitialized((controller) async {
       mkPlayer.play();
     });
   }

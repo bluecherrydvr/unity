@@ -22,7 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -36,7 +36,10 @@ abstract class APIHelpers {
   /// Returns unique device ID used to identify the app installation.
   static Future<String?> get clientUUID async {
     final instance = DeviceInfoPlugin();
-    if (Platform.isIOS) {
+    if (kIsWeb) {
+      final web = await instance.webBrowserInfo;
+      return web.platform;
+    } else if (Platform.isIOS) {
       final ios = await instance.iosInfo;
       return ios.identifierForVendor;
     } else if (Platform.isAndroid) {

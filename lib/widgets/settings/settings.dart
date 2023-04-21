@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
@@ -42,7 +43,7 @@ part 'server_tile.dart';
 typedef ChangeTabCallback = void Function(int tab);
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  const Settings({super.key});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -191,7 +192,7 @@ class _SettingsState extends State<Settings> {
                       secondary: const Icon(null),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 8.0),
+                        padding: const EdgeInsetsDirectional.only(start: 16.0),
                         child: Text(
                           e.str(context),
                         ),
@@ -223,7 +224,7 @@ class _SettingsState extends State<Settings> {
                       secondary: const Icon(null),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 8.0),
+                        padding: const EdgeInsetsDirectional.only(start: 16.0),
                         child: Text(
                           e.str(context),
                         ),
@@ -250,6 +251,39 @@ class _SettingsState extends State<Settings> {
                           Directory(selectedDirectory).path;
                     }
                   },
+                ),
+                ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).iconTheme.color,
+                    child: const Icon(Icons.timelapse),
+                  ),
+                  title: Text(AppLocalizations.of(context).cycleTogglePeriod),
+                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  subtitle: Text(
+                    settings.layoutCyclingTogglePeriod.humanReadable(context),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                  ),
+                  children: [5, 10, 30, 60, 60 * 5].map((e) {
+                    final dur = Duration(seconds: e);
+                    return RadioListTile(
+                      value: dur,
+                      groupValue: settings.layoutCyclingTogglePeriod,
+                      onChanged: (value) {
+                        settings.layoutCyclingTogglePeriod = dur;
+                      },
+                      secondary: const Icon(null),
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      title: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 16.0),
+                        child: Text(
+                          dur.humanReadable(context),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ])),
               divider,

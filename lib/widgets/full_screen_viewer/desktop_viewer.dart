@@ -24,10 +24,10 @@ class DeviceFullscreenViewerDesktop extends StatefulWidget {
   final UnityVideoPlayer videoPlayerController;
 
   const DeviceFullscreenViewerDesktop({
-    Key? key,
+    super.key,
     required this.device,
     required this.videoPlayerController,
-  }) : super(key: key);
+  });
 
   @override
   State<DeviceFullscreenViewerDesktop> createState() =>

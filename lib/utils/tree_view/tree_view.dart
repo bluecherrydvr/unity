@@ -21,14 +21,13 @@ class TreeView extends StatefulWidget {
   /// Tree controller to manage the tree state.
   final TreeController? treeController;
 
-  TreeView(
-      {Key? key,
-      required List<TreeNode> nodes,
-      this.indent = 40,
-      this.iconSize,
-      this.treeController})
-      : nodes = copyTreeNodes(nodes),
-        super(key: key);
+  TreeView({
+    super.key,
+    required List<TreeNode> nodes,
+    this.indent = 40,
+    this.iconSize,
+    this.treeController,
+  }) : nodes = copyTreeNodes(nodes);
 
   @override
   State<TreeView> createState() => _TreeViewState();
@@ -118,12 +117,11 @@ class NodeWidget extends StatefulWidget {
   final TreeController state;
 
   const NodeWidget(
-      {Key? key,
+      {super.key,
       required this.treeNode,
       this.indent,
       required this.state,
-      this.iconSize})
-      : super(key: key);
+      this.iconSize});
 
   @override
   State<NodeWidget> createState() => _NodeWidgetState();

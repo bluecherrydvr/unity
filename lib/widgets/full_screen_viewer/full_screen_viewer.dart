@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -40,16 +38,16 @@ class DeviceFullscreenViewer extends StatelessWidget {
   final bool restoreStatusBarStyleOnDispose;
 
   const DeviceFullscreenViewer({
-    Key? key,
+    super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      // if (consts.maxWidth >= 800) {
+      // if (consts.maxWidth >= kMobileBreakpoint.width) {
       //   return DeviceFullscreenViewerDesktop(
       //     device: device,
       //     videoPlayerController: videoPlayerController,

@@ -24,10 +24,10 @@ class EventPlayerScreen extends StatelessWidget {
   final List<Event> upcomingEvents;
 
   const EventPlayerScreen({
-    Key? key,
+    super.key,
     required this.event,
     required this.upcomingEvents,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class EventPlayerScreen extends StatelessWidget {
 class _EventPlayerMobile extends StatefulWidget {
   final Event event;
 
-  const _EventPlayerMobile({Key? key, required this.event}) : super(key: key);
+  const _EventPlayerMobile({required this.event});
 
   @override
   State<_EventPlayerMobile> createState() => __EventPlayerMobileState();
@@ -54,6 +54,12 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   @override
   void initState() {
     super.initState();
+    DeviceOrientations.instance.set([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    HomeProvider.setDefaultStatusBarStyle();
   }
 
   @override
@@ -78,36 +84,40 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
     videoController
       ..release()
       ..dispose();
+
+    DeviceOrientations.instance.set(DeviceOrientation.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showIf(
-        isMobile,
-        child: AppBar(
-          title: Text(
-            '${widget.event.deviceName} (${widget.event.server.name})',
-          ),
-        ),
-      ),
       body: Column(children: [
         const WindowButtons(),
         Expanded(
-          child: InteractiveViewer(
-            minScale: 1.0,
-            maxScale: 4.0,
+          child: SafeArea(
             child: UnityVideoView(
               player: videoController,
-              paneBuilder: (context, controller) {
+              videoBuilder: (context, video) {
+                return InteractiveViewer(
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: video,
+                );
+              },
+              paneBuilder: (context, videoController) {
                 if (isDesktop) {
                   return _DesktopVideoViewport(
                     event: widget.event,
-                    player: controller,
+                    player: videoController,
                   );
                 } else {
-                  return VideoViewport(player: controller);
+                  return VideoViewport(
+                    event: widget.event,
+                    player: videoController,
+                  );
                 }
               },
             ),
@@ -120,11 +130,9 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
 class VideoViewport extends StatefulWidget {
   final UnityVideoPlayer player;
+  final Event event;
 
-  const VideoViewport({
-    Key? key,
-    required this.player,
-  }) : super(key: key);
+  const VideoViewport({super.key, required this.player, required this.event});
 
   @override
   State<VideoViewport> createState() => _VideoViewportState();
@@ -136,16 +144,39 @@ class _VideoViewportState extends State<VideoViewport> {
   Duration position = Duration.zero;
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
+  bool isSliding = false;
+
+  late StreamSubscription positionStream;
+  late StreamSubscription bufferStream;
 
   @override
   void initState() {
     super.initState();
     // Set class attributes to match the current [FijkPlayer]'s state.
     position = widget.player.currentPos;
-    widget.player.onCurrentPosUpdate.listen(currentPosListener);
-    widget.player.onBufferStateUpdate.listen(bufferStateListener);
+    positionStream =
+        widget.player.onCurrentPosUpdate.listen(currentPosListener);
+    bufferStream = widget.player.onBufferUpdate.listen(bufferListener);
+
+    startTimer();
+  }
+
+  void currentPosListener(Duration event) {
+    if (mounted) {
+      setState(() {
+        position = event;
+      });
+    }
+  }
+
+  void bufferListener(Duration buffer) {
+    if (mounted) setState(() {});
+  }
+
+  void startTimer() {
+    if (timer.isActive) timer.cancel();
     timer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
+      if (mounted && !isSliding) {
         setState(() {
           visible = false;
         });
@@ -153,202 +184,175 @@ class _VideoViewportState extends State<VideoViewport> {
     });
   }
 
-  void currentPosListener(Duration event) {
-    if (mounted) {
-      setState(() {
-        position = event;
-        // Deal with the [seekTo] condition inside the [Slider] [Widget] callback.
-        // if (state == FijkState.idle) {
-        //   state = FijkState.started;
-        // }
-      });
-    }
-  }
-
-  void bufferStateListener(bool event) {
-    if (mounted) setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: SafeArea(
-        child: Stack(children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                if (!visible) {
-                  setState(() => visible = true);
-                  if (timer.isActive) timer.cancel();
-                  timer = Timer(const Duration(seconds: 5), () {
-                    if (mounted) {
-                      setState(() => visible = false);
-                    }
-                  });
-                } else {
-                  setState(() => visible = false);
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                decoration: BoxDecoration(
-                  gradient: visible
-                      ? const LinearGradient(
-                          stops: [
-                            1.0,
-                            0.8,
-                            0.0,
-                            0.8,
-                            1.0,
-                          ],
-                          colors: [
-                            Colors.black38,
-                            Colors.transparent,
-                            Colors.transparent,
-                            Colors.transparent,
-                            Colors.black38,
-                          ],
-                        )
-                      : null,
-                ),
+    return Stack(children: [
+      Positioned.fill(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (!visible) {
+              setState(() => visible = true);
+              startTimer();
+            } else {
+              setState(() => visible = false);
+            }
+          },
+          child: IgnorePointer(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              decoration: BoxDecoration(
+                gradient: visible
+                    ? const LinearGradient(
+                        stops: [
+                          1.0,
+                          0.8,
+                          0.0,
+                          0.8,
+                          1.0,
+                        ],
+                        colors: [
+                          Colors.black38,
+                          Colors.transparent,
+                          Colors.transparent,
+                          Colors.transparent,
+                          Colors.black38,
+                        ],
+                      )
+                    : null,
               ),
             ),
           ),
-          if (visible || player.isBuffering) ...[
-            PositionedDirectional(
-              top: 0.0,
-              bottom: 0.0,
-              start: 0.0,
-              end: 0.0,
-              child: () {
-                if (player.error != null) {
-                  return ErrorWarning(message: player.error!);
-                } else if (player.isBuffering) {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  );
-                } else {
-                  return GestureDetector(
-                    child: Icon(
-                      player.isPlaying ? Icons.pause : Icons.play_arrow,
-                      color: Colors.white,
-                      shadows: const <Shadow>[
-                        BoxShadow(
-                            color: Colors.black54,
-                            blurRadius: 15.0,
-                            offset: Offset(0.0, 0.75)),
-                      ],
-                      size: 56.0,
-                    ),
-                    onTap: () {
-                      if (player.isPlaying) {
-                        widget.player.pause();
-                      } else {
-                        widget.player.start();
-                      }
-                    },
-                  );
-                }
-              }(),
-            ),
-            if (player.duration != Duration.zero)
-              PositionedDirectional(
-                bottom: 0.0,
-                start: 0.0,
-                end: 0.0,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 16.0),
-                    Container(
-                      alignment: AlignmentDirectional.centerEnd,
-                      height: 36.0,
-                      child: Text(
-                        player.currentPos.label,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: SliderTheme(
-                        data: SliderThemeData(
-                          overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 12.0),
-                          overlayColor: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.4),
-                          thumbColor: Theme.of(context).colorScheme.primary,
-                          activeTrackColor:
-                              Theme.of(context).colorScheme.primary,
-                          inactiveTrackColor: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.5),
-                          trackHeight: 2.0,
-                          thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 6.0,
-                          ),
-                        ),
-                        child: Transform.translate(
-                          offset: const Offset(0, 0.8),
-                          child: Slider(
-                            value: position.inMilliseconds.toDouble(),
-                            max: player.duration.inMilliseconds.toDouble(),
-                            onChanged: (value) async {
-                              position = Duration(milliseconds: value.toInt());
-                              await player.seekTo(position);
-                              await player.start();
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Container(
-                      alignment: AlignmentDirectional.centerStart,
-                      height: 36.0,
-                      child: Text(
-                        player.duration.label,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    // TODO(bdlukaa): fullscreen. unity_video_player currently doesn't provide an
-                    // interface for full screen handling
-                    // IconButton(
-                    //   padding: EdgeInsets.zero,
-                    //   icon: Icon(
-                    //     false
-                    //         // widget.player.isFullScreen
-                    //         ? Icons.fullscreen_exit
-                    //         : Icons.fullscreen,
-                    //     color: Colors.white,
-                    //   ),
-                    //   onPressed: () {
-                    //     // if (widget.player.value.fullScreen) {
-                    //     //   player.exitFullScreen();
-                    //     // } else {
-                    //     //   player.enterFullScreen();
-                    //     // }
-                    //   },
-                    // ),
-                    // const SizedBox(width: 8.0),
-                  ],
+        ),
+      ),
+      if (visible || player.isBuffering) ...[
+        Positioned(
+          height: kToolbarHeight,
+          left: 0,
+          right: 0,
+          top: MediaQuery.paddingOf(context).top,
+          child: SafeArea(
+            child: Row(children: [
+              const BackButton(),
+              Expanded(
+                child: Text(
+                  '${widget.event.deviceName} (${widget.event.server.name})',
                 ),
               ),
-          ],
-        ]),
-      ),
-    );
+              DownloadIndicator(event: widget.event),
+            ]),
+          ),
+        ),
+        Positioned.fill(
+          child: () {
+            if (player.error != null) {
+              return ErrorWarning(message: player.error!);
+            } else if (player.isBuffering) {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2.0,
+                ),
+              );
+            } else {
+              return GestureDetector(
+                child: Icon(
+                  player.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white,
+                  shadows: const <Shadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75)),
+                  ],
+                  size: 56.0,
+                ),
+                onTap: () {
+                  if (player.isPlaying) {
+                    widget.player.pause();
+                  } else {
+                    widget.player.start();
+                  }
+                },
+              );
+            }
+          }(),
+        ),
+        if (player.duration != Duration.zero)
+          PositionedDirectional(
+            bottom: 0.0,
+            start: 0.0,
+            end: 0.0,
+            child: Row(children: [
+              const SizedBox(width: 16.0),
+              Container(
+                alignment: AlignmentDirectional.centerEnd,
+                height: 36.0,
+                child: Text(
+                  player.currentPos.label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderThemeData(
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 12.0),
+                    overlayColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                    thumbColor: Theme.of(context).colorScheme.primary,
+                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                    inactiveTrackColor:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    trackHeight: 2.0,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6.0,
+                    ),
+                  ),
+                  child: Transform.translate(
+                    offset: const Offset(0, 0.8),
+                    child: Slider(
+                      divisions: player.duration.inMilliseconds,
+                      label: position.humanReadableCompact(context),
+                      value: position.inMilliseconds.toDouble(),
+                      max: player.duration.inMilliseconds.toDouble(),
+                      secondaryTrackValue:
+                          player.currentBuffer.inMilliseconds.toDouble(),
+                      onChangeStart: (_) => isSliding = true,
+                      onChanged: (value) async {
+                        position = Duration(milliseconds: value.toInt());
+                        await player.seekTo(position);
+                        await player.start();
+                      },
+                      onChangeEnd: (_) {
+                        isSliding = false;
+                        if (!timer.isActive) setState(() => visible = false);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+              Container(
+                alignment: AlignmentDirectional.centerStart,
+                height: 36.0,
+                child: Text(
+                  player.duration.label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+            ]),
+          ),
+      ],
+    ]);
   }
 
   @override
@@ -364,10 +368,9 @@ class _DesktopVideoViewport extends StatefulWidget {
   final UnityVideoPlayer player;
 
   const _DesktopVideoViewport({
-    Key? key,
     required this.event,
     required this.player,
-  }) : super(key: key);
+  });
 
   @override
   State<_DesktopVideoViewport> createState() => __DesktopVideoViewportState();
@@ -389,6 +392,8 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
             child: Slider(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
               max: widget.player.duration.inMilliseconds.toDouble(),
+              secondaryTrackValue:
+                  widget.player.currentBuffer.inMilliseconds.toDouble(),
               onChanged: (v) {
                 widget.player.seekTo(Duration(milliseconds: v.toInt()));
               },

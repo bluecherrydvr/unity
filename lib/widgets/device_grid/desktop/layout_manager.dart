@@ -21,7 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
-import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -31,23 +31,27 @@ class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
   const LayoutManager({
-    Key? key,
+    super.key,
     required this.collapseButton,
-  }) : super(key: key);
+  });
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
 }
 
 class _LayoutManagerState extends State<LayoutManager> {
-  late Timer timer;
+  Timer? timer;
 
   @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(kCycleTogglePeriod, (timer) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.watch<SettingsProvider>();
+    timer?.cancel();
+    timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
+      final settings = SettingsProvider.instance;
       final view = DesktopViewProvider.instance;
-      if (view.cycling) {
+
+      if (settings.layoutCyclingEnabled) {
         final currentIsLast =
             view.currentLayoutIndex == view.layouts.length - 1;
 
@@ -60,7 +64,7 @@ class _LayoutManagerState extends State<LayoutManager> {
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
@@ -68,18 +72,18 @@ class _LayoutManagerState extends State<LayoutManager> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SizedBox(
       height: 210.0,
       child: Column(children: [
-        // if (isDesktop) const Divider(height: 1.0),
         Material(
           color: theme.appBarTheme.backgroundColor,
           child: Padding(
             padding: const EdgeInsetsDirectional.only(
               top: 2.0,
               bottom: 2.0,
-              end: 16.0,
+              end: 12.0,
             ),
             child: Row(children: [
               widget.collapseButton,
@@ -94,13 +98,13 @@ class _LayoutManagerState extends State<LayoutManager> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
-                  color: view.cycling
+                  color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: AppLocalizations.of(context).cycle,
-                onPressed: view.toggleCycling,
+                onPressed: settings.toggleCycling,
               ),
               IconButton(
                 icon: Icon(
@@ -138,10 +142,10 @@ class _LayoutManagerState extends State<LayoutManager> {
 
 class LayoutTile extends StatelessWidget {
   const LayoutTile({
-    Key? key,
+    super.key,
     required this.layout,
     required this.selected,
-  }) : super(key: key);
+  });
 
   final Layout layout;
   final bool selected;
@@ -175,7 +179,7 @@ class LayoutTile extends StatelessWidget {
         minLeadingWidth: 24.0,
         contentPadding: const EdgeInsetsDirectional.only(
           start: 12.0,
-          end: 16.0,
+          end: 8.0,
         ),
         title: Text(layout.name, maxLines: 1),
         subtitle: Text(
@@ -258,10 +262,9 @@ class _LayoutTypeChooser extends StatelessWidget {
   final ValueChanged<int> onSelect;
 
   const _LayoutTypeChooser({
-    Key? key,
     required this.selected,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +294,7 @@ class _LayoutTypeChooser extends StatelessWidget {
 }
 
 class NewLayoutDialog extends StatefulWidget {
-  const NewLayoutDialog({Key? key}) : super(key: key);
+  const NewLayoutDialog({super.key});
 
   @override
   State<NewLayoutDialog> createState() => _NewLayoutDialogState();
@@ -356,7 +359,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 }
 
 class EditLayoutDialog extends StatefulWidget {
-  const EditLayoutDialog({Key? key, required this.layout}) : super(key: key);
+  const EditLayoutDialog({super.key, required this.layout});
 
   final Layout layout;
 

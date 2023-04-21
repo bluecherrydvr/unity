@@ -20,7 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/downloads.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -36,17 +36,15 @@ const _kDownloadsManagerPadding = 14.0;
 class DownloadsManagerScreen extends StatelessWidget {
   final int? initiallyExpandedEventId;
 
-  const DownloadsManagerScreen({
-    Key? key,
-    this.initiallyExpandedEventId,
-  }) : super(key: key);
+  const DownloadsManagerScreen({super.key, this.initiallyExpandedEventId});
 
   @override
   Widget build(BuildContext context) {
     final downloads = context.watch<DownloadsManager>();
+
     return Column(children: [
       showIf(
-            isMobile,
+            Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(AppLocalizations.of(context).downloads),
@@ -116,14 +114,14 @@ class DownloadsManagerScreen extends StatelessWidget {
 
 class DownloadTile extends StatefulWidget {
   const DownloadTile({
-    Key? key,
+    super.key,
     required this.size,
     required this.event,
     this.upcomingEvents = const [],
     this.progress = 1.0,
     this.downloadPath,
     this.initiallyExpanded = true,
-  }) : super(key: key);
+  });
 
   final Size size;
   final Event event;
@@ -349,9 +347,9 @@ class _DownloadTileState extends State<DownloadTile> {
 
 class DownloadProgressIndicator extends StatelessWidget {
   const DownloadProgressIndicator({
-    Key? key,
+    super.key,
     required this.progress,
-  }) : super(key: key);
+  });
 
   final DownloadProgress progress;
 
@@ -386,9 +384,9 @@ class DownloadIndicator extends StatelessWidget {
   final Event event;
 
   const DownloadIndicator({
-    Key? key,
+    super.key,
     required this.event,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

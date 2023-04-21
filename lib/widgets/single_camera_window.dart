@@ -16,10 +16,10 @@ class SingleCameraWindow extends StatelessWidget {
   final ThemeMode mode;
 
   const SingleCameraWindow({
-    Key? key,
+    super.key,
     required this.device,
     required this.mode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +50,9 @@ class SingleCameraWindow extends StatelessWidget {
 
 class CameraView extends StatefulWidget {
   const CameraView({
-    Key? key,
+    super.key,
     required this.device,
-  }) : super(key: key);
+  });
 
   final Device device;
 

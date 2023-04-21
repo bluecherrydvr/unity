@@ -63,10 +63,10 @@ class NObserver extends NavigatorObserver {
 
 class WindowButtons extends StatefulWidget {
   const WindowButtons({
-    Key? key,
+    super.key,
     this.title,
     this.showNavigator = true,
-  }) : super(key: key);
+  });
 
   /// The current window title.
   ///
@@ -101,9 +101,11 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   }
 
   Future<void> _init() async {
-    // Add this line to override the default close handler
-    await windowManager.setPreventClose(true);
-    if (mounted) setState(() {});
+    if (isDesktop) {
+      // Add this line to override the default close handler
+      await windowManager.setPreventClose(true);
+      if (mounted) setState(() {});
+    }
   }
 
   @override
@@ -270,7 +272,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
 /// A widget that shows whether something in the app is loading
 class UnityLoadingIndicator extends StatelessWidget {
-  const UnityLoadingIndicator({Key? key}) : super(key: key);
+  const UnityLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

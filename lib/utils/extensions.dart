@@ -22,6 +22,8 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -48,53 +50,24 @@ extension DurationExtension on Duration {
   }
 
   String humanReadable(BuildContext context) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = twoDigits(inHours);
-    final minutes = twoDigits(inMinutes.remainder(60));
-    final seconds = twoDigits(inSeconds.remainder(60));
-
-    final finalStrings = <String>[];
-
-    final localizations = AppLocalizations.of(context);
-
-    if (hours.isNotEmpty && hours != '00') {
-      finalStrings.add(localizations.hours(hours));
-    }
-
-    if (minutes.isNotEmpty && minutes != '00') {
-      finalStrings.add(localizations.minutes(minutes));
-    }
-
-    if (seconds.isNotEmpty && seconds != '00') {
-      finalStrings.add(localizations.seconds(seconds));
-    }
-
-    return finalStrings.join(', ');
+    return prettyDuration(
+      this,
+      locale: DurationLocale.fromLanguageCode(
+            Localizations.localeOf(context).languageCode,
+          ) ??
+          const EnglishDurationLocale(),
+    );
   }
 
   String humanReadableCompact(BuildContext context, [bool allowEmpty = false]) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = twoDigits(inHours);
-    final minutes = twoDigits(inMinutes.remainder(60));
-    final seconds = twoDigits(inSeconds.remainder(60));
-
-    final finalStrings = <String>[];
-
-    final localizations = AppLocalizations.of(context);
-
-    if (hours.isNotEmpty && hours != '00' || allowEmpty) {
-      finalStrings.add(localizations.hoursCompact(hours));
-    }
-
-    if (minutes.isNotEmpty && minutes != '00' || allowEmpty) {
-      finalStrings.add(localizations.minutesCompact(minutes));
-    }
-
-    if (seconds.isNotEmpty && seconds != '00' || allowEmpty) {
-      finalStrings.add(localizations.secondsCompact(seconds));
-    }
-
-    return finalStrings.join();
+    return prettyDuration(
+      this,
+      abbreviated: true,
+      locale: DurationLocale.fromLanguageCode(
+            Localizations.localeOf(context).languageCode,
+          ) ??
+          const EnglishDurationLocale(),
+    );
   }
 
   Duration ensurePositive() {

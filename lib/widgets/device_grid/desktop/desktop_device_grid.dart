@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-part of 'device_grid.dart';
+part of '../device_grid.dart';
 
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
-  const DesktopDeviceGrid({Key? key, required this.width}) : super(key: key);
+  const DesktopDeviceGrid({super.key, required this.width});
 
   final double width;
 
@@ -215,7 +215,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 }
 
 class DesktopDeviceTile extends StatefulWidget {
-  const DesktopDeviceTile({Key? key, required this.device}) : super(key: key);
+  const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
@@ -225,6 +225,7 @@ class DesktopDeviceTile extends StatefulWidget {
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   UnityVideoPlayer? videoPlayer;
+  Size? size;
 
   @override
   void initState() {
@@ -238,9 +239,17 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height,
-      child: UnityVideoView(
+    return LayoutBuilder(builder: (context, consts) {
+      // TODO(bdlukaa): for some odd reason, this crashes
+      // if (size == null || size != consts.biggest) {
+      //   size = consts.biggest;
+      //   debugPrint('Resizing video controller');
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     videoPlayer!.setSize(size!);
+      //   });
+      // }
+
+      return UnityVideoView(
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
@@ -250,17 +259,16 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
             device: widget.device,
           );
         },
-      ),
-    );
+      );
+    });
   }
 }
 
 class DesktopCompactTile extends StatelessWidget {
   const DesktopCompactTile({
-    Key? key,
+    super.key,
     required this.devices,
-  })  : assert(devices.length >= 2 && devices.length <= 4),
-        super(key: key);
+  }) : assert(devices.length >= 2 && devices.length <= 4);
 
   final List<Device> devices;
 
@@ -309,11 +317,11 @@ class DesktopTileViewport extends StatefulWidget {
   final bool isSubView;
 
   const DesktopTileViewport({
-    Key? key,
+    super.key,
     required this.controller,
     required this.device,
     this.isSubView = false,
-  }) : super(key: key);
+  });
 
   @override
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();

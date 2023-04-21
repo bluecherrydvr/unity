@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -33,9 +31,9 @@ import 'package:url_launcher/url_launcher.dart';
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
   const AddServerWizard({
-    Key? key,
+    super.key,
     required this.onFinish,
-  }) : super(key: key);
+  });
 
   @override
   State<AddServerWizard> createState() => _AddServerWizardState();
@@ -112,55 +110,46 @@ class _AddServerWizardState extends State<AddServerWizard> {
                           padding: const EdgeInsetsDirectional.all(8.0),
                           child: Row(children: [
                             const Spacer(),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  launchUrl(
-                                    Uri.https(
-                                      'www.bluecherrydvr.com',
-                                      '/',
+                            MaterialButton(
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.https(
+                                    'www.bluecherrydvr.com',
+                                    '/',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              },
+                              child: Text(
+                                AppLocalizations.of(context).website,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).website,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                ),
                               ),
                             ),
-                            const SizedBox(width: 16.0),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  launchUrl(
-                                    Uri.https(
-                                      'www.bluecherrydvr.com',
-                                      '/product/v3license/',
+                            MaterialButton(
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.https(
+                                    'www.bluecherrydvr.com',
+                                    '/product/v3license/',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              },
+                              child: Text(
+                                AppLocalizations.of(context).purchase,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).purchase,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                ),
                               ),
                             ),
                           ]),
@@ -168,9 +157,11 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const Divider(thickness: 1.0),
                         const SizedBox(height: 16.0),
                         Column(
-                          crossAxisAlignment: Platform.isIOS
-                              ? CrossAxisAlignment.center
-                              : CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              (Theme.of(context).appBarTheme.centerTitle ??
+                                      false)
+                                  ? CrossAxisAlignment.center
+                                  : CrossAxisAlignment.start,
                           children: [
                             Text(
                               AppLocalizations.of(context).welcome,
@@ -266,11 +257,11 @@ class ConfigureDVRServerScreen extends StatefulWidget {
   final Server? Function() getServer;
 
   const ConfigureDVRServerScreen({
-    Key? key,
+    super.key,
     required this.controller,
     required this.setServer,
     required this.getServer,
-  }) : super(key: key);
+  });
 
   @override
   State<ConfigureDVRServerScreen> createState() =>
@@ -649,11 +640,11 @@ class LetsGoScreen extends StatefulWidget {
   final VoidCallback onFinish;
 
   const LetsGoScreen({
-    Key? key,
+    super.key,
     required this.controller,
     required this.getServer,
     required this.onFinish,
-  }) : super(key: key);
+  });
 
   @override
   State<LetsGoScreen> createState() => _LetsGoScreenState();

@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -25,14 +26,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class DeviceSelectorScreen extends StatefulWidget {
-  const DeviceSelectorScreen({Key? key}) : super(key: key);
+class DeviceSelectorScreen extends StatelessWidget {
+  /// The devices already selected
+  final Iterable<Device> selected;
 
-  @override
-  State<DeviceSelectorScreen> createState() => _DeviceSelectorScreenState();
-}
+  const DeviceSelectorScreen({
+    super.key,
+    this.selected = const [],
+  });
 
-class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,8 +103,10 @@ class _DeviceSelectorScreenState extends State<DeviceSelectorScreen> {
                 index--;
 
                 final device = devices[index];
+                final isSelected = selected.contains(device);
+
                 return ListTile(
-                  enabled: device.status,
+                  enabled: device.status && !isSelected,
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     foregroundColor: device.status

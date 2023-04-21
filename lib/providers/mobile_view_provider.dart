@@ -53,12 +53,14 @@ class MobileViewProvider extends ChangeNotifier {
   ///    1 : [Device(...)],
   ///    2 : [Device(...), Device(...)],
   ///    4 : [Device(...), Device(...), Device(...), Device(...)]
+  ///    6 : [Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...), Device(...)]
   /// }
   /// ```
   Map<int, List<Device?>> devices = {
     1: <Device?>[null],
     2: <Device?>[null, null],
     4: <Device?>[null, null, null, null],
+    6: <Device?>[null, null, null, null, null, null],
   };
 
   /// This map keeps the `bool`s to indicate whether the hover details of a [Device] is shown or not.
@@ -68,6 +70,7 @@ class MobileViewProvider extends ChangeNotifier {
     1: <bool>[false],
     2: <bool>[false, false],
     4: <bool>[false, false, false, false],
+    6: <bool>[false, false, false, false, false, false],
   };
 
   /// Instances of video players corresponding to a particular [Device].
@@ -247,6 +250,14 @@ class MobileViewProvider extends ChangeNotifier {
               ),
             )
             .cast<int, List<Device?>>();
+
+    // This is just for migration. Old clients do not have the "6" layout in their
+    // devices, so we add it here
+    if (!devices.containsKey(6)) {
+      devices.addAll({
+        6: [null, null, null, null, null, null]
+      });
+    }
 
     tab = data[kHiveMobileViewTab]!;
     if (notifyListeners) {

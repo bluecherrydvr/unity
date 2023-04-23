@@ -12,7 +12,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  Future<void> initialize() async {}
+  Future<void> initialize() async {
+    MediaKit.ensureInitialized();
+  }
 
   @override
   UnityVideoPlayer createPlayer({int? width, int? height}) {

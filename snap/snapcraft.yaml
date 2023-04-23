@@ -25,4 +25,6 @@ parts:
   bluecherry-app:
     source: .
     plugin: flutter
+    build-packages:
+      - libmpv-dev
     flutter-target: lib/main.dart # The main entry-point file of the application

@@ -31,8 +31,8 @@ dependencies:
 
   intl: ^0.18.0
   duration: ^3.0.12
-  firebase_core: ^2.7.0
-  firebase_messaging: ^14.2.5
+  firebase_core: ^2.10.0
+  firebase_messaging: ^14.4.1
   # Use HannesGitH branch until https://github.com/rafaelsetragni/awesome_notifications/pull/727 is merged
   # TODO: remove this
   awesome_notifications:
@@ -69,7 +69,7 @@ dependency_overrides:
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: 9bb37fcf509e7c71d4dcba696fb1d48bf3308f25
+      ref: a4f678b5006ad036a6bd82b300d8de8f04e803cf
       path: media_kit/
 
 flutter:

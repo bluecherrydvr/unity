@@ -27,6 +27,16 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
 
+enum Movement {
+  noMovement,
+  moveNorth,
+  moveSouth,
+  moveWest,
+  moveEast,
+  moveWide,
+  moveTele
+}
+
 class API {
   static final API instance = API();
 
@@ -300,5 +310,52 @@ class API {
       debugPrint(stacktrace.toString());
       return false;
     }
+  }
+
+  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
+  Future<void> ptz({
+    required Device device,
+    required Movement movement,
+    int panSpeed = 32,
+    int tiltSpeed = 32,
+    int duration = 250,
+  }) async {
+    final server = device.server;
+
+    const command = 'move';
+
+    final url = Uri.https(
+      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '/media/ptz.php?id=${device.id}&command=$command',
+      {
+        // commands
+        if (movement == Movement.moveNorth)
+          'tilt': 'u' //up
+        else if (movement == Movement.moveSouth)
+          'tilt': 'd' //down
+        else if (movement == Movement.moveWest)
+          'pan': 'l' //left
+        else if (movement == Movement.moveEast)
+          'pan': 'r' //right
+        else if (movement == Movement.moveWide)
+          'zoom': 'w' //down
+        else if (movement == Movement.moveTele)
+          'zoom': 't', //down
+
+        // speeds
+        if (panSpeed > 0) 'panspeed': panSpeed,
+        if (tiltSpeed > 0) 'tiltspeed': tiltSpeed,
+        if (duration > 0) 'duration': duration,
+      },
+    );
+
+    final response = await get(
+      url,
+      headers: {
+        'Cookie': server.cookie!,
+      },
+    );
+
+    print(response.body);
   }
 }

@@ -204,7 +204,14 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       }
       final server = ServersProvider.instance.servers
           .firstWhere((server) => server.serverUUID == serverUUID);
-      final device = Device(name!, 'live/$id', true, 0, 0, server);
+      final device = Device(
+        name!,
+        int.tryParse(id ?? '0') ?? 0,
+        true,
+        0,
+        0,
+        server,
+      );
       final player = getVideoPlayerControllerForDevice(device);
       // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
       // Thus, push a new route.

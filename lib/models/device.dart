@@ -25,7 +25,7 @@ class Device {
   final String name;
 
   /// [Uri] to the RTSP stream associated with the device.
-  final String uri;
+  final int id;
 
   /// `true` [status] indicates that device device is working correctly or is `Online`.
   final bool status;
@@ -41,17 +41,19 @@ class Device {
 
   const Device(
     this.name,
-    this.uri,
+    this.id,
     this.status,
     this.resolutionX,
     this.resolutionY,
     this.server,
   );
 
+  String get uri => 'live/$id';
+
   factory Device.fromServerJson(Map map, Server server) {
     return Device(
       map['device_name'],
-      'live/${map['id']}',
+      int.tryParse(map['id']) ?? 0,
       map['status'] == 'OK',
       map['resolutionX'] == null ? null : int.parse(map['resolutionX']),
       map['resolutionX'] == null ? null : int.parse(map['resolutionY']),
@@ -90,7 +92,7 @@ class Device {
 
   Device copyWith({
     String? name,
-    String? uri,
+    int? id,
     bool? status,
     int? resolutionX,
     int? resolutionY,
@@ -98,7 +100,7 @@ class Device {
   }) =>
       Device(
         name ?? this.name,
-        uri ?? this.uri,
+        id ?? this.id,
         status ?? this.status,
         resolutionX ?? this.resolutionX,
         resolutionY ?? this.resolutionY,

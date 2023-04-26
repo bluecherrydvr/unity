@@ -31,6 +31,8 @@ class HoverButton extends StatefulWidget {
     this.onHorizontalDragStart,
     this.onHorizontalDragUpdate,
     this.onHorizontalDragEnd,
+    this.onVerticalDragUpdate,
+    this.onScaleUpdate,
     this.onFocusChange,
     this.autofocus = false,
     this.actionsEnabled = true,
@@ -59,6 +61,9 @@ class HoverButton extends StatefulWidget {
   final GestureDragStartCallback? onHorizontalDragStart;
   final GestureDragUpdateCallback? onHorizontalDragUpdate;
   final GestureDragEndCallback? onHorizontalDragEnd;
+  final GestureDragUpdateCallback? onVerticalDragUpdate;
+
+  final ValueChanged<ScaleUpdateDetails>? onScaleUpdate;
 
   final ButtonStateWidgetBuilder builder;
 
@@ -231,6 +236,7 @@ class _HoverButtonState extends State<HoverButton> {
       onHorizontalDragStart: widget.onHorizontalDragStart,
       onHorizontalDragUpdate: widget.onHorizontalDragUpdate,
       onHorizontalDragEnd: widget.onHorizontalDragEnd,
+      onVerticalDragUpdate: widget.onVerticalDragUpdate,
       child: widget.builder(context, states),
     );
     if (widget.focusEnabled) {
@@ -262,6 +268,13 @@ class _HoverButtonState extends State<HoverButton> {
         child: w,
       );
     }
+
+    w = InteractiveViewer(
+      maxScale: 1.0,
+      minScale: 1.0,
+      onInteractionUpdate: widget.onScaleUpdate,
+      child: w,
+    );
     w = MergeSemantics(
       child: Semantics(
         label: widget.semanticLabel,
@@ -272,6 +285,7 @@ class _HoverButtonState extends State<HoverButton> {
         child: w,
       ),
     );
+
     if (widget.margin != null) w = Padding(padding: widget.margin!, child: w);
     return w;
   }

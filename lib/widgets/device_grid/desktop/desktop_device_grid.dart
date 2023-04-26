@@ -379,6 +379,56 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
     final foreground = HoverButton(
       onPressed: () {},
+      onVerticalDragUpdate: (d) {
+        print(d.delta);
+        if (d.delta.dy < 0) {
+          debugPrint('moving up');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveNorth,
+          );
+        } else {
+          debugPrint('moving down');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveSouth,
+          );
+        }
+      },
+      onHorizontalDragUpdate: (d) {
+        print(d.delta);
+        if (d.delta.dx < 0) {
+          debugPrint('moving left');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveWest,
+          );
+        } else {
+          debugPrint('moving right');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveEast,
+          );
+        }
+      },
+      onScaleUpdate: (details) {
+        if (details.scale.isNegative ||
+            details.scale.toString().runes.last.isEven) return;
+
+        if (details.scale > 1.0) {
+          debugPrint('zooming up');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveWide,
+          );
+        } else {
+          debugPrint('zooming down');
+          API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveTele,
+          );
+        }
+      },
       builder: (context, states) {
         return Column(children: [
           if (!widget.isSubView)

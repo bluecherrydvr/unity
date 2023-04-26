@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:flutter/foundation.dart';
 
 /// A [Device] present on a server.
 class Device {
@@ -63,6 +64,15 @@ class Device {
 
   String get streamURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
+
+  String get hslURL {
+    final videoLink =
+        'https://${server.ip}:${server.port}/hsl/$id/0/playlist.m3u8?authtoken=token';
+
+    debugPrint('HSL URL: $videoLink');
+
+    return videoLink;
+  }
 
   /// Server name / Device name
   String get fullName {
@@ -121,7 +131,7 @@ class Device {
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
       json['name'],
-      json['uri'],
+      int.tryParse(json['uri'] ?? '') ?? 0,
       json['status'],
       json['resolutionX'],
       json['resolutionY'],

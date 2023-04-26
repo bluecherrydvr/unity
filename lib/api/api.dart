@@ -318,7 +318,7 @@ class API {
     required Movement movement,
     int panSpeed = 32,
     int tiltSpeed = 32,
-    int duration = 250,
+    int duration = 1,
   }) async {
     final server = device.server;
 
@@ -326,8 +326,11 @@ class API {
 
     final url = Uri.https(
       '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-      '/media/ptz.php?id=${device.id}&command=$command',
+      '/media/ptz.php',
       {
+        'id': '${device.id}',
+        'command': command,
+
         // commands
         if (movement == Movement.moveNorth)
           'tilt': 'u' //up
@@ -338,24 +341,27 @@ class API {
         else if (movement == Movement.moveEast)
           'pan': 'r' //right
         else if (movement == Movement.moveWide)
-          'zoom': 'w' //down
+          'zoom': 'w' //wide
         else if (movement == Movement.moveTele)
-          'zoom': 't', //down
+          'zoom': 't', //tight
 
         // speeds
-        if (panSpeed > 0) 'panspeed': panSpeed,
-        if (tiltSpeed > 0) 'tiltspeed': tiltSpeed,
-        if (duration > 0) 'duration': duration,
+        if (panSpeed > 0) 'panspeed': '$panSpeed',
+        if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
+        if (duration >= -1) 'duration': '$duration',
       },
     );
+
+    debugPrint(url.toString());
 
     final response = await get(
       url,
       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Cookie': server.cookie!,
       },
     );
 
-    print(response.body);
+    print(response.statusCode);
   }
 }

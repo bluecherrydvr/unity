@@ -73,6 +73,7 @@ UnityVideoPlayer getVideoPlayerControllerForDevice(
     height: device.resolutionY,
   )
     ..setDataSource(device.streamURL)
+    // ..setDataSource(device.hslURL)
     ..setVolume(0.0)
     ..setSpeed(1.0);
 

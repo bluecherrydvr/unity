@@ -365,6 +365,6 @@ class API {
       },
     );
 
-    print(response.statusCode);
+    debugPrint('${command.name} ${response.statusCode}');
   }
 }

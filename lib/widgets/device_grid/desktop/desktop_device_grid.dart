@@ -379,16 +379,23 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
     final foreground = HoverButton(
       onPressed: () {},
+      onTapUp: () {
+        debugPrint('stopping');
+        API.instance.ptz(
+          device: widget.device,
+          movement: Movement.noMovement,
+          command: PTZCommand.stop,
+        );
+      },
       onVerticalDragUpdate: (d) {
-        print(d.delta);
         if (d.delta.dy < 0) {
-          debugPrint('moving up');
+          debugPrint('moving up ${d.delta.dy}');
           API.instance.ptz(
             device: widget.device,
             movement: Movement.moveNorth,
           );
         } else {
-          debugPrint('moving down');
+          debugPrint('moving down ${d.delta.dy}');
           API.instance.ptz(
             device: widget.device,
             movement: Movement.moveSouth,
@@ -396,15 +403,14 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         }
       },
       onHorizontalDragUpdate: (d) {
-        print(d.delta);
         if (d.delta.dx < 0) {
-          debugPrint('moving left');
+          debugPrint('moving left ${d.delta.dx}');
           API.instance.ptz(
             device: widget.device,
             movement: Movement.moveWest,
           );
         } else {
-          debugPrint('moving right');
+          debugPrint('moving right ${d.delta.dx}');
           API.instance.ptz(
             device: widget.device,
             movement: Movement.moveEast,

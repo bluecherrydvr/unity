@@ -27,6 +27,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
 
+enum PTZCommand { move, stop }
+
 enum Movement {
   noMovement,
   moveNorth,
@@ -316,20 +318,21 @@ class API {
   Future<void> ptz({
     required Device device,
     required Movement movement,
-    int panSpeed = 32,
-    int tiltSpeed = 32,
+    PTZCommand command = PTZCommand.move,
+    int panSpeed = 3,
+    int tiltSpeed = 3,
     int duration = 1,
   }) async {
     final server = device.server;
 
-    const command = 'move';
+    // const command = 'move';
 
     final url = Uri.https(
       '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
       '/media/ptz.php',
       {
         'id': '${device.id}',
-        'command': command,
+        'command': command.name,
 
         // commands
         if (movement == Movement.moveNorth)

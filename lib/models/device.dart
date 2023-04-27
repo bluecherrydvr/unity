@@ -40,6 +40,7 @@ class Device {
   /// Reference to the [Server], to which this camera [Device] belongs.
   final Server server;
 
+  /// Creates a device.
   const Device(
     this.name,
     this.id,

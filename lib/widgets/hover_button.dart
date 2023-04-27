@@ -31,8 +31,12 @@ class HoverButton extends StatefulWidget {
     this.onHorizontalDragStart,
     this.onHorizontalDragUpdate,
     this.onHorizontalDragEnd,
+    this.onVerticalDragStart,
     this.onVerticalDragUpdate,
+    this.onVerticalDragEnd,
+    this.onScaleStart,
     this.onScaleUpdate,
+    this.onScaleEnd,
     this.onFocusChange,
     this.autofocus = false,
     this.actionsEnabled = true,
@@ -61,9 +65,14 @@ class HoverButton extends StatefulWidget {
   final GestureDragStartCallback? onHorizontalDragStart;
   final GestureDragUpdateCallback? onHorizontalDragUpdate;
   final GestureDragEndCallback? onHorizontalDragEnd;
-  final GestureDragUpdateCallback? onVerticalDragUpdate;
 
+  final GestureDragStartCallback? onVerticalDragStart;
+  final GestureDragUpdateCallback? onVerticalDragUpdate;
+  final GestureDragEndCallback? onVerticalDragEnd;
+
+  final ValueChanged<ScaleStartDetails>? onScaleStart;
   final ValueChanged<ScaleUpdateDetails>? onScaleUpdate;
+  final ValueChanged<ScaleEndDetails>? onScaleEnd;
 
   final ButtonStateWidgetBuilder builder;
 
@@ -236,7 +245,9 @@ class _HoverButtonState extends State<HoverButton> {
       onHorizontalDragStart: widget.onHorizontalDragStart,
       onHorizontalDragUpdate: widget.onHorizontalDragUpdate,
       onHorizontalDragEnd: widget.onHorizontalDragEnd,
+      onVerticalDragStart: widget.onVerticalDragStart,
       onVerticalDragUpdate: widget.onVerticalDragUpdate,
+      onVerticalDragEnd: widget.onVerticalDragEnd,
       child: widget.builder(context, states),
     );
     if (widget.focusEnabled) {
@@ -272,7 +283,9 @@ class _HoverButtonState extends State<HoverButton> {
     w = InteractiveViewer(
       maxScale: 1.0,
       minScale: 1.0,
+      onInteractionStart: widget.onScaleStart,
       onInteractionUpdate: widget.onScaleUpdate,
+      onInteractionEnd: widget.onScaleEnd,
       child: w,
     );
     w = MergeSemantics(

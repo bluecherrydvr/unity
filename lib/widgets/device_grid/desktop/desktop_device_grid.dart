@@ -328,6 +328,9 @@ class DesktopTileViewport extends StatefulWidget {
 }
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
+  /// This ensures the commands will be sent only once.
+  bool lock = false;
+
   double? volume;
 
   void updateVolume() {
@@ -388,6 +391,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         );
       },
       onVerticalDragUpdate: (d) {
+        if (lock) return;
+        lock = true;
+
         if (d.delta.dy < 0) {
           debugPrint('moving up ${d.delta.dy}');
           API.instance.ptz(
@@ -402,7 +408,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           );
         }
       },
+      onVerticalDragEnd: (_) => lock = false,
       onHorizontalDragUpdate: (d) {
+        if (lock) return;
+        lock = true;
+
         if (d.delta.dx < 0) {
           debugPrint('moving left ${d.delta.dx}');
           API.instance.ptz(
@@ -417,24 +427,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           );
         }
       },
+      onHorizontalDragEnd: (_) => lock = false,
       onScaleUpdate: (details) {
-        if (details.scale.isNegative ||
+        if (lock ||
+            details.scale.isNegative ||
             details.scale.toString().runes.last.isEven) return;
+        lock = true;
 
         if (details.scale > 1.0) {
           debugPrint('zooming up');
           API.instance.ptz(
             device: widget.device,
-            movement: Movement.moveWide,
+            movement: Movement.moveTele,
           );
         } else {
           debugPrint('zooming down');
           API.instance.ptz(
             device: widget.device,
-            movement: Movement.moveTele,
+            movement: Movement.moveWide,
           );
         }
       },
+      onScaleEnd: (_) => lock = false,
       builder: (context, states) {
         return Column(children: [
           if (!widget.isSubView)

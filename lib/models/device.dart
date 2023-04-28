@@ -18,7 +18,6 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
-import 'package:flutter/foundation.dart';
 
 /// A [Device] present on a server.
 class Device {
@@ -63,16 +62,11 @@ class Device {
     );
   }
 
-  String get streamURL =>
+  String get rtspURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
 
-  String get hslURL {
-    final videoLink =
-        'https://${server.ip}:${server.port}/hsl/$id/0/playlist.m3u8?authtoken=token';
-
-    debugPrint('HSL URL: $videoLink');
-
-    return videoLink;
+  String get mjpegURL {
+    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/media/mjpeg.php?id=$id&multipart=true';
   }
 
   /// Server name / Device name
@@ -121,7 +115,7 @@ class Device {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'uri': uri,
+      'id': id,
       'status': status,
       'resolutionX': resolutionX,
       'resolutionY': resolutionY,
@@ -132,7 +126,10 @@ class Device {
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
       json['name'],
-      int.tryParse(json['uri'] ?? '') ?? 0,
+      int.tryParse(json['id']?.toString() ??
+              json['uri']?.toString().replaceAll('live/', '') ??
+              '') ??
+          0,
       json['status'],
       json['resolutionX'],
       json['resolutionY'],

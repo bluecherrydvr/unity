@@ -70,7 +70,7 @@ class _CameraViewState extends State<CameraView> {
       width: widget.device.resolutionX,
       height: widget.device.resolutionY,
     )
-      ..setDataSource(widget.device.streamURL)
+      ..setDataSource(widget.device.rtspURL)
       ..setVolume(0.0)
       ..setSpeed(1.0);
   }

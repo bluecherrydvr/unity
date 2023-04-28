@@ -319,8 +319,8 @@ class API {
     required Device device,
     required Movement movement,
     PTZCommand command = PTZCommand.move,
-    int panSpeed = 3,
-    int tiltSpeed = 3,
+    int panSpeed = 1,
+    int tiltSpeed = 1,
     int duration = 1,
   }) async {
     final server = device.server;
@@ -349,9 +349,11 @@ class API {
           'zoom': 't', //tight
 
         // speeds
-        if (panSpeed > 0) 'panspeed': '$panSpeed',
-        if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
-        if (duration >= -1) 'duration': '$duration',
+        if (command == PTZCommand.move) ...{
+          if (panSpeed > 0) 'panspeed': '$panSpeed',
+          if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
+          if (duration >= -1) 'duration': '$duration',
+        },
       },
     );
 

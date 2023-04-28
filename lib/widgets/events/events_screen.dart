@@ -156,7 +156,7 @@ class _EventsScreenState extends State<EventsScreen> {
         final devices = event.server.devices.where((device) =>
             device.name.toLowerCase() == event.deviceName.toLowerCase());
         if (devices.isNotEmpty) {
-          if (disabledDevices.contains(devices.first.streamURL)) continue;
+          if (disabledDevices.contains(devices.first.rtspURL)) continue;
         }
 
         yield event;
@@ -304,7 +304,7 @@ class _EventsScreenState extends State<EventsScreen> {
       iconSize: 18.0,
       nodes: servers.servers.map((server) {
         final isTriState = disabledDevices
-            .any((d) => server.devices.any((device) => device.streamURL == d));
+            .any((d) => server.devices.any((device) => device.rtspURL == d));
         final isOffline = !server.online;
 
         return TreeNode(
@@ -321,7 +321,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 setState(() {
                   if (isTriState) {
                     disabledDevices.removeWhere((d) =>
-                        server.devices.any((device) => device.streamURL == d));
+                        server.devices.any((device) => device.rtspURL == d));
                   } else if (v == null || !v) {
                     allowedServers.remove(server);
                   } else {
@@ -352,7 +352,7 @@ class _EventsScreenState extends State<EventsScreen> {
               return server.devices.sorted().map((device) {
                 final enabled = isOffline || !allowedServers.contains(server)
                     ? false
-                    : !disabledDevices.contains(device.streamURL);
+                    : !disabledDevices.contains(device.rtspURL);
                 return TreeNode(
                   content: Row(children: [
                     IgnorePointer(
@@ -366,9 +366,9 @@ class _EventsScreenState extends State<EventsScreen> {
 
                           setState(() {
                             if (enabled) {
-                              disabledDevices.add(device.streamURL);
+                              disabledDevices.add(device.rtspURL);
                             } else {
-                              disabledDevices.remove(device.streamURL);
+                              disabledDevices.remove(device.rtspURL);
                             }
                           });
                         },

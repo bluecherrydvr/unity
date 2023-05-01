@@ -198,5 +198,17 @@
   "unknown": "Unknown",
   "@": {},
   "close": "Close",
-  "open": "Open"
+  "open": "Open",
+  "@PTZ": {},
+  "enabledPTZ": "PTZ is enabled",
+  "disabledPTZ": "PTZ is disabled",
+  "move": "Movement",
+  "stop": "Stop",
+  "noMovement": "No movement",
+  "moveNorth": "Move up",
+  "moveSouth": "Move down",
+  "moveWest": "Move west",
+  "moveEast": "Move east",
+  "moveWide": "Zoom down",
+  "moveTele": "Zoom up"
 }

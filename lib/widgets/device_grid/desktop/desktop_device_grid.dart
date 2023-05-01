@@ -327,9 +327,20 @@ class DesktopTileViewport extends StatefulWidget {
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
+class _Command {
+  final Movement movement;
+  final PTZCommand command;
+
+  const _Command({
+    this.movement = Movement.noMovement,
+    this.command = PTZCommand.move,
+  });
+}
+
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   /// This ensures the commands will be sent only once.
   bool lock = false;
+  bool ptzEnabled = false;
 
   double? volume;
 
@@ -338,6 +349,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       if (mounted) setState(() => volume = value);
     });
   }
+
+  List<_Command> commands = [];
 
   @override
   void initState() {
@@ -380,72 +393,97 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       ),
     ];
 
-    final foreground = HoverButton(
+    Widget foreground = HoverButton(
       onPressed: () {},
-      onTapUp: () {
+      onTapUp: () async {
+        if (!ptzEnabled) return;
+
         debugPrint('stopping');
-        API.instance.ptz(
+        const cmd = _Command(command: PTZCommand.stop);
+        setState(() => commands.add(cmd));
+        await API.instance.ptz(
           device: widget.device,
           movement: Movement.noMovement,
           command: PTZCommand.stop,
         );
+        setState(() => commands.remove(cmd));
       },
-      onVerticalDragUpdate: (d) {
-        if (lock) return;
+      onVerticalDragUpdate: (d) async {
+        if (lock || !ptzEnabled) return;
         lock = true;
 
         if (d.delta.dy < 0) {
           debugPrint('moving up ${d.delta.dy}');
-          API.instance.ptz(
+
+          const cmd = _Command(movement: Movement.moveNorth);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveNorth,
           );
+          setState(() => commands.remove(cmd));
         } else {
           debugPrint('moving down ${d.delta.dy}');
-          API.instance.ptz(
+          const cmd = _Command(movement: Movement.moveSouth);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveSouth,
           );
+          setState(() => commands.remove(cmd));
         }
       },
       onVerticalDragEnd: (_) => lock = false,
-      onHorizontalDragUpdate: (d) {
-        if (lock) return;
+      onHorizontalDragUpdate: (d) async {
+        if (lock || !ptzEnabled) return;
         lock = true;
 
         if (d.delta.dx < 0) {
           debugPrint('moving left ${d.delta.dx}');
-          API.instance.ptz(
+          const cmd = _Command(movement: Movement.moveWest);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveWest,
           );
+          setState(() => commands.remove(cmd));
         } else {
           debugPrint('moving right ${d.delta.dx}');
-          API.instance.ptz(
+          const cmd = _Command(movement: Movement.moveEast);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveEast,
           );
+          setState(() => commands.remove(cmd));
         }
       },
       onHorizontalDragEnd: (_) => lock = false,
-      onScaleUpdate: (details) {
+      onScaleUpdate: (details) async {
         if (lock ||
             details.scale.isNegative ||
-            details.scale.toString().runes.last.isEven) return;
+            details.scale.toString().runes.last.isEven ||
+            !ptzEnabled) return;
         lock = true;
 
         if (details.scale > 1.0) {
           debugPrint('zooming up');
-          API.instance.ptz(
+          const cmd = _Command(movement: Movement.moveTele);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveTele,
           );
+          setState(() => commands.remove(cmd));
         } else {
           debugPrint('zooming down');
-          API.instance.ptz(
+          const cmd = _Command(movement: Movement.moveWide);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
             device: widget.device,
             movement: Movement.moveWide,
           );
+          setState(() => commands.remove(cmd));
         }
       },
       onScaleEnd: (_) => lock = false,
@@ -499,6 +537,18 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  if (widget.device.hasPTZ)
+                    IconButton(
+                      icon: Icon(
+                        Icons.videogame_asset,
+                        color: ptzEnabled ? Colors.white : null,
+                      ),
+                      tooltip: ptzEnabled
+                          ? AppLocalizations.of(context).enabledPTZ
+                          : AppLocalizations.of(context).disabledPTZ,
+                      onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
+                    ),
+                  const Spacer(),
                   () {
                     final isMuted = volume == 0.0;
 
@@ -591,6 +641,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         ]);
       },
     );
+
+    foreground = Stack(children: [
+      foreground,
+      PositionedDirectional(
+        end: 16.0,
+        top: 50.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: commands
+              .map<String>((cmd) {
+                switch (cmd.command) {
+                  case PTZCommand.move:
+                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                  case PTZCommand.stop:
+                    return cmd.command.locale(context);
+                }
+              })
+              .map<Widget>(Text.new)
+              .toList(),
+        ),
+      ),
+    ]);
 
     return TooltipTheme(
       data: TooltipTheme.of(context).copyWith(

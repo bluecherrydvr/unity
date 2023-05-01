@@ -22,6 +22,7 @@ import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';

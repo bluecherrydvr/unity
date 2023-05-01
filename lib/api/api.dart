@@ -20,24 +20,13 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
+import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
-
-enum PTZCommand { move, stop }
-
-enum Movement {
-  noMovement,
-  moveNorth,
-  moveSouth,
-  moveWest,
-  moveEast,
-  moveWide,
-  moveTele
-}
 
 class API {
   static final API instance = API();
@@ -119,8 +108,8 @@ class API {
 
       Iterable<Device> devices;
       if (devicesResult is List) {
+        // This is reached in the case the server has multiple cameras
         devices = devicesResult.cast<Map>().map((device) {
-          // This is reached in the case the server has multiple cameras
           return Device.fromServerJson(device, server);
         });
       } else if (devicesResult is Map) {
@@ -315,17 +304,17 @@ class API {
   }
 
   /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
-  Future<void> ptz({
+  Future<bool> ptz({
     required Device device,
     required Movement movement,
     PTZCommand command = PTZCommand.move,
     int panSpeed = 1,
     int tiltSpeed = 1,
-    int duration = 1,
+    int duration = 250,
   }) async {
-    final server = device.server;
+    if (!device.hasPTZ) return false;
 
-    // const command = 'move';
+    final server = device.server;
 
     final url = Uri.https(
       '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
@@ -368,5 +357,11 @@ class API {
     );
 
     debugPrint('${command.name} ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
   }
 }

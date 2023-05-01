@@ -115,6 +115,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform?.setProperty("cache-pause-initial", "yes");
       // https://mpv.io/manual/stable/#options-cache-pause-wait
       platform?.setProperty("cache-pause-wait", "3");
+
+      platform?.setProperty("profile", "low-latency");
+      // platform?.setProperty("untimed", "");
     }
 
     errorStream = mkPlayer.streams.error.listen((event) {

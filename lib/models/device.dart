@@ -36,6 +36,9 @@ class Device {
   /// Vertical resolution of the device device.
   final int? resolutionY;
 
+  /// Whether this device has a PTZ protocol
+  final bool hasPTZ;
+
   /// Reference to the [Server], to which this camera [Device] belongs.
   Server server;
 
@@ -46,8 +49,9 @@ class Device {
     this.status,
     this.resolutionX,
     this.resolutionY,
-    this.server,
-  );
+    this.server, {
+    this.hasPTZ = false,
+  });
 
   String get uri => 'live/$id';
 
@@ -59,15 +63,16 @@ class Device {
       map['resolutionX'] == null ? null : int.parse(map['resolutionX']),
       map['resolutionX'] == null ? null : int.parse(map['resolutionY']),
       server,
+      hasPTZ: map['ptz_control_protocol'] != null,
     );
   }
 
   String get streamURL {
-    if (server.passedCertificates) {
-      return hslURL;
-    } else {
-      return rtspURL;
-    }
+    // if (server.passedCertificates) {
+    //   return hslURL;
+    // } else {
+    return rtspURL;
+    // }
   }
 
   String get rtspURL =>
@@ -96,7 +101,8 @@ class Device {
         name == other.name &&
         uri == other.uri &&
         resolutionX == other.resolutionX &&
-        resolutionY == other.resolutionY;
+        resolutionY == other.resolutionY &&
+        hasPTZ == other.hasPTZ;
   }
 
   @override
@@ -105,7 +111,8 @@ class Device {
       uri.hashCode ^
       status.hashCode ^
       resolutionX.hashCode ^
-      resolutionY.hashCode;
+      resolutionY.hashCode ^
+      hasPTZ.hashCode;
 
   Device copyWith({
     String? name,
@@ -114,6 +121,7 @@ class Device {
     int? resolutionX,
     int? resolutionY,
     Server? server,
+    bool? hasPTZ,
   }) =>
       Device(
         name ?? this.name,
@@ -122,6 +130,7 @@ class Device {
         resolutionX ?? this.resolutionX,
         resolutionY ?? this.resolutionY,
         server ?? this.server,
+        hasPTZ: hasPTZ ?? this.hasPTZ,
       );
 
   Map<String, dynamic> toJson() {
@@ -132,6 +141,7 @@ class Device {
       'resolutionX': resolutionX,
       'resolutionY': resolutionY,
       'server': server.toJson(devices: false),
+      'hasPTZ': hasPTZ,
     };
   }
 
@@ -146,6 +156,7 @@ class Device {
       json['resolutionX'],
       json['resolutionY'],
       Server.fromJson(json['server'] as Map<String, dynamic>),
+      hasPTZ: json['hasPTZ'] ?? false,
     );
   }
 }

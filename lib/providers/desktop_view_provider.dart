@@ -124,8 +124,7 @@ class DesktopViewProvider extends ChangeNotifier {
         currentLayout.devices.clear();
       }
 
-      debugPrint(device.toString());
-      debugPrint(device.rtspURL);
+      debugPrint('Added $device');
 
       players[device] = getVideoPlayerControllerForDevice(device);
       currentLayout.devices.add(device);
@@ -138,8 +137,7 @@ class DesktopViewProvider extends ChangeNotifier {
   Future<void> remove(Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (currentLayout.devices.contains(device)) {
-      debugPrint(device.toString());
-      debugPrint(device.rtspURL);
+      debugPrint('Removed $device');
 
       players[device]?.release();
       players[device]?.dispose();
@@ -184,9 +182,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// e.g. in response to a network error etc.
   Future<void> reload(Device device) async {
     await players[device]?.reset();
-    await players[device]?.setDataSource(
-      device.rtspURL,
-    );
+    await players[device]?.setDataSource(device.streamURL);
     await players[device]?.setVolume(0.0);
     await players[device]?.setSpeed(1.0);
     notifyListeners();

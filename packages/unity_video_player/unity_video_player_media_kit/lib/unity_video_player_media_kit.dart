@@ -1,5 +1,7 @@
 library unity_video_player_media_kit;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -95,6 +97,7 @@ class _MKVideo extends StatelessWidget {
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Player mkPlayer = Player();
   late Future<VideoController> mkVideoController;
+  late StreamSubscription errorStream;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
     mkVideoController = VideoController.create(
@@ -113,6 +116,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       // https://mpv.io/manual/stable/#options-cache-pause-wait
       platform?.setProperty("cache-pause-wait", "3");
     }
+
+    errorStream = mkPlayer.streams.error.listen((event) {
+      debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
+      debugPrint('==== with code ${event.code}');
+      debugPrint('==== ${event.message}');
+    });
   }
 
   Future<void> ensureVideoControllerInitialized(
@@ -238,6 +247,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   void dispose() async {
+    errorStream.cancel();
     await (await mkVideoController).dispose();
     await mkPlayer.dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);

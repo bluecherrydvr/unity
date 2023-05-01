@@ -135,7 +135,21 @@ class DevHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (cert, host, port) => true;
+      ..badCertificateCallback = (cert, host, port) {
+        debugPrint('==== RECEIVED BAD CERTIFICATE FROM $host');
+
+        final servers = ServersProvider.instance.servers
+            .where((server) => server.ip == host);
+        for (final server in servers) {
+          server.passedCertificates = false;
+
+          for (final device in server.devices) {
+            device.server = server;
+          }
+        }
+
+        return true;
+      };
   }
 }
 

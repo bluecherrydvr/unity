@@ -169,8 +169,7 @@ class MobileViewProvider extends ChangeNotifier {
   Future<void> add(int tab, int index, Device device) {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices[tab]!.contains(device)) {
-      debugPrint(device.toString());
-      debugPrint(device.rtspURL);
+      debugPrint('Added $device');
       players[device] = getVideoPlayerControllerForDevice(device);
     }
     devices[tab]![index] = device;
@@ -193,8 +192,7 @@ class MobileViewProvider extends ChangeNotifier {
       players.remove(current);
     }
     if (!devices[tab]!.contains(device)) {
-      debugPrint(device.toString());
-      debugPrint(device.rtspURL);
+      debugPrint('Replaced $device');
       players[device] = getVideoPlayerControllerForDevice(device);
     }
     // Save the new [device] at the position.
@@ -208,7 +206,7 @@ class MobileViewProvider extends ChangeNotifier {
   Future<void> reload(int tab, int index) async {
     final device = devices[tab]![index]!;
     await players[device]?.reset();
-    await players[device]?.setDataSource(device.rtspURL);
+    await players[device]?.setDataSource(device.streamURL);
     await players[device]?.setVolume(0.0);
     await players[device]?.setSpeed(1.0);
     notifyListeners();

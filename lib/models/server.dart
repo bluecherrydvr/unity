@@ -37,6 +37,14 @@ class Server {
 
   bool online = true;
 
+  /// Whether the server has their certificates. This enables us to make use of
+  /// https:// calls.
+  ///
+  /// See also:
+  ///
+  ///   * [Device.hlsURL]
+  bool passedCertificates = true;
+
   Server(
     this.name,
     this.ip,
@@ -50,6 +58,7 @@ class Server {
     this.savePassword = false,
     this.connectAutomaticallyAtStartup = true,
     this.online = true,
+    this.passedCertificates = true,
   });
 
   String get id {
@@ -58,7 +67,7 @@ class Server {
 
   @override
   String toString() =>
-      'Server($name, $ip, $port, $rtspPort, $login, $password, $devices, $serverUUID, $cookie)';
+      'Server($name, $ip, $port, $rtspPort, $login, $password, $devices, $serverUUID, $cookie, $online, $passedCertificates)';
 
   @override
   bool operator ==(dynamic other) {

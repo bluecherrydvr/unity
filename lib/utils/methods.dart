@@ -65,14 +65,13 @@ StatusBarStyle getStatusBarStyleFromBrightness(Brightness brightness) {
 }
 
 /// Helper method to create a video player with required configuration for a [Device].
-UnityVideoPlayer getVideoPlayerControllerForDevice(
-  Device device,
-) {
+UnityVideoPlayer getVideoPlayerControllerForDevice(Device device) {
+  debugPrint(device.streamURL);
   final controller = UnityVideoPlayer.create(
     width: device.resolutionX,
     height: device.resolutionY,
   )
-    ..setDataSource(device.rtspURL)
+    ..setDataSource(device.streamURL)
     ..setVolume(0.0)
     ..setSpeed(1.0);
 

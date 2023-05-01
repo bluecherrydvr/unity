@@ -37,10 +37,10 @@ class Device {
   final int? resolutionY;
 
   /// Reference to the [Server], to which this camera [Device] belongs.
-  final Server server;
+  Server server;
 
   /// Creates a device.
-  const Device(
+  Device(
     this.name,
     this.id,
     this.status,
@@ -62,11 +62,23 @@ class Device {
     );
   }
 
+  String get streamURL {
+    if (server.passedCertificates) {
+      return hslURL;
+    } else {
+      return rtspURL;
+    }
+  }
+
   String get rtspURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
 
   String get mjpegURL {
     return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/media/mjpeg.php?id=$id&multipart=true';
+  }
+
+  String get hslURL {
+    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/hls/$id/index.m3u8';
   }
 
   /// Server name / Device name

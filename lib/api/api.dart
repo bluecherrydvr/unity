@@ -69,7 +69,7 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      // debugPrint(body.toString());
+      debugPrint('FINISHED');
       // debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {

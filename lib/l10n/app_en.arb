@@ -209,6 +209,6 @@
   "moveSouth": "Move down",
   "moveWest": "Move west",
   "moveEast": "Move east",
-  "moveWide": "Zoom down",
-  "moveTele": "Zoom up"
+  "moveWide": "Zoom out",
+  "moveTele": "Zoom in"
 }

@@ -364,4 +364,47 @@ class API {
 
     return false;
   }
+
+  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
+  Future<bool> presets({
+    required Device device,
+    required PresetCommand command,
+    String? presetId,
+    String? presetName,
+  }) async {
+    if (!device.hasPTZ) return false;
+
+    final server = device.server;
+
+    assert(presetName != null || command != PresetCommand.save);
+
+    final url = Uri.https(
+      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '/media/ptz.php',
+      {
+        'id': '${device.id}',
+        'command': command.name,
+        if (presetId != null) 'preset': presetId,
+        if (presetName != null) 'name': presetName,
+      },
+    );
+
+    debugPrint(url.toString());
+
+    final response = await get(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': server.cookie!,
+      },
+    );
+
+    debugPrint('${command.name} ${response.body} ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
+  }
 }

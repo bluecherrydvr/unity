@@ -47,3 +47,11 @@ enum Movement {
     }
   }
 }
+
+enum PresetCommand {
+  query,
+  save,
+  rename,
+  go,
+  clear;
+}

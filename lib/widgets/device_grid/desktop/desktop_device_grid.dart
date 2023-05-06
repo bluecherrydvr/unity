@@ -537,7 +537,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (widget.device.hasPTZ)
+                  if (widget.device.hasPTZ) ...[
                     IconButton(
                       icon: Icon(
                         Icons.videogame_asset,
@@ -548,6 +548,26 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           : AppLocalizations.of(context).disabledPTZ,
                       onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
                     ),
+                    // IconButton(
+                    //   icon: Icon(
+                    //     Icons.dataset,
+                    //     color: ptzEnabled ? Colors.white : null,
+                    //   ),
+                    //   tooltip: ptzEnabled
+                    //       ? AppLocalizations.of(context).enabledPTZ
+                    //       : AppLocalizations.of(context).disabledPTZ,
+                    //   onPressed: !ptzEnabled
+                    //       ? null
+                    //       : () {
+                    //           showDialog(
+                    //             context: context,
+                    //             builder: (context) {
+                    //               return PresetsDialog(device: widget.device);
+                    //             },
+                    //           );
+                    //         },
+                    // ),
+                  ],
                   const Spacer(),
                   () {
                     final isMuted = volume == 0.0;
@@ -678,6 +698,74 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         ),
       ),
       child: foreground,
+    );
+  }
+}
+
+class PresetsDialog extends StatelessWidget {
+  final Device device;
+  final bool hasSelected = false;
+
+  const PresetsDialog({super.key, required this.device});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return SimpleDialog(
+      title: Row(children: [
+        Expanded(child: Text(loc.presets)),
+        Text('0', style: Theme.of(context).textTheme.bodySmall),
+      ]),
+      children: [
+        SizedBox(
+          height: 200,
+          child: Center(child: Text(loc.noPresets)),
+        ),
+        Container(
+          height: 30.0,
+          margin: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Row(children: [
+            Tooltip(
+              message: loc.newPreset,
+              child: TextButton(
+                child: const Icon(Icons.add),
+                onPressed: () {},
+              ),
+            ),
+            const VerticalDivider(),
+            Tooltip(
+              message: loc.goToPreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.logout),
+              ),
+            ),
+            Tooltip(
+              message: loc.renamePreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.edit),
+              ),
+            ),
+            Tooltip(
+              message: loc.deletePreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.delete),
+              ),
+            ),
+            const VerticalDivider(),
+            Tooltip(
+              message: loc.refreshPresets,
+              child: TextButton(
+                child: const Icon(Icons.refresh),
+                onPressed: () {},
+              ),
+            ),
+          ]),
+        ),
+      ],
     );
   }
 }

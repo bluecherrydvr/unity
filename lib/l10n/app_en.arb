@@ -210,5 +210,12 @@
   "moveWest": "Move west",
   "moveEast": "Move east",
   "moveWide": "Zoom out",
-  "moveTele": "Zoom in"
+  "moveTele": "Zoom in",
+  "presets": "Presets",
+  "noPresets": "No presets found",
+  "newPreset": "New preset",
+  "goToPreset": "Go to preset",
+  "renamePreset": "Rename preset",
+  "deletePreset": "Delete preset",
+  "refreshPresets": "Refresh presets"
 }

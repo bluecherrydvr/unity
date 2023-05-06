@@ -20,6 +20,7 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
+import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
@@ -57,7 +58,7 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      // debugPrint(body.toString());
+      debugPrint('FINISHED');
       // debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {
@@ -107,8 +108,8 @@ class API {
 
       Iterable<Device> devices;
       if (devicesResult is List) {
+        // This is reached in the case the server has multiple cameras
         devices = devicesResult.cast<Map>().map((device) {
-          // This is reached in the case the server has multiple cameras
           return Device.fromServerJson(device, server);
         });
       } else if (devicesResult is Map) {
@@ -300,5 +301,110 @@ class API {
       debugPrint(stacktrace.toString());
       return false;
     }
+  }
+
+  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
+  Future<bool> ptz({
+    required Device device,
+    required Movement movement,
+    PTZCommand command = PTZCommand.move,
+    int panSpeed = 1,
+    int tiltSpeed = 1,
+    int duration = 250,
+  }) async {
+    if (!device.hasPTZ) return false;
+
+    final server = device.server;
+
+    final url = Uri.https(
+      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '/media/ptz.php',
+      {
+        'id': '${device.id}',
+        'command': command.name,
+
+        // commands
+        if (movement == Movement.moveNorth)
+          'tilt': 'u' //up
+        else if (movement == Movement.moveSouth)
+          'tilt': 'd' //down
+        else if (movement == Movement.moveWest)
+          'pan': 'l' //left
+        else if (movement == Movement.moveEast)
+          'pan': 'r' //right
+        else if (movement == Movement.moveWide)
+          'zoom': 'w' //wide
+        else if (movement == Movement.moveTele)
+          'zoom': 't', //tight
+
+        // speeds
+        if (command == PTZCommand.move) ...{
+          if (panSpeed > 0) 'panspeed': '$panSpeed',
+          if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
+          if (duration >= -1) 'duration': '$duration',
+        },
+      },
+    );
+
+    debugPrint(url.toString());
+
+    final response = await get(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': server.cookie!,
+      },
+    );
+
+    debugPrint('${command.name} ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
+  Future<bool> presets({
+    required Device device,
+    required PresetCommand command,
+    String? presetId,
+    String? presetName,
+  }) async {
+    if (!device.hasPTZ) return false;
+
+    final server = device.server;
+
+    assert(presetName != null || command != PresetCommand.save);
+
+    final url = Uri.https(
+      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '/media/ptz.php',
+      {
+        'id': '${device.id}',
+        'command': command.name,
+        if (presetId != null) 'preset': presetId,
+        if (presetName != null) 'name': presetName,
+      },
+    );
+
+    debugPrint(url.toString());
+
+    final response = await get(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': server.cookie!,
+      },
+    );
+
+    debugPrint('${command.name} ${response.body} ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
   }
 }

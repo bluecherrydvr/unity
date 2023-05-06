@@ -327,7 +327,21 @@ class DesktopTileViewport extends StatefulWidget {
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
+class _Command {
+  final Movement movement;
+  final PTZCommand command;
+
+  const _Command({
+    this.movement = Movement.noMovement,
+    this.command = PTZCommand.move,
+  });
+}
+
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
+  /// This ensures the commands will be sent only once.
+  bool lock = false;
+  bool ptzEnabled = false;
+
   double? volume;
 
   void updateVolume() {
@@ -335,6 +349,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       if (mounted) setState(() => volume = value);
     });
   }
+
+  List<_Command> commands = [];
 
   @override
   void initState() {
@@ -377,8 +393,100 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       ),
     ];
 
-    final foreground = HoverButton(
+    Widget foreground = HoverButton(
       onPressed: () {},
+      onTapUp: () async {
+        if (!ptzEnabled) return;
+
+        debugPrint('stopping');
+        const cmd = _Command(command: PTZCommand.stop);
+        setState(() => commands.add(cmd));
+        await API.instance.ptz(
+          device: widget.device,
+          movement: Movement.noMovement,
+          command: PTZCommand.stop,
+        );
+        setState(() => commands.remove(cmd));
+      },
+      onVerticalDragUpdate: (d) async {
+        if (lock || !ptzEnabled) return;
+        lock = true;
+
+        if (d.delta.dy < 0) {
+          debugPrint('moving up ${d.delta.dy}');
+
+          const cmd = _Command(movement: Movement.moveNorth);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveNorth,
+          );
+          setState(() => commands.remove(cmd));
+        } else {
+          debugPrint('moving down ${d.delta.dy}');
+          const cmd = _Command(movement: Movement.moveSouth);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveSouth,
+          );
+          setState(() => commands.remove(cmd));
+        }
+      },
+      onVerticalDragEnd: (_) => lock = false,
+      onHorizontalDragUpdate: (d) async {
+        if (lock || !ptzEnabled) return;
+        lock = true;
+
+        if (d.delta.dx < 0) {
+          debugPrint('moving left ${d.delta.dx}');
+          const cmd = _Command(movement: Movement.moveWest);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveWest,
+          );
+          setState(() => commands.remove(cmd));
+        } else {
+          debugPrint('moving right ${d.delta.dx}');
+          const cmd = _Command(movement: Movement.moveEast);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveEast,
+          );
+          setState(() => commands.remove(cmd));
+        }
+      },
+      onHorizontalDragEnd: (_) => lock = false,
+      onScaleUpdate: (details) async {
+        if (lock ||
+            details.scale.isNegative ||
+            details.scale.toString().runes.last.isEven ||
+            !ptzEnabled) return;
+        lock = true;
+
+        if (details.scale > 1.0) {
+          debugPrint('zooming up');
+          const cmd = _Command(movement: Movement.moveTele);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveTele,
+          );
+          setState(() => commands.remove(cmd));
+        } else {
+          debugPrint('zooming down');
+          const cmd = _Command(movement: Movement.moveWide);
+          setState(() => commands.add(cmd));
+          await API.instance.ptz(
+            device: widget.device,
+            movement: Movement.moveWide,
+          );
+          setState(() => commands.remove(cmd));
+        }
+      },
+      onScaleEnd: (_) => lock = false,
       builder: (context, states) {
         return Column(children: [
           if (!widget.isSubView)
@@ -429,6 +537,38 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  if (widget.device.hasPTZ) ...[
+                    IconButton(
+                      icon: Icon(
+                        Icons.videogame_asset,
+                        color: ptzEnabled ? Colors.white : null,
+                      ),
+                      tooltip: ptzEnabled
+                          ? AppLocalizations.of(context).enabledPTZ
+                          : AppLocalizations.of(context).disabledPTZ,
+                      onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
+                    ),
+                    // IconButton(
+                    //   icon: Icon(
+                    //     Icons.dataset,
+                    //     color: ptzEnabled ? Colors.white : null,
+                    //   ),
+                    //   tooltip: ptzEnabled
+                    //       ? AppLocalizations.of(context).enabledPTZ
+                    //       : AppLocalizations.of(context).disabledPTZ,
+                    //   onPressed: !ptzEnabled
+                    //       ? null
+                    //       : () {
+                    //           showDialog(
+                    //             context: context,
+                    //             builder: (context) {
+                    //               return PresetsDialog(device: widget.device);
+                    //             },
+                    //           );
+                    //         },
+                    // ),
+                  ],
+                  const Spacer(),
                   () {
                     final isMuted = volume == 0.0;
 
@@ -522,6 +662,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       },
     );
 
+    foreground = Stack(children: [
+      foreground,
+      PositionedDirectional(
+        end: 16.0,
+        top: 50.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: commands
+              .map<String>((cmd) {
+                switch (cmd.command) {
+                  case PTZCommand.move:
+                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                  case PTZCommand.stop:
+                    return cmd.command.locale(context);
+                }
+              })
+              .map<Widget>(Text.new)
+              .toList(),
+        ),
+      ),
+    ]);
+
     return TooltipTheme(
       data: TooltipTheme.of(context).copyWith(
         preferBelow: false,
@@ -536,6 +698,74 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         ),
       ),
       child: foreground,
+    );
+  }
+}
+
+class PresetsDialog extends StatelessWidget {
+  final Device device;
+  final bool hasSelected = false;
+
+  const PresetsDialog({super.key, required this.device});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return SimpleDialog(
+      title: Row(children: [
+        Expanded(child: Text(loc.presets)),
+        Text('0', style: Theme.of(context).textTheme.bodySmall),
+      ]),
+      children: [
+        SizedBox(
+          height: 200,
+          child: Center(child: Text(loc.noPresets)),
+        ),
+        Container(
+          height: 30.0,
+          margin: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Row(children: [
+            Tooltip(
+              message: loc.newPreset,
+              child: TextButton(
+                child: const Icon(Icons.add),
+                onPressed: () {},
+              ),
+            ),
+            const VerticalDivider(),
+            Tooltip(
+              message: loc.goToPreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.logout),
+              ),
+            ),
+            Tooltip(
+              message: loc.renamePreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.edit),
+              ),
+            ),
+            Tooltip(
+              message: loc.deletePreset,
+              child: TextButton(
+                onPressed: hasSelected ? () {} : null,
+                child: const Icon(Icons.delete),
+              ),
+            ),
+            const VerticalDivider(),
+            Tooltip(
+              message: loc.refreshPresets,
+              child: TextButton(
+                child: const Icon(Icons.refresh),
+                onPressed: () {},
+              ),
+            ),
+          ]),
+        ),
+      ],
     );
   }
 }

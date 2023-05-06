@@ -25,7 +25,7 @@ class Device {
   final String name;
 
   /// [Uri] to the RTSP stream associated with the device.
-  final String uri;
+  final int id;
 
   /// `true` [status] indicates that device device is working correctly or is `Online`.
   final bool status;
@@ -36,31 +36,55 @@ class Device {
   /// Vertical resolution of the device device.
   final int? resolutionY;
 
-  /// Reference to the [Server], to which this camera [Device] belongs.
-  final Server server;
+  /// Whether this device has a PTZ protocol
+  final bool hasPTZ;
 
-  const Device(
+  /// Reference to the [Server], to which this camera [Device] belongs.
+  Server server;
+
+  /// Creates a device.
+  Device(
     this.name,
-    this.uri,
+    this.id,
     this.status,
     this.resolutionX,
     this.resolutionY,
-    this.server,
-  );
+    this.server, {
+    this.hasPTZ = false,
+  });
+
+  String get uri => 'live/$id';
 
   factory Device.fromServerJson(Map map, Server server) {
     return Device(
       map['device_name'],
-      'live/${map['id']}',
+      int.tryParse(map['id']) ?? 0,
       map['status'] == 'OK',
       map['resolutionX'] == null ? null : int.parse(map['resolutionX']),
       map['resolutionX'] == null ? null : int.parse(map['resolutionY']),
       server,
+      hasPTZ: map['ptz_control_protocol'] != null,
     );
   }
 
-  String get streamURL =>
+  String get streamURL {
+    // if (server.passedCertificates) {
+    //   return hslURL;
+    // } else {
+    return rtspURL;
+    // }
+  }
+
+  String get rtspURL =>
       'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
+
+  String get mjpegURL {
+    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/media/mjpeg.php?id=$id&multipart=true';
+  }
+
+  String get hslURL {
+    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/hls/$id/index.m3u8';
+  }
 
   /// Server name / Device name
   String get fullName {
@@ -77,7 +101,8 @@ class Device {
         name == other.name &&
         uri == other.uri &&
         resolutionX == other.resolutionX &&
-        resolutionY == other.resolutionY;
+        resolutionY == other.resolutionY &&
+        hasPTZ == other.hasPTZ;
   }
 
   @override
@@ -86,44 +111,52 @@ class Device {
       uri.hashCode ^
       status.hashCode ^
       resolutionX.hashCode ^
-      resolutionY.hashCode;
+      resolutionY.hashCode ^
+      hasPTZ.hashCode;
 
   Device copyWith({
     String? name,
-    String? uri,
+    int? id,
     bool? status,
     int? resolutionX,
     int? resolutionY,
     Server? server,
+    bool? hasPTZ,
   }) =>
       Device(
         name ?? this.name,
-        uri ?? this.uri,
+        id ?? this.id,
         status ?? this.status,
         resolutionX ?? this.resolutionX,
         resolutionY ?? this.resolutionY,
         server ?? this.server,
+        hasPTZ: hasPTZ ?? this.hasPTZ,
       );
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'uri': uri,
+      'id': id,
       'status': status,
       'resolutionX': resolutionX,
       'resolutionY': resolutionY,
       'server': server.toJson(devices: false),
+      'hasPTZ': hasPTZ,
     };
   }
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
       json['name'],
-      json['uri'],
+      int.tryParse(json['id']?.toString() ??
+              json['uri']?.toString().replaceAll('live/', '') ??
+              '') ??
+          0,
       json['status'],
       json['resolutionX'],
       json['resolutionY'],
       Server.fromJson(json['server'] as Map<String, dynamic>),
+      hasPTZ: json['hasPTZ'] ?? false,
     );
   }
 }

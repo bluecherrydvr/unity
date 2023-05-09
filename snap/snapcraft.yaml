@@ -21,10 +21,13 @@ apps:
     - network
     slots:
       - dbus-bluecherry-app
+      
 parts:
   bluecherry-app:
     source: .
     plugin: flutter
     build-packages:
       - libmpv-dev
+    stage-packages:
+      - libmpv1
     flutter-target: lib/main.dart # The main entry-point file of the application

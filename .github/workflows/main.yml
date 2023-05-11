@@ -150,4 +150,4 @@ jobs:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
 
-      - run: snapcraft .
+      - run: snapcraft

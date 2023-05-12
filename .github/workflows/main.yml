@@ -151,5 +151,5 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2
           
       - name: Build snap
-        run: snapcraft --use-lxd
+        run: sudo snapcraft --use-lxd
 

@@ -149,5 +149,9 @@ jobs:
 
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
+        with:
+          use_lxd: ${{ matrix.os == 'ubuntu-18.04' }}
+          
+      - name: Build snap
+        run: sg lxd -c 'snapcraft --use-lxd'
 
-      - run: snapcraft

@@ -147,9 +147,6 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
-          
-      - name: Build snap
-        run: sudo snapcraft --use-lxd
+      - name: Install and run Snapcraft
+        uses: snapcore/action-build@v1
 

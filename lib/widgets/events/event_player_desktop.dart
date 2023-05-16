@@ -177,7 +177,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                               return const Center(
                                 child: CircularProgressIndicator.adaptive(
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
+                                    Colors.white,
+                                  ),
                                 ),
                               );
                             }

@@ -85,7 +85,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
               return FadeThroughTransition(
                 animation: primaryAnimation,
                 secondaryAnimation: secondaryAnimation,
-                fillColor: Colors.black,
+                fillColor: theme.colorScheme.background,
                 child: child,
               );
             },
@@ -105,8 +105,8 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
             ),
             width: double.infinity,
             child: Row(children: <Widget>[
-              const UnityDrawerButton(
-                iconColor: Colors.white,
+              UnityDrawerButton(
+                iconColor: theme.colorScheme.onBackground,
                 iconSize: 18.0,
                 splashRadius: 24.0,
               ),
@@ -116,7 +116,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   size: 18.0,
                   color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
-                      : Colors.white,
+                      : theme.colorScheme.onBackground,
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: AppLocalizations.of(context).cycle,
@@ -138,7 +138,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       icon: Text(
                         '$tab',
                         style: TextStyle(
-                          color: view.tab == tab ? Colors.black : Colors.white,
+                          color: view.tab == tab
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onBackground,
                           fontSize: 18.0,
                         ),
                       ),
@@ -196,7 +198,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
       final size = consts.biggest;
 
       return Container(
-        color: Colors.black,
+        alignment: Alignment.center,
         height: double.infinity,
         width: double.infinity,
         child: StaticGrid(

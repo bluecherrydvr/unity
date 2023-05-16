@@ -217,8 +217,6 @@ class _AddServerWizardState extends State<AddServerWizard> {
                 start: 0,
                 child: const Material(
                   type: MaterialType.transparency,
-                  // color: Colors.transparent,
-                  // color: Colors.amber,
                   child: SizedBox(
                     height: kToolbarHeight,
                     width: kToolbarHeight,

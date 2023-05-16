@@ -170,8 +170,9 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               margin: const EdgeInsetsDirectional.only(end: 8.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    widget.device.status ? Colors.green.shade100 : Colors.red,
+                color: widget.device.status
+                    ? Theme.of(context).extension<UnityColors>()!.successColor
+                    : Theme.of(context).colorScheme.error,
               ),
             ),
             Expanded(

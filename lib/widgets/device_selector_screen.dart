@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -110,8 +111,8 @@ class DeviceSelectorScreen extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     foregroundColor: device.status
-                        ? Colors.green.shade100
-                        : Theme.of(context).colorScheme.error,
+                        ? theme.extension<UnityColors>()!.successColor
+                        : theme.colorScheme.error,
                     child: const Icon(Icons.camera_alt),
                   ),
                   title: Text(

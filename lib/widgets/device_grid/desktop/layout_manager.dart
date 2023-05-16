@@ -380,7 +380,10 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         children: [
           Expanded(child: Text('Edit ${widget.layout.name}')),
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: Icon(
+              Icons.delete,
+              color: Theme.of(context).colorScheme.error,
+            ),
             iconSize: 18.0,
             onPressed: view.layouts.length == 1
                 ? null

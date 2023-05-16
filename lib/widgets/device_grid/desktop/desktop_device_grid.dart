@@ -548,6 +548,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           : AppLocalizations.of(context).disabledPTZ,
                       onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
                     ),
+                    // TODO(bdlukaa): enable presets when the API is ready
                     // IconButton(
                     //   icon: Icon(
                     //     Icons.dataset,

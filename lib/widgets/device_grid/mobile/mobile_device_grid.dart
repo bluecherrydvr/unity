@@ -30,6 +30,12 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   Timer? timer;
 
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final settings = context.watch<SettingsProvider>();
@@ -53,6 +59,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   @override
   void dispose() {
     timer?.cancel();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 

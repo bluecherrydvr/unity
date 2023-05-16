@@ -300,6 +300,7 @@ class DeviceTileState extends State<DeviceTile> {
               color: Colors.black,
               width: double.infinity,
               height: double.infinity,
+              child: const CircularProgressIndicator.adaptive(),
             )
           else
             playerView,
@@ -332,7 +333,8 @@ class DeviceTileState extends State<DeviceTile> {
                         Text(
                           widget.device.name
                               .split(' ')
-                              .map((e) => e[0].toUpperCase() + e.substring(1))
+                              .map((word) =>
+                                  '${word[0].toUpperCase()}${word.substring(1)}')
                               .join(' '),
                           style: Theme.of(context)
                               .textTheme
@@ -343,7 +345,7 @@ class DeviceTileState extends State<DeviceTile> {
                               ),
                         ),
                         Text(
-                          widget.device.uri,
+                          widget.device.server.name,
                           style: Theme.of(context)
                               .textTheme
                               .displaySmall

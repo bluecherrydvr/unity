@@ -266,6 +266,7 @@ ThemeData createTheme({
       ),
       UnityColors(
         successColor: light ? Colors.green.shade300 : Colors.green.shade100,
+        warningColor: Colors.amber,
       ),
     ],
   );
@@ -332,17 +333,18 @@ class TimelineTheme extends ThemeExtension<TimelineTheme> {
 
 class UnityColors extends ThemeExtension<UnityColors> {
   final Color successColor;
+  final Color warningColor;
 
-  const UnityColors({
-    required this.successColor,
-  });
+  const UnityColors({required this.successColor, required this.warningColor});
 
   @override
   ThemeExtension<UnityColors> copyWith({
     Color? successColor,
+    Color? warningColor,
   }) {
     return UnityColors(
       successColor: successColor ?? this.successColor,
+      warningColor: warningColor ?? this.warningColor,
     );
   }
 
@@ -355,6 +357,7 @@ class UnityColors extends ThemeExtension<UnityColors> {
 
     return UnityColors(
       successColor: Color.lerp(successColor, other.successColor, t)!,
+      warningColor: Color.lerp(warningColor, other.warningColor, t)!,
     );
   }
 }

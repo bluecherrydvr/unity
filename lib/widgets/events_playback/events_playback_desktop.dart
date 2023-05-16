@@ -476,8 +476,8 @@ class _DesktopDeviceSelectorTileState extends State<_DeviceTile> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: widget.device.status
-                  ? Theme.of(context).extension<UnityColors>()!.successColor
-                  : Colors.red,
+                  ? theme.extension<UnityColors>()!.successColor
+                  : theme.colorScheme.error,
             ),
           ),
           Expanded(

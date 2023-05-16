@@ -390,14 +390,16 @@ class DownloadIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SizedBox(
       height: 40.0,
       width: 40.0,
       child: () {
         if (event.isAlarm) {
-          return const Icon(
+          return Icon(
             Icons.warning,
-            color: Colors.amber,
+            color: theme.extension<UnityColors>()!.warningColor,
           );
         }
 
@@ -411,7 +413,7 @@ class DownloadIndicator extends StatelessWidget {
             tooltip: AppLocalizations.of(context).seeInDownloads,
             icon: Icon(
               Icons.download_done,
-              color: Theme.of(context).extension<UnityColors>()!.successColor,
+              color: theme.extension<UnityColors>()!.successColor,
             ),
           );
         }

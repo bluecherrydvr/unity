@@ -70,6 +70,7 @@ class _LayoutManagerState extends State<LayoutManager> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final settings = context.watch<SettingsProvider>();
@@ -90,7 +91,7 @@ class _LayoutManagerState extends State<LayoutManager> {
               const SizedBox(width: 5.0),
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context).view,
+                  loc.view,
                   maxLines: 1,
                 ),
               ),
@@ -103,7 +104,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                       : IconTheme.of(context).color,
                 ),
                 padding: EdgeInsets.zero,
-                tooltip: AppLocalizations.of(context).cycle,
+                tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
               IconButton(
@@ -112,7 +113,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                   size: 18.0,
                   color: IconTheme.of(context).color,
                 ),
-                tooltip: AppLocalizations.of(context).newLayout,
+                tooltip: loc.newLayout,
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   showDialog(
@@ -141,17 +142,14 @@ class _LayoutManagerState extends State<LayoutManager> {
 }
 
 class LayoutTile extends StatelessWidget {
-  const LayoutTile({
-    super.key,
-    required this.layout,
-    required this.selected,
-  });
+  const LayoutTile({super.key, required this.layout, required this.selected});
 
   final Layout layout;
   final bool selected;
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return GestureDetector(
@@ -183,7 +181,7 @@ class LayoutTile extends StatelessWidget {
         ),
         title: Text(layout.name, maxLines: 1),
         subtitle: Text(
-          AppLocalizations.of(context).nDevices(layout.devices.length),
+          loc.nDevices(layout.devices.length),
           maxLines: 1,
         ),
         trailing: IconButton(
@@ -225,13 +223,15 @@ class LayoutTile extends StatelessWidget {
 }
 
 String textForLayout(BuildContext context, DesktopLayoutType type) {
+  final loc = AppLocalizations.of(context);
+
   switch (type) {
     case DesktopLayoutType.singleView:
-      return AppLocalizations.of(context).singleView;
+      return loc.singleView;
     case DesktopLayoutType.multipleView:
-      return AppLocalizations.of(context).multipleView;
+      return loc.multipleView;
     case DesktopLayoutType.compactView:
-      return AppLocalizations.of(context).compactView;
+      return loc.compactView;
   }
 }
 
@@ -312,20 +312,21 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return AlertDialog(
-      title: Text(AppLocalizations.of(context).createNewLayout),
+      title: Text(loc.createNewLayout),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context).layoutNameHint,
-            label: Text(AppLocalizations.of(context).layoutNameHint),
+            hintText: loc.layoutNameHint,
+            label: Text(loc.layoutNameHint),
           ),
         ),
         SubHeader(
-          AppLocalizations.of(context).layoutTypeHint,
+          loc.layoutTypeHint,
           padding: EdgeInsets.zero,
         ),
         _LayoutTypeChooser(
@@ -338,7 +339,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
       actions: [
         OutlinedButton(
           onPressed: Navigator.of(context).pop,
-          child: Text(AppLocalizations.of(context).cancel),
+          child: Text(loc.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -351,7 +352,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             ));
             Navigator.of(context).pop();
           },
-          child: Text(AppLocalizations.of(context).finish),
+          child: Text(loc.finish),
         ),
       ],
     );
@@ -373,6 +374,8 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return AlertDialog(
@@ -382,7 +385,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
           IconButton(
             icon: Icon(
               Icons.delete,
-              color: Theme.of(context).colorScheme.error,
+              color: theme.colorScheme.error,
             ),
             iconSize: 18.0,
             onPressed: view.layouts.length == 1
@@ -398,12 +401,12 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         TextField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context).layoutNameHint,
-            label: Text(AppLocalizations.of(context).layoutNameHint),
+            hintText: loc.layoutNameHint,
+            label: Text(loc.layoutNameHint),
           ),
         ),
         SubHeader(
-          AppLocalizations.of(context).layoutTypeHint,
+          loc.layoutTypeHint,
           padding: EdgeInsets.zero,
         ),
         _LayoutTypeChooser(
@@ -416,7 +419,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       actions: [
         TextButton(
           onPressed: Navigator.of(context).pop,
-          child: Text(AppLocalizations.of(context).cancel),
+          child: Text(loc.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -429,7 +432,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: Text(AppLocalizations.of(context).finish),
+          child: Text(loc.finish),
         ),
       ],
     );

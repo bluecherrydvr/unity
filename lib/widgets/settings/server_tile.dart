@@ -26,6 +26,7 @@ class ServersList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final serversProvider = context.watch<ServersProvider>();
@@ -57,7 +58,7 @@ class ServersList extends StatelessWidget {
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          AppLocalizations.of(context).addNewServer,
+                          loc.addNewServer,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleSmall,
                         ),
@@ -84,7 +85,7 @@ class ServersList extends StatelessWidget {
               foregroundColor: theme.iconTheme.color,
               child: const Icon(Icons.add),
             ),
-            title: Text(AppLocalizations.of(context).addNewServer),
+            title: Text(loc.addNewServer),
             onTap: () => home.setTab(UnityTab.addServer.index, context),
           ),
           const Padding(
@@ -104,14 +105,16 @@ class ServersList extends StatelessWidget {
       context: context,
       builder: (context) {
         final theme = Theme.of(context);
+        final loc = AppLocalizations.of(context);
+
         return ConstrainedBox(
           constraints: const BoxConstraints(
             maxWidth: 300.0,
           ),
           child: AlertDialog(
-            title: Text(AppLocalizations.of(context).remove),
+            title: Text(loc.remove),
             content: Text(
-              AppLocalizations.of(context).removeServerDescription(server.name),
+              loc.removeServerDescription(server.name),
               style: theme.textTheme.headlineMedium,
               textAlign: TextAlign.start,
             ),
@@ -119,7 +122,7 @@ class ServersList extends StatelessWidget {
               MaterialButton(
                 onPressed: Navigator.of(context).maybePop,
                 child: Text(
-                  AppLocalizations.of(context).no.toUpperCase(),
+                  loc.no.toUpperCase(),
                   style: TextStyle(
                     color: theme.colorScheme.secondary,
                   ),
@@ -131,7 +134,7 @@ class ServersList extends StatelessWidget {
                   Navigator.of(context).maybePop();
                 },
                 child: Text(
-                  AppLocalizations.of(context).yes.toUpperCase(),
+                  loc.yes.toUpperCase(),
                   style: TextStyle(
                     color: theme.colorScheme.secondary,
                   ),
@@ -199,7 +202,7 @@ class ServerTile extends StatelessWidget {
                   else
                     loc.offline,
                 ].join(' • ')
-              : AppLocalizations.of(context).gettingDevices,
+              : loc.gettingDevices,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
@@ -232,12 +235,11 @@ class ServerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
     final isLoading = servers.isServerLoading(server);
-
-    final loc = AppLocalizations.of(context);
 
     void showMenu() {
       final box = context.findRenderObject() as RenderBox;

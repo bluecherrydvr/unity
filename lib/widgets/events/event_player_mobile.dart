@@ -186,6 +186,8 @@ class _VideoViewportState extends State<VideoViewport> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Stack(children: [
       Positioned.fill(
         child: GestureDetector(
@@ -290,9 +292,7 @@ class _VideoViewportState extends State<VideoViewport> {
                 height: 36.0,
                 child: Text(
                   player.currentPos.label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
+                  style: theme.textTheme.headlineMedium
                       ?.copyWith(color: Colors.white),
                 ),
               ),
@@ -302,12 +302,11 @@ class _VideoViewportState extends State<VideoViewport> {
                   data: SliderThemeData(
                     overlayShape:
                         const RoundSliderOverlayShape(overlayRadius: 12.0),
-                    overlayColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                    thumbColor: Theme.of(context).colorScheme.primary,
-                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                    overlayColor: theme.colorScheme.primary.withOpacity(0.4),
+                    thumbColor: theme.colorScheme.primary,
+                    activeTrackColor: theme.colorScheme.primary,
                     inactiveTrackColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                        theme.colorScheme.primary.withOpacity(0.5),
                     trackHeight: 2.0,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 6.0,
@@ -342,9 +341,7 @@ class _VideoViewportState extends State<VideoViewport> {
                 height: 36.0,
                 child: Text(
                   player.duration.label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
+                  style: theme.textTheme.headlineMedium
                       ?.copyWith(color: Colors.white),
                 ),
               ),

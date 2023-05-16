@@ -61,6 +61,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
 
   @override
   Widget buildChild(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final eventsProvider = context.watch<EventsProvider>();
 
@@ -87,7 +88,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                 } else if (timelineController.tiles.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context).selectACamera,
+                      loc.selectACamera,
                       style: const TextStyle(color: Colors.white),
                     ),
                   );
@@ -119,7 +120,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                                 alignment: AlignmentDirectional.center,
                                 padding: const EdgeInsets.all(12.0),
                                 child: AutoSizeText(
-                                  AppLocalizations.of(context).noRecords,
+                                  loc.noRecords,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(color: Colors.white),
                                 ),
@@ -204,9 +205,8 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                         ),
                       ),
                       Tooltip(
-                        message: timelineController.isPaused
-                            ? AppLocalizations.of(context).play
-                            : AppLocalizations.of(context).pause,
+                        message:
+                            timelineController.isPaused ? loc.play : loc.pause,
                         child: CircleAvatar(
                           child: Material(
                             type: MaterialType.transparency,
@@ -268,7 +268,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.filter_list),
-                        tooltip: AppLocalizations.of(context).filter,
+                        tooltip: loc.filter,
                         onPressed: () => showFilter(context),
                       ),
                     ]),
@@ -276,7 +276,7 @@ class _EventsPlaybackDesktopState extends EventsPlaybackState {
                       const SizedBox(width: 8.0),
                       SizedBox(
                         width: kDeviceNameWidth,
-                        child: Text(AppLocalizations.of(context).device),
+                        child: Text(loc.device),
                       ),
                       const Spacer(),
                       if (timelineController.initialized)
@@ -350,6 +350,7 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final events = context.watch<EventsProvider>();
     final serversProvider = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
@@ -387,9 +388,7 @@ class Sidebar extends StatelessWidget {
                         ? loc.nDevices(devices.length)
                         : loc.offline,
                     subtextStyle: TextStyle(
-                      color: !server.online
-                          ? Theme.of(context).colorScheme.error
-                          : null,
+                      color: !server.online ? theme.colorScheme.error : null,
                     ),
                     padding: const EdgeInsetsDirectional.only(
                       start: 16.0,
@@ -511,18 +510,19 @@ class FilterDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final settings = SettingsProvider.instance;
 
     return SizedBox(
       width: 280.0,
       child: AlertDialog(
-        title: Text(AppLocalizations.of(context).filter),
+        title: Text(loc.filter),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FilterTile(
-              title: AppLocalizations.of(context).fromDate,
+              title: loc.fromDate,
               trailing: filter == null
                   ? '--'
                   : settings.dateFormat.format(filter!.from),
@@ -545,7 +545,7 @@ class FilterDialog extends StatelessWidget {
                     },
             ),
             FilterTile(
-              title: AppLocalizations.of(context).toDate,
+              title: loc.toDate,
               trailing: filter == null
                   ? '--'
                   : settings.dateFormat.format(filter!.to),
@@ -578,14 +578,14 @@ class FilterDialog extends StatelessWidget {
                         ),
                       );
                     },
-              title: Text(AppLocalizations.of(context).allowAlarms),
+              title: Text(loc.allowAlarms),
             ),
           ],
         ),
         actions: [
           ElevatedButton(
             onPressed: Navigator.of(context).pop,
-            child: Text(AppLocalizations.of(context).finish),
+            child: Text(loc.finish),
           ),
         ],
       ),

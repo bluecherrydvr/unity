@@ -41,6 +41,7 @@ class DownloadsManagerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final downloads = context.watch<DownloadsManager>();
 
     return Column(children: [
@@ -48,7 +49,7 @@ class DownloadsManagerScreen extends StatelessWidget {
             Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
-              title: Text(AppLocalizations.of(context).downloads),
+              title: Text(loc.downloads),
             ),
           ) ??
           const SizedBox.shrink(),
@@ -56,7 +57,7 @@ class DownloadsManagerScreen extends StatelessWidget {
         child: LayoutBuilder(builder: (context, consts) {
           if (downloads.isEmpty) {
             return Center(
-              child: Text(AppLocalizations.of(context).noDownloads),
+              child: Text(loc.noDownloads),
             );
           }
 
@@ -156,6 +157,7 @@ class _DownloadTileState extends State<DownloadTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
@@ -192,9 +194,7 @@ class _DownloadTileState extends State<DownloadTile> {
                       padding: const EdgeInsetsDirectional.only(end: 12.0),
                       child: Icon(
                         Icons.download_done,
-                        color: Theme.of(context)
-                            .extension<UnityColors>()!
-                            .successColor,
+                        color: theme.extension<UnityColors>()!.successColor,
                       ),
                     );
                   }
@@ -391,6 +391,7 @@ class DownloadIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     return SizedBox(
       height: 40.0,
@@ -410,7 +411,7 @@ class DownloadIndicator extends StatelessWidget {
             onPressed: () {
               context.read<HomeProvider>().toDownloads(event.id, context);
             },
-            tooltip: AppLocalizations.of(context).seeInDownloads,
+            tooltip: loc.seeInDownloads,
             icon: Icon(
               Icons.download_done,
               color: theme.extension<UnityColors>()!.successColor,
@@ -428,7 +429,7 @@ class DownloadIndicator extends StatelessWidget {
         if (event.mediaURL != null) {
           return IconButton(
             padding: EdgeInsets.zero,
-            tooltip: AppLocalizations.of(context).download,
+            tooltip: loc.download,
             onPressed: () => downloads.download(event),
             icon: const Icon(Icons.download),
           );

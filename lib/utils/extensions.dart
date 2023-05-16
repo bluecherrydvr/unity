@@ -78,20 +78,25 @@ extension DurationExtension on Duration {
 }
 
 extension NotificationExtensions on NotificationClickAction {
-  String str(BuildContext context) => {
-        NotificationClickAction.showFullscreenCamera:
-            AppLocalizations.of(context).showFullscreenCamera,
-        NotificationClickAction.showEventsScreen:
-            AppLocalizations.of(context).showEventsScreen,
-      }[this]!;
+  String str(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return {
+      NotificationClickAction.showFullscreenCamera: loc.showFullscreenCamera,
+      NotificationClickAction.showEventsScreen: loc.showEventsScreen,
+    }[this]!;
+  }
 }
 
 extension CameraViewFitExtension on UnityVideoFit {
-  String str(BuildContext context) => {
-        UnityVideoFit.contain: AppLocalizations.of(context).contain,
-        UnityVideoFit.cover: AppLocalizations.of(context).cover,
-        UnityVideoFit.fill: AppLocalizations.of(context).fill,
-      }[this]!;
+  String str(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return {
+      UnityVideoFit.contain: loc.contain,
+      UnityVideoFit.cover: loc.cover,
+      UnityVideoFit.fill: loc.fill,
+    }[this]!;
+  }
 }
 
 extension StringExtension on String {

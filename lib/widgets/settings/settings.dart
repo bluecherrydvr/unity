@@ -60,6 +60,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
@@ -81,16 +82,16 @@ class _SettingsState extends State<Settings> {
           if (isMobile)
             AppBar(
               leading: MaybeUnityDrawerButton(context),
-              title: Text(AppLocalizations.of(context).settings),
+              title: Text(loc.settings),
             ),
           Expanded(
             child: CustomScrollView(slivers: [
               SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).servers),
+                child: SubHeader(loc.servers),
               ),
               const SliverToBoxAdapter(child: ServersList()),
               SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).theme),
+                child: SubHeader(loc.theme),
               ),
               SliverList(
                 delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
@@ -115,16 +116,16 @@ class _SettingsState extends State<Settings> {
                       },
                     ),
                     title: Text({
-                      ThemeMode.system: AppLocalizations.of(context).system,
-                      ThemeMode.light: AppLocalizations.of(context).light,
-                      ThemeMode.dark: AppLocalizations.of(context).dark,
+                      ThemeMode.system: loc.system,
+                      ThemeMode.light: loc.light,
+                      ThemeMode.dark: loc.dark,
                     }[e]!),
                   );
                 }).toList()),
               ),
               divider,
               SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).miscellaneous),
+                child: SubHeader(loc.miscellaneous),
               ),
               SliverList(
                   delegate: SliverChildListDelegate([
@@ -137,9 +138,7 @@ class _SettingsState extends State<Settings> {
                     } else {
                       final timeOfDay = await showTimePicker(
                         context: context,
-                        helpText: AppLocalizations.of(context)
-                            .snoozeNotificationsUntil
-                            .toUpperCase(),
+                        helpText: loc.snoozeNotificationsUntil.toUpperCase(),
                         initialTime: TimeOfDay.fromDateTime(DateTime.now()),
                         useRootNavigator: false,
                       );
@@ -154,10 +153,10 @@ class _SettingsState extends State<Settings> {
                       }
                     }
                   },
-                  title: AppLocalizations.of(context).snoozeNotifications,
+                  title: loc.snoozeNotifications,
                   height: 72.0,
                   subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                      ? AppLocalizations.of(context).snoozedUntil(
+                      ? loc.snoozedUntil(
                           [
                             if (settings.snoozedUntil
                                     .difference(DateTime.now()) >
@@ -166,7 +165,7 @@ class _SettingsState extends State<Settings> {
                             settings.formatTime(settings.snoozedUntil),
                           ].join(' '),
                         )
-                      : AppLocalizations.of(context).notSnoozed,
+                      : loc.notSnoozed,
                 ),
                 ExpansionTile(
                   leading: CircleAvatar(
@@ -174,8 +173,7 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.beenhere_rounded),
                   ),
-                  title: Text(
-                      AppLocalizations.of(context).notificationClickAction),
+                  title: Text(loc.notificationClickAction),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.notificationClickAction.str(context),
@@ -207,7 +205,7 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.camera_alt),
                   ),
-                  title: Text(AppLocalizations.of(context).cameraViewFit),
+                  title: Text(loc.cameraViewFit),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.cameraViewFit.str(context),
@@ -235,13 +233,13 @@ class _SettingsState extends State<Settings> {
                 ),
                 CorrectedListTile(
                   iconData: Icons.download,
-                  title: AppLocalizations.of(context).downloadPath,
+                  title: loc.downloadPath,
                   subtitle: settings.downloadsDirectory,
                   height: 72.0,
                   onTap: () async {
                     final selectedDirectory =
                         await FilePicker.platform.getDirectoryPath(
-                      dialogTitle: AppLocalizations.of(context).downloadPath,
+                      dialogTitle: loc.downloadPath,
                       initialDirectory:
                           SettingsProvider.instance.downloadsDirectory,
                       lockParentWindow: true,
@@ -259,7 +257,7 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.timelapse),
                   ),
-                  title: Text(AppLocalizations.of(context).cycleTogglePeriod),
+                  title: Text(loc.cycleTogglePeriod),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.layoutCyclingTogglePeriod.humanReadable(context),
@@ -288,35 +286,32 @@ class _SettingsState extends State<Settings> {
                 ),
               ])),
               divider,
-              SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).dateFormat),
-              ),
+              SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),
               const SliverToBoxAdapter(child: DateFormatSection()),
               divider,
-              SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).timeFormat),
-              ),
+              SliverToBoxAdapter(child: SubHeader(loc.timeFormat)),
               SliverList(
                   delegate: SliverChildListDelegate([
                 'HH:mm',
                 'hh:mm a',
-              ].map((e) {
+              ].map((pattern) {
                 return ListTile(
                   onTap: () {
-                    settings.timeFormat = DateFormat(e, 'en_US');
+                    settings.timeFormat = DateFormat(pattern, 'en_US');
                   },
                   trailing: Radio(
-                    value: e,
+                    value: pattern,
                     groupValue: settings.timeFormat.pattern,
                     onChanged: (value) {
-                      settings.timeFormat = DateFormat(e, 'en_US');
+                      settings.timeFormat = DateFormat(pattern, 'en_US');
                     },
                   ),
                   title: Padding(
                     padding: const EdgeInsetsDirectional.only(start: 8.0),
                     child: Text(
-                      DateFormat(e, 'en_US')
-                          .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                      DateFormat(pattern, 'en_US').format(
+                        DateTime.utc(1969, 7, 20, 14, 18, 04),
+                      ),
                     ),
                   ),
                 );
@@ -334,7 +329,7 @@ class _SettingsState extends State<Settings> {
               // ),
               // divider,
               SliverToBoxAdapter(
-                child: SubHeader(AppLocalizations.of(context).version),
+                child: SubHeader(loc.version),
               ),
               SliverToBoxAdapter(
                 child: Padding(
@@ -351,7 +346,7 @@ class _SettingsState extends State<Settings> {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        AppLocalizations.of(context).versionText,
+                        loc.versionText,
                         style: theme.textTheme.displayMedium,
                       ),
                       const SizedBox(height: 8.0),
@@ -365,7 +360,7 @@ class _SettingsState extends State<Settings> {
                         padding: EdgeInsets.zero,
                         minWidth: 0.0,
                         child: Text(
-                          AppLocalizations.of(context).website,
+                          loc.website,
                           style: TextStyle(
                             color: theme.colorScheme.primary,
                           ),

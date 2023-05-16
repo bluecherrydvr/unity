@@ -52,6 +52,7 @@ class EventsPlaybackMobile extends EventsPlaybackWidget {
 class _EventsPlaybackMobileState extends EventsPlaybackState {
   @override
   Widget buildChild(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     // final home = context.watch<HomeProvider>();
     final settings = context.watch<SettingsProvider>();
     final serversProvider = context.watch<ServersProvider>();
@@ -81,7 +82,7 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
             } else if (timelineController.tiles.isEmpty) {
               return Center(
                 child: Text(
-                  AppLocalizations.of(context).selectACamera,
+                  loc.selectACamera,
                   style: const TextStyle(color: Colors.white),
                 ),
               );
@@ -113,7 +114,7 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
                             alignment: AlignmentDirectional.center,
                             padding: const EdgeInsets.all(12.0),
                             child: AutoSizeText(
-                              AppLocalizations.of(context).noRecords,
+                              loc.noRecords,
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: Colors.white),
                             ),
@@ -177,16 +178,14 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
             end: 8.0,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: AppLocalizations.of(context).filter,
+              tooltip: loc.filter,
               onPressed: () => showFilter(context),
             ),
           ),
           Row(children: [
             const Spacer(),
             Tooltip(
-              message: timelineController.isPaused
-                  ? AppLocalizations.of(context).play
-                  : AppLocalizations.of(context).pause,
+              message: timelineController.isPaused ? loc.play : loc.pause,
               child: CircleAvatar(
                 child: Material(
                   type: MaterialType.transparency,
@@ -251,7 +250,7 @@ class _EventsPlaybackMobileState extends EventsPlaybackState {
                 : servers.isEmpty
                     ? Center(
                         child: Text(
-                          AppLocalizations.of(context).noServersAvailable,
+                          loc.noServersAvailable,
                         ),
                       )
                     : TimelineView(

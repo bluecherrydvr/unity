@@ -69,6 +69,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
     final settings = context.watch<SettingsProvider>();
     final viewPadding = MediaQuery.viewPaddingOf(context);
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     return Column(children: [
       SizedBox(height: viewPadding.top),
@@ -119,7 +120,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       : theme.colorScheme.onBackground,
                 ),
                 padding: EdgeInsets.zero,
-                tooltip: AppLocalizations.of(context).cycle,
+                tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
               const Spacer(),

@@ -63,6 +63,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= 900;
 
@@ -85,7 +86,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 if (devices.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context).selectACamera,
+                      loc.selectACamera,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12.0,
@@ -488,6 +489,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       },
       onScaleEnd: (_) => lock = false,
       builder: (context, states) {
+        final loc = AppLocalizations.of(context);
+
         return Column(children: [
           if (!widget.isSubView)
             Container(
@@ -517,7 +520,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         shadows: shadows,
                       ),
                       color: Colors.white,
-                      tooltip: AppLocalizations.of(context).removeCamera,
+                      tooltip: loc.removeCamera,
                       iconSize: 18.0,
                       onPressed: () {
                         DesktopViewProvider.instance.remove(widget.device);
@@ -543,9 +546,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         Icons.videogame_asset,
                         color: ptzEnabled ? Colors.white : null,
                       ),
-                      tooltip: ptzEnabled
-                          ? AppLocalizations.of(context).enabledPTZ
-                          : AppLocalizations.of(context).disabledPTZ,
+                      tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
                       onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
                     ),
                     // TODO(bdlukaa): enable presets when the API is ready
@@ -555,8 +556,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     //     color: ptzEnabled ? Colors.white : null,
                     //   ),
                     //   tooltip: ptzEnabled
-                    //       ? AppLocalizations.of(context).enabledPTZ
-                    //       : AppLocalizations.of(context).disabledPTZ,
+                    //       ? loc.enabledPTZ
+                    //       : loc.disabledPTZ,
                     //   onPressed: !ptzEnabled
                     //       ? null
                     //       : () {
@@ -580,9 +581,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                             : Icons.volume_up_rounded,
                         shadows: shadows,
                       ),
-                      tooltip: isMuted
-                          ? AppLocalizations.of(context).enableAudio
-                          : AppLocalizations.of(context).disableAudio,
+                      tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
@@ -607,7 +606,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         Icons.open_in_new,
                         shadows: shadows,
                       ),
-                      tooltip: AppLocalizations.of(context).openInANewWindow,
+                      tooltip: loc.openInANewWindow,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () {
@@ -620,8 +619,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         Icons.fullscreen_rounded,
                         shadows: shadows,
                       ),
-                      tooltip:
-                          AppLocalizations.of(context).showFullscreenCamera,
+                      tooltip: loc.showFullscreenCamera,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
@@ -648,7 +646,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       Icons.replay_outlined,
                       shadows: shadows,
                     ),
-                    tooltip: AppLocalizations.of(context).reloadCamera,
+                    tooltip: loc.reloadCamera,
                     color: Colors.white,
                     iconSize: 18.0,
                     onPressed: () {

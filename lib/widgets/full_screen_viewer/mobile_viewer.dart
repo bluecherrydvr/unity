@@ -77,6 +77,7 @@ class _DeviceFullscreenViewerMobileState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
@@ -134,7 +135,7 @@ class _DeviceFullscreenViewerMobileState
                     [
                       TargetPlatform.iOS,
                       TargetPlatform.macOS,
-                    ].contains(Theme.of(context).platform)
+                    ].contains(theme.platform)
                         ? Icons.arrow_back_ios
                         : Icons.arrow_back,
                   ),

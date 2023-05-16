@@ -41,13 +41,14 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
 
     return Column(children: [
       showIf(
             Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
-              title: Text(AppLocalizations.of(context).directCamera),
+              title: Text(loc.directCamera),
             ),
           ) ??
           const SizedBox.shrink(),
@@ -82,17 +83,19 @@ class _DevicesForServer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final servers = context.watch<ServersProvider>();
+
     final hasDrawer = Scaffold.hasDrawer(context);
     final isLoading = servers.isServerLoading(server);
 
     final serverIndicator = SubHeader(
       server.name,
       subtext: server.online
-          ? AppLocalizations.of(context).nDevices(
+          ? loc.nDevices(
               server.devices.length,
             )
-          : AppLocalizations.of(context).offline,
+          : loc.offline,
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),
@@ -114,7 +117,7 @@ class _DevicesForServer extends StatelessWidget {
           height: 72.0,
           child: Center(
             child: Text(
-              AppLocalizations.of(context).noDevices,
+              loc.noDevices,
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall

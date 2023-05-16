@@ -38,6 +38,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     final servers = context.watch<ServersProvider>();
     final view = context.watch<DesktopViewProvider>();
@@ -69,10 +70,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                       return SubHeader(
                         server.name,
                         subtext: server.online
-                            ? AppLocalizations.of(context).nDevices(
+                            ? loc.nDevices(
                                 devices.length,
                               )
-                            : AppLocalizations.of(context).offline,
+                            : loc.offline,
                         subtextStyle: TextStyle(
                           color:
                               !server.online ? theme.colorScheme.error : null,
@@ -171,8 +172,8 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: widget.device.status
-                    ? Theme.of(context).extension<UnityColors>()!.successColor
-                    : Theme.of(context).colorScheme.error,
+                    ? theme.extension<UnityColors>()!.successColor
+                    : theme.colorScheme.error,
               ),
             ),
             Expanded(
@@ -211,6 +212,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
   Future<void> _displayOptions(BuildContext context) async {
     if (!widget.device.status) return;
 
+    final loc = AppLocalizations.of(context);
     final view = context.read<DesktopViewProvider>();
 
     const padding = EdgeInsets.symmetric(horizontal: 16.0);
@@ -241,9 +243,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
       items: <PopupMenuEntry>[
         PopupMenuItem(
           child: Text(
-            widget.selected
-                ? AppLocalizations.of(context).removeFromView
-                : AppLocalizations.of(context).addToView,
+            widget.selected ? loc.removeFromView : loc.addToView,
           ),
           onTap: () {
             if (widget.selected) {
@@ -256,7 +256,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         const PopupMenuDivider(height: 8),
         PopupMenuItem(
           child: Text(
-            AppLocalizations.of(context).showFullscreenCamera,
+            loc.showFullscreenCamera,
           ),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -280,7 +280,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         ),
         if (isDesktop)
           PopupMenuItem(
-            child: Text(AppLocalizations.of(context).openInANewWindow),
+            child: Text(loc.openInANewWindow),
             onTap: () async {
               WidgetsBinding.instance.addPostFrameCallback((_) async {
                 widget.device.openInANewWindow();

@@ -56,6 +56,8 @@ class MobileDeviceView extends StatefulWidget {
 class _MobileDeviceViewState extends State<MobileDeviceView> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final view = context.watch<MobileViewProvider>();
     final device = view.devices[widget.tab]![widget.index];
 
@@ -116,9 +118,9 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
               },
               icon: Icon(moreIconData, color: Colors.white),
               itemBuilder: (_) => [
-                AppLocalizations.of(context).removeCamera,
-                AppLocalizations.of(context).replaceCamera,
-                AppLocalizations.of(context).reloadCamera,
+                loc.removeCamera,
+                loc.replaceCamera,
+                loc.reloadCamera,
               ].asMap().entries.map((e) {
                 return PopupMenuItem(
                   value: e.key,
@@ -126,7 +128,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Colors.transparent,
-                      foregroundColor: Theme.of(context).iconTheme.color,
+                      foregroundColor: theme.iconTheme.color,
                       child: Icon(<int, IconData>{
                         0: Icons.close_outlined,
                         1: Icons.add_outlined,
@@ -277,6 +279,8 @@ class DeviceTileState extends State<DeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return GestureDetectorWithReducedDoubleTapTime(
       onTap: () {
         if (mounted) setState(() => hover = !hover);
@@ -336,23 +340,17 @@ class DeviceTileState extends State<DeviceTile> {
                               .map((word) =>
                                   '${word[0].toUpperCase()}${word.substring(1)}')
                               .join(' '),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
+                          style: theme.textTheme.displayLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
                         ),
                         Text(
                           widget.device.server.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                                color: Colors.white70,
-                                fontSize: 10.0,
-                              ),
+                          style: theme.textTheme.displaySmall?.copyWith(
+                            color: Colors.white70,
+                            fontSize: 10.0,
+                          ),
                         ),
                       ],
                     ),

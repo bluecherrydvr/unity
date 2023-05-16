@@ -57,23 +57,22 @@ class NoServerWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.dns,
-            size: 72.0,
-            color: theme.iconTheme.color?.withOpacity(0.8),
-          ),
-          const SizedBox(height: 8.0),
-          Text(
-            AppLocalizations.of(context).noServersAdded,
-            style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
-          ),
-        ],
-      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(
+          Icons.dns,
+          size: 72.0,
+          color: theme.iconTheme.color?.withOpacity(0.8),
+        ),
+        const SizedBox(height: 8.0),
+        Text(
+          loc.noServersAdded,
+          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+        ),
+      ]),
     );
   }
 }

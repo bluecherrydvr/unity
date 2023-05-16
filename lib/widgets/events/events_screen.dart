@@ -112,6 +112,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) {
     final hasDrawer = Scaffold.hasDrawer(context);
+    final loc = AppLocalizations.of(context);
 
     if (ServersProvider.instance.servers.isEmpty) {
       return const NoServerWarning();
@@ -168,13 +169,13 @@ class _EventsScreenState extends State<EventsScreen> {
         return Column(children: [
           AppBar(
             leading: MaybeUnityDrawerButton(context),
-            title: Text(AppLocalizations.of(context).eventBrowser),
+            title: Text(loc.eventBrowser),
             actions: [
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 15.0),
                 child: IconButton(
                   icon: const Icon(Icons.filter_list),
-                  tooltip: AppLocalizations.of(context).filter,
+                  tooltip: loc.filter,
                   onPressed: () => showMobileFilter(context),
                 ),
               ),
@@ -201,7 +202,7 @@ class _EventsScreenState extends State<EventsScreen> {
             child: DropdownButtonHideUnderline(
               child: Column(children: [
                 SubHeader(
-                  AppLocalizations.of(context).servers,
+                  loc.servers,
                   height: 40.0,
                 ),
                 Expanded(
@@ -274,6 +275,7 @@ class _EventsScreenState extends State<EventsScreen> {
     double gapCheckboxText = 0.0,
     required void Function(VoidCallback fn) setState,
   }) {
+    final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
     Widget buildCheckbox({
@@ -341,7 +343,7 @@ class _EventsScreenState extends State<EventsScreen> {
             ),
             Text(
               '${server.devices.length}',
-              style: Theme.of(context).textTheme.labelSmall,
+              style: theme.textTheme.labelSmall,
             ),
             const SizedBox(width: 10.0),
           ]),
@@ -396,6 +398,9 @@ class _EventsScreenState extends State<EventsScreen> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
+        final theme = Theme.of(context);
+        final loc = AppLocalizations.of(context);
+
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.8,
@@ -416,7 +421,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     height: 6.0,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
-                      color: Theme.of(context).dividerColor,
+                      color: theme.dividerColor,
                     ),
                     margin: const EdgeInsets.symmetric(
                       horizontal: 10.0,
@@ -472,7 +477,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     () => levelFilter = v ?? levelFilter,
                   ),
                 ),
-                SubHeader(AppLocalizations.of(context).servers),
+                SubHeader(loc.servers),
                 buildTreeView(
                   context,
                   gapCheckboxText: 10.0,

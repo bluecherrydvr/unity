@@ -92,6 +92,8 @@ class _EditServerState extends State<EditServer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return WillPopScope(
       onWillPop: () async => !disableFinishButton,
       child: Form(
@@ -114,7 +116,7 @@ class _EditServerState extends State<EditServer> {
                 autocorrect: false,
                 enableSuggestions: false,
                 keyboardType: TextInputType.url,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(AppLocalizations.of(context).hostname),
                   border: const OutlineInputBorder(),
@@ -136,7 +138,7 @@ class _EditServerState extends State<EditServer> {
                 controller: textEditingControllers[1],
                 autofocus: true,
                 keyboardType: TextInputType.number,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(AppLocalizations.of(context).port),
                   border: const OutlineInputBorder(),
@@ -158,7 +160,7 @@ class _EditServerState extends State<EditServer> {
             controller: textEditingControllers[2],
             textCapitalization: TextCapitalization.words,
             keyboardType: TextInputType.name,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
             decoration: InputDecoration(
               label: Text(AppLocalizations.of(context).name),
               border: const OutlineInputBorder(),
@@ -177,7 +179,7 @@ class _EditServerState extends State<EditServer> {
                   return null;
                 },
                 controller: textEditingControllers[3],
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(AppLocalizations.of(context).username),
                   border: const OutlineInputBorder(),
@@ -199,7 +201,7 @@ class _EditServerState extends State<EditServer> {
                 },
                 controller: textEditingControllers[4],
                 obscureText: true,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(AppLocalizations.of(context).password),
                   border: const OutlineInputBorder(),
@@ -213,7 +215,7 @@ class _EditServerState extends State<EditServer> {
             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               MaterialButton(
                 onPressed: Navigator.of(context).pop,
-                textColor: Theme.of(context).colorScheme.secondary,
+                textColor: theme.colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
                   child: Text(AppLocalizations.of(context).cancel),
@@ -221,7 +223,7 @@ class _EditServerState extends State<EditServer> {
               ),
               MaterialButton(
                 onPressed: disableFinishButton ? null : update,
-                textColor: Theme.of(context).colorScheme.secondary,
+                textColor: theme.colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
                   child: Text(
@@ -259,25 +261,28 @@ class _EditServerState extends State<EditServer> {
       } else if (mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).error),
-            content: Text(
-              AppLocalizations.of(context).serverNotAddedError(server.name),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            actions: [
-              MaterialButton(
-                onPressed: Navigator.of(context).maybePop,
-                textColor: Theme.of(context).colorScheme.secondary,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(
-                    AppLocalizations.of(context).ok,
+          builder: (context) {
+            final theme = Theme.of(context);
+            return AlertDialog(
+              title: Text(AppLocalizations.of(context).error),
+              content: Text(
+                AppLocalizations.of(context).serverNotAddedError(server.name),
+                style: theme.textTheme.headlineMedium,
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: Navigator.of(context).maybePop,
+                  textColor: theme.colorScheme.secondary,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.all(8.0),
+                    child: Text(
+                      AppLocalizations.of(context).ok,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         );
       }
 

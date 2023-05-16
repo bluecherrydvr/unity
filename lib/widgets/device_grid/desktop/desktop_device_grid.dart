@@ -712,11 +712,12 @@ class PresetsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
 
     return SimpleDialog(
       title: Row(children: [
         Expanded(child: Text(loc.presets)),
-        Text('0', style: Theme.of(context).textTheme.bodySmall),
+        Text('0', style: theme.textTheme.bodySmall),
       ]),
       children: [
         SizedBox(

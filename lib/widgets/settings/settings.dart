@@ -60,6 +60,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
     const divider = SliverToBoxAdapter(
@@ -96,7 +97,7 @@ class _SettingsState extends State<Settings> {
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Colors.transparent,
-                      foregroundColor: Theme.of(context).iconTheme.color,
+                      foregroundColor: theme.iconTheme.color,
                       child: Icon({
                         ThemeMode.system: Icons.brightness_auto,
                         ThemeMode.light: Icons.light_mode,
@@ -170,17 +171,17 @@ class _SettingsState extends State<Settings> {
                 ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
+                    foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.beenhere_rounded),
                   ),
                   title: Text(
                       AppLocalizations.of(context).notificationClickAction),
-                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.notificationClickAction.str(context),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
                   ),
                   children: NotificationClickAction.values.map((e) {
                     return RadioListTile(
@@ -203,16 +204,16 @@ class _SettingsState extends State<Settings> {
                 ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
+                    foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.camera_alt),
                   ),
                   title: Text(AppLocalizations.of(context).cameraViewFit),
-                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.cameraViewFit.str(context),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
                   ),
                   children: UnityVideoFit.values.map((e) {
                     return RadioListTile(
@@ -255,16 +256,16 @@ class _SettingsState extends State<Settings> {
                 ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).iconTheme.color,
+                    foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.timelapse),
                   ),
                   title: Text(AppLocalizations.of(context).cycleTogglePeriod),
-                  textColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
                     settings.layoutCyclingTogglePeriod.humanReadable(context),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
                   ),
                   children: [5, 10, 30, 60, 60 * 5].map((e) {
                     final dur = Duration(seconds: e);
@@ -351,7 +352,7 @@ class _SettingsState extends State<Settings> {
                       const SizedBox(height: 8.0),
                       Text(
                         AppLocalizations.of(context).versionText,
-                        style: Theme.of(context).textTheme.displayMedium,
+                        style: theme.textTheme.displayMedium,
                       ),
                       const SizedBox(height: 8.0),
                       MaterialButton(
@@ -366,7 +367,7 @@ class _SettingsState extends State<Settings> {
                         child: Text(
                           AppLocalizations.of(context).website,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),

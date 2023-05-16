@@ -45,6 +45,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.white12,
@@ -67,7 +69,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
             Container(
               alignment: AlignmentDirectional.center,
               child: Card(
-                color: Theme.of(context).cardColor,
+                color: theme.cardColor,
                 elevation: 4.0,
                 clipBehavior: Clip.antiAlias,
                 margin: const EdgeInsets.symmetric(
@@ -91,18 +93,15 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const SizedBox(height: 24.0),
                         Text(
                           AppLocalizations.of(context).projectName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                                fontSize: 36.0,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: theme.textTheme.displayLarge?.copyWith(
+                            fontSize: 36.0,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         const SizedBox(height: 4.0),
                         Text(
                           AppLocalizations.of(context).projectDescription,
-                          style: Theme.of(context).textTheme.headlineSmall,
+                          style: theme.textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 16.0),
                         Container(
@@ -122,13 +121,9 @@ class _AddServerWizardState extends State<AddServerWizard> {
                               },
                               child: Text(
                                 AppLocalizations.of(context).website,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
                             ),
                             MaterialButton(
@@ -143,13 +138,9 @@ class _AddServerWizardState extends State<AddServerWizard> {
                               },
                               child: Text(
                                 AppLocalizations.of(context).purchase,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
                             ),
                           ]),
@@ -158,25 +149,21 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const SizedBox(height: 16.0),
                         Column(
                           crossAxisAlignment:
-                              (Theme.of(context).appBarTheme.centerTitle ??
-                                      false)
+                              (theme.appBarTheme.centerTitle ?? false)
                                   ? CrossAxisAlignment.center
                                   : CrossAxisAlignment.start,
                           children: [
                             Text(
                               AppLocalizations.of(context).welcome,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.copyWith(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: theme.textTheme.displayLarge?.copyWith(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
                               AppLocalizations.of(context).welcomeDescription,
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: theme.textTheme.headlineSmall,
                             ),
                           ],
                         ),
@@ -184,7 +171,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     ),
                     const SizedBox(height: 16.0),
                     Material(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: theme.colorScheme.secondary,
                       child: InkWell(
                         onTap: () {
                           controller.nextPage(
@@ -299,6 +286,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
@@ -312,9 +301,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               FocusScope.of(context).unfocus();
             },
           ),
-          backgroundColor: Theme.of(context).brightness == Brightness.light
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).cardColor,
+          backgroundColor: theme.brightness == Brightness.light
+              ? theme.colorScheme.primary
+              : theme.cardColor,
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.white12,
             statusBarIconBrightness: Brightness.light,
@@ -332,16 +321,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
             child: Container(
               height: 32.0,
               padding: const EdgeInsetsDirectional.only(start: 16.0),
-              alignment: Theme.of(context).appBarTheme.centerTitle ?? false
+              alignment: theme.appBarTheme.centerTitle ?? false
                   ? AlignmentDirectional.topCenter
                   : AlignmentDirectional.topStart,
               child: Text(
                 AppLocalizations.of(context).configureDescription,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
+                style: theme.textTheme.headlineMedium
                     ?.copyWith(color: Colors.white.withOpacity(0.87)),
               ),
             ),
@@ -372,7 +359,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       autocorrect: false,
                       enableSuggestions: false,
                       keyboardType: TextInputType.url,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(AppLocalizations.of(context).hostname),
                         border: const OutlineInputBorder(),
@@ -394,7 +381,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       controller: textEditingControllers[1],
                       autofocus: true,
                       keyboardType: TextInputType.number,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(AppLocalizations.of(context).port),
                         border: const OutlineInputBorder(),
@@ -416,7 +403,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   controller: textEditingControllers[2],
                   textCapitalization: TextCapitalization.words,
                   keyboardType: TextInputType.name,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: theme.textTheme.headlineMedium,
                   decoration: InputDecoration(
                     label: Text(AppLocalizations.of(context).name),
                     border: const OutlineInputBorder(),
@@ -435,7 +422,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         return null;
                       },
                       controller: textEditingControllers[3],
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(AppLocalizations.of(context).username),
                         border: const OutlineInputBorder(),
@@ -450,7 +437,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         textEditingControllers[3].text = kDefaultUsername;
                         textEditingControllers[4].text = kDefaultPassword;
                       },
-                      textColor: Theme.of(context).colorScheme.secondary,
+                      textColor: theme.colorScheme.secondary,
                       child: Text(
                         AppLocalizations.of(context).useDefault.toUpperCase(),
                       ),
@@ -471,7 +458,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       },
                       controller: textEditingControllers[4],
                       obscureText: true,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(AppLocalizations.of(context).password),
                         border: const OutlineInputBorder(),
@@ -494,7 +481,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   //         'save_password'.tr(),
                   //         maxLines: 2,
                   //         overflow: TextOverflow.ellipsis,
-                  //         style: Theme.of(context).textTheme.headline4,
+                  //         style: theme.textTheme.headline4,
                   //       ),
                   //     ],
                   //   ),
@@ -516,7 +503,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 //       'connect_automatically_at_startup'.tr(),
                 //       maxLines: 2,
                 //       overflow: TextOverflow.ellipsis,
-                //       style: Theme.of(context).textTheme.headline4,
+                //       style: theme.textTheme.headline4,
                 //     ),
                 //   ],
                 // ),
@@ -534,7 +521,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                                 curve: Curves.easeInOut,
                               );
                             },
-                      textColor: Theme.of(context).colorScheme.secondary,
+                      textColor: theme.colorScheme.secondary,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.all(8.0),
                         child: Text(
@@ -545,7 +532,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     MaterialButton(
                       onPressed:
                           disableFinishButton ? null : () => finish(context),
-                      textColor: Theme.of(context).colorScheme.secondary,
+                      textColor: theme.colorScheme.secondary,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.all(8.0),
                         child: Text(
@@ -604,25 +591,28 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         if (mounted) {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: Text(AppLocalizations.of(context).error),
-              content: Text(
-                AppLocalizations.of(context).serverNotAddedError(server.name),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              actions: [
-                MaterialButton(
-                  onPressed: Navigator.of(context).maybePop,
-                  textColor: Theme.of(context).colorScheme.secondary,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.all(8.0),
-                    child: Text(
-                      AppLocalizations.of(context).ok,
+            builder: (context) {
+              final theme = Theme.of(context);
+              return AlertDialog(
+                title: Text(AppLocalizations.of(context).error),
+                content: Text(
+                  AppLocalizations.of(context).serverNotAddedError(server.name),
+                  style: theme.textTheme.headlineMedium,
+                ),
+                actions: [
+                  MaterialButton(
+                    onPressed: Navigator.of(context).maybePop,
+                    textColor: theme.colorScheme.secondary,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(
+                        AppLocalizations.of(context).ok,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           );
         }
       }
@@ -651,6 +641,7 @@ class LetsGoScreen extends StatefulWidget {
 class _LetsGoScreenState extends State<LetsGoScreen> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final server = widget.getServer();
 
     return WillPopScope(
@@ -675,9 +666,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
             ),
-            backgroundColor: Theme.of(context).brightness == Brightness.light
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).cardColor,
+            backgroundColor: theme.brightness == Brightness.light
+                ? theme.colorScheme.primary
+                : theme.cardColor,
             title: Text(
               AppLocalizations.of(context).letsGo,
               style: const TextStyle(
@@ -690,16 +681,14 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               child: Container(
                 height: 32.0,
                 padding: const EdgeInsetsDirectional.only(start: 16.0),
-                alignment: Theme.of(context).appBarTheme.centerTitle ?? false
+                alignment: theme.appBarTheme.centerTitle ?? false
                     ? AlignmentDirectional.topCenter
                     : AlignmentDirectional.topStart,
                 child: Text(
                   AppLocalizations.of(context).letsGoDescription,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
+                  style: theme.textTheme.headlineMedium
                       ?.copyWith(color: Colors.white.withOpacity(0.87)),
                 ),
               ),
@@ -713,7 +702,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
               elevation: 4.0,
               color: Color.alphaBlend(
                 Colors.green.withOpacity(0.2),
-                Theme.of(context).cardColor,
+                theme.cardColor,
               ),
               margin: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -809,7 +798,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           onPressed: () {
             widget.onFinish.call();
           },
-          backgroundColor: Theme.of(context).colorScheme.secondary,
+          backgroundColor: theme.colorScheme.secondary,
           label: Text(AppLocalizations.of(context).finish.toUpperCase()),
           icon: const Icon(Icons.check),
         ),

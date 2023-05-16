@@ -57,6 +57,7 @@ class NoServerWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -64,15 +65,12 @@ class NoServerWarning extends StatelessWidget {
           Icon(
             Icons.dns,
             size: 72.0,
-            color: Theme.of(context).iconTheme.color?.withOpacity(0.8),
+            color: theme.iconTheme.color?.withOpacity(0.8),
           ),
           const SizedBox(height: 8.0),
           Text(
             AppLocalizations.of(context).noServersAdded,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 16.0),
+            style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
           ),
         ],
       ),

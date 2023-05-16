@@ -52,7 +52,7 @@ class ServersList extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.transparent,
-                          foregroundColor: Theme.of(context).iconTheme.color,
+                          foregroundColor: theme.iconTheme.color,
                           child: const Icon(Icons.add, size: 30.0),
                         ),
                         const SizedBox(height: 8.0),
@@ -81,7 +81,7 @@ class ServersList extends StatelessWidget {
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.transparent,
-              foregroundColor: Theme.of(context).iconTheme.color,
+              foregroundColor: theme.iconTheme.color,
               child: const Icon(Icons.add),
             ),
             title: Text(AppLocalizations.of(context).addNewServer),
@@ -102,42 +102,45 @@ class ServersList extends StatelessWidget {
   Future<void> onRemoveServer(BuildContext context, Server server) {
     return showDialog(
       context: context,
-      builder: (context) => ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 300.0,
-        ),
-        child: AlertDialog(
-          title: Text(AppLocalizations.of(context).remove),
-          content: Text(
-            AppLocalizations.of(context).removeServerDescription(server.name),
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.start,
+      builder: (context) {
+        final theme = Theme.of(context);
+        return ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 300.0,
           ),
-          actions: [
-            MaterialButton(
-              onPressed: Navigator.of(context).maybePop,
-              child: Text(
-                AppLocalizations.of(context).no.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+          child: AlertDialog(
+            title: Text(AppLocalizations.of(context).remove),
+            content: Text(
+              AppLocalizations.of(context).removeServerDescription(server.name),
+              style: theme.textTheme.headlineMedium,
+              textAlign: TextAlign.start,
+            ),
+            actions: [
+              MaterialButton(
+                onPressed: Navigator.of(context).maybePop,
+                child: Text(
+                  AppLocalizations.of(context).no.toUpperCase(),
+                  style: TextStyle(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-            MaterialButton(
-              onPressed: () {
-                ServersProvider.instance.remove(server);
-                Navigator.of(context).maybePop();
-              },
-              child: Text(
-                AppLocalizations.of(context).yes.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+              MaterialButton(
+                onPressed: () {
+                  ServersProvider.instance.remove(server);
+                  Navigator.of(context).maybePop();
+                },
+                child: Text(
+                  AppLocalizations.of(context).yes.toUpperCase(),
+                  style: TextStyle(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -343,6 +346,7 @@ Future showServerMenu({
   final home = context.read<HomeProvider>();
   final servers = context.read<ServersProvider>();
   final loc = AppLocalizations.of(context);
+  final theme = Theme.of(context);
 
   return showMenu(
     context: context,
@@ -352,7 +356,7 @@ Future showServerMenu({
       pos.dx + 180.0,
       pos.dy + 200,
     ),
-    color: Theme.of(context).dialogBackgroundColor,
+    color: theme.dialogBackgroundColor,
     items: <PopupMenuEntry>[
       PopupMenuItem(
         child: Text(loc.editServerInfo),

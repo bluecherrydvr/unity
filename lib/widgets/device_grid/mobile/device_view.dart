@@ -308,6 +308,7 @@ class DeviceTileState extends State<DeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return GestureDetectorWithReducedDoubleTapTime(
@@ -384,6 +385,13 @@ class DeviceTileState extends State<DeviceTile> {
                       ],
                     ),
                   ),
+                  if (widget.device.hasPTZ)
+                    Icon(
+                      Icons.videogame_asset,
+                      color: Colors.white,
+                      size: 20.0,
+                      semanticLabel: loc.ptzSupported,
+                    ),
                   const SizedBox(width: 16.0),
                 ]),
               ),

@@ -21,7 +21,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:animations/animations.dart';
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
@@ -40,6 +39,7 @@ import 'package:bluecherry_client/widgets/device_grid/mobile/device_view.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

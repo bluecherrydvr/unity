@@ -20,6 +20,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bluecherry_client/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,18 @@ bool get isDesktop {
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
 
 bool get isMobile => Platform.isAndroid || Platform.isIOS;
+
+/// Whether the current platform is iOS or macOS
+bool get isCupertino {
+  final navigatorContext = navigatorKey.currentContext;
+  if (navigatorContext != null) {
+    final theme = Theme.of(navigatorContext);
+    return theme.platform == TargetPlatform.iOS ||
+        theme.platform == TargetPlatform.macOS;
+  }
+
+  return Platform.isIOS || Platform.isMacOS;
+}
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;

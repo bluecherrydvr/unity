@@ -328,19 +328,7 @@ class DesktopTileViewport extends StatefulWidget {
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
-class _Command {
-  final Movement movement;
-  final PTZCommand command;
-
-  const _Command({
-    this.movement = Movement.noMovement,
-    this.command = PTZCommand.move,
-  });
-}
-
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
-  /// This ensures the commands will be sent only once.
-  bool lock = false;
   bool ptzEnabled = false;
 
   double? volume;
@@ -350,8 +338,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       if (mounted) setState(() => volume = value);
     });
   }
-
-  List<_Command> commands = [];
 
   @override
   void initState() {
@@ -394,294 +380,203 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       ),
     ];
 
-    Widget foreground = HoverButton(
-      onPressed: () {},
-      onTapUp: () async {
-        if (!ptzEnabled) return;
-
-        debugPrint('stopping');
-        const cmd = _Command(command: PTZCommand.stop);
-        setState(() => commands.add(cmd));
-        await API.instance.ptz(
-          device: widget.device,
-          movement: Movement.noMovement,
-          command: PTZCommand.stop,
-        );
-        setState(() => commands.remove(cmd));
-      },
-      onVerticalDragUpdate: (d) async {
-        if (lock || !ptzEnabled) return;
-        lock = true;
-
-        if (d.delta.dy < 0) {
-          debugPrint('moving up ${d.delta.dy}');
-
-          const cmd = _Command(movement: Movement.moveNorth);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveNorth,
-          );
-          setState(() => commands.remove(cmd));
-        } else {
-          debugPrint('moving down ${d.delta.dy}');
-          const cmd = _Command(movement: Movement.moveSouth);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveSouth,
-          );
-          setState(() => commands.remove(cmd));
-        }
-      },
-      onVerticalDragEnd: (_) => lock = false,
-      onHorizontalDragUpdate: (d) async {
-        if (lock || !ptzEnabled) return;
-        lock = true;
-
-        if (d.delta.dx < 0) {
-          debugPrint('moving left ${d.delta.dx}');
-          const cmd = _Command(movement: Movement.moveWest);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveWest,
-          );
-          setState(() => commands.remove(cmd));
-        } else {
-          debugPrint('moving right ${d.delta.dx}');
-          const cmd = _Command(movement: Movement.moveEast);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveEast,
-          );
-          setState(() => commands.remove(cmd));
-        }
-      },
-      onHorizontalDragEnd: (_) => lock = false,
-      onScaleUpdate: (details) async {
-        if (lock ||
-            details.scale.isNegative ||
-            details.scale.toString().runes.last.isEven ||
-            !ptzEnabled) return;
-        lock = true;
-
-        if (details.scale > 1.0) {
-          debugPrint('zooming up');
-          const cmd = _Command(movement: Movement.moveTele);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveTele,
-          );
-          setState(() => commands.remove(cmd));
-        } else {
-          debugPrint('zooming down');
-          const cmd = _Command(movement: Movement.moveWide);
-          setState(() => commands.add(cmd));
-          await API.instance.ptz(
-            device: widget.device,
-            movement: Movement.moveWide,
-          );
-          setState(() => commands.remove(cmd));
-        }
-      },
-      onScaleEnd: (_) => lock = false,
-      builder: (context, states) {
+    Widget foreground = PTZController(
+      enabled: ptzEnabled,
+      device: widget.device,
+      builder: (context, commands) {
+        final states = HoverButton.of(context).states;
         final loc = AppLocalizations.of(context);
 
-        return Column(children: [
-          if (!widget.isSubView)
-            Container(
-              height: 48.0,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
-                const EdgeInsetsDirectional.only(top: 8.0),
-              ),
-              alignment: AlignmentDirectional.centerStart,
-              child: Row(children: [
-                Expanded(
-                  child: Text(
-                    widget.device.fullName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      shadows: shadows,
-                    ),
-                  ),
+        return Stack(children: [
+          Column(children: [
+            if (!widget.isSubView)
+              Container(
+                height: 48.0,
+                padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
+                  const EdgeInsetsDirectional.only(top: 8.0),
                 ),
-                if (!widget.isSubView)
-                  AnimatedOpacity(
-                    opacity: !states.isHovering ? 0 : 1,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.close_outlined,
+                alignment: AlignmentDirectional.centerStart,
+                child: Row(children: [
+                  Expanded(
+                    child: Text(
+                      widget.device.fullName,
+                      style: const TextStyle(
+                        color: Colors.white,
                         shadows: shadows,
                       ),
-                      color: Colors.white,
-                      tooltip: loc.removeCamera,
-                      iconSize: 18.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.remove(widget.device);
-                      },
                     ),
                   ),
-              ]),
-            ),
-          const Spacer(),
-          AnimatedOpacity(
-            opacity: !states.isHovering ? 0 : 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0)
-                  .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (widget.device.hasPTZ) ...[
-                    IconButton(
-                      icon: Icon(
-                        Icons.videogame_asset,
-                        color: ptzEnabled ? Colors.white : null,
-                      ),
-                      tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                      onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
-                    ),
-                    // TODO(bdlukaa): enable presets when the API is ready
-                    // IconButton(
-                    //   icon: Icon(
-                    //     Icons.dataset,
-                    //     color: ptzEnabled ? Colors.white : null,
-                    //   ),
-                    //   tooltip: ptzEnabled
-                    //       ? loc.enabledPTZ
-                    //       : loc.disabledPTZ,
-                    //   onPressed: !ptzEnabled
-                    //       ? null
-                    //       : () {
-                    //           showDialog(
-                    //             context: context,
-                    //             builder: (context) {
-                    //               return PresetsDialog(device: widget.device);
-                    //             },
-                    //           );
-                    //         },
-                    // ),
-                  ],
-                  const Spacer(),
-                  () {
-                    final isMuted = volume == 0.0;
-
-                    return IconButton(
-                      icon: Icon(
-                        isMuted
-                            ? Icons.volume_mute_rounded
-                            : Icons.volume_up_rounded,
-                        shadows: shadows,
-                      ),
-                      tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                      color: Colors.white,
-                      iconSize: 18.0,
-                      onPressed: () async {
-                        if (isMuted) {
-                          await widget.controller.setVolume(1.0);
-                        } else {
-                          await widget.controller.setVolume(0.0);
-                        }
-
-                        updateVolume();
-                      },
-                    );
-                  }(),
-                  const VerticalDivider(
-                    color: Colors.white,
-                    indent: 10,
-                    endIndent: 10,
-                  ),
-                  if (isDesktop && !widget.isSubView)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.open_in_new,
-                        shadows: shadows,
-                      ),
-                      tooltip: loc.openInANewWindow,
-                      color: Colors.white,
-                      iconSize: 18.0,
-                      onPressed: () {
-                        widget.device.openInANewWindow();
-                      },
-                    ),
                   if (!widget.isSubView)
+                    AnimatedOpacity(
+                      opacity: !states.isHovering ? 0 : 1,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close_outlined,
+                          shadows: shadows,
+                        ),
+                        color: Colors.white,
+                        tooltip: loc.removeCamera,
+                        iconSize: 18.0,
+                        onPressed: () {
+                          DesktopViewProvider.instance.remove(widget.device);
+                        },
+                      ),
+                    ),
+                ]),
+              ),
+            const Spacer(),
+            AnimatedOpacity(
+              opacity: !states.isHovering ? 0 : 1,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0)
+                    .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (widget.device.hasPTZ) ...[
+                      IconButton(
+                        icon: Icon(
+                          Icons.videogame_asset,
+                          color: ptzEnabled ? Colors.white : null,
+                        ),
+                        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
+                        onPressed: () =>
+                            setState(() => ptzEnabled = !ptzEnabled),
+                      ),
+                      // TODO(bdlukaa): enable presets when the API is ready
+                      // IconButton(
+                      //   icon: Icon(
+                      //     Icons.dataset,
+                      //     color: ptzEnabled ? Colors.white : null,
+                      //   ),
+                      //   tooltip: ptzEnabled
+                      //       ? loc.enabledPTZ
+                      //       : loc.disabledPTZ,
+                      //   onPressed: !ptzEnabled
+                      //       ? null
+                      //       : () {
+                      //           showDialog(
+                      //             context: context,
+                      //             builder: (context) {
+                      //               return PresetsDialog(device: widget.device);
+                      //             },
+                      //           );
+                      //         },
+                      // ),
+                    ],
+                    const Spacer(),
+                    () {
+                      final isMuted = volume == 0.0;
+
+                      return IconButton(
+                        icon: Icon(
+                          isMuted
+                              ? Icons.volume_mute_rounded
+                              : Icons.volume_up_rounded,
+                          shadows: shadows,
+                        ),
+                        tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
+                        color: Colors.white,
+                        iconSize: 18.0,
+                        onPressed: () async {
+                          if (isMuted) {
+                            await widget.controller.setVolume(1.0);
+                          } else {
+                            await widget.controller.setVolume(0.0);
+                          }
+
+                          updateVolume();
+                        },
+                      );
+                    }(),
+                    const VerticalDivider(
+                      color: Colors.white,
+                      indent: 10,
+                      endIndent: 10,
+                    ),
+                    if (isDesktop && !widget.isSubView)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          shadows: shadows,
+                        ),
+                        tooltip: loc.openInANewWindow,
+                        color: Colors.white,
+                        iconSize: 18.0,
+                        onPressed: () {
+                          widget.device.openInANewWindow();
+                        },
+                      ),
+                    if (!widget.isSubView)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.fullscreen_rounded,
+                          shadows: shadows,
+                        ),
+                        tooltip: loc.showFullscreenCamera,
+                        color: Colors.white,
+                        iconSize: 18.0,
+                        onPressed: () async {
+                          var player = view.players[widget.device];
+                          var isLocalController = false;
+                          if (player == null) {
+                            player = getVideoPlayerControllerForDevice(
+                                widget.device);
+                            isLocalController = true;
+                          }
+
+                          await Navigator.of(context).pushNamed(
+                            '/fullscreen',
+                            arguments: {
+                              'device': widget.device,
+                              'player': player,
+                            },
+                          );
+                          if (isLocalController) await player.release();
+                        },
+                      ),
                     IconButton(
                       icon: const Icon(
-                        Icons.fullscreen_rounded,
+                        Icons.replay_outlined,
                         shadows: shadows,
                       ),
-                      tooltip: loc.showFullscreenCamera,
+                      tooltip: loc.reloadCamera,
                       color: Colors.white,
                       iconSize: 18.0,
-                      onPressed: () async {
-                        var player = view.players[widget.device];
-                        var isLocalController = false;
-                        if (player == null) {
-                          player =
-                              getVideoPlayerControllerForDevice(widget.device);
-                          isLocalController = true;
-                        }
-
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': player,
-                          },
-                        );
-                        if (isLocalController) await player.release();
+                      onPressed: () {
+                        DesktopViewProvider.instance.reload(widget.device);
                       },
                     ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.replay_outlined,
-                      shadows: shadows,
-                    ),
-                    tooltip: loc.reloadCamera,
-                    color: Colors.white,
-                    iconSize: 18.0,
-                    onPressed: () {
-                      DesktopViewProvider.instance.reload(widget.device);
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
+            ),
+          ]),
+          PositionedDirectional(
+            end: 16.0,
+            top: 50.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: commands
+                  .map<String>((cmd) {
+                    switch (cmd.command) {
+                      case PTZCommand.move:
+                        return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                      case PTZCommand.stop:
+                        return cmd.command.locale(context);
+                    }
+                  })
+                  .map<Widget>(Text.new)
+                  .toList(),
             ),
           ),
         ]);
       },
     );
-
-    foreground = Stack(children: [
-      foreground,
-      PositionedDirectional(
-        end: 16.0,
-        top: 50.0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: commands
-              .map<String>((cmd) {
-                switch (cmd.command) {
-                  case PTZCommand.move:
-                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-                  case PTZCommand.stop:
-                    return cmd.command.locale(context);
-                }
-              })
-              .map<Widget>(Text.new)
-              .toList(),
-        ),
-      ),
-    ]);
 
     return TooltipTheme(
       data: TooltipTheme.of(context).copyWith(

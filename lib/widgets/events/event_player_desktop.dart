@@ -205,8 +205,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                               padd,
                               Expanded(
                                 child: Slider(
-                                  value: _position ??
-                                      pos.inMilliseconds.toDouble(),
+                                  value: (_position ?? pos.inMilliseconds)
+                                      .clamp(0.0, duration.inMilliseconds)
+                                      .toDouble(),
                                   max: duration.inMilliseconds.toDouble(),
                                   secondaryTrackValue: videoController
                                       .currentBuffer.inMilliseconds

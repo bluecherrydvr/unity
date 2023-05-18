@@ -198,27 +198,34 @@ class _MobileDeviceGridChild extends StatelessWidget {
     return LayoutBuilder(builder: (context, consts) {
       final size = consts.biggest;
 
+      final width = size.width - kGridInnerPadding;
+      final height = size.height - kGridInnerPadding;
+
       return Container(
-        alignment: Alignment.center,
-        height: double.infinity,
-        width: double.infinity,
-        child: StaticGrid(
-          // crossAxisSpacing: 0.0,
-          // mainAxisSpacing: 0.0,
-          crossAxisCount: <int, int>{
-            6: 3,
-            4: 2,
-            2: 2,
-          }[tab]!,
-          childAspectRatio: <int, double>{
-                4: size.width / size.height,
-                2: size.width * 0.5 / size.height,
-              }[tab] ??
-              16 / 9,
-          reorderable: view.current.any((device) => device != null),
-          padding: EdgeInsets.zero,
-          onReorder: (initial, end) => view.reorder(tab, initial, end),
-          children: children,
+        height: size.height,
+        width: size.width,
+        padding: const EdgeInsets.all(kGridInnerPadding),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Center(
+            child: StaticGrid(
+              crossAxisCount: <int, int>{
+                    6: 3,
+                    4: 2,
+                    2: 2,
+                  }[tab] ??
+                  1,
+              childAspectRatio: <int, double>{
+                    2: width * 0.5 / height,
+                    4: width / height,
+                  }[tab] ??
+                  16 / 9,
+              reorderable: view.current.any((device) => device != null),
+              padding: EdgeInsets.zero,
+              onReorder: (initial, end) => view.reorder(tab, initial, end),
+              children: children,
+            ),
+          ),
         ),
       );
     });

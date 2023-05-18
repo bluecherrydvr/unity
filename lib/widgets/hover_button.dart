@@ -285,7 +285,7 @@ class HoverButtonState extends State<HoverButton> {
       onScaleStart: widget.onScaleStart,
       onScaleUpdate: widget.onScaleUpdate,
       onScaleEnd: widget.onScaleEnd,
-      child: widget.builder(context, states),
+      child: Builder(builder: (context) => widget.builder(context, states)),
     );
     if (widget.focusEnabled) {
       w = FocusableActionDetector(

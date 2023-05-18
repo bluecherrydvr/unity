@@ -63,7 +63,12 @@ class _PTZControllerState extends State<PTZController> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enabled) return widget.builder(context, commands);
+    if (!widget.enabled) {
+      return HoverButton(
+        forceEnabled: true,
+        builder: (context, _) => widget.builder(context, commands),
+      );
+    }
 
     return HoverButton(
       onPressed: () {},

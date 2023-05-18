@@ -135,12 +135,9 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Releases a device if no layout is using it
   void _releaseDevice(Device device) {
-    print('releasing ${device.name} 1');
     if (!players.containsKey(device)) return;
-    print('releasing ${device.name} 2');
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
-      print('releasing ${device.name}');
       players[device]?.release();
       players[device]?.dispose();
     }

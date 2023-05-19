@@ -75,8 +75,12 @@ class Device {
     // }
   }
 
-  String get rtspURL =>
-      'rtsp://${server.login}:${server.password}@${server.ip}:${server.rtspPort}/$uri';
+  String get rtspURL {
+    return ''
+        'rtsp://'
+        '${server.login}:${server.password}@${server.ip}:${server.rtspPort}'
+        '/$uri';
+  }
 
   String get mjpegURL {
     return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/media/mjpeg.php?id=$id&multipart=true';

@@ -30,6 +30,12 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   Timer? timer;
 
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final settings = context.watch<SettingsProvider>();
@@ -53,6 +59,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   @override
   void dispose() {
     timer?.cancel();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
@@ -62,6 +69,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
     final settings = context.watch<SettingsProvider>();
     final viewPadding = MediaQuery.viewPaddingOf(context);
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     return Column(children: [
       SizedBox(height: viewPadding.top),
@@ -78,7 +86,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
               return FadeThroughTransition(
                 animation: primaryAnimation,
                 secondaryAnimation: secondaryAnimation,
-                fillColor: Colors.black,
+                fillColor: theme.colorScheme.background,
                 child: child,
               );
             },
@@ -98,8 +106,8 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
             ),
             width: double.infinity,
             child: Row(children: <Widget>[
-              const UnityDrawerButton(
-                iconColor: Colors.white,
+              UnityDrawerButton(
+                iconColor: theme.colorScheme.onBackground,
                 iconSize: 18.0,
                 splashRadius: 24.0,
               ),
@@ -109,10 +117,10 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   size: 18.0,
                   color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
-                      : Colors.white,
+                      : theme.colorScheme.onBackground,
                 ),
                 padding: EdgeInsets.zero,
-                tooltip: AppLocalizations.of(context).cycle,
+                tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
               const Spacer(),
@@ -131,7 +139,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       icon: Text(
                         '$tab',
                         style: TextStyle(
-                          color: view.tab == tab ? Colors.black : Colors.white,
+                          color: view.tab == tab
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onBackground,
                           fontSize: 18.0,
                         ),
                       ),
@@ -188,27 +198,34 @@ class _MobileDeviceGridChild extends StatelessWidget {
     return LayoutBuilder(builder: (context, consts) {
       final size = consts.biggest;
 
+      final width = size.width - kGridInnerPadding;
+      final height = size.height - kGridInnerPadding;
+
       return Container(
-        color: Colors.black,
-        height: double.infinity,
-        width: double.infinity,
-        child: StaticGrid(
-          // crossAxisSpacing: 0.0,
-          // mainAxisSpacing: 0.0,
-          crossAxisCount: <int, int>{
-            6: 3,
-            4: 2,
-            2: 2,
-          }[tab]!,
-          childAspectRatio: <int, double>{
-                4: size.width / size.height,
-                2: size.width * 0.5 / size.height,
-              }[tab] ??
-              16 / 9,
-          reorderable: view.current.any((device) => device != null),
-          padding: EdgeInsets.zero,
-          onReorder: (initial, end) => view.reorder(tab, initial, end),
-          children: children,
+        height: size.height,
+        width: size.width,
+        padding: const EdgeInsets.all(kGridInnerPadding),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Center(
+            child: StaticGrid(
+              crossAxisCount: <int, int>{
+                    6: 3,
+                    4: 2,
+                    2: 2,
+                  }[tab] ??
+                  1,
+              childAspectRatio: <int, double>{
+                    2: width * 0.5 / height,
+                    4: width / height,
+                  }[tab] ??
+                  16 / 9,
+              reorderable: view.current.any((device) => device != null),
+              padding: EdgeInsets.zero,
+              onReorder: (initial, end) => view.reorder(tab, initial, end),
+              children: children,
+            ),
+          ),
         ),
       );
     });

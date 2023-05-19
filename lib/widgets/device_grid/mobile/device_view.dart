@@ -56,6 +56,8 @@ class MobileDeviceView extends StatefulWidget {
 class _MobileDeviceViewState extends State<MobileDeviceView> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final view = context.watch<MobileViewProvider>();
     final device = view.devices[widget.tab]![widget.index];
 
@@ -87,57 +89,86 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
           ),
           Padding(
             padding: const EdgeInsetsDirectional.only(top: 4.0, end: 4.0),
-            child: PopupMenuButton<int>(
-              tooltip: '',
-              elevation: 4.0,
-              onSelected: (value) async {
-                switch (value) {
-                  case 0:
-                    view.remove(widget.tab, widget.index);
-                    if (mounted) setState(() {});
+            child: Builder(builder: (context) {
+              return GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTapUp: (d) async {
+                  final box = context.findRenderObject() as RenderBox;
+                  final buttonPos = box.localToGlobal(
+                    const Offset(kMinInteractiveDimension - 14.0, 0.0),
+                    ancestor: Navigator.of(context).context.findRenderObject(),
+                  );
 
-                    break;
-                  case 1:
-                    final result = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const DeviceSelectorScreen(),
-                      ),
-                    );
+                  const menuWidth = 275.0;
+                  final position = RelativeRect.fromLTRB(
+                    buttonPos.dx - menuWidth,
+                    buttonPos.dy,
+                    buttonPos.dx,
+                    buttonPos.dy + menuWidth,
+                  );
 
-                    if (result is Device) {
-                      view.replace(widget.tab, widget.index, result);
-                      if (mounted) setState(() {});
-                    }
-                    break;
-                  case 2:
-                    view.reload(widget.tab, widget.index);
-                    break;
-                }
-              },
-              icon: Icon(moreIconData, color: Colors.white),
-              itemBuilder: (_) => [
-                AppLocalizations.of(context).removeCamera,
-                AppLocalizations.of(context).replaceCamera,
-                AppLocalizations.of(context).reloadCamera,
-              ].asMap().entries.map((e) {
-                return PopupMenuItem(
-                  value: e.key,
-                  padding: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Theme.of(context).iconTheme.color,
-                      child: Icon(<int, IconData>{
-                        0: Icons.close_outlined,
-                        1: Icons.add_outlined,
-                        2: Icons.replay_outlined,
-                      }[e.key]!),
+                  final value = await showMenu<int>(
+                    context: context,
+                    position: position,
+                    constraints: const BoxConstraints(
+                      maxWidth: menuWidth,
+                      minWidth: menuWidth,
                     ),
-                    title: Text(e.value),
-                  ),
-                );
-              }).toList(),
-            ),
+                    items: [
+                      loc.removeCamera,
+                      loc.replaceCamera,
+                      loc.reloadCamera,
+                    ].asMap().entries.map((e) {
+                      return PopupMenuItem(
+                        value: e.key,
+                        padding: EdgeInsets.zero,
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: theme.iconTheme.color,
+                            child: Icon(<int, IconData>{
+                              0: Icons.close_outlined,
+                              1: Icons.add_outlined,
+                              2: Icons.replay_outlined,
+                            }[e.key]!),
+                          ),
+                          title: Text(e.value),
+                        ),
+                      );
+                    }).toList(),
+                  );
+
+                  if (value == null || !mounted) return;
+
+                  switch (value) {
+                    case 0:
+                      view.remove(widget.tab, widget.index);
+                      if (mounted) setState(() {});
+
+                      break;
+                    case 1:
+                      final result = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DeviceSelectorScreen(),
+                        ),
+                      );
+
+                      if (result is Device) {
+                        view.replace(widget.tab, widget.index, result);
+                        if (mounted) setState(() {});
+                      }
+                      break;
+                    case 2:
+                      view.reload(widget.tab, widget.index);
+                      break;
+                  }
+                },
+                child: IconButton(
+                  onPressed: null,
+                  icon: Icon(moreIconData, color: Colors.white),
+                ),
+              );
+            }),
           ),
         ]),
       );
@@ -277,6 +308,9 @@ class DeviceTileState extends State<DeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
     return GestureDetectorWithReducedDoubleTapTime(
       onTap: () {
         if (mounted) setState(() => hover = !hover);
@@ -300,6 +334,7 @@ class DeviceTileState extends State<DeviceTile> {
               color: Colors.black,
               width: double.infinity,
               height: double.infinity,
+              child: const CircularProgressIndicator.adaptive(),
             )
           else
             playerView,
@@ -332,29 +367,31 @@ class DeviceTileState extends State<DeviceTile> {
                         Text(
                           widget.device.name
                               .split(' ')
-                              .map((e) => e[0].toUpperCase() + e.substring(1))
+                              .map((word) =>
+                                  '${word[0].toUpperCase()}${word.substring(1)}')
                               .join(' '),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
+                          style: theme.textTheme.displayLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
                         ),
                         Text(
-                          widget.device.uri,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                                color: Colors.white70,
-                                fontSize: 10.0,
-                              ),
+                          widget.device.server.name,
+                          style: theme.textTheme.displaySmall?.copyWith(
+                            color: Colors.white70,
+                            fontSize: 10.0,
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  if (widget.device.hasPTZ)
+                    Icon(
+                      Icons.videogame_asset,
+                      color: Colors.white,
+                      size: 20.0,
+                      semanticLabel: loc.ptzSupported,
+                    ),
                   const SizedBox(width: 16.0),
                 ]),
               ),

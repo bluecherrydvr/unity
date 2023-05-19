@@ -63,9 +63,10 @@ class SettingsProvider extends ChangeNotifier {
   // Setters.
   set themeMode(ThemeMode value) {
     _themeMode = value;
-    _save().then((_) async {
-      await Future.delayed(const Duration(milliseconds: 500));
-      HomeProvider.setDefaultStatusBarStyle();
+    _save().then((_) {
+      HomeProvider.setDefaultStatusBarStyle(
+        value == ThemeMode.light ? true : null,
+      );
     });
   }
 

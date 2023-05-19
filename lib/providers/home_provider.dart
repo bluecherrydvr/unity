@@ -90,12 +90,14 @@ class HomeProvider extends ChangeNotifier {
     setTab(UnityTab.downloads.index, context);
   }
 
-  static Future<void> setDefaultStatusBarStyle() async {
+  static Future<void> setDefaultStatusBarStyle([bool? isLight]) async {
     if (isMobile) {
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
+      isLight ??= () {
+        final context = navigatorKey.currentContext;
+        if (context == null) return false;
 
-      final isLight = Theme.of(context).brightness == Brightness.light;
+        return MediaQuery.platformBrightnessOf(context) == Brightness.light;
+      }();
       // Restore the navigation bar & status bar styling.
       SystemChrome.setSystemUIOverlayStyle(
         isLight ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,

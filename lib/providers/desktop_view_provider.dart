@@ -133,16 +133,23 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Removes a [Device] tile from the camera grid
+  /// Releases a device if no layout is using it
+  void _releaseDevice(Device device) {
+    if (!players.containsKey(device)) return;
+    if (!layouts
+        .any((layout) => layout.devices.any((d) => d.id == device.id))) {
+      players[device]?.release();
+      players[device]?.dispose();
+    }
+  }
+
+  /// Removes a [Device] tile from the current layout
   Future<void> remove(Device device) {
-    // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (currentLayout.devices.contains(device)) {
       debugPrint('Removed $device');
 
-      players[device]?.release();
-      players[device]?.dispose();
-
       currentLayout.devices.remove(device);
+      _releaseDevice(device);
     }
     notifyListeners();
     return _save(notifyListeners: false);
@@ -159,9 +166,7 @@ class DesktopViewProvider extends ChangeNotifier {
     }
 
     for (final device in devices) {
-      if (!players.containsKey(device)) continue;
-      players[device]?.release();
-      players[device]?.dispose();
+      _releaseDevice(device);
     }
 
     return _save();
@@ -211,6 +216,10 @@ class DesktopViewProvider extends ChangeNotifier {
       // one layout in the list
       if (currentLayoutIndex == layouts.length - 1) _currentLayout -= 1;
       layouts.remove(layout);
+
+      for (final device in layout.devices) {
+        _releaseDevice(device);
+      }
     }
     notifyListeners();
     return _save(notifyListeners: false);

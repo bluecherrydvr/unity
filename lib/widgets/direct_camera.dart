@@ -41,13 +41,14 @@ class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
+    final loc = AppLocalizations.of(context);
 
     return Column(children: [
       showIf(
             Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
-              title: Text(AppLocalizations.of(context).directCamera),
+              title: Text(loc.directCamera),
             ),
           ) ??
           const SizedBox.shrink(),
@@ -82,17 +83,19 @@ class _DevicesForServer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final servers = context.watch<ServersProvider>();
+
     final hasDrawer = Scaffold.hasDrawer(context);
     final isLoading = servers.isServerLoading(server);
 
     final serverIndicator = SubHeader(
       server.name,
       subtext: server.online
-          ? AppLocalizations.of(context).nDevices(
+          ? loc.nDevices(
               server.devices.length,
             )
-          : AppLocalizations.of(context).offline,
+          : loc.offline,
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),
@@ -114,7 +117,7 @@ class _DevicesForServer extends StatelessWidget {
           height: 72.0,
           child: Center(
             child: Text(
-              AppLocalizations.of(context).noDevices,
+              loc.noDevices,
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -138,8 +141,8 @@ class _DevicesForServer extends StatelessWidget {
                 leading: CircleAvatar(
                   backgroundColor: Colors.transparent,
                   foregroundColor: device.status
-                      ? Colors.green.shade100
-                      : Theme.of(context).colorScheme.error,
+                      ? theme.extension<UnityColors>()!.successColor
+                      : theme.colorScheme.error,
                   child: const Icon(Icons.camera_alt),
                 ),
                 title: Text(
@@ -155,63 +158,42 @@ class _DevicesForServer extends StatelessWidget {
           ]);
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            serverIndicator,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Wrap(
-                children: devices.map<Widget>((device) {
-                  final foregroundColor = device.status
-                      ? colorFromBrightness(
-                          context,
-                          light: Colors.green.shade400,
-                          dark: Colors.green.shade100,
-                        )
-                      : colorFromBrightness(
-                          context,
-                          light: Colors.red.withOpacity(0.75),
-                          dark: Colors.red.shade400,
-                        );
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          serverIndicator,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Wrap(
+              children: devices.map<Widget>((device) {
+                final foregroundColor = device.status
+                    ? theme.extension<UnityColors>()!.successColor
+                    : theme.colorScheme.error;
 
-                  return Card(
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(10.0),
-                      onTap:
-                          device.status ? () => onTap(context, device) : null,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          end: 8.0,
-                          // top: 8.0,
-                          // bottom: 8.0,
-                        ),
-                        child: Column(children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: foregroundColor,
-                                child: const Icon(Icons.camera_alt),
-                              ),
-                              Text(
-                                device.name,
-                                style: TextStyle(
-                                  color: foregroundColor,
-                                ),
-                              ),
-                            ],
+                return Card(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10.0),
+                    onTap: device.status ? () => onTap(context, device) : null,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 8.0),
+                      child: Column(children: [
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: foregroundColor,
+                            child: const Icon(Icons.camera_alt),
+                          ),
+                          Text(
+                            device.name,
+                            style: TextStyle(color: foregroundColor),
                           ),
                         ]),
-                      ),
+                      ]),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
-          ],
-        );
+          ),
+        ]);
       }),
     );
   }

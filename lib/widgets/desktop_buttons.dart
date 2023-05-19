@@ -124,15 +124,6 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
       builder: (context, arguments) {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
 
-        // final divider = SizedBox(
-        //   height: 16.0,
-        //   child: VerticalDivider(
-        //     color: theme.brightness == Brightness.dark
-        //         ? Colors.white
-        //         : Colors.black,
-        //   ),
-        // );
-
         return Material(
           color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [

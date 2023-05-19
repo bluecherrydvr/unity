@@ -20,6 +20,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bluecherry_client/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,18 @@ bool get isDesktop {
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
 
 bool get isMobile => Platform.isAndroid || Platform.isIOS;
+
+/// Whether the current platform is iOS or macOS
+bool get isCupertino {
+  final navigatorContext = navigatorKey.currentContext;
+  if (navigatorContext != null) {
+    final theme = Theme.of(navigatorContext);
+    return theme.platform == TargetPlatform.iOS ||
+        theme.platform == TargetPlatform.macOS;
+  }
+
+  return Platform.isIOS || Platform.isMacOS;
+}
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;
@@ -144,6 +157,8 @@ class CorrectedListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -169,15 +184,15 @@ class CorrectedListTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: theme.textTheme.titleMedium,
                 ),
                 if (subtitle != null) const SizedBox(height: 4.0),
                 if (subtitle != null)
                   Text(
                     subtitle!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -212,6 +227,8 @@ class SubHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: height,
       alignment: AlignmentDirectional.centerStart,
@@ -224,20 +241,18 @@ class SubHeader extends StatelessWidget {
             children: [
               Text(
                 text.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).textTheme.displaySmall?.color,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.textTheme.displaySmall?.color,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               if (subtext != null)
                 Text(
                   subtext!.toUpperCase(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
+                  style: theme.textTheme.labelSmall
                       ?.copyWith(
-                        color: Theme.of(context).hintColor,
+                        color: theme.hintColor,
                         fontSize: 10.0,
                         fontWeight: FontWeight.w600,
                       )

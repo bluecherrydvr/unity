@@ -8,10 +8,7 @@ typedef ButtonStateWidgetBuilder = Widget Function(
   Set<ButtonStates> state,
 );
 
-/// Base widget for any widget that requires input. It
-/// provides a [builder] callback to build the child with
-/// the current input state: none, hovering, pressing or
-/// focused.
+/// Base widget for any widget that requires input.
 class HoverButton extends StatefulWidget {
   /// Creates a hover button.
   const HoverButton({
@@ -43,6 +40,8 @@ class HoverButton extends StatefulWidget {
     this.customActions,
     this.shortcuts,
     this.focusEnabled = true,
+    this.forceEnabled = false,
+    this.hitTestBehavior = HitTestBehavior.opaque,
   });
 
   /// {@template fluent_ui.controls.inputs.HoverButton.mouseCursor}
@@ -53,6 +52,7 @@ class HoverButton extends StatefulWidget {
   /// cursor to the next region behind it in hit-test order.
   /// {@endtemplate}
   final MouseCursor? cursor;
+
   final VoidCallback? onLongPress;
   final VoidCallback? onLongPressStart;
   final VoidCallback? onLongPressEnd;
@@ -104,9 +104,10 @@ class HoverButton extends StatefulWidget {
   /// Whether actions are enabled
   ///
   /// Default actions:
-  ///  * Execute [onPressed] with Enter
+  ///  * Execute [onPressed] with Enter and Space
   ///
   /// See also:
+  ///
   ///  * [customActions], which lets you execute custom actions
   final bool actionsEnabled;
 
@@ -122,15 +123,30 @@ class HoverButton extends StatefulWidget {
 
   /// Whether the focusing is enabled.
   ///
-  /// If false, actions and shortcurts will not work, regardless of what is
+  /// If `false`, actions and shortcurts will not work, regardless of what is
   /// set on [actionsEnabled].
   final bool focusEnabled;
 
+  /// Whether the hover button should be always enabled.
+  ///
+  /// If `true`, the button will be considered active even if [onPressed] is not
+  /// provided
+  final bool forceEnabled;
+
+  /// How this gesture detector should behave during hit testing.
+  ///
+  /// This defaults to [HitTestBehavior.opaque]
+  final HitTestBehavior hitTestBehavior;
+
   @override
-  State<HoverButton> createState() => _HoverButtonState();
+  State<HoverButton> createState() => HoverButtonState();
+
+  static HoverButtonState of(BuildContext context) {
+    return context.findAncestorStateOfType<HoverButtonState>()!;
+  }
 }
 
-class _HoverButtonState extends State<HoverButton> {
+class HoverButtonState extends State<HoverButton> {
   late FocusNode node;
 
   late Map<Type, Action<Intent>> _actionMap;
@@ -193,16 +209,27 @@ class _HoverButtonState extends State<HoverButton> {
   bool _shouldShowFocus = false;
 
   bool get enabled =>
+      widget.forceEnabled ||
       widget.onPressed != null ||
       widget.onTapUp != null ||
       widget.onTapDown != null ||
       widget.onTapDown != null ||
       widget.onLongPress != null ||
       widget.onLongPressStart != null ||
-      widget.onLongPressEnd != null;
+      widget.onLongPressEnd != null ||
+      widget.onHorizontalDragStart != null ||
+      widget.onHorizontalDragUpdate != null ||
+      widget.onHorizontalDragEnd != null ||
+      widget.onScaleStart != null ||
+      widget.onScaleUpdate != null ||
+      widget.onScaleEnd != null ||
+      widget.onVerticalDragStart != null ||
+      widget.onVerticalDragEnd != null ||
+      widget.onVerticalDragUpdate != null;
 
   Set<ButtonStates> get states {
     if (!enabled) return {ButtonStates.disabled};
+
     return {
       if (_pressing) ButtonStates.pressing,
       if (_hovering) ButtonStates.hovering,
@@ -210,10 +237,13 @@ class _HoverButtonState extends State<HoverButton> {
     };
   }
 
+  /// Used in INteractiveViewer to block the first gesture recognition
+  bool hasInteractionStarted = false;
+
   @override
   Widget build(BuildContext context) {
     Widget w = GestureDetector(
-      behavior: HitTestBehavior.opaque,
+      behavior: widget.hitTestBehavior,
       onTap: enabled ? widget.onPressed : null,
       onTapDown: (_) {
         if (!enabled) return;
@@ -232,23 +262,30 @@ class _HoverButtonState extends State<HoverButton> {
         if (mounted) setState(() => _pressing = false);
       },
       onLongPress: enabled ? widget.onLongPress : null,
-      onLongPressStart: (_) {
-        if (!enabled) return;
-        widget.onLongPressStart?.call();
-        if (mounted) setState(() => _pressing = true);
-      },
-      onLongPressEnd: (_) {
-        if (!enabled) return;
-        widget.onLongPressEnd?.call();
-        if (mounted) setState(() => _pressing = false);
-      },
+      onLongPressStart: widget.onLongPressStart != null
+          ? (_) {
+              if (!enabled) return;
+              widget.onLongPressStart?.call();
+              if (mounted) setState(() => _pressing = true);
+            }
+          : null,
+      onLongPressEnd: widget.onLongPressEnd != null
+          ? (_) {
+              if (!enabled) return;
+              widget.onLongPressEnd?.call();
+              if (mounted) setState(() => _pressing = false);
+            }
+          : null,
       onHorizontalDragStart: widget.onHorizontalDragStart,
       onHorizontalDragUpdate: widget.onHorizontalDragUpdate,
       onHorizontalDragEnd: widget.onHorizontalDragEnd,
       onVerticalDragStart: widget.onVerticalDragStart,
       onVerticalDragUpdate: widget.onVerticalDragUpdate,
       onVerticalDragEnd: widget.onVerticalDragEnd,
-      child: widget.builder(context, states),
+      onScaleStart: widget.onScaleStart,
+      onScaleUpdate: widget.onScaleUpdate,
+      onScaleEnd: widget.onScaleEnd,
+      child: Builder(builder: (context) => widget.builder(context, states)),
     );
     if (widget.focusEnabled) {
       w = FocusableActionDetector(
@@ -288,6 +325,7 @@ class _HoverButtonState extends State<HoverButton> {
       onInteractionEnd: widget.onScaleEnd,
       child: w,
     );
+
     w = MergeSemantics(
       child: Semantics(
         label: widget.semanticLabel,
@@ -298,7 +336,6 @@ class _HoverButtonState extends State<HoverButton> {
         child: w,
       ),
     );
-
     if (widget.margin != null) w = Padding(padding: widget.margin!, child: w);
     return w;
   }

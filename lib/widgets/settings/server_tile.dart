@@ -26,6 +26,7 @@ class ServersList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final serversProvider = context.watch<ServersProvider>();
@@ -52,12 +53,12 @@ class ServersList extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.transparent,
-                          foregroundColor: Theme.of(context).iconTheme.color,
+                          foregroundColor: theme.iconTheme.color,
                           child: const Icon(Icons.add, size: 30.0),
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          AppLocalizations.of(context).addNewServer,
+                          loc.addNewServer,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleSmall,
                         ),
@@ -81,10 +82,10 @@ class ServersList extends StatelessWidget {
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.transparent,
-              foregroundColor: Theme.of(context).iconTheme.color,
+              foregroundColor: theme.iconTheme.color,
               child: const Icon(Icons.add),
             ),
-            title: Text(AppLocalizations.of(context).addNewServer),
+            title: Text(loc.addNewServer),
             onTap: () => home.setTab(UnityTab.addServer.index, context),
           ),
           const Padding(
@@ -102,42 +103,47 @@ class ServersList extends StatelessWidget {
   Future<void> onRemoveServer(BuildContext context, Server server) {
     return showDialog(
       context: context,
-      builder: (context) => ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 300.0,
-        ),
-        child: AlertDialog(
-          title: Text(AppLocalizations.of(context).remove),
-          content: Text(
-            AppLocalizations.of(context).removeServerDescription(server.name),
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.start,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final loc = AppLocalizations.of(context);
+
+        return ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 300.0,
           ),
-          actions: [
-            MaterialButton(
-              onPressed: Navigator.of(context).maybePop,
-              child: Text(
-                AppLocalizations.of(context).no.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+          child: AlertDialog(
+            title: Text(loc.remove),
+            content: Text(
+              loc.removeServerDescription(server.name),
+              style: theme.textTheme.headlineMedium,
+              textAlign: TextAlign.start,
+            ),
+            actions: [
+              MaterialButton(
+                onPressed: Navigator.of(context).maybePop,
+                child: Text(
+                  loc.no.toUpperCase(),
+                  style: TextStyle(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-            MaterialButton(
-              onPressed: () {
-                ServersProvider.instance.remove(server);
-                Navigator.of(context).maybePop();
-              },
-              child: Text(
-                AppLocalizations.of(context).yes.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+              MaterialButton(
+                onPressed: () {
+                  ServersProvider.instance.remove(server);
+                  Navigator.of(context).maybePop();
+                },
+                child: Text(
+                  loc.yes.toUpperCase(),
+                  style: TextStyle(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -196,7 +202,7 @@ class ServerTile extends StatelessWidget {
                   else
                     loc.offline,
                 ].join(' • ')
-              : AppLocalizations.of(context).gettingDevices,
+              : loc.gettingDevices,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
@@ -229,12 +235,11 @@ class ServerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
     final isLoading = servers.isServerLoading(server);
-
-    final loc = AppLocalizations.of(context);
 
     void showMenu() {
       final box = context.findRenderObject() as RenderBox;
@@ -343,6 +348,7 @@ Future showServerMenu({
   final home = context.read<HomeProvider>();
   final servers = context.read<ServersProvider>();
   final loc = AppLocalizations.of(context);
+  final theme = Theme.of(context);
 
   return showMenu(
     context: context,
@@ -352,7 +358,7 @@ Future showServerMenu({
       pos.dx + 180.0,
       pos.dy + 200,
     ),
-    color: Theme.of(context).dialogBackgroundColor,
+    color: theme.dialogBackgroundColor,
     items: <PopupMenuEntry>[
       PopupMenuItem(
         child: Text(loc.editServerInfo),

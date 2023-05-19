@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class DownloadsManagerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final downloads = context.watch<DownloadsManager>();
 
     return Column(children: [
@@ -47,7 +49,7 @@ class DownloadsManagerScreen extends StatelessWidget {
             Scaffold.hasDrawer(context),
             child: AppBar(
               leading: MaybeUnityDrawerButton(context),
-              title: Text(AppLocalizations.of(context).downloads),
+              title: Text(loc.downloads),
             ),
           ) ??
           const SizedBox.shrink(),
@@ -55,7 +57,7 @@ class DownloadsManagerScreen extends StatelessWidget {
         child: LayoutBuilder(builder: (context, consts) {
           if (downloads.isEmpty) {
             return Center(
-              child: Text(AppLocalizations.of(context).noDownloads),
+              child: Text(loc.noDownloads),
             );
           }
 
@@ -155,6 +157,7 @@ class _DownloadTileState extends State<DownloadTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
@@ -187,11 +190,11 @@ class _DownloadTileState extends State<DownloadTile> {
                 height: 40.0,
                 child: () {
                   if (isDownloaded) {
-                    return const Padding(
-                      padding: EdgeInsetsDirectional.only(end: 12.0),
+                    return Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 12.0),
                       child: Icon(
                         Icons.download_done,
-                        color: Colors.green,
+                        color: theme.extension<UnityColors>()!.successColor,
                       ),
                     );
                   }
@@ -383,21 +386,21 @@ class DownloadProgressIndicator extends StatelessWidget {
 class DownloadIndicator extends StatelessWidget {
   final Event event;
 
-  const DownloadIndicator({
-    super.key,
-    required this.event,
-  });
+  const DownloadIndicator({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
     return SizedBox(
       height: 40.0,
       width: 40.0,
       child: () {
         if (event.isAlarm) {
-          return const Icon(
+          return Icon(
             Icons.warning,
-            color: Colors.amber,
+            color: theme.extension<UnityColors>()!.warningColor,
           );
         }
 
@@ -408,10 +411,10 @@ class DownloadIndicator extends StatelessWidget {
             onPressed: () {
               context.read<HomeProvider>().toDownloads(event.id, context);
             },
-            tooltip: AppLocalizations.of(context).seeInDownloads,
-            icon: const Icon(
+            tooltip: loc.seeInDownloads,
+            icon: Icon(
               Icons.download_done,
-              color: Colors.green,
+              color: theme.extension<UnityColors>()!.successColor,
             ),
           );
         }
@@ -426,7 +429,7 @@ class DownloadIndicator extends StatelessWidget {
         if (event.mediaURL != null) {
           return IconButton(
             padding: EdgeInsets.zero,
-            tooltip: AppLocalizations.of(context).download,
+            tooltip: loc.download,
             onPressed: () => downloads.download(event),
             icon: const Icon(Icons.download),
           );

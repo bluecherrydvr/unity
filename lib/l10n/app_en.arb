@@ -200,6 +200,7 @@
   "close": "Close",
   "open": "Open",
   "@PTZ": {},
+  "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ is enabled",
   "disabledPTZ": "PTZ is disabled",
   "move": "Movement",

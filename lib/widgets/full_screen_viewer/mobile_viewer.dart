@@ -23,12 +23,14 @@ class DeviceFullscreenViewerMobile extends StatefulWidget {
   final Device device;
   final UnityVideoPlayer videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
+  final bool ptzEnabled;
 
   const DeviceFullscreenViewerMobile({
     super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
+    this.ptzEnabled = false,
   });
 
   @override
@@ -43,7 +45,7 @@ class _DeviceFullscreenViewerMobileState
   UnityVideoFit fit = UnityVideoFit.contain;
   Brightness? brightness;
 
-  bool ptzEnabled = false;
+  late bool ptzEnabled = widget.ptzEnabled;
 
   @override
   void initState() {

@@ -38,12 +38,14 @@ class DeviceFullscreenViewer extends StatelessWidget {
   final Device device;
   final UnityVideoPlayer videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
+  final bool ptzEnabled;
 
   const DeviceFullscreenViewer({
     super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
+    this.ptzEnabled = false,
   });
 
   @override
@@ -59,6 +61,7 @@ class DeviceFullscreenViewer extends StatelessWidget {
         device: device,
         videoPlayerController: videoPlayerController,
         restoreStatusBarStyleOnDispose: restoreStatusBarStyleOnDispose,
+        ptzEnabled: ptzEnabled,
       );
       // }
     });

@@ -223,6 +223,7 @@ class UnityApp extends StatelessWidget {
               final data = settings.arguments! as Map;
               final Device device = data['device'];
               final UnityVideoPlayer player = data['player'];
+              final bool ptzEnabled = data['ptzEnabled'] ?? false;
 
               return MaterialPageRoute(
                 settings: RouteSettings(
@@ -234,6 +235,7 @@ class UnityApp extends StatelessWidget {
                     device: device,
                     videoPlayerController: player,
                     restoreStatusBarStyleOnDispose: true,
+                    ptzEnabled: ptzEnabled,
                   );
                 },
               );

@@ -534,6 +534,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                             arguments: {
                               'device': widget.device,
                               'player': player,
+                              'ptzEnabled': ptzEnabled,
                             },
                           );
                           if (isLocalController) await player.release();

@@ -510,40 +510,42 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 //   ],
                 // ),
                 const SizedBox(height: 16.0),
-                Align(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  child:
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    MaterialButton(
-                      onPressed: disableFinishButton
-                          ? null
-                          : () {
-                              widget.controller.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                      textColor: theme.colorScheme.secondary,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(8.0),
-                        child: Text(
-                          loc.skip.toUpperCase(),
-                        ),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  if (disableFinishButton)
+                    const SizedBox(
+                      height: 24.0,
+                      width: 24.0,
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  MaterialButton(
+                    onPressed: disableFinishButton
+                        ? null
+                        : () {
+                            widget.controller.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                    textColor: theme.colorScheme.secondary,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(
+                        loc.skip.toUpperCase(),
                       ),
                     ),
-                    MaterialButton(
-                      onPressed:
-                          disableFinishButton ? null : () => finish(context),
-                      textColor: theme.colorScheme.secondary,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(8.0),
-                        child: Text(
-                          loc.finish.toUpperCase(),
-                        ),
+                  ),
+                  MaterialButton(
+                    onPressed:
+                        disableFinishButton ? null : () => finish(context),
+                    textColor: theme.colorScheme.secondary,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(
+                        loc.finish.toUpperCase(),
                       ),
                     ),
-                  ]),
-                ),
+                  ),
+                ]),
               ]),
             ),
           ),

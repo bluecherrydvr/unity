@@ -39,6 +39,7 @@ enum DesktopLayoutType {
 /// A layout is a view that can contain one or more [Device]s.
 ///
 /// See also:
+///
 ///  * [Device], which are displayed inside a Layout
 ///  * [DesktopLayoutType], which configures the type of the layout
 class Layout {

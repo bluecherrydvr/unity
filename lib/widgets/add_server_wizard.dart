@@ -289,6 +289,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final buttonOpacity = disableFinishButton ? 0.5 : 1.0;
 
     return WillPopScope(
       child: Scaffold(
@@ -515,7 +516,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     const SizedBox(
                       height: 24.0,
                       width: 24.0,
-                      child: CircularProgressIndicator.adaptive(),
+                      child: CircularProgressIndicator.adaptive(
+                        strokeWidth: 2.0,
+                      ),
                     ),
                   MaterialButton(
                     onPressed: disableFinishButton
@@ -526,23 +529,23 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                               curve: Curves.easeInOut,
                             );
                           },
-                    textColor: theme.colorScheme.secondary,
+                    textColor: theme.colorScheme.secondary.withOpacity(
+                      buttonOpacity,
+                    ),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(
-                        loc.skip.toUpperCase(),
-                      ),
+                      child: Text(loc.skip.toUpperCase()),
                     ),
                   ),
                   MaterialButton(
                     onPressed:
                         disableFinishButton ? null : () => finish(context),
-                    textColor: theme.colorScheme.secondary,
+                    textColor: theme.colorScheme.secondary.withOpacity(
+                      buttonOpacity,
+                    ),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(
-                        loc.finish.toUpperCase(),
-                      ),
+                      child: Text(loc.finish.toUpperCase()),
                     ),
                   ),
                 ]),

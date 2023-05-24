@@ -571,7 +571,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         return cmd.command.locale(context);
                     }
                   })
-                  .map<Widget>(Text.new)
+                  .map<Widget>(
+                    (text) => Text(
+                      text,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  )
                   .toList(),
             ),
           ),

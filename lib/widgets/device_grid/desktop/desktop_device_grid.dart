@@ -493,11 +493,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
-                    const VerticalDivider(
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,
-                    ),
+                    // const VerticalDivider(
+                    //   color: Colors.white,
+                    //   indent: 10,
+                    //   endIndent: 10,
+                    // ),
                     if (isDesktop && !widget.isSubView)
                       IconButton(
                         icon: const Icon(

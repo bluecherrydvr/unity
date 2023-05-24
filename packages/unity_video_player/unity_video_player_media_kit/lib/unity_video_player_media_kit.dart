@@ -246,7 +246,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   void dispose() async {
     errorStream.cancel();
-    await mkPlayer.dispose();
+    mkPlayer.dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

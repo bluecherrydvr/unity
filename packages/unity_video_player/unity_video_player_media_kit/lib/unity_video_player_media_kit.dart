@@ -97,8 +97,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   UnityVideoPlayerMediaKit({int? width, int? height}) {
     mkVideoController = VideoController(
       mkPlayer,
-      width: 640,
-      height: 360,
+      configuration: const VideoControllerConfiguration(
+        width: 640,
+        height: 360,
+      ),
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
@@ -244,7 +246,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   void dispose() async {
     errorStream.cancel();
-    await mkPlayer.dispose();
+    mkPlayer.dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

@@ -197,8 +197,10 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Adds a new layout
   Future<void> addLayout(Layout layout) {
     if (!layouts.contains(layout)) {
-      debugPrint(layout.toString());
+      debugPrint('Added $layout');
       layouts.add(layout);
+    } else {
+      debugPrint('$layout already exists');
     }
     notifyListeners();
     return _save(notifyListeners: false);
@@ -206,7 +208,7 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Deletes [layout]
   Future<void> removeLayout(Layout layout) {
-    assert(layouts.length > 1, 'There must be at least one layout');
+    assert(layouts.length > 1, 'There must be at least one layout left');
 
     if (layouts.contains(layout)) {
       debugPrint(layout.toString());
@@ -228,12 +230,14 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Replaces [oldLayout] with [newLayout]
   Future<void> updateLayout(Layout oldLayout, Layout newLayout) {
     if (layouts.contains(oldLayout)) {
-      debugPrint(newLayout.toString());
+      final layoutIndex = layouts.indexOf(oldLayout);
+      layouts
+        ..removeAt(layoutIndex)
+        ..insert(layoutIndex, newLayout);
 
-      layouts.insert(layouts.indexOf(oldLayout), newLayout);
-
-      debugPrint(oldLayout.toString());
-      debugPrint(newLayout.toString());
+      debugPrint('Replaced $oldLayout at $layoutIndex with $newLayout');
+    } else {
+      debugPrint('Layout $oldLayout not found');
     }
 
     notifyListeners();

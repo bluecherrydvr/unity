@@ -24,7 +24,7 @@ dependency_overrides:
   media_kit:
     git:
       url: https://github.com/alexmercerind/media_kit.git
-      ref: ed47eb4de1f1db93364953997703b13cd2e48ec4
+      ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
       path: media_kit/
 
 flutter:

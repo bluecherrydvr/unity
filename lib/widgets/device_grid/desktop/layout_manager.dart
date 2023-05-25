@@ -382,19 +382,18 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       title: Row(
         children: [
           Expanded(child: Text('Edit ${widget.layout.name}')),
-          IconButton(
-            icon: Icon(
-              Icons.delete,
-              color: theme.colorScheme.error,
+          if (view.layouts.length > 1)
+            IconButton(
+              icon: Icon(
+                Icons.delete,
+                color: theme.colorScheme.error,
+              ),
+              iconSize: 18.0,
+              onPressed: () {
+                view.removeLayout(widget.layout);
+                Navigator.of(context).pop();
+              },
             ),
-            iconSize: 18.0,
-            onPressed: view.layouts.length == 1
-                ? null
-                : () {
-                    view.removeLayout(widget.layout);
-                    Navigator.of(context).pop();
-                  },
-          ),
         ],
       ),
       content: Column(mainAxisSize: MainAxisSize.min, children: [

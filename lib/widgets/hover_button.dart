@@ -282,9 +282,9 @@ class HoverButtonState extends State<HoverButton> {
       onVerticalDragStart: widget.onVerticalDragStart,
       onVerticalDragUpdate: widget.onVerticalDragUpdate,
       onVerticalDragEnd: widget.onVerticalDragEnd,
-      onScaleStart: widget.onScaleStart,
-      onScaleUpdate: widget.onScaleUpdate,
-      onScaleEnd: widget.onScaleEnd,
+      // onScaleStart: widget.onScaleStart,
+      // onScaleUpdate: widget.onScaleUpdate,
+      // onScaleEnd: widget.onScaleEnd,
       child: Builder(builder: (context) => widget.builder(context, states)),
     );
     if (widget.focusEnabled) {

@@ -33,7 +33,7 @@
     }
   },
   "serverAdded": "Server has been added",
-  "serverNotAddedError": "{serverName} could not be added. Please check the entered details.",
+  "serverNotAddedError": "{serverName} could not be added. Please check the entered details and check if the server is online.",
   "@serverNotAddedError": {
     "placeholders": {
       "serverName": {}

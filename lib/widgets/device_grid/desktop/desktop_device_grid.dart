@@ -493,11 +493,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
-                    const VerticalDivider(
-                      color: Colors.white,
-                      indent: 10,
-                      endIndent: 10,
-                    ),
+                    // const VerticalDivider(
+                    //   color: Colors.white,
+                    //   indent: 10,
+                    //   endIndent: 10,
+                    // ),
                     if (isDesktop && !widget.isSubView)
                       IconButton(
                         icon: const Icon(
@@ -534,6 +534,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                             arguments: {
                               'device': widget.device,
                               'player': player,
+                              'ptzEnabled': ptzEnabled,
                             },
                           );
                           if (isLocalController) await player.release();
@@ -570,7 +571,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         return cmd.command.locale(context);
                     }
                   })
-                  .map<Widget>(Text.new)
+                  .map<Widget>(
+                    (text) => Text(
+                      text,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  )
                   .toList(),
             ),
           ),

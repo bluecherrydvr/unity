@@ -28,6 +28,10 @@ parts:
     plugin: flutter
     build-packages:
       - libmpv-dev
-    stage-packages:
       - libmpv1
+      - mpv
+    stage-packages:
+      - libmpv-dev
+      - libmpv1
+      - mpv
     flutter-target: lib/main.dart # The main entry-point file of the application

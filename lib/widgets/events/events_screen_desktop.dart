@@ -26,13 +26,14 @@ class EventsScreenDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
     if (events.isEmpty) {
       return Center(
         child: Text(
-          AppLocalizations.of(context).noEventsFound,
+          loc.noEventsFound,
           textAlign: TextAlign.center,
         ),
       );
@@ -46,12 +47,12 @@ class EventsScreenDesktop extends StatelessWidget {
           columnSpacing: 30.0,
           columns: [
             const DataColumn(label: SizedBox.shrink()),
-            DataColumn(label: Text(AppLocalizations.of(context).server)),
-            DataColumn(label: Text(AppLocalizations.of(context).device)),
-            DataColumn(label: Text(AppLocalizations.of(context).event)),
-            DataColumn(label: Text(AppLocalizations.of(context).duration)),
-            DataColumn(label: Text(AppLocalizations.of(context).priority)),
-            DataColumn(label: Text(AppLocalizations.of(context).date)),
+            DataColumn(label: Text(loc.server)),
+            DataColumn(label: Text(loc.device)),
+            DataColumn(label: Text(loc.event)),
+            DataColumn(label: Text(loc.duration)),
+            DataColumn(label: Text(loc.priority)),
+            DataColumn(label: Text(loc.date)),
           ],
           showCheckboxColumn: false,
           rows: events.map<DataRow>((Event event) {

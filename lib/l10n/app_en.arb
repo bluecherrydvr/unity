@@ -33,7 +33,7 @@
     }
   },
   "serverAdded": "Server has been added",
-  "serverNotAddedError": "{serverName} could not be added. Please check the entered details.",
+  "serverNotAddedError": "{serverName} could not be added. Please check the entered details and check if the server is online.",
   "@serverNotAddedError": {
     "placeholders": {
       "serverName": {}
@@ -200,6 +200,7 @@
   "close": "Close",
   "open": "Open",
   "@PTZ": {},
+  "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ is enabled",
   "disabledPTZ": "PTZ is disabled",
   "move": "Movement",

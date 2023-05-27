@@ -36,6 +36,7 @@ class EventsScreenMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final servers = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
@@ -63,7 +64,7 @@ class EventsScreenMobile extends StatelessWidget {
                   child: !server.online
                       ? Icon(
                           Icons.desktop_access_disabled,
-                          color: Theme.of(context).colorScheme.error,
+                          color: theme.colorScheme.error,
                         )
                       : !isLoaded
                           ? const SizedBox(
@@ -75,7 +76,7 @@ class EventsScreenMobile extends StatelessWidget {
                             )
                           : Icon(
                               Icons.language,
-                              color: Theme.of(context).iconTheme.color,
+                              color: theme.iconTheme.color,
                             ),
                 ),
                 trailing: server.online ? null : const SizedBox.shrink(),
@@ -84,7 +85,7 @@ class EventsScreenMobile extends StatelessWidget {
                     ? Text(
                         loc.offline,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+                          color: theme.colorScheme.error,
                         ),
                       )
                     : Text(
@@ -99,9 +100,7 @@ class EventsScreenMobile extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   loc.invalidResponse,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
+                                  style: theme.textTheme.headlineSmall
                                       ?.copyWith(fontSize: 16.0),
                                 ),
                               ),
@@ -112,9 +111,7 @@ class EventsScreenMobile extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   loc.noEventsFound,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
+                                  style: theme.textTheme.headlineSmall
                                       ?.copyWith(fontSize: 16.0),
                                 ),
                               ),

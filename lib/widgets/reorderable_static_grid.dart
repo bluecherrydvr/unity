@@ -104,16 +104,30 @@ class StaticGridState extends State<StaticGrid> {
         top: widget.mainAxisSpacing,
       )),
       child: LayoutBuilder(builder: (context, constraints) {
-        final width = (constraints.biggest.width / widget.crossAxisCount) -
+        var width = (constraints.biggest.width / widget.crossAxisCount) -
             widget.mainAxisSpacing;
 
+        final height = width / widget.childAspectRatio;
+        final gridHeight =
+            height * gridFactor + widget.crossAxisSpacing * gridFactor;
+        var crossAxisCount = widget.crossAxisCount;
+
+        // If the items heights summed will overflow the available space, reduce
+        // the width of the items, making it possible to fit all the items in the
+        // view
+        if (gridHeight > constraints.biggest.height) {
+          crossAxisCount++;
+          width = (constraints.biggest.width / crossAxisCount) -
+              widget.mainAxisSpacing;
+        }
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ReorderableWrap(
             enableReorder: widget.reorderable,
             spacing: widget.mainAxisSpacing,
             runSpacing: widget.crossAxisSpacing,
-            maxMainAxisCount: widget.crossAxisCount,
+            minMainAxisCount: crossAxisCount,
+            maxMainAxisCount: crossAxisCount,
             onReorder: widget.onReorder,
             needsLongPressDraggable: isMobile,
             alignment: WrapAlignment.center,
@@ -123,7 +137,6 @@ class StaticGridState extends State<StaticGrid> {
             children: List.generate(realChildren.length, (index) {
               return SizedBox(
                 key: ValueKey(index),
-                // height: height,
                 width: width,
                 child: Center(
                   child: AspectRatio(

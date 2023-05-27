@@ -75,35 +75,32 @@ class _MKVideo extends StatelessWidget {
   });
 
   final Player player;
-  final Future<VideoController> videoController;
+  final VideoController videoController;
   final BoxFit fit;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<VideoController>(
-      future: videoController,
-      builder: (context, snapshot) {
-        return Video(
-          controller: snapshot.data,
-          fill: color,
-          fit: fit,
-        );
-      },
+    return Video(
+      controller: videoController,
+      fill: color,
+      fit: fit,
     );
   }
 }
 
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Player mkPlayer = Player();
-  late Future<VideoController> mkVideoController;
+  late VideoController mkVideoController;
   late StreamSubscription errorStream;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
-    mkVideoController = VideoController.create(
+    mkVideoController = VideoController(
       mkPlayer,
-      width: 640,
-      height: 360,
+      configuration: const VideoControllerConfiguration(
+        width: 640,
+        height: 360,
+      ),
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
@@ -130,9 +127,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> ensureVideoControllerInitialized(
     Future<void> Function(VideoController controller) cb,
   ) async {
-    await mkVideoController.then((controller) async {
-      return await cb(controller);
-    });
+    await cb(mkVideoController);
   }
 
   @override
@@ -251,8 +246,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   void dispose() async {
     errorStream.cancel();
-    await (await mkVideoController).dispose();
-    await mkPlayer.dispose();
+    mkPlayer.dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

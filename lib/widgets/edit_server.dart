@@ -27,9 +27,10 @@ Future<void> showEditServer(BuildContext context, Server server) {
   return showDialog(
     context: context,
     builder: (context) {
+      final loc = AppLocalizations.of(context);
       return AlertDialog(
         title: Text(
-          AppLocalizations.of(context).editServer(
+          loc.editServer(
             server.name,
           ),
         ),
@@ -92,6 +93,9 @@ class _EditServerState extends State<EditServer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
     return WillPopScope(
       onWillPop: () async => !disableFinishButton,
       child: Form(
@@ -103,8 +107,8 @@ class _EditServerState extends State<EditServer> {
               child: TextFormField(
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return AppLocalizations.of(context).errorTextField(
-                      AppLocalizations.of(context).hostname,
+                    return loc.errorTextField(
+                      loc.hostname,
                     );
                   }
                   return null;
@@ -114,9 +118,9 @@ class _EditServerState extends State<EditServer> {
                 autocorrect: false,
                 enableSuggestions: false,
                 keyboardType: TextInputType.url,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
-                  label: Text(AppLocalizations.of(context).hostname),
+                  label: Text(loc.hostname),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -127,8 +131,8 @@ class _EditServerState extends State<EditServer> {
               child: TextFormField(
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return AppLocalizations.of(context).errorTextField(
-                      AppLocalizations.of(context).port,
+                    return loc.errorTextField(
+                      loc.port,
                     );
                   }
                   return null;
@@ -136,9 +140,9 @@ class _EditServerState extends State<EditServer> {
                 controller: textEditingControllers[1],
                 autofocus: true,
                 keyboardType: TextInputType.number,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
-                  label: Text(AppLocalizations.of(context).port),
+                  label: Text(loc.port),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -148,8 +152,8 @@ class _EditServerState extends State<EditServer> {
           TextFormField(
             validator: (value) {
               if (value?.isEmpty ?? true) {
-                return AppLocalizations.of(context).errorTextField(
-                  AppLocalizations.of(context).name,
+                return loc.errorTextField(
+                  loc.name,
                 );
               }
               return null;
@@ -158,9 +162,9 @@ class _EditServerState extends State<EditServer> {
             controller: textEditingControllers[2],
             textCapitalization: TextCapitalization.words,
             keyboardType: TextInputType.name,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
             decoration: InputDecoration(
-              label: Text(AppLocalizations.of(context).name),
+              label: Text(loc.name),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -170,16 +174,16 @@ class _EditServerState extends State<EditServer> {
               child: TextFormField(
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return AppLocalizations.of(context).errorTextField(
-                      AppLocalizations.of(context).username,
+                    return loc.errorTextField(
+                      loc.username,
                     );
                   }
                   return null;
                 },
                 controller: textEditingControllers[3],
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
-                  label: Text(AppLocalizations.of(context).username),
+                  label: Text(loc.username),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -191,17 +195,17 @@ class _EditServerState extends State<EditServer> {
               child: TextFormField(
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return AppLocalizations.of(context).errorTextField(
-                      AppLocalizations.of(context).password,
+                    return loc.errorTextField(
+                      loc.password,
                     );
                   }
                   return null;
                 },
                 controller: textEditingControllers[4],
                 obscureText: true,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
-                  label: Text(AppLocalizations.of(context).password),
+                  label: Text(loc.password),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -213,19 +217,19 @@ class _EditServerState extends State<EditServer> {
             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               MaterialButton(
                 onPressed: Navigator.of(context).pop,
-                textColor: Theme.of(context).colorScheme.secondary,
+                textColor: theme.colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(AppLocalizations.of(context).cancel),
+                  child: Text(loc.cancel),
                 ),
               ),
               MaterialButton(
                 onPressed: disableFinishButton ? null : update,
-                textColor: Theme.of(context).colorScheme.secondary,
+                textColor: theme.colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
                   child: Text(
-                    AppLocalizations.of(context).finish.toUpperCase(),
+                    loc.finish.toUpperCase(),
                   ),
                 ),
               ),
@@ -259,25 +263,30 @@ class _EditServerState extends State<EditServer> {
       } else if (mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).error),
-            content: Text(
-              AppLocalizations.of(context).serverNotAddedError(server.name),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            actions: [
-              MaterialButton(
-                onPressed: Navigator.of(context).maybePop,
-                textColor: Theme.of(context).colorScheme.secondary,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(
-                    AppLocalizations.of(context).ok,
+          builder: (context) {
+            final theme = Theme.of(context);
+            final loc = AppLocalizations.of(context);
+
+            return AlertDialog(
+              title: Text(loc.error),
+              content: Text(
+                loc.serverNotAddedError(server.name),
+                style: theme.textTheme.headlineMedium,
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: Navigator.of(context).maybePop,
+                  textColor: theme.colorScheme.secondary,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.all(8.0),
+                    child: Text(
+                      loc.ok,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         );
       }
 

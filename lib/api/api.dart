@@ -68,11 +68,15 @@ class API {
           cookie: response.headers['set-cookie'],
           online: true,
         );
+      } else {
+        debugPrint(body);
+        server.online = false;
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to checkServerCredentials on server $server');
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
+
       server.online = false;
     }
     return server;

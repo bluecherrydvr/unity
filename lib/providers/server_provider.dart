@@ -178,7 +178,7 @@ class ServersProvider extends ChangeNotifier {
   /// Save currently added [Server]s to `package:hive` cache.
   Future<void> _save() async {
     await serversStorage.write({
-      kHiveServers: jsonEncode(servers.map((e) => e.toJson()).toList()),
+      kHiveServers: servers.map((e) => e.toJson()).toList(),
     });
     notifyListeners();
   }
@@ -186,7 +186,11 @@ class ServersProvider extends ChangeNotifier {
   /// Restore currently added [Server]s from `package:hive` cache.
   Future<void> _restore() async {
     final data = await serversStorage.read() as Map;
-    servers = (await compute(jsonDecode, data[kHiveServers] as String) as List)
+
+    final serversData = data[kHiveServers] is String
+        ? await compute(jsonDecode, data[kHiveServers] as String)
+        : data[kHiveServers] as List;
+    servers = serversData
         .cast<Map<String, dynamic>>()
         .map(Server.fromJson)
         .toList()

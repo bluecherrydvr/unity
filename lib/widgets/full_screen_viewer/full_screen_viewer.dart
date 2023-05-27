@@ -17,11 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,12 +38,14 @@ class DeviceFullscreenViewer extends StatelessWidget {
   final Device device;
   final UnityVideoPlayer videoPlayerController;
   final bool restoreStatusBarStyleOnDispose;
+  final bool ptzEnabled;
 
   const DeviceFullscreenViewer({
     super.key,
     required this.device,
     required this.videoPlayerController,
     this.restoreStatusBarStyleOnDispose = false,
+    this.ptzEnabled = false,
   });
 
   @override
@@ -57,6 +61,7 @@ class DeviceFullscreenViewer extends StatelessWidget {
         device: device,
         videoPlayerController: videoPlayerController,
         restoreStatusBarStyleOnDispose: restoreStatusBarStyleOnDispose,
+        ptzEnabled: ptzEnabled,
       );
       // }
     });

@@ -137,6 +137,7 @@ ThemeData createTheme({
     brightness: light ? Brightness.light : Brightness.dark,
     seedColor: primary,
     secondary: accent,
+    error: Colors.red.shade400,
   );
 
   return ThemeData(
@@ -263,6 +264,10 @@ ThemeData createTheme({
         eventColor: light ? Colors.green.shade300 : Colors.green,
         seekPopupColor: light ? Colors.grey.shade400 : Colors.grey,
       ),
+      UnityColors(
+        successColor: light ? Colors.green.shade300 : Colors.green.shade100,
+        warningColor: Colors.amber,
+      ),
     ],
   );
 }
@@ -322,6 +327,37 @@ class TimelineTheme extends ThemeExtension<TimelineTheme> {
       alarmColor: Color.lerp(alarmColor, other.alarmColor, t)!,
       eventColor: Color.lerp(eventColor, other.eventColor, t)!,
       seekPopupColor: Color.lerp(seekPopupColor, other.seekPopupColor, t)!,
+    );
+  }
+}
+
+class UnityColors extends ThemeExtension<UnityColors> {
+  final Color successColor;
+  final Color warningColor;
+
+  const UnityColors({required this.successColor, required this.warningColor});
+
+  @override
+  ThemeExtension<UnityColors> copyWith({
+    Color? successColor,
+    Color? warningColor,
+  }) {
+    return UnityColors(
+      successColor: successColor ?? this.successColor,
+      warningColor: warningColor ?? this.warningColor,
+    );
+  }
+
+  @override
+  ThemeExtension<UnityColors> lerp(
+      covariant ThemeExtension<UnityColors>? other, double t) {
+    if (other is! UnityColors) {
+      return this;
+    }
+
+    return UnityColors(
+      successColor: Color.lerp(successColor, other.successColor, t)!,
+      warningColor: Color.lerp(warningColor, other.warningColor, t)!,
     );
   }
 }

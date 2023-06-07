@@ -16,13 +16,17 @@ slots:
 apps:
   bluecherry-app:
     command: bluecherry_app
-    extensions: [flutter-master] # Where "master" defines which Flutter channel to use for the build
+    extensions: [flutter-stable] # Where "master" defines which Flutter channel to use for the build
     plugs:
     - network
     slots:
       - dbus-bluecherry-app
       
 parts:
+  mpv:
+    source: https://github.com/mpv-player/mpv.git
+    plugin: nil
+
   bluecherry-app:
     source: .
     plugin: flutter

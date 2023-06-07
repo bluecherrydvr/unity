@@ -444,15 +444,6 @@ packages:
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.2"
-  media_kit_native_event_loop:
-    dependency: transitive
-    description:
-      path: media_kit_native_event_loop
-      ref: "137eb0a946a267446bbcfc9a0ba4832ee399f849"
-      resolved-ref: "137eb0a946a267446bbcfc9a0ba4832ee399f849"
-      url: "https://github.com/alexmercerind/media_kit.git"
-    source: git
-    version: "1.0.4"
   media_kit_video:
     dependency: transitive
     description:

@@ -20,16 +20,11 @@ dependencies:
     #   url: https://github.com/alexmercerind/media_kit.git
     #   ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
     #   path: media_kit/
-  media_kit_native_event_loop:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
-      path: media_kit_native_event_loop/
-  media_kit_video:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
-      path: media_kit_video/
+  # media_kit_native_event_loop:
+  #  git:
+  #    url: https://github.com/alexmercerind/media_kit.git
+  #    ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
+  #    path: media_kit_native_event_loop/
   media_kit_libs_windows_video:
     git:
       url: https://github.com/alexmercerind/media_kit.git
@@ -55,6 +50,11 @@ dependencies:
       url: https://github.com/alexmercerind/media_kit.git
       ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
       path: media_kit_libs_ios_video/
+  media_kit_video:
+    git:
+      url: https://github.com/alexmercerind/media_kit.git
+      ref: 137eb0a946a267446bbcfc9a0ba4832ee399f849
+      path: media_kit_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
 

@@ -16,26 +16,37 @@ slots:
 apps:
   bluecherry-app:
     command: bluecherry_app
-    extensions: [flutter-stable] # Where "master" defines which Flutter channel to use for the build
-    plugs:
-    - network
+    extensions: [flutter-stable]
+    plugs: [wayland, desktop, desktop-legacy, home, audio-playback, pulseaudio, gsettings, opengl, mount-observe, network, network-bind, network-manager, network-observe]
     slots:
       - dbus-bluecherry-app
       
 parts:
-  mpv:
-    source: https://github.com/mpv-player/mpv.git
-    plugin: nil
-
   bluecherry-app:
     source: .
     plugin: flutter
     build-packages:
+      - build-essential
+      - software-properties-common
+      - pkg-config
+      - libavcodec-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libswscale-dev
       - libmpv-dev
-      - libmpv1
-      - mpv
     stage-packages:
-      - libmpv-dev
       - libmpv1
       - mpv
+      - ffmpeg
     flutter-target: lib/main.dart # The main entry-point file of the application
+
+#    build-environment:
+#      - CFLAGS: /home/bruno/Documents/paid_projects/fork/unity/mpv/libmpv
+#      - CXXFLAGS: /home/bruno/Documents/paid_projects/fork/unity/mpv/libmpv
+
+    # Exclude specific paths from being compiled/included
+    override-build: |
+      snapcraftctl build
+      snapcraftctl exclude **/ephemeral
+      snapcraftctl exclude **/plugins
+      sed -i '/media_kit_video/d' $SNAPCRAFT_PART_BUILD/CMakeLists.txt

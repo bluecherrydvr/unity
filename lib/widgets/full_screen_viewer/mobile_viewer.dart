@@ -43,7 +43,6 @@ class _DeviceFullscreenViewerMobileState
   /// Whether to show the video controls overlay
   bool overlay = true;
   UnityVideoFit fit = UnityVideoFit.contain;
-  Brightness? brightness;
 
   late bool ptzEnabled = widget.ptzEnabled;
 
@@ -51,17 +50,12 @@ class _DeviceFullscreenViewerMobileState
   void initState() {
     super.initState();
     if (isMobile) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        brightness = Theme.of(context).brightness;
-        await StatusBarControl.setHidden(true);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(brightness!),
-        );
-        DeviceOrientations.instance.set([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-      });
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      HomeProvider.setDefaultStatusBarStyle();
+      DeviceOrientations.instance.set([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
     }
 
     // Hide the title overlay after 750ms
@@ -73,13 +67,8 @@ class _DeviceFullscreenViewerMobileState
 
   @override
   void dispose() {
-    if (isMobile &&
-        widget.restoreStatusBarStyleOnDispose &&
-        brightness != null) {
-      StatusBarControl.setHidden(false);
-      StatusBarControl.setStyle(
-        getStatusBarStyleFromBrightness(brightness!),
-      );
+    if (isMobile && widget.restoreStatusBarStyleOnDispose) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       DeviceOrientations.instance.restoreLast();
     }
     super.dispose();

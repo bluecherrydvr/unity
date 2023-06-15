@@ -62,7 +62,7 @@ class StaticGrid extends StatefulWidget {
 
 class StaticGridState extends State<StaticGrid> {
   List<Widget> realChildren = [];
-  int get gridFactor => (realChildren.length / widget.crossAxisCount).round();
+  int get gridRows => (realChildren.length / widget.crossAxisCount).round();
   void generateRealChildren() {
     realChildren = [...widget.children];
 
@@ -72,7 +72,7 @@ class StaticGridState extends State<StaticGrid> {
       // if the children length is multiple of the crossAxisCount, return. This
       // avoids adding multiple emtpy areas in the view
       if (realChildren.length % widget.crossAxisCount == 0) return false;
-      if (gridFactor == 1) return false;
+      if (gridRows == 1) return false;
 
       return true;
     }
@@ -109,25 +109,23 @@ class StaticGridState extends State<StaticGrid> {
 
         final height = width / widget.childAspectRatio;
         final gridHeight =
-            height * gridFactor + widget.crossAxisSpacing * gridFactor;
-        var crossAxisCount = widget.crossAxisCount;
+            height * gridRows + widget.crossAxisSpacing * gridRows;
 
         // If the items heights summed will overflow the available space, reduce
         // the width of the items, making it possible to fit all the items in the
         // view
         if (gridHeight > constraints.biggest.height) {
-          crossAxisCount++;
-          width = (constraints.biggest.width / crossAxisCount) -
-              widget.mainAxisSpacing;
+          width -= gridHeight - constraints.biggest.height;
         }
+
         return ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ReorderableWrap(
             enableReorder: widget.reorderable,
             spacing: widget.mainAxisSpacing,
             runSpacing: widget.crossAxisSpacing,
-            minMainAxisCount: crossAxisCount,
-            maxMainAxisCount: crossAxisCount,
+            minMainAxisCount: widget.crossAxisCount,
+            maxMainAxisCount: widget.crossAxisCount,
             onReorder: widget.onReorder,
             needsLongPressDraggable: isMobile,
             alignment: WrapAlignment.center,

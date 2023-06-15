@@ -210,6 +210,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
           child: Center(
             child: StaticGrid(
               crossAxisCount: <int, int>{
+                    9: 3,
                     6: 3,
                     4: 2,
                     2: 2,

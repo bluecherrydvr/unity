@@ -15,7 +15,7 @@ dependencies:
   # We lock the version to a commit because of the inconsistency of the pub cache
   # If an upgrade is necessary, change the [ref] of all packages below to the desired commit
   # Also check the upper package and update any `dependency_overriden` package
-  media_kit: 0.0.4
+  media_kit: 0.0.11
     # git:
     #   url: https://github.com/alexmercerind/media_kit.git
     #   ref: 210006b37bfd5bc5f45b81d83cdfbf5732a16716

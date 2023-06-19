@@ -65,7 +65,10 @@ class SettingsProvider extends ChangeNotifier {
     _themeMode = value;
     _save().then((_) {
       HomeProvider.setDefaultStatusBarStyle(
-        value == ThemeMode.light ? true : null,
+        // we can not do [isLight: value == ThemeMode.light] because theme
+        // mode also accepts [ThemeMode.system]. When null is provided, the
+        // function will use the system's theme mode.
+        isLight: value == ThemeMode.light ? true : null,
       );
     });
   }

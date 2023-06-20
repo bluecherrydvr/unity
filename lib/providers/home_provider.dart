@@ -24,7 +24,6 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:status_bar_control/status_bar_control.dart';
 
 enum UnityTab {
   deviceGrid,
@@ -90,7 +89,7 @@ class HomeProvider extends ChangeNotifier {
     setTab(UnityTab.downloads.index, context);
   }
 
-  static Future<void> setDefaultStatusBarStyle([bool? isLight]) async {
+  static Future<void> setDefaultStatusBarStyle({bool? isLight}) async {
     if (isMobile) {
       isLight ??= () {
         final context = navigatorKey.currentContext;
@@ -107,7 +106,6 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> refreshDeviceOrientation(BuildContext context) async {
     if (isMobile) {
-      final theme = Theme.of(context);
       final home = context.read<HomeProvider>();
       final tab = home.tab;
 
@@ -116,35 +114,22 @@ class HomeProvider extends ChangeNotifier {
         UnityTab.deviceGrid.index,
         UnityTab.eventsPlayback.index,
       ].contains(tab)) {
-        await StatusBarControl.setHidden(true);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(theme.brightness),
-        );
-        DeviceOrientations.instance.set(
-          [
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ],
-        );
+        setDefaultStatusBarStyle();
+        DeviceOrientations.instance.set([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
       } else if ([UnityTab.addServer.index].contains(tab)) {
         // Use portrait orientation in "Add Server" tab.
         // See #14.
-        await StatusBarControl.setHidden(false);
-        await StatusBarControl.setStyle(
-          // getStatusBarStyleFromBrightness(theme.brightness),
-          StatusBarStyle.LIGHT_CONTENT,
-        );
-        DeviceOrientations.instance.set(
-          [
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ],
-        );
+        setDefaultStatusBarStyle(isLight: true);
+        DeviceOrientations.instance.set([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
       } else {
-        await StatusBarControl.setHidden(false);
-        await StatusBarControl.setStyle(
-          getStatusBarStyleFromBrightness(theme.brightness),
-        );
+        // Restore the values
+        setDefaultStatusBarStyle();
         DeviceOrientations.instance.set(DeviceOrientation.values);
       }
     }

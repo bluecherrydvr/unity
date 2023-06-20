@@ -3,7 +3,7 @@ version: 3.0.0-beta7
 summary: Bluecherry DVR Client
 description: Bluecherry DVR client 
 
-confinement: strict
+confinement: devmode
 base: core18
 grade: stable
 

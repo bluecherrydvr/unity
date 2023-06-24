@@ -1,0 +1,124 @@
+# appimage-builder recipe see https://appimage-builder.readthedocs.io for details
+version: 1
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: com.bluecherrydvr
+    name: Bluecherry
+    icon: application-vnd.appimage
+    version: 3.0.0
+    exec: bluecherry_client
+    exec_args: $@
+  apt:
+    arch:
+    - amd64
+    allow_unauthenticated: true
+    sources:
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy main restricted
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy universe
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates universe
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy multiverse
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
+    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-backports main restricted
+        universe multiverse
+    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security universe
+    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+    - sourceline: deb https://ppa.launchpadcontent.net/yannubuntu/boot-repair/ubuntu/
+        jammy main
+    - sourceline: deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg]
+        https://apt.packages.shiftkey.dev/ubuntu/ any main
+    include:
+    - adwaita-icon-theme
+    - fonts-ubuntu
+    - hicolor-icon-theme
+    - humanity-icon-theme
+    - language-pack-gnome-en-base
+    - libbz2-1.0:amd64
+    - libcanberra-pulse:amd64
+    - libcap2:amd64
+    - libcom-err2:amd64
+    - libgpg-error0:amd64
+    - libkeyutils1:amd64
+    - liblzma5:amd64
+    - libncursesw6:amd64
+    - libnss-mdns:amd64
+    - libpcre3:amd64
+    - librsvg2-common:amd64
+    - libselinux1:amd64
+    - yaru-theme-gtk
+    - yaru-theme-icon
+  files:
+    include:
+    - /home/bruno/.local/share/com.bluecherrydvr/Temp/servers.json.1687637374792
+    - /home/bruno/.local/share/com.bluecherrydvr/desktopView.json
+    - /home/bruno/.local/share/com.bluecherrydvr/downloads.json
+    - /home/bruno/.local/share/com.bluecherrydvr/eventsPlayback.json
+    - /home/bruno/.local/share/com.bluecherrydvr/mobileView.json
+    - /home/bruno/.local/share/com.bluecherrydvr/servers.json
+    - /home/bruno/snap/code/132/.local/share/mime//mime.cache
+    - /home/bruno/snap/code/common/.cache/gio-modules/giomodule.cache
+    - /home/bruno/snap/code/common/.cache/gio-modules/libgiolibproxy.so
+    - /home/bruno/snap/code/common/.cache/immodules/immodules.cache
+    - /lib/x86_64-linux-gnu/libEGL_mesa.so.0
+    - /lib/x86_64-linux-gnu/libLLVM-15.so.1
+    - /lib/x86_64-linux-gnu/libelf.so.1
+    - /lib/x86_64-linux-gnu/libgio-2.0.so
+    - /lib/x86_64-linux-gnu/libgtk-3.so.0
+    - /lib/x86_64-linux-gnu/libmpv.so
+    - /lib/x86_64-linux-gnu/libmpv.so.1
+    - /lib/x86_64-linux-gnu/libsensors.so.5
+    - /snap/code/132/usr/lib/locale/en_US.utf8/LC_COLLATE
+    - /snap/code/132/usr/lib/locale/en_US.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_ADDRESS
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_CTYPE
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_IDENTIFICATION
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_MEASUREMENT
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_MONETARY
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_NAME
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_NUMERIC
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_PAPER
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_TELEPHONE
+    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_TIME
+    - /snap/code/132/usr/lib/x86_64-linux-gnu/gtk-3.0/modules/libcanberra-gtk-module.so
+    - /snap/code/132/usr/share/sounds/freedesktop/index.theme
+    - /snap/code/132/usr/share/themes/Default/gtk-3.0/gtk-keys.css
+    - /usr/share//mime//mime.cache
+    - /usr/share//sounds/Yaru/index.theme
+    - /usr/share/icons/Adwaita/icon-theme.cache
+    - /usr/share/icons/Humanity/icon-theme.cache
+    - /usr/share/icons/Yaru/icon-theme.cache
+    - /usr/share/icons/hicolor/icon-theme.cache
+    - assets/images/icon.png
+    exclude:
+    - usr/share/man
+    - usr/share/doc/*/README.*
+    - usr/share/doc/*/changelog.*
+    - usr/share/doc/*/NEWS.*
+    - usr/share/doc/*/TODO.*
+  test:
+    fedora-30:
+      image: appimagecrafters/tests-env:fedora-30
+      command: ./AppRun
+    debian-stable:
+      image: appimagecrafters/tests-env:debian-stable
+      command: ./AppRun
+    archlinux-latest:
+      image: appimagecrafters/tests-env:archlinux-latest
+      command: ./AppRun
+    centos-7:
+      image: appimagecrafters/tests-env:centos-7
+      command: ./AppRun
+    ubuntu-xenial:
+      image: appimagecrafters/tests-env:ubuntu-xenial
+      command: ./AppRun
+AppImage:
+  arch: x86_64
+  update-information: guess
+
+script:
+  - flutter build linux --release
+  - rm -rf AppDir | true
+  - mkdir AppDir
+  - cp -r build/linux/x64/release/bundle AppDir

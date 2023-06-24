@@ -148,7 +148,9 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
-      # App should be published to snap
+      uses: AppImageCrafters/build-appimage@master
+        with:
+          recipe: "./AppImageBuilder.yml"
       # - name: Release
       #   # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
       #   if: ${{ github.event_name == 'push' }}

@@ -48,3 +48,6 @@ app.*.map.json
 # Windows Installer
 
 /installer/Output
+
+AppDir/
+appimage-build/

@@ -148,9 +148,9 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
-      - uses: AppImageCrafters/build-appimage@master
-        with:
-          recipe: "./AppImageBuilder.yml"
+      - run: sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+      - run: appimage-builder
+
       # - name: Release
       #   # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
       #   if: ${{ github.event_name == 'push' }}

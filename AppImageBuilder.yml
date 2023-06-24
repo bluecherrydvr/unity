@@ -1,10 +1,14 @@
 # appimage-builder recipe see https://appimage-builder.readthedocs.io for details
 version: 1
 script:
-  - flutter build linux --release
+  # - flutter gen-l10n
+  # - flutter build linux --release
   - rm -rf AppDir | true
   - mkdir AppDir
-  - cp -r build/linux/x64/release/bundle AppDir
+  - mkdir -p AppDir/usr/share/icons
+  - cp build/linux/x64/release/bundle/bluecherry_client AppDir
+  - cp -r build/linux/x64/release/bundle/lib/. AppDir/lib
+  - cp -r build/linux/x64/release/bundle/data AppDir
   - cp assets/images/icon.png AppDir/usr/share/icons/
 AppDir:
   path: ./AppDir
@@ -12,81 +16,25 @@ AppDir:
     id: com.bluecherrydvr
     name: Bluecherry
     icon: icon
-    version: 3.0.0
+    version: latest
     exec: bluecherry_client
     exec_args: $@
   apt:
-    arch:
-    - amd64
+    arch: amd64
     allow_unauthenticated: true
     sources:
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy main restricted
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy universe
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates universe
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy multiverse
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
-    - sourceline: deb http://br.archive.ubuntu.com/ubuntu/ jammy-backports main restricted
-        universe multiverse
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security universe
-    - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security multiverse
-    - sourceline: deb https://ppa.launchpadcontent.net/yannubuntu/boot-repair/ubuntu/
-        jammy main
-    - sourceline: deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg]
-        https://apt.packages.shiftkey.dev/ubuntu/ any main
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse
+    - sourceline: deb http://security.ubuntu.com/ubuntu bionic-security main restricted universe multiverse
     include:
-    - adwaita-icon-theme
-    - fonts-ubuntu
-    - hicolor-icon-theme
+    - libgtk-3-0
+    exclude:
     - humanity-icon-theme
-    - language-pack-gnome-en-base
-    - libbz2-1.0:amd64
-    - libcanberra-pulse:amd64
-    - libcap2:amd64
-    - libcom-err2:amd64
-    - libgpg-error0:amd64
-    - libkeyutils1:amd64
-    - liblzma5:amd64
-    - libncursesw6:amd64
-    - libnss-mdns:amd64
-    - libpcre3:amd64
-    - librsvg2-common:amd64
-    - libselinux1:amd64
-    - yaru-theme-gtk
-    - yaru-theme-icon
+    - hicolor-icon-theme
+    - adwaita-icon-theme
+    - ubuntu-mono
   files:
-    include:
-    - /lib/x86_64-linux-gnu/libEGL_mesa.so.0
-    - /lib/x86_64-linux-gnu/libLLVM-15.so.1
-    - /lib/x86_64-linux-gnu/libelf.so.1
-    - /lib/x86_64-linux-gnu/libgio-2.0.so
-    - /lib/x86_64-linux-gnu/libgtk-3.so.0
-    - /lib/x86_64-linux-gnu/libmpv.so
-    - /lib/x86_64-linux-gnu/libmpv.so.1
-    - /lib/x86_64-linux-gnu/libsensors.so.5
-    - /snap/code/132/usr/lib/locale/en_US.utf8/LC_COLLATE
-    - /snap/code/132/usr/lib/locale/en_US.utf8/LC_MESSAGES/SYS_LC_MESSAGES
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_ADDRESS
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_CTYPE
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_IDENTIFICATION
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_MEASUREMENT
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_MONETARY
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_NAME
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_NUMERIC
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_PAPER
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_TELEPHONE
-    - /snap/code/132/usr/lib/locale/pt_BR.utf8/LC_TIME
-    - /snap/code/132/usr/lib/x86_64-linux-gnu/gtk-3.0/modules/libcanberra-gtk-module.so
-    - /snap/code/132/usr/share/sounds/freedesktop/index.theme
-    - /snap/code/132/usr/share/themes/Default/gtk-3.0/gtk-keys.css
-    - /usr/share//mime//mime.cache
-    - /usr/share//sounds/Yaru/index.theme
-    - /usr/share/icons/Adwaita/icon-theme.cache
-    - /usr/share/icons/Humanity/icon-theme.cache
-    - /usr/share/icons/Yaru/icon-theme.cache
-    - /usr/share/icons/hicolor/icon-theme.cache
-    - assets/images/icon.png
     exclude:
     - usr/share/man
     - usr/share/doc/*/README.*

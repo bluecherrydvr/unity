@@ -3,7 +3,7 @@ version: 3.0.0-beta7
 summary: Bluecherry DVR Client
 description: Bluecherry DVR client 
 
-confinement: devmode
+confinement: strict
 base: core18
 grade: stable
 
@@ -22,6 +22,12 @@ apps:
       - dbus-bluecherry-app
       
 parts:
+#  your-part-name:
+#    plugin: dump
+#    source: .
+#    organize:
+#      'snap/local/libmedia_kit_video_plugin.so': usr/snap/local/libmedia_kit_video_plugin.so
+
   bluecherry-app:
     source: .
     plugin: flutter
@@ -40,13 +46,9 @@ parts:
       - ffmpeg
     flutter-target: lib/main.dart # The main entry-point file of the application
 
-#    build-environment:
-#      - CFLAGS: /home/bruno/Documents/paid_projects/fork/unity/mpv/libmpv
-#      - CXXFLAGS: /home/bruno/Documents/paid_projects/fork/unity/mpv/libmpv
-
     # Exclude specific paths from being compiled/included
-    override-build: |
-      snapcraftctl build
-      snapcraftctl exclude **/ephemeral
-      snapcraftctl exclude **/plugins
-      sed -i '/media_kit_video/d' $SNAPCRAFT_PART_BUILD/CMakeLists.txt
+    # override-build: |
+    #  snapcraftctl build
+    #  snapcraftctl exclude **/ephemeral
+    #  snapcraftctl exclude **/plugins
+    #  sed -i '/media_kit_video/d' $SNAPCRAFT_PART_BUILD/CMakeLists.txt

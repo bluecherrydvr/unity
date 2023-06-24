@@ -148,6 +148,10 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
+      # cleans the above
+      - run: flutter clean
+      - run: flutter gen-l10n
+
       - name: Install and run Snapcraft
         uses: snapcore/action-build@v1
 

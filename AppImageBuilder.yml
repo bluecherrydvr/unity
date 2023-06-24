@@ -1,11 +1,17 @@
 # appimage-builder recipe see https://appimage-builder.readthedocs.io for details
 version: 1
+script:
+  - flutter build linux --release
+  - rm -rf AppDir | true
+  - mkdir AppDir
+  - cp -r build/linux/x64/release/bundle AppDir
+  - cp assets/images/icon.png AppDir/usr/share/icons/
 AppDir:
   path: ./AppDir
   app_info:
     id: com.bluecherrydvr
     name: Bluecherry
-    icon: application-vnd.appimage
+    icon: icon
     version: 3.0.0
     exec: bluecherry_client
     exec_args: $@
@@ -51,16 +57,6 @@ AppDir:
     - yaru-theme-icon
   files:
     include:
-    - /home/bruno/.local/share/com.bluecherrydvr/Temp/servers.json.1687637374792
-    - /home/bruno/.local/share/com.bluecherrydvr/desktopView.json
-    - /home/bruno/.local/share/com.bluecherrydvr/downloads.json
-    - /home/bruno/.local/share/com.bluecherrydvr/eventsPlayback.json
-    - /home/bruno/.local/share/com.bluecherrydvr/mobileView.json
-    - /home/bruno/.local/share/com.bluecherrydvr/servers.json
-    - /home/bruno/snap/code/132/.local/share/mime//mime.cache
-    - /home/bruno/snap/code/common/.cache/gio-modules/giomodule.cache
-    - /home/bruno/snap/code/common/.cache/gio-modules/libgiolibproxy.so
-    - /home/bruno/snap/code/common/.cache/immodules/immodules.cache
     - /lib/x86_64-linux-gnu/libEGL_mesa.so.0
     - /lib/x86_64-linux-gnu/libLLVM-15.so.1
     - /lib/x86_64-linux-gnu/libelf.so.1
@@ -116,9 +112,3 @@ AppDir:
 AppImage:
   arch: x86_64
   update-information: guess
-
-script:
-  - flutter build linux --release
-  - rm -rf AppDir | true
-  - mkdir AppDir
-  - cp -r build/linux/x64/release/bundle AppDir

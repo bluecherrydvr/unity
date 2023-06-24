@@ -148,7 +148,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build linux --verbose
 
-      uses: AppImageCrafters/build-appimage@master
+      - uses: AppImageCrafters/build-appimage@master
         with:
           recipe: "./AppImageBuilder.yml"
       # - name: Release

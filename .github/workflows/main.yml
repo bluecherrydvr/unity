@@ -149,17 +149,19 @@ jobs:
       - run: flutter build linux --verbose
 
       - run: sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
-      - run: appimage-builder
+      - run: appimage-builder --skip-tests
 
-      # - name: Release
-      #   # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
-      #   if: ${{ github.event_name == 'push' }}
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     draft: true
-      #     prerelease: false
-      #     body: ""
-      #     tag_name: "vnext"
-      #     files: |
-      #       bluecherry_linux_x64.7z
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+      - run: cp Bluecherry-latest-x86_64.AppImage Bluecherry-latest.AppImage
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "vnext"
+          files: |
+            Bluecherry-latest.AppImage
+          token: ${{ secrets.GITHUB_TOKEN }}

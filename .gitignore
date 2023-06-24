@@ -49,5 +49,9 @@ app.*.map.json
 
 /installer/Output
 
+# Linux AppImage
+
 AppDir/
 appimage-build/
+Bluecherry-latest-x86_64.AppImage
+Bluecherry-latest-x86_64.AppImage.zsync

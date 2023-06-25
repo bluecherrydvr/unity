@@ -29,6 +29,25 @@ AppDir:
     - sourceline: deb http://security.ubuntu.com/ubuntu bionic-security main restricted universe multiverse
     include:
     - libgtk-3-0
+    - libbz2-1.0:amd64
+    - libcanberra-pulse:amd64
+    - libcap2:amd64
+    - libcom-err2:amd64
+    - libgpg-error0:amd64
+    - libkeyutils1:amd64
+    - liblzma5:amd64
+    - libnss-mdns:amd64
+    - libpcre3:amd64
+    - librsvg2-common:amd64
+    - libselinux1:amd64
+    - libmpv1:amd64
+    - mpv:amd64
+    - libmpv-dev:amd64
+    - libegl-mesa0:amd64
+    # - libllvm15:amd64
+    - libelf1:amd64
+    # - libgio
+    #- libsensors5
     exclude:
     - humanity-icon-theme
     - hicolor-icon-theme

@@ -5,11 +5,12 @@ script:
   # - flutter build linux --release
   - rm -rf AppDir | true
   - mkdir AppDir
-  - mkdir -p AppDir/usr/share/icons
+  - mkdir -p AppDir/usr/share/icons/hicolor/64x64/apps/
   - cp build/linux/x64/release/bundle/bluecherry_client AppDir
   - cp -r build/linux/x64/release/bundle/lib/. AppDir/lib
   - cp -r build/linux/x64/release/bundle/data AppDir
-  - cp assets/images/icon.png AppDir/usr/share/icons/
+  - cp assets/images/icon.png AppDir/usr/share/icons/hicolor/64x64/apps/
+  - cp assets/images/icon.png AppDir
 AppDir:
   path: ./AppDir
   app_info:
@@ -40,22 +41,11 @@ AppDir:
     - sourceline: deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg]
         https://apt.packages.shiftkey.dev/ubuntu/ any main
     include:
-    - adwaita-icon-theme
-    - fonts-ubuntu
-    - git-doc
-    - hicolor-icon-theme
-    - humanity-icon-theme
-    - language-pack-gnome-en-base
     - libasound2-data
-    - libbz2-1.0:amd64
-    - libcanberra-pulse:amd64
     - libcom-err2:amd64
     - libgpg-error0:amd64
     - libkeyutils1:amd64
-    - liblzma5:amd64
-    - libncursesw6:amd64
     - libnss-mdns:amd64
-    - libpcre3:amd64
     - librsvg2-common:amd64
     - libselinux1:amd64
     - libmpv1:amd64

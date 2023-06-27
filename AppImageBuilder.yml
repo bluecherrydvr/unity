@@ -3,12 +3,16 @@ version: 1
 script:
   # - flutter gen-l10n
   # - flutter build linux --release
+  # Delete the old AppDir folder, if any. THen create a new one
   - rm -rf AppDir | true
   - mkdir AppDir
   - mkdir -p AppDir/usr/share/icons/hicolor/64x64/apps/
+  # Move the build files to AppDir
   - cp build/linux/x64/release/bundle/bluecherry_client AppDir
   - cp -r build/linux/x64/release/bundle/lib/. AppDir/lib
   - cp -r build/linux/x64/release/bundle/data AppDir
+  # Rename the executable from bluecherry_client to Bluecherry
+  - mv AppDir/bluecherry_client AppDir/Bluecherry
   - cp assets/images/icon.png AppDir/usr/share/icons/hicolor/64x64/apps/
   - cp assets/images/icon.png AppDir
 AppDir:
@@ -18,7 +22,7 @@ AppDir:
     name: Bluecherry
     icon: icon
     version: latest
-    exec: bluecherry_client
+    exec: Bluecherry
     exec_args: $@
   apt:
     arch:

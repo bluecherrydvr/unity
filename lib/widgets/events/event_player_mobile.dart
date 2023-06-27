@@ -95,7 +95,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(children: [
-        const WindowButtons(),
+        const WindowButtons(showNavigator: false),
         Expanded(
           child: SafeArea(
             child: UnityVideoView(

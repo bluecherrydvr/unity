@@ -256,7 +256,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         _mutex = 'events_screen';
         await navigatorKey.currentState?.push(
           MaterialPageRoute(
-            builder: (context) => const EventsScreen(),
+            builder: (context) => EventsScreen(key: eventsScreenKey),
           ),
         );
         _mutex = null;

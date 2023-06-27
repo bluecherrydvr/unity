@@ -49,10 +49,12 @@ part 'event_player_mobile.dart';
 part 'events_screen_desktop.dart';
 part 'events_screen_mobile.dart';
 
-typedef EventsData = Map<Server, List<Event>>;
+typedef EventsData = Map<Server, Iterable<Event>>;
+
+final eventsScreenKey = GlobalKey<_EventsScreenState>();
 
 class EventsScreen extends StatefulWidget {
-  const EventsScreen({super.key});
+  const EventsScreen({required super.key});
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();
@@ -67,7 +69,7 @@ class _EventsScreenState extends State<EventsScreen> {
   final EventsData events = {};
   Map<Server, bool> invalid = {};
 
-  List<Event> filteredEvents = [];
+  Iterable<Event> filteredEvents = [];
 
   /// The devices that can't be displayed in the list
   List<String> disabledDevices = [];
@@ -92,7 +94,7 @@ class _EventsScreenState extends State<EventsScreen> {
           );
           if (mounted) {
             setState(() {
-              events[server] = iterable.toList();
+              events[server] = iterable;
               invalid[server] = false;
             });
           }
@@ -127,7 +129,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-  static List<Event> _updateFiltered(Map<String, dynamic> data) {
+  static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
     final events = data['events'] as EventsData;
     final allowedServers = data['allowedServers'] as List<Server>;
     final timeFilter = data['timeFilter'] as EventsTimeFilter;
@@ -178,7 +180,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
         yield event;
       }
-    }).toList();
+    });
   }
 
   /// We override setState because we need to update the filtered events

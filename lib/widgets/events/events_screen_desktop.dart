@@ -20,7 +20,7 @@
 part of 'events_screen.dart';
 
 class EventsScreenDesktop extends StatelessWidget {
-  final List<Event> events;
+  final Iterable<Event> events;
 
   const EventsScreenDesktop({super.key, required this.events});
 

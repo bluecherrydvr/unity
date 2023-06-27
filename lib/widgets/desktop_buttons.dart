@@ -24,9 +24,11 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
@@ -113,6 +115,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     if (!isDesktop || isMobile) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
@@ -197,6 +200,15 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: UnityLoadingIndicator(),
+                  )
+                else if (home.tab == UnityTab.eventsScreen.index)
+                  IconButton(
+                    onPressed: () {
+                      eventsScreenKey.currentState?.fetch();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    iconSize: 20.0,
+                    tooltip: loc.refresh,
                   ),
                 SizedBox(
                   width: 138,

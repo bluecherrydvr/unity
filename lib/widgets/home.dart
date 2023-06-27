@@ -154,7 +154,9 @@ class _MobileHomeState extends State<Home> {
                         return const DirectCameraScreen();
                       },
                       UnityTab.eventsPlayback: () => const EventsPlayback(),
-                      UnityTab.eventsScreen: () => const EventsScreen(),
+                      UnityTab.eventsScreen: () => EventsScreen(
+                            key: eventsScreenKey,
+                          ),
                       UnityTab.addServer: () => AddServerWizard(
                             onFinish: () async => home.setTab(0, context),
                           ),

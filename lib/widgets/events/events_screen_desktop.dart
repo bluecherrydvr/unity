@@ -19,6 +19,18 @@
 
 part of 'events_screen.dart';
 
+Widget _buildTilePart({required Widget child, int flex = 1}) {
+  return Expanded(
+    flex: flex,
+    child: Container(
+      height: 40.0,
+      margin: const EdgeInsetsDirectional.only(start: 10.0),
+      alignment: AlignmentDirectional.centerStart,
+      child: child,
+    ),
+  );
+}
+
 class EventsScreenDesktop extends StatelessWidget {
   final Iterable<Event> events;
 
@@ -27,7 +39,6 @@ class EventsScreenDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
     if (events.isEmpty) {
@@ -39,84 +50,118 @@ class EventsScreenDesktop extends StatelessWidget {
       );
     }
 
-    return SingleChildScrollView(
-      child: SizedBox(
-        width: double.infinity,
-        child: DataTable(
-          horizontalMargin: 20.0,
-          columnSpacing: 30.0,
-          columns: [
-            const DataColumn(label: SizedBox.shrink()),
-            DataColumn(label: Text(loc.server)),
-            DataColumn(label: Text(loc.device)),
-            DataColumn(label: Text(loc.event)),
-            DataColumn(label: Text(loc.duration)),
-            DataColumn(label: Text(loc.priority)),
-            DataColumn(label: Text(loc.date)),
-          ],
-          showCheckboxColumn: false,
-          rows: events.map<DataRow>((Event event) {
-            // final index = events.indexOf(event);
-            final index = event.id;
+    return Material(
+      child: CustomScrollView(slivers: [
+        SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
+        SliverFixedExtentList.builder(
+          itemCount: events.length,
+          itemExtent: 50.0,
+          itemBuilder: (context, index) {
+            final event = events.elementAt(index);
 
-            return DataRow(
-              key: ValueKey<Event>(event),
-              color: index.isEven
-                  ? MaterialStateProperty.resolveWith((states) {
-                      return theme.appBarTheme.backgroundColor
-                          ?.withOpacity(0.75);
-                    })
-                  : MaterialStateProperty.resolveWith((states) {
-                      return theme.appBarTheme.backgroundColor
-                          ?.withOpacity(0.25);
-                    }),
-              onSelectChanged: event.mediaURL == null
+            return InkWell(
+              onTap: event.mediaURL == null
                   ? null
-                  : (_) {
+                  : () {
                       debugPrint('Displaying event $event');
                       Navigator.of(context).pushNamed(
                         '/events',
-                        arguments: {
-                          'event': event,
-                          'upcoming': events,
-                        },
+                        arguments: {'event': event, 'upcoming': events},
                       );
                     },
-              cells: [
-                // icon
-                DataCell(Container(
-                  width: 40.0,
-                  height: 40.0,
-                  alignment: AlignmentDirectional.center,
-                  child: DownloadIndicator(event: event),
-                )),
-                // server
-                DataCell(Text(event.server.name)),
-                // device
-                DataCell(Text(event.deviceName)),
-                // event
-                DataCell(Text(event.type.locale(context).uppercaseFirst())),
-                // duration
-                DataCell(
-                  Text(
-                    event.duration
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(children: [
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    alignment: AlignmentDirectional.center,
+                    child: DownloadIndicator(event: event),
+                  ),
+                  _buildTilePart(child: Text(event.server.name), flex: 2),
+                  _buildTilePart(child: Text(event.deviceName)),
+                  _buildTilePart(
+                    child: Text(event.type.locale(context).uppercaseFirst()),
+                  ),
+                  _buildTilePart(
+                    child: Text(event.duration
                         .humanReadableCompact(context)
-                        .uppercaseFirst(),
+                        .uppercaseFirst()),
                   ),
-                ),
-                // priority
-                DataCell(Text(event.priority.locale(context).uppercaseFirst())),
-                // date
-                DataCell(
-                  Text(
-                    '${settings.formatDate(event.updated.toLocal())} ${settings.formatTime(event.updated).toUpperCase()}',
+                  _buildTilePart(
+                    child:
+                        Text(event.priority.locale(context).uppercaseFirst()),
                   ),
-                ),
-              ],
+                  _buildTilePart(
+                    child: Text(
+                      '${settings.formatDate(event.updated.toLocal())} ${settings.formatTime(event.updated).toUpperCase()}',
+                    ),
+                    flex: 2,
+                  ),
+                ]),
+              ),
             );
-          }).toList(),
+          },
+        ),
+      ]),
+    );
+  }
+}
+
+class _TableHeader extends SliverPersistentHeaderDelegate {
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return Material(
+      child: Card(
+        child: Container(
+          height: 50,
+          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DefaultTextStyle(
+            style: theme.textTheme.headlineSmall ?? const TextStyle(),
+            child: Row(children: [
+              const SizedBox(width: 40.0, height: 40.0),
+              _buildTilePart(
+                child: Text(loc.server),
+                flex: 2,
+              ),
+              _buildTilePart(
+                child: Text(loc.device),
+              ),
+              _buildTilePart(
+                child: Text(loc.event),
+              ),
+              _buildTilePart(
+                child: Text(loc.duration),
+              ),
+              _buildTilePart(
+                child: Text(loc.priority),
+              ),
+              _buildTilePart(
+                child: Text(loc.date),
+                flex: 2,
+              ),
+            ]),
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  double get maxExtent => 50;
+
+  @override
+  double get minExtent => 50;
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
+    return false;
   }
 }

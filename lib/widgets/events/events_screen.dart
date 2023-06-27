@@ -38,6 +38,7 @@ import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -65,6 +66,8 @@ class _EventsScreenState extends State<EventsScreen> {
   bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
+
+  List<Event> filteredEvents = [];
 
   /// The devices that can't be displayed in the list
   List<String> disabledDevices = [];
@@ -101,6 +104,9 @@ class _EventsScreenState extends State<EventsScreen> {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+
+    await computeFiltered();
+
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     if (mounted) {
       setState(() {
@@ -109,16 +115,23 @@ class _EventsScreenState extends State<EventsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final hasDrawer = Scaffold.hasDrawer(context);
-    final loc = AppLocalizations.of(context);
+  Future<void> computeFiltered() async {
+    filteredEvents = await compute(_updateFiltered, {
+      'events': events,
+      'allowedServers': allowedServers,
+      'timeFilter': timeFilter,
+      'levelFilter': levelFilter,
+      'disabledDevices': disabledDevices,
+    });
+  }
 
-    if (ServersProvider.instance.servers.isEmpty) {
-      return const NoServerWarning();
-    }
+  static List<Event> _updateFiltered(Map<String, dynamic> data) {
+    final events = data['events'] as EventsData;
+    final allowedServers = data['allowedServers'] as List<Server>;
+    final timeFilter = data['timeFilter'] as EventsTimeFilter;
+    final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
+    final disabledDevices = data['disabledDevices'] as List<String>;
 
-    final now = DateTime.now();
     final hourRange = {
       EventsTimeFilter.last12Hours: 12,
       EventsTimeFilter.last24Hours: 24,
@@ -127,7 +140,8 @@ class _EventsScreenState extends State<EventsScreen> {
       EventsTimeFilter.any: -1,
     }[timeFilter]!;
 
-    final events = this.events.values.expand((events) sync* {
+    final now = DateTime.now();
+    return events.values.expand((events) sync* {
       for (final event in events) {
         // allow events from the allowed servers
         if (!allowedServers.any((element) => event.server.ip == element.ip)) {
@@ -163,6 +177,26 @@ class _EventsScreenState extends State<EventsScreen> {
         yield event;
       }
     }).toList();
+  }
+
+  /// We override setState because we need to update the filtered events
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    // computes the events based on the filter, then update the screen
+    computeFiltered().then((_) {
+      if (mounted) super.setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasDrawer = Scaffold.hasDrawer(context);
+    final loc = AppLocalizations.of(context);
+
+    if (ServersProvider.instance.servers.isEmpty) {
+      return const NoServerWarning();
+    }
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
@@ -183,8 +217,8 @@ class _EventsScreenState extends State<EventsScreen> {
           ),
           Expanded(
             child: EventsScreenMobile(
-              events: events,
-              loadedServers: this.events.keys,
+              events: filteredEvents,
+              loadedServers: events.keys,
               refresh: fetch,
               // isFirstTimeLoading: isFirstTimeLoading,
               invalid: invalid,
@@ -264,7 +298,7 @@ class _EventsScreenState extends State<EventsScreen> {
           ),
         ),
         const VerticalDivider(width: 1),
-        Expanded(child: EventsScreenDesktop(events: events)),
+        Expanded(child: EventsScreenDesktop(events: filteredEvents)),
       ]);
     });
   }

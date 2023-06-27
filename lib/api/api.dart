@@ -24,6 +24,7 @@ import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
@@ -137,40 +138,45 @@ class API {
     return null;
   }
 
-  /// Gets [Event]s present on the [server] after login.
-  /// [limit] defines the number of events to be fetched.
+  /// Gets the [Event]s present on the [server].
   ///
-  Future<Iterable<Event>> getEvents(
-    Server server, {
-    int limit = 50,
-  }) async {
+  /// If server is offline, then it returns an empty list.
+  Future<Iterable<Event>> getEvents(Server server) async {
     if (!server.online) {
       debugPrint('Can not get events of an offline server: $server');
       return [];
     }
 
-    try {
-      assert(server.serverUUID != null && server.cookie != null);
-      final response = await get(
-        Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/events/',
-          {
-            'XML': '1',
-            'limit': '$limit',
-          },
-        ),
-        headers: {
-          'Cookie': server.cookie!,
-        },
-      );
+    return compute(_getEvents, server);
+  }
 
+  static Future<Iterable<Event>> _getEvents(Server server) async {
+    if (!server.online) {
+      debugPrint('Can not get events of an offline server: $server');
+      return [];
+    }
+
+    assert(server.serverUUID != null && server.cookie != null);
+    final response = await get(
+      Uri.https(
+        '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+        '/events/',
+        {
+          'XML': '1',
+          'limit': '$kEventsLimit',
+        },
+      ),
+      headers: {
+        'Cookie': server.cookie!,
+      },
+    );
+
+    try {
       debugPrint('Getting events for server ${server.name}');
       // debugPrint(response.body);
 
       final parser = Xml2Json()..parse(response.body);
-      return (await compute(jsonDecode, parser.toGData()))['feed']['entry']
-          .map((e) {
+      final events = jsonDecode(parser.toGData())['feed']['entry'].map((e) {
         if (!e.containsKey('content')) debugPrint(e.toString());
         return Event(
           server,
@@ -197,6 +203,12 @@ class API {
                 ),
         );
       }).cast<Event>();
+
+      debugPrint('Loaded ${events.length} events for server ${server.name}');
+      return events;
+    } on Xml2JsonException {
+      debugPrint('Failed to parse XML response from server $server');
+      debugPrint(response.body);
     } catch (exception, stacktrace) {
       debugPrint('Failed to getEvents on server $server');
       debugPrint(exception.toString());

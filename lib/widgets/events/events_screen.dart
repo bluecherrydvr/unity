@@ -84,6 +84,8 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       // Load the events at the same time
       await Future.wait(ServersProvider.instance.servers.map((server) async {
+        if (!server.online) return;
+
         try {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
@@ -184,8 +186,11 @@ class _EventsScreenState extends State<EventsScreen> {
   void setState(VoidCallback fn) {
     super.setState(fn);
     // computes the events based on the filter, then update the screen
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsHistory);
     computeFiltered().then((_) {
       if (mounted) super.setState(() {});
+      home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     });
   }
 

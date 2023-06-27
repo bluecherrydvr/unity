@@ -56,7 +56,8 @@ class EventsScreenDesktop extends StatelessWidget {
           ],
           showCheckboxColumn: false,
           rows: events.map<DataRow>((Event event) {
-            final index = events.indexOf(event);
+            // final index = events.indexOf(event);
+            final index = event.id;
 
             return DataRow(
               key: ValueKey<Event>(event),

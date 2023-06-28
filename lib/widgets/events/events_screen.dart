@@ -212,6 +212,14 @@ class _EventsScreenState extends State<EventsScreen> {
             leading: MaybeUnityDrawerButton(context),
             title: Text(loc.eventBrowser),
             actions: [
+              IconButton(
+                onPressed: () {
+                  eventsScreenKey.currentState?.fetch();
+                },
+                icon: const Icon(Icons.refresh),
+                iconSize: 20.0,
+                tooltip: loc.refresh,
+              ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 15.0),
                 child: IconButton(
@@ -242,10 +250,7 @@ class _EventsScreenState extends State<EventsScreen> {
             shape: const RoundedRectangleBorder(),
             child: DropdownButtonHideUnderline(
               child: Column(children: [
-                SubHeader(
-                  loc.servers,
-                  height: 40.0,
-                ),
+                SubHeader(loc.servers, height: 40.0),
                 Expanded(
                   child: SingleChildScrollView(
                     child: buildTreeView(context, setState: setState),

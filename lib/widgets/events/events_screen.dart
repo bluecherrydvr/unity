@@ -38,6 +38,7 @@ import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -48,10 +49,12 @@ part 'event_player_mobile.dart';
 part 'events_screen_desktop.dart';
 part 'events_screen_mobile.dart';
 
-typedef EventsData = Map<Server, List<Event>>;
+typedef EventsData = Map<Server, Iterable<Event>>;
+
+final eventsScreenKey = GlobalKey<_EventsScreenState>();
 
 class EventsScreen extends StatefulWidget {
-  const EventsScreen({super.key});
+  const EventsScreen({required super.key});
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();
@@ -65,6 +68,8 @@ class _EventsScreenState extends State<EventsScreen> {
   bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
+
+  Iterable<Event> filteredEvents = [];
 
   /// The devices that can't be displayed in the list
   List<String> disabledDevices = [];
@@ -81,13 +86,15 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       // Load the events at the same time
       await Future.wait(ServersProvider.instance.servers.map((server) async {
+        if (!server.online) return;
+
         try {
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
           );
           if (mounted) {
             setState(() {
-              events[server] = iterable.toList();
+              events[server] = iterable;
               invalid[server] = false;
             });
           }
@@ -101,6 +108,9 @@ class _EventsScreenState extends State<EventsScreen> {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
+
+    await computeFiltered();
+
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     if (mounted) {
       setState(() {
@@ -109,16 +119,23 @@ class _EventsScreenState extends State<EventsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final hasDrawer = Scaffold.hasDrawer(context);
-    final loc = AppLocalizations.of(context);
+  Future<void> computeFiltered() async {
+    filteredEvents = await compute(_updateFiltered, {
+      'events': events,
+      'allowedServers': allowedServers,
+      'timeFilter': timeFilter,
+      'levelFilter': levelFilter,
+      'disabledDevices': disabledDevices,
+    });
+  }
 
-    if (ServersProvider.instance.servers.isEmpty) {
-      return const NoServerWarning();
-    }
+  static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
+    final events = data['events'] as EventsData;
+    final allowedServers = data['allowedServers'] as List<Server>;
+    final timeFilter = data['timeFilter'] as EventsTimeFilter;
+    final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
+    final disabledDevices = data['disabledDevices'] as List<String>;
 
-    final now = DateTime.now();
     final hourRange = {
       EventsTimeFilter.last12Hours: 12,
       EventsTimeFilter.last24Hours: 24,
@@ -127,7 +144,8 @@ class _EventsScreenState extends State<EventsScreen> {
       EventsTimeFilter.any: -1,
     }[timeFilter]!;
 
-    final events = this.events.values.expand((events) sync* {
+    final now = DateTime.now();
+    return events.values.expand((events) sync* {
       for (final event in events) {
         // allow events from the allowed servers
         if (!allowedServers.any((element) => event.server.ip == element.ip)) {
@@ -162,7 +180,30 @@ class _EventsScreenState extends State<EventsScreen> {
 
         yield event;
       }
-    }).toList();
+    });
+  }
+
+  /// We override setState because we need to update the filtered events
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    // computes the events based on the filter, then update the screen
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsHistory);
+    computeFiltered().then((_) {
+      if (mounted) super.setState(() {});
+      home.notLoading(UnityLoadingReason.fetchingEventsHistory);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasDrawer = Scaffold.hasDrawer(context);
+    final loc = AppLocalizations.of(context);
+
+    if (ServersProvider.instance.servers.isEmpty) {
+      return const NoServerWarning();
+    }
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
@@ -171,6 +212,14 @@ class _EventsScreenState extends State<EventsScreen> {
             leading: MaybeUnityDrawerButton(context),
             title: Text(loc.eventBrowser),
             actions: [
+              IconButton(
+                onPressed: () {
+                  eventsScreenKey.currentState?.fetch();
+                },
+                icon: const Icon(Icons.refresh),
+                iconSize: 20.0,
+                tooltip: loc.refresh,
+              ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 15.0),
                 child: IconButton(
@@ -183,8 +232,8 @@ class _EventsScreenState extends State<EventsScreen> {
           ),
           Expanded(
             child: EventsScreenMobile(
-              events: events,
-              loadedServers: this.events.keys,
+              events: filteredEvents,
+              loadedServers: events.keys,
               refresh: fetch,
               // isFirstTimeLoading: isFirstTimeLoading,
               invalid: invalid,
@@ -201,10 +250,7 @@ class _EventsScreenState extends State<EventsScreen> {
             shape: const RoundedRectangleBorder(),
             child: DropdownButtonHideUnderline(
               child: Column(children: [
-                SubHeader(
-                  loc.servers,
-                  height: 40.0,
-                ),
+                SubHeader(loc.servers, height: 40.0),
                 Expanded(
                   child: SingleChildScrollView(
                     child: buildTreeView(context, setState: setState),
@@ -264,7 +310,7 @@ class _EventsScreenState extends State<EventsScreen> {
           ),
         ),
         const VerticalDivider(width: 1),
-        Expanded(child: EventsScreenDesktop(events: events)),
+        Expanded(child: EventsScreenDesktop(events: filteredEvents)),
       ]);
     });
   }
@@ -308,6 +354,7 @@ class _EventsScreenState extends State<EventsScreen> {
         final isTriState = disabledDevices
             .any((d) => server.devices.any((device) => device.rtspURL == d));
         final isOffline = !server.online;
+        final serverEvents = events[server];
 
         return TreeNode(
           content: Row(children: [
@@ -355,6 +402,8 @@ class _EventsScreenState extends State<EventsScreen> {
                 final enabled = isOffline || !allowedServers.contains(server)
                     ? false
                     : !disabledDevices.contains(device.rtspURL);
+                final eventsForDevice =
+                    serverEvents?.where((event) => event.deviceID == device.id);
                 return TreeNode(
                   content: Row(children: [
                     IgnorePointer(
@@ -377,12 +426,21 @@ class _EventsScreenState extends State<EventsScreen> {
                       ),
                     ),
                     SizedBox(width: gapCheckboxText),
-                    Text(
-                      device.name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
+                    Flexible(
+                      child: Text(
+                        device.name,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
+                    if (eventsForDevice != null) ...[
+                      Text(
+                        ' (${eventsForDevice.length})',
+                        style: theme.textTheme.labelSmall,
+                      ),
+                      const SizedBox(width: 10.0),
+                    ],
                   ]),
                 );
               }).toList();

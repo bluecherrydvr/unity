@@ -21,7 +21,7 @@ part of 'events_screen.dart';
 
 class EventPlayerScreen extends StatelessWidget {
   final Event event;
-  final List<Event> upcomingEvents;
+  final Iterable<Event> upcomingEvents;
 
   const EventPlayerScreen({
     super.key,

@@ -41,7 +41,7 @@ const kSliderControlerWidth = 100.0;
 class EventPlayerDesktop extends StatefulWidget {
   final Event event;
 
-  final List<Event> upcomingEvents;
+  final Iterable<Event> upcomingEvents;
 
   const EventPlayerDesktop({
     super.key,

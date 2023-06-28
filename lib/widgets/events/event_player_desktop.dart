@@ -161,6 +161,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
           child: Column(children: [
             WindowButtons(
               title: '${currentEvent.deviceName} (${currentEvent.server.name})',
+              showNavigator: false,
             ),
             Expanded(
               child: Row(children: [

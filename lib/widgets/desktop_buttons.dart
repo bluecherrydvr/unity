@@ -201,7 +201,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: UnityLoadingIndicator(),
                   )
-                else if (home.tab == UnityTab.eventsScreen.index)
+                else if (home.tab == UnityTab.eventsScreen.index && !canPop)
                   IconButton(
                     onPressed: () {
                       eventsScreenKey.currentState?.fetch();

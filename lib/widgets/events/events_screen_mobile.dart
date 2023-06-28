@@ -86,10 +86,11 @@ class EventsScreenMobile extends StatelessWidget {
                         loc.offline,
                         style: TextStyle(
                           color: theme.colorScheme.error,
+                          fontWeight: FontWeight.w600,
                         ),
                       )
                     : Text(
-                        '${loc.nDevices(server.devices.length)} • ${server.ip}',
+                        '${loc.nDevices(server.devices.length)} • ${server.ip}  • ${serverEvents.length} events',
                       ),
                 children: !hasEvents
                     ? [

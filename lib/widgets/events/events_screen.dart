@@ -349,6 +349,7 @@ class _EventsScreenState extends State<EventsScreen> {
         final isTriState = disabledDevices
             .any((d) => server.devices.any((device) => device.rtspURL == d));
         final isOffline = !server.online;
+        final serverEvents = events[server];
 
         return TreeNode(
           content: Row(children: [
@@ -396,6 +397,8 @@ class _EventsScreenState extends State<EventsScreen> {
                 final enabled = isOffline || !allowedServers.contains(server)
                     ? false
                     : !disabledDevices.contains(device.rtspURL);
+                final eventsForDevice =
+                    serverEvents?.where((event) => event.deviceID == device.id);
                 return TreeNode(
                   content: Row(children: [
                     IgnorePointer(
@@ -418,12 +421,21 @@ class _EventsScreenState extends State<EventsScreen> {
                       ),
                     ),
                     SizedBox(width: gapCheckboxText),
-                    Text(
-                      device.name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
+                    Flexible(
+                      child: Text(
+                        device.name,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
+                    if (eventsForDevice != null) ...[
+                      Text(
+                        ' (${eventsForDevice.length})',
+                        style: theme.textTheme.labelSmall,
+                      ),
+                      const SizedBox(width: 10.0),
+                    ],
                   ]),
                 );
               }).toList();

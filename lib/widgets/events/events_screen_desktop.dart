@@ -19,14 +19,20 @@
 
 part of 'events_screen.dart';
 
-Widget _buildTilePart({required Widget child, int flex = 1}) {
+Widget _buildTilePart({required Widget child, Widget? icon, int flex = 1}) {
   return Expanded(
     flex: flex,
     child: Container(
       height: 40.0,
       margin: const EdgeInsetsDirectional.only(start: 10.0),
       alignment: AlignmentDirectional.centerStart,
-      child: child,
+      child: Row(children: [
+        if (icon != null) ...[
+          IconTheme.merge(data: const IconThemeData(size: 14.0), child: icon),
+          const SizedBox(width: 6.0),
+        ],
+        Flexible(child: child),
+      ]),
     ),
   );
 }
@@ -128,23 +134,29 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
             child: Row(children: [
               const SizedBox(width: 40.0, height: 40.0),
               _buildTilePart(
+                icon: const Icon(Icons.dns),
                 child: Text(loc.server),
                 flex: 2,
               ),
               _buildTilePart(
                 child: Text(loc.device),
+                icon: const Icon(Icons.camera),
               ),
               _buildTilePart(
                 child: Text(loc.event),
+                icon: const Icon(Icons.subscriptions),
               ),
               _buildTilePart(
                 child: Text(loc.duration),
+                icon: const Icon(Icons.timer),
               ),
               _buildTilePart(
                 child: Text(loc.priority),
+                icon: const Icon(Icons.priority_high),
               ),
               _buildTilePart(
                 child: Text(loc.date),
+                icon: const Icon(Icons.calendar_today),
                 flex: 2,
               ),
             ]),

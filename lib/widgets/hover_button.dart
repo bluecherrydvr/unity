@@ -42,6 +42,12 @@ class HoverButton extends StatefulWidget {
     this.focusEnabled = true,
     this.forceEnabled = false,
     this.hitTestBehavior = HitTestBehavior.opaque,
+    this.listenTo = const {
+      ButtonStates.pressing,
+      ButtonStates.hovering,
+      ButtonStates.focused,
+      ButtonStates.disabled,
+    },
   });
 
   /// {@template fluent_ui.controls.inputs.HoverButton.mouseCursor}
@@ -137,6 +143,9 @@ class HoverButton extends StatefulWidget {
   ///
   /// This defaults to [HitTestBehavior.opaque]
   final HitTestBehavior hitTestBehavior;
+
+  /// The gestures that this widget will listen to.
+  final Set<ButtonStates> listenTo;
 
   @override
   State<HoverButton> createState() => HoverButtonState();
@@ -237,6 +246,10 @@ class HoverButtonState extends State<HoverButton> {
     };
   }
 
+  bool listenTo(ButtonStates state) {
+    return widget.listenTo.contains(state);
+  }
+
   /// Used in INteractiveViewer to block the first gesture recognition
   bool hasInteractionStarted = false;
 
@@ -245,22 +258,28 @@ class HoverButtonState extends State<HoverButton> {
     Widget w = GestureDetector(
       behavior: widget.hitTestBehavior,
       onTap: enabled ? widget.onPressed : null,
-      onTapDown: (_) {
-        if (!enabled) return;
-        if (mounted) setState(() => _pressing = true);
-        widget.onTapDown?.call();
-      },
-      onTapUp: (_) async {
-        if (!enabled) return;
-        widget.onTapUp?.call();
-        await Future.delayed(const Duration(milliseconds: 100));
-        if (mounted) setState(() => _pressing = false);
-      },
-      onTapCancel: () {
-        if (!enabled) return;
-        widget.onTapCancel?.call();
-        if (mounted) setState(() => _pressing = false);
-      },
+      onTapDown: !listenTo(ButtonStates.pressing)
+          ? null
+          : (_) {
+              if (!enabled) return;
+              if (mounted) setState(() => _pressing = true);
+              widget.onTapDown?.call();
+            },
+      onTapUp: !listenTo(ButtonStates.pressing)
+          ? null
+          : (_) async {
+              if (!enabled) return;
+              widget.onTapUp?.call();
+              await Future.delayed(const Duration(milliseconds: 100));
+              if (mounted) setState(() => _pressing = false);
+            },
+      onTapCancel: !listenTo(ButtonStates.pressing)
+          ? null
+          : () {
+              if (!enabled) return;
+              widget.onTapCancel?.call();
+              if (mounted) setState(() => _pressing = false);
+            },
       onLongPress: enabled ? widget.onLongPress : null,
       onLongPressStart: widget.onLongPressStart != null
           ? (_) {

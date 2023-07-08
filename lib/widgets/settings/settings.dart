@@ -314,7 +314,19 @@ class _SettingsState extends State<Settings> {
                             text: quality.str(context),
                             children: [
                               if (quality.isHD)
-                                const WidgetSpan(child: Icon(Icons.hd)),
+                                WidgetSpan(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Tooltip(
+                                      message: loc.hd,
+                                      child: const Icon(
+                                        Icons.hd,
+                                        size: 18.0,
+                                        color: Colors.yellow,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

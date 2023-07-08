@@ -86,12 +86,12 @@ const p1080Resolution = Size(1920, 1080);
 const p720Resolution = Size(1280, 720);
 
 /// The size of a view with 480p resolution
-const p480Resolution = Size(640, 480);
+const p480Resolution = Size(852, 480);
 
 enum UnityVideoQuality {
   p1080._(resolution: p1080Resolution, isHD: true),
   p720._(resolution: p720Resolution),
-  p420._(resolution: p480Resolution);
+  p480._(resolution: p480Resolution);
 
   final Size resolution;
   final bool isHD;

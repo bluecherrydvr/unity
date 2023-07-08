@@ -672,23 +672,29 @@ Future<void> showResolutionDialog(
                 children: [
                   if (quality.isHD)
                     WidgetSpan(
-                      child: Tooltip(
-                        message: loc.hd,
-                        child: const Icon(
-                          Icons.hd,
-                          size: 18.0,
-                          color: Colors.yellow,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Tooltip(
+                          message: loc.hd,
+                          child: const Icon(
+                            Icons.hd,
+                            size: 18.0,
+                            color: Colors.yellow,
+                          ),
                         ),
                       ),
                     ),
                   if (SettingsProvider.instance.videoQuality == quality)
                     WidgetSpan(
-                      child: Tooltip(
-                        message: loc.defaultResolution,
-                        child: const Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 18.0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Tooltip(
+                          message: loc.defaultResolution,
+                          child: const Icon(
+                            Icons.verified,
+                            color: Colors.blue,
+                            size: 18.0,
+                          ),
                         ),
                       ),
                     )

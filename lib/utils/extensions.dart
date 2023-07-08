@@ -105,7 +105,7 @@ extension UnityVideoQualityExtension on UnityVideoQuality {
     return {
       UnityVideoQuality.p1080: loc.p1080,
       UnityVideoQuality.p720: loc.p720,
-      UnityVideoQuality.p420: loc.p420,
+      UnityVideoQuality.p480: loc.p480,
     }[this]!;
   }
 }

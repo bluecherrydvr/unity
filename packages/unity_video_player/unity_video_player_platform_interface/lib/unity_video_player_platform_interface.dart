@@ -89,13 +89,17 @@ const p720Resolution = Size(1280, 720);
 const p480Resolution = Size(640, 480);
 
 enum UnityVideoQuality {
-  p1080._(p1080Resolution),
-  p720._(p720Resolution),
-  p420._(p480Resolution);
+  p1080._(resolution: p1080Resolution, isHD: true),
+  p720._(resolution: p720Resolution),
+  p420._(resolution: p480Resolution);
 
   final Size resolution;
+  final bool isHD;
 
-  const UnityVideoQuality._(this.resolution);
+  const UnityVideoQuality._({
+    required this.resolution,
+    this.isHD = false,
+  });
 }
 
 abstract class UnityVideoPlayer {
@@ -105,6 +109,8 @@ abstract class UnityVideoPlayer {
       height: height,
     );
   }
+
+  UnityVideoQuality? quality;
 
   /// The current data source url
   String? get dataSource;
@@ -151,6 +157,11 @@ abstract class UnityVideoPlayer {
   Future<void> seekTo(Duration position);
 
   Future<void> setSize(Size size);
+
+  Future<void> setResolution(UnityVideoQuality quality) {
+    this.quality = quality;
+    return setSize(quality.resolution);
+  }
 
   Future<void> start();
   Future<void> pause();

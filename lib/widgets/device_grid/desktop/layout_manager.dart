@@ -126,13 +126,19 @@ class _LayoutManagerState extends State<LayoutManager> {
           ),
         ),
         Expanded(
-          child: ListView(
-            children: view.layouts.map((layout) {
+          child: ReorderableListView.builder(
+            buildDefaultDragHandles: false,
+            onReorder: view.reorderLayout,
+            itemCount: view.layouts.length,
+            itemBuilder: (context, index) {
+              final layout = view.layouts[index];
               return LayoutTile(
+                key: ValueKey(layout),
                 layout: layout,
                 selected: view.currentLayout == layout,
+                reorderableIndex: index,
               );
-            }).toList(),
+            },
           ),
         ),
         const Divider(height: 1.0),
@@ -142,69 +148,83 @@ class _LayoutManagerState extends State<LayoutManager> {
 }
 
 class LayoutTile extends StatelessWidget {
-  const LayoutTile({super.key, required this.layout, required this.selected});
+  const LayoutTile({
+    super.key,
+    required this.layout,
+    required this.selected,
+    required this.reorderableIndex,
+  });
 
   final Layout layout;
   final bool selected;
+  final int reorderableIndex;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
-    return GestureDetector(
-      onSecondaryTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => EditLayoutDialog(layout: layout),
-        );
-      },
-      child: ListTile(
-        dense: true,
-        visualDensity: VisualDensity.compact,
-        selected: selected,
-        leading: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          child: Icon(
-            selected
-                ? selectedIconForLayout(layout.layoutType)
-                : iconForLayout(layout.layoutType),
-            key: ValueKey(layout.layoutType),
-            size: 20.0,
-          ),
-        ),
-        horizontalTitleGap: 16.0,
-        minLeadingWidth: 24.0,
-        contentPadding: const EdgeInsetsDirectional.only(
-          start: 12.0,
-          end: 8.0,
-        ),
-        title: Text(layout.name, maxLines: 1),
-        subtitle: Text(
-          loc.nDevices(layout.devices.length),
-          maxLines: 1,
-        ),
-        trailing: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(moreIconData),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => EditLayoutDialog(layout: layout),
-            );
-          },
-        ),
-        onLongPress: isDesktop
-            ? null
-            : () {
-                showDialog(
-                  context: context,
-                  builder: (context) => EditLayoutDialog(layout: layout),
-                );
-              },
-        onTap: () {
-          view.updateCurrentLayout(view.layouts.indexOf(layout));
+    return ReorderableDragStartListener(
+      index: reorderableIndex,
+      enabled: selected,
+      child: GestureDetector(
+        onSecondaryTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => EditLayoutDialog(layout: layout),
+          );
         },
+        child: ListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          selected: selected,
+          leading: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            child: ReorderableDragStartListener(
+              index: reorderableIndex,
+              enabled: !selected,
+              child: Icon(
+                selected
+                    ? selectedIconForLayout(layout.layoutType)
+                    : iconForLayout(layout.layoutType),
+                key: ValueKey(layout.layoutType),
+                size: 20.0,
+              ),
+            ),
+          ),
+          horizontalTitleGap: 16.0,
+          minLeadingWidth: 24.0,
+          contentPadding: const EdgeInsetsDirectional.only(
+            start: 12.0,
+            end: 8.0,
+          ),
+          title: Text(layout.name, maxLines: 1),
+          subtitle: Text(
+            loc.nDevices(layout.devices.length),
+            maxLines: 1,
+          ),
+          trailing: IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(moreIconData),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => EditLayoutDialog(layout: layout),
+              );
+            },
+          ),
+          onLongPress: isDesktop
+              ? null
+              : () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => EditLayoutDialog(layout: layout),
+                  );
+                },
+          onTap: !selected
+              ? () => view.updateCurrentLayout(view.layouts.indexOf(layout))
+              : null,
+        ),
       ),
     );
   }

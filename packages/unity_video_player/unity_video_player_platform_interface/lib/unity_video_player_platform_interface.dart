@@ -79,6 +79,25 @@ Widget UnityVideoView({
   );
 }
 
+/// The size of a view with 1080p resolution
+const p1080Resolution = Size(1920, 1080);
+
+/// The size of a view with 720p resolution
+const p720Resolution = Size(1280, 720);
+
+/// The size of a view with 480p resolution
+const p480Resolution = Size(640, 480);
+
+enum UnityVideoQuality {
+  p1080._(p1080Resolution),
+  p720._(p720Resolution),
+  p420._(p480Resolution);
+
+  final Size resolution;
+
+  const UnityVideoQuality._(this.resolution);
+}
+
 abstract class UnityVideoPlayer {
   static UnityVideoPlayer create({int? width, int? height}) {
     return UnityVideoPlayerInterface.instance.createPlayer(

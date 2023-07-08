@@ -493,6 +493,33 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.high_quality,
+                        shadows: shadows,
+                      ),
+                      // tooltip: loc.openInANewWindow,
+                      color: Colors.white,
+                      iconSize: 18.0,
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return Column(children: [
+                              ...UnityVideoQuality.values.map((quality) {
+                                return ListTile(
+                                  title: Text(quality.name),
+                                  onTap: () {
+                                    widget.controller
+                                        .setSize(quality.resolution);
+                                  },
+                                );
+                              }),
+                            ]);
+                          },
+                        );
+                      },
+                    ),
                     // const VerticalDivider(
                     //   color: Colors.white,
                     //   indent: 10,

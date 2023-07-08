@@ -2,6 +2,7 @@ library unity_video_player_media_kit;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -95,12 +96,15 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late StreamSubscription errorStream;
 
   UnityVideoPlayerMediaKit({int? width, int? height}) {
+    final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
+    if (width != null) width = (width * pixelRatio).toInt();
+    if (height != null) height = (height * pixelRatio).toInt();
+
+    debugPrint('Pixel ratio: $pixelRatio');
+
     mkVideoController = VideoController(
       mkPlayer,
-      configuration: const VideoControllerConfiguration(
-        width: 640,
-        height: 360,
-      ),
+      configuration: VideoControllerConfiguration(width: width, height: height),
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.

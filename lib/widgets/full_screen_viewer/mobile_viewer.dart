@@ -88,6 +88,9 @@ class _DeviceFullscreenViewerMobileState
       backgroundColor: Colors.black,
       body: MouseRegion(
         onEnter: (_) => setState(() => overlay = true),
+        onHover: (_) {
+          if (overlay == false) setState(() => overlay = true);
+        },
         onExit: (_) => setState(() => overlay = false),
         child: Stack(children: [
           AnimatedOpacity(
@@ -180,6 +183,16 @@ class _DeviceFullscreenViewerMobileState
                     color: Colors.white,
                   ),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    IconButton(
+                      icon: const Icon(Icons.high_quality),
+                      tooltip: 'Select resolution',
+                      color: Colors.white,
+                      iconSize: 18.0,
+                      onPressed: () => showResolutionDialog(
+                        context,
+                        widget.videoPlayerController,
+                      ),
+                    ),
                     IconButton(
                       tooltip: loc.cameraViewFit,
                       onPressed: () {

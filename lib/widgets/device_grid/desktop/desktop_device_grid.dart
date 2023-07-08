@@ -498,16 +498,14 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         Icons.high_quality,
                         shadows: shadows,
                       ),
-                      // tooltip: loc.openInANewWindow,
+                      tooltip: 'Select resolution',
                       color: Colors.white,
                       iconSize: 18.0,
-                      onPressed: () => _showResolutionDialog(context),
+                      onPressed: () => showResolutionDialog(
+                        context,
+                        widget.controller,
+                      ),
                     ),
-                    // const VerticalDivider(
-                    //   color: Colors.white,
-                    //   indent: 10,
-                    //   endIndent: 10,
-                    // ),
                     if (isDesktop && !widget.isSubView)
                       IconButton(
                         icon: const Icon(
@@ -610,101 +608,101 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       child: foreground,
     );
   }
+}
 
-  void _showResolutionDialog(BuildContext context) {
-    final theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Stack(alignment: Alignment.center, children: [
-            Center(
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 14.0),
-                width: 40.0,
-                height: 6.0,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: BorderRadius.circular(100.0),
-                ),
+void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
+  final theme = Theme.of(context);
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Stack(alignment: Alignment.center, children: [
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 14.0),
+              width: 40.0,
+              height: 6.0,
+              decoration: BoxDecoration(
+                color: theme.dividerColor,
+                borderRadius: BorderRadius.circular(100.0),
               ),
-            ),
-            if (isDesktop)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              ),
-          ]),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Set resolution',
-                  style: theme.textTheme.titleLarge,
-                ),
-                Text(
-                  'The resolution of the video stream can highly impact the performance of the app. '
-                  'Set the resolution to a lower value to improve performance, or to a higher value to improve quality. '
-                  'You can set the default resolution to every camera in the settings',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
             ),
           ),
-          ...UnityVideoQuality.values.map((quality) {
-            return RadioListTile<UnityVideoQuality>(
-              groupValue: widget.controller.quality,
-              value: quality,
-              title: RichText(
-                text: TextSpan(
-                  text: quality.name,
-                  children: [
-                    if (quality.isHD)
-                      const WidgetSpan(
-                        child: Tooltip(
-                          message: 'High definition',
-                          child: Icon(
-                            Icons.hd,
-                            size: 18.0,
-                            color: Colors.yellow,
-                          ),
-                        ),
-                      ),
-                    if (SettingsProvider.instance.videoQuality == quality)
-                      const WidgetSpan(
-                        child: Tooltip(
-                          message: 'Default resolution',
-                          child: Icon(
-                            Icons.verified,
-                            color: Colors.blue,
-                            size: 18.0,
-                          ),
-                        ),
-                      )
-                  ],
+          if (isDesktop)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
-              controlAffinity: ListTileControlAffinity.trailing,
-              onChanged: (quality) {
-                if (quality == null) return;
+            ),
+        ]),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Set resolution',
+                style: theme.textTheme.titleLarge,
+              ),
+              Text(
+                'The resolution of the video stream can highly impact the performance of the app. '
+                'Set the resolution to a lower value to improve performance, or to a higher value to improve quality. '
+                'You can set the default resolution to every camera in the settings',
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        ...UnityVideoQuality.values.map((quality) {
+          return RadioListTile<UnityVideoQuality>(
+            groupValue: controller.quality,
+            value: quality,
+            title: RichText(
+              text: TextSpan(
+                text: quality.name,
+                children: [
+                  if (quality.isHD)
+                    const WidgetSpan(
+                      child: Tooltip(
+                        message: 'High definition',
+                        child: Icon(
+                          Icons.hd,
+                          size: 18.0,
+                          color: Colors.yellow,
+                        ),
+                      ),
+                    ),
+                  if (SettingsProvider.instance.videoQuality == quality)
+                    const WidgetSpan(
+                      child: Tooltip(
+                        message: 'Default resolution',
+                        child: Icon(
+                          Icons.verified,
+                          color: Colors.blue,
+                          size: 18.0,
+                        ),
+                      ),
+                    )
+                ],
+              ),
+            ),
+            controlAffinity: ListTileControlAffinity.trailing,
+            onChanged: (quality) {
+              if (quality == null) return;
 
-                widget.controller.setResolution(quality);
-                Navigator.of(context).pop();
-              },
-            );
-          }),
-        ]);
-      },
-    );
-  }
+              controller.setResolution(quality);
+              Navigator.of(context).pop();
+            },
+          );
+        }),
+      ]);
+    },
+  );
 }
 
 class PresetsDialog extends StatelessWidget {

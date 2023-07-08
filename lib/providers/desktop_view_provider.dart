@@ -257,4 +257,20 @@ class DesktopViewProvider extends ChangeNotifier {
     notifyListeners();
     return _save(notifyListeners: false);
   }
+
+  /// Reorders the layouts
+  Future<void> reorderLayout(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return Future.value();
+    if (newIndex > layouts.length - 1) newIndex = layouts.length - 1;
+
+    if (_currentLayout == oldIndex) {
+      _currentLayout = newIndex;
+    } else if (_currentLayout == newIndex) {
+      _currentLayout = oldIndex;
+    }
+
+    layouts.insert(newIndex, layouts.removeAt(oldIndex));
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
 }

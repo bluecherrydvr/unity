@@ -128,10 +128,7 @@ class _LayoutManagerState extends State<LayoutManager> {
         Expanded(
           child: ReorderableListView.builder(
             buildDefaultDragHandles: false,
-            onReorder: (oldIndex, newIndex) {
-              debugPrint('$oldIndex $newIndex');
-              // view.reorderLayout(oldIndex, newIndex);
-            },
+            onReorder: view.reorderLayout,
             itemCount: view.layouts.length,
             itemBuilder: (context, index) {
               final layout = view.layouts[index];

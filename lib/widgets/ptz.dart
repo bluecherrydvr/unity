@@ -66,6 +66,8 @@ class _PTZControllerState extends State<PTZController> {
     if (!widget.enabled) {
       return HoverButton(
         forceEnabled: true,
+        hitTestBehavior: HitTestBehavior.translucent,
+        listenTo: const {ButtonStates.hovering},
         builder: (context, _) => widget.builder(context, commands),
       );
     }

@@ -667,7 +667,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 text: TextSpan(
                   text: quality.name,
                   children: [
-                    if (quality.isHD) const WidgetSpan(child: Icon(Icons.hd)),
+                    if (quality.isHD)
+                      const WidgetSpan(
+                        child: Tooltip(
+                          message: 'High definition',
+                          child: Icon(
+                            Icons.hd,
+                            size: 18.0,
+                            color: Colors.yellow,
+                          ),
+                        ),
+                      ),
+                    if (SettingsProvider.instance.videoQuality == quality)
+                      const WidgetSpan(
+                        child: Tooltip(
+                          message: 'Default resolution',
+                          child: Icon(
+                            Icons.verified,
+                            color: Colors.blue,
+                            size: 18.0,
+                          ),
+                        ),
+                      )
                   ],
                 ),
               ),

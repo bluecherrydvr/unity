@@ -284,6 +284,44 @@ class _SettingsState extends State<Settings> {
                     );
                   }).toList(),
                 ),
+                ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: theme.iconTheme.color,
+                    child: const Icon(Icons.hd),
+                  ),
+                  title: Text('Default resolution'),
+                  textColor: theme.textTheme.bodyLarge?.color,
+                  subtitle: Text(
+                    '720p',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
+                  ),
+                  children: UnityVideoQuality.values.map((quality) {
+                    return RadioListTile<UnityVideoQuality>(
+                      value: quality,
+                      groupValue: settings.videoQuality,
+                      onChanged: (value) {
+                        settings.videoQuality = quality;
+                      },
+                      secondary: const Icon(null),
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      title: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 16.0),
+                        child: RichText(
+                          text: TextSpan(
+                            text: quality.name,
+                            children: [
+                              if (quality.isHD)
+                                const WidgetSpan(child: Icon(Icons.hd)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ])),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),

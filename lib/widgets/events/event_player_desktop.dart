@@ -59,8 +59,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   final focusNode = FocusNode();
 
   final videoController = UnityVideoPlayer.create(
-    width: 640,
-    height: 360,
+    quality: SettingsProvider.instance.videoQuality,
+    // width: 640,
+    // height: 360,
   );
   late final StreamSubscription playingSubscription;
   late final StreamSubscription durationSubscription;

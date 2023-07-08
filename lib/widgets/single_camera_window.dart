@@ -2,6 +2,7 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
@@ -67,8 +68,9 @@ class _CameraViewState extends State<CameraView> {
   void initState() {
     super.initState();
     controller = UnityVideoPlayer.create(
-      width: widget.device.resolutionX,
-      height: widget.device.resolutionY,
+      quality: SettingsProvider.instance.videoQuality,
+      // width: widget.device.resolutionX,
+      // height: widget.device.resolutionY,
     )
       ..setDataSource(widget.device.streamURL)
       ..setVolume(0.0)

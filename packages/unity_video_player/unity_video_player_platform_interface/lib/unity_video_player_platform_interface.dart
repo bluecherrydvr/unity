@@ -103,11 +103,11 @@ enum UnityVideoQuality {
 }
 
 abstract class UnityVideoPlayer {
-  static UnityVideoPlayer create({int? width, int? height}) {
+  static UnityVideoPlayer create({UnityVideoQuality? quality}) {
     return UnityVideoPlayerInterface.instance.createPlayer(
-      width: width,
-      height: height,
-    );
+      width: quality?.resolution.width.toInt(),
+      height: quality?.resolution.height.toInt(),
+    )..quality = quality;
   }
 
   UnityVideoQuality? quality;

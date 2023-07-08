@@ -185,7 +185,7 @@ class _DeviceFullscreenViewerMobileState
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                     IconButton(
                       icon: const Icon(Icons.high_quality),
-                      tooltip: 'Select resolution',
+                      tooltip: loc.selectResolution,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () => showResolutionDialog(

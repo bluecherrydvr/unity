@@ -498,7 +498,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         Icons.high_quality,
                         shadows: shadows,
                       ),
-                      tooltip: 'Select resolution',
+                      tooltip: loc.selectResolution,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () => showResolutionDialog(
@@ -610,11 +610,16 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   }
 }
 
-void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
-  final theme = Theme.of(context);
-  showModalBottomSheet(
+Future<void> showResolutionDialog(
+  BuildContext context,
+  UnityVideoPlayer controller,
+) {
+  return showModalBottomSheet(
     context: context,
     builder: (context) {
+      final theme = Theme.of(context);
+      final loc = AppLocalizations.of(context);
+
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Stack(alignment: Alignment.center, children: [
           Center(
@@ -635,6 +640,7 @@ void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
                 padding: const EdgeInsetsDirectional.only(end: 8.0),
                 child: IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: loc.close,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -646,13 +652,11 @@ void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Set resolution',
+                loc.setResolution,
                 style: theme.textTheme.titleLarge,
               ),
               Text(
-                'The resolution of the video stream can highly impact the performance of the app. '
-                'Set the resolution to a lower value to improve performance, or to a higher value to improve quality. '
-                'You can set the default resolution to every camera in the settings',
+                loc.setResolutionDescription,
                 style: theme.textTheme.bodySmall,
               ),
             ],
@@ -664,13 +668,13 @@ void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
             value: quality,
             title: RichText(
               text: TextSpan(
-                text: quality.name,
+                text: quality.str(context),
                 children: [
                   if (quality.isHD)
-                    const WidgetSpan(
+                    WidgetSpan(
                       child: Tooltip(
-                        message: 'High definition',
-                        child: Icon(
+                        message: loc.hd,
+                        child: const Icon(
                           Icons.hd,
                           size: 18.0,
                           color: Colors.yellow,
@@ -678,10 +682,10 @@ void showResolutionDialog(BuildContext context, UnityVideoPlayer controller) {
                       ),
                     ),
                   if (SettingsProvider.instance.videoQuality == quality)
-                    const WidgetSpan(
+                    WidgetSpan(
                       child: Tooltip(
-                        message: 'Default resolution',
-                        child: Icon(
+                        message: loc.defaultResolution,
+                        child: const Icon(
                           Icons.verified,
                           color: Colors.blue,
                           size: 18.0,

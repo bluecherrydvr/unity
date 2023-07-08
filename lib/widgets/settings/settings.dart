@@ -290,10 +290,10 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.hd),
                   ),
-                  title: Text('Default resolution'),
+                  title: Text(loc.defaultResolution),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    '720p',
+                    settings.videoQuality.str(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
@@ -311,7 +311,7 @@ class _SettingsState extends State<Settings> {
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
                         child: RichText(
                           text: TextSpan(
-                            text: quality.name,
+                            text: quality.str(context),
                             children: [
                               if (quality.isHD)
                                 const WidgetSpan(child: Icon(Icons.hd)),

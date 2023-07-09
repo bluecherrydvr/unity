@@ -284,56 +284,6 @@ class _SettingsState extends State<Settings> {
                     );
                   }).toList(),
                 ),
-                ExpansionTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: theme.iconTheme.color,
-                    child: const Icon(Icons.hd),
-                  ),
-                  title: Text(loc.defaultResolution),
-                  textColor: theme.textTheme.bodyLarge?.color,
-                  subtitle: Text(
-                    settings.videoQuality.str(context),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                  ),
-                  children: UnityVideoQuality.values.map((quality) {
-                    return RadioListTile<UnityVideoQuality>(
-                      value: quality,
-                      groupValue: settings.videoQuality,
-                      onChanged: (value) {
-                        settings.videoQuality = quality;
-                      },
-                      secondary: const Icon(null),
-                      controlAffinity: ListTileControlAffinity.trailing,
-                      title: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: RichText(
-                          text: TextSpan(
-                            text: quality.str(context),
-                            children: [
-                              if (quality.isHD)
-                                WidgetSpan(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Tooltip(
-                                      message: loc.hd,
-                                      child: const Icon(
-                                        Icons.hd,
-                                        size: 18.0,
-                                        color: Colors.yellow,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
               ])),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),

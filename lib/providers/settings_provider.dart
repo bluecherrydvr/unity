@@ -59,7 +59,6 @@ class SettingsProvider extends ChangeNotifier {
   String get downloadsDirectory => _downloadsDirectory;
   bool get layoutCyclingEnabled => _layoutCyclingEnabled;
   Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
-  UnityVideoQuality get videoQuality => _videoQuality;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -114,11 +113,6 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  set videoQuality(UnityVideoQuality value) {
-    _videoQuality = value;
-    _save();
-  }
-
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
@@ -128,7 +122,6 @@ class SettingsProvider extends ChangeNotifier {
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
   late Duration _layoutCyclingTogglePeriod;
-  late UnityVideoQuality _videoQuality;
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -155,7 +148,6 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
       kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
-      kHiveDefaultVideoQuality: videoQuality.index,
     });
 
     if (notify) notifyListeners();
@@ -228,12 +220,6 @@ class SettingsProvider extends ChangeNotifier {
       );
     } else {
       _layoutCyclingTogglePeriod = kDefaultLayoutCyclingTogglePeriod;
-    }
-
-    if (data.containsKey(kHiveDefaultVideoQuality)) {
-      _videoQuality = UnityVideoQuality.values[data[kHiveDefaultVideoQuality]!];
-    } else {
-      _videoQuality = UnityVideoQuality.p720;
     }
 
     notifyListeners();

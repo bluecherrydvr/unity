@@ -18,7 +18,6 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -53,9 +52,7 @@ class DeviceOrientations {
 UnityVideoPlayer getVideoPlayerControllerForDevice(Device device) {
   debugPrint(device.streamURL);
   final controller = UnityVideoPlayer.create(
-    quality: SettingsProvider.instance.videoQuality,
-    // width: device.resolutionX,
-    // height: device.resolutionY,
+    quality: UnityVideoQuality.qualityForResolutionY(device.resolutionY),
   )
     ..setDataSource(device.streamURL)
     ..setVolume(0.0)

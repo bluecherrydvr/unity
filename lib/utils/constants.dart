@@ -49,7 +49,6 @@ const kHiveDownloads = 'downloads';
 const kHiveEventsPlayback = 'events_playback';
 const kHiveLayoutCycling = 'layout_cycling';
 const kHiveLayoutCyclingPeriod = 'layout_cycling_period';
-const kHiveDefaultVideoQuality = 'default_video_quality';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

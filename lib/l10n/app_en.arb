@@ -178,6 +178,7 @@
   "fromDate": "From",
   "toDate": "To",
   "allowAlarms": "Allow alarms",
+  "nextEvents": "Next events",
   "@Event Priorities": {},
   "info": "Info",
   "warn": "Warning",
@@ -227,5 +228,7 @@
   "defaultResolution": "Default resolution",
   "p1080": "1080p",
   "p720": "720p",
-  "p480": "480p"
+  "p480": "480p",
+  "p360": "360p",
+  "p240": "240p"
 }

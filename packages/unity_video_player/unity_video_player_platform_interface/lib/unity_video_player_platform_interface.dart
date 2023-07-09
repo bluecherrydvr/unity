@@ -88,25 +88,44 @@ const p720Resolution = Size(1280, 720);
 /// The size of a view with 480p resolution
 const p480Resolution = Size(852, 480);
 
+/// The size of a view with 360p resolution
+const p360Resolution = Size(640, 360);
+
+/// The size of a view with 240p resolution
+const p240Resolution = Size(426, 240);
+
 enum UnityVideoQuality {
   p1080._(resolution: p1080Resolution, isHD: true),
-  p720._(resolution: p720Resolution),
-  p480._(resolution: p480Resolution);
+  p720._(resolution: p720Resolution, isHD: true),
+  p480._(resolution: p480Resolution),
+  p360._(resolution: p360Resolution),
+  p240._(resolution: p240Resolution);
 
   final Size resolution;
   final bool isHD;
 
-  const UnityVideoQuality._({
-    required this.resolution,
-    this.isHD = false,
-  });
+  const UnityVideoQuality._({required this.resolution, this.isHD = false});
+
+  /// Returns the video quality for the video height
+  static UnityVideoQuality qualityForResolutionY(int? height) {
+    return {
+          1080: p1080,
+          720: p720,
+          480: p480,
+          360: p360,
+          240: p240,
+        }[height] ??
+        UnityVideoQuality.p480;
+  }
 }
 
 abstract class UnityVideoPlayer {
-  static UnityVideoPlayer create({UnityVideoQuality? quality}) {
+  static UnityVideoPlayer create({
+    UnityVideoQuality quality = UnityVideoQuality.p360,
+  }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
-      width: quality?.resolution.width.toInt(),
-      height: quality?.resolution.height.toInt(),
+      width: quality.resolution.width.toInt(),
+      height: quality.resolution.height.toInt(),
     )..quality = quality;
   }
 

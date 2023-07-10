@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
@@ -22,19 +21,23 @@ class Event {
     return ([
       Event(
         duration: const Duration(minutes: 30),
-        startTime: DateTime(2023),
-      ),
-      Event(
-        duration: const Duration(hours: 1),
         startTime: DateTime(2023).add(const Duration(hours: 3)),
       ),
       Event(
-        duration: const Duration(minutes: 40),
+        duration: const Duration(hours: 1),
         startTime: DateTime(2023).add(const Duration(hours: 6)),
       ),
       Event(
+        duration: const Duration(minutes: 40),
+        startTime: DateTime(2023).add(const Duration(hours: 8)),
+      ),
+      Event(
         duration: const Duration(minutes: 15),
-        startTime: DateTime(2023).add(const Duration(hours: 8, minutes: 15)),
+        startTime: DateTime(2023).add(const Duration(hours: 11, minutes: 15)),
+      ),
+      Event(
+        duration: const Duration(minutes: 45),
+        startTime: DateTime(2023).add(const Duration(hours: 22, minutes: 5)),
       ),
     ]..shuffle());
   }
@@ -72,14 +75,13 @@ class Timeline {
     );
   }
 
-  /// The current hour of the timeline.
-  ///
-  /// The timeline starts at hour 0 and ends at hour 23.
-  int currentHour = 0;
+  /// The current position of the timeline
+  var currentPosition = const Duration();
 }
 
 const _kDeviceNameWidth = 100.0;
 const _kTimelineTileHeight = 30.0;
+final _minutesInADay = const Duration(days: 1).inMinutes;
 
 class TimelineEventsView extends StatefulWidget {
   final Timeline timeline;
@@ -117,39 +119,88 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         ),
       ),
       Card(
-        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-          Row(children: [
-            const SizedBox(width: _kDeviceNameWidth),
-            ...List.generate(24, (index) {
-              final hour = index + 1;
-              if (hour == 24) return const Expanded(child: SizedBox.shrink());
+        child: LayoutBuilder(builder: (context, constraints) {
+          final minuteWidth =
+              (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
 
-              return Expanded(
-                child: Text(
-                  '$hour',
-                  style: theme.textTheme.labelMedium,
-                  textAlign: TextAlign.end,
+          return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Text(
+              '${SettingsProvider.instance.dateFormat.format(
+                widget.timeline.date.add(widget.timeline.currentPosition),
+              )} '
+              '${widget.timeline.currentPosition.humanReadableCompact(context)}',
+            ),
+            Stack(children: [
+              Column(children: [
+                Row(children: [
+                  const SizedBox(width: _kDeviceNameWidth),
+                  ...List.generate(24, (index) {
+                    final hour = index + 1;
+                    if (hour == 24) {
+                      return const Expanded(child: SizedBox.shrink());
+                    }
+
+                    return Expanded(
+                      child: Text(
+                        '$hour',
+                        style: theme.textTheme.labelMedium,
+                        textAlign: TextAlign.end,
+                      ),
+                    );
+                  }),
+                ]),
+                GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    final pointerPosition =
+                        (details.localPosition.dx - _kDeviceNameWidth) /
+                            (constraints.maxWidth - _kDeviceNameWidth);
+                    if (pointerPosition < 0 || pointerPosition > 1) return;
+
+                    final minutes = (_minutesInADay * pointerPosition).round();
+                    final position = Duration(minutes: minutes);
+
+                    setState(() {
+                      widget.timeline.currentPosition = position;
+                    });
+                  },
+                  child: Column(children: [
+                    ...widget.timeline.devices.entries.map((entry) {
+                      final device = entry.key;
+                      final events = entry.value;
+                      return TimelineTile(
+                        device: device,
+                        events: events,
+                      );
+                    }),
+                  ]),
+                )
+              ]),
+              Positioned(
+                left:
+                    (widget.timeline.currentPosition.inMinutes * minuteWidth) +
+                        _kDeviceNameWidth,
+                width: 1.8,
+                top: 16.0,
+                height: _kTimelineTileHeight * widget.timeline.devices.length,
+                child: const IgnorePointer(
+                  child: ColoredBox(
+                    color: Colors.white,
+                  ),
                 ),
-              );
-            }),
-          ]),
-          ...widget.timeline.devices.entries.map((entry) {
-            final device = entry.key;
-            final events = entry.value;
-            return TimelineTile(
-              events: events,
-            );
-          }),
-        ]),
+              ),
+            ]),
+          ]);
+        }),
       ),
     ]);
   }
 }
 
 class TimelineTile extends StatelessWidget {
+  final String device;
   final List<Event> events;
 
-  const TimelineTile({super.key, required this.events});
+  const TimelineTile({super.key, required this.device, required this.events});
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +221,7 @@ class TimelineTile extends StatelessWidget {
           border: border,
         ),
         alignment: AlignmentDirectional.centerStart,
-        child: const Text('Device name'),
+        child: Text(device),
       ),
       ...List.generate(24, (index) {
         final hour = index;

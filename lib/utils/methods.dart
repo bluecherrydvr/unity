@@ -52,8 +52,7 @@ class DeviceOrientations {
 UnityVideoPlayer getVideoPlayerControllerForDevice(Device device) {
   debugPrint(device.streamURL);
   final controller = UnityVideoPlayer.create(
-    width: device.resolutionX,
-    height: device.resolutionY,
+    quality: UnityVideoQuality.qualityForResolutionY(device.resolutionY),
   )
     ..setDataSource(device.streamURL)
     ..setVolume(0.0)

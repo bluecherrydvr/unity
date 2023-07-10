@@ -99,6 +99,20 @@ extension CameraViewFitExtension on UnityVideoFit {
   }
 }
 
+extension UnityVideoQualityExtension on UnityVideoQuality {
+  String str(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return {
+          UnityVideoQuality.p1080: loc.p1080,
+          UnityVideoQuality.p720: loc.p720,
+          UnityVideoQuality.p480: loc.p480,
+          UnityVideoQuality.p360: loc.p360,
+          UnityVideoQuality.p240: loc.p240,
+        }[this] ??
+        name;
+  }
+}
+
 extension StringExtension on String {
   String uppercaseFirst() {
     if (isEmpty) return this;

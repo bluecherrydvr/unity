@@ -60,8 +60,8 @@ class Device {
       map['device_name'],
       int.tryParse(map['id']) ?? 0,
       map['status'] == 'OK',
-      map['resolutionX'] == null ? null : int.parse(map['resolutionX']),
-      map['resolutionX'] == null ? null : int.parse(map['resolutionY']),
+      int.tryParse(map['resolutionX']),
+      int.tryParse(map['resolutionY']),
       server,
       hasPTZ: map['ptz_control_protocol'] != null,
     );

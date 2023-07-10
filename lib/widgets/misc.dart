@@ -170,7 +170,7 @@ class CorrectedListTile extends StatelessWidget {
         padding: const EdgeInsetsDirectional.only(start: 16.0),
         child: Row(children: [
           Container(
-            margin: const EdgeInsetsDirectional.only(end: 16.0),
+            margin: const EdgeInsetsDirectional.only(end: 12.0),
             alignment: AlignmentDirectional.center,
             width: 40.0,
             height: 40.0,
@@ -182,10 +182,7 @@ class CorrectedListTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(title, style: theme.textTheme.bodyLarge),
                 if (subtitle != null) const SizedBox(height: 4.0),
                 if (subtitle != null)
                   Text(

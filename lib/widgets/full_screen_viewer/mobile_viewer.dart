@@ -88,6 +88,9 @@ class _DeviceFullscreenViewerMobileState
       backgroundColor: Colors.black,
       body: MouseRegion(
         onEnter: (_) => setState(() => overlay = true),
+        onHover: (_) {
+          if (overlay == false) setState(() => overlay = true);
+        },
         onExit: (_) => setState(() => overlay = false),
         child: Stack(children: [
           AnimatedOpacity(

@@ -66,10 +66,7 @@ class _CameraViewState extends State<CameraView> {
   @override
   void initState() {
     super.initState();
-    controller = UnityVideoPlayer.create(
-      width: widget.device.resolutionX,
-      height: widget.device.resolutionY,
-    )
+    controller = UnityVideoPlayer.create(quality: UnityVideoQuality.p720)
       ..setDataSource(widget.device.streamURL)
       ..setVolume(0.0)
       ..setSpeed(1.0);

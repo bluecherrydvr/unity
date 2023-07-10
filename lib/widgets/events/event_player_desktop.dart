@@ -59,8 +59,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   final focusNode = FocusNode();
 
   final videoController = UnityVideoPlayer.create(
-    width: 640,
-    height: 360,
+    quality: UnityVideoQuality.p480,
   );
   late final StreamSubscription playingSubscription;
   late final StreamSubscription durationSubscription;
@@ -141,6 +140,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
     const padd = SizedBox(width: 16.0);
@@ -319,10 +319,19 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                   left: false,
                   builder: (context, collapsableButton) {
                     return Column(children: [
-                      Align(
-                        alignment: AlignmentDirectional.topEnd,
-                        child: collapsableButton,
-                      ),
+                      Row(children: [
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: Text(
+                            loc.nextEvents,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.topEnd,
+                          child: collapsableButton,
+                        ),
+                      ]),
                       Expanded(
                         child: ListView(
                           padding: const EdgeInsetsDirectional.only(

@@ -26,6 +26,7 @@ import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_playback/events_playback.dart';
+import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
@@ -153,7 +154,8 @@ class _MobileHomeState extends State<Home> {
                       UnityTab.directCameraScreen: () {
                         return const DirectCameraScreen();
                       },
-                      UnityTab.eventsPlayback: () => const EventsPlayback(),
+                      // UnityTab.eventsPlayback: () => const EventsPlayback(),
+                      UnityTab.eventsPlayback: () => const TimelineEventsView(),
                       UnityTab.eventsScreen: () => EventsScreen(
                             key: eventsScreenKey,
                           ),

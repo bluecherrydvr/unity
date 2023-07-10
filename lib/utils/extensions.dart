@@ -77,6 +77,16 @@ extension DurationExtension on Duration {
   }
 }
 
+extension IterableExtension<T> on Iterable<T> {
+  T? firstWhereOrNull(bool Function(T element) test) {
+    try {
+      return firstWhere(test);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
 extension NotificationExtensions on NotificationClickAction {
   String str(BuildContext context) {
     final loc = AppLocalizations.of(context);

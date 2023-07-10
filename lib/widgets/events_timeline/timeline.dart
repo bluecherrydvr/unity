@@ -1,5 +1,9 @@
 import 'dart:math';
 
+import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
+    show calculateCrossAxisCount;
+import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 
 class Event {
@@ -15,7 +19,7 @@ class Event {
   });
 
   static List<Event> get fakeData {
-    return [
+    return ([
       Event(
         duration: const Duration(minutes: 30),
         startTime: DateTime(2023),
@@ -24,7 +28,15 @@ class Event {
         duration: const Duration(hours: 1),
         startTime: DateTime(2023).add(const Duration(hours: 3)),
       ),
-    ];
+      Event(
+        duration: const Duration(minutes: 40),
+        startTime: DateTime(2023).add(const Duration(hours: 6)),
+      ),
+      Event(
+        duration: const Duration(minutes: 15),
+        startTime: DateTime(2023).add(const Duration(hours: 8, minutes: 15)),
+      ),
+    ]..shuffle());
   }
 }
 
@@ -33,10 +45,32 @@ class Event {
 /// Events are played as they happened in time. The timeline is limited to a
 /// single day, so events are from hour 0 to 23.
 class Timeline {
-  /// The events in the timeline
-  final Map<String, Event> events;
+  /// The events grouped by device
+  final Map<String, List<Event>> devices;
 
-  Timeline({required this.events});
+  /// All the events must have happened in the same day
+  final DateTime date;
+
+  Timeline({required this.devices, required this.date}) {
+    assert(devices.values.every((events) {
+      return events.every((event) =>
+          event.startTime.year == date.year &&
+          event.startTime.month == date.month &&
+          event.startTime.day == date.day);
+    }), 'All events must have happened in the same day');
+  }
+
+  static Timeline get fakeTimeline {
+    return Timeline(
+      date: DateTime(2023),
+      devices: {
+        'device1': Event.fakeData,
+        'device2': Event.fakeData,
+        'device3': Event.fakeData,
+        'device4': Event.fakeData,
+      },
+    );
+  }
 
   /// The current hour of the timeline.
   ///
@@ -48,7 +82,9 @@ const _kDeviceNameWidth = 100.0;
 const _kTimelineTileHeight = 30.0;
 
 class TimelineEventsView extends StatefulWidget {
-  const TimelineEventsView({super.key});
+  final Timeline timeline;
+
+  const TimelineEventsView({super.key, required this.timeline});
 
   @override
   State<TimelineEventsView> createState() => _TimelineEventsViewState();
@@ -60,7 +96,26 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
     final theme = Theme.of(context);
 
     return Column(children: [
-      const Spacer(),
+      Expanded(
+        child: Center(
+          child: StaticGrid(
+            crossAxisCount: calculateCrossAxisCount(
+              widget.timeline.devices.length,
+            ),
+            onReorder: (a, b) {},
+            childAspectRatio: 16 / 9,
+            children: [
+              for (final device in widget.timeline.devices.keys) ...[
+                Card(
+                  key: ValueKey(device),
+                  // aspectRatio: 16 / 9,
+                  child: Text(device),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
       Card(
         child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
           Row(children: [
@@ -78,14 +133,13 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               );
             }),
           ]),
-          TimelineTile(
-              event: Event.fakeData[Random().nextInt(Event.fakeData.length)]),
-          TimelineTile(
-              event: Event.fakeData[Random().nextInt(Event.fakeData.length)]),
-          TimelineTile(
-              event: Event.fakeData[Random().nextInt(Event.fakeData.length)]),
-          TimelineTile(
-              event: Event.fakeData[Random().nextInt(Event.fakeData.length)]),
+          ...widget.timeline.devices.entries.map((entry) {
+            final device = entry.key;
+            final events = entry.value;
+            return TimelineTile(
+              events: events,
+            );
+          }),
         ]),
       ),
     ]);
@@ -93,9 +147,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 }
 
 class TimelineTile extends StatelessWidget {
-  final Event event;
+  final List<Event> events;
 
-  const TimelineTile({super.key, required this.event});
+  const TimelineTile({super.key, required this.events});
 
   @override
   Widget build(BuildContext context) {
@@ -121,12 +175,17 @@ class TimelineTile extends StatelessWidget {
       ...List.generate(24, (index) {
         final hour = index;
 
+        final event =
+            events.firstWhereOrNull((event) => event.startTime.hour == hour);
+
         return Expanded(
           child: Container(
             height: _kTimelineTileHeight,
             decoration: BoxDecoration(border: border),
             child: LayoutBuilder(builder: (context, constraints) {
-              if (event.startTime.hour != hour) return const SizedBox.shrink();
+              if (event == null || event.startTime.hour != hour) {
+                return const SizedBox.shrink();
+              }
 
               final minuteWidth = constraints.maxWidth / 60;
               return Stack(children: [

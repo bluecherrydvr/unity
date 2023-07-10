@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
@@ -47,7 +49,7 @@ class Event {
 ///
 /// Events are played as they happened in time. The timeline is limited to a
 /// single day, so events are from hour 0 to 23.
-class Timeline {
+class Timeline extends ChangeNotifier {
   /// The events grouped by device
   final Map<String, List<Event>> devices;
 
@@ -77,6 +79,23 @@ class Timeline {
 
   /// The current position of the timeline
   var currentPosition = const Duration();
+
+  DateTime get currentDate => date.add(currentPosition);
+
+  Timer? timer;
+  bool get isPlaying => timer != null && timer!.isActive;
+
+  void pause() {
+    timer?.cancel();
+    timer = null;
+  }
+
+  void play() {
+    timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+      currentPosition += const Duration(seconds: 1);
+      notifyListeners();
+    });
+  }
 }
 
 const _kDeviceNameWidth = 100.0;
@@ -94,6 +113,14 @@ class TimelineEventsView extends StatefulWidget {
 
 class _TimelineEventsViewState extends State<TimelineEventsView> {
   @override
+  void initState() {
+    super.initState();
+    widget.timeline.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -106,15 +133,25 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ),
             onReorder: (a, b) {},
             childAspectRatio: 16 / 9,
-            children: [
-              for (final device in widget.timeline.devices.keys) ...[
-                Card(
-                  key: ValueKey(device),
-                  // aspectRatio: 16 / 9,
-                  child: Text(device),
-                ),
-              ],
-            ],
+            children: widget.timeline.devices.entries.map((entry) {
+              final device = entry.key;
+              final events = entry.value;
+
+              final isPlaying = events.any((event) {
+                widget.timeline.currentPosition;
+
+                return widget.timeline.currentDate.isInBetween(
+                  event.startTime,
+                  event.startTime.add(event.duration),
+                );
+              });
+
+              return Card(
+                key: ValueKey(device),
+                color: isPlaying ? theme.colorScheme.primary : null,
+                child: Text(device),
+              );
+            }).toList(),
           ),
         ),
       ),
@@ -124,6 +161,26 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
 
           return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0, top: 2.0),
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                IconButton(
+                  icon: Icon(
+                    widget.timeline.isPlaying ? Icons.pause : Icons.play_arrow,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (widget.timeline.isPlaying) {
+                        widget.timeline.pause();
+                      } else {
+                        widget.timeline.play();
+                      }
+                    });
+                  },
+                ),
+              ]),
+            ),
             Text(
               '${SettingsProvider.instance.dateFormat.format(
                 widget.timeline.date.add(widget.timeline.currentPosition),

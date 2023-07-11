@@ -82,19 +82,39 @@ class Timeline extends ChangeNotifier {
 
   DateTime get currentDate => date.add(currentPosition);
 
+  double _volume = 1.0;
+  bool get isMuted => volume == 0;
+  double get volume => _volume;
+  set volume(double value) {
+    _volume = value;
+    notifyListeners();
+  }
+
+  double _speed = 1.0;
+  double get speed => _speed;
+  set speed(double value) {
+    _speed = value;
+    stop();
+    play();
+    notifyListeners();
+  }
+
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
 
-  void pause() {
+  void stop() {
     timer?.cancel();
     timer = null;
   }
 
   void play() {
-    timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
-      currentPosition += const Duration(seconds: 1);
-      notifyListeners();
-    });
+    timer ??= Timer.periodic(
+      Duration(milliseconds: 1000 ~/ _speed),
+      (timer) {
+        currentPosition += const Duration(seconds: 1);
+        notifyListeners();
+      },
+    );
   }
 }
 
@@ -112,6 +132,9 @@ class TimelineEventsView extends StatefulWidget {
 }
 
 class _TimelineEventsViewState extends State<TimelineEventsView> {
+  double? _speed;
+  double? _volume;
+
   @override
   void initState() {
     super.initState();
@@ -165,6 +188,32 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               padding: const EdgeInsets.only(bottom: 4.0, top: 2.0),
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${(_speed ?? widget.timeline.speed) == 1.0 ? '1' : (_speed ?? widget.timeline.speed).toStringAsFixed(1)}'
+                        'x',
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120.0),
+                        child: Slider(
+                          value: _speed ?? widget.timeline.speed,
+                          min: 0.5,
+                          max: 2.0,
+                          onChanged: (s) => setState(() => _speed = s),
+                          onChangeEnd: (s) {
+                            _speed = null;
+                            widget.timeline.speed = s;
+                            FocusScope.of(context).unfocus();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 20.0),
                 IconButton(
                   icon: Icon(
                     widget.timeline.isPlaying ? Icons.pause : Icons.play_arrow,
@@ -172,12 +221,43 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                   onPressed: () {
                     setState(() {
                       if (widget.timeline.isPlaying) {
-                        widget.timeline.pause();
+                        widget.timeline.stop();
                       } else {
                         widget.timeline.play();
                       }
                     });
                   },
+                ),
+                const SizedBox(width: 20.0),
+                Expanded(
+                  child: Row(children: [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120.0),
+                      child: Slider(
+                        value: _volume ??
+                            (widget.timeline.isMuted
+                                ? 0.0
+                                : widget.timeline.volume),
+                        onChanged: (v) => setState(() => _volume = v),
+                        onChangeEnd: (v) {
+                          _volume = null;
+                          widget.timeline.volume = v;
+                          FocusScope.of(context).unfocus();
+                        },
+                      ),
+                    ),
+                    Icon(() {
+                      final volume = _volume ?? widget.timeline.volume;
+                      if ((_volume == null || _volume == 0.0) &&
+                          (widget.timeline.isMuted || volume == 0.0)) {
+                        return Icons.volume_off;
+                      } else if (volume < 0.5) {
+                        return Icons.volume_down;
+                      } else {
+                        return Icons.volume_up;
+                      }
+                    }()),
+                  ]),
                 ),
               ]),
             ),

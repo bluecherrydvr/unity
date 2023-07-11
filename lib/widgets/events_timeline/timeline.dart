@@ -7,37 +7,37 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 
-class Event {
+class TimelineEvent {
   /// The duration of the event
   final Duration duration;
 
   /// When the event started
   final DateTime startTime;
 
-  const Event({
+  const TimelineEvent({
     required this.duration,
     required this.startTime,
   });
 
-  static List<Event> get fakeData {
+  static List<TimelineEvent> get fakeData {
     return ([
-      Event(
+      TimelineEvent(
         duration: const Duration(minutes: 30),
-        startTime: DateTime(2023).add(const Duration(hours: 3)),
+        startTime: DateTime(2023).add(const Duration(hours: 3, minutes: 45)),
       ),
-      Event(
+      TimelineEvent(
         duration: const Duration(hours: 1),
         startTime: DateTime(2023).add(const Duration(hours: 6)),
       ),
-      Event(
+      TimelineEvent(
         duration: const Duration(minutes: 40),
         startTime: DateTime(2023).add(const Duration(hours: 8)),
       ),
-      Event(
+      TimelineEvent(
         duration: const Duration(minutes: 15),
         startTime: DateTime(2023).add(const Duration(hours: 11, minutes: 15)),
       ),
-      Event(
+      TimelineEvent(
         duration: const Duration(minutes: 45),
         startTime: DateTime(2023).add(const Duration(hours: 22, minutes: 5)),
       ),
@@ -51,7 +51,7 @@ class Event {
 /// single day, so events are from hour 0 to 23.
 class Timeline extends ChangeNotifier {
   /// The events grouped by device
-  final Map<String, List<Event>> devices;
+  final Map<String, List<TimelineEvent>> devices;
 
   /// All the events must have happened in the same day
   final DateTime date;
@@ -63,18 +63,33 @@ class Timeline extends ChangeNotifier {
           event.startTime.month == date.month &&
           event.startTime.day == date.day);
     }), 'All events must have happened in the same day');
+    devices.removeWhere((key, value) => value.isEmpty);
   }
+
+  Timeline.placeholder()
+      : date = DateTime(2023),
+        devices = {};
 
   static Timeline get fakeTimeline {
     return Timeline(
       date: DateTime(2023),
       devices: {
-        'device1': Event.fakeData,
-        'device2': Event.fakeData,
-        'device3': Event.fakeData,
-        'device4': Event.fakeData,
+        'device1': TimelineEvent.fakeData,
+        'device2': TimelineEvent.fakeData,
+        'device3': TimelineEvent.fakeData,
+        'device4': TimelineEvent.fakeData,
       },
     );
+  }
+
+  void add(Map<String, List<TimelineEvent>> devices) {
+    assert(devices.values.every((events) {
+      return events.every((event) =>
+          event.startTime.year == date.year &&
+          event.startTime.month == date.month &&
+          event.startTime.day == date.day);
+    }), 'All events must have happened in the same day');
+    this.devices.addAll(devices);
   }
 
   /// The current position of the timeline
@@ -123,7 +138,7 @@ const _kTimelineTileHeight = 30.0;
 final _minutesInADay = const Duration(days: 1).inMinutes;
 
 class TimelineEventsView extends StatefulWidget {
-  final Timeline timeline;
+  final Timeline? timeline;
 
   const TimelineEventsView({super.key, required this.timeline});
 
@@ -138,9 +153,22 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   @override
   void initState() {
     super.initState();
-    widget.timeline.addListener(() {
-      if (mounted) setState(() {});
-    });
+    widget.timeline?.addListener(_updateCallback);
+  }
+
+  void _updateCallback() {
+    if (mounted) setState(() {});
+  }
+
+  Timeline get timeline => widget.timeline ?? Timeline.placeholder();
+
+  @override
+  void didUpdateWidget(covariant TimelineEventsView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.timeline != oldWidget.timeline) {
+      oldWidget.timeline?.removeListener(_updateCallback);
+      widget.timeline?.addListener(_updateCallback);
+    }
   }
 
   @override
@@ -151,19 +179,23 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
       Expanded(
         child: Center(
           child: StaticGrid(
+            reorderable: false,
             crossAxisCount: calculateCrossAxisCount(
-              widget.timeline.devices.length,
+              timeline.devices.length,
             ),
             onReorder: (a, b) {},
             childAspectRatio: 16 / 9,
-            children: widget.timeline.devices.entries.map((entry) {
+            emptyChild: const Center(
+              child: Text('No events :/'),
+            ),
+            children: timeline.devices.entries.map((entry) {
               final device = entry.key;
               final events = entry.value;
 
               final isPlaying = events.any((event) {
-                widget.timeline.currentPosition;
+                timeline.currentPosition;
 
-                return widget.timeline.currentDate.isInBetween(
+                return timeline.currentDate.isInBetween(
                   event.startTime,
                   event.startTime.add(event.duration),
                 );
@@ -193,19 +225,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        '${(_speed ?? widget.timeline.speed) == 1.0 ? '1' : (_speed ?? widget.timeline.speed).toStringAsFixed(1)}'
+                        '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
                         'x',
                       ),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 120.0),
                         child: Slider(
-                          value: _speed ?? widget.timeline.speed,
+                          value: _speed ?? timeline.speed,
                           min: 0.5,
                           max: 2.0,
                           onChanged: (s) => setState(() => _speed = s),
                           onChangeEnd: (s) {
                             _speed = null;
-                            widget.timeline.speed = s;
+                            timeline.speed = s;
                             FocusScope.of(context).unfocus();
                           },
                         ),
@@ -216,14 +248,14 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 const SizedBox(width: 20.0),
                 IconButton(
                   icon: Icon(
-                    widget.timeline.isPlaying ? Icons.pause : Icons.play_arrow,
+                    timeline.isPlaying ? Icons.pause : Icons.play_arrow,
                   ),
                   onPressed: () {
                     setState(() {
-                      if (widget.timeline.isPlaying) {
-                        widget.timeline.stop();
+                      if (timeline.isPlaying) {
+                        timeline.stop();
                       } else {
-                        widget.timeline.play();
+                        timeline.play();
                       }
                     });
                   },
@@ -235,21 +267,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       constraints: const BoxConstraints(maxWidth: 120.0),
                       child: Slider(
                         value: _volume ??
-                            (widget.timeline.isMuted
-                                ? 0.0
-                                : widget.timeline.volume),
+                            (timeline.isMuted ? 0.0 : timeline.volume),
                         onChanged: (v) => setState(() => _volume = v),
                         onChangeEnd: (v) {
                           _volume = null;
-                          widget.timeline.volume = v;
+                          timeline.volume = v;
                           FocusScope.of(context).unfocus();
                         },
                       ),
                     ),
                     Icon(() {
-                      final volume = _volume ?? widget.timeline.volume;
+                      final volume = _volume ?? timeline.volume;
                       if ((_volume == null || _volume == 0.0) &&
-                          (widget.timeline.isMuted || volume == 0.0)) {
+                          (timeline.isMuted || volume == 0.0)) {
                         return Icons.volume_off;
                       } else if (volume < 0.5) {
                         return Icons.volume_down;
@@ -263,9 +293,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ),
             Text(
               '${SettingsProvider.instance.dateFormat.format(
-                widget.timeline.date.add(widget.timeline.currentPosition),
+                timeline.date.add(timeline.currentPosition),
               )} '
-              '${widget.timeline.currentPosition.humanReadableCompact(context)}',
+              '${timeline.currentPosition.humanReadableCompact(context)}',
             ),
             Stack(children: [
               Column(children: [
@@ -297,11 +327,11 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     final position = Duration(minutes: minutes);
 
                     setState(() {
-                      widget.timeline.currentPosition = position;
+                      timeline.currentPosition = position;
                     });
                   },
                   child: Column(children: [
-                    ...widget.timeline.devices.entries.map((entry) {
+                    ...timeline.devices.entries.map((entry) {
                       final device = entry.key;
                       final events = entry.value;
                       return TimelineTile(
@@ -313,12 +343,11 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 )
               ]),
               Positioned(
-                left:
-                    (widget.timeline.currentPosition.inMinutes * minuteWidth) +
-                        _kDeviceNameWidth,
+                left: (timeline.currentPosition.inMinutes * minuteWidth) +
+                    _kDeviceNameWidth,
                 width: 1.8,
                 top: 16.0,
-                height: _kTimelineTileHeight * widget.timeline.devices.length,
+                height: _kTimelineTileHeight * timeline.devices.length,
                 child: const IgnorePointer(
                   child: ColoredBox(
                     color: Colors.white,
@@ -335,7 +364,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
 class TimelineTile extends StatelessWidget {
   final String device;
-  final List<Event> events;
+  final List<TimelineEvent> events;
 
   const TimelineTile({super.key, required this.device, required this.events});
 

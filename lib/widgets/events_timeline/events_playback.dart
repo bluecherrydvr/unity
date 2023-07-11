@@ -4,6 +4,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EventsPlayback extends StatefulWidget {
   const EventsPlayback({super.key});
@@ -18,13 +19,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   @override
   void initState() {
     super.initState();
-    fetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
   Map<String, List<Event>> devices = {};
 
   Future<void> fetch() async {
-    HomeProvider.instance.loading(UnityLoadingReason.fetchingEventsPlayback);
+    final home = context.read<HomeProvider>()
+      ..loading(UnityLoadingReason.fetchingEventsPlayback);
     late DateTime date;
     for (final server in ServersProvider.instance.servers) {
       if (!server.online) continue;
@@ -32,6 +34,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       final events = (await API.instance.getEvents(
         await API.instance.checkServerCredentials(server),
       ))
+          .where((event) => !event.isAlarm)
           .toList()
         ..sort((a, b) {
           return a.published.compareTo(b.published);
@@ -89,7 +92,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       );
     });
 
-    HomeProvider.instance.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+    home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
     setState(() {
       timeline = Timeline(

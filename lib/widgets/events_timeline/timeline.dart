@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -20,28 +21,40 @@ class TimelineEvent {
   });
 
   static List<TimelineEvent> get fakeData {
-    return ([
+    return [
       TimelineEvent(
         duration: const Duration(minutes: 30),
-        startTime: DateTime(2023).add(const Duration(hours: 23, minutes: 45)),
+        startTime: DateTime(2023).add(
+          Duration(hours: Random().nextInt(4), minutes: Random().nextInt(60)),
+        ),
       ),
       TimelineEvent(
         duration: const Duration(hours: 1),
-        startTime: DateTime(2023).add(const Duration(hours: 6)),
+        startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 5)),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 40),
-        startTime: DateTime(2023).add(const Duration(hours: 8)),
+        startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 9)),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 15),
-        startTime: DateTime(2023).add(const Duration(hours: 11, minutes: 15)),
+        startTime: DateTime(2023).add(
+          Duration(
+            hours: Random().nextInt(4) + 13,
+            minutes: Random().nextInt(60),
+          ),
+        ),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 45),
-        startTime: DateTime(2023).add(const Duration(hours: 22, minutes: 5)),
+        startTime: DateTime(2023).add(
+          Duration(
+            hours: Random().nextInt(4) + 14,
+            minutes: Random().nextInt(60),
+          ),
+        ),
       ),
-    ]..shuffle());
+    ];
   }
 
   DateTime get endTime => startTime.add(duration);

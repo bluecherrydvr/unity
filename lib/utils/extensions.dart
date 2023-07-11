@@ -162,7 +162,7 @@ extension DateTimeExtension on DateTime {
   }
 
   bool isInBetween(DateTime first, DateTime second) {
-    return isAfter(first) && isBefore(second) ||
+    return (isAfter(first) && isBefore(second)) ||
         this == first ||
         this == second;
   }

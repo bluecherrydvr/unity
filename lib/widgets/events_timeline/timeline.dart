@@ -23,7 +23,7 @@ class TimelineEvent {
     return ([
       TimelineEvent(
         duration: const Duration(minutes: 30),
-        startTime: DateTime(2023).add(const Duration(hours: 3, minutes: 45)),
+        startTime: DateTime(2023).add(const Duration(hours: 23, minutes: 45)),
       ),
       TimelineEvent(
         duration: const Duration(hours: 1),
@@ -43,6 +43,8 @@ class TimelineEvent {
       ),
     ]..shuffle());
   }
+
+  DateTime get endTime => startTime.add(duration);
 }
 
 /// A timeline of events
@@ -193,11 +195,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               final events = entry.value;
 
               final isPlaying = events.any((event) {
-                timeline.currentPosition;
-
                 return timeline.currentDate.isInBetween(
                   event.startTime,
-                  event.startTime.add(event.duration),
+                  event.endTime,
                 );
               });
 
@@ -211,6 +211,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         ),
       ),
       Card(
+        clipBehavior: Clip.antiAlias,
         child: LayoutBuilder(builder: (context, constraints) {
           final minuteWidth =
               (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
@@ -405,7 +406,7 @@ class TimelineTile extends StatelessWidget {
               }
 
               final minuteWidth = constraints.maxWidth / 60;
-              return Stack(children: [
+              return Stack(clipBehavior: Clip.none, children: [
                 Positioned(
                   left: event.startTime.minute * minuteWidth,
                   width: event.duration.inMinutes * minuteWidth,

@@ -228,7 +228,7 @@ class SettingsProvider extends ChangeNotifier {
   /// Formats the date according to the current [dateFormat].
   ///
   /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatDate(DateTime date, {bool toLocal = true}) {
+  String formatDate(DateTime date, {bool toLocal = false}) {
     if (toLocal) date = date.toLocal();
 
     return dateFormat.format(date);
@@ -237,7 +237,7 @@ class SettingsProvider extends ChangeNotifier {
   /// Formats the date according to the current [dateFormat].
   ///
   /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatTime(DateTime time, {bool toLocal = true}) {
+  String formatTime(DateTime time, {bool toLocal = false}) {
     if (toLocal) time = time.toLocal();
 
     return timeFormat.format(time);

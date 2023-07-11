@@ -1,5 +1,6 @@
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
 import 'package:flutter/material.dart';
@@ -23,31 +24,32 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   Map<String, List<Event>> devices = {};
 
   Future<void> fetch() async {
-    var date = DateTime.now();
+    HomeProvider.instance.loading(UnityLoadingReason.fetchingEventsPlayback);
+    late DateTime date;
     for (final server in ServersProvider.instance.servers) {
       if (!server.online) continue;
 
-      final events = await API.instance.getEvents(
+      final events = (await API.instance.getEvents(
         await API.instance.checkServerCredentials(server),
-      );
+      ))
+          .toList()
+        ..sort((a, b) {
+          return a.published.compareTo(b.published);
+        });
 
-      date = events.reduce((value, element) {
-        if (value.published.isBefore(element.published)) {
-          return value;
-        } else {
-          return element;
-        }
-      }).published;
+      date = DateTime(2023, 7, 10);
 
-      for (final event in events) {
+      for (final event in events
+          .where((event) => DateUtils.isSameDay(event.published, date))) {
         // If the event is not long enough to be displayed, do not add it
         if (event.duration < const Duration(minutes: 1)) continue;
 
         // If the event is not in the same day as the [date], do not add it
-        if (!DateUtils.isSameDay(event.published, date)) continue;
-        if (!DateUtils.isSameDay(event.published.add(event.duration), date)) {
+        if (!DateUtils.isSameDay(event.published, date)) {
           continue;
         }
+
+        devices[event.deviceName] ??= [];
 
         // If there is already an event that conflicts with this one in time, do
         // not add it
@@ -76,7 +78,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       return MapEntry(
         device,
         events.map((event) {
-          debugPrint((event.published).toString());
+          debugPrint(
+            '${event.published} - ${event.published.add(event.duration)}}}',
+          );
           return TimelineEvent(
             startTime: event.published,
             duration: event.duration,
@@ -84,6 +88,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         }).toList(),
       );
     });
+
+    HomeProvider.instance.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
     setState(() {
       timeline = Timeline(
@@ -95,6 +101,6 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
-    return TimelineEventsView(timeline: Timeline.fakeTimeline);
+    return TimelineEventsView(timeline: timeline);
   }
 }

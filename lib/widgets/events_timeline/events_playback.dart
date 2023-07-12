@@ -40,7 +40,13 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           return a.published.compareTo(b.published);
         });
 
-      date = DateTime(2023, 7, 10);
+      if (events.isEmpty) continue;
+
+      date = DateTime(
+        events.first.published.year,
+        events.first.published.month,
+        events.first.published.day,
+      );
 
       for (final event in events
           .where((event) => DateUtils.isSameDay(event.published, date))) {
@@ -87,6 +93,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           return TimelineEvent(
             startTime: event.published,
             duration: event.duration,
+            videoUrl: event.mediaURL!.toString(),
           );
         }).toList(),
       );
@@ -104,6 +111,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
-    return TimelineEventsView(timeline: timeline);
+    return TimelineEventsView(
+      // timeline: Timeline.fakeTimeline,
+      timeline: timeline,
+    );
   }
 }

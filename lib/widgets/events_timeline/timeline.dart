@@ -7,6 +7,9 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 class TimelineEvent {
   /// The duration of the event
@@ -15,15 +18,22 @@ class TimelineEvent {
   /// When the event started
   final DateTime startTime;
 
-  const TimelineEvent({
+  late final UnityVideoPlayer videoController;
+
+  TimelineEvent({
     required this.duration,
     required this.startTime,
-  });
+    String videoUrl =
+        'https://user-images.githubusercontent.com/28951144/229373695-22f88f13-d18f-4288-9bf1-c3e078d83722.mp4',
+  }) {
+    videoController = UnityVideoPlayer.create();
+    videoController.setDataSource(videoUrl, autoPlay: false);
+  }
 
   static List<TimelineEvent> get fakeData {
     return [
       TimelineEvent(
-        duration: const Duration(minutes: 30),
+        duration: const Duration(minutes: 1),
         startTime: DateTime(2023).add(
           Duration(hours: Random().nextInt(4), minutes: Random().nextInt(60)),
         ),
@@ -33,11 +43,11 @@ class TimelineEvent {
         startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 5)),
       ),
       TimelineEvent(
-        duration: const Duration(minutes: 40),
+        duration: const Duration(minutes: 1),
         startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 9)),
       ),
       TimelineEvent(
-        duration: const Duration(minutes: 15),
+        duration: const Duration(minutes: 1),
         startTime: DateTime(2023).add(
           Duration(
             hours: Random().nextInt(4) + 13,
@@ -46,10 +56,19 @@ class TimelineEvent {
         ),
       ),
       TimelineEvent(
-        duration: const Duration(minutes: 45),
+        duration: const Duration(minutes: 1),
         startTime: DateTime(2023).add(
           Duration(
             hours: Random().nextInt(4) + 14,
+            minutes: Random().nextInt(60),
+          ),
+        ),
+      ),
+      TimelineEvent(
+        duration: const Duration(minutes: 1),
+        startTime: DateTime(2023).add(
+          Duration(
+            hours: Random().nextInt(4) + 20,
             minutes: Random().nextInt(60),
           ),
         ),
@@ -58,6 +77,15 @@ class TimelineEvent {
   }
 
   DateTime get endTime => startTime.add(duration);
+
+  bool isPlaying(DateTime currentDate) {
+    return currentDate.isInBetween(startTime, endTime);
+  }
+
+  /// The position of the video at the [currentDate]
+  Duration position(DateTime currentDate) {
+    return currentDate.difference(startTime);
+  }
 }
 
 /// A timeline of events
@@ -107,6 +135,12 @@ class Timeline extends ChangeNotifier {
     this.devices.addAll(devices);
   }
 
+  void forEachEvent(void Function(TimelineEvent event) callback) {
+    for (var events in devices.values) {
+      events.forEach(callback);
+    }
+  }
+
   /// The current position of the timeline
   var currentPosition = const Duration();
 
@@ -133,8 +167,14 @@ class Timeline extends ChangeNotifier {
   bool get isPlaying => timer != null && timer!.isActive;
 
   void stop() {
+    if (timer != null || !(timer?.isActive ?? false)) return;
+
     timer?.cancel();
     timer = null;
+
+    forEachEvent((event) {
+      event.videoController.pause();
+    });
   }
 
   void play() {
@@ -143,6 +183,12 @@ class Timeline extends ChangeNotifier {
       (timer) {
         currentPosition += const Duration(seconds: 1);
         notifyListeners();
+
+        // forEachEvent((event) {
+        //   if (event.isPlaying(currentDate)) {
+        //     // event.videoController.seekTo(position);
+        //   }
+        // });
       },
     );
   }
@@ -189,10 +235,12 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     return Column(children: [
       Expanded(
-        child: Center(
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
           child: StaticGrid(
             reorderable: false,
             crossAxisCount: calculateCrossAxisCount(
@@ -207,17 +255,64 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               final device = entry.key;
               final events = entry.value;
 
-              final isPlaying = events.any((event) {
-                return timeline.currentDate.isInBetween(
-                  event.startTime,
-                  event.endTime,
-                );
+              final currentEvent = events.firstWhereOrNull((event) {
+                return event.isPlaying(timeline.currentDate);
               });
+
+              final isPlaying = currentEvent != null;
 
               return Card(
                 key: ValueKey(device),
-                color: isPlaying ? theme.colorScheme.primary : null,
-                child: Text(device),
+                clipBehavior: Clip.antiAlias,
+                color: isPlaying ? Colors.black : null,
+                child: currentEvent != null
+                    ? UnityVideoView(
+                        player: currentEvent.videoController,
+                        paneBuilder: (context, controller) {
+                          return Stack(children: [
+                            Align(
+                              alignment: AlignmentDirectional.topStart,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: '',
+                                    children: [
+                                      TextSpan(
+                                        text: device,
+                                        style: theme.textTheme.titleMedium,
+                                      ),
+                                      const TextSpan(text: '\n'),
+                                      TextSpan(
+                                        text: currentEvent
+                                            .position(timeline.currentDate)
+                                            .humanReadableCompact(context),
+                                        style: theme.textTheme.labelLarge,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]);
+                        },
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Stack(children: [
+                          Text(
+                            device,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          Center(
+                            child: Text(loc.noRecords),
+                          ),
+                        ]),
+                      ),
+                // child: Text(
+                //   '$device '
+                //   '${currentEvent?.position(timeline.currentDate).humanReadableCompact(context)}',
+                // ),
               );
             }).toList(),
           ),
@@ -306,10 +401,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               ]),
             ),
             Text(
-              '${SettingsProvider.instance.dateFormat.format(
-                timeline.date.add(timeline.currentPosition),
-              )} '
-              '${timeline.currentPosition.humanReadableCompact(context)}',
+              '${SettingsProvider.instance.dateFormat.format(timeline.currentDate)} '
+              '${DateFormat('hh:mm:ss a').format(timeline.currentDate)}',
             ),
             Stack(children: [
               Column(children: [
@@ -322,10 +415,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     }
 
                     return Expanded(
-                      child: Text(
-                        '$hour',
-                        style: theme.textTheme.labelMedium,
-                        textAlign: TextAlign.end,
+                      child: Transform.translate(
+                        offset: Offset(
+                          hour.toString().length * 4,
+                          0.0,
+                        ),
+                        child: Text(
+                          '$hour',
+                          style: theme.textTheme.labelMedium,
+                          textAlign: TextAlign.end,
+                        ),
                       ),
                     );
                   }),

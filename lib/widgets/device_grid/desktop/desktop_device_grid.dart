@@ -328,6 +328,25 @@ class DesktopTileViewport extends StatefulWidget {
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
+const shadows = [
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(-4, -4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(4, 4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(-4, 4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(4, -4),
+  ),
+];
+
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
@@ -360,25 +379,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         ),
       );
     }
-
-    const shadows = [
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, -4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, -4),
-      ),
-    ];
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,

@@ -3,9 +3,12 @@ import 'dart:math';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +29,7 @@ class TimelineEvent {
     String videoUrl =
         'https://user-images.githubusercontent.com/28951144/229373695-22f88f13-d18f-4288-9bf1-c3e078d83722.mp4',
   }) {
+    debugPrint('Creating video controller for $videoUrl');
     videoController = UnityVideoPlayer.create();
     videoController.setDataSource(videoUrl, autoPlay: false);
   }
@@ -135,9 +139,12 @@ class Timeline extends ChangeNotifier {
     this.devices.addAll(devices);
   }
 
-  void forEachEvent(void Function(TimelineEvent event) callback) {
-    for (var events in devices.values) {
-      events.forEach(callback);
+  void forEachEvent(
+      void Function(String device, TimelineEvent event) callback) {
+    for (var entry in devices.entries) {
+      for (var event in entry.value) {
+        callback(entry.key, event);
+      }
     }
   }
 
@@ -145,6 +152,20 @@ class Timeline extends ChangeNotifier {
   var currentPosition = const Duration();
 
   DateTime get currentDate => date.add(currentPosition);
+
+  void seekTo(Duration position) {
+    currentPosition = position;
+    notifyListeners();
+
+    // forEachEvent((device, event) {
+    //   if (!event.isPlaying(currentDate)) return;
+
+    //   final position = event.position(currentDate);
+    //   event.videoController.seekTo(position);
+
+    //   debugPrint('Seeking $device to $position');
+    // });
+  }
 
   double _volume = 1.0;
   bool get isMuted => volume == 0;
@@ -167,12 +188,12 @@ class Timeline extends ChangeNotifier {
   bool get isPlaying => timer != null && timer!.isActive;
 
   void stop() {
-    if (timer != null || !(timer?.isActive ?? false)) return;
+    if (timer == null) return;
 
     timer?.cancel();
     timer = null;
 
-    forEachEvent((event) {
+    forEachEvent((_, event) {
       event.videoController.pause();
     });
   }
@@ -184,11 +205,11 @@ class Timeline extends ChangeNotifier {
         currentPosition += const Duration(seconds: 1);
         notifyListeners();
 
-        // forEachEvent((event) {
-        //   if (event.isPlaying(currentDate)) {
-        //     // event.videoController.seekTo(position);
-        //   }
-        // });
+        forEachEvent((_, event) {
+          if (event.isPlaying(currentDate)) {
+            event.videoController.seekTo(event.position(currentDate));
+          }
+        });
       },
     );
   }
@@ -269,32 +290,39 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     ? UnityVideoView(
                         player: currentEvent.videoController,
                         paneBuilder: (context, controller) {
-                          return Stack(children: [
-                            Align(
-                              alignment: AlignmentDirectional.topStart,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: RichText(
-                                  text: TextSpan(
-                                    text: '',
-                                    children: [
-                                      TextSpan(
-                                        text: device,
-                                        style: theme.textTheme.titleMedium,
-                                      ),
-                                      const TextSpan(text: '\n'),
-                                      TextSpan(
-                                        text: currentEvent
-                                            .position(timeline.currentDate)
-                                            .humanReadableCompact(context),
-                                        style: theme.textTheme.labelLarge,
-                                      ),
-                                    ],
+                          return Container(
+                            padding: const EdgeInsets.all(16.0),
+                            child: RichText(
+                              text: TextSpan(text: '', children: [
+                                TextSpan(
+                                  text: device,
+                                  style: theme.textTheme.titleMedium!.copyWith(
+                                    shadows: outlinedText(strokeWidth: 0.75),
                                   ),
                                 ),
-                              ),
+                                const TextSpan(text: '\n'),
+                                TextSpan(
+                                  text: currentEvent
+                                      .position(timeline.currentDate)
+                                      .humanReadableCompact(context),
+                                  style: theme.textTheme.labelLarge!.copyWith(
+                                    shadows: outlinedText(strokeWidth: 0.75),
+                                  ),
+                                ),
+                                if (kDebugMode) ...[
+                                  const TextSpan(text: '\n'),
+                                  TextSpan(
+                                    text: currentEvent
+                                        .videoController.currentPos
+                                        .humanReadableCompact(context),
+                                    style: theme.textTheme.labelLarge!.copyWith(
+                                      shadows: outlinedText(strokeWidth: 0.75),
+                                    ),
+                                  ),
+                                ]
+                              ]),
                             ),
-                          ]);
+                          );
                         },
                       )
                     : Padding(
@@ -326,33 +354,38 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
           return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 4.0, top: 2.0),
+              padding: const EdgeInsetsDirectional.only(
+                bottom: 4.0,
+                top: 2.0,
+                start: 8.0,
+                end: 8.0,
+              ),
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
-                        'x',
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    const TimelineCaption(),
+                    const Spacer(),
+                    Text(
+                      '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
+                      'x',
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120.0),
+                      child: Slider(
+                        value: _speed ?? timeline.speed,
+                        min: 0.5,
+                        max: 2.0,
+                        onChanged: (s) => setState(() => _speed = s),
+                        onChangeEnd: (s) {
+                          _speed = null;
+                          timeline.speed = s;
+                          FocusScope.of(context).unfocus();
+                        },
                       ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120.0),
-                        child: Slider(
-                          value: _speed ?? timeline.speed,
-                          min: 0.5,
-                          max: 2.0,
-                          onChanged: (s) => setState(() => _speed = s),
-                          onChangeEnd: (s) {
-                            _speed = null;
-                            timeline.speed = s;
-                            FocusScope.of(context).unfocus();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ]),
                 ),
                 const SizedBox(width: 20.0),
                 IconButton(
@@ -438,10 +471,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
                     final minutes = (_minutesInADay * pointerPosition).round();
                     final position = Duration(minutes: minutes);
-
-                    setState(() {
-                      timeline.currentPosition = position;
-                    });
+                    timeline.seekTo(position);
                   },
                   child: Column(children: [
                     ...timeline.devices.entries.map((entry) {
@@ -472,6 +502,46 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         }),
       ),
     ]);
+  }
+}
+
+class TimelineCaption extends StatelessWidget {
+  const TimelineCaption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(children: [
+          Container(
+            height: 11.0,
+            width: 11.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2.0),
+              color: theme.colorScheme.primary,
+            ),
+            margin: const EdgeInsetsDirectional.only(end: 4.0),
+          ),
+          Text('Events', style: theme.textTheme.bodySmall),
+        ]),
+        Row(children: [
+          Container(
+            height: 11.0,
+            width: 11.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2.0),
+              color: theme.extension<TimelineTheme>()!.eventColor,
+            ),
+            margin: const EdgeInsetsDirectional.only(end: 4.0),
+          ),
+          Text('Buffered events', style: theme.textTheme.bodySmall),
+        ])
+      ],
+    );
   }
 }
 
@@ -525,6 +595,15 @@ class TimelineTile extends StatelessWidget {
                   height: _kTimelineTileHeight,
                   child: ColoredBox(
                     color: theme.colorScheme.primary,
+                  ),
+                ),
+                Positioned(
+                  left: event.startTime.minute * minuteWidth,
+                  width: event.videoController.currentBuffer.inMinutes *
+                      minuteWidth,
+                  height: _kTimelineTileHeight,
+                  child: ColoredBox(
+                    color: theme.extension<TimelineTheme>()!.eventColor,
                   ),
                 ),
               ]);

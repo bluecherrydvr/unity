@@ -14,6 +14,20 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
+class TimelineTile {
+  final String device;
+  final List<TimelineEvent> events;
+
+  late final UnityVideoPlayer videoController;
+
+  TimelineTile({
+    required this.device,
+    required this.events,
+  }) {
+    videoController = UnityVideoPlayer.create();
+  }
+}
+
 class TimelineEvent {
   /// The duration of the event
   final Duration duration;
@@ -21,18 +35,14 @@ class TimelineEvent {
   /// When the event started
   final DateTime startTime;
 
-  late final UnityVideoPlayer videoController;
+  final String videoUrl;
 
   TimelineEvent({
     required this.duration,
     required this.startTime,
-    String videoUrl =
+    this.videoUrl =
         'https://user-images.githubusercontent.com/28951144/229373695-22f88f13-d18f-4288-9bf1-c3e078d83722.mp4',
-  }) {
-    debugPrint('Creating video controller for $videoUrl');
-    videoController = UnityVideoPlayer.create();
-    videoController.setDataSource(videoUrl, autoPlay: false);
-  }
+  });
 
   static List<TimelineEvent> get fakeData {
     return [
@@ -97,53 +107,53 @@ class TimelineEvent {
 /// Events are played as they happened in time. The timeline is limited to a
 /// single day, so events are from hour 0 to 23.
 class Timeline extends ChangeNotifier {
-  /// The events grouped by device
-  final Map<String, List<TimelineEvent>> devices;
+  /// Each tile of the timeline
+  final List<TimelineTile> tiles;
 
   /// All the events must have happened in the same day
   final DateTime date;
 
-  Timeline({required this.devices, required this.date}) {
-    assert(devices.values.every((events) {
-      return events.every((event) =>
+  Timeline({required this.tiles, required this.date}) {
+    assert(tiles.every((tile) {
+      return tile.events.every((event) =>
           event.startTime.year == date.year &&
           event.startTime.month == date.month &&
           event.startTime.day == date.day);
     }), 'All events must have happened in the same day');
-    devices.removeWhere((key, value) => value.isEmpty);
+    tiles.removeWhere((tile) => tile.events.isEmpty);
   }
 
   Timeline.placeholder()
       : date = DateTime(2023),
-        devices = {};
+        tiles = [];
 
   static Timeline get fakeTimeline {
     return Timeline(
       date: DateTime(2023),
-      devices: {
-        'device1': TimelineEvent.fakeData,
-        'device2': TimelineEvent.fakeData,
-        'device3': TimelineEvent.fakeData,
-        'device4': TimelineEvent.fakeData,
-      },
+      tiles: [
+        TimelineTile(device: 'device1', events: TimelineEvent.fakeData),
+        TimelineTile(device: 'device2', events: TimelineEvent.fakeData),
+        TimelineTile(device: 'device3', events: TimelineEvent.fakeData),
+        TimelineTile(device: 'device4', events: TimelineEvent.fakeData),
+      ],
     );
   }
 
-  void add(Map<String, List<TimelineEvent>> devices) {
-    assert(devices.values.every((events) {
-      return events.every((event) =>
+  void add(List<TimelineTile> tiles) {
+    assert(tiles.every((tile) {
+      return tile.events.every((event) =>
           event.startTime.year == date.year &&
           event.startTime.month == date.month &&
           event.startTime.day == date.day);
     }), 'All events must have happened in the same day');
-    this.devices.addAll(devices);
+    tiles.addAll(tiles);
   }
 
   void forEachEvent(
-      void Function(String device, TimelineEvent event) callback) {
-    for (var entry in devices.entries) {
-      for (var event in entry.value) {
-        callback(entry.key, event);
+      void Function(TimelineTile tile, TimelineEvent event) callback) {
+    for (var tile in tiles) {
+      for (var event in tile.events) {
+        callback(tile, event);
       }
     }
   }
@@ -193,9 +203,9 @@ class Timeline extends ChangeNotifier {
     timer?.cancel();
     timer = null;
 
-    forEachEvent((_, event) {
-      event.videoController.pause();
-    });
+    for (final tile in tiles) {
+      tile.videoController.pause();
+    }
   }
 
   void play() {
@@ -205,13 +215,22 @@ class Timeline extends ChangeNotifier {
         currentPosition += const Duration(seconds: 1);
         notifyListeners();
 
-        forEachEvent((_, event) {
+        forEachEvent((tile, event) {
           if (event.isPlaying(currentDate)) {
-            event.videoController.seekTo(event.position(currentDate));
+            tile.videoController.seekTo(event.position(currentDate));
           }
         });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    stop();
+    for (final tile in tiles) {
+      tile.videoController.dispose();
+    }
+    super.dispose();
   }
 }
 
@@ -254,6 +273,12 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   }
 
   @override
+  void dispose() {
+    timeline.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
@@ -265,16 +290,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
           child: StaticGrid(
             reorderable: false,
             crossAxisCount: calculateCrossAxisCount(
-              timeline.devices.length,
+              timeline.tiles.length,
             ),
             onReorder: (a, b) {},
             childAspectRatio: 16 / 9,
             emptyChild: const Center(
               child: Text('No events :/'),
             ),
-            children: timeline.devices.entries.map((entry) {
-              final device = entry.key;
-              final events = entry.value;
+            children: timeline.tiles.map((tile) {
+              final device = tile.device;
+              final events = tile.events;
 
               final currentEvent = events.firstWhereOrNull((event) {
                 return event.isPlaying(timeline.currentDate);
@@ -288,7 +313,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 color: isPlaying ? Colors.black : null,
                 child: currentEvent != null
                     ? UnityVideoView(
-                        player: currentEvent.videoController,
+                        player: tile.videoController,
                         paneBuilder: (context, controller) {
                           return Container(
                             padding: const EdgeInsets.all(16.0),
@@ -312,9 +337,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                                 if (kDebugMode) ...[
                                   const TextSpan(text: '\n'),
                                   TextSpan(
-                                    text: currentEvent
-                                        .videoController.currentPos
+                                    text: controller.currentPos
                                         .humanReadableCompact(context),
+                                    style: theme.textTheme.labelLarge!.copyWith(
+                                      shadows: outlinedText(strokeWidth: 0.75),
+                                    ),
+                                  ),
+                                  const TextSpan(text: '\n'),
+                                  TextSpan(
+                                    text: events
+                                        .where((event) => event
+                                            .isPlaying(timeline.currentDate))
+                                        .length
+                                        .toString(),
                                     style: theme.textTheme.labelLarge!.copyWith(
                                       shadows: outlinedText(strokeWidth: 0.75),
                                     ),
@@ -474,13 +509,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     timeline.seekTo(position);
                   },
                   child: Column(children: [
-                    ...timeline.devices.entries.map((entry) {
-                      final device = entry.key;
-                      final events = entry.value;
-                      return TimelineTile(
-                        device: device,
-                        events: events,
-                      );
+                    ...timeline.tiles.map((tile) {
+                      return _TimelineTile(tile: tile);
                     }),
                   ]),
                 )
@@ -490,7 +520,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     _kDeviceNameWidth,
                 width: 1.8,
                 top: 16.0,
-                height: _kTimelineTileHeight * timeline.devices.length,
+                height: _kTimelineTileHeight * timeline.tiles.length,
                 child: const IgnorePointer(
                   child: ColoredBox(
                     color: Colors.white,
@@ -545,11 +575,10 @@ class TimelineCaption extends StatelessWidget {
   }
 }
 
-class TimelineTile extends StatelessWidget {
-  final String device;
-  final List<TimelineEvent> events;
+class _TimelineTile extends StatelessWidget {
+  final TimelineTile tile;
 
-  const TimelineTile({super.key, required this.device, required this.events});
+  const _TimelineTile({super.key, required this.tile});
 
   @override
   Widget build(BuildContext context) {
@@ -570,42 +599,51 @@ class TimelineTile extends StatelessWidget {
           border: border,
         ),
         alignment: AlignmentDirectional.centerStart,
-        child: Text(device),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(text: tile.device),
+              TextSpan(
+                text: ' (${tile.events.length})',
+                style: const TextStyle(fontSize: 11.0),
+              ),
+            ],
+          ),
+        ),
       ),
       ...List.generate(24, (index) {
         final hour = index;
-
-        final event =
-            events.firstWhereOrNull((event) => event.startTime.hour == hour);
 
         return Expanded(
           child: Container(
             height: _kTimelineTileHeight,
             decoration: BoxDecoration(border: border),
             child: LayoutBuilder(builder: (context, constraints) {
-              if (event == null || event.startTime.hour != hour) {
+              if (!tile.events.any((event) => event.startTime.hour == hour)) {
                 return const SizedBox.shrink();
               }
 
               final minuteWidth = constraints.maxWidth / 60;
               return Stack(clipBehavior: Clip.none, children: [
-                Positioned(
-                  left: event.startTime.minute * minuteWidth,
-                  width: event.duration.inMinutes * minuteWidth,
-                  height: _kTimelineTileHeight,
-                  child: ColoredBox(
-                    color: theme.colorScheme.primary,
+                for (final event in tile.events
+                    .where((event) => event.startTime.hour == hour))
+                  Positioned(
+                    left: event.startTime.minute * minuteWidth,
+                    width: event.duration.inMinutes * minuteWidth,
+                    height: _kTimelineTileHeight,
+                    child: ColoredBox(
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
-                ),
-                Positioned(
-                  left: event.startTime.minute * minuteWidth,
-                  width: event.videoController.currentBuffer.inMinutes *
-                      minuteWidth,
-                  height: _kTimelineTileHeight,
-                  child: ColoredBox(
-                    color: theme.extension<TimelineTheme>()!.eventColor,
-                  ),
-                ),
+                // Positioned(
+                //   left: event.startTime.minute * minuteWidth,
+                //   width: tile.videoController.currentBuffer.inMinutes *
+                //       minuteWidth,
+                //   height: _kTimelineTileHeight,
+                //   child: ColoredBox(
+                //     color: theme.extension<TimelineTheme>()!.eventColor,
+                //   ),
+                // ),
               ]);
             }),
           ),

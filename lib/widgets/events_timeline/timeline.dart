@@ -167,14 +167,15 @@ class Timeline extends ChangeNotifier {
     currentPosition = position;
     notifyListeners();
 
-    // forEachEvent((device, event) {
-    //   if (!event.isPlaying(currentDate)) return;
+    forEachEvent((tile, event) {
+      if (!event.isPlaying(currentDate)) return;
+      tile.videoController.setDataSource(event.videoUrl);
 
-    //   final position = event.position(currentDate);
-    //   event.videoController.seekTo(position);
+      final position = event.position(currentDate);
+      tile.videoController.seekTo(position);
 
-    //   debugPrint('Seeking $device to $position');
-    // });
+      debugPrint('Seeking ${tile.device} to $position');
+    });
   }
 
   double _volume = 1.0;
@@ -285,100 +286,101 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
     return Column(children: [
       Expanded(
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: StaticGrid(
-            reorderable: false,
-            crossAxisCount: calculateCrossAxisCount(
-              timeline.tiles.length,
-            ),
-            onReorder: (a, b) {},
-            childAspectRatio: 16 / 9,
-            emptyChild: const Center(
-              child: Text('No events :/'),
-            ),
-            children: timeline.tiles.map((tile) {
-              final device = tile.device;
-              final events = tile.events;
+        child: StaticGrid(
+          reorderable: false,
+          crossAxisCount: calculateCrossAxisCount(
+            timeline.tiles.length,
+          ),
+          onReorder: (a, b) {},
+          childAspectRatio: 16 / 9,
+          emptyChild: const Center(
+            child: Text('No events :/'),
+          ),
+          children: timeline.tiles.map((tile) {
+            final device = tile.device;
+            final events = tile.events;
 
-              final currentEvent = events.firstWhereOrNull((event) {
-                return event.isPlaying(timeline.currentDate);
-              });
+            final currentEvent = events.firstWhereOrNull((event) {
+              return event.isPlaying(timeline.currentDate);
+            });
 
-              final isPlaying = currentEvent != null;
+            final isPlaying = currentEvent != null;
 
-              return Card(
-                key: ValueKey(device),
-                clipBehavior: Clip.antiAlias,
-                color: isPlaying ? Colors.black : null,
-                child: currentEvent != null
-                    ? UnityVideoView(
-                        player: tile.videoController,
-                        paneBuilder: (context, controller) {
-                          return Container(
-                            padding: const EdgeInsets.all(16.0),
-                            child: RichText(
-                              text: TextSpan(text: '', children: [
-                                TextSpan(
-                                  text: device,
-                                  style: theme.textTheme.titleMedium!.copyWith(
-                                    shadows: outlinedText(strokeWidth: 0.75),
-                                  ),
+            // if (isPlaying) {
+            //   debugPrint(currentEvent.videoUrl);
+            // }
+
+            return Card(
+              key: ValueKey(device),
+              clipBehavior: Clip.antiAlias,
+              color: isPlaying ? Colors.black : null,
+              child: currentEvent != null
+                  ? UnityVideoView(
+                      player: tile.videoController,
+                      paneBuilder: (context, controller) {
+                        return Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: RichText(
+                            text: TextSpan(text: '', children: [
+                              TextSpan(
+                                text: device,
+                                style: theme.textTheme.titleMedium!.copyWith(
+                                  shadows: outlinedText(strokeWidth: 0.75),
                                 ),
+                              ),
+                              const TextSpan(text: '\n'),
+                              TextSpan(
+                                text: currentEvent
+                                    .position(timeline.currentDate)
+                                    .humanReadableCompact(context),
+                                style: theme.textTheme.labelLarge!.copyWith(
+                                  shadows: outlinedText(strokeWidth: 0.75),
+                                ),
+                              ),
+                              if (kDebugMode) ...[
                                 const TextSpan(text: '\n'),
                                 TextSpan(
-                                  text: currentEvent
-                                      .position(timeline.currentDate)
+                                  text: controller.currentPos
                                       .humanReadableCompact(context),
                                   style: theme.textTheme.labelLarge!.copyWith(
                                     shadows: outlinedText(strokeWidth: 0.75),
                                   ),
                                 ),
-                                if (kDebugMode) ...[
-                                  const TextSpan(text: '\n'),
-                                  TextSpan(
-                                    text: controller.currentPos
-                                        .humanReadableCompact(context),
-                                    style: theme.textTheme.labelLarge!.copyWith(
-                                      shadows: outlinedText(strokeWidth: 0.75),
-                                    ),
+                                const TextSpan(text: '\n'),
+                                TextSpan(
+                                  text: events
+                                      .where((e) =>
+                                          e.isPlaying(timeline.currentDate))
+                                      .length
+                                      .toString(),
+                                  style: theme.textTheme.labelLarge!.copyWith(
+                                    shadows: outlinedText(strokeWidth: 0.75),
                                   ),
-                                  const TextSpan(text: '\n'),
-                                  TextSpan(
-                                    text: events
-                                        .where((event) => event
-                                            .isPlaying(timeline.currentDate))
-                                        .length
-                                        .toString(),
-                                    style: theme.textTheme.labelLarge!.copyWith(
-                                      shadows: outlinedText(strokeWidth: 0.75),
-                                    ),
-                                  ),
-                                ]
-                              ]),
-                            ),
-                          );
-                        },
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Stack(children: [
-                          Text(
-                            device,
-                            style: theme.textTheme.titleMedium,
+                                ),
+                              ]
+                            ]),
                           ),
-                          Center(
-                            child: Text(loc.noRecords),
-                          ),
-                        ]),
-                      ),
-                // child: Text(
-                //   '$device '
-                //   '${currentEvent?.position(timeline.currentDate).humanReadableCompact(context)}',
-                // ),
-              );
-            }).toList(),
-          ),
+                        );
+                      },
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Stack(children: [
+                        Text(
+                          device,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        Center(
+                          child: Text(loc.noRecords),
+                        ),
+                      ]),
+                    ),
+              // child: Text(
+              //   '$device '
+              //   '${currentEvent?.position(timeline.currentDate).humanReadableCompact(context)}',
+              // ),
+            );
+          }).toList(),
         ),
       ),
       Card(

@@ -187,6 +187,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
+    if (url == dataSource) return Future.value();
     return ensureVideoControllerInitialized((controller) async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play

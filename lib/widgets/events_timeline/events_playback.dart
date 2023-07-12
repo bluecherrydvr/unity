@@ -63,16 +63,16 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           continue;
         }
 
+        if (event.deviceName == 'Garage') continue;
+
         devices[event.deviceName] ??= [];
 
         // If there is already an event that conflicts with this one in time, do
         // not add it
-        // if (devices[event.deviceName]!.any((event) {
-        //   return devices[event.deviceName]!.every((e) {
-        //     return event.published.isAtSameMomentAs(e.published) ||
-        //         event.published.isAtSameMomentAs(e.published.add(e.duration));
-        //   });
-        // })) continue;
+        if (devices[event.deviceName]!.any((e) {
+          return event.published.isAtSameMomentAs(e.published) ||
+              event.published.isAtSameMomentAs(e.published.add(e.duration));
+        })) continue;
 
         devices[event.deviceName] ??= [];
 

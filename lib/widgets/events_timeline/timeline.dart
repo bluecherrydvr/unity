@@ -204,6 +204,10 @@ class Timeline extends ChangeNotifier {
   set volume(double value) {
     _volume = value;
     notifyListeners();
+
+    for (final tile in tiles) {
+      tile.videoController.setVolume(volume);
+    }
   }
 
   double _speed = 1.0;
@@ -211,8 +215,13 @@ class Timeline extends ChangeNotifier {
   set speed(double value) {
     _speed = value;
     stop();
-    play();
     notifyListeners();
+
+    for (final tile in tiles) {
+      tile.videoController.setSpeed(speed);
+    }
+
+    play();
   }
 
   Timer? timer;
@@ -470,6 +479,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 ),
                 const SizedBox(width: 20.0),
                 IconButton(
+                  tooltip: timeline.isPlaying ? loc.pause : loc.play,
                   icon: Icon(
                     timeline.isPlaying ? Icons.pause : Icons.play_arrow,
                   ),

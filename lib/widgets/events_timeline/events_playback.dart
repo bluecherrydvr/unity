@@ -3,6 +3,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,11 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   Future<void> fetch() async {
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsPlayback);
-    late DateTime date;
+    var date = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     for (final server in ServersProvider.instance.servers) {
       if (!server.online) continue;
 
@@ -48,11 +53,6 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       //   events.first.published.month,
       //   events.first.published.day,
       // );
-      date = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      );
 
       for (final event in events) {
         // If the event is not long enough to be displayed, do not add it
@@ -64,7 +64,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           continue;
         }
 
-        if (event.deviceName == 'Garage') continue;
+        if (kDebugMode && event.deviceName == 'Garage') continue;
 
         devices[event.deviceName] ??= [];
 

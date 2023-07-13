@@ -98,6 +98,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
             startTime: event.published,
             duration: event.duration,
             videoUrl: event.mediaURL!.toString(),
+            event: event,
           );
         }).toList(),
       );

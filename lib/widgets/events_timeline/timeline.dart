@@ -192,13 +192,19 @@ class Timeline extends ChangeNotifier {
 
       final position = event.position(currentDate);
       tile.videoController.seekTo(position);
+      if (!isPlaying) tile.videoController.pause();
 
       debugPrint('Seeking ${tile.device} to $position');
     });
   }
 
-  void seekForward() => seekTo(const Duration(seconds: 15));
-  void seekBackward() => seekTo(const Duration(seconds: 15));
+  /// Seeks forward by [duration]
+  void seekForward([Duration duration = const Duration(seconds: 15)]) =>
+      seekTo(currentPosition + duration);
+
+  /// Seeks backward by [duration]
+  void seekBackward([Duration duration = const Duration(seconds: 15)]) =>
+      seekTo(currentPosition - duration);
 
   double _volume = 1.0;
   bool get isMuted => volume == 0;
@@ -238,6 +244,7 @@ class Timeline extends ChangeNotifier {
     for (final tile in tiles) {
       tile.videoController.pause();
     }
+    notifyListeners();
   }
 
   void play() {
@@ -255,6 +262,7 @@ class Timeline extends ChangeNotifier {
         });
       },
     );
+    notifyListeners();
   }
 
   @override

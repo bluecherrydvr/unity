@@ -17,11 +17,13 @@ class EventsPlayback extends StatefulWidget {
 
 class _EventsPlaybackState extends State<EventsPlayback> {
   Timeline? timeline;
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
+    focusNode.requestFocus();
   }
 
   Map<String, List<Event>> devices = {};
@@ -117,10 +119,16 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
+    return Focus(
+      autofocus: true,
+      focusNode: focusNode,
       onKeyEvent: (node, event) {
-        if (timeline == null) return KeyEventResult.ignored;
+        if (timeline == null ||
+            !(event is KeyDownEvent || event is KeyRepeatEvent)) {
+          return KeyEventResult.ignored;
+        }
 
+        debugPrint(event.logicalKey.debugName);
         if (event.logicalKey == LogicalKeyboardKey.space) {
           if (timeline!.isPlaying) {
             timeline!.stop();
@@ -142,7 +150,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           timeline!.seekForward();
           return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
           timeline!.seekBackward();
           return KeyEventResult.handled;
         }

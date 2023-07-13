@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -197,6 +196,9 @@ class Timeline extends ChangeNotifier {
       debugPrint('Seeking ${tile.device} to $position');
     });
   }
+
+  void seekForward() => seekTo(const Duration(seconds: 15));
+  void seekBackward() => seekTo(const Duration(seconds: 15));
 
   double _volume = 1.0;
   bool get isMuted => volume == 0;

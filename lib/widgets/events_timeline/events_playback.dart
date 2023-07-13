@@ -4,6 +4,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class EventsPlayback extends StatefulWidget {
@@ -116,9 +117,43 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
   @override
   Widget build(BuildContext context) {
-    return TimelineEventsView(
-      // timeline: Timeline.fakeTimeline,
-      timeline: timeline,
+    return FocusScope(
+      onKeyEvent: (node, event) {
+        if (timeline == null) return KeyEventResult.ignored;
+
+        if (event.logicalKey == LogicalKeyboardKey.space) {
+          if (timeline!.isPlaying) {
+            timeline!.stop();
+          } else {
+            timeline!.play();
+          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
+          if (timeline!.isMuted) {
+            timeline!.volume = 1.0;
+          } else {
+            timeline!.volume = 0.0;
+          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.keyR ||
+            event.logicalKey == LogicalKeyboardKey.f5) {
+          fetch();
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          timeline!.seekForward();
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          timeline!.seekBackward();
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: TimelineEventsView(
+        key: ValueKey(timeline),
+        // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
+        timeline: timeline,
+      ),
     );
   }
 }

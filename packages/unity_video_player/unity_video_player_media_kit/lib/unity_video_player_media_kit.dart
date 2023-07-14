@@ -28,6 +28,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
   @override
   Widget createVideoView({
+    Key? key,
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,

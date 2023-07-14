@@ -46,21 +46,6 @@ int calculateCrossAxisCount(int deviceAmount) {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
-  /// A list of global keys that represent every device
-  final devicesKeys = <Device, GlobalKey>{};
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final view = context.watch<DesktopViewProvider>();
-
-    for (final device in view.currentLayout.devices) {
-      if (devicesKeys.containsKey(device)) continue;
-
-      devicesKeys[device] = GlobalKey(debugLabel: device.fullName);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -106,7 +91,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       padding: kGridPadding,
                       child: DesktopDeviceTile(
                         // key: ValueKey('$device.${device.server.serverUUID}'),
-                        key: devicesKeys[device],
                         device: device,
                       ),
                     ),
@@ -193,10 +177,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                     childAspectRatio: 16 / 9,
                     onReorder: view.reorder,
                     children: devices.map((device) {
-                      return DesktopDeviceTile(
-                        key: devicesKeys[device],
-                        device: device,
-                      );
+                      return DesktopDeviceTile(device: device);
                     }).toList(),
                   ),
                 );
@@ -225,14 +206,8 @@ class DesktopDeviceTile extends StatefulWidget {
 }
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  UnityVideoPlayer? videoPlayer;
-  Size? size;
-
-  @override
-  void initState() {
-    super.initState();
-    videoPlayer = DesktopViewProvider.instance.players[widget.device];
-  }
+  UnityVideoPlayer? get videoPlayer =>
+      DesktopViewProvider.instance.players[widget.device];
 
   @override
   Widget build(BuildContext context) {
@@ -241,16 +216,8 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     }
 
     return LayoutBuilder(builder: (context, consts) {
-      // TODO(bdlukaa): for some odd reason, this crashes
-      // if (size == null || size != consts.biggest) {
-      //   size = consts.biggest;
-      //   debugPrint('Resizing video controller');
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     videoPlayer!.setSize(size!);
-      //   });
-      // }
-
       return UnityVideoView(
+        key: ValueKey(widget.device),
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {

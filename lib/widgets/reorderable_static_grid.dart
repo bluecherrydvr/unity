@@ -21,7 +21,10 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderables/reorderables.dart';
 
+/// The default spacing between the grid items
 const kGridInnerPadding = 8.0;
+
+/// The default padding for the grid
 const kGridPadding = EdgeInsets.all(10.0);
 
 /// A non-scrollable reorderable grid view

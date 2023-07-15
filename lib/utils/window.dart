@@ -71,7 +71,7 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      MultiWindowType.device.name,
+      '${MultiWindowType.device.index}',
       json.encode(toJson()),
       '${SettingsProvider.instance.themeMode.index}',
     ]);
@@ -86,7 +86,7 @@ extension LayoutWindowExtension on Layout {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      MultiWindowType.layout.name,
+      '${MultiWindowType.layout.index}',
       json.encode(toMap()),
       '${SettingsProvider.instance.themeMode.index}',
     ]);

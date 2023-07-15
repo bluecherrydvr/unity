@@ -71,41 +71,47 @@ Future<void> main(List<String> args) async {
 
   if (isDesktop && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
+    try {
+      // this is just a mock. HomeProvider depends on this, so we mock the instance
+      ServersProvider.instance = ServersProvider();
+      DesktopViewProvider.instance = DesktopViewProvider();
 
-    // this is just a mock. HomeProvider depends on this, so we mock the instance
-    ServersProvider.instance = ServersProvider();
-    DesktopViewProvider.instance = DesktopViewProvider();
+      final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
+      debugPrint(windowType.name);
 
-    switch (MultiWindowType.values
-        .firstWhere((e) => args[0].toString() == e.name)) {
-      case MultiWindowType.device:
-        final device = Device.fromJson(json.decode(args[1]));
-        final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
-        await configureWindowTitle(device.fullName);
+      switch (windowType) {
+        case MultiWindowType.device:
+          final device = Device.fromJson(json.decode(args[1]));
+          final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+          configureWindowTitle(device.fullName);
 
-        debugPrint(device.toString());
-        debugPrint(mode.toString());
+          debugPrint(device.toString());
+          debugPrint(mode.toString());
 
-        runApp(
-          AlternativeWindow(
-            mode: mode,
-            child: CameraView(device: device),
-          ),
-        );
-        break;
-      case MultiWindowType.layout:
-        final layout = Layout.fromJson(json.decode(args[1]));
-        final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
-        await configureWindowTitle(layout.name);
+          runApp(
+            AlternativeWindow(
+              mode: mode,
+              child: CameraView(device: device),
+            ),
+          );
+          break;
+        case MultiWindowType.layout:
+          final layout = Layout.fromJson(json.decode(args[1]));
+          final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+          configureWindowTitle(layout.name);
 
-        runApp(
-          AlternativeWindow(
-            mode: mode,
-            child: LayoutView(layout: layout),
-          ),
-        );
+          runApp(
+            AlternativeWindow(
+              mode: mode,
+              child: LayoutView(layout: layout),
+            ),
+          );
 
-        break;
+          break;
+      }
+    } catch (error, stack) {
+      debugPrint('error: $error');
+      debugPrintStack(stackTrace: stack);
     }
 
     return;

@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
@@ -264,6 +265,7 @@ class LayoutTile extends StatelessWidget {
           },
         ),
         PopupMenuItem(
+          onTap: layout.openInANewWindow,
           child: Text(loc.openInANewWindow),
         ),
       ],

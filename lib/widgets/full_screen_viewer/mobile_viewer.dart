@@ -46,9 +46,6 @@ class _DeviceFullscreenViewerMobileState
 
   late bool ptzEnabled = widget.ptzEnabled;
 
-  late final StreamSubscription errorSubscription;
-  String? error;
-
   @override
   void initState() {
     super.initState();
@@ -60,10 +57,6 @@ class _DeviceFullscreenViewerMobileState
         DeviceOrientation.landscapeRight,
       ]);
     }
-
-    errorSubscription = widget.videoPlayerController.onError.listen((event) {
-      setState(() => error = event);
-    });
 
     // Hide the title overlay after 750ms
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -78,7 +71,6 @@ class _DeviceFullscreenViewerMobileState
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       DeviceOrientations.instance.restoreLast();
     }
-    errorSubscription.cancel();
     super.dispose();
   }
 
@@ -121,14 +113,15 @@ class _DeviceFullscreenViewerMobileState
                     player: widget.videoPlayerController,
                     fit: fit,
                     paneBuilder: (context, controller) {
+                      final error = UnityVideoView.of(context).error;
                       if (error != null) {
-                        return ErrorWarning(message: error!);
-                      } else if (controller.isBuffering ||
+                        return ErrorWarning(message: error);
+                      } else if (!controller.isSeekable ||
                           controller.dataSource == null) {
                         return const Center(
                           child: CircularProgressIndicator.adaptive(
                             valueColor: AlwaysStoppedAnimation(Colors.white),
-                            strokeWidth: 4.4,
+                            strokeWidth: 3.45,
                           ),
                         );
                       } else if (commands.isNotEmpty) {

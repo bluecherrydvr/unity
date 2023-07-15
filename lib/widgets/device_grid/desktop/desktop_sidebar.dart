@@ -116,9 +116,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                           child: Row(children: [
                             Expanded(child: tile),
                             if (isBlocked)
-                              const Icon(
+                              Icon(
                                 Icons.block,
-                                color: Colors.red,
+                                color: theme.colorScheme.error,
                                 size: 18.0,
                               ),
                             const SizedBox(width: 16.0),

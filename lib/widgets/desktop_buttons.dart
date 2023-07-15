@@ -18,7 +18,6 @@
  */
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -263,12 +262,13 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     // We ensure all the players are disposed in order to not keep the app alive
     // in background, wasting unecessary resources!
     if (isPreventClose) {
-      for (final player in UnityVideoPlayerInterface.players) {
-        debugPrint('Disposing player ${player.hashCode}');
-        player.dispose();
-      }
+      await Future.microtask(() {
+        for (final player in UnityVideoPlayerInterface.players.toList()) {
+          debugPrint('Disposing player ${player.hashCode}');
+          player.dispose();
+        }
+      });
       windowManager.destroy();
-      exit(0);
     }
   }
 }

@@ -66,7 +66,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
           onWillAccept: (device) {
             if (device == null) return false;
 
-            if (view.currentLayout.layoutType == DesktopLayoutType.singleView) {
+            if (view.currentLayout.type == DesktopLayoutType.singleView) {
               return view.currentLayout.devices.isEmpty;
             }
 
@@ -109,12 +109,10 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 padding: kGridPadding,
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: DesktopDeviceTile(
-                    device: device,
-                  ),
+                  child: DesktopDeviceTile(device: device),
                 ),
               );
-            } else if (view.currentLayout.layoutType ==
+            } else if (view.currentLayout.type ==
                     DesktopLayoutType.compactView &&
                 dl >= 4) {
               var foldedDevices = devices
@@ -237,7 +235,6 @@ class DesktopDeviceTile extends StatelessWidget {
     return UnityVideoView(
       key: ValueKey(device.fullName),
       player: videoPlayer,
-      color: createTheme(themeMode: ThemeMode.dark).canvasColor,
       paneBuilder: (context, controller) {
         return DesktopTileViewport(controller: controller, device: device);
       },

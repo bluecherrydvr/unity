@@ -50,24 +50,23 @@ class Layout {
   final List<Device> devices;
 
   /// The type of layout
-  final DesktopLayoutType layoutType;
+  final DesktopLayoutType type;
 
   /// Creates a new layout with the given [name]
   const Layout({
     required this.name,
     this.devices = const [],
-    this.layoutType = DesktopLayoutType.multipleView,
+    this.type = DesktopLayoutType.multipleView,
   });
 
   const Layout.raw({
     required this.name,
     required this.devices,
-    required this.layoutType,
+    required this.type,
   });
 
   @override
-  String toString() =>
-      'Layout(name: $name, devices: $devices, layoutType: $layoutType)';
+  String toString() => 'Layout(name: $name, devices: $devices, type: $type)';
 
   @override
   bool operator ==(Object other) {
@@ -77,17 +76,17 @@ class Layout {
     return other is Layout &&
         other.name == name &&
         listEquals(other.devices, devices) &&
-        other.layoutType == layoutType;
+        other.type == type;
   }
 
   @override
-  int get hashCode => name.hashCode ^ devices.hashCode ^ layoutType.hashCode;
+  int get hashCode => name.hashCode ^ devices.hashCode ^ type.hashCode;
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
       'devices': devices.map((x) => x.toJson()).toList(),
-      'layoutType': layoutType.index,
+      'layoutType': type.index,
     };
   }
 
@@ -97,7 +96,7 @@ class Layout {
       devices: List<Device>.from((map['devices'] as List)
           .cast<Map<String, dynamic>>()
           .map(Device.fromJson)),
-      layoutType: DesktopLayoutType.values[map['layoutType'] as int],
+      type: DesktopLayoutType.values[map['layoutType'] as int],
     );
   }
 
@@ -108,12 +107,12 @@ class Layout {
   Layout copyWith({
     String? name,
     List<Device>? devices,
-    DesktopLayoutType? layoutType,
+    DesktopLayoutType? type,
   }) {
     return Layout(
       name: name ?? this.name,
       devices: devices ?? this.devices,
-      layoutType: layoutType ?? this.layoutType,
+      type: type ?? this.type,
     );
   }
 }

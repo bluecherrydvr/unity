@@ -103,7 +103,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
                     if (selected || !device.status) return tile;
 
-                    final isBlocked = view.currentLayout.layoutType ==
+                    final isBlocked = view.currentLayout.type ==
                             DesktopLayoutType.singleView &&
                         view.currentLayout.devices.isNotEmpty;
 

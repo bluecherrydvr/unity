@@ -106,7 +106,7 @@ class DesktopViewProvider extends ChangeNotifier {
     if (!currentLayout.devices.contains(device)) {
       // If it's a single view layout, ensure the player will be disposed
       // properly before adding one
-      if (currentLayout.layoutType == DesktopLayoutType.singleView) {
+      if (currentLayout.type == DesktopLayoutType.singleView) {
         var previousDevice = currentLayout.devices.firstOrNull;
         if (previousDevice != null) {
           currentLayout.devices.clear();

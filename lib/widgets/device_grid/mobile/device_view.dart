@@ -17,8 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -234,8 +237,7 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  UnityVideoPlayer? get videoPlayer =>
-      MobileViewProvider.instance.players[widget.device];
+  UnityVideoPlayer? get videoPlayer => UnityPlayers.players[widget.device];
 
   bool get hover =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]
@@ -245,6 +247,25 @@ class DeviceTileState extends State<DeviceTile> {
   set hover(bool value) =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]
           ?[widget.index] = value;
+
+  String? error;
+  StreamSubscription<String>? errorStream;
+
+  @override
+  void initState() {
+    super.initState();
+    if (videoPlayer != null) {
+      errorStream = videoPlayer!.onError.listen((event) {
+        if (mounted) setState(() => error = event);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    errorStream?.cancel();
+    super.dispose();
+  }
 
   Widget get playerView {
     debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
@@ -256,9 +277,9 @@ class DeviceTileState extends State<DeviceTile> {
         return Material(
           color: Colors.transparent,
           child: () {
-            if (controller.error != null) {
-              return ErrorWarning(message: controller.error!);
-            } else if (controller.isBuffering) {
+            if (error != null) {
+              return ErrorWarning(message: error!);
+            } else if (!controller.isSeekable) {
               return const Center(
                 child: CircularProgressIndicator.adaptive(
                   valueColor: AlwaysStoppedAnimation(Colors.white),

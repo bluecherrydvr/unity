@@ -185,9 +185,9 @@ class LayoutTile extends StatelessWidget {
               enabled: !selected,
               child: Icon(
                 selected
-                    ? selectedIconForLayout(layout.layoutType)
-                    : iconForLayout(layout.layoutType),
-                key: ValueKey(layout.layoutType),
+                    ? selectedIconForLayout(layout.type)
+                    : iconForLayout(layout.type),
+                key: ValueKey(layout.type),
                 size: 20.0,
               ),
             ),
@@ -367,7 +367,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
               name: controller.text.isNotEmpty
                   ? controller.text
                   : 'Layout ${view.layouts.length + 1}',
-              layoutType: DesktopLayoutType.values[selected],
+              type: DesktopLayoutType.values[selected],
               devices: [],
             ));
             Navigator.of(context).pop();
@@ -390,7 +390,7 @@ class EditLayoutDialog extends StatefulWidget {
 
 class _EditLayoutDialogState extends State<EditLayoutDialog> {
   late final controller = TextEditingController(text: widget.layout.name);
-  late int selected = widget.layout.layoutType.index;
+  late int selected = widget.layout.type.index;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +446,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
               widget.layout,
               widget.layout.copyWith(
                 name: controller.text.isEmpty ? null : controller.text,
-                layoutType: DesktopLayoutType.values[selected],
+                type: DesktopLayoutType.values[selected],
               ),
             );
             Navigator.of(context).pop();

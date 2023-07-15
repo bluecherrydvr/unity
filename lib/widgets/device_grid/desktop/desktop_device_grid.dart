@@ -46,23 +46,9 @@ int calculateCrossAxisCount(int deviceAmount) {
 }
 
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
-  /// A list of global keys that represent every device
-  final devicesKeys = <Device, GlobalKey>{};
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final view = context.watch<DesktopViewProvider>();
-
-    for (final device in view.currentLayout.devices) {
-      if (devicesKeys.containsKey(device)) continue;
-
-      devicesKeys[device] = GlobalKey(debugLabel: device.fullName);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= 900;
@@ -75,193 +61,184 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         },
       ),
       Expanded(
-        child: Material(
-          color: Colors.black,
-          child: SizedBox.expand(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 100),
-              child: () {
-                final devices = view.currentLayout.devices;
+        child: DragTarget<Device>(
+          onAccept: view.add,
+          onWillAccept: (device) {
+            if (device == null) return false;
 
-                if (devices.isEmpty) {
-                  return Center(
-                    child: Text(
-                      loc.selectACamera,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  );
-                }
+            if (view.currentLayout.type == DesktopLayoutType.singleView) {
+              return view.currentLayout.devices.isEmpty;
+            }
 
-                final dl = devices.length;
+            return !view.currentLayout.devices.contains(device);
+          },
+          builder: (context, candidateItems, rejectedItems) {
+            late Widget child;
 
-                if (dl == 1) {
-                  final device = devices.first;
-                  return AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Padding(
-                      key: ValueKey(view.currentLayout.hashCode),
-                      padding: kGridPadding,
-                      child: DesktopDeviceTile(
-                        // key: ValueKey('$device.${device.server.serverUUID}'),
-                        key: devicesKeys[device],
-                        device: device,
-                      ),
-                    ),
-                  );
-                }
+            final devices = <Device>[
+              ...view.currentLayout.devices,
+              ...candidateItems.whereType<Device>(),
+            ];
+            final dl = devices.length;
 
-                if (view.currentLayout.layoutType ==
-                        DesktopLayoutType.compactView &&
-                    dl >= 4) {
-                  var foldedDevices = devices
-                      .fold<List<List<Device>>>(
-                        [[]],
-                        (collection, device) {
-                          if (collection.last.length == 4) {
-                            collection.add([device]);
-                          } else {
-                            collection.last.add(device);
-                          }
-
-                          return collection;
-                        },
-                      )
-                      .reversed
-                      .toList();
-                  final crossAxisCount =
-                      calculateCrossAxisCount(foldedDevices.length);
-
-                  final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
-
-                  // if there are space left on screen
-                  if (amountOfItemsOnScreen > foldedDevices.length) {
-                    // final diff = amountOfItemsOnScreen - foldedDevices.length;
-                    while (amountOfItemsOnScreen > foldedDevices.length) {
-                      final lastFullFold =
-                          foldedDevices.firstWhere((fold) => fold.length > 1);
-                      final foldIndex = foldedDevices.indexOf(lastFullFold);
-                      foldedDevices.insert(
-                        (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
-                        [lastFullFold.last],
-                      );
-                      lastFullFold.removeLast();
-                    }
-                  }
-
-                  foldedDevices = foldedDevices.toList();
-
-                  return GridView.builder(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: kGridInnerPadding,
-                      crossAxisSpacing: kGridInnerPadding,
-                      childAspectRatio: 16 / 9,
-                    ),
-                    padding: kGridPadding,
-                    itemCount: foldedDevices.length,
-                    itemBuilder: (context, index) {
-                      final fold = foldedDevices[index];
-
-                      if (fold.length == 1) {
-                        final device = fold.first;
-                        return DesktopDeviceTile(
-                          key: ValueKey('$device;${device.server.serverUUID}'),
-                          device: device,
-                        );
+            if (rejectedItems.isNotEmpty) {
+              child = ColoredBox(
+                color: theme.colorScheme.errorContainer,
+                child: Center(
+                  child: Icon(
+                    Icons.block,
+                    size: 48.0,
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                ),
+              );
+            } else if (devices.isEmpty) {
+              child = Center(
+                child: Text(
+                  loc.selectACamera,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12.0,
+                  ),
+                ),
+              );
+            } else if (dl == 1) {
+              final device = devices.first;
+              child = Padding(
+                key: ValueKey(view.currentLayout.hashCode),
+                padding: kGridPadding,
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: DesktopDeviceTile(device: device),
+                ),
+              );
+            } else if (view.currentLayout.type ==
+                    DesktopLayoutType.compactView &&
+                dl >= 4) {
+              var foldedDevices = devices
+                  .fold<List<List<Device>>>(
+                    [[]],
+                    (collection, device) {
+                      if (collection.last.length == 4) {
+                        collection.add([device]);
+                      } else {
+                        collection.last.add(device);
                       }
 
-                      return DesktopCompactTile(
-                        key: ValueKey('$fold;${fold.length}'),
-                        devices: fold,
-                      );
+                      return collection;
                     },
+                  )
+                  .reversed
+                  .toList();
+              final crossAxisCount =
+                  calculateCrossAxisCount(foldedDevices.length);
+
+              final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+              // if there are space left on screen
+              if (amountOfItemsOnScreen > foldedDevices.length) {
+                // final diff = amountOfItemsOnScreen - foldedDevices.length;
+                while (amountOfItemsOnScreen > foldedDevices.length) {
+                  final lastFullFold =
+                      foldedDevices.firstWhere((fold) => fold.length > 1);
+                  final foldIndex = foldedDevices.indexOf(lastFullFold);
+                  foldedDevices.insert(
+                    (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                    [lastFullFold.last],
                   );
+                  lastFullFold.removeLast();
                 }
+              }
 
-                final crossAxisCount = calculateCrossAxisCount(dl);
+              foldedDevices = foldedDevices.toList();
 
-                return RepaintBoundary(
+              child = AbsorbPointer(
+                absorbing: candidateItems.isNotEmpty,
+                child: GridView.builder(
+                  key: ValueKey(view.currentLayout.hashCode),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: kGridInnerPadding,
+                    crossAxisSpacing: kGridInnerPadding,
+                    childAspectRatio: 16 / 9,
+                  ),
+                  padding: kGridPadding,
+                  itemCount: foldedDevices.length,
+                  itemBuilder: (context, index) {
+                    final fold = foldedDevices[index];
+
+                    if (fold.length == 1) {
+                      final device = fold.first;
+                      return DesktopDeviceTile(
+                        key: ValueKey('$device;${device.server.serverUUID}'),
+                        device: device,
+                      );
+                    }
+
+                    return DesktopCompactTile(
+                      key: ValueKey('$fold;${fold.length}'),
+                      devices: fold,
+                    );
+                  },
+                ),
+              );
+            } else {
+              final crossAxisCount = calculateCrossAxisCount(dl);
+
+              child = RepaintBoundary(
+                child: AbsorbPointer(
+                  absorbing: candidateItems.isNotEmpty,
                   child: StaticGrid(
                     key: ValueKey(view.currentLayout.hashCode),
                     crossAxisCount: crossAxisCount.clamp(1, 50),
                     childAspectRatio: 16 / 9,
                     onReorder: view.reorder,
                     children: devices.map((device) {
-                      return DesktopDeviceTile(
-                        key: devicesKeys[device],
-                        device: device,
-                      );
+                      return DesktopDeviceTile(device: device);
                     }).toList(),
                   ),
-                );
-              }(),
-            ),
-          ),
+                ),
+              );
+            }
+
+            return Material(
+              color: Colors.black,
+              child: Center(child: child),
+            );
+          },
         ),
       ),
     ];
 
-    if (isReversed) {
-      return Row(children: children.reversed.toList());
-    }
-
-    return Row(children: children);
+    return Row(children: isReversed ? children.reversed.toList() : children);
   }
 }
 
-class DesktopDeviceTile extends StatefulWidget {
+class DesktopDeviceTile extends StatelessWidget {
   const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
   @override
-  State<DesktopDeviceTile> createState() => _DesktopDeviceTileState();
-}
-
-class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  UnityVideoPlayer? videoPlayer;
-  Size? size;
-
-  @override
-  void initState() {
-    super.initState();
-    videoPlayer = DesktopViewProvider.instance.players[widget.device];
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final videoPlayer = UnityPlayers.players[device];
+
     if (videoPlayer == null) {
-      return const Center(child: CircularProgressIndicator.adaptive());
+      return Card(
+        clipBehavior: Clip.hardEdge,
+        child: DesktopTileViewport(controller: null, device: device),
+      );
     }
 
-    return LayoutBuilder(builder: (context, consts) {
-      // TODO(bdlukaa): for some odd reason, this crashes
-      // if (size == null || size != consts.biggest) {
-      //   size = consts.biggest;
-      //   debugPrint('Resizing video controller');
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     videoPlayer!.setSize(size!);
-      //   });
-      // }
-
-      return UnityVideoView(
-        player: videoPlayer!,
-        color: createTheme(themeMode: ThemeMode.dark).canvasColor,
-        paneBuilder: (context, controller) {
-          // debugPrint(controller.dataSource);
-          return DesktopTileViewport(
-            controller: controller,
-            device: widget.device,
-          );
-        },
-      );
-    });
+    return UnityVideoView(
+      key: ValueKey(device.fullName),
+      player: videoPlayer,
+      paneBuilder: (context, controller) {
+        return DesktopTileViewport(controller: controller, device: device);
+      },
+    );
   }
 }
 
@@ -309,7 +286,7 @@ class DesktopCompactTile extends StatelessWidget {
 }
 
 class DesktopTileViewport extends StatefulWidget {
-  final UnityVideoPlayer controller;
+  final UnityVideoPlayer? controller;
   final Device device;
 
   /// Whether this viewport is in a sub view.
@@ -333,8 +310,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   double? volume;
 
+  StreamSubscription<String>? errorStream;
+  String? error;
+  StreamSubscription<Duration>? durationStream;
+
   void updateVolume() {
-    widget.controller.volume.then((value) {
+    assert(widget.controller != null);
+    widget.controller?.volume.then((value) {
       if (mounted) setState(() => volume = value);
     });
   }
@@ -342,43 +324,40 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   @override
   void initState() {
     super.initState();
-    updateVolume();
+    if (widget.controller != null) {
+      updateVolume();
+      durationStream = widget.controller!.onDurationUpdate.listen((event) {
+        if (mounted) setState(() {});
+      });
+      errorStream = widget.controller!.onError.listen((event) {
+        if (mounted) setState(() => error = event);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant DesktopTileViewport oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller == null && widget.controller != null) {
+      updateVolume();
+    }
+  }
+
+  @override
+  void dispose() {
+    durationStream?.cancel();
+    errorStream?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
-
-    if (widget.controller.error != null) {
-      return ErrorWarning(message: widget.controller.error!);
-    } else if (!widget.controller.isSeekable) {
-      return const Center(
-        child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation(Colors.white),
-          strokeWidth: 4.4,
-        ),
-      );
+    if (error != null) {
+      return ErrorWarning(message: error!);
     }
 
-    const shadows = [
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, -4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, -4),
-      ),
-    ];
+    final theme = Theme.of(context);
+    final view = context.watch<DesktopViewProvider>();
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -400,9 +379,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   Expanded(
                     child: Text(
                       widget.device.fullName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        shadows: shadows,
+                        shadows: outlinedText(),
                       ),
                     ),
                   ),
@@ -412,31 +391,31 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_outlined,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
-                        color: Colors.white,
+                        color: theme.colorScheme.error,
                         tooltip: loc.removeCamera,
                         iconSize: 18.0,
                         onPressed: () {
-                          DesktopViewProvider.instance.remove(widget.device);
+                          view.remove(widget.device);
                         },
                       ),
                     ),
                 ]),
               ),
             const Spacer(),
-            AnimatedOpacity(
-              opacity: !states.isHovering ? 0 : 1,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0)
-                    .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+            if (widget.controller != null)
+              AnimatedOpacity(
+                opacity: !states.isHovering ? 0 : 1,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0)
+                      .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     if (widget.device.hasPTZ) ...[
                       IconButton(
                         icon: Icon(
@@ -477,16 +456,16 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           isMuted
                               ? Icons.volume_mute_rounded
                               : Icons.volume_up_rounded,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
                         color: Colors.white,
                         iconSize: 18.0,
                         onPressed: () async {
                           if (isMuted) {
-                            await widget.controller.setVolume(1.0);
+                            await widget.controller!.setVolume(1.0);
                           } else {
-                            await widget.controller.setVolume(0.0);
+                            await widget.controller!.setVolume(0.0);
                           }
 
                           updateVolume();
@@ -495,9 +474,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     }(),
                     if (isDesktop && !widget.isSubView)
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.open_in_new,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: loc.openInANewWindow,
                         color: Colors.white,
@@ -508,19 +487,18 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     if (!widget.isSubView)
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.fullscreen_rounded,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: loc.showFullscreenCamera,
                         color: Colors.white,
                         iconSize: 18.0,
                         onPressed: () async {
-                          var player = view.players[widget.device];
+                          var player = UnityPlayers.players[widget.device];
                           var isLocalController = false;
                           if (player == null) {
-                            player = getVideoPlayerControllerForDevice(
-                                widget.device);
+                            player = UnityPlayers.forDevice(widget.device);
                             isLocalController = true;
                           }
 
@@ -536,45 +514,50 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.replay_outlined,
-                        shadows: shadows,
+                        shadows: outlinedText(),
                       ),
                       tooltip: loc.reloadCamera,
                       color: Colors.white,
                       iconSize: 18.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.reload(widget.device);
-                      },
+                      onPressed: () => view.reload(widget.device),
                     ),
-                  ],
+                  ]),
                 ),
               ),
-            ),
           ]),
           PositionedDirectional(
             end: 16.0,
             top: 50.0,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: commands
-                  .map<String>((cmd) {
-                    switch (cmd.command) {
-                      case PTZCommand.move:
-                        return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-                      case PTZCommand.stop:
-                        return cmd.command.locale(context);
-                    }
-                  })
-                  .map<Widget>(
-                    (text) => Text(
-                      text,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  )
-                  .toList(),
+              children: commands.map<String>((cmd) {
+                switch (cmd.command) {
+                  case PTZCommand.move:
+                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                  case PTZCommand.stop:
+                    return cmd.command.locale(context);
+                }
+              }).map<Widget>((text) {
+                return Text(
+                  text,
+                  style: const TextStyle(color: Colors.white70),
+                );
+              }).toList(),
             ),
           ),
+          if (widget.controller != null && !widget.controller!.isSeekable)
+            const Center(
+              child: SizedBox(
+                height: 20.0,
+                width: 20.0,
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
+              ),
+            ),
         ]);
       },
     );

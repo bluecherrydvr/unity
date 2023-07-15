@@ -63,11 +63,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   );
   late final StreamSubscription playingSubscription;
   late final StreamSubscription durationSubscription;
+  late final StreamSubscription errorSubscription;
   late final playingAnimationController = AnimationController(
     vsync: this,
     duration: const Duration(microseconds: 500),
   );
 
+  String? error;
   double speed = 1.0;
   double volume = 1.0;
   double? _position;
@@ -101,6 +103,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     });
     durationSubscription = videoController.onDurationUpdate.listen((_) {
       if (mounted) setState(() {});
+    });
+    errorSubscription = videoController.onError.listen((event) {
+      if (mounted) setState(() => error = event);
     });
     setEvent(currentEvent);
   }
@@ -172,8 +177,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                         child: UnityVideoView(
                           player: videoController,
                           paneBuilder: (context, controller) {
-                            if (controller.error != null) {
-                              return ErrorWarning(message: controller.error!);
+                            if (error != null) {
+                              return ErrorWarning(message: error!);
                             } else if (!controller.isSeekable) {
                               return const Center(
                                 child: CircularProgressIndicator.adaptive(

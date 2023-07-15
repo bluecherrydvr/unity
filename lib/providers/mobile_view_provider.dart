@@ -21,10 +21,9 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
-import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
 ///
@@ -73,14 +72,6 @@ class MobileViewProvider extends ChangeNotifier {
     6: <bool>[false, false, false, false, false, false],
   };
 
-  /// Instances of video players corresponding to a particular [Device].
-  ///
-  /// This avoids redundantly creating new video player instance if a [Device]
-  /// is already present in the camera grid on the screen or allows to use
-  /// existing instance when switching tab (if common camera [Device] tile exists).
-  ///
-  final Map<Device, UnityVideoPlayer> players = {};
-
   /// Current [tab].
   /// `4` corresponds to `2x2`, `2` corresponds to `2x1` & `1` corresponds to `1x1`.
   int tab = 1;
@@ -98,7 +89,7 @@ class MobileViewProvider extends ChangeNotifier {
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in current) {
         if (device != null) {
-          players[device] = getVideoPlayerControllerForDevice(device);
+          UnityPlayers.players[device] = UnityPlayers.forDevice(device);
         }
       }
     }
@@ -124,12 +115,12 @@ class MobileViewProvider extends ChangeNotifier {
     final items = devices[value]!;
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
     for (final device in items) {
-      if (!players.keys.contains(device) && device != null) {
-        players[device] = getVideoPlayerControllerForDevice(device);
+      if (!UnityPlayers.players.keys.contains(device) && device != null) {
+        UnityPlayers.players[device] = UnityPlayers.forDevice(device);
       }
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
-    players.removeWhere((key, value) {
+    UnityPlayers.players.removeWhere((key, value) {
       final result = items.contains(key);
       if (!result) {
         value
@@ -155,9 +146,9 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      players[device]?.release();
-      players[device]?.dispose();
-      players.remove(device);
+      UnityPlayers.players[device]?.release();
+      UnityPlayers.players[device]?.dispose();
+      UnityPlayers.players.remove(device);
     }
     // Remove.
     devices[tab]![index] = null;
@@ -170,7 +161,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices[tab]!.contains(device)) {
       debugPrint('Added $device');
-      players[device] = getVideoPlayerControllerForDevice(device);
+      UnityPlayers.players[device] = UnityPlayers.forDevice(device);
     }
     devices[tab]![index] = device;
     notifyListeners();
@@ -187,13 +178,13 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      await players[current]?.release();
-      players[current]?.dispose();
-      players.remove(current);
+      await UnityPlayers.players[current]?.release();
+      UnityPlayers.players[current]?.dispose();
+      UnityPlayers.players.remove(current);
     }
     if (!devices[tab]!.contains(device)) {
       debugPrint('Replaced $device');
-      players[device] = getVideoPlayerControllerForDevice(device);
+      UnityPlayers.players[device] = UnityPlayers.forDevice(device);
     }
     // Save the new [device] at the position.
     devices[tab]![index] = device;
@@ -205,10 +196,10 @@ class MobileViewProvider extends ChangeNotifier {
   /// e.g. in response to a network error etc.
   Future<void> reload(int tab, int index) async {
     final device = devices[tab]![index]!;
-    await players[device]?.reset();
-    await players[device]?.setDataSource(device.streamURL);
-    await players[device]?.setVolume(0.0);
-    await players[device]?.setSpeed(1.0);
+    await UnityPlayers.players[device]?.reset();
+    await UnityPlayers.players[device]?.setDataSource(device.streamURL);
+    await UnityPlayers.players[device]?.setVolume(0.0);
+    await UnityPlayers.players[device]?.setSpeed(1.0);
     notifyListeners();
     return _save(notifyListeners: false);
   }

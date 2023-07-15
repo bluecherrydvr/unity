@@ -43,6 +43,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
 
   /// Creates a video view
   Widget createVideoView({
+    Key? key,
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
@@ -64,6 +65,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
 
 // ignore: non_constant_identifier_names
 Widget UnityVideoView({
+  Key? key,
   required UnityVideoPlayer player,
   UnityVideoFit fit = UnityVideoFit.contain,
   UnityVideoPaneBuilder? paneBuilder,
@@ -71,6 +73,7 @@ Widget UnityVideoView({
   Color color = const Color(0xFF000000),
 }) {
   return UnityVideoPlayerInterface.instance.createVideoView(
+    key: key,
     player: player,
     color: color,
     fit: fit,
@@ -135,7 +138,7 @@ abstract class UnityVideoPlayer {
   String? get dataSource;
 
   /// The current error, if any
-  String? get error;
+  Stream<String> get onError;
 
   /// The duration of the current media.
   ///

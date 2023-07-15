@@ -352,3 +352,39 @@ class UnityDrawerButton extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
+
+/// Outlines any text with the given color and stroke width making use of
+/// [TextStyle.shadows]
+///
+///   * <https://stackoverflow.com/a/61292438/11622876>
+List<Shadow> outlinedText({
+  double strokeWidth = 1,
+  Color strokeColor = Colors.black,
+  int precision = 5,
+}) {
+  var result = <Shadow>{};
+  for (var x = 1; x < strokeWidth + precision; x++) {
+    for (var y = 1; y < strokeWidth + precision; y++) {
+      var offsetX = x.toDouble();
+      var offsetY = y.toDouble();
+      result
+        ..add(Shadow(
+          offset: Offset(-strokeWidth / offsetX, -strokeWidth / offsetY),
+          color: strokeColor,
+        ))
+        ..add(Shadow(
+          offset: Offset(-strokeWidth / offsetX, strokeWidth / offsetY),
+          color: strokeColor,
+        ))
+        ..add(Shadow(
+          offset: Offset(strokeWidth / offsetX, -strokeWidth / offsetY),
+          color: strokeColor,
+        ))
+        ..add(Shadow(
+          offset: Offset(strokeWidth / offsetX, strokeWidth / offsetY),
+          color: strokeColor,
+        ));
+    }
+  }
+  return result.toList();
+}

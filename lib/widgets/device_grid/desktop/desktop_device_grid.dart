@@ -385,25 +385,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       return ErrorWarning(message: error!);
     }
 
-    const shadows = [
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, -4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(-4, 4),
-      ),
-      Shadow(
-        blurRadius: 10,
-        offset: Offset(4, -4),
-      ),
-    ];
-
     Widget foreground = PTZController(
       enabled: ptzEnabled,
       device: widget.device,
@@ -424,9 +405,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   Expanded(
                     child: Text(
                       widget.device.fullName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        shadows: shadows,
+                        shadows: outlinedText(),
                       ),
                     ),
                   ),
@@ -436,9 +417,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_outlined,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         color: Colors.white,
                         tooltip: loc.removeCamera,
@@ -501,7 +482,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           isMuted
                               ? Icons.volume_mute_rounded
                               : Icons.volume_up_rounded,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
                         color: Colors.white,
@@ -519,9 +500,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     }(),
                     if (isDesktop && !widget.isSubView)
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.open_in_new,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: loc.openInANewWindow,
                         color: Colors.white,
@@ -532,9 +513,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     if (!widget.isSubView)
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.fullscreen_rounded,
-                          shadows: shadows,
+                          shadows: outlinedText(),
                         ),
                         tooltip: loc.showFullscreenCamera,
                         color: Colors.white,
@@ -560,9 +541,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.replay_outlined,
-                        shadows: shadows,
+                        shadows: outlinedText(),
                       ),
                       tooltip: loc.reloadCamera,
                       color: Colors.white,

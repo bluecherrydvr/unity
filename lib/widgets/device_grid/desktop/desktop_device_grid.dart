@@ -312,16 +312,10 @@ class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
 
-  /// Whether this viewport is in a sub view.
-  ///
-  /// Some features aren't allow in subview
-  final bool isSubView;
-
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
-    this.isSubView = false,
   });
 
   @override
@@ -382,6 +376,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
 
+    final isSubView = AlternativeWindow.maybeOf(context) != null;
+
     Widget foreground = PTZController(
       enabled: ptzEnabled,
       device: widget.device,
@@ -391,7 +387,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
         return Stack(children: [
           Column(children: [
-            if (!widget.isSubView)
+            if (!isSubView)
               Container(
                 height: 48.0,
                 padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
@@ -408,7 +404,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     ),
                   ),
-                  if (!widget.isSubView)
+                  if (!isSubView)
                     AnimatedOpacity(
                       opacity: !states.isHovering ? 0 : 1,
                       duration: const Duration(milliseconds: 200),
@@ -495,7 +491,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
-                    if (isDesktop && !widget.isSubView)
+                    if (isDesktop && !isSubView)
                       IconButton(
                         icon: Icon(
                           Icons.open_in_new,
@@ -508,7 +504,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           widget.device.openInANewWindow();
                         },
                       ),
-                    if (!widget.isSubView)
+                    if (!isSubView)
                       IconButton(
                         icon: Icon(
                           Icons.fullscreen_rounded,

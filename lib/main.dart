@@ -79,12 +79,12 @@ Future<void> main(List<String> args) async {
       final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
       final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
 
+      configureWindow();
+
       switch (windowType) {
         case MultiWindowType.device:
           final device = Device.fromJson(json.decode(args[1]));
           configureWindowTitle(device.fullName);
-
-          debugPrint(device.toString());
 
           runApp(AlternativeWindow(
             mode: themeMode,

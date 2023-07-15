@@ -8,17 +8,26 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-class AlternativeWindow extends StatelessWidget {
+class AlternativeWindow extends StatefulWidget {
   final ThemeMode mode;
 
   final Widget child;
 
   const AlternativeWindow({
-    super.key,
+    Key? key,
     required this.mode,
     required this.child,
-  });
+  }) : super(key: key);
 
+  static AlternativeWindowState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<AlternativeWindowState>();
+  }
+
+  @override
+  State<AlternativeWindow> createState() => AlternativeWindowState();
+}
+
+class AlternativeWindowState extends State<AlternativeWindow> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -36,11 +45,11 @@ class AlternativeWindow extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        themeMode: mode,
+        themeMode: widget.mode,
         theme: createTheme(themeMode: ThemeMode.light),
         darkTheme: createTheme(themeMode: ThemeMode.dark),
         debugShowCheckedModeBanner: false,
-        home: child,
+        home: widget.child,
       ),
     );
   }

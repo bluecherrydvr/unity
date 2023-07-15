@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
@@ -38,7 +39,9 @@ import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/single_camera_window.dart';
+import 'package:bluecherry_client/widgets/multi_window/single_camera_window.dart';
+import 'package:bluecherry_client/widgets/multi_window/single_layout_window.dart';
+import 'package:bluecherry_client/widgets/multi_window/window.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -68,24 +71,41 @@ Future<void> main(List<String> args) async {
 
   if (isDesktop && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
+    try {
+      // this is just a mock. HomeProvider depends on this, so we mock the instance
+      ServersProvider.instance = ServersProvider();
+      await DesktopViewProvider.ensureInitialized();
 
-    final device = Device.fromJson(json.decode(args[0]));
-    final mode = ThemeMode.values[int.tryParse(args[1]) ?? 0];
-    configureCameraWindow(device.fullName);
+      final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
+      final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
 
-    debugPrint(device.toString());
-    debugPrint(mode.toString());
+      configureWindow();
 
-    // this is just a mock. HomeProvider depends on this, so we mock the instance
-    ServersProvider.instance = ServersProvider();
-    DesktopViewProvider.instance = DesktopViewProvider();
+      switch (windowType) {
+        case MultiWindowType.device:
+          final device = Device.fromJson(json.decode(args[1]));
+          configureWindowTitle(device.fullName);
 
-    runApp(
-      SingleCameraWindow(
-        device: device,
-        mode: mode,
-      ),
-    );
+          runApp(AlternativeWindow(
+            mode: themeMode,
+            child: CameraView(device: device),
+          ));
+          break;
+        case MultiWindowType.layout:
+          final layout = Layout.fromJson(args[1]);
+          configureWindowTitle(layout.name);
+
+          runApp(AlternativeWindow(
+            mode: themeMode,
+            child: AlternativeLayoutView(layout: layout),
+          ));
+
+          break;
+      }
+    } catch (error, stack) {
+      debugPrint('error: $error');
+      debugPrintStack(stackTrace: stack);
+    }
 
     return;
   }

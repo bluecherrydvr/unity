@@ -141,6 +141,7 @@ class VideoViewport extends StatefulWidget {
 class _VideoViewportState extends State<VideoViewport> {
   UnityVideoPlayer get player => widget.player;
 
+  String? error;
   Duration position = Duration.zero;
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
@@ -171,6 +172,10 @@ class _VideoViewportState extends State<VideoViewport> {
 
   void bufferListener(Duration buffer) {
     if (mounted) setState(() {});
+  }
+
+  void errorListener(String error) {
+    if (mounted) setState(() => this.error = error);
   }
 
   void startTimer() {
@@ -247,8 +252,8 @@ class _VideoViewportState extends State<VideoViewport> {
         ),
         Positioned.fill(
           child: () {
-            if (player.error != null) {
-              return ErrorWarning(message: player.error!);
+            if (error != null) {
+              return ErrorWarning(message: error!);
             } else if (player.isBuffering) {
               return const Center(
                 child: CircularProgressIndicator.adaptive(

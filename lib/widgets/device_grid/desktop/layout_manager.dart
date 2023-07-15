@@ -22,7 +22,10 @@ import 'dart:async';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/window.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -167,14 +170,12 @@ class LayoutTile extends StatelessWidget {
     return ReorderableDragStartListener(
       index: reorderableIndex,
       enabled: selected,
-      child: GestureDetector(
-        onSecondaryTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => EditLayoutDialog(layout: layout),
-          );
+      child: HoverButton(
+        onSecondaryTap: () => _displayOptions(context),
+        onLongPressDown: (d) {
+          if (d.kind == PointerDeviceKind.touch) _displayOptions(context);
         },
-        child: ListTile(
+        builder: (context, states) => ListTile(
           dense: true,
           visualDensity: VisualDensity.compact,
           selected: selected,
@@ -185,42 +186,27 @@ class LayoutTile extends StatelessWidget {
               enabled: !selected,
               child: Icon(
                 selected
-                    ? selectedIconForLayout(layout.layoutType)
-                    : iconForLayout(layout.layoutType),
-                key: ValueKey(layout.layoutType),
+                    ? selectedIconForLayout(layout.type)
+                    : iconForLayout(layout.type),
+                key: ValueKey(layout.type),
                 size: 20.0,
               ),
             ),
           ),
           horizontalTitleGap: 16.0,
           minLeadingWidth: 24.0,
-          contentPadding: const EdgeInsetsDirectional.only(
-            start: 12.0,
-            end: 8.0,
-          ),
           title: Text(layout.name, maxLines: 1),
           subtitle: Text(
             loc.nDevices(layout.devices.length),
             maxLines: 1,
           ),
-          trailing: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(moreIconData),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => EditLayoutDialog(layout: layout),
-              );
-            },
-          ),
-          onLongPress: isDesktop
-              ? null
-              : () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => EditLayoutDialog(layout: layout),
-                  );
-                },
+          trailing: states.isHovering
+              ? InkWell(
+                  borderRadius: BorderRadius.circular(4.0),
+                  onTap: () => _displayOptions(context),
+                  child: Icon(moreIconData),
+                )
+              : null,
           onTap: !selected
               ? () => view.updateCurrentLayout(view.layouts.indexOf(layout))
               : null,
@@ -229,15 +215,60 @@ class LayoutTile extends StatelessWidget {
     );
   }
 
-  PopupMenuItem buildPopupItem(Icon icon, String text) {
-    return PopupMenuItem(
-      child: Row(
-        children: [
-          icon,
-          const SizedBox(width: 10.0),
-          Text(text),
-        ],
+  Future<void> _displayOptions(BuildContext context) async {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    const padding = EdgeInsets.symmetric(horizontal: 16.0);
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset(
+      padding.left,
+      padding.top,
+    ));
+    final size = Size(
+      renderBox.size.width - padding.right * 2,
+      renderBox.size.height - padding.bottom,
+    );
+
+    await showMenu(
+      context: context,
+      elevation: 4.0,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + size.width,
+        offset.dy + size.height,
       ),
+      constraints: BoxConstraints(
+        maxWidth: size.width,
+        minWidth: size.width,
+      ),
+      items: <PopupMenuEntry>[
+        PopupLabel(
+          label: Padding(
+            padding: padding.add(const EdgeInsets.symmetric(vertical: 6.0)),
+            child: Text(
+              layout.name,
+              maxLines: 1,
+              style: theme.textTheme.labelSmall,
+            ),
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          child: Text(loc.editLayout),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => EditLayoutDialog(layout: layout),
+            );
+          },
+        ),
+        PopupMenuItem(
+          onTap: layout.openInANewWindow,
+          child: Text(loc.openInANewWindow),
+        ),
+      ],
     );
   }
 }
@@ -367,7 +398,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
               name: controller.text.isNotEmpty
                   ? controller.text
                   : 'Layout ${view.layouts.length + 1}',
-              layoutType: DesktopLayoutType.values[selected],
+              type: DesktopLayoutType.values[selected],
               devices: [],
             ));
             Navigator.of(context).pop();
@@ -390,7 +421,7 @@ class EditLayoutDialog extends StatefulWidget {
 
 class _EditLayoutDialogState extends State<EditLayoutDialog> {
   late final controller = TextEditingController(text: widget.layout.name);
-  late int selected = widget.layout.layoutType.index;
+  late int selected = widget.layout.type.index;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +477,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
               widget.layout,
               widget.layout.copyWith(
                 name: controller.text.isEmpty ? null : controller.text,
-                layoutType: DesktopLayoutType.values[selected],
+                type: DesktopLayoutType.values[selected],
               ),
             );
             Navigator.of(context).pop();

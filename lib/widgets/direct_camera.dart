@@ -24,6 +24,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -199,9 +200,8 @@ class _DevicesForServer extends StatelessWidget {
   }
 
   Future<void> onTap(BuildContext context, Device device) async {
-    final player = getVideoPlayerControllerForDevice(
-      device,
-    );
+    final player =
+        UnityPlayers.players[device] ?? UnityPlayers.forDevice(device);
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',
@@ -210,6 +210,9 @@ class _DevicesForServer extends StatelessWidget {
         'player': player,
       },
     );
-    await player.release();
+
+    if (!UnityPlayers.players.containsKey(device)) {
+      await player.release();
+    }
   }
 }

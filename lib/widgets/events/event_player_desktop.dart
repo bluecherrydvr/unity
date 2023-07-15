@@ -62,7 +62,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     quality: UnityVideoQuality.p480,
   );
   late final StreamSubscription playingSubscription;
-  late final StreamSubscription durationSubscription;
   late final playingAnimationController = AnimationController(
     vsync: this,
     duration: const Duration(microseconds: 500),
@@ -99,9 +98,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         playingAnimationController.reverse();
       }
     });
-    durationSubscription = videoController.onDurationUpdate.listen((_) {
-      if (mounted) setState(() {});
-    });
     setEvent(currentEvent);
   }
 
@@ -111,7 +107,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       ..release()
       ..dispose();
     playingSubscription.cancel();
-    durationSubscription.cancel();
     playingAnimationController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -172,8 +167,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                         child: UnityVideoView(
                           player: videoController,
                           paneBuilder: (context, controller) {
-                            if (controller.error != null) {
-                              return ErrorWarning(message: controller.error!);
+                            final error = UnityVideoView.of(context).error;
+                            if (error != null) {
+                              return ErrorWarning(message: error);
                             } else if (!controller.isSeekable) {
                               return const Center(
                                 child: CircularProgressIndicator.adaptive(

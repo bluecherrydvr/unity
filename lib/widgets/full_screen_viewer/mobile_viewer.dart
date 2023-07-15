@@ -87,11 +87,15 @@ class _DeviceFullscreenViewerMobileState
     return Scaffold(
       backgroundColor: Colors.black,
       body: MouseRegion(
-        onEnter: (_) => setState(() => overlay = true),
-        onHover: (_) {
-          if (overlay == false) setState(() => overlay = true);
+        onEnter: (_) {
+          if (mounted) setState(() => overlay = true);
         },
-        onExit: (_) => setState(() => overlay = false),
+        onHover: (_) {
+          if (mounted && !overlay) setState(() => overlay = true);
+        },
+        onExit: (_) {
+          if (mounted) setState(() => overlay = false);
+        },
         child: Stack(children: [
           AnimatedOpacity(
             duration: const Duration(milliseconds: 320),
@@ -109,14 +113,15 @@ class _DeviceFullscreenViewerMobileState
                     player: widget.videoPlayerController,
                     fit: fit,
                     paneBuilder: (context, controller) {
-                      if (controller.error != null) {
-                        return ErrorWarning(message: controller.error!);
-                      } else if (controller.isBuffering ||
+                      final error = UnityVideoView.of(context).error;
+                      if (error != null) {
+                        return ErrorWarning(message: error);
+                      } else if (!controller.isSeekable ||
                           controller.dataSource == null) {
                         return const Center(
                           child: CircularProgressIndicator.adaptive(
                             valueColor: AlwaysStoppedAnimation(Colors.white),
-                            strokeWidth: 4.4,
+                            strokeWidth: 3.45,
                           ),
                         );
                       } else if (commands.isNotEmpty) {

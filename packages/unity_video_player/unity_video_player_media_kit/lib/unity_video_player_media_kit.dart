@@ -28,6 +28,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
 
   @override
   Widget createVideoView({
+    Key? key,
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
@@ -145,12 +146,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  String? get error {
-    // if (mkPlayer.error.isEmpty) return null;
-    // return mkPlayer.error;
-
-    return null;
-  }
+  Stream<String> get onError =>
+      mkPlayer.streams.error.map((event) => event.message);
 
   @override
   Duration get duration => mkPlayer.state.duration;
@@ -174,7 +171,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<Duration> get onBufferUpdate => mkPlayer.streams.buffer;
 
   @override
-  bool get isSeekable => true;
+  bool get isSeekable => duration > Duration.zero;
 
   @override
   Stream<bool> get onBufferStateUpdate => mkPlayer.streams.buffering;

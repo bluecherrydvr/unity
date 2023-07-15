@@ -1,5 +1,6 @@
 // original file: https://github.com/bdlukaa/fluent_ui/blob/f61c8232d87e33e3b97236da9bd16ceb88a18b09/lib/src/controls/utils/hover_button.dart
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -24,6 +25,7 @@ class HoverButton extends StatefulWidget {
     this.onTapUp,
     this.onTapCancel,
     this.onLongPressEnd,
+    this.onLongPressDown,
     this.onLongPressStart,
     this.onHorizontalDragStart,
     this.onHorizontalDragUpdate,
@@ -31,6 +33,7 @@ class HoverButton extends StatefulWidget {
     this.onVerticalDragStart,
     this.onVerticalDragUpdate,
     this.onVerticalDragEnd,
+    this.onSecondaryTap,
     this.onScaleStart,
     this.onScaleUpdate,
     this.onScaleEnd,
@@ -60,8 +63,9 @@ class HoverButton extends StatefulWidget {
   final MouseCursor? cursor;
 
   final VoidCallback? onLongPress;
-  final VoidCallback? onLongPressStart;
-  final VoidCallback? onLongPressEnd;
+  final GestureLongPressStartCallback? onLongPressStart;
+  final GestureLongPressEndCallback? onLongPressEnd;
+  final GestureLongPressDownCallback? onLongPressDown;
 
   final VoidCallback? onPressed;
   final VoidCallback? onTapUp;
@@ -79,6 +83,8 @@ class HoverButton extends StatefulWidget {
   final ValueChanged<ScaleStartDetails>? onScaleStart;
   final ValueChanged<ScaleUpdateDetails>? onScaleUpdate;
   final ValueChanged<ScaleEndDetails>? onScaleEnd;
+
+  final VoidCallback? onSecondaryTap;
 
   final ButtonStateWidgetBuilder builder;
 
@@ -146,6 +152,10 @@ class HoverButton extends StatefulWidget {
 
   /// The gestures that this widget will listen to.
   final Set<ButtonStates> listenTo;
+
+  static bool get hasMouseConnected {
+    return RendererBinding.instance.mouseTracker.mouseIsConnected;
+  }
 
   @override
   State<HoverButton> createState() => HoverButtonState();
@@ -226,6 +236,7 @@ class HoverButtonState extends State<HoverButton> {
       widget.onLongPress != null ||
       widget.onLongPressStart != null ||
       widget.onLongPressEnd != null ||
+      widget.onLongPressDown != null ||
       widget.onHorizontalDragStart != null ||
       widget.onHorizontalDragUpdate != null ||
       widget.onHorizontalDragEnd != null ||
@@ -234,7 +245,8 @@ class HoverButtonState extends State<HoverButton> {
       widget.onScaleEnd != null ||
       widget.onVerticalDragStart != null ||
       widget.onVerticalDragEnd != null ||
-      widget.onVerticalDragUpdate != null;
+      widget.onVerticalDragUpdate != null ||
+      widget.onSecondaryTap != null;
 
   Set<ButtonStates> get states {
     if (!enabled) return {ButtonStates.disabled};
@@ -282,25 +294,27 @@ class HoverButtonState extends State<HoverButton> {
             },
       onLongPress: enabled ? widget.onLongPress : null,
       onLongPressStart: widget.onLongPressStart != null
-          ? (_) {
+          ? (details) {
               if (!enabled) return;
-              widget.onLongPressStart?.call();
+              widget.onLongPressStart?.call(details);
               if (mounted) setState(() => _pressing = true);
             }
           : null,
       onLongPressEnd: widget.onLongPressEnd != null
-          ? (_) {
+          ? (details) {
               if (!enabled) return;
-              widget.onLongPressEnd?.call();
+              widget.onLongPressEnd?.call(details);
               if (mounted) setState(() => _pressing = false);
             }
           : null,
+      onLongPressDown: widget.onLongPressDown,
       onHorizontalDragStart: widget.onHorizontalDragStart,
       onHorizontalDragUpdate: widget.onHorizontalDragUpdate,
       onHorizontalDragEnd: widget.onHorizontalDragEnd,
       onVerticalDragStart: widget.onVerticalDragStart,
       onVerticalDragUpdate: widget.onVerticalDragUpdate,
       onVerticalDragEnd: widget.onVerticalDragEnd,
+      onSecondaryTap: widget.onSecondaryTap,
       // onScaleStart: widget.onScaleStart,
       // onScaleUpdate: widget.onScaleUpdate,
       // onScaleEnd: widget.onScaleEnd,
@@ -328,6 +342,9 @@ class HoverButtonState extends State<HoverButton> {
         cursor: widget.cursor ?? MouseCursor.defer,
         onEnter: (e) {
           if (mounted) setState(() => _hovering = true);
+        },
+        onHover: (e) {
+          if (mounted && !_hovering) setState(() => _hovering = true);
         },
         onExit: (e) {
           if (mounted) setState(() => _hovering = false);

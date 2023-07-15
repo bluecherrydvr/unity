@@ -22,10 +22,9 @@ import 'dart:convert';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
-import 'package:unity_video_player/unity_video_player.dart';
 
 class DesktopViewProvider extends ChangeNotifier {
   /// `late` initialized [DesktopViewProvider] instance.
@@ -39,25 +38,15 @@ class DesktopViewProvider extends ChangeNotifier {
     return instance;
   }
 
-  List<Layout> layouts = [
-    const Layout(name: 'Default'),
-  ];
+  List<Layout> layouts = [const Layout(name: 'Default')];
   int _currentLayout = 0;
   int get currentLayoutIndex {
     if (_currentLayout.isNegative) return 0;
-
     return _currentLayout;
   }
 
-  Layout get currentLayout => layouts[_currentLayout];
-
-  /// Instances of video players corresponding to a particular [Device].
-  ///
-  /// This avoids redundantly creating new video player instance if a [Device]
-  /// is already present in the camera grid on the screen or allows to use
-  /// existing instance when switching tab (if common camera [Device] tile exists).
-  ///
-  final Map<Device, UnityVideoPlayer> players = {};
+  /// Gets the current selected layout
+  Layout get currentLayout => layouts[currentLayoutIndex];
 
   /// Called by [ensureInitialized].
   Future<void> initialize() async {
@@ -68,7 +57,7 @@ class DesktopViewProvider extends ChangeNotifier {
       await _restore();
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in currentLayout.devices) {
-        players[device] = getVideoPlayerControllerForDevice(device);
+        UnityPlayers.players[device] = UnityPlayers.forDevice(device);
       }
     }
   }
@@ -107,39 +96,42 @@ class DesktopViewProvider extends ChangeNotifier {
     }
   }
 
-  /// Adds a new camera [device]
+  /// Adds [device] to the current layout
   Future<void> add(Device device) {
-    // Only create new video player instance, if no other camera tile in the
-    // same tab is showing the same camera device.
+    assert(
+      !currentLayout.devices.contains(device),
+      'The device is already in the layout',
+    );
+
     if (!currentLayout.devices.contains(device)) {
       // If it's a single view layout, ensure the player will be disposed
       // properly before adding one
-      if (currentLayout.layoutType == DesktopLayoutType.singleView) {
-        for (final device in currentLayout.devices) {
-          if (!players.containsKey(device)) continue;
-          players[device]!
-            ..release()
-            ..dispose();
+      if (currentLayout.type == DesktopLayoutType.singleView) {
+        var previousDevice = currentLayout.devices.firstOrNull;
+        if (previousDevice != null) {
+          currentLayout.devices.clear();
+          _releaseDevice(device);
         }
-        currentLayout.devices.clear();
       }
 
+      UnityPlayers.players[device] ??= UnityPlayers.forDevice(device);
+      currentLayout.devices.add(device);
       debugPrint('Added $device');
 
-      players[device] = getVideoPlayerControllerForDevice(device);
-      currentLayout.devices.add(device);
+      notifyListeners();
+      return _save(notifyListeners: false);
     }
-    notifyListeners();
-    return _save(notifyListeners: false);
+    return Future.value();
   }
 
   /// Releases a device if no layout is using it
   void _releaseDevice(Device device) {
-    if (!players.containsKey(device)) return;
+    if (!UnityPlayers.players.containsKey(device)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
-      players[device]?.release();
-      players[device]?.dispose();
+      UnityPlayers.players[device]?.release();
+      UnityPlayers.players[device]?.dispose();
+      UnityPlayers.players.remove(device);
     }
   }
 
@@ -186,10 +178,10 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Reloads a camera [Device] tile from the camera grid, at specified [tab] [index].
   /// e.g. in response to a network error etc.
   Future<void> reload(Device device) async {
-    await players[device]?.reset();
-    await players[device]?.setDataSource(device.streamURL);
-    await players[device]?.setVolume(0.0);
-    await players[device]?.setSpeed(1.0);
+    await UnityPlayers.players[device]?.reset();
+    await UnityPlayers.players[device]?.setDataSource(device.streamURL);
+    await UnityPlayers.players[device]?.setVolume(0.0);
+    await UnityPlayers.players[device]?.setSpeed(1.0);
     notifyListeners();
     return _save(notifyListeners: false);
   }
@@ -249,9 +241,7 @@ class DesktopViewProvider extends ChangeNotifier {
     _currentLayout = layoutIndex;
 
     for (final device in currentLayout.devices) {
-      if (!players.containsKey(device)) {
-        players[device] = getVideoPlayerControllerForDevice(device);
-      }
+      UnityPlayers.players[device] ??= UnityPlayers.forDevice(device);
     }
 
     notifyListeners();

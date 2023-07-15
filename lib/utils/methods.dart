@@ -17,10 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/models/device.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:unity_video_player/unity_video_player.dart';
 
 /// A helper singleton to set preferred orientation for the app.
 class DeviceOrientations {
@@ -46,19 +44,6 @@ class DeviceOrientations {
 
   /// Maintain a stack of the last set of orientations, to switch back to the most recent one.
   final List<List<DeviceOrientation>> _stack = [];
-}
-
-/// Helper method to create a video player with required configuration for a [Device].
-UnityVideoPlayer getVideoPlayerControllerForDevice(Device device) {
-  debugPrint(device.streamURL);
-  final controller = UnityVideoPlayer.create(
-    quality: UnityVideoQuality.qualityForResolutionY(device.resolutionY),
-  )
-    ..setDataSource(device.streamURL)
-    ..setVolume(0.0)
-    ..setSpeed(1.0);
-
-  return controller;
 }
 
 /// Wraps [child] in a [Tooltip] if the app meets [condition]

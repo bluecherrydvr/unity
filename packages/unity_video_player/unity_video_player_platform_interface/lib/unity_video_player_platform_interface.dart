@@ -1,5 +1,7 @@
 library unity_video_player_platform_interface;
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -43,6 +45,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
 
   /// Creates a video view
   Widget createVideoView({
+    Key? key,
     required UnityVideoPlayer player,
     UnityVideoFit fit = UnityVideoFit.contain,
     UnityVideoPaneBuilder? paneBuilder,
@@ -62,21 +65,86 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   }
 }
 
-// ignore: non_constant_identifier_names
-Widget UnityVideoView({
-  required UnityVideoPlayer player,
-  UnityVideoFit fit = UnityVideoFit.contain,
-  UnityVideoPaneBuilder? paneBuilder,
-  UnityVideoBuilder? videoBuilder,
-  Color color = const Color(0xFF000000),
-}) {
-  return UnityVideoPlayerInterface.instance.createVideoView(
-    player: player,
-    color: color,
-    fit: fit,
-    videoBuilder: videoBuilder,
-    paneBuilder: paneBuilder,
-  );
+class UnityVideoView extends StatefulWidget {
+  final UnityVideoPlayer player;
+  final UnityVideoFit fit;
+  final UnityVideoPaneBuilder? paneBuilder;
+  final UnityVideoBuilder? videoBuilder;
+  final Color color;
+
+  const UnityVideoView({
+    super.key,
+    required this.player,
+    this.fit = UnityVideoFit.contain,
+    this.paneBuilder,
+    this.videoBuilder,
+    this.color = const Color(0xFF000000),
+  });
+
+  static UnityVideoViewState of(BuildContext context) {
+    return context.findAncestorStateOfType<UnityVideoViewState>()!;
+  }
+
+  static UnityVideoViewState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<UnityVideoViewState>();
+  }
+
+  @override
+  State<UnityVideoView> createState() => UnityVideoViewState();
+}
+
+class UnityVideoViewState extends State<UnityVideoView> {
+  String? error;
+  late StreamSubscription<String> _onErrorSubscription;
+  late StreamSubscription<Duration> _onDurationUpdateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _onErrorSubscription = widget.player.onError.listen(_onError);
+    _onDurationUpdateSubscription =
+        widget.player.onDurationUpdate.listen(_onDurationUpdate);
+  }
+
+  @override
+  void didUpdateWidget(covariant UnityVideoView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.player != oldWidget.player) {
+      _onErrorSubscription.cancel();
+      _onDurationUpdateSubscription.cancel();
+
+      _onErrorSubscription = widget.player.onError.listen(_onError);
+      _onDurationUpdateSubscription =
+          widget.player.onDurationUpdate.listen(_onDurationUpdate);
+    }
+  }
+
+  void _onError(String error) {
+    if (mounted) setState(() => this.error = error);
+  }
+
+  void _onDurationUpdate(Duration duration) {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _onErrorSubscription.cancel();
+    _onDurationUpdateSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return UnityVideoPlayerInterface.instance.createVideoView(
+      player: widget.player,
+      color: widget.color,
+      fit: widget.fit,
+      videoBuilder: widget.videoBuilder,
+      paneBuilder: widget.paneBuilder,
+    );
+  }
 }
 
 /// The size of a view with 1080p resolution
@@ -135,7 +203,7 @@ abstract class UnityVideoPlayer {
   String? get dataSource;
 
   /// The current error, if any
-  String? get error;
+  Stream<String> get onError;
 
   /// The duration of the current media.
   ///

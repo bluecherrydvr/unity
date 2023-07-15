@@ -19,6 +19,7 @@
 
 part of '../device_grid.dart';
 
+const kDeviceSelectorTileHeight = 32.0;
 const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
 const kCompactSidebarConstraints = BoxConstraints(maxWidth: 65.0);
 
@@ -95,9 +96,36 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                     final selected =
                         view.currentLayout.devices.contains(device);
 
-                    return DesktopDeviceSelectorTile(
+                    final tile = DesktopDeviceSelectorTile(
                       device: device,
                       selected: selected,
+                    );
+
+                    if (selected || !device.status) return tile;
+
+                    final isBlocked = view.currentLayout.type ==
+                            DesktopLayoutType.singleView &&
+                        view.currentLayout.devices.isNotEmpty;
+
+                    return Draggable<Device>(
+                      data: device,
+                      feedback: Card(
+                        child: SizedBox(
+                          height: kDeviceSelectorTileHeight,
+                          width: kSidebarConstraints.maxWidth,
+                          child: Row(children: [
+                            Expanded(child: tile),
+                            if (isBlocked)
+                              Icon(
+                                Icons.block,
+                                color: theme.colorScheme.error,
+                                size: 18.0,
+                              ),
+                            const SizedBox(width: 16.0),
+                          ]),
+                        ),
+                      ),
+                      child: tile,
                     );
                   },
                 );
@@ -128,12 +156,15 @@ class DesktopDeviceSelectorTile extends StatefulWidget {
 class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
   PointerDeviceKind? currentLongPressDeviceKind;
 
+  bool hovering = false;
+
   @override
   Widget build(BuildContext context) {
     // subscribe to media query updates
     MediaQuery.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final loc = AppLocalizations.of(context);
 
     return GestureDetector(
       onSecondaryTap: () => _displayOptions(context),
@@ -161,46 +192,58 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   view.add(widget.device);
                 }
               },
-        child: SizedBox(
-          height: 32.0,
-          child: Row(children: [
-            const SizedBox(width: 16.0),
-            Container(
-              height: 6.0,
-              width: 6.0,
-              margin: const EdgeInsetsDirectional.only(end: 8.0),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.device.status
-                    ? theme.extension<UnityColors>()!.successColor
-                    : theme.colorScheme.error,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                widget.device.name.uppercaseFirst(),
-                style: theme.textTheme.titleMedium!.copyWith(
-                  color: widget.selected
-                      ? theme.colorScheme.primary
-                      : !widget.device.status
-                          ? theme.disabledColor
-                          : null,
+        child: MouseRegion(
+          onEnter: (_) {
+            if (mounted) setState(() => hovering = true);
+          },
+          onHover: (_) {
+            if (mounted && !hovering) setState(() => hovering = true);
+          },
+          onExit: (_) {
+            if (mounted) setState(() => hovering = false);
+          },
+          child: SizedBox(
+            height: kDeviceSelectorTileHeight,
+            child: Row(children: [
+              const SizedBox(width: 16.0),
+              Container(
+                height: 6.0,
+                width: 6.0,
+                margin: const EdgeInsetsDirectional.only(end: 8.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.device.status
+                      ? theme.extension<UnityColors>()!.successColor
+                      : theme.colorScheme.error,
                 ),
               ),
-            ),
-            if (isMobile)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 1.0),
-                child: IconButton(
-                  onPressed: widget.device.status
-                      ? () => _displayOptions(context)
-                      : null,
-                  icon: Icon(moreIconData),
-                  iconSize: 22.0,
+              Expanded(
+                child: Text(
+                  widget.device.name.uppercaseFirst(),
+                  style: theme.textTheme.titleMedium!.copyWith(
+                    color: widget.selected
+                        ? theme.colorScheme.primary
+                        : !widget.device.status
+                            ? theme.disabledColor
+                            : null,
+                  ),
                 ),
               ),
-            const SizedBox(width: 16.0),
-          ]),
+              if (isMobile || hovering)
+                Tooltip(
+                  message: loc.cameraOptions,
+                  preferBelow: false,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(4.0),
+                    onTap: widget.device.status
+                        ? () => _displayOptions(context)
+                        : null,
+                    child: Icon(moreIconData, size: 20.0),
+                  ),
+                ),
+              const SizedBox(width: 16.0),
+            ]),
+          ),
         ),
       ),
     );
@@ -260,10 +303,10 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
-              var player = view.players[widget.device];
+              var player = UnityPlayers.players[widget.device];
               var isLocalController = false;
               if (player == null) {
-                player = getVideoPlayerControllerForDevice(widget.device);
+                player = UnityPlayers.forDevice(widget.device);
                 isLocalController = true;
               }
 

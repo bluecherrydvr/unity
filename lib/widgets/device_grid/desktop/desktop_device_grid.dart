@@ -352,7 +352,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   @override
   Widget build(BuildContext context) {
-    final error = UnityVideoView.of(context).error;
+    final error = UnityVideoView.maybeOf(context)?.error;
     if (error != null) {
       return ErrorWarning(message: error);
     }
@@ -371,7 +371,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
         return Stack(children: [
           Padding(
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
             child: RichText(
               text: TextSpan(
                 text: widget.device.name,
@@ -538,8 +541,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             ),
           if (!isSubView)
             PositionedDirectional(
-              top: 0,
-              end: 0,
+              top: 4.0,
+              end: 4.0,
               child: AnimatedOpacity(
                 opacity: !states.isHovering ? 0 : 1,
                 duration: const Duration(milliseconds: 200),
@@ -547,7 +550,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 child: IconButton(
                   icon: Icon(
                     Icons.close_outlined,
-                    shadows: outlinedText(),
+                    shadows: outlinedText(
+                      strokeColor: theme.colorScheme.errorContainer,
+                      strokeWidth: 0.15,
+                    ),
                   ),
                   color: theme.colorScheme.error,
                   tooltip: loc.removeCamera,

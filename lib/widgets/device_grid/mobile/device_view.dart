@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
-
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/video_player.dart';

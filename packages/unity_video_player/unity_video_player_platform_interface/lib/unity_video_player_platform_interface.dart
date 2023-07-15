@@ -85,6 +85,10 @@ class UnityVideoView extends StatefulWidget {
     return context.findAncestorStateOfType<UnityVideoViewState>()!;
   }
 
+  static UnityVideoViewState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<UnityVideoViewState>();
+  }
+
   @override
   State<UnityVideoView> createState() => UnityVideoViewState();
 }

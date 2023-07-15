@@ -53,9 +53,7 @@ class _DeviceFullscreenViewerDesktopState
             player: widget.videoPlayerController,
             fit: fit,
             paneBuilder: (context, controller) {
-              if (controller.error != null) {
-                return ErrorWarning(message: controller.error!);
-              } else if (!controller.isSeekable) {
+              if (!controller.isSeekable) {
                 return const Center(
                   child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),

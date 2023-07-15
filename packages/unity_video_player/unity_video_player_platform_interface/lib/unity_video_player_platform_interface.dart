@@ -138,7 +138,7 @@ abstract class UnityVideoPlayer {
   String? get dataSource;
 
   /// The current error, if any
-  String? get error;
+  Stream<String> get onError;
 
   /// The duration of the current media.
   ///

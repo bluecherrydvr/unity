@@ -259,7 +259,6 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
         player: videoPlayer!,
         color: createTheme(themeMode: ThemeMode.dark).canvasColor,
         paneBuilder: (context, controller) {
-          // debugPrint(controller.dataSource);
           return DesktopTileViewport(
             controller: controller,
             device: widget.device,
@@ -338,6 +337,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   double? volume;
 
+  late final StreamSubscription<String> errorStream;
+  String? error;
+  late final StreamSubscription<Duration> durationStream;
+
   void updateVolume() {
     assert(widget.controller != null);
     widget.controller?.volume.then((value) {
@@ -348,7 +351,15 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   @override
   void initState() {
     super.initState();
-    if (widget.controller != null) updateVolume();
+    if (widget.controller != null) {
+      updateVolume();
+      durationStream = widget.controller!.onDurationUpdate.listen((event) {
+        if (mounted) setState(() {});
+      });
+      errorStream = widget.controller!.onError.listen((event) {
+        if (mounted) setState(() => error = event);
+      });
+    }
   }
 
   @override
@@ -360,19 +371,18 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   }
 
   @override
+  void dispose() {
+    durationStream.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
 
-    if (widget.controller?.error != null) {
-      return ErrorWarning(message: widget.controller!.error!);
-    } else if (!(widget.controller?.isSeekable ?? true)) {
-      return const Center(
-        child: CircularProgressIndicator.adaptive(
-          valueColor: AlwaysStoppedAnimation(Colors.white),
-          strokeWidth: 4.4,
-        ),
-      );
+    if (error != null) {
+      return ErrorWarning(message: error!);
     }
 
     const shadows = [
@@ -588,6 +598,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   .toList(),
             ),
           ),
+          if (widget.controller != null)
+            if (!(widget.controller?.isSeekable ?? true))
+              const Center(
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 3,
+                ),
+              ),
         ]);
       },
     );

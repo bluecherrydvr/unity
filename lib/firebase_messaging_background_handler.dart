@@ -29,8 +29,8 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -212,7 +212,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         0,
         server,
       );
-      final player = getVideoPlayerControllerForDevice(device);
+      final player = UnityPlayers.forDevice(device);
       // No [DeviceFullscreenViewer] route is ever pushed due to notification click into the navigator.
       // Thus, push a new route.
       if (_mutex == null) {

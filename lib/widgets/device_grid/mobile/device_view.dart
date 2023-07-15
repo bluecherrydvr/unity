@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -236,8 +237,7 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  UnityVideoPlayer? get videoPlayer =>
-      MobileViewProvider.instance.players[widget.device];
+  UnityVideoPlayer? get videoPlayer => UnityPlayers.players[widget.device];
 
   bool get hover =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]

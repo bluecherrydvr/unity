@@ -61,211 +61,187 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         },
       ),
       Expanded(
-        child: Material(
-          color: Colors.black,
-          child: Center(
-            child: DragTarget<Device>(
-              onAccept: view.add,
-              onWillAccept: (device) {
-                if (device == null) return false;
+        child: DragTarget<Device>(
+          onAccept: view.add,
+          onWillAccept: (device) {
+            if (device == null) return false;
 
-                if (view.currentLayout.layoutType ==
-                    DesktopLayoutType.singleView) {
-                  return view.currentLayout.devices.isEmpty;
-                }
+            if (view.currentLayout.layoutType == DesktopLayoutType.singleView) {
+              return view.currentLayout.devices.isEmpty;
+            }
 
-                return !view.currentLayout.devices.contains(device);
-              },
-              builder: (context, candidateItems, rejectedItems) {
-                final devices = <Device>[
-                  ...view.currentLayout.devices,
-                  ...candidateItems.whereType<Device>(),
-                ];
+            return !view.currentLayout.devices.contains(device);
+          },
+          builder: (context, candidateItems, rejectedItems) {
+            late Widget child;
 
-                if (rejectedItems.isNotEmpty) {
-                  return ColoredBox(
-                    color: theme.colorScheme.errorContainer,
-                    child: Center(
-                      child: Icon(
-                        Icons.block,
-                        size: 48.0,
-                        color: theme.colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  );
-                }
+            final devices = <Device>[
+              ...view.currentLayout.devices,
+              ...candidateItems.whereType<Device>(),
+            ];
+            final dl = devices.length;
 
-                if (devices.isEmpty) {
-                  return Center(
-                    child: Text(
-                      loc.selectACamera,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  );
-                }
-
-                final dl = devices.length;
-
-                if (dl == 1) {
-                  final device = devices.first;
-                  final singleView = Padding(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    padding: kGridPadding,
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: DesktopDeviceTile(
-                        device: device,
-                      ),
-                    ),
-                  );
-
-                  return singleView;
-                }
-
-                if (view.currentLayout.layoutType ==
-                        DesktopLayoutType.compactView &&
-                    dl >= 4) {
-                  var foldedDevices = devices
-                      .fold<List<List<Device>>>(
-                        [[]],
-                        (collection, device) {
-                          if (collection.last.length == 4) {
-                            collection.add([device]);
-                          } else {
-                            collection.last.add(device);
-                          }
-
-                          return collection;
-                        },
-                      )
-                      .reversed
-                      .toList();
-                  final crossAxisCount =
-                      calculateCrossAxisCount(foldedDevices.length);
-
-                  final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
-
-                  // if there are space left on screen
-                  if (amountOfItemsOnScreen > foldedDevices.length) {
-                    // final diff = amountOfItemsOnScreen - foldedDevices.length;
-                    while (amountOfItemsOnScreen > foldedDevices.length) {
-                      final lastFullFold =
-                          foldedDevices.firstWhere((fold) => fold.length > 1);
-                      final foldIndex = foldedDevices.indexOf(lastFullFold);
-                      foldedDevices.insert(
-                        (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
-                        [lastFullFold.last],
-                      );
-                      lastFullFold.removeLast();
-                    }
-                  }
-
-                  foldedDevices = foldedDevices.toList();
-
-                  return AbsorbPointer(
-                    absorbing: candidateItems.isNotEmpty,
-                    child: GridView.builder(
-                      key: ValueKey(view.currentLayout.hashCode),
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        mainAxisSpacing: kGridInnerPadding,
-                        crossAxisSpacing: kGridInnerPadding,
-                        childAspectRatio: 16 / 9,
-                      ),
-                      padding: kGridPadding,
-                      itemCount: foldedDevices.length,
-                      itemBuilder: (context, index) {
-                        final fold = foldedDevices[index];
-
-                        if (fold.length == 1) {
-                          final device = fold.first;
-                          return DesktopDeviceTile(
-                            key:
-                                ValueKey('$device;${device.server.serverUUID}'),
-                            device: device,
-                          );
-                        }
-
-                        return DesktopCompactTile(
-                          key: ValueKey('$fold;${fold.length}'),
-                          devices: fold,
-                        );
-                      },
-                    ),
-                  );
-                }
-
-                final crossAxisCount = calculateCrossAxisCount(dl);
-
-                return RepaintBoundary(
-                  child: AbsorbPointer(
-                    absorbing: candidateItems.isNotEmpty,
-                    child: StaticGrid(
-                      key: ValueKey(view.currentLayout.hashCode),
-                      crossAxisCount: crossAxisCount.clamp(1, 50),
-                      childAspectRatio: 16 / 9,
-                      onReorder: view.reorder,
-                      children: devices.map((device) {
-                        return DesktopDeviceTile(device: device);
-                      }).toList(),
-                    ),
+            if (rejectedItems.isNotEmpty) {
+              child = ColoredBox(
+                color: theme.colorScheme.errorContainer,
+                child: Center(
+                  child: Icon(
+                    Icons.block,
+                    size: 48.0,
+                    color: theme.colorScheme.onErrorContainer,
                   ),
-                );
-              },
-            ),
-          ),
+                ),
+              );
+            } else if (devices.isEmpty) {
+              child = Center(
+                child: Text(
+                  loc.selectACamera,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12.0,
+                  ),
+                ),
+              );
+            } else if (dl == 1) {
+              final device = devices.first;
+              child = Padding(
+                key: ValueKey(view.currentLayout.hashCode),
+                padding: kGridPadding,
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: DesktopDeviceTile(
+                    device: device,
+                  ),
+                ),
+              );
+            } else if (view.currentLayout.layoutType ==
+                    DesktopLayoutType.compactView &&
+                dl >= 4) {
+              var foldedDevices = devices
+                  .fold<List<List<Device>>>(
+                    [[]],
+                    (collection, device) {
+                      if (collection.last.length == 4) {
+                        collection.add([device]);
+                      } else {
+                        collection.last.add(device);
+                      }
+
+                      return collection;
+                    },
+                  )
+                  .reversed
+                  .toList();
+              final crossAxisCount =
+                  calculateCrossAxisCount(foldedDevices.length);
+
+              final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+              // if there are space left on screen
+              if (amountOfItemsOnScreen > foldedDevices.length) {
+                // final diff = amountOfItemsOnScreen - foldedDevices.length;
+                while (amountOfItemsOnScreen > foldedDevices.length) {
+                  final lastFullFold =
+                      foldedDevices.firstWhere((fold) => fold.length > 1);
+                  final foldIndex = foldedDevices.indexOf(lastFullFold);
+                  foldedDevices.insert(
+                    (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                    [lastFullFold.last],
+                  );
+                  lastFullFold.removeLast();
+                }
+              }
+
+              foldedDevices = foldedDevices.toList();
+
+              child = AbsorbPointer(
+                absorbing: candidateItems.isNotEmpty,
+                child: GridView.builder(
+                  key: ValueKey(view.currentLayout.hashCode),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: kGridInnerPadding,
+                    crossAxisSpacing: kGridInnerPadding,
+                    childAspectRatio: 16 / 9,
+                  ),
+                  padding: kGridPadding,
+                  itemCount: foldedDevices.length,
+                  itemBuilder: (context, index) {
+                    final fold = foldedDevices[index];
+
+                    if (fold.length == 1) {
+                      final device = fold.first;
+                      return DesktopDeviceTile(
+                        key: ValueKey('$device;${device.server.serverUUID}'),
+                        device: device,
+                      );
+                    }
+
+                    return DesktopCompactTile(
+                      key: ValueKey('$fold;${fold.length}'),
+                      devices: fold,
+                    );
+                  },
+                ),
+              );
+            } else {
+              final crossAxisCount = calculateCrossAxisCount(dl);
+
+              child = RepaintBoundary(
+                child: AbsorbPointer(
+                  absorbing: candidateItems.isNotEmpty,
+                  child: StaticGrid(
+                    key: ValueKey(view.currentLayout.hashCode),
+                    crossAxisCount: crossAxisCount.clamp(1, 50),
+                    childAspectRatio: 16 / 9,
+                    onReorder: view.reorder,
+                    children: devices.map((device) {
+                      return DesktopDeviceTile(device: device);
+                    }).toList(),
+                  ),
+                ),
+              );
+            }
+
+            return Material(
+              color: Colors.black,
+              child: Center(child: child),
+            );
+          },
         ),
       ),
     ];
 
-    if (isReversed) {
-      return Row(children: children.reversed.toList());
-    }
-
-    return Row(children: children);
+    return Row(children: isReversed ? children.reversed.toList() : children);
   }
 }
 
-class DesktopDeviceTile extends StatefulWidget {
+class DesktopDeviceTile extends StatelessWidget {
   const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
   @override
-  State<DesktopDeviceTile> createState() => _DesktopDeviceTileState();
-}
-
-class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  UnityVideoPlayer? get videoPlayer =>
-      DesktopViewProvider.instance.players[widget.device];
-
-  @override
   Widget build(BuildContext context) {
+    final videoPlayer = UnityPlayers.players[device];
+
     if (videoPlayer == null) {
       return Card(
         clipBehavior: Clip.hardEdge,
-        child: DesktopTileViewport(controller: null, device: widget.device),
+        child: DesktopTileViewport(controller: null, device: device),
       );
     }
 
-    return LayoutBuilder(builder: (context, consts) {
-      return UnityVideoView(
-        key: ValueKey(widget.device),
-        player: videoPlayer!,
-        color: createTheme(themeMode: ThemeMode.dark).canvasColor,
-        paneBuilder: (context, controller) {
-          return DesktopTileViewport(
-            controller: controller,
-            device: widget.device,
-          );
-        },
-      );
-    });
+    return UnityVideoView(
+      key: ValueKey(device.fullName),
+      player: videoPlayer,
+      color: createTheme(themeMode: ThemeMode.dark).canvasColor,
+      paneBuilder: (context, controller) {
+        return DesktopTileViewport(controller: controller, device: device);
+      },
+    );
   }
 }
 
@@ -337,9 +313,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   double? volume;
 
-  late final StreamSubscription<String> errorStream;
+  StreamSubscription<String>? errorStream;
   String? error;
-  late final StreamSubscription<Duration> durationStream;
+  StreamSubscription<Duration>? durationStream;
 
   void updateVolume() {
     assert(widget.controller != null);
@@ -372,18 +348,19 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   @override
   void dispose() {
-    durationStream.cancel();
+    durationStream?.cancel();
+    errorStream?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
-
     if (error != null) {
       return ErrorWarning(message: error!);
     }
+
+    final theme = Theme.of(context);
+    final view = context.watch<DesktopViewProvider>();
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -421,11 +398,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           Icons.close_outlined,
                           shadows: outlinedText(),
                         ),
-                        color: Colors.white,
+                        color: theme.colorScheme.error,
                         tooltip: loc.removeCamera,
                         iconSize: 18.0,
                         onPressed: () {
-                          DesktopViewProvider.instance.remove(widget.device);
+                          view.remove(widget.device);
                         },
                       ),
                     ),
@@ -521,11 +498,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         color: Colors.white,
                         iconSize: 18.0,
                         onPressed: () async {
-                          var player = view.players[widget.device];
+                          var player = UnityPlayers.players[widget.device];
                           var isLocalController = false;
                           if (player == null) {
-                            player = getVideoPlayerControllerForDevice(
-                                widget.device);
+                            player = UnityPlayers.forDevice(widget.device);
                             isLocalController = true;
                           }
 
@@ -548,9 +524,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       tooltip: loc.reloadCamera,
                       color: Colors.white,
                       iconSize: 18.0,
-                      onPressed: () {
-                        DesktopViewProvider.instance.reload(widget.device);
-                      },
+                      onPressed: () => view.reload(widget.device),
                     ),
                   ]),
                 ),
@@ -561,31 +535,32 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             top: 50.0,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: commands
-                  .map<String>((cmd) {
-                    switch (cmd.command) {
-                      case PTZCommand.move:
-                        return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-                      case PTZCommand.stop:
-                        return cmd.command.locale(context);
-                    }
-                  })
-                  .map<Widget>(
-                    (text) => Text(
-                      text,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  )
-                  .toList(),
+              children: commands.map<String>((cmd) {
+                switch (cmd.command) {
+                  case PTZCommand.move:
+                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                  case PTZCommand.stop:
+                    return cmd.command.locale(context);
+                }
+              }).map<Widget>((text) {
+                return Text(
+                  text,
+                  style: const TextStyle(color: Colors.white70),
+                );
+              }).toList(),
             ),
           ),
-          if (widget.controller != null)
-            if (!(widget.controller?.isSeekable ?? true))
-              const Center(
+          if (widget.controller != null && !widget.controller!.isSeekable)
+            const Center(
+              child: SizedBox(
+                height: 20.0,
+                width: 20.0,
                 child: CircularProgressIndicator.adaptive(
-                  strokeWidth: 3,
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
                 ),
               ),
+            ),
         ]);
       },
     );

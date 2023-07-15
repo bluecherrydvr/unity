@@ -48,8 +48,6 @@ int calculateCrossAxisCount(int deviceAmount) {
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= 900;
 
@@ -61,158 +59,183 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         },
       ),
       Expanded(
-        child: DragTarget<Device>(
+        child: LayoutView(
+          layout: view.currentLayout,
           onAccept: view.add,
+          onReorder: view.reorder,
           onWillAccept: (device) {
             if (device == null) return false;
-
             if (view.currentLayout.type == DesktopLayoutType.singleView) {
               return view.currentLayout.devices.isEmpty;
             }
-
             return !view.currentLayout.devices.contains(device);
-          },
-          builder: (context, candidateItems, rejectedItems) {
-            late Widget child;
-
-            final devices = <Device>[
-              ...view.currentLayout.devices,
-              ...candidateItems.whereType<Device>(),
-            ];
-            final dl = devices.length;
-
-            if (rejectedItems.isNotEmpty) {
-              child = ColoredBox(
-                color: theme.colorScheme.errorContainer,
-                child: Center(
-                  child: Icon(
-                    Icons.block,
-                    size: 48.0,
-                    color: theme.colorScheme.onErrorContainer,
-                  ),
-                ),
-              );
-            } else if (devices.isEmpty) {
-              child = Center(
-                child: Text(
-                  loc.selectACamera,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12.0,
-                  ),
-                ),
-              );
-            } else if (dl == 1) {
-              final device = devices.first;
-              child = Padding(
-                key: ValueKey(view.currentLayout.hashCode),
-                padding: kGridPadding,
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: DesktopDeviceTile(device: device),
-                ),
-              );
-            } else if (view.currentLayout.type ==
-                    DesktopLayoutType.compactView &&
-                dl >= 4) {
-              var foldedDevices = devices
-                  .fold<List<List<Device>>>(
-                    [[]],
-                    (collection, device) {
-                      if (collection.last.length == 4) {
-                        collection.add([device]);
-                      } else {
-                        collection.last.add(device);
-                      }
-
-                      return collection;
-                    },
-                  )
-                  .reversed
-                  .toList();
-              final crossAxisCount =
-                  calculateCrossAxisCount(foldedDevices.length);
-
-              final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
-
-              // if there are space left on screen
-              if (amountOfItemsOnScreen > foldedDevices.length) {
-                // final diff = amountOfItemsOnScreen - foldedDevices.length;
-                while (amountOfItemsOnScreen > foldedDevices.length) {
-                  final lastFullFold =
-                      foldedDevices.firstWhere((fold) => fold.length > 1);
-                  final foldIndex = foldedDevices.indexOf(lastFullFold);
-                  foldedDevices.insert(
-                    (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
-                    [lastFullFold.last],
-                  );
-                  lastFullFold.removeLast();
-                }
-              }
-
-              foldedDevices = foldedDevices.toList();
-
-              child = AbsorbPointer(
-                absorbing: candidateItems.isNotEmpty,
-                child: GridView.builder(
-                  key: ValueKey(view.currentLayout.hashCode),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: kGridInnerPadding,
-                    crossAxisSpacing: kGridInnerPadding,
-                    childAspectRatio: 16 / 9,
-                  ),
-                  padding: kGridPadding,
-                  itemCount: foldedDevices.length,
-                  itemBuilder: (context, index) {
-                    final fold = foldedDevices[index];
-
-                    if (fold.length == 1) {
-                      final device = fold.first;
-                      return DesktopDeviceTile(
-                        key: ValueKey('$device;${device.server.serverUUID}'),
-                        device: device,
-                      );
-                    }
-
-                    return DesktopCompactTile(
-                      key: ValueKey('$fold;${fold.length}'),
-                      devices: fold,
-                    );
-                  },
-                ),
-              );
-            } else {
-              final crossAxisCount = calculateCrossAxisCount(dl);
-
-              child = RepaintBoundary(
-                child: AbsorbPointer(
-                  absorbing: candidateItems.isNotEmpty,
-                  child: StaticGrid(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    crossAxisCount: crossAxisCount.clamp(1, 50),
-                    childAspectRatio: 16 / 9,
-                    onReorder: view.reorder,
-                    children: devices.map((device) {
-                      return DesktopDeviceTile(device: device);
-                    }).toList(),
-                  ),
-                ),
-              );
-            }
-
-            return Material(
-              color: Colors.black,
-              child: Center(child: child),
-            );
           },
         ),
       ),
     ];
 
     return Row(children: isReversed ? children.reversed.toList() : children);
+  }
+}
+
+class LayoutView extends StatelessWidget {
+  const LayoutView({
+    super.key,
+    required this.layout,
+    this.onAccept,
+    this.onWillAccept,
+    this.onReorder,
+  });
+
+  final Layout layout;
+
+  final ValueChanged<Device>? onAccept;
+  final DragTargetWillAccept<Device>? onWillAccept;
+  final ReorderCallback? onReorder;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
+    return DragTarget<Device>(
+      onAccept: onAccept,
+      onWillAccept: onWillAccept,
+      builder: (context, candidateItems, rejectedItems) {
+        late Widget child;
+
+        final devices = <Device>[
+          ...layout.devices,
+          ...candidateItems.whereType<Device>(),
+        ];
+        final dl = devices.length;
+
+        if (rejectedItems.isNotEmpty) {
+          child = ColoredBox(
+            color: theme.colorScheme.errorContainer,
+            child: Center(
+              child: Icon(
+                Icons.block,
+                size: 48.0,
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+          );
+        } else if (devices.isEmpty) {
+          child = Center(
+            child: Text(
+              loc.selectACamera,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.0,
+              ),
+            ),
+          );
+        } else if (dl == 1) {
+          final device = devices.first;
+          child = Padding(
+            key: ValueKey(layout.hashCode),
+            padding: kGridPadding,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: DesktopDeviceTile(device: device),
+            ),
+          );
+        } else if (layout.type == DesktopLayoutType.compactView && dl >= 4) {
+          var foldedDevices = devices
+              .fold<List<List<Device>>>(
+                [[]],
+                (collection, device) {
+                  if (collection.last.length == 4) {
+                    collection.add([device]);
+                  } else {
+                    collection.last.add(device);
+                  }
+
+                  return collection;
+                },
+              )
+              .reversed
+              .toList();
+          final crossAxisCount = calculateCrossAxisCount(foldedDevices.length);
+
+          final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+          // if there are space left on screen
+          if (amountOfItemsOnScreen > foldedDevices.length) {
+            // final diff = amountOfItemsOnScreen - foldedDevices.length;
+            while (amountOfItemsOnScreen > foldedDevices.length) {
+              final lastFullFold =
+                  foldedDevices.firstWhere((fold) => fold.length > 1);
+              final foldIndex = foldedDevices.indexOf(lastFullFold);
+              foldedDevices.insert(
+                (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                [lastFullFold.last],
+              );
+              lastFullFold.removeLast();
+            }
+          }
+
+          foldedDevices = foldedDevices.toList();
+
+          child = AbsorbPointer(
+            absorbing: candidateItems.isNotEmpty,
+            child: GridView.builder(
+              key: ValueKey(layout.hashCode),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: kGridInnerPadding,
+                crossAxisSpacing: kGridInnerPadding,
+                childAspectRatio: 16 / 9,
+              ),
+              padding: kGridPadding,
+              itemCount: foldedDevices.length,
+              itemBuilder: (context, index) {
+                final fold = foldedDevices[index];
+
+                if (fold.length == 1) {
+                  final device = fold.first;
+                  return DesktopDeviceTile(
+                    key: ValueKey('$device;${device.server.serverUUID}'),
+                    device: device,
+                  );
+                }
+
+                return DesktopCompactTile(
+                  key: ValueKey('$fold;${fold.length}'),
+                  devices: fold,
+                );
+              },
+            ),
+          );
+        } else {
+          final crossAxisCount = calculateCrossAxisCount(dl);
+
+          child = RepaintBoundary(
+            child: AbsorbPointer(
+              absorbing: candidateItems.isNotEmpty,
+              child: StaticGrid(
+                key: ValueKey(layout.hashCode),
+                crossAxisCount: crossAxisCount.clamp(1, 50),
+                childAspectRatio: 16 / 9,
+                reorderable: onReorder != null,
+                onReorder: onReorder ?? (a, b) {},
+                children: devices.map((device) {
+                  return DesktopDeviceTile(device: device);
+                }).toList(),
+              ),
+            ),
+          );
+        }
+
+        return Material(
+          color: Colors.black,
+          child: Center(child: child),
+        );
+      },
+    );
   }
 }
 
@@ -289,16 +312,10 @@ class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
 
-  /// Whether this viewport is in a sub view.
-  ///
-  /// Some features aren't allow in subview
-  final bool isSubView;
-
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
-    this.isSubView = false,
   });
 
   @override
@@ -309,10 +326,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
   double? volume;
-
-  StreamSubscription<String>? errorStream;
-  String? error;
-  StreamSubscription<Duration>? durationStream;
 
   void updateVolume() {
     assert(widget.controller != null);
@@ -326,12 +339,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     super.initState();
     if (widget.controller != null) {
       updateVolume();
-      durationStream = widget.controller!.onDurationUpdate.listen((event) {
-        if (mounted) setState(() {});
-      });
-      errorStream = widget.controller!.onError.listen((event) {
-        if (mounted) setState(() => error = event);
-      });
     }
   }
 
@@ -344,20 +351,16 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   }
 
   @override
-  void dispose() {
-    durationStream?.cancel();
-    errorStream?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final error = UnityVideoView.maybeOf(context)?.error;
     if (error != null) {
-      return ErrorWarning(message: error!);
+      return ErrorWarning(message: error);
     }
 
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+
+    final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -367,166 +370,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final loc = AppLocalizations.of(context);
 
         return Stack(children: [
-          Column(children: [
-            if (!widget.isSubView)
-              Container(
-                height: 48.0,
-                padding: const EdgeInsets.symmetric(horizontal: 12.0).add(
-                  const EdgeInsetsDirectional.only(top: 8.0),
-                ),
-                alignment: AlignmentDirectional.centerStart,
-                child: Row(children: [
-                  Expanded(
-                    child: Text(
-                      widget.device.fullName,
-                      style: TextStyle(
+          Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
+            child: RichText(
+              text: TextSpan(
+                text: widget.device.name,
+                style: theme.textTheme.labelLarge,
+                children: [
+                  if (states.isHovering)
+                    TextSpan(
+                      text: '\n${widget.device.server.name}',
+                      style: theme.textTheme.labelSmall?.copyWith(
                         color: Colors.white,
                         shadows: outlinedText(),
                       ),
                     ),
-                  ),
-                  if (!widget.isSubView)
-                    AnimatedOpacity(
-                      opacity: !states.isHovering ? 0 : 1,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.close_outlined,
-                          shadows: outlinedText(),
-                        ),
-                        color: theme.colorScheme.error,
-                        tooltip: loc.removeCamera,
-                        iconSize: 18.0,
-                        onPressed: () {
-                          view.remove(widget.device);
-                        },
-                      ),
-                    ),
-                ]),
+                ],
               ),
-            const Spacer(),
-            if (widget.controller != null)
-              AnimatedOpacity(
-                opacity: !states.isHovering ? 0 : 1,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0)
-                      .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
-                  child:
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    if (widget.device.hasPTZ) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.videogame_asset,
-                          color: ptzEnabled ? Colors.white : null,
-                        ),
-                        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                        onPressed: () =>
-                            setState(() => ptzEnabled = !ptzEnabled),
-                      ),
-                      // TODO(bdlukaa): enable presets when the API is ready
-                      // IconButton(
-                      //   icon: Icon(
-                      //     Icons.dataset,
-                      //     color: ptzEnabled ? Colors.white : null,
-                      //   ),
-                      //   tooltip: ptzEnabled
-                      //       ? loc.enabledPTZ
-                      //       : loc.disabledPTZ,
-                      //   onPressed: !ptzEnabled
-                      //       ? null
-                      //       : () {
-                      //           showDialog(
-                      //             context: context,
-                      //             builder: (context) {
-                      //               return PresetsDialog(device: widget.device);
-                      //             },
-                      //           );
-                      //         },
-                      // ),
-                    ],
-                    const Spacer(),
-                    () {
-                      final isMuted = volume == 0.0;
-
-                      return IconButton(
-                        icon: Icon(
-                          isMuted
-                              ? Icons.volume_mute_rounded
-                              : Icons.volume_up_rounded,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () async {
-                          if (isMuted) {
-                            await widget.controller!.setVolume(1.0);
-                          } else {
-                            await widget.controller!.setVolume(0.0);
-                          }
-
-                          updateVolume();
-                        },
-                      );
-                    }(),
-                    if (isDesktop && !widget.isSubView)
-                      IconButton(
-                        icon: Icon(
-                          Icons.open_in_new,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: loc.openInANewWindow,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () {
-                          widget.device.openInANewWindow();
-                        },
-                      ),
-                    if (!widget.isSubView)
-                      IconButton(
-                        icon: Icon(
-                          Icons.fullscreen_rounded,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: loc.showFullscreenCamera,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () async {
-                          var player = UnityPlayers.players[widget.device];
-                          var isLocalController = false;
-                          if (player == null) {
-                            player = UnityPlayers.forDevice(widget.device);
-                            isLocalController = true;
-                          }
-
-                          await Navigator.of(context).pushNamed(
-                            '/fullscreen',
-                            arguments: {
-                              'device': widget.device,
-                              'player': player,
-                              'ptzEnabled': ptzEnabled,
-                            },
-                          );
-                          if (isLocalController) await player.release();
-                        },
-                      ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.replay_outlined,
-                        shadows: outlinedText(),
-                      ),
-                      tooltip: loc.reloadCamera,
-                      color: Colors.white,
-                      iconSize: 18.0,
-                      onPressed: () => view.reload(widget.device),
-                    ),
-                  ]),
-                ),
-              ),
-          ]),
+            ),
+          ),
           PositionedDirectional(
             end: 16.0,
             top: 50.0,
@@ -555,6 +420,147 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 child: CircularProgressIndicator.adaptive(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
+              ),
+            ),
+          if (widget.controller != null && states.isHovering)
+            PositionedDirectional(
+              end: 0,
+              start: 0,
+              bottom: 4.0,
+              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                const SizedBox(width: 12.0),
+                if (widget.device.hasPTZ) ...[
+                  IconButton(
+                    icon: Icon(
+                      Icons.videogame_asset,
+                      color: ptzEnabled ? Colors.white : null,
+                    ),
+                    tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
+                    onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
+                  ),
+                  // TODO(bdlukaa): enable presets when the API is ready
+                  // IconButton(
+                  //   icon: Icon(
+                  //     Icons.dataset,
+                  //     color: ptzEnabled ? Colors.white : null,
+                  //   ),
+                  //   tooltip: ptzEnabled
+                  //       ? loc.enabledPTZ
+                  //       : loc.disabledPTZ,
+                  //   onPressed: !ptzEnabled
+                  //       ? null
+                  //       : () {
+                  //           showDialog(
+                  //             context: context,
+                  //             builder: (context) {
+                  //               return PresetsDialog(device: widget.device);
+                  //             },
+                  //           );
+                  //         },
+                  // ),
+                ],
+                const Spacer(),
+                () {
+                  final isMuted = volume == 0.0;
+
+                  return IconButton(
+                    icon: Icon(
+                      isMuted
+                          ? Icons.volume_mute_rounded
+                          : Icons.volume_up_rounded,
+                      shadows: outlinedText(),
+                    ),
+                    tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
+                    color: Colors.white,
+                    iconSize: 18.0,
+                    onPressed: () async {
+                      if (isMuted) {
+                        await widget.controller!.setVolume(1.0);
+                      } else {
+                        await widget.controller!.setVolume(0.0);
+                      }
+
+                      updateVolume();
+                    },
+                  );
+                }(),
+                if (isDesktop && !isSubView)
+                  IconButton(
+                    icon: Icon(
+                      Icons.open_in_new,
+                      shadows: outlinedText(),
+                    ),
+                    tooltip: loc.openInANewWindow,
+                    color: Colors.white,
+                    iconSize: 18.0,
+                    onPressed: () {
+                      widget.device.openInANewWindow();
+                    },
+                  ),
+                if (!isSubView)
+                  IconButton(
+                    icon: Icon(
+                      Icons.fullscreen_rounded,
+                      shadows: outlinedText(),
+                    ),
+                    tooltip: loc.showFullscreenCamera,
+                    color: Colors.white,
+                    iconSize: 18.0,
+                    onPressed: () async {
+                      var player = UnityPlayers.players[widget.device];
+                      var isLocalController = false;
+                      if (player == null) {
+                        player = UnityPlayers.forDevice(widget.device);
+                        isLocalController = true;
+                      }
+
+                      await Navigator.of(context).pushNamed(
+                        '/fullscreen',
+                        arguments: {
+                          'device': widget.device,
+                          'player': player,
+                          'ptzEnabled': ptzEnabled,
+                        },
+                      );
+                      if (isLocalController) await player.release();
+                    },
+                  ),
+                IconButton(
+                  icon: Icon(
+                    Icons.replay_outlined,
+                    shadows: outlinedText(),
+                  ),
+                  tooltip: loc.reloadCamera,
+                  color: Colors.white,
+                  iconSize: 18.0,
+                  onPressed: () => view.reload(widget.device),
+                ),
+                const SizedBox(width: 12.0),
+              ]),
+            ),
+          if (!isSubView)
+            PositionedDirectional(
+              top: 4.0,
+              end: 4.0,
+              child: AnimatedOpacity(
+                opacity: !states.isHovering ? 0 : 1,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.close_outlined,
+                    shadows: outlinedText(
+                      strokeColor: theme.colorScheme.errorContainer,
+                      strokeWidth: 0.15,
+                    ),
+                  ),
+                  color: theme.colorScheme.error,
+                  tooltip: loc.removeCamera,
+                  iconSize: 18.0,
+                  onPressed: () {
+                    view.remove(widget.device);
+                  },
                 ),
               ),
             ),

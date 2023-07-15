@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
-
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -248,25 +246,6 @@ class DeviceTileState extends State<DeviceTile> {
       context.read<MobileViewProvider>().hoverStates[widget.tab]
           ?[widget.index] = value;
 
-  String? error;
-  StreamSubscription<String>? errorStream;
-
-  @override
-  void initState() {
-    super.initState();
-    if (videoPlayer != null) {
-      errorStream = videoPlayer!.onError.listen((event) {
-        if (mounted) setState(() => error = event);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    errorStream?.cancel();
-    super.dispose();
-  }
-
   Widget get playerView {
     debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
     if (videoPlayer == null) return const SizedBox.shrink();
@@ -274,11 +253,13 @@ class DeviceTileState extends State<DeviceTile> {
     return UnityVideoView(
       player: videoPlayer!,
       paneBuilder: (context, controller) {
+        final error = UnityVideoView.of(context).error;
+
         return Material(
           color: Colors.transparent,
           child: () {
             if (error != null) {
-              return ErrorWarning(message: error!);
+              return ErrorWarning(message: error);
             } else if (!controller.isSeekable) {
               return const Center(
                 child: CircularProgressIndicator.adaptive(

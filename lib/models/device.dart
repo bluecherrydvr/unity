@@ -92,7 +92,7 @@ class Device {
 
   /// Server name / Device name
   String get fullName {
-    return '${server.name} / $name';
+    return '$name (${server.name})';
   }
 
   @override

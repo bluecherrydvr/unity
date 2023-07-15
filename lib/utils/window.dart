@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
@@ -56,10 +57,12 @@ Future<void> configureWindow() async {
 /// See also:
 ///
 ///  * [SingleCameraWindow]
-Future<void> configureCameraWindow(String title) async {
+Future<void> configureWindowTitle(String title) async {
   await WindowManager.instance.ensureInitialized();
   await windowManager.setTitle(title);
 }
+
+enum MultiWindowType { device, layout }
 
 extension DeviceWindowExtension on Device {
   /// Opens this device in a new window
@@ -68,7 +71,23 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
+      '${MultiWindowType.device.index}',
       json.encode(toJson()),
+      '${SettingsProvider.instance.themeMode.index}',
+    ]);
+
+    debugPrint('Opened window with id ${window.windowId}');
+  }
+}
+
+extension LayoutWindowExtension on Layout {
+  Future<void> openInANewWindow() async {
+    assert(isDesktop, 'Can not open a new window in a non-desktop environment');
+
+    debugPrint('Opening a new window');
+    final window = await MultiWindow.run([
+      '${MultiWindowType.layout.index}',
+      json.encode(toMap()),
       '${SettingsProvider.instance.themeMode.index}',
     ]);
 

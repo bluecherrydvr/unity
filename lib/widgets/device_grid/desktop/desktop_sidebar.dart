@@ -116,9 +116,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                           child: Row(children: [
                             Expanded(child: tile),
                             if (isBlocked)
-                              const Icon(
+                              Icon(
                                 Icons.block,
-                                color: Colors.red,
+                                color: theme.colorScheme.error,
                                 size: 18.0,
                               ),
                             const SizedBox(width: 16.0),
@@ -229,21 +229,17 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   ),
                 ),
               ),
-              if (isMobile)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1.0),
-                  child: IconButton(
-                    onPressed: widget.device.status
+              if (isMobile || hovering)
+                Tooltip(
+                  message: loc.cameraOptions,
+                  preferBelow: false,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(4.0),
+                    onTap: widget.device.status
                         ? () => _displayOptions(context)
                         : null,
-                    icon: Icon(moreIconData),
-                    iconSize: 22.0,
+                    child: Icon(moreIconData, size: 20.0),
                   ),
-                )
-              else if (widget.selected && hovering && widget.device.status)
-                Tooltip(
-                  message: loc.removeCamera,
-                  child: const Icon(Icons.close, size: 18.0, color: Colors.red),
                 ),
               const SizedBox(width: 16.0),
             ]),

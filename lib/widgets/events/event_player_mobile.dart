@@ -149,7 +149,6 @@ class _VideoViewportState extends State<VideoViewport> {
 
   late StreamSubscription positionStream;
   late StreamSubscription bufferStream;
-  late StreamSubscription errorStream;
 
   @override
   void initState() {
@@ -159,7 +158,6 @@ class _VideoViewportState extends State<VideoViewport> {
     positionStream =
         widget.player.onCurrentPosUpdate.listen(currentPosListener);
     bufferStream = widget.player.onBufferUpdate.listen(bufferListener);
-    errorStream = widget.player.onError.listen(errorListener);
 
     startTimer();
   }

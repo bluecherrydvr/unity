@@ -16,7 +16,6 @@ class MultiWindow {
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .map((line) => 'Sub window ${result.pid}: $line')
-        .map((line) => line.endsWith('\n') ? line : '$line\n')
         .forEach((line) {
       if (kDebugMode) print(line);
     });

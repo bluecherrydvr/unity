@@ -74,38 +74,31 @@ Future<void> main(List<String> args) async {
     try {
       // this is just a mock. HomeProvider depends on this, so we mock the instance
       ServersProvider.instance = ServersProvider();
-      DesktopViewProvider.instance = DesktopViewProvider();
+      await DesktopViewProvider.ensureInitialized();
 
       final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
-      debugPrint(windowType.name);
+      final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
 
       switch (windowType) {
         case MultiWindowType.device:
           final device = Device.fromJson(json.decode(args[1]));
-          final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
           configureWindowTitle(device.fullName);
 
           debugPrint(device.toString());
-          debugPrint(mode.toString());
 
-          runApp(
-            AlternativeWindow(
-              mode: mode,
-              child: CameraView(device: device),
-            ),
-          );
+          runApp(AlternativeWindow(
+            mode: themeMode,
+            child: CameraView(device: device),
+          ));
           break;
         case MultiWindowType.layout:
-          final layout = Layout.fromJson(json.decode(args[1]));
-          final mode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+          final layout = Layout.fromJson(args[1]);
           configureWindowTitle(layout.name);
 
-          runApp(
-            AlternativeWindow(
-              mode: mode,
-              child: LayoutView(layout: layout),
-            ),
-          );
+          runApp(AlternativeWindow(
+            mode: themeMode,
+            child: AlternativeLayoutView(layout: layout),
+          ));
 
           break;
       }

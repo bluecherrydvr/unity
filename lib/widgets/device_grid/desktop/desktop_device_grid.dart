@@ -48,8 +48,6 @@ int calculateCrossAxisCount(int deviceAmount) {
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= 900;
 
@@ -61,158 +59,183 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
         },
       ),
       Expanded(
-        child: DragTarget<Device>(
+        child: LayoutView(
+          layout: view.currentLayout,
           onAccept: view.add,
+          onReorder: view.reorder,
           onWillAccept: (device) {
             if (device == null) return false;
-
             if (view.currentLayout.type == DesktopLayoutType.singleView) {
               return view.currentLayout.devices.isEmpty;
             }
-
             return !view.currentLayout.devices.contains(device);
-          },
-          builder: (context, candidateItems, rejectedItems) {
-            late Widget child;
-
-            final devices = <Device>[
-              ...view.currentLayout.devices,
-              ...candidateItems.whereType<Device>(),
-            ];
-            final dl = devices.length;
-
-            if (rejectedItems.isNotEmpty) {
-              child = ColoredBox(
-                color: theme.colorScheme.errorContainer,
-                child: Center(
-                  child: Icon(
-                    Icons.block,
-                    size: 48.0,
-                    color: theme.colorScheme.onErrorContainer,
-                  ),
-                ),
-              );
-            } else if (devices.isEmpty) {
-              child = Center(
-                child: Text(
-                  loc.selectACamera,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12.0,
-                  ),
-                ),
-              );
-            } else if (dl == 1) {
-              final device = devices.first;
-              child = Padding(
-                key: ValueKey(view.currentLayout.hashCode),
-                padding: kGridPadding,
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: DesktopDeviceTile(device: device),
-                ),
-              );
-            } else if (view.currentLayout.type ==
-                    DesktopLayoutType.compactView &&
-                dl >= 4) {
-              var foldedDevices = devices
-                  .fold<List<List<Device>>>(
-                    [[]],
-                    (collection, device) {
-                      if (collection.last.length == 4) {
-                        collection.add([device]);
-                      } else {
-                        collection.last.add(device);
-                      }
-
-                      return collection;
-                    },
-                  )
-                  .reversed
-                  .toList();
-              final crossAxisCount =
-                  calculateCrossAxisCount(foldedDevices.length);
-
-              final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
-
-              // if there are space left on screen
-              if (amountOfItemsOnScreen > foldedDevices.length) {
-                // final diff = amountOfItemsOnScreen - foldedDevices.length;
-                while (amountOfItemsOnScreen > foldedDevices.length) {
-                  final lastFullFold =
-                      foldedDevices.firstWhere((fold) => fold.length > 1);
-                  final foldIndex = foldedDevices.indexOf(lastFullFold);
-                  foldedDevices.insert(
-                    (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
-                    [lastFullFold.last],
-                  );
-                  lastFullFold.removeLast();
-                }
-              }
-
-              foldedDevices = foldedDevices.toList();
-
-              child = AbsorbPointer(
-                absorbing: candidateItems.isNotEmpty,
-                child: GridView.builder(
-                  key: ValueKey(view.currentLayout.hashCode),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: kGridInnerPadding,
-                    crossAxisSpacing: kGridInnerPadding,
-                    childAspectRatio: 16 / 9,
-                  ),
-                  padding: kGridPadding,
-                  itemCount: foldedDevices.length,
-                  itemBuilder: (context, index) {
-                    final fold = foldedDevices[index];
-
-                    if (fold.length == 1) {
-                      final device = fold.first;
-                      return DesktopDeviceTile(
-                        key: ValueKey('$device;${device.server.serverUUID}'),
-                        device: device,
-                      );
-                    }
-
-                    return DesktopCompactTile(
-                      key: ValueKey('$fold;${fold.length}'),
-                      devices: fold,
-                    );
-                  },
-                ),
-              );
-            } else {
-              final crossAxisCount = calculateCrossAxisCount(dl);
-
-              child = RepaintBoundary(
-                child: AbsorbPointer(
-                  absorbing: candidateItems.isNotEmpty,
-                  child: StaticGrid(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    crossAxisCount: crossAxisCount.clamp(1, 50),
-                    childAspectRatio: 16 / 9,
-                    onReorder: view.reorder,
-                    children: devices.map((device) {
-                      return DesktopDeviceTile(device: device);
-                    }).toList(),
-                  ),
-                ),
-              );
-            }
-
-            return Material(
-              color: Colors.black,
-              child: Center(child: child),
-            );
           },
         ),
       ),
     ];
 
     return Row(children: isReversed ? children.reversed.toList() : children);
+  }
+}
+
+class LayoutView extends StatelessWidget {
+  const LayoutView({
+    super.key,
+    required this.layout,
+    this.onAccept,
+    this.onWillAccept,
+    this.onReorder,
+  });
+
+  final Layout layout;
+
+  final ValueChanged<Device>? onAccept;
+  final DragTargetWillAccept<Device>? onWillAccept;
+  final ReorderCallback? onReorder;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
+    return DragTarget<Device>(
+      onAccept: onAccept,
+      onWillAccept: onWillAccept,
+      builder: (context, candidateItems, rejectedItems) {
+        late Widget child;
+
+        final devices = <Device>[
+          ...layout.devices,
+          ...candidateItems.whereType<Device>(),
+        ];
+        final dl = devices.length;
+
+        if (rejectedItems.isNotEmpty) {
+          child = ColoredBox(
+            color: theme.colorScheme.errorContainer,
+            child: Center(
+              child: Icon(
+                Icons.block,
+                size: 48.0,
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+          );
+        } else if (devices.isEmpty) {
+          child = Center(
+            child: Text(
+              loc.selectACamera,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.0,
+              ),
+            ),
+          );
+        } else if (dl == 1) {
+          final device = devices.first;
+          child = Padding(
+            key: ValueKey(layout.hashCode),
+            padding: kGridPadding,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: DesktopDeviceTile(device: device),
+            ),
+          );
+        } else if (layout.type == DesktopLayoutType.compactView && dl >= 4) {
+          var foldedDevices = devices
+              .fold<List<List<Device>>>(
+                [[]],
+                (collection, device) {
+                  if (collection.last.length == 4) {
+                    collection.add([device]);
+                  } else {
+                    collection.last.add(device);
+                  }
+
+                  return collection;
+                },
+              )
+              .reversed
+              .toList();
+          final crossAxisCount = calculateCrossAxisCount(foldedDevices.length);
+
+          final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
+
+          // if there are space left on screen
+          if (amountOfItemsOnScreen > foldedDevices.length) {
+            // final diff = amountOfItemsOnScreen - foldedDevices.length;
+            while (amountOfItemsOnScreen > foldedDevices.length) {
+              final lastFullFold =
+                  foldedDevices.firstWhere((fold) => fold.length > 1);
+              final foldIndex = foldedDevices.indexOf(lastFullFold);
+              foldedDevices.insert(
+                (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),
+                [lastFullFold.last],
+              );
+              lastFullFold.removeLast();
+            }
+          }
+
+          foldedDevices = foldedDevices.toList();
+
+          child = AbsorbPointer(
+            absorbing: candidateItems.isNotEmpty,
+            child: GridView.builder(
+              key: ValueKey(layout.hashCode),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: kGridInnerPadding,
+                crossAxisSpacing: kGridInnerPadding,
+                childAspectRatio: 16 / 9,
+              ),
+              padding: kGridPadding,
+              itemCount: foldedDevices.length,
+              itemBuilder: (context, index) {
+                final fold = foldedDevices[index];
+
+                if (fold.length == 1) {
+                  final device = fold.first;
+                  return DesktopDeviceTile(
+                    key: ValueKey('$device;${device.server.serverUUID}'),
+                    device: device,
+                  );
+                }
+
+                return DesktopCompactTile(
+                  key: ValueKey('$fold;${fold.length}'),
+                  devices: fold,
+                );
+              },
+            ),
+          );
+        } else {
+          final crossAxisCount = calculateCrossAxisCount(dl);
+
+          child = RepaintBoundary(
+            child: AbsorbPointer(
+              absorbing: candidateItems.isNotEmpty,
+              child: StaticGrid(
+                key: ValueKey(layout.hashCode),
+                crossAxisCount: crossAxisCount.clamp(1, 50),
+                childAspectRatio: 16 / 9,
+                reorderable: onReorder != null,
+                onReorder: onReorder ?? (a, b) {},
+                children: devices.map((device) {
+                  return DesktopDeviceTile(device: device);
+                }).toList(),
+              ),
+            ),
+          );
+        }
+
+        return Material(
+          color: Colors.black,
+          child: Center(child: child),
+        );
+      },
+    );
   }
 }
 

@@ -48,6 +48,7 @@ int calculateCrossAxisCount(int deviceAmount) {
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= 900;
@@ -62,11 +63,37 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
       Expanded(
         child: Material(
           color: Colors.black,
-          child: SizedBox.expand(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 100),
-              child: () {
-                final devices = view.currentLayout.devices;
+          child: Center(
+            child: DragTarget<Device>(
+              onAccept: view.add,
+              onWillAccept: (device) {
+                if (device == null) return false;
+
+                if (view.currentLayout.layoutType ==
+                    DesktopLayoutType.singleView) {
+                  return view.currentLayout.devices.isEmpty;
+                }
+
+                return !view.currentLayout.devices.contains(device);
+              },
+              builder: (context, candidateItems, rejectedItems) {
+                final devices = <Device>[
+                  ...view.currentLayout.devices,
+                  ...candidateItems.whereType<Device>(),
+                ];
+
+                if (rejectedItems.isNotEmpty) {
+                  return ColoredBox(
+                    color: theme.colorScheme.errorContainer,
+                    child: Center(
+                      child: Icon(
+                        Icons.block,
+                        size: 48.0,
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  );
+                }
 
                 if (devices.isEmpty) {
                   return Center(
@@ -84,17 +111,18 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                 if (dl == 1) {
                   final device = devices.first;
-                  return AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Padding(
-                      key: ValueKey(view.currentLayout.hashCode),
-                      padding: kGridPadding,
+                  final singleView = Padding(
+                    key: ValueKey(view.currentLayout.hashCode),
+                    padding: kGridPadding,
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
                       child: DesktopDeviceTile(
-                        // key: ValueKey('$device.${device.server.serverUUID}'),
                         device: device,
                       ),
                     ),
                   );
+
+                  return singleView;
                 }
 
                 if (view.currentLayout.layoutType ==
@@ -137,51 +165,58 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
                   foldedDevices = foldedDevices.toList();
 
-                  return GridView.builder(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: kGridInnerPadding,
-                      crossAxisSpacing: kGridInnerPadding,
-                      childAspectRatio: 16 / 9,
-                    ),
-                    padding: kGridPadding,
-                    itemCount: foldedDevices.length,
-                    itemBuilder: (context, index) {
-                      final fold = foldedDevices[index];
+                  return AbsorbPointer(
+                    absorbing: candidateItems.isNotEmpty,
+                    child: GridView.builder(
+                      key: ValueKey(view.currentLayout.hashCode),
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: kGridInnerPadding,
+                        crossAxisSpacing: kGridInnerPadding,
+                        childAspectRatio: 16 / 9,
+                      ),
+                      padding: kGridPadding,
+                      itemCount: foldedDevices.length,
+                      itemBuilder: (context, index) {
+                        final fold = foldedDevices[index];
 
-                      if (fold.length == 1) {
-                        final device = fold.first;
-                        return DesktopDeviceTile(
-                          key: ValueKey('$device;${device.server.serverUUID}'),
-                          device: device,
+                        if (fold.length == 1) {
+                          final device = fold.first;
+                          return DesktopDeviceTile(
+                            key:
+                                ValueKey('$device;${device.server.serverUUID}'),
+                            device: device,
+                          );
+                        }
+
+                        return DesktopCompactTile(
+                          key: ValueKey('$fold;${fold.length}'),
+                          devices: fold,
                         );
-                      }
-
-                      return DesktopCompactTile(
-                        key: ValueKey('$fold;${fold.length}'),
-                        devices: fold,
-                      );
-                    },
+                      },
+                    ),
                   );
                 }
 
                 final crossAxisCount = calculateCrossAxisCount(dl);
 
                 return RepaintBoundary(
-                  child: StaticGrid(
-                    key: ValueKey(view.currentLayout.hashCode),
-                    crossAxisCount: crossAxisCount.clamp(1, 50),
-                    childAspectRatio: 16 / 9,
-                    onReorder: view.reorder,
-                    children: devices.map((device) {
-                      return DesktopDeviceTile(device: device);
-                    }).toList(),
+                  child: AbsorbPointer(
+                    absorbing: candidateItems.isNotEmpty,
+                    child: StaticGrid(
+                      key: ValueKey(view.currentLayout.hashCode),
+                      crossAxisCount: crossAxisCount.clamp(1, 50),
+                      childAspectRatio: 16 / 9,
+                      onReorder: view.reorder,
+                      children: devices.map((device) {
+                        return DesktopDeviceTile(device: device);
+                      }).toList(),
+                    ),
                   ),
                 );
-              }(),
+              },
             ),
           ),
         ),
@@ -212,7 +247,10 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   @override
   Widget build(BuildContext context) {
     if (videoPlayer == null) {
-      return const Center(child: CircularProgressIndicator.adaptive());
+      return Card(
+        clipBehavior: Clip.hardEdge,
+        child: DesktopTileViewport(controller: null, device: widget.device),
+      );
     }
 
     return LayoutBuilder(builder: (context, consts) {
@@ -276,7 +314,7 @@ class DesktopCompactTile extends StatelessWidget {
 }
 
 class DesktopTileViewport extends StatefulWidget {
-  final UnityVideoPlayer controller;
+  final UnityVideoPlayer? controller;
   final Device device;
 
   /// Whether this viewport is in a sub view.
@@ -301,7 +339,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   double? volume;
 
   void updateVolume() {
-    widget.controller.volume.then((value) {
+    assert(widget.controller != null);
+    widget.controller?.volume.then((value) {
       if (mounted) setState(() => volume = value);
     });
   }
@@ -309,7 +348,15 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   @override
   void initState() {
     super.initState();
-    updateVolume();
+    if (widget.controller != null) updateVolume();
+  }
+
+  @override
+  void didUpdateWidget(covariant DesktopTileViewport oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller == null && widget.controller != null) {
+      updateVolume();
+    }
   }
 
   @override
@@ -317,9 +364,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
 
-    if (widget.controller.error != null) {
-      return ErrorWarning(message: widget.controller.error!);
-    } else if (!widget.controller.isSeekable) {
+    if (widget.controller?.error != null) {
+      return ErrorWarning(message: widget.controller!.error!);
+    } else if (!(widget.controller?.isSeekable ?? true)) {
       return const Center(
         child: CircularProgressIndicator.adaptive(
           valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -394,16 +441,16 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 ]),
               ),
             const Spacer(),
-            AnimatedOpacity(
-              opacity: !states.isHovering ? 0 : 1,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0)
-                    .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+            if (widget.controller != null)
+              AnimatedOpacity(
+                opacity: !states.isHovering ? 0 : 1,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0)
+                      .add(const EdgeInsetsDirectional.only(bottom: 4.0)),
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     if (widget.device.hasPTZ) ...[
                       IconButton(
                         icon: Icon(
@@ -451,9 +498,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         iconSize: 18.0,
                         onPressed: () async {
                           if (isMuted) {
-                            await widget.controller.setVolume(1.0);
+                            await widget.controller!.setVolume(1.0);
                           } else {
-                            await widget.controller.setVolume(0.0);
+                            await widget.controller!.setVolume(0.0);
                           }
 
                           updateVolume();
@@ -514,10 +561,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         DesktopViewProvider.instance.reload(widget.device);
                       },
                     ),
-                  ],
+                  ]),
                 ),
               ),
-            ),
           ]),
           PositionedDirectional(
             end: 16.0,

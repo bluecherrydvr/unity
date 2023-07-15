@@ -87,11 +87,15 @@ class _DeviceFullscreenViewerMobileState
     return Scaffold(
       backgroundColor: Colors.black,
       body: MouseRegion(
-        onEnter: (_) => setState(() => overlay = true),
-        onHover: (_) {
-          if (overlay == false) setState(() => overlay = true);
+        onEnter: (_) {
+          if (mounted) setState(() => overlay = true);
         },
-        onExit: (_) => setState(() => overlay = false),
+        onHover: (_) {
+          if (mounted && !overlay) setState(() => overlay = true);
+        },
+        onExit: (_) {
+          if (mounted) setState(() => overlay = false);
+        },
         child: Stack(children: [
           AnimatedOpacity(
             duration: const Duration(milliseconds: 320),

@@ -329,6 +329,9 @@ class HoverButtonState extends State<HoverButton> {
         onEnter: (e) {
           if (mounted) setState(() => _hovering = true);
         },
+        onHover: (e) {
+          if (mounted && !_hovering) setState(() => _hovering = true);
+        },
         onExit: (e) {
           if (mounted) setState(() => _hovering = false);
         },

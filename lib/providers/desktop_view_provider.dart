@@ -140,6 +140,7 @@ class DesktopViewProvider extends ChangeNotifier {
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
       players[device]?.release();
       players[device]?.dispose();
+      players.remove(device);
     }
   }
 

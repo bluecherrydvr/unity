@@ -388,3 +388,27 @@ List<Shadow> outlinedText({
   }
   return result.toList();
 }
+
+class PopupLabel extends PopupMenuEntry<Never> {
+  const PopupLabel({
+    super.key,
+    required this.label,
+    this.height = 42.0,
+  });
+
+  @override
+  final double height;
+
+  final Widget label;
+
+  @override
+  bool represents(void value) => false;
+
+  @override
+  State<PopupLabel> createState() => _PopupLabelState();
+}
+
+class _PopupLabelState extends State<PopupLabel> {
+  @override
+  Widget build(BuildContext context) => widget.label;
+}

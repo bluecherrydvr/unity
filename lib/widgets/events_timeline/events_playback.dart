@@ -83,11 +83,15 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
       for (final event in events) {
         // If the event is not long enough to be displayed, do not add it
-        if (event.duration < const Duration(minutes: 1)) {
+        if (event.duration < const Duration(minutes: 1) ||
+            event.mediaURL == null) {
           continue;
         }
 
-        if (!DateUtils.isSameDay(event.published, date)) continue;
+        if (!DateUtils.isSameDay(event.published, date) ||
+            !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+          continue;
+        }
 
         devices[event.deviceName] ??= [];
 
@@ -95,9 +99,21 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         // not add it
         if (devices[event.deviceName]!.any((e) {
           return e.published.isInBetween(
-            event.published,
-            event.published.add(event.duration),
-          );
+                event.published,
+                event.published.add(event.duration),
+              ) ||
+              e.published.add(e.duration).isInBetween(
+                    event.published,
+                    event.published.add(event.duration),
+                  ) ||
+              event.published.isInBetween(
+                e.published,
+                e.published.add(e.duration),
+              ) ||
+              event.published.add(event.duration).isInBetween(
+                    e.published,
+                    e.published.add(e.duration),
+                  );
         })) continue;
 
         devices[event.deviceName] ??= [];

@@ -6,9 +6,9 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
-import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/events_timeline/timeline_card.dart';
+import 'package:bluecherry_client/widgets/events_timeline/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -299,8 +299,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   double? _speed;
   double? _volume;
 
-  bool showDebugInfo = kDebugMode;
-
   @override
   void initState() {
     super.initState();
@@ -335,125 +333,32 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
     return Column(children: [
       Expanded(
-        child: AspectRatio(
-          aspectRatio: 16 / 10,
-          child: StaticGrid(
-            reorderable: false,
-            crossAxisCount: calculateCrossAxisCount(
-              timeline.tiles.length,
-            ),
-            onReorder: (a, b) {},
-            childAspectRatio: 16 / 9,
-            emptyChild: Center(
-              child: Text(loc.noEventsFound),
-            ),
-            children: timeline.tiles.map((tile) {
-              final device = tile.device;
-              final events = tile.events;
-
-              final currentEvent = events.firstWhereOrNull((event) {
-                return event.isPlaying(timeline.currentDate);
-              });
-
-              return Card(
-                key: ValueKey(device),
-                clipBehavior: Clip.antiAlias,
-                color: Colors.transparent,
-                child: UnityVideoView(
-                  player: tile.videoController,
-                  color: Colors.transparent,
-                  paneBuilder: (context, controller) {
-                    if (currentEvent == null) {
-                      return Material(
-                        type: MaterialType.card,
-                        color: theme.colorScheme.surface,
-                        surfaceTintColor: theme.colorScheme.surfaceTint,
-                        elevation: 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Stack(children: [
-                            Text(
-                              device,
-                              style: theme.textTheme.titleMedium,
-                            ),
-                            Center(
-                              child: Text(loc.noRecords),
-                            ),
-                          ]),
-                        ),
-                      );
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Stack(children: [
-                        RichText(
-                          text: TextSpan(
-                            text: '',
-                            style: theme.textTheme.labelLarge!.copyWith(
-                              shadows: outlinedText(strokeWidth: 0.75),
-                            ),
-                            children: [
-                              TextSpan(
-                                text: device,
-                                style: theme.textTheme.titleMedium!.copyWith(
-                                  shadows: outlinedText(strokeWidth: 0.75),
-                                ),
-                              ),
-                              const TextSpan(text: '\n'),
-                              TextSpan(
-                                text: currentEvent
-                                    .position(timeline.currentDate)
-                                    .humanReadableCompact(context),
-                              ),
-                              if (showDebugInfo) ...[
-                                const TextSpan(text: '\ndebug: '),
-                                TextSpan(
-                                  text: controller.currentPos
-                                      .humanReadableCompact(context),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        if (showDebugInfo)
-                          Align(
-                            alignment: AlignmentDirectional.topEnd,
-                            child: Text(
-                              'debug buffering: ${(tile.videoController.currentBuffer.inMilliseconds / tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}',
-                              style: theme.textTheme.labelLarge!.copyWith(
-                                shadows: outlinedText(strokeWidth: 0.75),
-                              ),
-                            ),
-                          ),
-                        Align(
-                          alignment: AlignmentDirectional.bottomStart,
-                          child: RichText(
-                            text: TextSpan(
-                              style: theme.textTheme.labelLarge!.copyWith(
-                                shadows: outlinedText(strokeWidth: 0.75),
-                              ),
-                              children: [
-                                TextSpan(text: '${loc.duration}: '),
-                                TextSpan(
-                                    text: currentEvent.duration
-                                        .humanReadableCompact(context)),
-                                const TextSpan(text: '\n'),
-                                TextSpan(text: '${loc.eventType}: '),
-                                TextSpan(
-                                  text: currentEvent.event.type.locale(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ]),
-                    );
-                  },
+        child: Row(children: [
+          Expanded(
+            child: AspectRatio(
+              // TODO(bdlukaa): This aspect ratio may be true for timelines with several devices, but not for a 1 or 2 devices
+              aspectRatio: 16 / 9,
+              child: Center(
+                child: StaticGrid(
+                  padding: EdgeInsets.zero,
+                  reorderable: false,
+                  crossAxisCount: calculateCrossAxisCount(
+                    timeline.tiles.length,
+                  ),
+                  onReorder: (a, b) {},
+                  childAspectRatio: 16 / 9,
+                  emptyChild: Center(
+                    child: Text(loc.noEventsFound),
+                  ),
+                  children: timeline.tiles.map((tile) {
+                    return TimelineCard(tile: tile, timeline: timeline);
+                  }).toList(),
                 ),
-              );
-            }).toList(),
+              ),
+            ),
           ),
-        ),
+          const TimelineSidebar(),
+        ]),
       ),
       Card(
         clipBehavior: Clip.antiAlias,

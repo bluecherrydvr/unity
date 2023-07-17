@@ -38,7 +38,9 @@ class DesktopViewProvider extends ChangeNotifier {
     return instance;
   }
 
-  List<Layout> layouts = [const Layout(name: 'Default')];
+  List<Layout> layouts = [
+    Layout(name: 'Default', devices: List.empty(growable: true)),
+  ];
   int _currentLayout = 0;
   int get currentLayoutIndex {
     if (_currentLayout.isNegative) return 0;

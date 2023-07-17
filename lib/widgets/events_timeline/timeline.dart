@@ -232,6 +232,13 @@ class Timeline extends ChangeNotifier {
     play();
   }
 
+  double _zoom = 1.0;
+  double get zoom => _zoom;
+  set zoom(double value) {
+    _zoom = value;
+    notifyListeners();
+  }
+
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
 
@@ -450,23 +457,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
       ),
       Card(
         clipBehavior: Clip.antiAlias,
-        child: LayoutBuilder(builder: (context, constraints) {
-          final minuteWidth =
-              (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
-
-          return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.only(
-                bottom: 4.0,
-                top: 2.0,
-                start: 8.0,
-                end: 8.0,
-              ),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Expanded(
-                  child:
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              bottom: 4.0,
+              top: 2.0,
+              start: 8.0,
+              end: 8.0,
+            ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                     Text(
                       '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
                       'x',
@@ -485,120 +488,129 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                         },
                       ),
                     ),
-                  ]),
+                  ],
                 ),
-                const SizedBox(width: 20.0),
-                IconButton(
-                  tooltip: timeline.isPlaying ? loc.pause : loc.play,
-                  icon: Icon(
-                    timeline.isPlaying ? Icons.pause : Icons.play_arrow,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      if (timeline.isPlaying) {
-                        timeline.stop();
-                      } else {
-                        timeline.play();
-                      }
-                    });
-                  },
+              ),
+              const SizedBox(width: 20.0),
+              IconButton(
+                tooltip: timeline.isPlaying ? loc.pause : loc.play,
+                icon: Icon(
+                  timeline.isPlaying ? Icons.pause : Icons.play_arrow,
                 ),
-                const SizedBox(width: 20.0),
-                Expanded(
-                  child: Row(children: [
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 120.0),
-                      child: Slider(
-                        value: _volume ??
-                            (timeline.isMuted ? 0.0 : timeline.volume),
-                        onChanged: (v) => setState(() => _volume = v),
-                        onChangeEnd: (v) {
-                          _volume = null;
-                          timeline.volume = v;
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
-                    ),
-                    Icon(() {
-                      final volume = _volume ?? timeline.volume;
-                      if ((_volume == null || _volume == 0.0) &&
-                          (timeline.isMuted || volume == 0.0)) {
-                        return Icons.volume_off;
-                      } else if (volume < 0.5) {
-                        return Icons.volume_down;
-                      } else {
-                        return Icons.volume_up;
-                      }
-                    }()),
-                  ]),
-                ),
-              ]),
-            ),
-            Text(
-              '${SettingsProvider.instance.dateFormat.format(timeline.currentDate)} '
-              '${DateFormat('hh:mm:ss a').format(timeline.currentDate)}',
-            ),
-            Stack(children: [
-              Column(children: [
-                Row(children: [
-                  const SizedBox(width: _kDeviceNameWidth),
-                  ...List.generate(24, (index) {
-                    final hour = index + 1;
-                    if (hour == 24) {
-                      return const Expanded(child: SizedBox.shrink());
+                onPressed: () {
+                  setState(() {
+                    if (timeline.isPlaying) {
+                      timeline.stop();
+                    } else {
+                      timeline.play();
                     }
-
-                    return Expanded(
-                      child: Transform.translate(
-                        offset: Offset(
-                          hour.toString().length * 4,
-                          0.0,
-                        ),
-                        child: Text(
-                          '$hour',
-                          style: theme.textTheme.labelMedium,
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    );
-                  }),
+                  });
+                },
+              ),
+              const SizedBox(width: 20.0),
+              Expanded(
+                child: Row(children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 120.0),
+                    child: Slider(
+                      value:
+                          _volume ?? (timeline.isMuted ? 0.0 : timeline.volume),
+                      onChanged: (v) => setState(() => _volume = v),
+                      onChangeEnd: (v) {
+                        _volume = null;
+                        timeline.volume = v;
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+                  ),
+                  Icon(() {
+                    final volume = _volume ?? timeline.volume;
+                    if ((_volume == null || _volume == 0.0) &&
+                        (timeline.isMuted || volume == 0.0)) {
+                      return Icons.volume_off;
+                    } else if (volume < 0.5) {
+                      return Icons.volume_down;
+                    } else {
+                      return Icons.volume_up;
+                    }
+                  }()),
                 ]),
-                GestureDetector(
-                  onHorizontalDragUpdate: (details) {
-                    final pointerPosition =
-                        (details.localPosition.dx - _kDeviceNameWidth) /
-                            (constraints.maxWidth - _kDeviceNameWidth);
-                    if (pointerPosition < 0 || pointerPosition > 1) return;
+              ),
+            ]),
+          ),
+          Text(
+            '${SettingsProvider.instance.dateFormat.format(timeline.currentDate)} '
+            '${DateFormat('hh:mm:ss a').format(timeline.currentDate)}',
+          ),
+          FractionallySizedBox(
+            widthFactor: timeline.zoom,
+            child: LayoutBuilder(builder: (context, constraints) {
+              final minuteWidth =
+                  (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
 
-                    final minutes = (_minutesInADay * pointerPosition).round();
-                    final position = Duration(minutes: minutes);
-                    timeline.seekTo(position);
-                  },
-                  child: Column(children: [
-                    ...timeline.tiles.map((tile) {
-                      return _TimelineTile(
-                        key: ValueKey(tile),
-                        tile: tile,
+              return Stack(children: [
+                Column(children: [
+                  Row(children: [
+                    const SizedBox(width: _kDeviceNameWidth),
+                    ...List.generate(24, (index) {
+                      final hour = index + 1;
+                      if (hour == 24) {
+                        return const Expanded(child: SizedBox.shrink());
+                      }
+
+                      return Expanded(
+                        child: Transform.translate(
+                          offset: Offset(
+                            hour.toString().length * 4,
+                            0.0,
+                          ),
+                          child: Text(
+                            '$hour',
+                            style: theme.textTheme.labelMedium,
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
                       );
                     }),
                   ]),
-                )
-              ]),
-              Positioned(
-                left: (timeline.currentPosition.inMinutes * minuteWidth) +
-                    _kDeviceNameWidth,
-                width: 1.8,
-                top: 16.0,
-                height: _kTimelineTileHeight * timeline.tiles.length,
-                child: const IgnorePointer(
-                  child: ColoredBox(
-                    color: Colors.white,
+                  GestureDetector(
+                    onHorizontalDragUpdate: (details) {
+                      final pointerPosition =
+                          (details.localPosition.dx - _kDeviceNameWidth) /
+                              (constraints.maxWidth - _kDeviceNameWidth);
+                      if (pointerPosition < 0 || pointerPosition > 1) return;
+
+                      final minutes =
+                          (_minutesInADay * pointerPosition).round();
+                      final position = Duration(minutes: minutes);
+                      timeline.seekTo(position);
+                    },
+                    child: Column(children: [
+                      ...timeline.tiles.map((tile) {
+                        return _TimelineTile(
+                          key: ValueKey(tile),
+                          tile: tile,
+                        );
+                      }),
+                    ]),
+                  )
+                ]),
+                Positioned(
+                  left: (timeline.currentPosition.inMinutes * minuteWidth) +
+                      _kDeviceNameWidth,
+                  width: 1.8,
+                  top: 16.0,
+                  height: _kTimelineTileHeight * timeline.tiles.length,
+                  child: const IgnorePointer(
+                    child: ColoredBox(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ]),
-          ]);
-        }),
+              ]);
+            }),
+          ),
+        ]),
       ),
     ]);
   }

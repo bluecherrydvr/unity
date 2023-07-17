@@ -634,14 +634,16 @@ class _TimelineTile extends StatelessWidget {
       Container(
         width: _kDeviceNameWidth,
         height: _kTimelineTileHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
         decoration: BoxDecoration(
           color: theme.dialogBackgroundColor,
           border: border,
         ),
         alignment: AlignmentDirectional.centerStart,
         child: RichText(
+          maxLines: 1,
           text: TextSpan(
+            style: theme.textTheme.labelMedium,
             children: [
               TextSpan(text: tile.device),
               TextSpan(

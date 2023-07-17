@@ -153,10 +153,7 @@ class _MobileHomeState extends State<Home> {
                       UnityTab.directCameraScreen: () {
                         return const DirectCameraScreen();
                       },
-                      UnityTab.eventsPlayback: () => const EventsPlayback(),
-                      // UnityTab.eventsPlayback: () => TimelineEventsView(
-                      //       timeline: Timeline.fakeTimeline,
-                      //     ),
+                      UnityTab.eventsPlayback: EventsPlayback.new,
                       UnityTab.eventsScreen: () => EventsScreen(
                             key: eventsScreenKey,
                           ),

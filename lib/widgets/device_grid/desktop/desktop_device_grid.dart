@@ -378,7 +378,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             child: RichText(
               text: TextSpan(
                 text: widget.device.name,
-                style: theme.textTheme.labelLarge,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: Colors.white,
+                  shadows: outlinedText(),
+                ),
                 children: [
                   if (states.isHovering)
                     TextSpan(
@@ -548,13 +551,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: IconButton(
-                  icon: Icon(
-                    Icons.close_outlined,
-                    shadows: outlinedText(
-                      strokeColor: theme.colorScheme.errorContainer,
-                      strokeWidth: 0.15,
-                    ),
-                  ),
+                  icon: const Icon(Icons.close_outlined),
                   color: theme.colorScheme.error,
                   tooltip: loc.removeCamera,
                   iconSize: 18.0,

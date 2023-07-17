@@ -193,7 +193,6 @@ class LayoutTile extends StatelessWidget {
               ),
             ),
           ),
-          horizontalTitleGap: 16.0,
           minLeadingWidth: 24.0,
           title: Text(layout.name, maxLines: 1),
           subtitle: Text(
@@ -201,10 +200,14 @@ class LayoutTile extends StatelessWidget {
             maxLines: 1,
           ),
           trailing: states.isHovering
-              ? InkWell(
-                  borderRadius: BorderRadius.circular(4.0),
-                  onTap: () => _displayOptions(context),
-                  child: Icon(moreIconData),
+              ? Tooltip(
+                  message: loc.cameraOptions,
+                  preferBelow: false,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(4.0),
+                    onTap: () => _displayOptions(context),
+                    child: Icon(moreIconData),
+                  ),
                 )
               : null,
           onTap: !selected

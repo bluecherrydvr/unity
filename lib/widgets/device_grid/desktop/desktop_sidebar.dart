@@ -255,6 +255,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
   Future<void> _displayOptions(BuildContext context) async {
     if (!widget.device.status) return;
 
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.read<DesktopViewProvider>();
 
@@ -284,6 +285,17 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         minWidth: size.width,
       ),
       items: <PopupMenuEntry>[
+        PopupLabel(
+          label: Padding(
+            padding: padding.add(const EdgeInsets.symmetric(vertical: 6.0)),
+            child: Text(
+              widget.device.name,
+              maxLines: 1,
+              style: theme.textTheme.labelSmall,
+            ),
+          ),
+        ),
+        const PopupMenuDivider(),
         PopupMenuItem(
           child: Text(
             widget.selected ? loc.removeFromView : loc.addToView,
@@ -296,7 +308,6 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
             }
           },
         ),
-        const PopupMenuDivider(height: 8),
         PopupMenuItem(
           child: Text(
             loc.showFullscreenCamera,

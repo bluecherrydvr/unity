@@ -1,4 +1,5 @@
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -6,6 +7,8 @@ import 'package:safe_local_storage/safe_local_storage.dart';
 
 Future<void> configureStorage() async {
   final dir = (await getApplicationSupportDirectory()).path;
+
+  debugPrint('App working directory: $dir');
 
   storage = SafeLocalStorage(path.join(dir, 'bluecherry.json'));
   settings = SafeLocalStorage(path.join(dir, 'settings.json'));

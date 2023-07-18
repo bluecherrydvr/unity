@@ -1,13 +1,9 @@
-import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
   const TimelineSidebar({super.key, required this.timeline});

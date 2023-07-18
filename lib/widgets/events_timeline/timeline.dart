@@ -139,9 +139,7 @@ class Timeline extends ChangeNotifier {
     notifyListeners();
   }
 
-  Timeline.placeholder()
-      : date = DateTime(2023),
-        tiles = [];
+  Timeline.placeholder() : date = DateTime(2023);
 
   static Timeline get fakeTimeline {
     return Timeline(

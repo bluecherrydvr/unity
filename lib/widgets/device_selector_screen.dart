@@ -27,13 +27,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+Future<Device?> showDeviceSelectorScreen(
+  BuildContext context, {
+  List<Device> selected = const [],
+  Iterable<Device>? available,
+}) {
+  return showModalBottomSheet<Device>(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      return DraggableScrollableSheet(
+        maxChildSize: 0.8,
+        initialChildSize: 0.7,
+        expand: false,
+        builder: (context, controller) {
+          return PrimaryScrollController(
+            controller: controller,
+            child: DeviceSelectorScreen(
+              selected: selected,
+              available: available,
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 class DeviceSelectorScreen extends StatelessWidget {
   /// The devices already selected
   final Iterable<Device> selected;
 
+  final Iterable<Device>? available;
+
   const DeviceSelectorScreen({
     super.key,
     this.selected = const [],
+    this.available,
   });
 
   @override
@@ -106,21 +136,22 @@ class DeviceSelectorScreen extends StatelessWidget {
                 final device = devices[index];
                 final isSelected = selected.contains(device);
 
+                final isAvailable = available?.contains(device) ?? true;
+
+                final enabled = device.status && !isSelected && isAvailable;
+
                 return ListTile(
-                  enabled: device.status && !isSelected,
+                  enabled: enabled,
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     foregroundColor: device.status
-                        ? theme.extension<UnityColors>()!.successColor
+                        ? enabled
+                            ? theme.extension<UnityColors>()!.successColor
+                            : theme.disabledColor
                         : theme.colorScheme.error,
                     child: const Icon(Icons.camera_alt),
                   ),
-                  title: Text(
-                    device.name
-                        .split(' ')
-                        .map((e) => e[0].toUpperCase() + e.substring(1))
-                        .join(' '),
-                  ),
+                  title: Text(device.name.uppercaseFirst()),
                   subtitle: Text(
                     [
                       device.uri,

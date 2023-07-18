@@ -1,5 +1,6 @@
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,35 +29,42 @@ class TimelineCard extends StatelessWidget {
 
     return Card(
       key: ValueKey(device),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       color: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       child: UnityVideoView(
         player: tile.videoController,
         color: Colors.transparent,
         paneBuilder: (context, controller) {
           if (currentEvent == null) {
-            return Material(
-              type: MaterialType.card,
-              color: theme.colorScheme.surface,
-              surfaceTintColor: theme.colorScheme.surfaceTint,
-              elevation: 1.0,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Stack(children: [
-                  Text(
-                    device.name,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  Center(
-                    child: Text(loc.noRecords),
-                  ),
-                ]),
+            return RepaintBoundary(
+              child: Material(
+                type: MaterialType.card,
+                color: theme.colorScheme.surface,
+                surfaceTintColor: theme.colorScheme.surfaceTint,
+                elevation: 1.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Stack(children: [
+                    Text(
+                      device.name,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Center(
+                      child: Text(
+                        loc.noRecords,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ]),
+                ),
               ),
             );
           }
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Stack(children: [
+          return HoverButton(
+            forceEnabled: true,
+            margin: const EdgeInsets.all(16.0),
+            builder: (context, states) => Stack(children: [
               RichText(
                 text: TextSpan(
                   text: '',
@@ -99,28 +107,37 @@ class TimelineCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              Align(
-                alignment: AlignmentDirectional.bottomStart,
-                child: RichText(
-                  text: TextSpan(
-                    style: theme.textTheme.labelLarge!.copyWith(
-                      color: Colors.white,
-                      shadows: outlinedText(strokeWidth: 0.75),
-                    ),
-                    children: [
-                      TextSpan(text: '${loc.duration}: '),
-                      TextSpan(
-                          text: currentEvent.duration
-                              .humanReadableCompact(context)),
-                      const TextSpan(text: '\n'),
-                      TextSpan(text: '${loc.eventType}: '),
-                      TextSpan(
-                        text: currentEvent.event.type.locale(context),
+              if (controller.isBuffering)
+                const PositionedDirectional(
+                  end: 0,
+                  top: 0,
+                  height: 24.0,
+                  width: 24.0,
+                  child: CircularProgressIndicator(),
+                ),
+              if (states.isHovering)
+                Align(
+                  alignment: AlignmentDirectional.bottomStart,
+                  child: RichText(
+                    text: TextSpan(
+                      style: theme.textTheme.labelLarge!.copyWith(
+                        color: Colors.white,
+                        shadows: outlinedText(strokeWidth: 0.75),
                       ),
-                    ],
+                      children: [
+                        TextSpan(text: '${loc.duration}: '),
+                        TextSpan(
+                            text: currentEvent.duration
+                                .humanReadableCompact(context)),
+                        const TextSpan(text: '\n'),
+                        TextSpan(text: '${loc.eventType}: '),
+                        TextSpan(
+                          text: currentEvent.event.type.locale(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ]),
           );
         },

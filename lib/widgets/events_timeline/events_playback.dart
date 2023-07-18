@@ -207,10 +207,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         final hasDrawer = Scaffold.hasDrawer(context);
 
         if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
-          return const TimelineDeviceView();
+          if (timeline == null) {
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
+          }
+          return TimelineDeviceView(timeline: timeline!);
         }
         return TimelineEventsView(
-          key: ValueKey(timeline),
           // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
           timeline: timeline,
         );

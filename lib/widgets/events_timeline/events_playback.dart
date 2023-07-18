@@ -5,11 +5,13 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 final eventsPlaybackScreenKey = GlobalKey<_EventsPlaybackState>();
+const kMaxDevicesOnScreen = 6;
 
 class EventsPlayback extends StatefulWidget {
   EventsPlayback() : super(key: eventsPlaybackScreenKey);
@@ -29,9 +31,18 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     focusNode.requestFocus();
   }
 
-  Map<Device, List<Event>> devices = {};
+  @override
+  void dispose() {
+    timeline?.dispose();
+    super.dispose();
+  }
 
-  Future<void> fetch() async {
+  Map<Device, List<Event>> realDevices = {};
+  Map<Device, List<Event>> devices = {}; // filtered
+
+  Set<Device> disabledDevices = {};
+
+  Future<void> fetch([bool fetchFromServer = true]) async {
     setState(() {
       timeline?.dispose();
       timeline = null;
@@ -46,14 +57,16 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     for (final server in ServersProvider.instance.servers) {
       if (!server.online) continue;
 
-      final events = (await API.instance.getEvents(
-        await API.instance.checkServerCredentials(server),
-      ))
-          .where((event) => event.mediaURL != null)
-          .toList()
-        ..sort((a, b) {
-          return a.published.compareTo(b.published);
-        });
+      final events = fetchFromServer
+          ? ((await API.instance.getEvents(
+              await API.instance.checkServerCredentials(server),
+            ))
+              .where((event) => event.mediaURL != null)
+              .toList()
+            ..sort((a, b) {
+              return a.published.compareTo(b.published);
+            }))
+          : realDevices.values.expand((e) => e).toList();
 
       if (events.isEmpty) continue;
 
@@ -97,11 +110,11 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         final device = event.server.devices
             .firstWhere((device) => device.id == event.deviceID);
 
-        devices[device] ??= [];
+        realDevices[device] ??= [];
 
         // If there is already an event that conflicts with this one in time, do
         // not add it
-        if (devices[device]!.any((e) {
+        if (realDevices[device]!.any((e) {
           return e.published.isInBetween(
                 event.published,
                 event.published.add(event.duration),
@@ -120,28 +133,24 @@ class _EventsPlaybackState extends State<EventsPlayback> {
                   );
         })) continue;
 
-        devices[device] ??= [];
-        devices[device]!.add(event);
+        realDevices[device] ??= [];
+        realDevices[device]!.add(event);
+
+        // If there are more than kMaxDevicesOnScreen devices, do not add any more devices
+        if (disabledDevices.contains(device)) {
+          if (devices.containsKey(device)) devices.remove(device);
+          continue;
+        } else if (devices.length == kMaxDevicesOnScreen &&
+            !devices.containsKey(device)) {
+          disabledDevices.add(device);
+          continue;
+        }
+
+        devices[device] = realDevices[device]!;
       }
     }
 
-    final parsedTiles = devices.entries.map((e) {
-      final device = e.key;
-      final events = e.value;
-      debugPrint('Loaded ${events.length} events for $device');
-
-      return TimelineTile(
-        device: device,
-        events: events.map((event) {
-          return TimelineEvent(
-            startTime: event.published,
-            duration: event.duration,
-            videoUrl: event.mediaURL!.toString(),
-            event: event,
-          );
-        }).toList(),
-      );
-    });
+    final parsedTiles = devices.entries.map((e) => e.buildTimelineTile());
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
@@ -198,6 +207,26 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
         timeline: timeline,
       ),
+    );
+  }
+}
+
+extension DevicesMapExtension on MapEntry<Device, List<Event>> {
+  TimelineTile buildTimelineTile() {
+    final device = key;
+    final events = value;
+    debugPrint('Loaded ${events.length} events for $device');
+
+    return TimelineTile(
+      device: device,
+      events: events.map((event) {
+        return TimelineEvent(
+          startTime: event.published,
+          duration: event.duration,
+          videoUrl: event.mediaURL!.toString(),
+          event: event,
+        );
+      }).toList(),
     );
   }
 }

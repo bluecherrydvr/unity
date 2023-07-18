@@ -61,12 +61,14 @@ class TimelineCard extends StatelessWidget {
                 text: TextSpan(
                   text: '',
                   style: theme.textTheme.labelLarge!.copyWith(
+                    color: Colors.white,
                     shadows: outlinedText(strokeWidth: 0.75),
                   ),
                   children: [
                     TextSpan(
                       text: device.name,
                       style: theme.textTheme.titleMedium!.copyWith(
+                        color: Colors.white,
                         shadows: outlinedText(strokeWidth: 0.75),
                       ),
                     ),
@@ -92,6 +94,7 @@ class TimelineCard extends StatelessWidget {
                   child: Text(
                     'debug buffering: ${(tile.videoController.currentBuffer.inMilliseconds / tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}',
                     style: theme.textTheme.labelLarge!.copyWith(
+                      color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),
                     ),
                   ),
@@ -101,6 +104,7 @@ class TimelineCard extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: theme.textTheme.labelLarge!.copyWith(
+                      color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),
                     ),
                     children: [

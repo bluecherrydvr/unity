@@ -7,6 +7,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
+import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline_card.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
@@ -118,19 +119,14 @@ class TimelineEvent {
 /// single day, so events are from hour 0 to 23.
 class Timeline extends ChangeNotifier {
   /// Each tile of the timeline
-  final List<TimelineTile> tiles;
+  final List<TimelineTile> tiles = [];
 
   /// All the events must have happened in the same day
   final DateTime date;
 
-  Timeline({required this.tiles, required this.date}) {
-    assert(tiles.every((tile) {
-      return tile.events.every((event) =>
-          event.startTime.year == date.year &&
-          event.startTime.month == date.month &&
-          event.startTime.day == date.day);
-    }), 'All events must have happened in the same day');
+  Timeline({required List<TimelineTile> tiles, required this.date}) {
     tiles.removeWhere((tile) => tile.events.isEmpty);
+    add(tiles);
 
     for (final tile in tiles) {
       tile.videoController.onBufferUpdate.listen((_) => _eventCallback());
@@ -178,7 +174,17 @@ class Timeline extends ChangeNotifier {
           event.startTime.month == date.month &&
           event.startTime.day == date.day);
     }), 'All events must have happened in the same day');
-    tiles.addAll(tiles);
+    this.tiles.addAll(tiles);
+    assert(
+      this.tiles.length <= kMaxDevicesOnScreen,
+      'There must be at most $kMaxDevicesOnScreen devices on screen',
+    );
+    notifyListeners();
+  }
+
+  void removeTile(TimelineTile tile) {
+    tiles.remove(tile);
+    notifyListeners();
   }
 
   void forEachEvent(
@@ -334,12 +340,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   }
 
   @override
-  void dispose() {
-    timeline.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
@@ -370,7 +370,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               ),
             ),
           ),
-          const TimelineSidebar(),
+          TimelineSidebar(timeline: timeline),
         ]),
       ),
       Card(
@@ -531,9 +531,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                   width: 1.8,
                   top: 16.0,
                   height: _kTimelineTileHeight * timeline.tiles.length,
-                  child: const IgnorePointer(
+                  child: IgnorePointer(
                     child: ColoredBox(
-                      color: Colors.white,
+                      color: theme.colorScheme.onBackground,
                     ),
                   ),
                 ),

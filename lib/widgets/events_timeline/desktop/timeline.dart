@@ -8,8 +8,8 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
-import 'package:bluecherry_client/widgets/events_timeline/timeline_card.dart';
-import 'package:bluecherry_client/widgets/events_timeline/timeline_sidebar.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

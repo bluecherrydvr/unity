@@ -198,12 +198,12 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasDrawer = Scaffold.hasDrawer(context);
-    final loc = AppLocalizations.of(context);
-
     if (ServersProvider.instance.servers.isEmpty) {
       return const NoServerWarning();
     }
+
+    final hasDrawer = Scaffold.hasDrawer(context);
+    final loc = AppLocalizations.of(context);
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {

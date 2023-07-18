@@ -1,5 +1,5 @@
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

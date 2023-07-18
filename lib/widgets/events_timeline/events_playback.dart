@@ -3,8 +3,10 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/widgets/events_timeline/mobile/timeline_device_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -201,11 +203,18 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
         return KeyEventResult.ignored;
       },
-      child: TimelineEventsView(
-        key: ValueKey(timeline),
-        // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
-        timeline: timeline,
-      ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final hasDrawer = Scaffold.hasDrawer(context);
+
+        if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
+          return const TimelineDeviceView();
+        }
+        return TimelineEventsView(
+          key: ValueKey(timeline),
+          // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
+          timeline: timeline,
+        );
+      }),
     );
   }
 }

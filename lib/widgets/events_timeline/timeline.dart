@@ -346,24 +346,23 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
       Expanded(
         child: Row(children: [
           Expanded(
-            child: AspectRatio(
-              // TODO(bdlukaa): This aspect ratio may be true for timelines with several devices, but not for a 1 or 2 devices
-              aspectRatio: 16 / 9,
-              child: Center(
-                child: StaticGrid(
-                  padding: EdgeInsets.zero,
-                  reorderable: false,
-                  crossAxisCount: calculateCrossAxisCount(
-                    timeline.tiles.length,
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Center(
+                  child: StaticGrid(
+                    padding: EdgeInsets.zero,
+                    reorderable: false,
+                    crossAxisCount: calculateCrossAxisCount(
+                      timeline.tiles.length,
+                    ),
+                    onReorder: (a, b) {},
+                    childAspectRatio: 16 / 9,
+                    emptyChild: Center(child: Text(loc.noEventsFound)),
+                    children: timeline.tiles.map((tile) {
+                      return TimelineCard(tile: tile, timeline: timeline);
+                    }).toList(),
                   ),
-                  onReorder: (a, b) {},
-                  childAspectRatio: 16 / 9,
-                  emptyChild: Center(
-                    child: Text(loc.noEventsFound),
-                  ),
-                  children: timeline.tiles.map((tile) {
-                    return TimelineCard(tile: tile, timeline: timeline);
-                  }).toList(),
                 ),
               ),
             ),
@@ -606,15 +605,6 @@ class _TimelineTile extends StatelessWidget {
                       color: theme.colorScheme.primary,
                     ),
                   ),
-                // Positioned(
-                //   left: event.startTime.minute * minuteWidth,
-                //   width: tile.videoController.currentBuffer.inMinutes *
-                //       minuteWidth,
-                //   height: _kTimelineTileHeight,
-                //   child: ColoredBox(
-                //     color: theme.extension<TimelineTheme>()!.eventColor,
-                //   ),
-                // ),
               ]);
             }),
           ),

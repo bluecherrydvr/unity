@@ -1,9 +1,12 @@
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/events_timeline/timeline.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TimelineSidebar extends StatefulWidget {
   const TimelineSidebar({super.key, required this.timeline});
@@ -17,6 +20,8 @@ class TimelineSidebar extends StatefulWidget {
 class _TimelineSidebarState extends State<TimelineSidebar> {
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Container(
       constraints: kSidebarConstraints,
       height: double.infinity,
@@ -27,13 +32,28 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           ),
         ),
         margin: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: buildTreeView(context, setState: setState),
-            ),
-          ],
-        ),
+        child: Column(children: [
+          SubHeader(loc.servers, height: 40.0),
+          Expanded(
+            child: buildTreeView(context, setState: setState),
+          ),
+          const SubHeader('Time filter', height: 24.0),
+          ListTile(
+            title: Text(SettingsProvider.instance.dateFormat
+                .format(widget.timeline.currentDate)),
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: widget.timeline.currentDate,
+                firstDate: DateTime(DateTime.now().year),
+                lastDate: DateTime.now(),
+                initialEntryMode: DatePickerEntryMode.calendarOnly,
+                currentDate: widget.timeline.currentDate,
+              );
+              debugPrint('date: $date');
+            },
+          ),
+        ]),
       ),
     );
   }

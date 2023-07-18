@@ -53,6 +53,15 @@ class Device {
     this.hasPTZ = false,
   });
 
+  Device.dump({
+    this.name = 'device',
+    this.id = 0,
+    this.status = true,
+    this.resolutionX = 640,
+    this.resolutionY = 480,
+    this.hasPTZ = false,
+  }) : server = Server.dump();
+
   String get uri => 'live/$id';
 
   factory Device.fromServerJson(Map map, Server server) {

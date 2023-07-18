@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -15,7 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class TimelineTile {
-  final String device;
+  final Device device;
   final List<TimelineEvent> events;
 
   late final UnityVideoPlayer videoController;
@@ -150,10 +151,22 @@ class Timeline extends ChangeNotifier {
     return Timeline(
       date: DateTime(2023),
       tiles: [
-        TimelineTile(device: 'device1', events: TimelineEvent.fakeData),
-        TimelineTile(device: 'device2', events: TimelineEvent.fakeData),
-        TimelineTile(device: 'device3', events: TimelineEvent.fakeData),
-        TimelineTile(device: 'device4', events: TimelineEvent.fakeData),
+        TimelineTile(
+          device: Device.dump(name: 'device1'),
+          events: TimelineEvent.fakeData,
+        ),
+        TimelineTile(
+          device: Device.dump(name: 'device2'),
+          events: TimelineEvent.fakeData,
+        ),
+        TimelineTile(
+          device: Device.dump(name: 'device3'),
+          events: TimelineEvent.fakeData,
+        ),
+        TimelineTile(
+          device: Device.dump(name: 'device4'),
+          events: TimelineEvent.fakeData,
+        ),
       ],
     );
   }
@@ -361,6 +374,18 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         ]),
       ),
       Card(
+        margin: const EdgeInsetsDirectional.only(
+          start: 4.0,
+          end: 4.0,
+          bottom: 4.0,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadiusDirectional.only(
+            topStart: Radius.circular(12.0),
+            bottomStart: Radius.circular(12.0),
+            bottomEnd: Radius.circular(12.0),
+          ),
+        ),
         clipBehavior: Clip.antiAlias,
         child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
           Padding(
@@ -550,7 +575,7 @@ class _TimelineTile extends StatelessWidget {
           text: TextSpan(
             style: theme.textTheme.labelMedium,
             children: [
-              TextSpan(text: tile.device),
+              TextSpan(text: tile.device.name),
               TextSpan(
                 text: ' (${tile.events.length})',
                 style: const TextStyle(fontSize: 11.0),

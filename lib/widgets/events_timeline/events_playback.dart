@@ -1,4 +1,5 @@
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -28,7 +29,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     focusNode.requestFocus();
   }
 
-  Map<String, List<Event>> devices = {};
+  Map<Device, List<Event>> devices = {};
 
   Future<void> fetch() async {
     setState(() {
@@ -93,11 +94,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           continue;
         }
 
-        devices[event.deviceName] ??= [];
+        final device = event.server.devices
+            .firstWhere((device) => device.id == event.deviceID);
+
+        devices[device] ??= [];
 
         // If there is already an event that conflicts with this one in time, do
         // not add it
-        if (devices[event.deviceName]!.any((e) {
+        if (devices[device]!.any((e) {
           return e.published.isInBetween(
                 event.published,
                 event.published.add(event.duration),
@@ -116,8 +120,8 @@ class _EventsPlaybackState extends State<EventsPlayback> {
                   );
         })) continue;
 
-        devices[event.deviceName] ??= [];
-        devices[event.deviceName]!.add(event);
+        devices[device] ??= [];
+        devices[device]!.add(event);
       }
     }
 

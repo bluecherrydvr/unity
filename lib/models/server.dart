@@ -61,6 +61,22 @@ class Server {
     this.passedCertificates = true,
   });
 
+  Server.dump({
+    this.name = 'server',
+    this.ip = 'server:ip',
+    this.port = 7001,
+    this.login = 'admin',
+    this.password = 'admin',
+    this.devices = const [],
+    this.rtspPort = 7002,
+    this.serverUUID,
+    this.cookie,
+    this.savePassword = false,
+    this.connectAutomaticallyAtStartup = true,
+    this.online = true,
+    this.passedCertificates = true,
+  });
+
   String get id {
     return '$name;$ip;$port';
   }

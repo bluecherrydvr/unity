@@ -44,7 +44,7 @@ class TimelineCard extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Stack(children: [
                   Text(
-                    device,
+                    device.name,
                     style: theme.textTheme.titleMedium,
                   ),
                   Center(
@@ -65,7 +65,7 @@ class TimelineCard extends StatelessWidget {
                   ),
                   children: [
                     TextSpan(
-                      text: device,
+                      text: device.name,
                       style: theme.textTheme.titleMedium!.copyWith(
                         shadows: outlinedText(strokeWidth: 0.75),
                       ),

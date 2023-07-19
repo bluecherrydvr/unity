@@ -59,6 +59,11 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
   }
 
+  void setEvent(TimelineEvent event) {
+    currentDate = event.event.published;
+    ensureScrollPosition();
+  }
+
   StreamSubscription<Duration>? positionSubscription;
   Duration _lastPosition = Duration.zero;
   void _tilePositionListener(Duration position) {
@@ -67,34 +72,14 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         if (tile!.videoController.currentPos ==
             tile!.videoController.duration) {
           final currentIndex = tile!.events.indexOf(currentEvent!);
+          // If it's the last event, return
           if (currentIndex == tile!.events.length - 1) {
             return;
           }
-          currentDate =
-              tile!.events.elementAt(currentIndex + 1).event.published;
+          setEvent(tile!.events.elementAt(currentIndex + 1));
         } else {
           currentDate = currentDate!.add(position - _lastPosition);
-
-          final eventsBefore = tile!.events.where(
-            (e) => e.event.published.isBefore(currentEvent!.event.published),
-          );
-
-          final eventsFactor = currentEvent == tile!.events.first
-              ? Duration.zero
-              : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
-
-          controller.animateTo(
-            // The scroll position is:
-            //   + the position of the event
-            //   + the position of the events before the current event
-            //   + the width of the separators
-            (eventsFactor.inSeconds +
-                    currentEvent!.position(currentDate!).inSeconds +
-                    eventsBefore.length * _kEventSeparatorWidth)
-                .toDouble(),
-            duration: position - _lastPosition,
-            curve: Curves.linear,
-          );
+          ensureScrollPosition(position - _lastPosition);
 
           _lastPosition = position;
         }
@@ -104,6 +89,32 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
   void _updateScreen() {
     if (mounted) setState(() {});
+  }
+
+  /// Ensure the scroll position is correct
+  void ensureScrollPosition([
+    Duration duration = const Duration(milliseconds: 100),
+  ]) {
+    final eventsBefore = tile!.events.where(
+      (e) => e.event.published.isBefore(currentEvent!.event.published),
+    );
+
+    final eventsFactor = currentEvent == tile!.events.first
+        ? Duration.zero
+        : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
+
+    controller.animateTo(
+      // The scroll position is:
+      //   + the position of the event
+      //   + the position of the events before the current event
+      //   + the width of the separators
+      (eventsFactor.inSeconds +
+              currentEvent!.position(currentDate!).inSeconds +
+              eventsBefore.length * _kEventSeparatorWidth)
+          .toDouble(),
+      duration: duration,
+      curve: Curves.linear,
+    );
   }
 
   @override
@@ -206,37 +217,50 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         height: 48.0,
         color: theme.colorScheme.secondaryContainer,
         child: tile == null
-            ? Center(
-                child: Text(loc.selectACamera),
-              )
+            ? Center(child: Text(loc.selectACamera))
             : Stack(children: [
                 Positioned.fill(
-                  child: ListView.separated(
-                    controller: controller,
-                    padding: const EdgeInsets.all(8.0),
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(width: _kEventSeparatorWidth),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: tile!.events.length,
-                    itemBuilder: (context, index) {
-                      final event = tile!.events.elementAt(index);
-                      return Container(
-                        // every second is a pixel
-                        width: event.duration.inSeconds.toDouble(),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: 8.0,
-                        ),
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Text(
-                          event.duration.humanReadable(context),
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                      );
+                  child: NotificationListener(
+                    onNotification: (Notification notification) {
+                      // TODO(bdlukaa): update the current date based on the scroll position
+                      if (notification is ScrollStartNotification) {
+                      } else if (notification is ScrollUpdateNotification) {
+                      } else if (notification is ScrollEndNotification) {}
+
+                      return false;
                     },
+                    child: ListView.separated(
+                      controller: controller,
+                      padding: const EdgeInsets.all(8.0),
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(width: _kEventSeparatorWidth),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: tile!.events.length,
+                      itemBuilder: (context, index) {
+                        final event = tile!.events.elementAt(index);
+                        return GestureDetector(
+                          onTap: () {
+                            setEvent(event);
+                          },
+                          child: Container(
+                            // every second is a pixel
+                            width: event.duration.inSeconds.toDouble(),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.onSecondaryContainer,
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              event.duration.humanReadable(context),
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Positioned(

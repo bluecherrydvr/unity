@@ -33,6 +33,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     });
   }
 
+  bool isScrolling = false;
   final controller = ScrollController();
 
   Future<void> selectDevice(BuildContext context) async {
@@ -59,9 +60,24 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
   }
 
-  void setEvent(TimelineEvent event) {
-    currentDate = event.event.published;
-    ensureScrollPosition();
+  /// Make [event] the current event and seek to [position]
+  void setEvent(TimelineEvent event, [Duration? position]) {
+    /// Ensure the data source is correct. If the data source is the same
+    /// nothing is done.
+    ///
+    /// See also:
+    ///    * [UnityVideoPlayerController.setDataSource]
+    tile!.videoController.setDataSource(currentEvent!.videoUrl);
+
+    if (currentEvent == event) {
+      if (position != null && position != tile!.videoController.currentPos) {
+        tile!.videoController.seekTo(position);
+      }
+    } else {
+      currentDate = event.event.published;
+      tile!.videoController.seekTo(position ?? Duration.zero);
+      ensureScrollPosition();
+    }
   }
 
   StreamSubscription<Duration>? positionSubscription;
@@ -70,15 +86,17 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     if (mounted) {
       setState(() {
         if (tile!.videoController.currentPos ==
-            tile!.videoController.duration) {
+                tile!.videoController.duration &&
+            tile!.videoController.duration > Duration.zero) {
           final currentIndex = tile!.events.indexOf(currentEvent!);
           // If it's the last event, return
           if (currentIndex == tile!.events.length - 1) {
             return;
           }
           setEvent(tile!.events.elementAt(currentIndex + 1));
-        } else {
-          currentDate = currentDate!.add(position - _lastPosition);
+        } else if (currentEvent != null) {
+          currentDate =
+              currentEvent!.startTime.add(tile!.videoController.currentPos);
           ensureScrollPosition(position - _lastPosition);
 
           _lastPosition = position;
@@ -92,18 +110,23 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   }
 
   /// Ensure the scroll position is correct
-  void ensureScrollPosition([
+  Future<void> ensureScrollPosition([
     Duration duration = const Duration(milliseconds: 100),
-  ]) {
+  ]) async {
+    // If the event is null it means that there is no position to scroll to
+    //
+    // If the user is scrolling, don't scroll to the event
+    if (currentEvent == null || isScrolling) return;
     final eventsBefore = tile!.events.where(
       (e) => e.event.published.isBefore(currentEvent!.event.published),
     );
 
-    final eventsFactor = currentEvent == tile!.events.first
+    final eventsFactor = eventsBefore.isEmpty
         ? Duration.zero
         : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
 
-    controller.animateTo(
+    scrolledManually = true;
+    await controller.animateTo(
       // The scroll position is:
       //   + the position of the event
       //   + the position of the events before the current event
@@ -112,9 +135,74 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               currentEvent!.position(currentDate!).inSeconds +
               eventsBefore.length * _kEventSeparatorWidth)
           .toDouble(),
-      duration: duration,
+      duration: duration > Duration.zero
+          ? duration
+          : const Duration(milliseconds: 100),
       curve: Curves.linear,
     );
+    scrolledManually = false;
+  }
+
+  /// Whether the video was playing when the user started scrolling
+  bool wasPlayingOnScroll = false;
+
+  /// Whether the scroll view was scrolled programatically by [ensureScrollPosition]
+  bool scrolledManually = false;
+  void _onScrollStart(ScrollStartNotification notification) {
+    if (scrolledManually) return;
+
+    isScrolling = true;
+    wasPlayingOnScroll = tile!.videoController.isPlaying;
+    if (wasPlayingOnScroll) {
+      tile!.videoController.pause();
+    }
+  }
+
+  void _onScrollUpdate(ScrollUpdateNotification notification) {
+    if (scrolledManually) return;
+  }
+
+  void _onScrollEnd(ScrollEndNotification notification) {
+    if (scrolledManually) return;
+
+    final scrollPosition = controller.position.pixels;
+
+    for (final event in tile!.events) {
+      final eventsBefore = tile!.events.where(
+        (e) => e.event.published.isBefore(event.event.published),
+      );
+      Duration eventsBeforeDuration() =>
+          eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
+
+      final especulatedStartPosition = eventsBefore.isEmpty
+          ? 0
+          : (eventsBeforeDuration().inSeconds +
+                  eventsBefore.length * _kEventSeparatorWidth)
+              .toInt();
+
+      final especulatedEndPosition = eventsBefore.isEmpty
+          ? event.duration.inSeconds
+          : (eventsBeforeDuration().inSeconds +
+              (eventsBefore.length * _kEventSeparatorWidth) +
+              event.duration.inSeconds);
+
+      if (scrollPosition >= especulatedStartPosition &&
+          scrollPosition <= especulatedEndPosition) {
+        final position = Duration(
+          seconds: scrollPosition.toInt() - especulatedStartPosition,
+        );
+        setEvent(event, position);
+        debugPrint(
+          'User scrolled to event #${tile!.events.indexOf(event)} at $position',
+        );
+        break;
+      }
+    }
+
+    isScrolling = false;
+    if (wasPlayingOnScroll) {
+      tile!.videoController.start();
+    }
   }
 
   @override
@@ -171,9 +259,11 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                             ),
                             const TextSpan(text: '\nindex: '),
                             TextSpan(
-                              text: tile?.events
-                                  .indexOf(currentEvent!)
-                                  .toString(),
+                              text: currentEvent == null
+                                  ? (-1).toString()
+                                  : tile?.events
+                                      .indexOf(currentEvent!)
+                                      .toString(),
                             ),
                             const TextSpan(text: '\nscroll: '),
                             if (this.controller.hasClients)
@@ -222,10 +312,16 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                 Positioned.fill(
                   child: NotificationListener(
                     onNotification: (Notification notification) {
+                      if (notification is! ScrollNotification) return false;
+
                       // TODO(bdlukaa): update the current date based on the scroll position
                       if (notification is ScrollStartNotification) {
+                        _onScrollStart(notification);
                       } else if (notification is ScrollUpdateNotification) {
-                      } else if (notification is ScrollEndNotification) {}
+                        _onScrollUpdate(notification);
+                      } else if (notification is ScrollEndNotification) {
+                        _onScrollEnd(notification);
+                      }
 
                       return false;
                     },

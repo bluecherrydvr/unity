@@ -1,13 +1,19 @@
 import 'dart:async';
 
+import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
+import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 const _kEventSeparatorWidth = 8.0;
@@ -23,9 +29,7 @@ class TimelineDeviceView extends StatefulWidget {
 
 class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   TimelineTile? tile;
-
   DateTime? currentDate;
-
   TimelineEvent? get currentEvent {
     assert(currentDate != null, 'There must be a date');
     return tile?.events.firstWhereOrNull((event) {
@@ -33,17 +37,23 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     });
   }
 
+  int lastEventIndex = -1;
+
+  /// Whether the user is scrolling the timeline. If true, [ensureScrollPosition]
+  /// will not execute to avoid conflicts
   bool isScrolling = false;
   final controller = ScrollController();
 
+  /// Select a device to show on the timeline
   Future<void> selectDevice(BuildContext context) async {
     final device = await showDeviceSelectorScreen(
       context,
       available: widget.timeline.tiles.map((t) => t.device),
+      selected: [if (tile?.device != null) tile!.device],
     );
     if (device != null) {
       // If there is already a selected device, dispose it
-      tile?.videoController.dispose();
+      tile?.videoController.pause();
       tile = null;
 
       setState(() {
@@ -56,6 +66,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
         tile!.videoController.onPlayingStateUpdate
             .listen((_) => _updateScreen());
+        ensureScrollPosition();
       });
     }
   }
@@ -67,16 +78,26 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     ///
     /// See also:
     ///    * [UnityVideoPlayerController.setDataSource]
-    tile!.videoController.setDataSource(currentEvent!.videoUrl);
+    if (currentEvent != null) {
+      tile!.videoController.setDataSource(currentEvent!.videoUrl);
+    }
 
-    if (currentEvent == event) {
+    void seek() {
       if (position != null && position != tile!.videoController.currentPos) {
         tile!.videoController.seekTo(position);
       }
+    }
+
+    if (currentEvent == event) {
+      seek();
     } else {
       currentDate = event.event.published;
-      tile!.videoController.seekTo(position ?? Duration.zero);
+      seek();
       ensureScrollPosition();
+    }
+
+    if (currentEvent != null) {
+      lastEventIndex = tile!.events.indexOf(currentEvent!);
     }
   }
 
@@ -88,12 +109,11 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         if (tile!.videoController.currentPos ==
                 tile!.videoController.duration &&
             tile!.videoController.duration > Duration.zero) {
-          final currentIndex = tile!.events.indexOf(currentEvent!);
           // If it's the last event, return
-          if (currentIndex == tile!.events.length - 1) {
+          if (lastEventIndex == tile!.events.length - 1) {
             return;
           }
-          setEvent(tile!.events.elementAt(currentIndex + 1));
+          setEvent(tile!.events.elementAt(lastEventIndex + 1));
         } else if (currentEvent != null) {
           currentDate =
               currentEvent!.startTime.add(tile!.videoController.currentPos);
@@ -282,17 +302,20 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         ),
       ),
       Padding(
-        padding: const EdgeInsetsDirectional.symmetric(vertical: 8.0),
+        padding: const EdgeInsetsDirectional.only(
+          top: 8.0,
+          bottom: 14.0,
+        ),
         child: Center(
           child: Material(
             color: theme.colorScheme.secondaryContainer,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 6.0,
-                vertical: 2.0,
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
               ),
               child: currentDate == null
-                  ? const Text(' - ')
+                  ? const Text(' ■■■■■ • ■ • ■■■■■ ')
                   : Text(
                       '${SettingsProvider.instance.dateFormat.format(currentDate!)}'
                       ' '
@@ -304,7 +327,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         ),
       ),
       Container(
-        height: 48.0,
+        height: 44.0,
         color: theme.colorScheme.secondaryContainer,
         child: tile == null
             ? Center(child: Text(loc.selectACamera))
@@ -314,7 +337,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                     onNotification: (Notification notification) {
                       if (notification is! ScrollNotification) return false;
 
-                      // TODO(bdlukaa): update the current date based on the scroll position
                       if (notification is ScrollStartNotification) {
                         _onScrollStart(notification);
                       } else if (notification is ScrollUpdateNotification) {
@@ -343,16 +365,44 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                             width: event.duration.inSeconds.toDouble(),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.onSecondaryContainer,
-                              borderRadius: BorderRadius.circular(12.0),
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
                             padding: const EdgeInsetsDirectional.symmetric(
                               horizontal: 8.0,
                             ),
                             alignment: AlignmentDirectional.centerStart,
-                            child: Text(
-                              event.duration.humanReadable(context),
-                              style: const TextStyle(color: Colors.black),
-                            ),
+                            child: Row(children: [
+                              Icon(
+                                () {
+                                  switch (event.event.type) {
+                                    case EventType.motion:
+                                      return Icons.directions_run;
+                                    case EventType.continuous:
+                                      return Icons.linear_scale;
+                                    default:
+                                      return Icons.event_note;
+                                  }
+                                }(),
+                                color: theme.colorScheme.surface,
+                              ),
+                              const SizedBox(width: 6.0),
+                              Expanded(
+                                child: Text(
+                                  event.event.type.locale(context),
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: theme.colorScheme.surface,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6.0),
+                              Text(
+                                event.event.duration
+                                    .humanReadableCompact(context),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.surface,
+                                ),
+                              ),
+                            ]),
                           ),
                         );
                       },
@@ -405,24 +455,82 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       if (tile != null)
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(text: '${tile!.device.fullName}\n'),
-                if (currentEvent != null) ...[
-                  TextSpan(
-                    text: 'Duration: '
-                        '${currentEvent!.duration.humanReadableCompact(context)}'
-                        '\n',
-                  ),
-                  TextSpan(
-                    text: 'Type: ${currentEvent!.event.type.locale(context)}\n',
-                  ),
-                ]
-              ],
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            _buildIconButton(
+              icon: const Icon(Icons.cameraswitch),
+              text: loc.switchCamera,
+              onPressed: () {
+                selectDevice(context);
+              },
             ),
-          ),
+            Builder(builder: (context) {
+              final downloads = context.watch<DownloadsManager>();
+              final event = currentEvent?.event;
+
+              final isDownloaded =
+                  event == null ? false : downloads.isEventDownloaded(event.id);
+              final isDownloading = event == null
+                  ? false
+                  : downloads.isEventDownloading(event.id);
+
+              return _buildIconButton(
+                icon: isDownloaded
+                    ? Icon(
+                        Icons.download_done,
+                        color: theme.extension<UnityColors>()!.successColor,
+                      )
+                    : isDownloading
+                        ? DownloadProgressIndicator(
+                            progress: downloads.downloading[downloads
+                                .downloading.keys
+                                .firstWhere((e) => e.id == event.id)]!,
+                          )
+                        : const Icon(Icons.download),
+                text: isDownloaded
+                    ? loc.downloaded
+                    : isDownloading
+                        ? loc.downloading
+                        : loc.download,
+                onPressed: event == null
+                    ? null
+                    : () {
+                        if (isDownloaded || isDownloading) {
+                          context
+                              .read<HomeProvider>()
+                              .toDownloads(event.id, context);
+                        } else {
+                          downloads.download(event);
+                        }
+                      },
+              );
+            }),
+          ]),
         ),
     ]);
+  }
+
+  Widget _buildIconButton({
+    required Widget icon,
+    required String text,
+    VoidCallback? onPressed,
+  }) {
+    return Material(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10.0),
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(8.0),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            SizedBox(
+              height: 38.0,
+              width: 38.0,
+              child: icon,
+            ),
+            Text(text),
+          ]),
+        ),
+      ),
+    );
   }
 }

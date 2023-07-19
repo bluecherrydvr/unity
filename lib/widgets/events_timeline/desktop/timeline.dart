@@ -16,6 +16,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
+final timelineTimeFormat = DateFormat('hh:mm:ss a');
+
 class TimelineTile {
   final Device device;
   final List<TimelineEvent> events;
@@ -467,7 +469,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
           ),
           Text(
             '${SettingsProvider.instance.dateFormat.format(timeline.currentDate)} '
-            '${DateFormat('hh:mm:ss a').format(timeline.currentDate)}',
+            '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
           FractionallySizedBox(
             widthFactor: timeline.zoom,

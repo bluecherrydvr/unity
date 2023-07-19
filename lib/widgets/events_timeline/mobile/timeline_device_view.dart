@@ -4,9 +4,13 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+
+const _kEventSeparatorWidth = 8.0;
 
 class TimelineDeviceView extends StatefulWidget {
   const TimelineDeviceView({super.key, required this.timeline});
@@ -37,6 +41,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       available: widget.timeline.tiles.map((t) => t.device),
     );
     if (device != null) {
+      // If there is already a selected device, dispose it
+      tile?.videoController.dispose();
+      tile = null;
+
       setState(() {
         tile = widget.timeline.tiles.firstWhere(
           (t) => t.device == device,
@@ -45,6 +53,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             .listen(_tilePositionListener);
         currentDate = tile!.events.first.event.published;
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
+        tile!.videoController.onPlayingStateUpdate
+            .listen((_) => _updateScreen());
       });
     }
   }
@@ -54,21 +64,46 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   void _tilePositionListener(Duration position) {
     if (mounted) {
       setState(() {
-        currentDate = currentDate!.add(position - _lastPosition);
-        _lastPosition = position;
+        if (tile!.videoController.currentPos ==
+            tile!.videoController.duration) {
+          final currentIndex = tile!.events.indexOf(currentEvent!);
+          if (currentIndex == tile!.events.length - 1) {
+            return;
+          }
+          currentDate =
+              tile!.events.elementAt(currentIndex + 1).event.published;
+        } else {
+          currentDate = currentDate!.add(position - _lastPosition);
 
-        final events = tile!.events
-            .where((e) =>
-                e.event.published.isBefore(currentEvent!.event.published))
-            .map((e) => e.duration)
-            .reduce((a, b) => a + b);
+          final eventsBefore = tile!.events.where(
+            (e) => e.event.published.isBefore(currentEvent!.event.published),
+          );
 
-        controller.jumpTo(
-          (events.inSeconds + currentEvent!.position(currentDate!).inSeconds)
-              .toDouble(),
-        );
+          final eventsFactor = currentEvent == tile!.events.first
+              ? Duration.zero
+              : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
+
+          controller.animateTo(
+            // The scroll position is:
+            //   + the position of the event
+            //   + the position of the events before the current event
+            //   + the width of the separators
+            (eventsFactor.inSeconds +
+                    currentEvent!.position(currentDate!).inSeconds +
+                    eventsBefore.length * _kEventSeparatorWidth)
+                .toDouble(),
+            duration: position - _lastPosition,
+            curve: Curves.linear,
+          );
+
+          _lastPosition = position;
+        }
       });
     }
+  }
+
+  void _updateScreen() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -102,6 +137,45 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
             return UnityVideoView(
               player: tile!.videoController,
+              paneBuilder: (context, controller) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(children: [
+                    if (kDebugMode)
+                      RichText(
+                        text: TextSpan(
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            shadows: outlinedText(),
+                          ),
+                          children: [
+                            TextSpan(
+                              text: currentEvent
+                                  ?.position(currentDate!)
+                                  .humanReadableCompact(context),
+                            ),
+                            const TextSpan(text: '\ndebug: '),
+                            TextSpan(
+                              text: tile?.videoController.currentPos
+                                  .humanReadableCompact(context),
+                            ),
+                            const TextSpan(text: '\nindex: '),
+                            TextSpan(
+                              text: tile?.events
+                                  .indexOf(currentEvent!)
+                                  .toString(),
+                            ),
+                            const TextSpan(text: '\nscroll: '),
+                            if (this.controller.hasClients)
+                              TextSpan(
+                                text:
+                                    this.controller.position.pixels.toString(),
+                              ),
+                          ],
+                        ),
+                      ),
+                  ]),
+                );
+              },
             );
           }(),
         ),
@@ -116,17 +190,21 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                 horizontal: 6.0,
                 vertical: 2.0,
               ),
-              child: Text(
-                SettingsProvider.instance.dateFormat.format(DateTime.now()),
-                style: theme.textTheme.labelMedium,
-              ),
+              child: currentDate == null
+                  ? const Text(' - ')
+                  : Text(
+                      '${SettingsProvider.instance.dateFormat.format(currentDate!)}'
+                      ' '
+                      '${timelineTimeFormat.format(currentDate!)}',
+                      style: theme.textTheme.labelMedium,
+                    ),
             ),
           ),
         ),
       ),
       Container(
         height: 48.0,
-        color: theme.colorScheme.primaryContainer,
+        color: theme.colorScheme.secondaryContainer,
         child: tile == null
             ? Center(
                 child: Text(loc.selectACamera),
@@ -136,8 +214,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   child: ListView.separated(
                     controller: controller,
                     padding: const EdgeInsets.all(8.0),
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8.0),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(width: _kEventSeparatorWidth),
                     scrollDirection: Axis.horizontal,
                     itemCount: tile!.events.length,
                     itemBuilder: (context, index) {
@@ -146,7 +224,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                         // every second is a pixel
                         width: event.duration.inSeconds.toDouble(),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.onPrimaryContainer,
+                          color: theme.colorScheme.onSecondaryContainer,
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         padding: const EdgeInsetsDirectional.symmetric(

@@ -62,6 +62,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         );
         positionSubscription = tile!.videoController.onCurrentPosUpdate
             .listen(_tilePositionListener);
+        bufferingSubscription = tile!.videoController.onBufferStateUpdate
+            .listen((_) => _updateScreen());
         currentDate = tile!.events.first.event.published;
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
         tile!.videoController.onPlayingStateUpdate
@@ -102,6 +104,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   }
 
   StreamSubscription<Duration>? positionSubscription;
+  StreamSubscription<bool>? bufferingSubscription;
   Duration _lastPosition = Duration.zero;
   void _tilePositionListener(Duration position) {
     if (mounted) {
@@ -136,7 +139,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     // If the event is null it means that there is no position to scroll to
     //
     // If the user is scrolling, don't scroll to the event
-    if (currentEvent == null || isScrolling) return;
+    if (currentEvent == null || isScrolling || !controller.hasClients) return;
     final eventsBefore = tile!.events.where(
       (e) => e.event.published.isBefore(currentEvent!.event.published),
     );
@@ -229,6 +232,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   void dispose() {
     tile?.videoController.dispose();
     positionSubscription?.cancel();
+    bufferingSubscription?.cancel();
     super.dispose();
   }
 
@@ -265,6 +269,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                         text: TextSpan(
                           style: theme.textTheme.labelMedium?.copyWith(
                             shadows: outlinedText(),
+                            color: Colors.white,
                           ),
                           children: [
                             TextSpan(
@@ -327,7 +332,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         ),
       ),
       Container(
-        height: 44.0,
+        height: 48.0,
         color: theme.colorScheme.secondaryContainer,
         child: tile == null
             ? Center(child: Text(loc.selectACamera))
@@ -349,7 +354,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                     },
                     child: ListView.separated(
                       controller: controller,
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 8.0,
+                        vertical: 6.0,
+                      ),
                       separatorBuilder: (_, __) =>
                           const SizedBox(width: _kEventSeparatorWidth),
                       scrollDirection: Axis.horizontal,
@@ -368,7 +376,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                               borderRadius: BorderRadius.circular(25.0),
                             ),
                             padding: const EdgeInsetsDirectional.symmetric(
-                              horizontal: 8.0,
+                              horizontal: 12.0,
                             ),
                             alignment: AlignmentDirectional.centerStart,
                             child: Row(children: [
@@ -421,7 +429,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               ]),
       ),
       const SizedBox(height: 14.0),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Row(children: [
+        const Spacer(),
         IconButton(
           icon: const Icon(Icons.skip_previous),
           onPressed: () {},
@@ -432,7 +441,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             (tile?.videoController.isPlaying ?? false)
                 ? Icons.pause
                 : Icons.play_arrow,
+            color: Colors.white,
           ),
+          tooltip: tile == null
+              ? null
+              : tile!.videoController.isPlaying
+                  ? loc.pause
+                  : loc.play,
           iconSize: 32,
           onPressed: () {
             if (tile == null) return;
@@ -450,13 +465,35 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           icon: const Icon(Icons.skip_next),
           onPressed: () {},
         ),
+        if (tile != null && tile!.videoController.isBuffering)
+          const Expanded(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(end: 12.0),
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: SizedBox(
+                  width: 24.0,
+                  height: 24.0,
+                  child: CircularProgressIndicator.adaptive(
+                    strokeWidth: 2.5,
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          const Spacer(),
       ]),
       const Spacer(),
-      if (tile != null)
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          if (Scaffold.hasDrawer(context))
+            _buildIconButton(
+              icon: const DrawerButtonIcon(),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          if (tile != null) ...[
             _buildIconButton(
               icon: const Icon(Icons.cameraswitch),
               text: loc.switchCamera,
@@ -505,14 +542,15 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                       },
               );
             }),
-          ]),
-        ),
+          ],
+        ]),
+      ),
     ]);
   }
 
   Widget _buildIconButton({
     required Widget icon,
-    required String text,
+    String? text,
     VoidCallback? onPressed,
   }) {
     return Material(
@@ -527,7 +565,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               width: 38.0,
               child: icon,
             ),
-            Text(text),
+            if (text != null) Text(text),
           ]),
         ),
       ),

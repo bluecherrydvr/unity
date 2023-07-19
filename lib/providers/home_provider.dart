@@ -109,19 +109,20 @@ class HomeProvider extends ChangeNotifier {
       final home = context.read<HomeProvider>();
       final tab = home.tab;
 
-      /// On device grid or in eventsPlayback, use landscape
-      if ([
-        UnityTab.deviceGrid.index,
-        UnityTab.eventsPlayback.index,
-      ].contains(tab)) {
+      /// On device grid, use landscape
+      if ([UnityTab.deviceGrid.index].contains(tab)) {
         setDefaultStatusBarStyle();
         DeviceOrientations.instance.set([
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ]);
+      } else if ([UnityTab.directCameraScreen.index].contains(tab)) {
+        setDefaultStatusBarStyle();
+        DeviceOrientations.instance.set([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
       } else if ([UnityTab.addServer.index].contains(tab)) {
-        // Use portrait orientation in "Add Server" tab.
-        // See #14.
         setDefaultStatusBarStyle(isLight: true);
         DeviceOrientations.instance.set([
           DeviceOrientation.portraitUp,

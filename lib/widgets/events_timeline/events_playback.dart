@@ -208,11 +208,19 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
         if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
           if (timeline == null) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
+            return const SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Stack(children: [
+                  DrawerButton(),
+                  Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                ]),
+              ),
             );
           }
-          return TimelineDeviceView(timeline: timeline!);
+          return SafeArea(child: TimelineDeviceView(timeline: timeline!));
         }
         return TimelineEventsView(
           // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,

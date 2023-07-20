@@ -149,13 +149,8 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                       break;
                     case 1:
                       if (mounted) {
-                        final result = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DeviceSelectorScreen(),
-                          ),
-                        );
-
-                        if (result is Device) {
+                        final result = await showDeviceSelectorScreen(context);
+                        if (result != null) {
                           view.replace(widget.tab, widget.index, result);
                           if (mounted) setState(() {});
                         }

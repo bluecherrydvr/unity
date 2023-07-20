@@ -35,9 +35,10 @@ Future<Device?> showDeviceSelectorScreen(
   return showModalBottomSheet<Device>(
     context: context,
     isScrollControlled: true,
+    clipBehavior: Clip.hardEdge,
     builder: (context) {
       return DraggableScrollableSheet(
-        maxChildSize: 0.8,
+        maxChildSize: 0.85,
         initialChildSize: 0.7,
         expand: false,
         builder: (context, controller) {
@@ -74,13 +75,21 @@ class DeviceSelectorScreen extends StatelessWidget {
     final viewPadding = MediaQuery.viewPaddingOf(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.selectACamera)),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(loc.selectACamera),
+      ),
       body: () {
         if (servers.servers.isEmpty) {
           return const NoServerWarning();
         }
 
         return ListView.builder(
+          primary: true,
           itemCount: servers.servers.length,
           itemBuilder: (context, index) {
             final server = servers.servers[index];

@@ -208,12 +208,12 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
         if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
           if (timeline == null) {
-            return const SafeArea(
+            return SafeArea(
               child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Stack(children: [
-                  DrawerButton(),
-                  Center(
+                  if (hasDrawer) const DrawerButton(),
+                  const Center(
                     child: CircularProgressIndicator.adaptive(),
                   ),
                 ]),

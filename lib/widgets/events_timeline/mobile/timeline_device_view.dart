@@ -430,10 +430,15 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       ),
       const SizedBox(height: 14.0),
       Row(children: [
-        const Spacer(),
+        Expanded(
+          child: IconButton(
+            icon: const Icon(Icons.fullscreen),
+            onPressed: currentEvent == null ? null : () {},
+          ),
+        ),
         IconButton(
           icon: const Icon(Icons.skip_previous),
-          onPressed: () {},
+          onPressed: lastEventIndex <= 0 ? null : () {},
         ),
         const SizedBox(width: 6.0),
         IconButton.filled(
@@ -441,7 +446,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             (tile?.videoController.isPlaying ?? false)
                 ? Icons.pause
                 : Icons.play_arrow,
-            color: Colors.white,
+            color: theme.colorScheme.surface,
           ),
           tooltip: tile == null
               ? null
@@ -449,21 +454,24 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   ? loc.pause
                   : loc.play,
           iconSize: 32,
-          onPressed: () {
-            if (tile == null) return;
-
-            if (tile!.videoController.isPlaying) {
-              tile!.videoController.pause();
-            } else {
-              tile!.videoController.start();
-            }
-            setState(() {});
-          },
+          onPressed: tile == null
+              ? null
+              : () {
+                  if (tile!.videoController.isPlaying) {
+                    tile!.videoController.pause();
+                  } else {
+                    tile!.videoController.start();
+                  }
+                  setState(() {});
+                },
         ),
         const SizedBox(width: 6.0),
         IconButton(
           icon: const Icon(Icons.skip_next),
-          onPressed: () {},
+          onPressed: lastEventIndex.isNegative ||
+                  lastEventIndex == tile!.events.length - 1
+              ? null
+              : () {},
         ),
         if (tile != null && tile!.videoController.isBuffering)
           const Expanded(

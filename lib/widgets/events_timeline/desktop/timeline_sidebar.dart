@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
@@ -39,8 +40,11 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           ),
           const SubHeader('Time filter', height: 24.0),
           ListTile(
-            title: Text(SettingsProvider.instance.dateFormat
-                .format(widget.timeline.currentDate)),
+            title: AutoSizeText(
+              SettingsProvider.instance.dateFormat
+                  .format(widget.timeline.currentDate),
+              maxLines: 1,
+            ),
             onTap: () async {
               final date = await showDatePicker(
                 context: context,

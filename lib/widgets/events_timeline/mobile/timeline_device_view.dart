@@ -9,6 +9,7 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             .listen(_tilePositionListener);
         bufferingSubscription = tile!.videoController.onBufferStateUpdate
             .listen((v) => setState(() => isBuffering = v));
+        tile!.videoController.onBufferUpdate.listen((_) => _updateScreen());
         currentDate = tile!.events.first.event.published;
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
         tile!.videoController.onPlayingStateUpdate
@@ -77,15 +79,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
   /// Make [event] the current event and seek to [position]
   void setEvent(TimelineEvent event, [Duration? position]) {
-    /// Ensure the data source is correct. If the data source is the same
-    /// nothing is done.
-    ///
-    /// See also:
-    ///    * [UnityVideoPlayerController.setDataSource]
-    if (currentEvent != null) {
-      tile!.videoController.setDataSource(currentEvent!.videoUrl);
-    }
-
     Future<void> seek() async {
       if (position != null && position != tile!.videoController.currentPos) {
         tile!.videoController.seekTo(position);
@@ -101,6 +94,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
 
     if (currentEvent != null) {
+      /// Ensure the data source is correct. If the data source is the same
+      /// nothing is done.
+      tile!.videoController.setDataSource(currentEvent!.videoUrl);
       lastEventIndex = tile!.events.indexOf(currentEvent!);
     }
   }
@@ -330,6 +326,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                                         .pixels
                                         .toString(),
                                   ),
+                                TextSpan(
+                                    text:
+                                        '\nt: ${tile!.videoController.dataSource}'),
                               ],
                             ),
                           ),
@@ -423,12 +422,14 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       const SizedBox(height: 14.0),
       Row(children: [
         Expanded(
-          child: IconButton(
-            icon: const Icon(Icons.fullscreen),
-            tooltip: loc.showFullscreenCamera,
-            onPressed:
-                currentEvent == null ? null : () => showFullscreen(context),
-          ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            IconButton(
+              icon: const Icon(Icons.fullscreen),
+              tooltip: loc.showFullscreenCamera,
+              onPressed:
+                  currentEvent == null ? null : () => showFullscreen(context),
+            ),
+          ]),
         ),
         IconButton(
           icon: const Icon(Icons.skip_previous),
@@ -475,25 +476,26 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   setEvent(tile!.events.elementAt(lastEventIndex + 1));
                 },
         ),
-        if (tile != null &&
-            tile!.videoController.currentPos == tile!.videoController.duration)
-          const Expanded(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(end: 12.0),
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: SizedBox(
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 12.0),
+            child: Row(children: [
+              const Spacer(),
+              if (tile != null &&
+                  (isBuffering ||
+                      tile!.videoController.currentPos ==
+                          tile!.videoController.duration ||
+                      tile!.videoController.currentBuffer == Duration.zero))
+                const SizedBox(
                   width: 24.0,
                   height: 24.0,
                   child: CircularProgressIndicator.adaptive(
                     strokeWidth: 2.5,
                   ),
                 ),
-              ),
-            ),
-          )
-        else
-          const Spacer(),
+            ]),
+          ),
+        ),
       ]),
       const Spacer(),
       Padding(
@@ -502,8 +504,16 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           if (Scaffold.hasDrawer(context))
             _buildIconButton(
               icon: const DrawerButtonIcon(),
+              text: MaterialLocalizations.of(context).moreButtonTooltip,
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
+          _buildIconButton(
+            icon: const Icon(Icons.refresh),
+            text: loc.refresh,
+            onPressed: () {
+              eventsPlaybackScreenKey.currentState?.fetch();
+            },
+          ),
           if (tile != null) ...[
             _buildIconButton(
               icon: const Icon(Icons.cameraswitch),

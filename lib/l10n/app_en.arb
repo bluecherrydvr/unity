@@ -57,6 +57,8 @@
   "event": "Event",
   "duration": "Duration",
   "priority": "Priority",
+  "next": "Next",
+  "previous": "Previous",
   "date": "Date",
   "lastUpdate": "Last Update",
   "theme": "Theme",

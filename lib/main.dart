@@ -223,7 +223,8 @@ class UnityApp extends StatelessWidget {
             if (settings.name == '/events') {
               final data = settings.arguments! as Map;
               final event = data['event'] as Event;
-              final upcomingEvents = data['upcoming'] as Iterable<Event>;
+              final upcomingEvents =
+                  (data['upcoming'] as Iterable<Event>?) ?? [];
 
               return MaterialPageRoute(
                 settings: RouteSettings(

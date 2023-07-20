@@ -75,6 +75,10 @@ extension DurationExtension on Duration {
 
     return this;
   }
+
+  double get inDoubleSeconds {
+    return inMilliseconds / 1000;
+  }
 }
 
 extension IterableExtension<T> on Iterable<T> {

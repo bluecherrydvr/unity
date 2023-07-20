@@ -28,7 +28,10 @@ class TimelineTile {
     required this.device,
     required this.events,
   }) {
-    videoController = UnityVideoPlayer.create();
+    videoController = UnityVideoPlayer.create(
+      quality: UnityVideoQuality.p480,
+      enableCache: true,
+    );
   }
 }
 

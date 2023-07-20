@@ -244,7 +244,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     assert(currentEvent != null);
 
     if (tile != null) {
-      tile!.videoController.pause();
+      final isPlaying = tile!.videoController.isPlaying;
+      if (isPlaying) tile!.videoController.pause();
       await Navigator.of(context).pushNamed(
         '/events',
         arguments: {
@@ -252,7 +253,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           'upcoming': tile?.events.map((e) => e.event),
         },
       );
-      tile!.videoController.start();
+      if (isPlaying) tile!.videoController.start();
     }
   }
 
@@ -268,6 +269,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
@@ -338,29 +340,25 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           }(),
         ),
       ),
-      Padding(
-        padding: const EdgeInsetsDirectional.only(
-          top: 8.0,
-          bottom: 14.0,
-        ),
-        child: Center(
-          child: Material(
-            color: theme.colorScheme.secondaryContainer,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              child: currentDate == null
-                  ? const Text(' ■■■■■ • ■■■■■ ')
-                  : Text(
-                      '${SettingsProvider.instance.dateFormat.format(currentDate!)}'
-                      ' '
-                      '${timelineTimeFormat.format(currentDate!)}',
-                      style: theme.textTheme.labelMedium,
-                    ),
-            ),
+      Center(
+        child: Container(
+          margin: const EdgeInsetsDirectional.only(
+            top: 8.0,
+            bottom: 14.0,
           ),
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: 8.0,
+            vertical: 4.0,
+          ),
+          color: theme.colorScheme.secondaryContainer,
+          child: currentDate == null
+              ? const Text(' ■■■■■ • ■■■■■ ')
+              : Text(
+                  '${settings.dateFormat.format(currentDate!)}'
+                  ' '
+                  '${timelineTimeFormat.format(currentDate!)}',
+                  style: theme.textTheme.labelMedium,
+                ),
         ),
       ),
       Container(
@@ -399,115 +397,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                       itemBuilder: (context, index) {
                         final event = tile!.events.elementAt(index);
 
-                        return GestureDetector(
-                          onTap: () => setEvent(event),
-                          child: SizedBox(
-                            width: event.duration.inDoubleSeconds,
-                            child: Stack(
-                              alignment: AlignmentDirectional.centerStart,
-                              children: [
-                                Positioned.fill(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: theme
-                                          .colorScheme.onSecondaryContainer,
-                                      borderRadius: BorderRadius.circular(25.0),
-                                    ),
-                                  ),
-                                ),
-                                if (event == currentEvent)
-                                  Positioned.fill(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                      child: Align(
-                                        alignment:
-                                            AlignmentDirectional.centerStart,
-                                        child: Container(
-                                          width: tile!.videoController
-                                              .currentBuffer.inDoubleSeconds,
-                                          color: theme.colorScheme.tertiary,
-                                          padding: const EdgeInsetsDirectional
-                                              .symmetric(
-                                            horizontal: 12.0,
-                                          ),
-                                          alignment:
-                                              AlignmentDirectional.centerStart,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsetsDirectional.symmetric(
-                                    horizontal: 12.0,
-                                  ),
-                                  child: Row(children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            theme.colorScheme.tertiaryContainer,
-                                      ),
-                                      padding: const EdgeInsetsDirectional.all(
-                                        5.5,
-                                      ),
-                                      margin: const EdgeInsetsDirectional.only(
-                                        end: 4.0,
-                                      ),
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: TextStyle(
-                                          fontSize: 11.0,
-                                          fontWeight: FontWeight.w500,
-                                          color: theme
-                                              .colorScheme.onTertiaryContainer,
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(
-                                      () {
-                                        switch (event.event.type) {
-                                          case EventType.motion:
-                                            return Icons.directions_run;
-                                          case EventType.continuous:
-                                            return Icons.horizontal_rule;
-                                          default:
-                                            return Icons.event_note;
-                                        }
-                                      }(),
-                                      color: theme.colorScheme.surface,
-                                    ),
-                                    const SizedBox(width: 4.0),
-                                    Expanded(
-                                      child: Text(
-                                        event.event.type.locale(context),
-                                        style: theme.textTheme.labelLarge
-                                            ?.copyWith(
-                                          color: theme.colorScheme.surface,
-                                        ),
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6.0),
-                                    Icon(
-                                      Icons.timer,
-                                      size: 16.0,
-                                      color: theme.colorScheme.surface,
-                                    ),
-                                    const SizedBox(width: 4.0),
-                                    Text(
-                                      event.event.duration
-                                          .humanReadableCompact(context),
-                                      style:
-                                          theme.textTheme.labelSmall?.copyWith(
-                                        color: theme.colorScheme.surface,
-                                      ),
-                                    ),
-                                  ]),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return _TimelineTile(
+                          key: ValueKey(event.event.id),
+                          event: event,
+                          index: index,
+                          isCurrentEvent: event == currentEvent,
+                          onPressed: () => setEvent(event),
+                          tile: tile!,
                         );
                       },
                     ),
@@ -579,7 +475,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   setEvent(tile!.events.elementAt(lastEventIndex + 1));
                 },
         ),
-        if (tile != null && isBuffering)
+        if (tile != null &&
+            tile!.videoController.currentPos == tile!.videoController.duration)
           const Expanded(
             child: Padding(
               padding: EdgeInsetsDirectional.only(end: 12.0),
@@ -682,6 +579,125 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             if (text != null) Text(text),
           ]),
         ),
+      ),
+    );
+  }
+}
+
+class _TimelineTile extends StatelessWidget {
+  const _TimelineTile({
+    super.key,
+    required this.event,
+    required this.isCurrentEvent,
+    required this.tile,
+    required this.onPressed,
+    required this.index,
+  });
+
+  final TimelineEvent event;
+  final bool isCurrentEvent;
+  final TimelineTile tile;
+  final VoidCallback onPressed;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onPressed,
+      child: SizedBox(
+        width: event.duration.inDoubleSeconds,
+        child: Stack(alignment: AlignmentDirectional.centerStart, children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSecondaryContainer,
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+            ),
+          ),
+          if (isCurrentEvent &&
+              tile.videoController.dataSource == event.videoUrl)
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Container(
+                    width: tile.videoController.currentBuffer.inDoubleSeconds,
+                    color: theme.colorScheme.tertiary,
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 12.0,
+                    ),
+                    alignment: AlignmentDirectional.centerStart,
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 12.0,
+            ),
+            child: Row(children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                padding: const EdgeInsetsDirectional.all(
+                  5.5,
+                ),
+                margin: const EdgeInsetsDirectional.only(
+                  end: 4.0,
+                ),
+                child: Text(
+                  '${index + 1}',
+                  style: TextStyle(
+                    fontSize: 11.0,
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+              ),
+              Icon(
+                () {
+                  switch (event.event.type) {
+                    case EventType.motion:
+                      return Icons.directions_run;
+                    case EventType.continuous:
+                      return Icons.horizontal_rule;
+                    default:
+                      return Icons.event_note;
+                  }
+                }(),
+                color: theme.colorScheme.surface,
+              ),
+              const SizedBox(width: 4.0),
+              Expanded(
+                child: Text(
+                  event.event.type.locale(context),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.surface,
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+              const SizedBox(width: 6.0),
+              Icon(
+                Icons.timer,
+                size: 16.0,
+                color: theme.colorScheme.surface,
+              ),
+              const SizedBox(width: 4.0),
+              Text(
+                event.event.duration.humanReadableCompact(context),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.surface,
+                ),
+              ),
+            ]),
+          ),
+        ]),
       ),
     );
   }

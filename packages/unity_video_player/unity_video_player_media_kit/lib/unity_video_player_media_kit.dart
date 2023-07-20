@@ -21,8 +21,16 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  UnityVideoPlayer createPlayer({int? width, int? height}) {
-    final player = UnityVideoPlayerMediaKit(width: width, height: height);
+  UnityVideoPlayer createPlayer({
+    int? width,
+    int? height,
+    bool enableCache = false,
+  }) {
+    final player = UnityVideoPlayerMediaKit(
+      width: width,
+      height: height,
+      enableCache: enableCache,
+    );
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }
@@ -97,7 +105,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late VideoController mkVideoController;
   late StreamSubscription errorStream;
 
-  UnityVideoPlayerMediaKit({int? width, int? height}) {
+  UnityVideoPlayerMediaKit({
+    int? width,
+    int? height,
+    bool enableCache = false,
+  }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width * pixelRatio).toInt();
     if (height != null) height = (height * pixelRatio).toInt();
@@ -110,7 +122,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
-    if (mkPlayer.platform is libmpvPlayer) {
+    if (mkPlayer.platform is libmpvPlayer && enableCache) {
       final platform = (mkPlayer.platform as libmpvPlayer);
       // https://mpv.io/manual/stable/#options-cache
       platform.setProperty("cache", "yes");

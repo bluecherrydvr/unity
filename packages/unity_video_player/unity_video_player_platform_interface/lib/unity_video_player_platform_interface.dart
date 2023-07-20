@@ -41,7 +41,11 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   Future<void> initialize();
 
   /// Creates a player
-  UnityVideoPlayer createPlayer({int? width, int? height});
+  UnityVideoPlayer createPlayer({
+    int? width,
+    int? height,
+    bool enableCache = false,
+  });
 
   /// Creates a video view
   Widget createVideoView({
@@ -190,10 +194,12 @@ enum UnityVideoQuality {
 abstract class UnityVideoPlayer {
   static UnityVideoPlayer create({
     UnityVideoQuality quality = UnityVideoQuality.p360,
+    bool enableCache = false,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
       height: quality.resolution.height.toInt(),
+      enableCache: enableCache,
     )..quality = quality;
   }
 

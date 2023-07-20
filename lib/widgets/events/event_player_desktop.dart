@@ -60,6 +60,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
 
   final videoController = UnityVideoPlayer.create(
     quality: UnityVideoQuality.p480,
+    enableCache: true,
   );
   late final StreamSubscription playingSubscription;
   late final playingAnimationController = AnimationController(

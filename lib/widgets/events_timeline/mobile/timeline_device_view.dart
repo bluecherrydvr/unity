@@ -86,7 +86,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       tile!.videoController.setDataSource(currentEvent!.videoUrl);
     }
 
-    void seek() {
+    Future<void> seek() async {
       if (position != null && position != tile!.videoController.currentPos) {
         tile!.videoController.seekTo(position);
       }
@@ -191,10 +191,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
   void _onScrollUpdate(ScrollUpdateNotification notification) {
     if (scrolledManually) return;
-    _onScrollEnd(ScrollEndNotification(
-      context: notification.context!,
-      metrics: notification.metrics,
-    ));
+    // _onScrollEnd(ScrollEndNotification(
+    //   context: notification.context!,
+    //   metrics: notification.metrics,
+    // ));
   }
 
   void _onScrollEnd(ScrollEndNotification notification) {
@@ -240,15 +240,20 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
   }
 
-  void showFullscreen(BuildContext context) {
+  Future<void> showFullscreen(BuildContext context) async {
     assert(currentEvent != null);
-    Navigator.of(context).pushNamed(
-      '/events',
-      arguments: {
-        'event': currentEvent!.event,
-        'upcoming': tile?.events.map((e) => e.event),
-      },
-    );
+
+    if (tile != null) {
+      tile!.videoController.pause();
+      await Navigator.of(context).pushNamed(
+        '/events',
+        arguments: {
+          'event': currentEvent!.event,
+          'upcoming': tile?.events.map((e) => e.event),
+        },
+      );
+      tile!.videoController.start();
+    }
   }
 
   @override
@@ -395,80 +400,113 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                         final event = tile!.events.elementAt(index);
 
                         return GestureDetector(
-                          onTap: () {
-                            setEvent(event);
-                          },
-                          child: Container(
-                            // every second is a pixel
+                          onTap: () => setEvent(event),
+                          child: SizedBox(
                             width: event.duration.inDoubleSeconds,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.onSecondaryContainer,
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            padding: const EdgeInsetsDirectional.symmetric(
-                              horizontal: 12.0,
-                            ),
-                            alignment: AlignmentDirectional.centerStart,
-                            child: Row(children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.tertiaryContainer,
-                                ),
-                                padding: const EdgeInsetsDirectional.all(
-                                  5.5,
-                                ),
-                                margin: const EdgeInsetsDirectional.only(
-                                  end: 4.0,
-                                ),
-                                child: Text(
-                                  '${index + 1}',
-                                  style: TextStyle(
-                                    fontSize: 11.0,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        theme.colorScheme.onTertiaryContainer,
+                            child: Stack(
+                              alignment: AlignmentDirectional.centerStart,
+                              children: [
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: theme
+                                          .colorScheme.onSecondaryContainer,
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Icon(
-                                () {
-                                  switch (event.event.type) {
-                                    case EventType.motion:
-                                      return Icons.directions_run;
-                                    case EventType.continuous:
-                                      return Icons.horizontal_rule;
-                                    default:
-                                      return Icons.event_note;
-                                  }
-                                }(),
-                                color: theme.colorScheme.surface,
-                              ),
-                              const SizedBox(width: 4.0),
-                              Expanded(
-                                child: Text(
-                                  event.event.type.locale(context),
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color: theme.colorScheme.surface,
+                                if (event == currentEvent)
+                                  Positioned.fill(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                      child: Align(
+                                        alignment:
+                                            AlignmentDirectional.centerStart,
+                                        child: Container(
+                                          width: tile!.videoController
+                                              .currentBuffer.inDoubleSeconds,
+                                          color: theme.colorScheme.tertiary,
+                                          padding: const EdgeInsetsDirectional
+                                              .symmetric(
+                                            horizontal: 12.0,
+                                          ),
+                                          alignment:
+                                              AlignmentDirectional.centerStart,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  maxLines: 1,
+                                Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.symmetric(
+                                    horizontal: 12.0,
+                                  ),
+                                  child: Row(children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color:
+                                            theme.colorScheme.tertiaryContainer,
+                                      ),
+                                      padding: const EdgeInsetsDirectional.all(
+                                        5.5,
+                                      ),
+                                      margin: const EdgeInsetsDirectional.only(
+                                        end: 4.0,
+                                      ),
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: TextStyle(
+                                          fontSize: 11.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: theme
+                                              .colorScheme.onTertiaryContainer,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      () {
+                                        switch (event.event.type) {
+                                          case EventType.motion:
+                                            return Icons.directions_run;
+                                          case EventType.continuous:
+                                            return Icons.horizontal_rule;
+                                          default:
+                                            return Icons.event_note;
+                                        }
+                                      }(),
+                                      color: theme.colorScheme.surface,
+                                    ),
+                                    const SizedBox(width: 4.0),
+                                    Expanded(
+                                      child: Text(
+                                        event.event.type.locale(context),
+                                        style: theme.textTheme.labelLarge
+                                            ?.copyWith(
+                                          color: theme.colorScheme.surface,
+                                        ),
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6.0),
+                                    Icon(
+                                      Icons.timer,
+                                      size: 16.0,
+                                      color: theme.colorScheme.surface,
+                                    ),
+                                    const SizedBox(width: 4.0),
+                                    Text(
+                                      event.event.duration
+                                          .humanReadableCompact(context),
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
+                                        color: theme.colorScheme.surface,
+                                      ),
+                                    ),
+                                  ]),
                                 ),
-                              ),
-                              const SizedBox(width: 6.0),
-                              Icon(
-                                Icons.timer,
-                                size: 16.0,
-                                color: theme.colorScheme.surface,
-                              ),
-                              const SizedBox(width: 4.0),
-                              Text(
-                                event.event.duration
-                                    .humanReadableCompact(context),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.surface,
-                                ),
-                              ),
-                            ]),
+                              ],
+                            ),
                           ),
                         );
                       },

@@ -32,7 +32,7 @@ class EventPlayerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < kMobileBreakpoint.width) {
+      if (isMobile || constraints.maxWidth < kMobileBreakpoint.width) {
         return _EventPlayerMobile(event: event);
       }
       return EventPlayerDesktop(event: event, upcomingEvents: upcomingEvents);

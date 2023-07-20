@@ -57,6 +57,7 @@ dependencies:
       path: media_kit_libs_ios_video/
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
+  path_provider:
 
 dev_dependencies:
   flutter_test:

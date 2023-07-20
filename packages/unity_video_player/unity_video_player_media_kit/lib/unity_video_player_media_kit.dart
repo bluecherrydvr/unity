@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
@@ -110,15 +111,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
     if (mkPlayer.platform is libmpvPlayer) {
-      final platform = (mkPlayer.platform as libmpvPlayer?);
+      final platform = (mkPlayer.platform as libmpvPlayer);
       // https://mpv.io/manual/stable/#options-cache
-      platform?.setProperty("cache", "yes");
+      platform.setProperty("cache", "yes");
       // https://mpv.io/manual/stable/#options-cache-pause-initial
-      platform?.setProperty("cache-pause-initial", "yes");
+      platform.setProperty("cache-pause-initial", "yes");
       // https://mpv.io/manual/stable/#options-cache-pause-wait
-      platform?.setProperty("cache-pause-wait", "3");
+      platform.setProperty("cache-pause-wait", "1");
+      getTemporaryDirectory().then((value) {
+        platform.setProperty("--cache-on-disk", "yes");
+        platform.setProperty("--cache-dir", value.path);
+      });
 
-      platform?.setProperty("profile", "low-latency");
+      platform.setProperty("profile", "low-latency");
       // platform?.setProperty("untimed", "");
     }
 

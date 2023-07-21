@@ -412,3 +412,59 @@ class _PopupLabelState extends State<PopupLabel> {
   @override
   Widget build(BuildContext context) => widget.label;
 }
+
+class PlayPauseIcon extends StatefulWidget {
+  final bool isPlaying;
+  final Color? color;
+  final List<Shadow>? shadows;
+  final double? size;
+
+  const PlayPauseIcon({
+    super.key,
+    required this.isPlaying,
+    this.color,
+    this.shadows,
+    this.size,
+  });
+
+  @override
+  State<PlayPauseIcon> createState() => _PlayPauseIconState();
+}
+
+class _PlayPauseIconState extends State<PlayPauseIcon>
+    with SingleTickerProviderStateMixin {
+  late final playPauseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+    value: widget.isPlaying ? 1.0 : 0.0,
+  );
+
+  @override
+  void didUpdateWidget(covariant PlayPauseIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isPlaying) {
+      playPauseController.forward();
+    } else {
+      playPauseController.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    playPauseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedIcon(
+      icon: AnimatedIcons.play_pause,
+      progress: CurvedAnimation(
+        curve: Curves.ease,
+        parent: playPauseController,
+      ),
+      color: widget.color,
+      size: widget.size,
+    );
+  }
+}

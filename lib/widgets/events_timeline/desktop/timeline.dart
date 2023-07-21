@@ -10,6 +10,7 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -130,18 +131,33 @@ class Timeline extends ChangeNotifier {
   final DateTime date;
 
   Timeline({required List<TimelineTile> tiles, required this.date}) {
-    tiles.removeWhere((tile) => tile.events.isEmpty);
-    add(tiles);
+    add(tiles.where((tile) => tile.events.isNotEmpty));
 
-    for (final tile in tiles) {
-      tile.videoController.onBufferUpdate.listen((_) => _eventCallback());
-      tile.videoController.onDurationUpdate.listen((_) => _eventCallback());
-      tile.videoController.onPlayingStateUpdate.listen((_) => _eventCallback());
+    for (final tile in this.tiles) {
+      tile.videoController
+        ..onBufferUpdate.listen((_) => _eventCallback(tile))
+        ..onDurationUpdate.listen((_) => _eventCallback(tile))
+        ..onPlayingStateUpdate.listen((_) => _eventCallback(tile))
+        ..onCurrentPosUpdate.listen((_) => _eventCallback(tile, notify: false));
     }
   }
 
-  void _eventCallback() {
-    notifyListeners();
+  void _eventCallback(TimelineTile tile, {bool notify = true}) {
+    if (tile.videoController.duration <= Duration.zero) return;
+
+    final index = tiles.indexOf(tile);
+
+    if (tile.videoController.currentBuffer < tile.videoController.currentPos) {
+      debugPrint('should pause for buffering');
+      pausedToBuffer.add(index);
+      stop();
+    } else if (pausedToBuffer.contains(index)) {
+      debugPrint('should play from buffering');
+      pausedToBuffer.remove(index);
+
+      if (pausedToBuffer.isEmpty) play();
+    }
+    if (notify) notifyListeners();
   }
 
   Timeline.placeholder() : date = DateTime(2023);
@@ -170,7 +186,7 @@ class Timeline extends ChangeNotifier {
     );
   }
 
-  void add(List<TimelineTile> tiles) {
+  void add(Iterable<TimelineTile> tiles) {
     assert(tiles.every((tile) {
       return tile.events.every((event) =>
           event.startTime.year == date.year &&
@@ -264,6 +280,8 @@ class Timeline extends ChangeNotifier {
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
 
+  /// The indexes of the tiles that are paused to buffer
+  Set<int> pausedToBuffer = {};
   void stop() {
     if (timer == null) return;
 
@@ -399,36 +417,40 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
-                      'x',
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 120.0),
-                      child: Slider(
-                        value: _speed ?? timeline.speed,
-                        min: 0.5,
-                        max: 2.0,
-                        onChanged: (s) => setState(() => _speed = s),
-                        onChangeEnd: (s) {
-                          _speed = null;
-                          timeline.speed = s;
-                          FocusScope.of(context).unfocus();
-                        },
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  if (timeline.pausedToBuffer.isNotEmpty)
+                    Container(
+                      height: 22.0,
+                      width: 22.0,
+                      margin: const EdgeInsetsDirectional.only(end: 8.0),
+                      child: const CircularProgressIndicator.adaptive(
+                        strokeWidth: 2,
                       ),
                     ),
-                  ],
-                ),
+                  Text(
+                    '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
+                    'x',
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 120.0),
+                    child: Slider(
+                      value: _speed ?? timeline.speed,
+                      min: 0.5,
+                      max: 2.0,
+                      onChanged: (s) => setState(() => _speed = s),
+                      onChangeEnd: (s) {
+                        _speed = null;
+                        timeline.speed = s;
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+                  ),
+                ]),
               ),
               const SizedBox(width: 20.0),
               IconButton(
                 tooltip: timeline.isPlaying ? loc.pause : loc.play,
-                icon: Icon(
-                  timeline.isPlaying ? Icons.pause : Icons.play_arrow,
-                ),
+                icon: PlayPauseIcon(isPlaying: timeline.isPlaying),
                 onPressed: () {
                   setState(() {
                     if (timeline.isPlaying) {

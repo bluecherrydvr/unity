@@ -442,10 +442,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         ),
         const SizedBox(width: 6.0),
         IconButton.filled(
-          icon: Icon(
-            (tile?.videoController.isPlaying ?? false)
-                ? Icons.pause
-                : Icons.play_arrow,
+          icon: PlayPauseIcon(
+            isPlaying: tile?.videoController.isPlaying ?? false,
             color: theme.colorScheme.surface,
           ),
           tooltip: tile == null

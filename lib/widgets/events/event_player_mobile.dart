@@ -264,15 +264,9 @@ class _VideoViewportState extends State<VideoViewport> {
               );
             } else {
               return GestureDetector(
-                child: Icon(
-                  player.isPlaying ? Icons.pause : Icons.play_arrow,
+                child: PlayPauseIcon(
+                  isPlaying: player.isPlaying,
                   color: Colors.white,
-                  shadows: const <Shadow>[
-                    BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 15.0,
-                        offset: Offset(0.0, 0.75)),
-                  ],
                   size: 56.0,
                 ),
                 onTap: () {

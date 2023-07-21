@@ -100,7 +100,9 @@ class TimelineCard extends StatelessWidget {
                 Align(
                   alignment: AlignmentDirectional.topEnd,
                   child: Text(
-                    'debug buffering: ${(tile.videoController.currentBuffer.inMilliseconds / tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}',
+                    'debug buffering: '
+                    '${(tile.videoController.currentBuffer.inMilliseconds / tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
+                    '\n${tile.videoController.currentBuffer.humanReadableCompact(context)}',
                     style: theme.textTheme.labelLarge!.copyWith(
                       color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),

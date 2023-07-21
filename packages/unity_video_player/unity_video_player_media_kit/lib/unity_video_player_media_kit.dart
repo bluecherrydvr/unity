@@ -122,21 +122,26 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
-    if (mkPlayer.platform is libmpvPlayer && enableCache) {
+    if (mkPlayer.platform is libmpvPlayer) {
       final platform = (mkPlayer.platform as libmpvPlayer);
-      // https://mpv.io/manual/stable/#options-cache
-      platform.setProperty("cache", "yes");
-      // https://mpv.io/manual/stable/#options-cache-pause-initial
-      platform.setProperty("cache-pause-initial", "yes");
-      // https://mpv.io/manual/stable/#options-cache-pause-wait
-      platform.setProperty("cache-pause-wait", "1");
-      getTemporaryDirectory().then((value) {
-        platform.setProperty("--cache-on-disk", "yes");
-        platform.setProperty("--cache-dir", value.path);
-      });
 
-      platform.setProperty("profile", "low-latency");
-      // platform?.setProperty("untimed", "");
+      if (enableCache) {
+        // https://mpv.io/manual/stable/#options-cache
+        platform.setProperty("cache", "yes");
+        // https://mpv.io/manual/stable/#options-cache-pause-initial
+        platform.setProperty("cache-pause-initial", "yes");
+        // https://mpv.io/manual/stable/#options-cache-pause-wait
+        platform.setProperty("cache-pause-wait", "1");
+        getTemporaryDirectory().then((value) {
+          platform.setProperty("cache-on-disk", "yes");
+          platform.setProperty("cache-dir", value.path);
+        });
+      } else {
+        platform.setProperty("profile", "low-latency");
+        platform.setProperty("cache", "no");
+        platform.setProperty("video-sync", "audio");
+        platform.setProperty("untimed", "");
+      }
     }
 
     errorStream = mkPlayer.streams.error.listen((event) {

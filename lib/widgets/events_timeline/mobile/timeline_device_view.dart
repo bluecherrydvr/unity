@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
@@ -29,7 +30,12 @@ class TimelineDeviceView extends StatefulWidget {
 }
 
 class _TimelineDeviceViewState extends State<TimelineDeviceView> {
-  TimelineTile? tile;
+  Device? device;
+  TimelineTile? get tile {
+    if (device == null) return null;
+    return widget.timeline.tiles.firstWhereOrNull((t) => t.device == device);
+  }
+
   DateTime? currentDate;
   TimelineEvent? get currentEvent {
     if (tile == null) return null;
@@ -49,20 +55,14 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
   /// Select a device to show on the timeline
   Future<void> selectDevice(BuildContext context) async {
-    final device = await showDeviceSelectorScreen(
+    device = await showDeviceSelectorScreen(
       context,
       available: widget.timeline.tiles.map((t) => t.device),
       selected: [if (tile?.device != null) tile!.device],
     );
     if (device != null) {
       // If there is already a selected device, dispose it
-      tile?.videoController.pause();
-      tile = null;
-
       setState(() {
-        tile = widget.timeline.tiles.firstWhere(
-          (t) => t.device == device,
-        );
         positionSubscription = tile!.videoController.onCurrentPosUpdate
             .listen(_tilePositionListener);
         bufferingSubscription = tile!.videoController.onBufferStateUpdate
@@ -73,6 +73,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         tile!.videoController.onPlayingStateUpdate
             .listen((_) => _updateScreen());
         ensureScrollPosition();
+        setEvent(tile!.events.first);
       });
     }
   }
@@ -179,9 +180,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     if (scrolledManually) return;
 
     isScrolling = true;
-    wasPlayingOnScroll = tile!.videoController.isPlaying;
+    wasPlayingOnScroll = widget.timeline.isPlaying;
     if (wasPlayingOnScroll) {
-      tile!.videoController.pause();
+      widget.timeline.play(true);
     }
   }
 
@@ -232,7 +233,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
     isScrolling = false;
     if (wasPlayingOnScroll) {
-      tile!.videoController.start();
+      widget.timeline.play();
     }
   }
 
@@ -240,8 +241,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     assert(currentEvent != null);
 
     if (tile != null) {
-      final isPlaying = tile!.videoController.isPlaying;
-      if (isPlaying) tile!.videoController.pause();
+      final isPlaying = widget.timeline.isPlaying;
+      if (isPlaying) widget.timeline.stop();
       await Navigator.of(context).pushNamed(
         '/events',
         arguments: {
@@ -249,7 +250,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           'upcoming': tile?.events.map((e) => e.event),
         },
       );
-      if (isPlaying) tile!.videoController.start();
+      if (isPlaying) widget.timeline.play(true);
     }
   }
 
@@ -455,10 +456,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           onPressed: tile == null
               ? null
               : () {
-                  if (tile!.videoController.isPlaying) {
-                    tile!.videoController.pause();
+                  if (widget.timeline.isPlaying) {
+                    widget.timeline.stop();
                   } else {
-                    tile!.videoController.start();
+                    widget.timeline.play(true);
                   }
                   setState(() {});
                 },
@@ -483,7 +484,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   (isBuffering ||
                       tile!.videoController.currentPos ==
                           tile!.videoController.duration ||
-                      tile!.videoController.currentBuffer == Duration.zero))
+                      tile!.videoController.currentBuffer == Duration.zero ||
+                      widget.timeline.pausedToBuffer.isNotEmpty))
                 const SizedBox(
                   width: 24.0,
                   height: 24.0,

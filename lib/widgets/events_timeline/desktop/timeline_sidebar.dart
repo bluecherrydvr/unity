@@ -8,6 +8,7 @@ import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
   const TimelineSidebar({super.key, required this.timeline});
@@ -22,6 +23,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     return Container(
       constraints: kSidebarConstraints,
@@ -41,8 +43,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           const SubHeader('Time filter', height: 24.0),
           ListTile(
             title: AutoSizeText(
-              SettingsProvider.instance.dateFormat
-                  .format(widget.timeline.currentDate),
+              settings.dateFormat.format(widget.timeline.currentDate),
               maxLines: 1,
             ),
             onTap: () async {

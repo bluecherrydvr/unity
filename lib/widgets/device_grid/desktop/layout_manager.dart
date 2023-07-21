@@ -51,7 +51,8 @@ class _LayoutManagerState extends State<LayoutManager> {
     final settings = context.watch<SettingsProvider>();
     timer?.cancel();
     timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
-      final settings = SettingsProvider.instance;
+      if (!mounted) return;
+
       final view = DesktopViewProvider.instance;
 
       if (settings.layoutCyclingEnabled) {

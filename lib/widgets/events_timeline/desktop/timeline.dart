@@ -15,6 +15,7 @@ import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 final timelineTimeFormat = DateFormat('hh:mm:ss a');
@@ -294,7 +295,7 @@ class Timeline extends ChangeNotifier {
     notifyListeners();
   }
 
-  void play() {
+  void play([bool playAll = false]) {
     timer ??= Timer.periodic(
       Duration(milliseconds: 1000 ~/ _speed),
       (timer) {
@@ -302,7 +303,7 @@ class Timeline extends ChangeNotifier {
         notifyListeners();
 
         forEachEvent((tile, event) {
-          if (event.isPlaying(currentDate)) {
+          if (event.isPlaying(currentDate) || playAll) {
             tile.videoController.seekTo(event.position(currentDate));
             tile.videoController.start();
           }
@@ -364,6 +365,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     return Column(children: [
       Expanded(
@@ -493,7 +495,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ]),
           ),
           Text(
-            '${SettingsProvider.instance.dateFormat.format(timeline.currentDate)} '
+            '${settings.dateFormat.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
           FractionallySizedBox(

@@ -240,8 +240,7 @@ class _SettingsState extends State<Settings> {
                     final selectedDirectory =
                         await FilePicker.platform.getDirectoryPath(
                       dialogTitle: loc.downloadPath,
-                      initialDirectory:
-                          SettingsProvider.instance.downloadsDirectory,
+                      initialDirectory: settings.downloadsDirectory,
                       lockParentWindow: true,
                     );
 

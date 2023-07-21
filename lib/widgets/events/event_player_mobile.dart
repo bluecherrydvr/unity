@@ -22,35 +22,42 @@ part of 'events_screen.dart';
 class EventPlayerScreen extends StatelessWidget {
   final Event event;
   final Iterable<Event> upcomingEvents;
+  final UnityVideoPlayer? player;
 
   const EventPlayerScreen({
     super.key,
     required this.event,
     required this.upcomingEvents,
+    this.player,
   });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       if (isMobile || constraints.maxWidth < kMobileBreakpoint.width) {
-        return _EventPlayerMobile(event: event);
+        return _EventPlayerMobile(event: event, player: player);
       }
-      return EventPlayerDesktop(event: event, upcomingEvents: upcomingEvents);
+      return EventPlayerDesktop(
+        event: event,
+        upcomingEvents: upcomingEvents,
+        player: player,
+      );
     });
   }
 }
 
 class _EventPlayerMobile extends StatefulWidget {
   final Event event;
+  final UnityVideoPlayer? player;
 
-  const _EventPlayerMobile({required this.event});
+  const _EventPlayerMobile({required this.event, this.player});
 
   @override
   State<_EventPlayerMobile> createState() => __EventPlayerMobileState();
 }
 
 class __EventPlayerMobileState extends State<_EventPlayerMobile> {
-  final videoController = UnityVideoPlayer.create();
+  late final videoController = widget.player ?? UnityVideoPlayer.create();
 
   @override
   void initState() {
@@ -82,9 +89,11 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
   @override
   void dispose() {
-    videoController
-      ..release()
-      ..dispose();
+    if (widget.player == null) {
+      videoController
+        ..release()
+        ..dispose();
+    }
 
     DeviceOrientations.instance.set(DeviceOrientation.values);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -100,6 +109,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         Expanded(
           child: SafeArea(
             child: UnityVideoView(
+              heroTag: widget.event.mediaURL,
               player: videoController,
               videoBuilder: (context, video) {
                 return InteractiveViewer(

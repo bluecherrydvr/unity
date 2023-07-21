@@ -75,6 +75,7 @@ class UnityVideoView extends StatefulWidget {
   final UnityVideoPaneBuilder? paneBuilder;
   final UnityVideoBuilder? videoBuilder;
   final Color color;
+  final dynamic heroTag;
 
   const UnityVideoView({
     super.key,
@@ -83,6 +84,7 @@ class UnityVideoView extends StatefulWidget {
     this.paneBuilder,
     this.videoBuilder,
     this.color = const Color(0xFF000000),
+    this.heroTag,
   });
 
   static UnityVideoViewState of(BuildContext context) {
@@ -141,13 +143,22 @@ class UnityVideoViewState extends State<UnityVideoView> {
 
   @override
   Widget build(BuildContext context) {
-    return UnityVideoPlayerInterface.instance.createVideoView(
+    final videoView = UnityVideoPlayerInterface.instance.createVideoView(
       player: widget.player,
       color: widget.color,
       fit: widget.fit,
       videoBuilder: widget.videoBuilder,
       paneBuilder: widget.paneBuilder,
     );
+
+    if (widget.heroTag != null) {
+      return Hero(
+        tag: widget.heroTag,
+        child: videoView,
+      );
+    }
+
+    return videoView;
   }
 }
 

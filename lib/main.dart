@@ -225,6 +225,7 @@ class UnityApp extends StatelessWidget {
               final event = data['event'] as Event;
               final upcomingEvents =
                   (data['upcoming'] as Iterable<Event>?) ?? [];
+              final videoPlayer = data['videoPlayer'] as UnityVideoPlayer?;
 
               return MaterialPageRoute(
                 settings: RouteSettings(
@@ -235,6 +236,7 @@ class UnityApp extends StatelessWidget {
                   return EventPlayerScreen(
                     event: event,
                     upcomingEvents: upcomingEvents,
+                    player: videoPlayer,
                   );
                 },
               );

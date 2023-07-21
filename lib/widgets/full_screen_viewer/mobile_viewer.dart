@@ -110,6 +110,7 @@ class _DeviceFullscreenViewerMobileState
                 enabled: !overlay && ptzEnabled,
                 builder: (context, commands) {
                   return UnityVideoView(
+                    heroTag: widget.device.streamURL,
                     player: widget.videoPlayerController,
                     fit: fit,
                     paneBuilder: (context, controller) {

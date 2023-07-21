@@ -237,7 +237,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
   }
 
-  Future<void> showFullscreen(BuildContext context) async {
+  /// Enter the fullscreen mode
+  Future<void> enterFullscreen(BuildContext context) async {
     assert(currentEvent != null);
 
     if (tile != null) {
@@ -248,6 +249,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         arguments: {
           'event': currentEvent!.event,
           'upcoming': tile?.events.map((e) => e.event),
+          'videoPlayer': tile?.videoController,
         },
       );
       if (isPlaying) widget.timeline.play(true);
@@ -268,6 +270,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
+    final tile = this.tile;
+
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.all(8.0),
@@ -286,7 +290,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             }
 
             return UnityVideoView(
-              player: tile!.videoController,
+              heroTag: currentEvent!.event.mediaURL,
+              player: tile.videoController,
               paneBuilder: !kDebugMode
                   ? null
                   : (context, controller) {
@@ -307,14 +312,14 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                                 ),
                                 const TextSpan(text: '\ndebug: '),
                                 TextSpan(
-                                  text: tile?.videoController.currentPos
+                                  text: tile.videoController.currentPos
                                       .humanReadableCompact(context),
                                 ),
                                 const TextSpan(text: '\nindex: '),
                                 TextSpan(
                                   text: currentEvent == null
                                       ? (-1).toString()
-                                      : tile?.events
+                                      : tile.events
                                           .indexOf(currentEvent!)
                                           .toString(),
                                 ),
@@ -329,7 +334,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                                   ),
                                 TextSpan(
                                     text:
-                                        '\nt: ${tile!.videoController.dataSource}'),
+                                        '\nt: ${tile.videoController.dataSource}'),
                               ],
                             ),
                           ),
@@ -393,9 +398,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                         width: _kEventSeparatorWidth,
                       ),
                       scrollDirection: Axis.horizontal,
-                      itemCount: tile!.events.length,
+                      itemCount: tile.events.length,
                       itemBuilder: (context, index) {
-                        final event = tile!.events.elementAt(index);
+                        final event = tile.events.elementAt(index);
 
                         return _TimelineTile(
                           key: ValueKey(event.event.id),
@@ -403,7 +408,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                           index: index,
                           isCurrentEvent: event == currentEvent,
                           onPressed: () => setEvent(event),
-                          tile: tile!,
+                          tile: tile,
                         );
                       },
                     ),
@@ -428,7 +433,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               icon: const Icon(Icons.fullscreen),
               tooltip: loc.showFullscreenCamera,
               onPressed:
-                  currentEvent == null ? null : () => showFullscreen(context),
+                  currentEvent == null ? null : () => enterFullscreen(context),
             ),
           ]),
         ),
@@ -449,7 +454,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           ),
           tooltip: tile == null
               ? null
-              : tile!.videoController.isPlaying
+              : tile.videoController.isPlaying
                   ? loc.pause
                   : loc.play,
           iconSize: 32,
@@ -472,7 +477,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   lastEventIndex == tile!.events.length - 1
               ? null
               : () {
-                  setEvent(tile!.events.elementAt(lastEventIndex + 1));
+                  setEvent(tile.events.elementAt(lastEventIndex + 1));
                 },
         ),
         Expanded(
@@ -482,9 +487,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               const Spacer(),
               if (tile != null &&
                   (isBuffering ||
-                      tile!.videoController.currentPos ==
-                          tile!.videoController.duration ||
-                      tile!.videoController.currentBuffer == Duration.zero ||
+                      tile.videoController.currentPos ==
+                          tile.videoController.duration ||
+                      tile.videoController.currentBuffer == Duration.zero ||
                       widget.timeline.pausedToBuffer.isNotEmpty))
                 const SizedBox(
                   width: 24.0,

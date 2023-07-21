@@ -257,6 +257,7 @@ class DesktopDeviceTile extends StatelessWidget {
 
     return UnityVideoView(
       key: ValueKey(device.fullName),
+      heroTag: device.streamURL,
       player: videoPlayer,
       paneBuilder: (context, controller) {
         return DesktopTileViewport(controller: controller, device: device);

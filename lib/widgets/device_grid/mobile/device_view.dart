@@ -246,6 +246,7 @@ class DeviceTileState extends State<DeviceTile> {
     if (videoPlayer == null) return const SizedBox.shrink();
 
     return UnityVideoView(
+      heroTag: widget.device.streamURL,
       player: videoPlayer!,
       paneBuilder: (context, controller) {
         final error = UnityVideoView.of(context).error;

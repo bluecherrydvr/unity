@@ -33,6 +33,7 @@ class TimelineCard extends StatelessWidget {
       color: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       child: UnityVideoView(
+        heroTag: device.streamURL,
         player: tile.videoController,
         color: Colors.transparent,
         paneBuilder: (context, controller) {

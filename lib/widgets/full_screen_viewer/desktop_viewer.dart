@@ -50,6 +50,7 @@ class _DeviceFullscreenViewerDesktopState
           WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(
           child: UnityVideoView(
+            heroTag: widget.device.streamURL,
             player: widget.videoPlayerController,
             fit: fit,
             paneBuilder: (context, controller) {

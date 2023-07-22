@@ -65,7 +65,7 @@ class TimelineCard extends StatelessWidget {
           return HoverButton(
             forceEnabled: true,
             margin: const EdgeInsets.all(16.0),
-            builder: (context, states) => Stack(children: [
+            builder: (_, states) => Stack(clipBehavior: Clip.none, children: [
               RichText(
                 text: TextSpan(
                   text: '',
@@ -116,7 +116,7 @@ class TimelineCard extends StatelessWidget {
                   top: 0,
                   height: 24.0,
                   width: 24.0,
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator.adaptive(strokeWidth: 2.0),
                 ),
               if (states.isHovering)
                 Align(

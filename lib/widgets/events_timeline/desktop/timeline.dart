@@ -148,10 +148,22 @@ class Timeline extends ChangeNotifier {
 
     final index = tiles.indexOf(tile);
 
-    if (tile.videoController.currentBuffer < tile.videoController.currentPos) {
-      debugPrint('should pause for buffering');
-      pausedToBuffer.add(index);
-      stop();
+    final bufferFactor = tile.videoController.currentBuffer.inMilliseconds /
+        tile.videoController.duration.inMilliseconds;
+
+    // This only applies if the video is not buffered
+    if (bufferFactor < 1.0) {
+      if (tile.videoController.currentBuffer <
+          tile.videoController.currentPos) {
+        debugPrint('should pause for buffering');
+        pausedToBuffer.add(index);
+        stop();
+      } else if (pausedToBuffer.contains(index)) {
+        debugPrint('should play from buffering');
+        pausedToBuffer.remove(index);
+
+        if (pausedToBuffer.isEmpty) play();
+      }
     } else if (pausedToBuffer.contains(index)) {
       debugPrint('should play from buffering');
       pausedToBuffer.remove(index);

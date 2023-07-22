@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -66,14 +67,12 @@ class Event {
         .last
         .trim()
         .split(' ')
-        .map((e) => e.isEmpty ? '' : e[0].toUpperCase() + e.substring(1))
+        .map((e) => e.uppercaseFirst())
         .join(' ');
   }
 
   Duration get duration {
-    // return mediaDuration ?? updated.difference(published);
-    // TODO(bdlukaa): for some reason, the diff is off by a few seconds. use this to counterpart the issue
-    final dur = updated.difference(published) - const Duration(seconds: 3);
+    final dur = updated.difference(published);
     if (dur < Duration.zero) return updated.difference(published);
     return dur;
   }

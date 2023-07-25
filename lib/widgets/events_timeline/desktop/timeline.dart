@@ -307,17 +307,19 @@ class Timeline extends ChangeNotifier {
     notifyListeners();
   }
 
-  void play([bool playAll = false]) {
+  void play([TimelineEvent? event]) {
     timer ??= Timer.periodic(
       Duration(milliseconds: 1000 ~/ _speed),
       (timer) {
         currentPosition += const Duration(seconds: 1);
         notifyListeners();
 
-        forEachEvent((tile, event) {
-          if (event.isPlaying(currentDate) || playAll) {
-            tile.videoController.seekTo(event.position(currentDate));
-            tile.videoController.start();
+        forEachEvent((tile, e) {
+          if ((event != null && event == e) || e.isPlaying(currentDate)) {
+            if (event == null) {
+              tile.videoController.seekTo(e.position(currentDate));
+            }
+            if (!tile.videoController.isPlaying) tile.videoController.start();
           }
         });
       },

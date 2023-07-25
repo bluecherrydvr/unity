@@ -6,6 +6,7 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -40,24 +41,35 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           Expanded(
             child: buildTreeView(context, setState: setState),
           ),
-          const SubHeader('Time filter', height: 24.0),
-          ListTile(
-            title: AutoSizeText(
-              settings.dateFormat.format(widget.timeline.currentDate),
-              maxLines: 1,
+          if (kDebugMode) ...[
+            const SubHeader('Time filter', height: 24.0),
+            ListTile(
+              title: AutoSizeText(
+                settings.dateFormat.format(widget.timeline.currentDate),
+                maxLines: 1,
+              ),
+              onTap: () async {
+                if (eventsPlaybackScreenKey.currentState == null) return;
+                final oldestDate = (eventsPlaybackScreenKey
+                        .currentState!.realDevices.values
+                        .expand((e) => e)
+                        .toList()
+                      ..sort((a, b) => a.published.compareTo(b.published)))
+                    .first
+                    .published;
+
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: widget.timeline.currentDate,
+                  firstDate: oldestDate,
+                  lastDate: DateTime.now(),
+                  initialEntryMode: DatePickerEntryMode.calendarOnly,
+                  currentDate: widget.timeline.currentDate,
+                );
+                debugPrint('date: $date');
+              },
             ),
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: widget.timeline.currentDate,
-                firstDate: DateTime(DateTime.now().year),
-                lastDate: DateTime.now(),
-                initialEntryMode: DatePickerEntryMode.calendarOnly,
-                currentDate: widget.timeline.currentDate,
-              );
-              debugPrint('date: $date');
-            },
-          ),
+          ],
         ]),
       ),
     );

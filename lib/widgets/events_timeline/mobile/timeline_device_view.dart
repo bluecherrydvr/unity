@@ -182,7 +182,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     isScrolling = true;
     wasPlayingOnScroll = widget.timeline.isPlaying;
     if (wasPlayingOnScroll) {
-      widget.timeline.play(true);
+      widget.timeline.play(currentEvent);
     }
   }
 
@@ -252,7 +252,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           'videoPlayer': tile?.videoController,
         },
       );
-      if (isPlaying) widget.timeline.play(true);
+      if (isPlaying) widget.timeline.play(currentEvent);
     }
   }
 
@@ -464,7 +464,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   if (widget.timeline.isPlaying) {
                     widget.timeline.stop();
                   } else {
-                    widget.timeline.play(true);
+                    widget.timeline.play(currentEvent);
                   }
                   setState(() {});
                 },
@@ -484,6 +484,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           child: Padding(
             padding: const EdgeInsetsDirectional.only(end: 12.0),
             child: Row(children: [
+              // IconButton(
+              //   icon: const Icon(Icons.filter_list),
+              //   tooltip: loc.filter,
+              //   onPressed: lastEventIndex.isNegative
+              //       ? null
+              //       : () => _showFilterSheet(context),
+              // ),
               const Spacer(),
               if (tile != null &&
                   (isBuffering ||
@@ -597,6 +604,30 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       ),
     );
   }
+
+  // Future<void> _showFilterSheet(BuildContext context) async {
+  //   await showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     showDragHandle: true,
+  //     builder: (context) {
+  //       return DraggableScrollableSheet(
+  //         maxChildSize: 0.8,
+  //         initialChildSize: 0.7,
+  //         expand: false,
+  //         builder: (context, controller) {
+  //           return ListView(
+  //             controller: controller,
+  //             padding: const EdgeInsetsDirectional.symmetric(
+  //               horizontal: 12.0,
+  //               vertical: 10.0,
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 }
 
 class _TimelineTile extends StatelessWidget {

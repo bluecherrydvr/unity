@@ -46,10 +46,10 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
-          draft: true
-          prerelease: false
+          draft: false
+          prerelease: true
           body: ""
-          tag_name: "vnext"
+          tag_name: "bleeding_edge"
           files: |
             bluecherry-android-arm64-v8a-release.apk
             bluecherry-android-armeabi-v7a-release.apk
@@ -159,10 +159,10 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
-          draft: true
-          prerelease: false
+          draft: false
+          prerelease: true
           body: ""
-          tag_name: "vnext"
+          tag_name: "bleeding_edge"
           files: |
             Bluecherry-latest.AppImage
           token: ${{ secrets.GITHUB_TOKEN }}

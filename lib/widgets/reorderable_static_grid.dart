@@ -32,6 +32,9 @@ class StaticGrid extends StatefulWidget {
   final int crossAxisCount;
   final List<Widget> children;
 
+  /// The child to show when the grid is empty
+  final Widget? emptyChild;
+
   /// The aspect ratio of each child
   final double childAspectRatio;
 
@@ -51,6 +54,7 @@ class StaticGrid extends StatefulWidget {
     super.key,
     required this.crossAxisCount,
     required this.children,
+    this.emptyChild,
     this.childAspectRatio = 1.0,
     this.mainAxisSpacing = kGridInnerPadding,
     this.crossAxisSpacing = kGridInnerPadding,
@@ -101,6 +105,10 @@ class StaticGridState extends State<StaticGrid> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.children.isEmpty && widget.emptyChild != null) {
+      return widget.emptyChild!;
+    }
+
     return Padding(
       padding: widget.padding.add(EdgeInsetsDirectional.only(
         start: widget.crossAxisSpacing,

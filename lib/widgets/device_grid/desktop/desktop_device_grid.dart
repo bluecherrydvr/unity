@@ -257,6 +257,7 @@ class DesktopDeviceTile extends StatelessWidget {
 
     return UnityVideoView(
       key: ValueKey(device.fullName),
+      heroTag: device.streamURL,
       player: videoPlayer,
       paneBuilder: (context, controller) {
         return DesktopTileViewport(controller: controller, device: device);
@@ -322,6 +323,25 @@ class DesktopTileViewport extends StatefulWidget {
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
+const shadows = [
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(-4, -4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(4, 4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(-4, 4),
+  ),
+  Shadow(
+    blurRadius: 10,
+    offset: Offset(4, -4),
+  ),
+];
+
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
@@ -359,7 +379,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
-
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     Widget foreground = PTZController(

@@ -46,6 +46,7 @@
   "replaceCamera": "Replace Camera",
   "reloadCamera": "Reload Camera",
   "selectACamera": "Select a camera",
+  "switchCamera": "Switch camera",
   "online": "Online",
   "offline": "Offline",
   "removeFromView": "Remove from view",
@@ -56,6 +57,8 @@
   "event": "Event",
   "duration": "Duration",
   "priority": "Priority",
+  "next": "Next",
+  "previous": "Previous",
   "date": "Date",
   "lastUpdate": "Last Update",
   "theme": "Theme",
@@ -146,6 +149,7 @@
   "downloads": "Downloads",
   "download": "Download",
   "downloaded": "Downloaded",
+  "downloading": "Downloading",
   "seeInDownloads": "See in Downloads",
   "delete": "Delete",
   "showInFiles": "Show in Files",
@@ -181,6 +185,12 @@
   "toDate": "To",
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
+  "nEvents": "{n} events",
+  "@nEvents": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "@Event Priorities": {},
   "info": "Info",
   "warn": "Warning",

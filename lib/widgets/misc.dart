@@ -226,40 +226,42 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      height: height,
-      alignment: AlignmentDirectional.centerStart,
-      padding: padding,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.textTheme.displaySmall?.color,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (subtext != null)
+    return Material(
+      child: Container(
+        height: height,
+        alignment: AlignmentDirectional.centerStart,
+        padding: padding,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  subtext!.toUpperCase(),
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(
-                        color: theme.hintColor,
-                        fontSize: 10.0,
-                        fontWeight: FontWeight.w600,
-                      )
-                      .merge(subtextStyle),
-                )
-            ],
+                  text.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.textTheme.displaySmall?.color,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (subtext != null)
+                  Text(
+                    subtext!.toUpperCase(),
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(
+                          color: theme.hintColor,
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w600,
+                        )
+                        .merge(subtextStyle),
+                  )
+              ],
+            ),
           ),
-        ),
-        if (trailing != null) trailing!,
-      ]),
+          if (trailing != null) trailing!,
+        ]),
+      ),
     );
   }
 }
@@ -411,4 +413,60 @@ class PopupLabel extends PopupMenuEntry<Never> {
 class _PopupLabelState extends State<PopupLabel> {
   @override
   Widget build(BuildContext context) => widget.label;
+}
+
+class PlayPauseIcon extends StatefulWidget {
+  final bool isPlaying;
+  final Color? color;
+  final List<Shadow>? shadows;
+  final double? size;
+
+  const PlayPauseIcon({
+    super.key,
+    required this.isPlaying,
+    this.color,
+    this.shadows,
+    this.size,
+  });
+
+  @override
+  State<PlayPauseIcon> createState() => _PlayPauseIconState();
+}
+
+class _PlayPauseIconState extends State<PlayPauseIcon>
+    with SingleTickerProviderStateMixin {
+  late final playPauseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+    value: widget.isPlaying ? 1.0 : 0.0,
+  );
+
+  @override
+  void didUpdateWidget(covariant PlayPauseIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isPlaying) {
+      playPauseController.forward();
+    } else {
+      playPauseController.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    playPauseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedIcon(
+      icon: AnimatedIcons.play_pause,
+      progress: CurvedAnimation(
+        curve: Curves.ease,
+        parent: playPauseController,
+      ),
+      color: widget.color,
+      size: widget.size,
+    );
+  }
 }

@@ -42,11 +42,13 @@ class EventPlayerDesktop extends StatefulWidget {
   final Event event;
 
   final Iterable<Event> upcomingEvents;
+  final UnityVideoPlayer? player;
 
   const EventPlayerDesktop({
     super.key,
     required this.event,
     this.upcomingEvents = const [],
+    this.player,
   });
 
   @override
@@ -58,9 +60,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
   late Event currentEvent;
   final focusNode = FocusNode();
 
-  final videoController = UnityVideoPlayer.create(
-    quality: UnityVideoQuality.p480,
-  );
+  late final videoController = widget.player ??
+      UnityVideoPlayer.create(
+        quality: UnityVideoQuality.p480,
+        enableCache: true,
+      );
   late final StreamSubscription playingSubscription;
   late final playingAnimationController = AnimationController(
     vsync: this,
@@ -165,6 +169,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                     Expanded(
                       child: InteractiveViewer(
                         child: UnityVideoView(
+                          heroTag: currentEvent.mediaURL,
                           player: videoController,
                           paneBuilder: (context, controller) {
                             final error = UnityVideoView.of(context).error;

@@ -7,6 +7,29 @@ import 'package:flutter_simple_treeview/flutter_simple_treeview.dart'
 export 'package:flutter_simple_treeview/flutter_simple_treeview.dart'
     show TreeNode, TreeController;
 
+Widget buildCheckbox({
+  required bool? value,
+  required ValueChanged<bool?> onChanged,
+  required bool isError,
+  double checkboxScale = 0.8,
+}) {
+  return Transform.scale(
+    scale: checkboxScale,
+    child: Checkbox(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: const VisualDensity(
+        horizontal: -4,
+        vertical: -4,
+      ),
+      splashRadius: 0.0,
+      tristate: true,
+      value: value,
+      isError: isError,
+      onChanged: onChanged,
+    ),
+  );
+}
+
 /// Tree view with collapsible and expandable nodes.
 class TreeView extends StatefulWidget {
   /// List of root level tree nodes.

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
@@ -20,8 +21,16 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  UnityVideoPlayer createPlayer({int? width, int? height}) {
-    final player = UnityVideoPlayerMediaKit(width: width, height: height);
+  UnityVideoPlayer createPlayer({
+    int? width,
+    int? height,
+    bool enableCache = false,
+  }) {
+    final player = UnityVideoPlayerMediaKit(
+      width: width,
+      height: height,
+      enableCache: enableCache,
+    );
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }
@@ -96,7 +105,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late VideoController mkVideoController;
   late StreamSubscription errorStream;
 
-  UnityVideoPlayerMediaKit({int? width, int? height}) {
+  UnityVideoPlayerMediaKit({
+    int? width,
+    int? height,
+    bool enableCache = false,
+  }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width * pixelRatio).toInt();
     if (height != null) height = (height * pixelRatio).toInt();
@@ -110,16 +123,25 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
     if (mkPlayer.platform is libmpvPlayer) {
-      final platform = (mkPlayer.platform as libmpvPlayer?);
-      // https://mpv.io/manual/stable/#options-cache
-      platform?.setProperty("cache", "yes");
-      // https://mpv.io/manual/stable/#options-cache-pause-initial
-      platform?.setProperty("cache-pause-initial", "yes");
-      // https://mpv.io/manual/stable/#options-cache-pause-wait
-      platform?.setProperty("cache-pause-wait", "3");
+      final platform = (mkPlayer.platform as libmpvPlayer);
 
-      platform?.setProperty("profile", "low-latency");
-      // platform?.setProperty("untimed", "");
+      if (enableCache) {
+        // https://mpv.io/manual/stable/#options-cache
+        platform.setProperty("cache", "yes");
+        // https://mpv.io/manual/stable/#options-cache-pause-initial
+        platform.setProperty("cache-pause-initial", "yes");
+        // https://mpv.io/manual/stable/#options-cache-pause-wait
+        platform.setProperty("cache-pause-wait", "1");
+        getTemporaryDirectory().then((value) {
+          platform.setProperty("cache-on-disk", "yes");
+          platform.setProperty("cache-dir", value.path);
+        });
+      } else {
+        platform.setProperty("profile", "low-latency");
+        platform.setProperty("cache", "no");
+        platform.setProperty("video-sync", "audio");
+        platform.setProperty("untimed", "");
+      }
     }
 
     errorStream = mkPlayer.streams.error.listen((event) {
@@ -184,6 +206,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
+    if (url == dataSource) return Future.value();
     return ensureVideoControllerInitialized((controller) async {
       mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play

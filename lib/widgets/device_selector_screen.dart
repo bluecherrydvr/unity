@@ -26,14 +26,54 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sliver_tools/sliver_tools.dart';
+
+typedef EventsPerDevice = Map<Device, int>;
+
+Future<Device?> showDeviceSelectorScreen(
+  BuildContext context, {
+  List<Device> selected = const [],
+  Iterable<Device>? available,
+  EventsPerDevice eventsPerDevice = const {},
+}) {
+  return showModalBottomSheet<Device>(
+    context: context,
+    isScrollControlled: true,
+    clipBehavior: Clip.hardEdge,
+    builder: (context) {
+      return DraggableScrollableSheet(
+        maxChildSize: 0.85,
+        initialChildSize: 0.7,
+        expand: false,
+        builder: (context, controller) {
+          return PrimaryScrollController(
+            controller: controller,
+            child: DeviceSelectorScreen(
+              selected: selected,
+              available: available,
+              eventsPerDevice: eventsPerDevice,
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
 class DeviceSelectorScreen extends StatelessWidget {
   /// The devices already selected
   final Iterable<Device> selected;
 
+  final Iterable<Device>? available;
+
+  /// The amount of events per device
+  final EventsPerDevice eventsPerDevice;
+
   const DeviceSelectorScreen({
     super.key,
     this.selected = const [],
+    this.available,
+    this.eventsPerDevice = const {},
   });
 
   @override
@@ -44,52 +84,36 @@ class DeviceSelectorScreen extends StatelessWidget {
     final viewPadding = MediaQuery.viewPaddingOf(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.selectACamera)),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(loc.selectACamera),
+      ),
       body: () {
-        if (servers.servers.isEmpty) {
-          return const NoServerWarning();
-        }
+        if (servers.servers.isEmpty) return const NoServerWarning();
 
-        return ListView.builder(
-          itemCount: servers.servers.length,
-          itemBuilder: (context, index) {
-            final server = servers.servers[index];
-            final isLoading = servers.isServerLoading(server);
-
-            if (isLoading) {
-              return Center(
-                child: Container(
-                  alignment: AlignmentDirectional.center,
-                  height: 156.0,
-                  child: const CircularProgressIndicator.adaptive(),
-                ),
-              );
-            }
-
-            final devices = server.devices.sorted();
-
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: devices.length + 1,
-              // EdgeInsetsDirectional can not be used here because viewPadding
-              // is EdgeInsets. We are just avoiding the top
-              padding: EdgeInsets.only(
-                left: viewPadding.left,
-                right: viewPadding.right,
-                bottom: viewPadding.bottom,
-              ),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SubHeader(
+        return Padding(
+          padding: EdgeInsets.only(
+            left: viewPadding.left,
+            right: viewPadding.right,
+            bottom: viewPadding.bottom,
+          ),
+          child: CustomScrollView(slivers: [
+            for (final server in servers.servers)
+              MultiSliver(pushPinnedChildren: true, children: [
+                SliverPinnedHeader(
+                  child: SubHeader(
                     server.name,
                     subtext: server.online
-                        ? loc.nDevices(devices.length)
+                        ? loc.nDevices(server.devices.length)
                         : loc.offline,
                     subtextStyle: TextStyle(
                       color: !server.online ? theme.colorScheme.error : null,
                     ),
-                    trailing: isLoading
+                    trailing: servers.isServerLoading(server)
                         ? const SizedBox(
                             height: 16.0,
                             width: 16.0,
@@ -98,40 +122,50 @@ class DeviceSelectorScreen extends StatelessWidget {
                             ),
                           )
                         : null,
-                  );
-                }
-
-                index--;
-
-                final device = devices[index];
-                final isSelected = selected.contains(device);
-
-                return ListTile(
-                  enabled: device.status && !isSelected,
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: device.status
-                        ? theme.extension<UnityColors>()!.successColor
-                        : theme.colorScheme.error,
-                    child: const Icon(Icons.camera_alt),
                   ),
-                  title: Text(
-                    device.name
-                        .split(' ')
-                        .map((e) => e[0].toUpperCase() + e.substring(1))
-                        .join(' '),
-                  ),
-                  subtitle: Text(
-                    [
-                      device.uri,
-                      '${device.resolutionX}x${device.resolutionY}',
-                    ].join(' • '),
-                  ),
-                  onTap: () => Navigator.of(context).pop(device),
-                );
-              },
-            );
-          },
+                ),
+                SliverList.builder(
+                  itemCount: server.devices.length,
+                  itemBuilder: (context, index) {
+                    final devices = server.devices.sorted();
+                    final device = devices[index];
+
+                    final isSelected = selected.contains(device);
+                    final isAvailable = available?.contains(device) ?? true;
+                    final enabled = device.status && !isSelected && isAvailable;
+
+                    return ListTile(
+                      enabled: enabled,
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: device.status
+                            ? enabled
+                                ? theme.extension<UnityColors>()!.successColor
+                                : theme.disabledColor
+                            : theme.colorScheme.error,
+                        child: const Icon(Icons.camera_alt),
+                      ),
+                      title: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(text: device.name.uppercaseFirst()),
+                          if (eventsPerDevice[device] != null)
+                            TextSpan(
+                              text:
+                                  '  (${loc.nEvents(eventsPerDevice[device]!)})',
+                              style: theme.textTheme.labelSmall,
+                            ),
+                        ]),
+                      ),
+                      subtitle: Text([
+                        device.uri,
+                        '${device.resolutionX}x${device.resolutionY}',
+                      ].join(' • ')),
+                      onTap: () => Navigator.of(context).pop(device),
+                    );
+                  },
+                ),
+              ]),
+          ]),
         );
       }(),
     );

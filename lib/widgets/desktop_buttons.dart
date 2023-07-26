@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -200,10 +201,12 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: UnityLoadingIndicator(),
                   )
-                else if (home.tab == UnityTab.eventsScreen.index && !canPop)
+                else if (home.tab == UnityTab.eventsScreen.index ||
+                    home.tab == UnityTab.eventsPlayback.index && !canPop)
                   IconButton(
                     onPressed: () {
                       eventsScreenKey.currentState?.fetch();
+                      eventsPlaybackScreenKey.currentState?.fetch();
                     },
                     icon: const Icon(Icons.refresh),
                     iconSize: 20.0,

@@ -75,6 +75,20 @@ extension DurationExtension on Duration {
 
     return this;
   }
+
+  double get inDoubleSeconds {
+    return inMilliseconds / 1000;
+  }
+}
+
+extension IterableExtension<T> on Iterable<T> {
+  T? firstWhereOrNull(bool Function(T element) test) {
+    try {
+      return firstWhere(test);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 extension NotificationExtensions on NotificationClickAction {
@@ -152,9 +166,9 @@ extension DateTimeExtension on DateTime {
   }
 
   bool isInBetween(DateTime first, DateTime second) {
-    return isAfter(first) && isBefore(second) ||
-        this == first ||
-        this == second;
+    return (isAfter(first) && isBefore(second)) ||
+        isAtSameMomentAs(first) ||
+        isAtSameMomentAs(second);
   }
 }
 

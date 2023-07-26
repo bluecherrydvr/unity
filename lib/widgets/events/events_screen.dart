@@ -198,12 +198,12 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasDrawer = Scaffold.hasDrawer(context);
-    final loc = AppLocalizations.of(context);
-
     if (ServersProvider.instance.servers.isEmpty) {
       return const NoServerWarning();
     }
+
+    final hasDrawer = Scaffold.hasDrawer(context);
+    final loc = AppLocalizations.of(context);
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
@@ -324,29 +324,6 @@ class _EventsScreenState extends State<EventsScreen> {
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
-    Widget buildCheckbox({
-      required Server server,
-      required bool? value,
-      required ValueChanged<bool?> onChanged,
-      required bool isError,
-    }) {
-      return Transform.scale(
-        scale: checkboxScale,
-        child: Checkbox(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: const VisualDensity(
-            horizontal: -4,
-            vertical: -4,
-          ),
-          splashRadius: 0.0,
-          tristate: true,
-          value: value,
-          isError: isError,
-          onChanged: onChanged,
-        ),
-      );
-    }
-
     return TreeView(
       indent: 56,
       iconSize: 18.0,
@@ -359,7 +336,6 @@ class _EventsScreenState extends State<EventsScreen> {
         return TreeNode(
           content: Row(children: [
             buildCheckbox(
-              server: server,
               value: !allowedServers.contains(server) || isOffline
                   ? false
                   : isTriState
@@ -378,6 +354,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   }
                 });
               },
+              checkboxScale: checkboxScale,
             ),
             SizedBox(width: gapCheckboxText),
             Expanded(
@@ -409,7 +386,6 @@ class _EventsScreenState extends State<EventsScreen> {
                     IgnorePointer(
                       ignoring: !device.status,
                       child: buildCheckbox(
-                        server: server,
                         value: device.status ? enabled : false,
                         isError: !device.status,
                         onChanged: (v) {
@@ -423,6 +399,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             }
                           });
                         },
+                        checkboxScale: checkboxScale,
                       ),
                     ),
                     SizedBox(width: gapCheckboxText),

@@ -149,13 +149,8 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                       break;
                     case 1:
                       if (mounted) {
-                        final result = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DeviceSelectorScreen(),
-                          ),
-                        );
-
-                        if (result is Device) {
+                        final result = await showDeviceSelectorScreen(context);
+                        if (result != null) {
                           view.replace(widget.tab, widget.index, result);
                           if (mounted) setState(() {});
                         }
@@ -251,6 +246,7 @@ class DeviceTileState extends State<DeviceTile> {
     if (videoPlayer == null) return const SizedBox.shrink();
 
     return UnityVideoView(
+      heroTag: widget.device.streamURL,
       player: videoPlayer!,
       paneBuilder: (context, controller) {
         final error = UnityVideoView.of(context).error;

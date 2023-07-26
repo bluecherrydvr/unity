@@ -226,40 +226,42 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      height: height,
-      alignment: AlignmentDirectional.centerStart,
-      padding: padding,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.textTheme.displaySmall?.color,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (subtext != null)
+    return Material(
+      child: Container(
+        height: height,
+        alignment: AlignmentDirectional.centerStart,
+        padding: padding,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  subtext!.toUpperCase(),
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(
-                        color: theme.hintColor,
-                        fontSize: 10.0,
-                        fontWeight: FontWeight.w600,
-                      )
-                      .merge(subtextStyle),
-                )
-            ],
+                  text.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.textTheme.displaySmall?.color,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (subtext != null)
+                  Text(
+                    subtext!.toUpperCase(),
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(
+                          color: theme.hintColor,
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w600,
+                        )
+                        .merge(subtextStyle),
+                  )
+              ],
+            ),
           ),
-        ),
-        if (trailing != null) trailing!,
-      ]),
+          if (trailing != null) trailing!,
+        ]),
+      ),
     );
   }
 }

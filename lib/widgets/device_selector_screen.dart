@@ -27,10 +27,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+typedef EventsPerDevice = Map<Device, int>;
+
 Future<Device?> showDeviceSelectorScreen(
   BuildContext context, {
   List<Device> selected = const [],
   Iterable<Device>? available,
+  EventsPerDevice eventsPerDevice = const {},
 }) {
   return showModalBottomSheet<Device>(
     context: context,
@@ -47,6 +50,7 @@ Future<Device?> showDeviceSelectorScreen(
             child: DeviceSelectorScreen(
               selected: selected,
               available: available,
+              eventsPerDevice: eventsPerDevice,
             ),
           );
         },
@@ -61,10 +65,14 @@ class DeviceSelectorScreen extends StatelessWidget {
 
   final Iterable<Device>? available;
 
+  /// The amount of events per device
+  final EventsPerDevice eventsPerDevice;
+
   const DeviceSelectorScreen({
     super.key,
     this.selected = const [],
     this.available,
+    this.eventsPerDevice = const {},
   });
 
   @override
@@ -160,7 +168,19 @@ class DeviceSelectorScreen extends StatelessWidget {
                         : theme.colorScheme.error,
                     child: const Icon(Icons.camera_alt),
                   ),
-                  title: Text(device.name.uppercaseFirst()),
+                  title: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(text: device.name.uppercaseFirst()),
+                        if (eventsPerDevice[device] != null)
+                          TextSpan(
+                            text:
+                                '  (${loc.nEvents(eventsPerDevice[device]!)})',
+                            style: theme.textTheme.labelSmall,
+                          ),
+                      ],
+                    ),
+                  ),
                   subtitle: Text(
                     [
                       device.uri,

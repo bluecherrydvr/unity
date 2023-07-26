@@ -185,6 +185,12 @@
   "toDate": "To",
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
+  "nEvents": "{n} events",
+  "@nEvents": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "@Event Priorities": {},
   "info": "Info",
   "warn": "Warning",

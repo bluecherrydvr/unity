@@ -59,6 +59,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       context,
       available: widget.timeline.tiles.map((t) => t.device),
       selected: [if (tile?.device != null) tile!.device],
+      eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>(
+        {},
+        (map, tile) {
+          map[tile.device] = tile.events.length;
+          return map;
+        },
+      ),
     );
     if (device != null) {
       // If there is already a selected device, dispose it

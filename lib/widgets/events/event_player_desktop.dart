@@ -70,6 +70,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     vsync: this,
     duration: const Duration(microseconds: 500),
   );
+  late final StreamSubscription bufferSubscription;
 
   double speed = 1.0;
   double volume = 1.0;
@@ -102,6 +103,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         playingAnimationController.reverse();
       }
     });
+    bufferSubscription = videoController.onBufferUpdate.listen((buffer) {
+      if (!mounted) return;
+
+      setState(() {});
+    });
     setEvent(currentEvent);
   }
 
@@ -111,6 +117,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       ..release()
       ..dispose();
     playingSubscription.cancel();
+    bufferSubscription.cancel();
     playingAnimationController.dispose();
     focusNode.dispose();
     super.dispose();

@@ -96,6 +96,9 @@ class _MKVideo extends StatelessWidget {
       controller: videoController,
       fill: color,
       fit: fit,
+      controls: NoVideoControls,
+      pauseUponEnteringBackgroundMode: true,
+      wakelock: true,
     );
   }
 }
@@ -122,8 +125,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
-    if (mkPlayer.platform is libmpvPlayer) {
-      final platform = (mkPlayer.platform as libmpvPlayer);
+    if (mkPlayer.platform is NativePlayer) {
+      final platform = (mkPlayer.platform as NativePlayer);
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
@@ -144,10 +147,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       }
     }
 
-    errorStream = mkPlayer.streams.error.listen((event) {
+    errorStream = mkPlayer.stream.error.listen((event) {
       debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
-      debugPrint('==== with code ${event.code}');
-      debugPrint('==== ${event.message}');
+      debugPrint('==== $event');
     });
   }
 
@@ -168,20 +170,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  Stream<String> get onError =>
-      mkPlayer.streams.error.map((event) => event.message);
+  Stream<String> get onError => mkPlayer.stream.error.map((event) => event);
 
   @override
   Duration get duration => mkPlayer.state.duration;
 
   @override
-  Stream<Duration> get onDurationUpdate => mkPlayer.streams.duration;
+  Stream<Duration> get onDurationUpdate => mkPlayer.stream.duration;
 
   @override
   Duration get currentPos => mkPlayer.state.position;
 
   @override
-  Stream<Duration> get onCurrentPosUpdate => mkPlayer.streams.position;
+  Stream<Duration> get onCurrentPosUpdate => mkPlayer.stream.position;
 
   @override
   bool get isBuffering => mkPlayer.state.buffering;
@@ -190,19 +191,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Duration get currentBuffer => mkPlayer.state.buffer;
 
   @override
-  Stream<Duration> get onBufferUpdate => mkPlayer.streams.buffer;
+  Stream<Duration> get onBufferUpdate => mkPlayer.stream.buffer;
 
   @override
   bool get isSeekable => duration > Duration.zero;
 
   @override
-  Stream<bool> get onBufferStateUpdate => mkPlayer.streams.buffering;
+  Stream<bool> get onBufferStateUpdate => mkPlayer.stream.buffering;
 
   @override
   bool get isPlaying => mkPlayer.state.playing;
 
   @override
-  Stream<bool> get onPlayingStateUpdate => mkPlayer.streams.playing;
+  Stream<bool> get onPlayingStateUpdate => mkPlayer.stream.playing;
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {

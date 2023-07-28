@@ -131,7 +131,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 
   void _onDurationUpdate(Duration duration) {
-    if (mounted) setState(() {});
+    if (mounted) setState(() => error = null);
   }
 
   @override

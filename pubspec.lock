@@ -86,10 +86,10 @@ packages:
     dependency: transitive
     description:
       name: cli_util
-      sha256: "66f86e916d285c1a93d3b79587d94bd71984a66aac4ff74e524cfa7877f1395c"
+      sha256: b8db3080e59b2503ca9e7922c3df2072cf13992354d5e944074ffa836fba43b7
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.5"
+    version: "0.4.0"
   clock:
     dependency: transitive
     description:
@@ -130,6 +130,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "6f07cba3f7b3448d42d015bfd3d53fe12e5b36da2423f23838efc1d5fb31a263"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.8"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -251,10 +259,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_launcher_icons
-      sha256: ce0e501cfc258907842238e4ca605e74b7fd1cdf04b3b43e86c43f3e40a1592c
+      sha256: "526faf84284b86a4cb36d20a5e45147747b7563d921373d4ee0559c54fcdbcea"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.0"
+    version: "0.13.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -338,10 +346,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "8e9d133755c3e84c73288363e6343157c383a0c6c56fc51afcc5d4d7180306d6"
+      sha256: a72242c9a0ffb65d03de1b7113bc4e189686fc07c7147b8b41811d0dd0e0d9bf
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "4.0.17"
   intl:
     dependency: "direct main"
     description:
@@ -394,74 +402,74 @@ packages:
     dependency: "direct overridden"
     description:
       path: media_kit
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "0.0.11"
+    version: "1.1.0"
   media_kit_libs_android_video:
     dependency: transitive
     description:
-      path: media_kit_libs_android_video
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      path: "libs/android/media_kit_libs_android_video"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.6"
+    version: "1.2.0"
   media_kit_libs_ios_video:
     dependency: transitive
     description:
-      path: media_kit_libs_ios_video
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      path: "libs/ios/media_kit_libs_ios_video"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.4"
+    version: "1.0.5"
   media_kit_libs_linux:
     dependency: transitive
     description:
-      path: media_kit_libs_linux
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      path: "libs/linux/media_kit_libs_linux"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
     version: "1.0.2"
   media_kit_libs_macos_video:
     dependency: transitive
     description:
-      path: media_kit_libs_macos_video
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      path: "libs/macos/media_kit_libs_macos_video"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.5"
+    version: "1.0.6"
   media_kit_libs_windows_video:
     dependency: transitive
     description:
-      path: media_kit_libs_windows_video
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      path: "libs/windows/media_kit_libs_windows_video"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.2"
+    version: "1.0.4"
   media_kit_native_event_loop:
     dependency: transitive
     description:
       path: media_kit_native_event_loop
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "1.0.5"
+    version: "1.0.6"
   media_kit_video:
     dependency: transitive
     description:
       path: media_kit_video
-      ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
-      resolved-ref: "210006b37bfd5bc5f45b81d83cdfbf5732a16716"
+      ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
+      resolved-ref: "7c95f7e0a140fc33ce4880e78f396d2ac9333b81"
       url: "https://github.com/alexmercerind/media_kit.git"
     source: git
-    version: "0.0.12"
+    version: "1.1.0"
   meta:
     dependency: transitive
     description:
@@ -474,10 +482,10 @@ packages:
     dependency: "direct dev"
     description:
       name: msix
-      sha256: e3de4d9f52543ad6e4b0f534991e1303cbd379d24be28dd241ac60bd9439a201
+      sha256: "927c207656dc92eaf3d005c734d259c4ede440052a7281f9e1cc8966ffdbf1c7"
       url: "https://pub.dev"
     source: hosted
-    version: "3.7.0"
+    version: "3.16.0"
   nested:
     dependency: transitive
     description:
@@ -494,6 +502,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  package_info_plus:
+    dependency: transitive
+    description:
+      name: package_info_plus
+      sha256: ceb027f6bc6a60674a233b4a90a7658af1aebdea833da0b5b53c1e9821a78c7b
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "9bc8ba46813a4cc42c66ab781470711781940780fd8beddd0c3da62506d3a6c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   path:
     dependency: transitive
     description:
@@ -662,6 +686,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  screen_brightness:
+    dependency: transitive
+    description:
+      name: screen_brightness
+      sha256: "62fd61a64e68b32b98b840bad7d8b6822bbc40e63c2b569a5f85528484c86b41"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  screen_brightness_android:
+    dependency: transitive
+    description:
+      name: screen_brightness_android
+      sha256: "3df10961e3a9e968a5e076fe27e7f4741fa8a1d3950bdeb48cf121ed529d0caf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0+2"
+  screen_brightness_ios:
+    dependency: transitive
+    description:
+      name: screen_brightness_ios
+      sha256: "99adc3ca5490b8294284aad5fcc87f061ad685050e03cf45d3d018fe398fd9a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  screen_brightness_macos:
+    dependency: transitive
+    description:
+      name: screen_brightness_macos
+      sha256: "64b34e7e3f4900d7687c8e8fb514246845a73ecec05ab53483ed025bd4a899fd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0+1"
+  screen_brightness_platform_interface:
+    dependency: transitive
+    description:
+      name: screen_brightness_platform_interface
+      sha256: b211d07f0c96637a15fb06f6168617e18030d5d74ad03795dd8547a52717c171
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  screen_brightness_windows:
+    dependency: transitive
+    description:
+      name: screen_brightness_windows
+      sha256: "80d90ecdc63fc0823f2ecb1be323471619287937e14210650d7b25ca181abd05"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   screen_retriever:
     dependency: transitive
     description:
@@ -775,6 +847,14 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: d315be0f6641898b280ffa34e2ddb14f3d12b1a37882557869646e0cc363d0cc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
   uri_parser:
     dependency: transitive
     description:
@@ -863,6 +943,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  volume_controller:
+    dependency: transitive
+    description:
+      name: volume_controller
+      sha256: "189bdc7a554f476b412e4c8b2f474562b09d74bc458c23667356bce3ca1d48c9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.7"
+  wakelock_plus:
+    dependency: transitive
+    description:
+      name: wakelock_plus
+      sha256: aac3f3258f01781ec9212df94eecef1eb9ba9350e106728def405baa096ba413
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
+  wakelock_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: wakelock_plus_platform_interface
+      sha256: "40fabed5da06caff0796dc638e1f07ee395fb18801fbff3255a2372db2d80385"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   web:
     dependency: transitive
     description:

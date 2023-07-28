@@ -69,6 +69,34 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   }
 }
 
+typedef VideoViewInheritance = _UnityVideoView;
+
+class _UnityVideoView extends InheritedWidget {
+  const _UnityVideoView({
+    required super.child,
+    required this.error,
+    required this.position,
+    required this.duration,
+    required this.player,
+  });
+
+  final String? error;
+  final Duration position;
+  final Duration duration;
+  final UnityVideoPlayer player;
+
+  static _UnityVideoView? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_UnityVideoView>();
+  }
+
+  @override
+  bool updateShouldNotify(_UnityVideoView oldWidget) {
+    return error != oldWidget.error ||
+        position != oldWidget.position ||
+        duration != oldWidget.duration;
+  }
+}
+
 class UnityVideoView extends StatefulWidget {
   final UnityVideoPlayer player;
   final UnityVideoFit fit;
@@ -87,12 +115,12 @@ class UnityVideoView extends StatefulWidget {
     this.heroTag,
   });
 
-  static UnityVideoViewState of(BuildContext context) {
-    return context.findAncestorStateOfType<UnityVideoViewState>()!;
+  static VideoViewInheritance of(BuildContext context) {
+    return _UnityVideoView.maybeOf(context)!;
   }
 
-  static UnityVideoViewState? maybeOf(BuildContext context) {
-    return context.findAncestorStateOfType<UnityVideoViewState>();
+  static VideoViewInheritance? maybeOf(BuildContext context) {
+    return _UnityVideoView.maybeOf(context);
   }
 
   @override
@@ -103,6 +131,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   String? error;
   late StreamSubscription<String> _onErrorSubscription;
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
+  late StreamSubscription<Duration> _onPositionUpdateSubscription;
 
   @override
   void initState() {
@@ -123,6 +152,8 @@ class UnityVideoViewState extends State<UnityVideoView> {
       _onErrorSubscription = widget.player.onError.listen(_onError);
       _onDurationUpdateSubscription =
           widget.player.onDurationUpdate.listen(_onDurationUpdate);
+      _onPositionUpdateSubscription =
+          widget.player.onCurrentPosUpdate.listen(_onDurationUpdate);
     }
   }
 
@@ -138,17 +169,24 @@ class UnityVideoViewState extends State<UnityVideoView> {
   void dispose() {
     _onErrorSubscription.cancel();
     _onDurationUpdateSubscription.cancel();
+    _onPositionUpdateSubscription.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final videoView = UnityVideoPlayerInterface.instance.createVideoView(
+    final videoView = _UnityVideoView(
       player: widget.player,
-      color: widget.color,
-      fit: widget.fit,
-      videoBuilder: widget.videoBuilder,
-      paneBuilder: widget.paneBuilder,
+      error: error,
+      position: widget.player.currentPos,
+      duration: widget.player.duration,
+      child: UnityVideoPlayerInterface.instance.createVideoView(
+        player: widget.player,
+        color: widget.color,
+        fit: widget.fit,
+        videoBuilder: widget.videoBuilder,
+        paneBuilder: widget.paneBuilder,
+      ),
     );
 
     if (widget.heroTag != null) {

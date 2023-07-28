@@ -150,43 +150,14 @@ class VideoViewport extends StatefulWidget {
 }
 
 class _VideoViewportState extends State<VideoViewport> {
-  UnityVideoPlayer get player => widget.player;
-
-  String? error;
-  Duration position = Duration.zero;
   bool visible = true;
   Timer timer = Timer(Duration.zero, () {});
   bool isSliding = false;
 
-  late StreamSubscription positionStream;
-  late StreamSubscription bufferStream;
-
   @override
   void initState() {
     super.initState();
-    // Set class attributes to match the current [FijkPlayer]'s state.
-    position = widget.player.currentPos;
-    positionStream =
-        widget.player.onCurrentPosUpdate.listen(currentPosListener);
-    bufferStream = widget.player.onBufferUpdate.listen(bufferListener);
-
     startTimer();
-  }
-
-  void currentPosListener(Duration event) {
-    if (mounted) {
-      setState(() {
-        position = event;
-      });
-    }
-  }
-
-  void bufferListener(Duration buffer) {
-    if (mounted) setState(() {});
-  }
-
-  void errorListener(String error) {
-    if (mounted) setState(() => this.error = error);
   }
 
   void startTimer() {
@@ -203,6 +174,8 @@ class _VideoViewportState extends State<VideoViewport> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final player = UnityVideoView.of(context);
+    final error = player.error;
 
     return Stack(children: [
       Positioned.fill(
@@ -243,7 +216,7 @@ class _VideoViewportState extends State<VideoViewport> {
           ),
         ),
       ),
-      if (visible || player.isBuffering) ...[
+      if (visible || player.player.isBuffering) ...[
         Positioned(
           height: kToolbarHeight,
           left: 0,
@@ -264,8 +237,8 @@ class _VideoViewportState extends State<VideoViewport> {
         Positioned.fill(
           child: () {
             if (error != null) {
-              return ErrorWarning(message: error!);
-            } else if (player.isBuffering) {
+              return ErrorWarning(message: error);
+            } else if (player.player.isBuffering) {
               return const Center(
                 child: CircularProgressIndicator.adaptive(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -273,19 +246,21 @@ class _VideoViewportState extends State<VideoViewport> {
                 ),
               );
             } else {
-              return GestureDetector(
-                child: PlayPauseIcon(
-                  isPlaying: player.isPlaying,
-                  color: Colors.white,
-                  size: 56.0,
+              return Center(
+                child: GestureDetector(
+                  child: PlayPauseIcon(
+                    isPlaying: player.player.isPlaying,
+                    color: Colors.white,
+                    size: 56.0,
+                  ),
+                  onTap: () {
+                    if (player.player.isPlaying) {
+                      widget.player.pause();
+                    } else {
+                      widget.player.start();
+                    }
+                  },
                 ),
-                onTap: () {
-                  if (player.isPlaying) {
-                    widget.player.pause();
-                  } else {
-                    widget.player.start();
-                  }
-                },
               );
             }
           }(),
@@ -301,7 +276,7 @@ class _VideoViewportState extends State<VideoViewport> {
                 alignment: AlignmentDirectional.centerEnd,
                 height: 36.0,
                 child: Text(
-                  player.currentPos.label,
+                  player.position.label,
                   style: theme.textTheme.headlineMedium
                       ?.copyWith(color: Colors.white),
                 ),
@@ -314,34 +289,29 @@ class _VideoViewportState extends State<VideoViewport> {
                         const RoundSliderOverlayShape(overlayRadius: 12.0),
                     overlayColor: theme.colorScheme.primary.withOpacity(0.4),
                     thumbColor: theme.colorScheme.primary,
-                    activeTrackColor: theme.colorScheme.primary,
-                    inactiveTrackColor:
-                        theme.colorScheme.primary.withOpacity(0.5),
                     trackHeight: 2.0,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 6.0,
                     ),
                   ),
-                  child: Transform.translate(
-                    offset: const Offset(0, 0.8),
-                    child: Slider(
-                      divisions: player.duration.inMilliseconds,
-                      label: position.humanReadableCompact(context),
-                      value: position.inMilliseconds.toDouble(),
-                      max: player.duration.inMilliseconds.toDouble(),
-                      secondaryTrackValue:
-                          player.currentBuffer.inMilliseconds.toDouble(),
-                      onChangeStart: (_) => isSliding = true,
-                      onChanged: (value) async {
-                        position = Duration(milliseconds: value.toInt());
-                        await player.seekTo(position);
-                        await player.start();
-                      },
-                      onChangeEnd: (_) {
-                        isSliding = false;
-                        if (!timer.isActive) setState(() => visible = false);
-                      },
-                    ),
+                  child: Slider(
+                    divisions: player.duration.inMilliseconds,
+                    label: player.position.humanReadableCompact(context),
+                    value: player.position.inMilliseconds.toDouble(),
+                    max: player.duration.inMilliseconds.toDouble(),
+                    secondaryTrackValue:
+                        player.player.currentBuffer.inMilliseconds.toDouble(),
+                    onChangeStart: (_) => isSliding = true,
+                    onChanged: (value) async {
+                      player.player.pause();
+                      final position = Duration(milliseconds: value.toInt());
+                      await player.player.seekTo(position);
+                    },
+                    onChangeEnd: (_) {
+                      player.player.start();
+                      isSliding = false;
+                      if (!timer.isActive) setState(() => visible = false);
+                    },
                   ),
                 ),
               ),

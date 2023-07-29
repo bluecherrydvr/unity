@@ -29,6 +29,7 @@ import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -55,8 +56,7 @@ class EventPlayerDesktop extends StatefulWidget {
   State<EventPlayerDesktop> createState() => _EventPlayerDesktopState();
 }
 
-class _EventPlayerDesktopState extends State<EventPlayerDesktop>
-    with SingleTickerProviderStateMixin {
+class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   late Event currentEvent;
   final focusNode = FocusNode();
 
@@ -66,10 +66,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
         enableCache: true,
       );
   late final StreamSubscription playingSubscription;
-  late final playingAnimationController = AnimationController(
-    vsync: this,
-    duration: const Duration(microseconds: 500),
-  );
   late final StreamSubscription bufferSubscription;
 
   double speed = 1.0;
@@ -95,13 +91,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
       if (!mounted) return;
-
       setState(() {});
-      if (isPlaying) {
-        playingAnimationController.forward();
-      } else {
-        playingAnimationController.reverse();
-      }
     });
     bufferSubscription = videoController.onBufferUpdate.listen((buffer) {
       if (!mounted) return;
@@ -118,7 +108,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
       ..dispose();
     playingSubscription.cancel();
     bufferSubscription.cancel();
-    playingAnimationController.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -182,16 +171,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                             final error = UnityVideoView.of(context).error;
                             if (error != null) {
                               return ErrorWarning(message: error);
-                            } else if (!controller.isSeekable) {
-                              return const Center(
-                                child: CircularProgressIndicator.adaptive(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                              );
                             }
-
                             return const SizedBox.shrink();
                           },
                         ),
@@ -270,13 +250,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                         onPressed: _playPause,
                         tooltip:
                             videoController.isPlaying ? loc.pause : loc.play,
-                        iconSize: 22.0,
-                        icon: AnimatedBuilder(
-                          animation: playingAnimationController,
-                          builder: (context, _) => AnimatedIcon(
-                            icon: AnimatedIcons.play_pause,
-                            progress: playingAnimationController,
-                          ),
+                        icon: PlayPauseIcon(
+                          isPlaying: videoController.isPlaying,
                         ),
                       ),
                       Consumer<DownloadsManager>(
@@ -319,6 +294,16 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop>
                           },
                         ),
                       ),
+                      padd,
+                      if (videoController.isBuffering ||
+                          !videoController.isSeekable)
+                        const SizedBox(
+                          height: 20.0,
+                          width: 20.0,
+                          child: CircularProgressIndicator.adaptive(
+                            strokeWidth: 2.0,
+                          ),
+                        ),
                       padd,
                     ]),
                   ]),

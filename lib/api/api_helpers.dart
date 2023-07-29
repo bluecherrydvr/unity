@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -132,5 +133,39 @@ abstract class APIHelpers {
       }
     }
     return null;
+  }
+}
+
+class DevHttpOverrides extends HttpOverrides {
+  /// Skips bad certificate error for servers
+  ///
+  /// This must be called for every thread.
+  ///
+  /// See also:
+  ///   * <https://github.com/bluecherrydvr/unity/discussions/42>
+  ///   * [compute], used to compute data in another thread
+  static void configureCertificates() {
+    ServersProvider.instance = ServersProvider();
+    HttpOverrides.global = DevHttpOverrides();
+  }
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) {
+        debugPrint('==== RECEIVED BAD CERTIFICATE FROM $host');
+
+        final servers = ServersProvider.instance.servers
+            .where((server) => server.ip == host);
+        for (final server in servers) {
+          server.passedCertificates = false;
+
+          for (final device in server.devices) {
+            device.server = server;
+          }
+        }
+
+        return true;
+      };
   }
 }

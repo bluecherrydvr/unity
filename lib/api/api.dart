@@ -52,14 +52,14 @@ class API {
         ..fields.addAll({
           'login': server.login,
           'password': server.password,
-          'from_client': true.toString(),
+          'from_client': '${true}',
         })
         ..headers.addAll({
           'Content-Type': 'application/x-www-form-urlencoded',
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      debugPrint('FINISHED');
+      debugPrint('checkServerCredentials ${response.statusCode}');
       // debugPrint(response.headers.toString());
 
       if (response.statusCode == 200) {
@@ -155,6 +155,8 @@ class API {
       debugPrint('Can not get events of an offline server: $server');
       return [];
     }
+
+    DevHttpOverrides.configureCertificates();
 
     assert(server.serverUUID != null && server.cookie != null);
     final response = await get(

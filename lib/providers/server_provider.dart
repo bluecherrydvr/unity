@@ -32,7 +32,7 @@ import 'package:flutter/foundation.dart';
 ///
 class ServersProvider extends ChangeNotifier {
   /// `late` initialized [ServersProvider] instance.
-  static late final ServersProvider instance;
+  static late ServersProvider instance;
 
   /// Initializes the [ServersProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].

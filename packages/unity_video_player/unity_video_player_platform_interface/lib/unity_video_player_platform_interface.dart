@@ -139,6 +139,8 @@ class UnityVideoViewState extends State<UnityVideoView> {
     _onErrorSubscription = widget.player.onError.listen(_onError);
     _onDurationUpdateSubscription =
         widget.player.onDurationUpdate.listen(_onDurationUpdate);
+    _onPositionUpdateSubscription =
+        widget.player.onCurrentPosUpdate.listen(_onDurationUpdate);
   }
 
   @override

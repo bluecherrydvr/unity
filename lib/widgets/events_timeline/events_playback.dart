@@ -151,7 +151,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       }
     }
 
-    final parsedTiles = devices.entries.map((e) => e.buildTimelineTile());
+    final parsedTiles = devices.entries
+        .where((e) => e.value.isNotEmpty)
+        .map((e) => e.buildTimelineTile());
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 

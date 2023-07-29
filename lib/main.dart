@@ -20,6 +20,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
@@ -61,11 +62,7 @@ Future<void> main(List<String> args) async {
   if (isDesktop) runApp(const SplashScreen());
 
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Skips bad certificate
-  // See: https://github.com/bluecherrydvr/unity/discussions/42
-  HttpOverrides.global = DevHttpOverrides();
-
+  DevHttpOverrides.configureCertificates();
   await UnityVideoPlayerInterface.instance.initialize();
   await configureStorage();
 
@@ -149,28 +146,6 @@ Future<void> main(List<String> args) async {
   }
 
   runApp(const UnityApp());
-}
-
-class DevHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (cert, host, port) {
-        debugPrint('==== RECEIVED BAD CERTIFICATE FROM $host');
-
-        final servers = ServersProvider.instance.servers
-            .where((server) => server.ip == host);
-        for (final server in servers) {
-          server.passedCertificates = false;
-
-          for (final device in server.devices) {
-            device.server = server;
-          }
-        }
-
-        return true;
-      };
-  }
 }
 
 class UnityApp extends StatelessWidget {

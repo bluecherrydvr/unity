@@ -600,26 +600,32 @@ class _TimelineTile extends StatelessWidget {
     );
 
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-        width: _kDeviceNameWidth,
-        height: _kTimelineTileHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        decoration: BoxDecoration(
-          color: theme.dialogBackgroundColor,
-          border: border,
+      Tooltip(
+        message:
+            '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
+        preferBelow: false,
+        textStyle: theme.textTheme.labelMedium?.copyWith(
+          color: theme.colorScheme.onInverseSurface,
         ),
-        alignment: AlignmentDirectional.centerStart,
-        child: RichText(
-          maxLines: 1,
-          text: TextSpan(
-            style: theme.textTheme.labelMedium,
-            children: [
-              TextSpan(text: tile.device.name),
-              TextSpan(
-                text: ' (${tile.events.length})',
-                style: const TextStyle(fontSize: 11.0),
+        verticalOffset: 12.0,
+        child: Container(
+          width: _kDeviceNameWidth,
+          height: _kTimelineTileHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          decoration: BoxDecoration(
+            color: theme.dialogBackgroundColor,
+            border: border,
+          ),
+          alignment: AlignmentDirectional.centerStart,
+          child: DefaultTextStyle(
+            style: theme.textTheme.labelMedium!,
+            child: Row(children: [
+              Flexible(child: Text(tile.device.name, maxLines: 1)),
+              Text(
+                ' (${tile.events.length})',
+                style: const TextStyle(fontSize: 10),
               ),
-            ],
+            ]),
           ),
         ),
       ),

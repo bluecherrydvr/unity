@@ -431,6 +431,7 @@ class DownloadIndicator extends StatelessWidget {
             padding: EdgeInsets.zero,
             tooltip: loc.download,
             onPressed: () => downloads.download(event),
+            iconSize: 22.0,
             icon: const Icon(Icons.download),
           );
         }

@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:flutter/foundation.dart';
 
 /// A [Device] present on a server.
 class Device {
@@ -77,11 +78,11 @@ class Device {
   }
 
   String get streamURL {
-    // if (server.passedCertificates) {
-    //   return hslURL;
-    // } else {
-    return rtspURL;
-    // }
+    if (kIsWeb) {
+      return hslURL;
+    } else {
+      return rtspURL;
+    }
   }
 
   String get rtspURL {

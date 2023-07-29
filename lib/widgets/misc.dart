@@ -40,14 +40,14 @@ bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
 /// Whether the current platform is iOS or macOS
 bool get isCupertino {
+  final cupertinoPlatforms = [TargetPlatform.iOS, TargetPlatform.macOS];
   final navigatorContext = navigatorKey.currentContext;
   if (navigatorContext != null) {
     final theme = Theme.of(navigatorContext);
-    return theme.platform == TargetPlatform.iOS ||
-        theme.platform == TargetPlatform.macOS;
+    return cupertinoPlatforms.contains(theme.platform);
   }
 
-  return Platform.isIOS || Platform.isMacOS;
+  return cupertinoPlatforms.contains(defaultTargetPlatform);
 }
 
 class NavigatorPopButton extends StatelessWidget {
@@ -226,7 +226,10 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null;
+
     return Material(
+      type: isInCard ? MaterialType.transparency : MaterialType.canvas,
       child: Container(
         height: height,
         alignment: AlignmentDirectional.centerStart,
@@ -263,43 +266,6 @@ class SubHeader extends StatelessWidget {
         ]),
       ),
     );
-  }
-}
-
-class CustomFutureBuilder<T> extends StatefulWidget {
-  final Future<T>? future;
-  final Widget Function(BuildContext) loadingBuilder;
-  final Widget Function(BuildContext, T?) builder;
-  const CustomFutureBuilder({
-    super.key,
-    required this.future,
-    required this.loadingBuilder,
-    required this.builder,
-  });
-
-  @override
-  State<CustomFutureBuilder<T>> createState() => _CustomFutureBuilderState();
-}
-
-class _CustomFutureBuilderState<T> extends State<CustomFutureBuilder<T>> {
-  T? data;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.future?.then((value) {
-        data = value;
-        if (mounted) setState(() {});
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return data == null
-        ? widget.loadingBuilder(context)
-        : widget.builder(context, data);
   }
 }
 

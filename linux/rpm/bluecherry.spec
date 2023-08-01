@@ -20,7 +20,7 @@ Bluecherry client written in Flutter.
 %install
 export DONT_STRIP=1
 mkdir -p %{buildroot}
-cp -rf linux/debian/usr/ %{buildroot}
+cp -rf /home/bruno/Documents/paid_projects/fork/unity//home/bruno/Documents/paid_projects/fork/unity//home/bruno/Documents/paid_projects/fork/unity/linux/debian/usr/ %{buildroot}
 
 %files
 FILES_HERE

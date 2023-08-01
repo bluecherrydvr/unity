@@ -6,5 +6,4 @@ Homepage: https://www.bluecherrydvr.com/
 Architecture: amd64
 Depends: mpv, libmpv-dev
 Maintainer: Bluecherry DVR  <support@bluecherrydvr.com>
-Description: Bluecherry
-  Bluecherry client written in Flutter.
+Description: Bluecherry client written in Flutter.

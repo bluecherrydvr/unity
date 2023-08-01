@@ -161,6 +161,18 @@ jobs:
           appimage-builder --skip-tests
           cp Bluecherry-latest-x86_64.AppImage Bluecherry-x86_64.AppImage
 
+      - name: Build RPM Package
+        run: |
+          mkdir -p linux/debian/usr/bin
+          cp -r build/linux/x64/release/bundle linux/debian/usr/share/bluecherry
+          ln -sr linux/debian/usr/share/bluecherry/bluecherry linux/debian/usr/bin/bluecherry
+          sed -i "s:cp -rf :cp -rf $(pwd)/:" linux/rpm/bluecherry.spec
+          cd linux/debian
+          sed -i "s:FILES_HERE:$(find usr \( -type l -o -type f \) -follow -print | awk '{printf "/%s\\n", $0}'):" ../rpm/harmonoid.spec
+          cd ../../
+          rpmbuild -bb linux/rpm/bluecherry.spec -D "_topdir $(pwd)/rpmbuild"
+          cp rpmbuild/RPMS/x86_64/*.rpm bluecherry-linux-x86_64.rpm
+
       - name: Build DEB Package
         run: |
           dpkg-deb --build --root-owner-group linux/debian

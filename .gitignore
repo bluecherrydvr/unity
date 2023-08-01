@@ -57,3 +57,5 @@ Bluecherry-latest-x86_64.AppImage
 Bluecherry-latest-x86_64.AppImage.zsync
 AppDirversion.txt
 AppDirassets/
+
+*.deb

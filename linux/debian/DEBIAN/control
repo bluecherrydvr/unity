@@ -1,0 +1,10 @@
+Package: bluecherrydvr
+Version: 3.0.0-beta8
+Section: base
+Priority: optional
+Homepage: https://www.bluecherrydvr.com/
+Architecture: amd64
+Depends: mpv, libmpv-dev
+Maintainer: Bluecherry DVR  <support@bluecherrydvr.com>
+Description: Bluecherry
+  Bluecherry client written in Flutter.

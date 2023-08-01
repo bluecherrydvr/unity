@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Bluecherry
+Comment=Bluecherry client written in Flutter.
+Icon=bluecherry
+Exec=bluecherry_client %f
+StartupWMClass=bluecherry_client
+Terminal=false
+Categories=Player;
+GenericName=Bluecherry
+Keywords=surveillance;

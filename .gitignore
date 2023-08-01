@@ -59,3 +59,4 @@ AppDirversion.txt
 AppDirassets/
 
 *.deb
+/linux/debian/usr/

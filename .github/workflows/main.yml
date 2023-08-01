@@ -138,21 +138,40 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
 
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
-      - uses: subosito/flutter-action@v2.8.0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2.8.0
         with:
           # Stable channel is necessary because playback is broken on master
           channel: "stable"
           # cache: true
-      - run: flutter gen-l10n
-      - run: flutter pub get
-      - run: flutter build linux --verbose
+      - name: Build Flutter
+        run: |
+          flutter gen-l10n
+          flutter pub get
+          flutter build linux --verbose
 
-      - run: sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
-      - run: appimage-builder --skip-tests
+      - name: Build AppImage
+        run: |
+          sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+          appimage-builder --skip-tests
+          cp Bluecherry-latest-x86_64.AppImage Bluecherry-latest.AppImage
 
-      - run: cp Bluecherry-latest-x86_64.AppImage Bluecherry-latest.AppImage
+      - name: Build DEB Package
+        run: |
+          dpkg-deb --build --root-owner-group linux/debian
+          cp linux/*.deb bluecherry-linux-x86_64.deb
+
+      - name: Build Tarball
+        run: |
+          mkdir -p AppDir/
+          cp -r linux/debian/usr AppDir/
+          ln -sr AppDir/usr/bin/bluecherry AppDir/bluecherry
+          tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts

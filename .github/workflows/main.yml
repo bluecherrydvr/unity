@@ -159,7 +159,7 @@ jobs:
         run: |
           sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
           appimage-builder --skip-tests
-          cp Bluecherry-latest-x86_64.AppImage Bluecherry-x86_64.AppImage
+          cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
 
       - name: Build RPM Package
         run: |
@@ -196,7 +196,7 @@ jobs:
           body: ""
           tag_name: "bleeding_edge"
           files: |
-            Bluecherry-x86_64.AppImage
+            bluecherry-linux-x86_64.AppImage
             bluecherry-linux-x86_64.deb
             bluecherry-linux-x86_64.tar.gz
             bluecherry-linux-x86_64.rpm

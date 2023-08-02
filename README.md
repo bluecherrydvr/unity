@@ -1,12 +1,12 @@
 <div align="center">
-  <img  src="https://avatars.githubusercontent.com/u/618428?s=200&v=4" width="20%" height="20%" />
+  <img src="https://avatars.githubusercontent.com/u/618428?s=200&v=4" width="20%" height="20%" />
   <h1><a href="https://www.bluecherrydvr.com/">Bluecherry Client</a></h1>
-  <img  src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
-  <img  src="https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg" />
-  <img  src="https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg" />
+  <img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+  <img src="https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg" />
+  <img src="https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg" />
 
   <br/>
-  <b> Bluecherry DVR client to run across range of devices.</b>
+  <b text-align="center"> Bluecherry DVR client to run across range of devices.</b>
   <br/>
 
   <a href="https://www.bluecherrydvr.com/">Website</a> •
@@ -30,23 +30,24 @@ This project & work under this repository is licensed under [GNU General Public 
 | ------- | --- | ------- | ----- | ----- |
 | [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk) | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta8/bluecherry-dvr-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/Bluecherry-latest.AppImage) | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~ |
 | [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-armeabi-v7a-release.apk) |  | 🚧 **SOON** ~~`winget install bluecherry`~~ | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.deb) |  |
-| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk) | - | 🚧 **SOON** ~~Microsoft Store~~ | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |  |
-| 🚧 **SOON** ~~Play Store~~ |  |  | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) | - |
+| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk) |  | 🚧 **SOON** ~~Microsoft Store~~ | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |  |
+| 🚧 **SOON** ~~Play Store~~ |  |  | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) |  |
 
 
 ## Features
 
 * 🖲️ Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
-* 🎛️ Interactive camera grid viewer, with support for multiple layouts:
-  - For larger screens, compact and multiple layout views are available.
-  - For smaller screens, see multiple cameras in 2x3, 2x2, 2x1 or 1x1 view
-  - Re-orgderable drag-and-drop camera viewer
-  - Cycle through different layout views automatically
+- 🎛️ Interactive camera grid viewer, with support for multiple layouts:
+  <br /> $~~~~$
+💻 For larger screens, compact and multiple layout views are available.
+  <br /> $~~~~~$📱 For smaller screens, see multiple cameras in 2x3, 2x2, 2x1 or 1x1 view
+  <br /> $~~~~~$👆 Re-orgderable drag-and-drop camera viewer
+  <br /> $~~~~~$🛞 Cycle through different layout views automatically
 * 🔎 Pinch-to-zoom fullscreen camera viewer.
 * 🏃 Events List Viewer
 * 🚡 Events Timeline Viewer
-* Direct camera viewer. <br />
-  Watch live video from a single camera directially.
+* 📸 Direct camera viewer.
+* 🎮 Pan-Tilt-Zoom controls for supported cameras.
 * 🌓 Consistent & configurable system-aware, light & dark app theme.
 * ⏲️ Configurable in-app date & time format.
 * 📰 System camera event notifications with screenshot thumbnails.

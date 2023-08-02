@@ -59,4 +59,8 @@ AppDirversion.txt
 AppDirassets/
 
 *.deb
-/linux/debian/usr/
+/linux/debian/usr/bin
+/linux/debian/usr/share/bluecherry
+/linux/debian/usr/share/bluecherry_client
+*.tar.gz
+rpmbuild/

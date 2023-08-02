@@ -85,7 +85,7 @@ jobs:
       #     draft: true
       #     prerelease: false
       #     body: ""
-      #     tag_name: "vnext"
+      #     tag_name: "bleeding_edge"
       #     files: |
       #       bluecherry-dvr-setup.exe
       #     token: ${{ secrets.GITHUB_TOKEN }}
@@ -123,7 +123,7 @@ jobs:
           draft: true
           prerelease: false
           body: ""
-          tag_name: "vnext"
+          tag_name: "bleeding_edge"
           files: |
             bluecherry-dvr-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -199,4 +199,5 @@ jobs:
             Bluecherry-x86_64.AppImage
             bluecherry-linux-x86_64.deb
             bluecherry-linux-x86_64.tar.gz
+            bluecherry-linux-x86_64.rpm
           token: ${{ secrets.GITHUB_TOKEN }}

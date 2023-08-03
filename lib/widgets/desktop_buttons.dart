@@ -265,10 +265,11 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     // We ensure all the players are disposed in order to not keep the app alive
     // in background, wasting unecessary resources!
     if (isPreventClose) {
-      await Future.microtask(() {
+      windowManager.hide();
+      await Future.microtask(() async {
         for (final player in UnityVideoPlayerInterface.players.toList()) {
           debugPrint('Disposing player ${player.hashCode}');
-          player.dispose();
+          await player.dispose();
         }
       });
       windowManager.destroy();

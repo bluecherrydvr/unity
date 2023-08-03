@@ -1,18 +1,19 @@
-<img align="left" src="https://avatars.githubusercontent.com/u/618428?s=200&v=4" width="72" height="72"></img>
+<div align="center">
+  <img src="https://avatars.githubusercontent.com/u/618428?s=200&v=4" width="20%" height="20%" />
+  <h1><a href="https://www.bluecherrydvr.com/">Bluecherry Client</a></h1>
+  <img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+  <img src="https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg" />
+  <img src="https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg" />
 
-<h1 align="left"><a href="https://www.bluecherrydvr.com/">Bluecherry Client</a></h1>
+  <br/>
+  <b text-align="center"> Bluecherry DVR client to run across range of devices.</b>
+  <br/>
 
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/bluecherrydvr/unity/graphs/commit-activity)
-[![Github all releases](https://img.shields.io/github/downloads/bluecherrydvr/unity/total.svg)](https://GitHub.com/bluecherrydvr/unity/releases/)
-![Build status](https://github.com/bluecherrydvr/unity/actions/workflows/main.yml/badge.svg)
+  <a href="https://www.bluecherrydvr.com/">Website</a> •
+  <a href="https://www.bluecherrydvr.com/product/v3license/">Purchase</a> •
+  <a href="https://www.bluecherrydvr.com/chat/">Chat</a>
+</div>
 
-
-
-**Bluecherry DVR client to run across range of devices.**
-
-<a href="https://www.bluecherrydvr.com/">Website</a> •
-<a href="https://www.bluecherrydvr.com/product/v3license/">Purchase</a> •
-<a href="https://www.bluecherrydvr.com/chat/">Chat</a>
 
 ## License
 
@@ -25,34 +26,51 @@ This project & work under this repository is licensed under [GNU General Public 
 
 ## Download
 
-- [iOS](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139)
-- [Android](https://github.com/bluecherrydvr/unity/releases/tag/vnext)
-- [Windows](https://github.com/bluecherrydvr/unity/releases/)
-- [Linux](https://snapcraft.io/bluecherry-client)
+| Android | iOS | Windows | GNU/Linux | MacOS |
+| ------- | --- | ------- | ----- | ----- |
+| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk) | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta8/bluecherry-dvr-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/Bluecherry-latest.AppImage) | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~ |
+| [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-armeabi-v7a-release.apk) |  | 🚧 **SOON** ~~`winget install bluecherry`~~ | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.deb) |  |
+| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk) |  | 🚧 **SOON** ~~Microsoft Store~~ | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |  |
+| 🚧 **SOON** ~~Play Store~~ |  |  | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) |  |
+
+### Installation
+
+Most platforms will not require any extra steps to install the app.
+
+#### Linux
+
+You need mpv & libmpv-dev installed:
+```bash
+sudo apt install mpv libmpv-dev
+```
+
+To install the `.deb` file, run:
+```bash
+sudo dpkg -i bluecherry-linux-x86_64.deb
+```
+
 
 ## Features
 
-- Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
-- Interactive camera grid viewer, with support for multiple layouts:
-  - For larger screens, compact and multiple layout views are available.
-  - For smaller screens, see multiple cameras in 4x4, 2x1 or 1x1 view
-  - Re-orgderable drag-and-drop camera viewer
-  - Cycle through different layout views 
-- Pinch-to-zoom fullscreen camera viewer.
-- Events viewer.
-- Direct camera viewer.
-- Consistent & configurable system-aware, light & dark app theme.
-- Configurable in-app date & time format.
-- System camera event notifications with screenshot thumbnails.
-- Ability to snooze notifications directly from notification or within the app.
-- Adaptive and responsive design for larger screens
-- Directionality support for right-to-left languages
-- Cross-platform
-  - [x] Android
-  - [x] iOS ([_App store link_](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139))
-  - [x] Windows
-  - [x] Linux ([_Snap store link_](https://snapcraft.io/bluecherry-client))
-  - [ ] macOS
+* 🖲️ Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
+- 🎛️ Interactive camera grid viewer, with support for multiple layouts:
+  <br /> $~~~~$
+💻 For larger screens, compact and multiple layout views are available.
+  <br /> $~~~~~$📱 For smaller screens, see multiple cameras in 2x3, 2x2, 2x1 or 1x1 view
+  <br /> $~~~~~$👆 Re-orgderable drag-and-drop camera viewer
+  <br /> $~~~~~$🛞 Cycle through different layout views automatically
+* 🔎 Pinch-to-zoom fullscreen camera viewer.
+* 🏃 Events List Viewer
+* 🚡 Events Timeline Viewer
+* 📸 Direct camera viewer.
+* 🎮 Pan-Tilt-Zoom controls for supported cameras.
+* 🌓 Consistent & configurable system-aware, light & dark app theme.
+* ⏲️ Configurable in-app date & time format.
+* 📰 System camera event notifications with screenshot thumbnails.
+* ⏰ Ability to snooze notifications directly from notification or within the app.
+* 📺 Adaptive and responsive design for larger screens
+* 🕸️ Directionality support for right-to-left languages
+* 📱 Cross-platform
 
 ## Translate
 
@@ -84,6 +102,9 @@ lib
 │
 ├───api                                                [API wrapper around Bluecherry DVR server.]
 │   └──api.dart
+│   └──ptz.dart  [API related to Pan-Tilt-Zoom controls]
+│
+├───l10n [Tranlations]
 │
 ├───models                                             [model classes to serve & bind type-safe data together in various entities.]
 │   ├───device.dart
@@ -106,6 +127,7 @@ lib
 │   ├───methods.dart
 │   ├───storage.dart
 │   ├───theme.dart
+│   ├───video_player.dart
 │   └───window.dart
 │
 ├───widgets                                            [UI/UX & widgets used to display content.]

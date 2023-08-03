@@ -57,3 +57,10 @@ Bluecherry-latest-x86_64.AppImage
 Bluecherry-latest-x86_64.AppImage.zsync
 AppDirversion.txt
 AppDirassets/
+
+*.deb
+/linux/debian/usr/bin
+/linux/debian/usr/share/bluecherry
+/linux/debian/usr/share/bluecherry_client
+*.tar.gz
+rpmbuild/

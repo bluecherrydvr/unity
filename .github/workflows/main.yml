@@ -85,7 +85,7 @@ jobs:
       #     draft: true
       #     prerelease: false
       #     body: ""
-      #     tag_name: "vnext"
+      #     tag_name: "bleeding_edge"
       #     files: |
       #       bluecherry-dvr-setup.exe
       #     token: ${{ secrets.GITHUB_TOKEN }}
@@ -123,7 +123,7 @@ jobs:
           draft: true
           prerelease: false
           body: ""
-          tag_name: "vnext"
+          tag_name: "bleeding_edge"
           files: |
             bluecherry-dvr-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -138,21 +138,52 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
 
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
-      - uses: subosito/flutter-action@v2.8.0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2.8.0
         with:
           # Stable channel is necessary because playback is broken on master
           channel: "stable"
           # cache: true
-      - run: flutter gen-l10n
-      - run: flutter pub get
-      - run: flutter build linux --verbose
+      - name: Build Flutter
+        run: |
+          flutter gen-l10n
+          flutter pub get
+          flutter build linux --verbose
 
-      - run: sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
-      - run: appimage-builder --skip-tests
+      - name: Build AppImage
+        run: |
+          sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+          appimage-builder --skip-tests
+          cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
 
-      - run: cp Bluecherry-latest-x86_64.AppImage Bluecherry-latest.AppImage
+      - name: Build RPM Package
+        run: |
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+          sed -i "s:cp -rf :cp -rf $(pwd)/:" linux/rpm/bluecherry.spec
+          cd linux/debian
+          sed -i "s:FILES_HERE:$(find usr \( -type l -o -type f \) -follow -print | awk '{printf "/%s\\n", $0}'):" ../rpm/bluecherry.spec
+          cd ../../
+          rpmbuild -bb linux/rpm/bluecherry.spec -D "_topdir $(pwd)/rpmbuild"
+          cp rpmbuild/RPMS/x86_64/*.rpm bluecherry-linux-x86_64.rpm
+
+      - name: Build DEB Package
+        run: |
+          dpkg-deb --build --root-owner-group linux/debian
+          cp linux/*.deb bluecherry-linux-x86_64.deb
+
+      - name: Build Tarball
+        run: |
+          mkdir -p AppDir/
+          cp -r linux/debian/usr AppDir/
+          ln -sr AppDir/usr/bin/bluecherry_client AppDir/bluecherry_client
+          tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
@@ -164,5 +195,8 @@ jobs:
           body: ""
           tag_name: "bleeding_edge"
           files: |
-            Bluecherry-latest.AppImage
+            bluecherry-linux-x86_64.AppImage
+            bluecherry-linux-x86_64.deb
+            bluecherry-linux-x86_64.tar.gz
+            bluecherry-linux-x86_64.rpm
           token: ${{ secrets.GITHUB_TOKEN }}

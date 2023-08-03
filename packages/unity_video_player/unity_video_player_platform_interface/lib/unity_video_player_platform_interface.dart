@@ -312,5 +312,5 @@ abstract class UnityVideoPlayer {
   Future<void> release();
   Future<void> reset();
 
-  void dispose();
+  Future<void> dispose();
 }

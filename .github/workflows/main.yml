@@ -182,7 +182,7 @@ jobs:
         run: |
           mkdir -p AppDir/
           cp -r linux/debian/usr AppDir/
-          ln -sr AppDir/usr/bin/bluecherry AppDir/bluecherry
+          ln -sr AppDir/usr/bin/bluecherry_client AppDir/bluecherry_client
           tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
 
       - name: Release

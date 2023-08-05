@@ -178,7 +178,7 @@ class DownloadsManager extends ChangeNotifier {
 
     final dir = SettingsProvider.instance.downloadsDirectory;
     final fileName = 'event_${event.id}${event.deviceID}${event.server.ip}.mp4';
-    final downloadPath = '$dir${path.separator}$fileName';
+    final downloadPath = path.join(dir, fileName);
 
     await Dio().downloadUri(
       event.mediaURL!,

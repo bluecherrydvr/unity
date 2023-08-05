@@ -45,7 +45,7 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
   static Future<Directory> kDefaultDownloadsDirectory() async {
     final docsDir = await getApplicationSupportDirectory();
-    return Directory('${docsDir.path}${path.separator}downloads').create();
+    return Directory(path.join(docsDir.path, 'downloads')).create();
   }
 
   // Getters.

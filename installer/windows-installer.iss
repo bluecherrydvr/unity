@@ -24,7 +24,7 @@ DisableProgramGroupPage=yes
 LicenseFile=..\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputBaseFilename=bluecherry-dvr-setup
+OutputBaseFilename=bluecherry-windows-setup
 SetupIconFile=..\assets\images\icon.ico
 Compression=lzma
 SolidCompression=yes
@@ -73,3 +73,5 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+[UninstallDelete]
+Type: filesandordirs; Name: "{userappdata}\com.bluecherry"

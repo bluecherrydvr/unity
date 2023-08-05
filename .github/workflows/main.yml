@@ -87,7 +87,7 @@ jobs:
       #     body: ""
       #     tag_name: "bleeding_edge"
       #     files: |
-      #       bluecherry-dvr-setup.exe
+      #       .exe
       #     token: ${{ secrets.GITHUB_TOKEN }}
 
   build_windows:
@@ -113,7 +113,7 @@ jobs:
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/windows-installer.iss"
         shell: cmd
 
-      - run: cp installer\Output\bluecherry-dvr-setup.exe bluecherry-dvr-setup.exe
+      - run: cp installer\Output\bluecherry-windows-setup.exe bluecherry-windows-setup.exe
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
@@ -125,7 +125,7 @@ jobs:
           body: ""
           tag_name: "bleeding_edge"
           files: |
-            bluecherry-dvr-setup.exe
+            bluecherry-windows-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build_linux:

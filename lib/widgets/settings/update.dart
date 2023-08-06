@@ -36,6 +36,7 @@ class AppUpdateCard extends StatelessWidget {
     final update = context.watch<UpdateManager>();
 
     if (update.hasUpdateAvailable) {
+      final executable = update.executableFor(update.latestVersion.version);
       return Card(
         margin: const EdgeInsetsDirectional.only(
           start: 10.0,
@@ -55,14 +56,15 @@ class AppUpdateCard extends StatelessWidget {
             ),
             Expanded(
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'New version available',
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                    Text(update.latestVersion.description),
-                  ]),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'New version available',
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                  Text(update.latestVersion.description),
+                ],
+              ),
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,10 +74,24 @@ class AppUpdateCard extends StatelessWidget {
                   style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: 6.0),
-                FilledButton(
-                  onPressed: () {},
-                  child: const Text('Download'),
-                ),
+                if (update.downloading)
+                  SizedBox(
+                    height: 32.0,
+                    width: 32.0,
+                    child: CircularProgressIndicator(
+                      value: update.downloadProgress,
+                      strokeWidth: 2.0,
+                    ),
+                  )
+                else if (executable != null)
+                  FilledButton(onPressed: () {}, child: const Text('Install'))
+                else
+                  FilledButton(
+                    onPressed: () => update.download(
+                      update.latestVersion.version,
+                    ),
+                    child: const Text('Download'),
+                  ),
               ],
             ),
           ]),

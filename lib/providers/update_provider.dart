@@ -17,9 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
+import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:version/version.dart';
 import 'package:xml/xml.dart';
 
@@ -63,6 +69,7 @@ class UpdateManager extends ChangeNotifier {
   /// `late` initialized [UpdateManager] instance.
   static late final UpdateManager instance;
   late final PackageInfo packageInfo;
+  late String tempDir;
 
   /// The URL to the appcast file.
   static const appCastUrl =
@@ -89,6 +96,7 @@ class UpdateManager extends ChangeNotifier {
   UpdateVersion get latestVersion => versions.last;
 
   Future<void> initialize() async {
+    tempDir = (await getTemporaryDirectory()).path;
     // Parse the versions from the server
     final doc = XmlDocument.parse((await http.get(Uri.parse(appCastUrl))).body);
     for (final item in doc.findAllElements('item')) {
@@ -122,5 +130,78 @@ class UpdateManager extends ChangeNotifier {
     );
 
     packageInfo = await PackageInfo.fromPlatform();
+  }
+
+  /// Whether any executable is being downloaded at the time
+  bool downloading = false;
+
+  /// The progress of the download, from 0.0 to 1.0
+  double downloadProgress = 0.0;
+
+  /// Gets the executable for the given [version].
+  ///
+  /// If the executable is not found, returns `null`. To download the executable,
+  /// call [download(version)].
+  File? executableFor(String version) {
+    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+
+    if (Platform.isWindows) {
+      const fileName =
+          true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
+      final file = File(path.join(
+        tempDir,
+        '$fileName-$version',
+        '.exe',
+      ));
+      if (file.existsSync()) {
+        return file;
+      }
+    } else if (Platform.isLinux) {
+    } else {
+      throw UnsupportedError('Unsupported platform');
+    }
+    return null;
+  }
+
+  /// Downloads the latest version executable.
+  Future<void> download(String version) async {
+    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+
+    downloading = true;
+    notifyListeners();
+
+    if (Platform.isWindows) {
+      // TODO(bdlukaa): Use the bluecherry-windows-setup file before merging
+      const fileName =
+          true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
+      final windowsPath = Uri.https(
+        'github.com',
+        '/bluecherrydvr/unity/releases/download/bleeding_edge/$fileName.exe',
+      );
+
+      final file = File(path.join(
+        (await getTemporaryDirectory()).path,
+        '$fileName-$version',
+        '.exe',
+      ));
+      if (await file.exists()) await file.delete();
+
+      await Dio().downloadUri(
+        windowsPath,
+        file.path,
+        onReceiveProgress: (received, total) {
+          downloadProgress = received / total * 100;
+          notifyListeners();
+        },
+      );
+    } else if (Platform.isLinux) {
+    } else {
+      downloading = false;
+      throw UnsupportedError('Unsupported platform');
+    }
+
+    downloading = false;
+    downloadProgress = 0.0;
+    notifyListeners();
   }
 }

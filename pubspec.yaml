@@ -36,6 +36,8 @@ dependencies:
   awesome_notifications: ^0.7.5-dev.3
   
   device_info_plus: ^9.0.3
+  package_info_plus: ^4.1.0
+  version: ^3.0.2
   url_launcher: ^6.1.10
 
   path_provider: ^2.0.14
@@ -48,7 +50,6 @@ dependencies:
 
   permission_handler: ^10.2.0
   uuid: ^3.0.7
-  upgrader: ^8.1.0
 
   # Desktop
   window_manager: ^0.3.2

@@ -17,11 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-// TODO(bdlukaa): create a update provider
-var isUpdateAvailable = true;
+import 'package:provider/provider.dart';
 
 /// The card that displays the update information.
 class AppUpdateCard extends StatelessWidget {
@@ -31,7 +30,9 @@ class AppUpdateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (isUpdateAvailable) {
+    final update = context.watch<UpdateManager>();
+
+    if (update.hasUpdateAvailable) {
       return Card(
         margin: const EdgeInsetsDirectional.only(
           start: 10.0,
@@ -57,25 +58,23 @@ class AppUpdateCard extends StatelessWidget {
                       'New version available',
                       style: theme.textTheme.headlineMedium,
                     ),
-                    const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do '
-                      'eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                    ),
+                    Text(update.latestVersion.description),
                   ]),
             ),
             Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Version 1.0.0',
-                    style: theme.textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 6.0),
-                  FilledButton(
-                    onPressed: () {},
-                    child: const Text('Download'),
-                  ),
-                ]),
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  update.latestVersion.version,
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 6.0),
+                FilledButton(
+                  onPressed: () {},
+                  child: const Text('Download'),
+                ),
+              ],
+            ),
           ]),
         ),
       );

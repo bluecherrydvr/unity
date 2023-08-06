@@ -87,9 +87,11 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
-              const SliverToBoxAdapter(child: SubHeader('Updates')),
-              const SliverToBoxAdapter(child: AppUpdateCard()),
-              const SliverToBoxAdapter(child: AppUpdateOptions()),
+              if (isDesktop) ...[
+                const SliverToBoxAdapter(child: SubHeader('Updates')),
+                const SliverToBoxAdapter(child: AppUpdateCard()),
+                const SliverToBoxAdapter(child: AppUpdateOptions()),
+              ],
               SliverToBoxAdapter(
                 child: SubHeader(loc.servers),
               ),

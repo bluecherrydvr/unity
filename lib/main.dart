@@ -32,6 +32,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
@@ -134,6 +135,7 @@ Future<void> main(List<String> args) async {
     ServersProvider.ensureInitialized(),
     DownloadsManager.ensureInitialized(),
     EventsProvider.ensureInitialized(),
+    UpdateManager.ensureInitialized(),
   ]);
 
   /// Firebase messaging isn't available on desktop platforms
@@ -141,9 +143,7 @@ Future<void> main(List<String> args) async {
     FirebaseConfiguration.ensureInitialized();
   }
 
-  if (!isMobile) {
-    HomeProvider.setDefaultStatusBarStyle();
-  }
+  HomeProvider.setDefaultStatusBarStyle();
 
   runApp(const UnityApp());
 }
@@ -173,6 +173,9 @@ class UnityApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<EventsProvider>.value(
           value: EventsProvider.instance,
+        ),
+        ChangeNotifierProvider<UpdateManager>.value(
+          value: UpdateManager.instance,
         ),
       ],
       child: Consumer<SettingsProvider>(

@@ -4,8 +4,32 @@
         <title>Bluecherry - Appcast</title>
         <item>
             <title>Version 3.0.0-beta8</title>
-            <description>Linux support and a bunch of bug fixes.</description>
-            <pubDate>Sun, 06 Aug 2023 12:00:00 +0000</pubDate>
+            <description>Linux support and a bunch of bug fixes and performance improvements.</description>
+            <pubDate>Sun, 06 Aug 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta7</title>
+            <description>PTZ cameras support, reworked grid on mobile and bug fixes.</description>
+            <pubDate>Sun, 26 May 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta6</title>
+            <description>Focused on bug fixes</description>
+            <pubDate>Sun, 16 Mar 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta5</title>
+            <description>Events Timeline</description>
+            <pubDate>Sun, 2 Mar 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta4</title>
+            <description>Playback updates. Keyboard support</description>
+            <pubDate>Sun, 2 Mar 2023</pubDate>
         </item>
     </channel>
 </rss>

@@ -29,6 +29,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/settings/update.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -86,6 +87,9 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
+              const SliverToBoxAdapter(child: SubHeader('Updates')),
+              const SliverToBoxAdapter(child: AppUpdateCard()),
+              const SliverToBoxAdapter(child: AppUpdateOptions()),
               SliverToBoxAdapter(
                 child: SubHeader(loc.servers),
               ),
@@ -93,42 +97,40 @@ class _SettingsState extends State<Settings> {
               SliverToBoxAdapter(
                 child: SubHeader(loc.theme),
               ),
-              SliverList(
-                delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: theme.iconTheme.color,
-                      child: Icon({
-                        ThemeMode.system: Icons.brightness_auto,
-                        ThemeMode.light: Icons.light_mode,
-                        ThemeMode.dark: Icons.dark_mode,
-                      }[e]!),
-                    ),
-                    onTap: () {
+              SliverList.list(
+                  children: ThemeMode.values.map((e) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: theme.iconTheme.color,
+                    child: Icon({
+                      ThemeMode.system: Icons.brightness_auto,
+                      ThemeMode.light: Icons.light_mode,
+                      ThemeMode.dark: Icons.dark_mode,
+                    }[e]!),
+                  ),
+                  onTap: () {
+                    settings.themeMode = e;
+                  },
+                  trailing: Radio(
+                    value: e,
+                    groupValue: settings.themeMode,
+                    onChanged: (value) {
                       settings.themeMode = e;
                     },
-                    trailing: Radio(
-                      value: e,
-                      groupValue: settings.themeMode,
-                      onChanged: (value) {
-                        settings.themeMode = e;
-                      },
-                    ),
-                    title: Text({
-                      ThemeMode.system: loc.system,
-                      ThemeMode.light: loc.light,
-                      ThemeMode.dark: loc.dark,
-                    }[e]!),
-                  );
-                }).toList()),
-              ),
+                  ),
+                  title: Text({
+                    ThemeMode.system: loc.system,
+                    ThemeMode.light: loc.light,
+                    ThemeMode.dark: loc.dark,
+                  }[e]!),
+                );
+              }).toList()),
               divider,
               SliverToBoxAdapter(
                 child: SubHeader(loc.miscellaneous),
               ),
-              SliverList(
-                  delegate: SliverChildListDelegate([
+              SliverList.list(children: [
                 CorrectedListTile(
                   iconData: Icons.message,
                   onTap: () async {
@@ -283,14 +285,14 @@ class _SettingsState extends State<Settings> {
                     );
                   }).toList(),
                 ),
-              ])),
+              ]),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),
               const SliverToBoxAdapter(child: DateFormatSection()),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.timeFormat)),
-              SliverList(
-                  delegate: SliverChildListDelegate([
+              SliverList.list(
+                  children: [
                 'HH:mm',
                 'hh:mm a',
               ].map((pattern) {
@@ -314,7 +316,7 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                 );
-              }).toList())),
+              }).toList()),
               divider,
               // SubHeader('Language'),
               // SliverList(

@@ -17,10 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/link.dart';
 
 /// The card that displays the update information.
 class AppUpdateCard extends StatelessWidget {
@@ -176,8 +179,69 @@ class AppUpdateOptions extends StatelessWidget {
         ),
         title: const Text('Update history'),
         trailing: const Icon(Icons.navigate_next),
-        onTap: () {},
+        onTap: () => showUpdateHistory(context),
       ),
     ]);
+  }
+
+  void showUpdateHistory(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        final update = context.watch<UpdateManager>();
+        final theme = Theme.of(context);
+        return DraggableScrollableSheet(
+          expand: false,
+          maxChildSize: 0.8,
+          initialChildSize: 0.8,
+          builder: (context, controller) {
+            return ListView.builder(
+              controller: controller,
+              itemCount: update.versions.length,
+              itemBuilder: (context, index) {
+                final version = update.versions[index];
+                return ListTile(
+                  title: Row(children: [
+                    RichText(
+                      text: TextSpan(children: [
+                        TextSpan(text: version.version),
+                        const TextSpan(text: '   '),
+                        TextSpan(
+                          text: SettingsProvider.instance.dateFormat.format(
+                            DateFormat('EEE, d MMM yyyy')
+                                .parse(version.publishedAt),
+                          ),
+                          style: theme.textTheme.labelSmall,
+                        ),
+                      ]),
+                    ),
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(start: 12.0),
+                        child: Divider(),
+                      ),
+                    ),
+                  ]),
+                  subtitle: Text(version.description),
+                  isThreeLine: true,
+                  trailing: Link(
+                    uri: Uri.parse(
+                        'https://github.com/bluecherrydvr/unity/releases/tag/v${version.version}'),
+                    builder: (context, followLink) {
+                      return TextButton(
+                        onPressed: followLink,
+                        child: const Text('Learn more'),
+                      );
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }

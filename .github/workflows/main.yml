@@ -155,12 +155,6 @@ jobs:
           flutter pub get
           flutter build linux --verbose
 
-      - name: Build AppImage
-        run: |
-          sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
-          appimage-builder --skip-tests
-          cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
-
       - name: Build RPM Package
         run: |
           mkdir -p linux/debian/usr/bin
@@ -184,6 +178,12 @@ jobs:
           cp -r linux/debian/usr AppDir/
           ln -sr AppDir/usr/bin/bluecherry_client AppDir/bluecherry_client
           tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
+
+      - name: Build AppImage
+        run: |
+          sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+          appimage-builder --skip-tests
+          cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts

@@ -116,7 +116,7 @@ class UpdateManager extends ChangeNotifier {
         publishedAt: publishedAt,
       ));
     }
-    ;
+
     versions.sort(
       (a, b) => Version.parse(a.version).compareTo(Version.parse(b.version)),
     );

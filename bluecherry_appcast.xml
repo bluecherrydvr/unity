@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>Bluecherry - Appcast</title>
+        <item>
+            <title>Version 3.0.0-beta8</title>
+            <description>Linux support and a bunch of bug fixes.</description>
+            <pubDate>Sun, 06 Aug 2023 12:00:00 +0000</pubDate>
+        </item>
+    </channel>
+</rss>

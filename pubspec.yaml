@@ -77,7 +77,6 @@ flutter:
   generate: true
   assets:
     - assets/images/
-    - version.txt
 
 flutter_icons:
   # android: "launcher_icon"

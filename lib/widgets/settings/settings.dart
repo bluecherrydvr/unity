@@ -24,9 +24,9 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/update.dart';
@@ -64,6 +64,7 @@ class _SettingsState extends State<Settings> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final update = context.watch<UpdateManager>();
 
     const divider = SliverToBoxAdapter(
       child: Padding(
@@ -340,12 +341,7 @@ class _SettingsState extends State<Settings> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8.0),
-                      FutureBuilder<String>(
-                        future: appVersion,
-                        builder: (context, snapshot) {
-                          return Text(snapshot.data ?? '');
-                        },
-                      ),
+                      Text(update.packageInfo.version),
                       const SizedBox(height: 8.0),
                       Text(
                         loc.versionText,

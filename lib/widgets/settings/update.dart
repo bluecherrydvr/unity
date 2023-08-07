@@ -84,7 +84,10 @@ class AppUpdateCard extends StatelessWidget {
                     ),
                   )
                 else if (executable != null)
-                  FilledButton(onPressed: () {}, child: const Text('Install'))
+                  FilledButton(
+                    onPressed: update.install,
+                    child: const Text('Install'),
+                  )
                 else
                   FilledButton(
                     onPressed: () => update.download(
@@ -217,7 +220,7 @@ class AppUpdateOptions extends StatelessWidget {
               controller: controller,
               itemCount: update.versions.length,
               itemBuilder: (context, index) {
-                final version = update.versions[index];
+                final version = update.versions.reversed.elementAt(index);
                 return ListTile(
                   title: Row(children: [
                     RichText(

@@ -148,11 +148,7 @@ class UpdateManager extends ChangeNotifier {
     if (Platform.isWindows) {
       const fileName =
           true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
-      final file = File(path.join(
-        tempDir,
-        '$fileName-$version',
-        '.exe',
-      ));
+      final file = File(path.join(tempDir, '$fileName-$version.exe'));
       if (file.existsSync()) {
         return file;
       }
@@ -179,11 +175,7 @@ class UpdateManager extends ChangeNotifier {
         '/bluecherrydvr/unity/releases/download/bleeding_edge/$fileName.exe',
       );
 
-      final file = File(path.join(
-        (await getTemporaryDirectory()).path,
-        '$fileName-$version',
-        '.exe',
-      ));
+      final file = File(path.join(tempDir, '$fileName-$version.exe'));
       if (await file.exists()) await file.delete();
 
       await Dio().downloadUri(
@@ -203,5 +195,25 @@ class UpdateManager extends ChangeNotifier {
     downloading = false;
     downloadProgress = 0.0;
     notifyListeners();
+  }
+
+  /// Installs the executable for the latest version.
+  ///
+  /// It can not downgrade
+  Future<void> install() async {
+    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+
+    final executable = executableFor(latestVersion.version);
+
+    assert(executable != null);
+
+    if (Platform.isWindows) {
+      // https://jrsoftware.org/ishelp/index.php?topic=technotes
+      Process.run(executable!.path, [
+        '/SP-',
+        '/silent',
+        '/noicons',
+      ]);
+    }
   }
 }

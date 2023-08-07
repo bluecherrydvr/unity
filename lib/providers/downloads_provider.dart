@@ -112,8 +112,6 @@ class DownloadsManager extends ChangeNotifier {
     }
   }
 
-  /// Saves current layout/order of [Device]s to cache using `package:hive`.
-  /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notify = true}) async {
     await downloads.write({
       kHiveDownloads:
@@ -123,7 +121,6 @@ class DownloadsManager extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
     final data = await downloads.read() as Map;
 

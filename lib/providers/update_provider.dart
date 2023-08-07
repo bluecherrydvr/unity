@@ -19,6 +19,8 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -96,40 +98,61 @@ class UpdateManager extends ChangeNotifier {
   UpdateVersion get latestVersion => versions.last;
 
   Future<void> initialize() async {
-    tempDir = (await getTemporaryDirectory()).path;
-    // Parse the versions from the server
-    final doc = XmlDocument.parse((await http.get(Uri.parse(appCastUrl))).body);
-    for (final item in doc.findAllElements('item')) {
-      late String version;
-      late String description;
-      late String publishedAt;
-      for (var child in item.children.whereType<XmlElement>()) {
-        switch (child.name.toString()) {
-          case UpdateVersion.titleField:
-            version = child.innerText.replaceAll('Version', '').trim();
-            break;
-          case UpdateVersion.descriptionField:
-            description = child.innerText.trim();
-            break;
-          case UpdateVersion.publishedAtField:
-            publishedAt = child.innerText.trim();
-            break;
-          default:
-        }
-      }
-
-      versions.add(UpdateVersion(
-        version: version,
-        description: description,
-        publishedAt: publishedAt,
-      ));
+    final data = await downloads.read() as Map;
+    if (!data.containsKey(kHiveAutomaticUpdates)) {
+      await _save();
+    } else {
+      await _restore();
     }
 
-    versions.sort(
-      (a, b) => Version.parse(a.version).compareTo(Version.parse(b.version)),
-    );
+    await Future.wait([
+      checkForUpdates(),
+      PackageInfo.fromPlatform().then((result) {
+        packageInfo = result;
+      })
+    ]);
 
-    packageInfo = await PackageInfo.fromPlatform();
+    if (hasUpdateAvailable && automaticDownloads) {
+      download(latestVersion.version);
+    }
+  }
+
+  Future<void> _save({bool notify = true}) async {
+    await downloads.write({
+      kHiveAutomaticUpdates: automaticDownloads,
+      kHiveLastCheck: lastCheck?.toIso8601String(),
+    });
+
+    if (notify) notifyListeners();
+  }
+
+  Future<void> _restore({bool notifyListeners = true}) async {
+    final data = await downloads.read() as Map;
+
+    _automaticDownloads = data[kHiveAutomaticUpdates];
+    _lastCheck = DateTime.tryParse(data[kHiveLastCheck] ?? '');
+
+    if (notifyListeners) {
+      this.notifyListeners();
+    }
+  }
+
+  /// If there is anything loading at the time
+  bool loading = false;
+
+  /// Whether the user wants to automatically download updates
+  bool _automaticDownloads = false;
+  bool get automaticDownloads => _automaticDownloads;
+  set automaticDownloads(bool value) {
+    _automaticDownloads = value;
+    _save();
+  }
+
+  DateTime? _lastCheck;
+  DateTime? get lastCheck => _lastCheck;
+  set lastCheck(DateTime? date) {
+    _lastCheck = date;
+    _save();
   }
 
   /// Whether any executable is being downloaded at the time
@@ -215,5 +238,49 @@ class UpdateManager extends ChangeNotifier {
         '/noicons',
       ]);
     }
+  }
+
+  /// Check for new updates.
+  Future<void> checkForUpdates() async {
+    loading = true;
+    notifyListeners();
+
+    tempDir = (await getTemporaryDirectory()).path;
+
+    final versions = <UpdateVersion>[];
+    // Parse the versions from the server
+    final doc = XmlDocument.parse((await http.get(Uri.parse(appCastUrl))).body);
+    for (final item in doc.findAllElements('item')) {
+      late String version;
+      late String description;
+      late String publishedAt;
+      for (var child in item.children.whereType<XmlElement>()) {
+        switch (child.name.toString()) {
+          case UpdateVersion.titleField:
+            version = child.innerText.replaceAll('Version', '').trim();
+            break;
+          case UpdateVersion.descriptionField:
+            description = child.innerText.trim();
+            break;
+          case UpdateVersion.publishedAtField:
+            publishedAt = child.innerText.trim();
+            break;
+          default:
+        }
+      }
+      versions.add(UpdateVersion(
+        version: version,
+        description: description,
+        publishedAt: publishedAt,
+      ));
+    }
+    versions.sort(
+      (a, b) => Version.parse(a.version).compareTo(Version.parse(b.version)),
+    );
+
+    if (versions != this.versions) this.versions = versions;
+
+    loading = false;
+    lastCheck = DateTime.now(); // this updates the screen already
   }
 }

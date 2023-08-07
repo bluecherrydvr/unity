@@ -36,6 +36,7 @@ Future<void> configureStorage() async {
   serversStorage = SafeLocalStorage(path.join(dir, 'servers.json'));
   mobileView = SafeLocalStorage(path.join(dir, 'mobileView.json'));
   desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
+  updates = SafeLocalStorage(path.join(dir, 'updates.json'));
 
   // Migrate from hive to new storage system
 
@@ -90,6 +91,7 @@ late final SafeLocalStorage serversStorage;
 late final SafeLocalStorage settings;
 late final SafeLocalStorage mobileView;
 late final SafeLocalStorage desktopView;
+late final SafeLocalStorage updates;
 
 extension SafeLocalStorageExtension on SafeLocalStorage {
   Future<void> add(Map data) async {

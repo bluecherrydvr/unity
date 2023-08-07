@@ -140,15 +140,24 @@ class AppUpdateCard extends StatelessWidget {
                     style: theme.textTheme.headlineMedium,
                   ),
                   TextSpan(
-                    text: 'Last checked: 1 day ago',
+                    text: 'Last checked: '
+                        '${update.lastCheck == null ? 'never' : DateFormat().format(update.lastCheck!)}',
                     style: theme.textTheme.labelMedium,
                   ),
                 ]),
               ),
             ),
             FilledButton.tonal(
-              onPressed: () {},
-              child: const Text('Check for updates'),
+              onPressed: update.checkForUpdates,
+              child: update.loading
+                  ? const SizedBox(
+                      height: 20.0,
+                      width: 20.0,
+                      child: CircularProgressIndicator.adaptive(
+                        strokeWidth: 2.0,
+                      ),
+                    )
+                  : const Text('Check for updates'),
             ),
           ]),
         ),
@@ -163,10 +172,15 @@ class AppUpdateOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final update = context.watch<UpdateManager>();
     return Column(children: [
       CheckboxListTile(
-        onChanged: (_) {},
-        value: true,
+        onChanged: (v) {
+          if (v != null) {
+            update.automaticDownloads = v;
+          }
+        },
+        value: update.automaticDownloads,
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,

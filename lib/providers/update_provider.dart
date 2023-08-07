@@ -132,9 +132,7 @@ class UpdateManager extends ChangeNotifier {
     _automaticDownloads = data[kHiveAutomaticUpdates];
     _lastCheck = DateTime.tryParse(data[kHiveLastCheck] ?? '');
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    if (notifyListeners) this.notifyListeners();
   }
 
   /// If there is anything loading at the time

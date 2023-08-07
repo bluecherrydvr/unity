@@ -87,11 +87,6 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
-              if (isDesktop) ...[
-                const SliverToBoxAdapter(child: SubHeader('Updates')),
-                const SliverToBoxAdapter(child: AppUpdateCard()),
-                const SliverToBoxAdapter(child: AppUpdateOptions()),
-              ],
               SliverToBoxAdapter(
                 child: SubHeader(loc.servers),
               ),
@@ -129,9 +124,13 @@ class _SettingsState extends State<Settings> {
                 );
               }).toList()),
               divider,
-              SliverToBoxAdapter(
-                child: SubHeader(loc.miscellaneous),
-              ),
+              if (isDesktop) ...[
+                SliverToBoxAdapter(child: SubHeader(loc.updates)),
+                const SliverToBoxAdapter(child: AppUpdateCard()),
+                const SliverToBoxAdapter(child: AppUpdateOptions()),
+              ],
+              divider,
+              SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 CorrectedListTile(
                   iconData: Icons.message,

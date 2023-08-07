@@ -21,6 +21,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
@@ -32,6 +33,7 @@ class AppUpdateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     final update = context.watch<UpdateManager>();
 
@@ -59,8 +61,8 @@ class AppUpdateCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'New version available',
-                    style: theme.textTheme.headlineMedium,
+                    loc.newVersionAvailable,
+                    style: theme.textTheme.titleMedium,
                   ),
                   Text(update.latestVersion.description),
                 ],
@@ -86,14 +88,14 @@ class AppUpdateCard extends StatelessWidget {
                 else if (executable != null)
                   FilledButton(
                     onPressed: update.install,
-                    child: const Text('Install'),
+                    child: Text(loc.installVersion),
                   )
                 else
                   FilledButton(
                     onPressed: () => update.download(
                       update.latestVersion.version,
                     ),
-                    child: const Text('Download'),
+                    child: Text(loc.downloadVersion),
                   ),
               ],
             ),
@@ -136,12 +138,28 @@ class AppUpdateCard extends StatelessWidget {
               child: RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                    text: 'You are up to date.\n',
+                    text: '${loc.upToDate}\n',
                     style: theme.textTheme.headlineMedium,
                   ),
                   TextSpan(
-                    text: 'Last checked: '
-                        '${update.lastCheck == null ? 'never' : DateFormat().format(update.lastCheck!)}',
+                    text: loc.lastChecked(
+                      () {
+                        if (update.lastCheck == null) return loc.never;
+                        if (DateUtils.isSameDay(
+                          update.lastCheck,
+                          DateTime.now(),
+                        )) return loc.today;
+
+                        if (DateUtils.isSameDay(
+                          update.lastCheck,
+                          DateTime.now().subtract(
+                            const Duration(days: 1, minutes: 12),
+                          ),
+                        )) return loc.yesterday;
+
+                        return DateFormat().format(update.lastCheck!);
+                      }(),
+                    ),
                     style: theme.textTheme.labelMedium,
                   ),
                 ]),
@@ -150,14 +168,15 @@ class AppUpdateCard extends StatelessWidget {
             FilledButton.tonal(
               onPressed: update.checkForUpdates,
               child: update.loading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20.0,
                       width: 20.0,
                       child: CircularProgressIndicator.adaptive(
                         strokeWidth: 2.0,
+                        semanticsLabel: loc.checkingForUpdates,
                       ),
                     )
-                  : const Text('Check for updates'),
+                  : Text(loc.checkForUpdates),
             ),
           ]),
         ),
@@ -171,6 +190,7 @@ class AppUpdateOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final update = context.watch<UpdateManager>();
     return Column(children: [
@@ -186,18 +206,16 @@ class AppUpdateOptions extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.podcasts),
         ),
-        title: const Text('Automatic download updates'),
+        title: Text(loc.automaticDownloadUpdates),
         subtitle: RichText(
           text: TextSpan(children: [
-            const TextSpan(
-              text:
-                  'Be among the first to get the latest updates, fixes and improvements as they rool out.',
-            ),
+            TextSpan(text: loc.automaticDownloadUpdatesDescription),
             TextSpan(
-              text: '\nLearn more',
+              text: '\n${loc.learnMore}',
               style: theme.textTheme.labelMedium!.copyWith(
                 color: theme.colorScheme.primary,
               ),
+              mouseCursor: SystemMouseCursors.click,
               recognizer: TapGestureRecognizer()..onTap = () {},
             ),
           ]),
@@ -210,7 +228,7 @@ class AppUpdateOptions extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.history),
         ),
-        title: const Text('Update history'),
+        title: Text(loc.updateHistory),
         trailing: const Icon(Icons.navigate_next),
         onTap: () => showUpdateHistory(context),
       ),
@@ -225,6 +243,7 @@ class AppUpdateOptions extends StatelessWidget {
       builder: (context) {
         final update = context.watch<UpdateManager>();
         final theme = Theme.of(context);
+        final loc = AppLocalizations.of(context);
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.8,
@@ -265,7 +284,7 @@ class AppUpdateOptions extends StatelessWidget {
                     builder: (context, followLink) {
                       return TextButton(
                         onPressed: followLink,
-                        child: const Text('Learn more'),
+                        child: Text(loc.learnMore),
                       );
                     },
                   ),

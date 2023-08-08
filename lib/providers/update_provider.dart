@@ -70,8 +70,7 @@ class UpdateVersion {
   static const tarball = 'tar.gz';
   static const appImage = 'appimage';
   static const linuxDownloadFileName = 'bluecherry-linux-x86_64';
-  static const windowsDownloadFileName =
-      true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
+  static const windowsDownloadFileName = 'bluecherry-windows-setup';
 }
 
 class UpdateManager extends ChangeNotifier {
@@ -221,8 +220,7 @@ class UpdateManager extends ChangeNotifier {
     assert(isDesktop, 'This should never be reached on non-desktop platforms');
 
     if (Platform.isWindows) {
-      const fileName =
-          true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
+      const fileName = 'bluecherry-windows-setup';
       final file = File(path.join(tempDir, '$fileName-$version.exe'));
       if (file.existsSync()) return file;
     } else if (Platform.isLinux) {

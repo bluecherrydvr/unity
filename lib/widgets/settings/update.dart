@@ -87,7 +87,7 @@ class AppUpdateCard extends StatelessWidget {
                   )
                 else if (executable != null)
                   FilledButton(
-                    onPressed: update.install,
+                    onPressed: () => update.install(onFail: () {}),
                     child: Text(loc.installVersion),
                   )
                 else

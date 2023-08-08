@@ -125,7 +125,7 @@ class _SettingsState extends State<Settings> {
                 );
               }).toList()),
               divider,
-              if (isDesktop) ...[
+              if (update.isUpdatingSupported) ...[
                 SliverToBoxAdapter(child: SubHeader(loc.updates)),
                 const SliverToBoxAdapter(child: AppUpdateCard()),
                 const SliverToBoxAdapter(child: AppUpdateOptions()),

@@ -148,17 +148,22 @@ jobs:
         with:
           channel: "master"
           # cache: true
-      - name: Build Flutter
+      
+      - name: Initiate Flutter
         run: |
           flutter gen-l10n
           flutter pub get
-          flutter build linux --verbose
+
+      - name: Build Flutter for RPM
+        run: |
+          flutter build linux --verbose --dart-define-from-file=linux/env/rpm.json
 
       - name: Build RPM Package
         run: |
           mkdir -p linux/debian/usr/bin
           cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
           ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+          
           sed -i "s:cp -rf :cp -rf $(pwd)/:" linux/rpm/bluecherry.spec
           cd linux/debian
           sed -i "s:FILES_HERE:$(find usr \( -type l -o -type f \) -follow -print | awk '{printf "/%s\\n", $0}'):" ../rpm/bluecherry.spec
@@ -166,10 +171,28 @@ jobs:
           rpmbuild -bb linux/rpm/bluecherry.spec -D "_topdir $(pwd)/rpmbuild"
           cp rpmbuild/RPMS/x86_64/*.rpm bluecherry-linux-x86_64.rpm
 
+      - name: Build Flutter for DEB
+        run: |
+          flutter build linux --verbose --dart-define-from-file=linux/env/deb.json
+
+          rm -r linux/debian/usr/bin
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+
       - name: Build DEB Package
         run: |
           dpkg-deb --build --root-owner-group linux/debian
           cp linux/*.deb bluecherry-linux-x86_64.deb
+
+      - name: Build Flutter for Tarball
+        run: |
+          flutter build linux --verbose --dart-define-from-file=linux/env/tar.gz.json
+
+          rm -r linux/debian/usr/bin
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
 
       - name: Build Tarball
         run: |
@@ -177,6 +200,12 @@ jobs:
           cp -r linux/debian/usr AppDir/
           ln -sr AppDir/usr/bin/bluecherry_client AppDir/bluecherry_client
           tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
+
+      - name: Build Flutter for AppImage
+        run: |
+          rm -r AppDir/
+          mkdir -p AppDir/
+          flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json
 
       - name: Build AppImage
         run: |

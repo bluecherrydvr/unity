@@ -64,6 +64,14 @@ class UpdateVersion {
   static const titleField = 'title';
   static const descriptionField = 'description';
   static const publishedAtField = 'pubDate';
+
+  static const rpm = 'rpm';
+  static const deb = 'deb';
+  static const tarball = 'tar.gz';
+  static const appImage = 'appimage';
+  static const linuxDownloadFileName = 'bluecherry-linux-x86_64';
+  static const windowsDownloadFileName =
+      true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
 }
 
 class UpdateManager extends ChangeNotifier {
@@ -147,11 +155,56 @@ class UpdateManager extends ChangeNotifier {
     _save();
   }
 
+  /// The last time the user checked for updates
   DateTime? _lastCheck;
   DateTime? get lastCheck => _lastCheck;
   set lastCheck(DateTime? date) {
     _lastCheck = date;
     _save();
+  }
+
+  /// Checks how the Linux executable was installed.
+  ///
+  /// Returns `null` if the platform is not Linux or if the environment is not
+  /// recognized.
+  ///
+  /// The possible values are:
+  ///   * `rpm`
+  ///   * `deb`
+  ///   * `AppImage`
+  ///   * `tar.gz` (tarball)
+  ///
+  /// This means the value represent the file extension of the executable.
+  ///
+  /// Each Flutter executable is built with a different `linux_environment`
+  /// value, so it is possible to distinguish between them. This is useful to
+  /// know how to upgrade the app.
+  ///
+  /// See also:
+  ///
+  ///  * [install], which uses this method to install the correct executable.
+  String? get linuxEnvironment {
+    assert(Platform.isLinux);
+
+    if (!const bool.hasEnvironment('linux_environment')) return null;
+
+    return const String.fromEnvironment('linux_environment');
+  }
+
+  /// Check if updates are supported on the current platform.
+  ///
+  /// On Windows, updates are always supported.
+  ///
+  /// On Linux, updates are supported if the `linux_environment` is set and it
+  /// is not an `AppImage`.
+  bool get isUpdatingSupported {
+    if (Platform.isWindows) return true;
+    if (Platform.isLinux) {
+      return linuxEnvironment != null &&
+          linuxEnvironment != UpdateVersion.appImage;
+    }
+
+    return false;
   }
 
   /// Whether any executable is being downloaded at the time
@@ -171,10 +224,11 @@ class UpdateManager extends ChangeNotifier {
       const fileName =
           true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
       final file = File(path.join(tempDir, '$fileName-$version.exe'));
-      if (file.existsSync()) {
-        return file;
-      }
+      if (file.existsSync()) return file;
     } else if (Platform.isLinux) {
+      final fileName = 'bluecherry-linux-x86_64-$version.$linuxEnvironment';
+      final file = File(fileName);
+      if (file.existsSync()) return file;
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -188,31 +242,40 @@ class UpdateManager extends ChangeNotifier {
     downloading = true;
     notifyListeners();
 
+    String fileName;
+    String extension;
+
     if (Platform.isWindows) {
-      // TODO(bdlukaa): Use the bluecherry-windows-setup file before merging
-      const fileName =
-          true ? 'bluecherry-dvr-setup' : 'bluecherry-windows-setup';
-      final windowsPath = Uri.https(
-        'github.com',
-        '/bluecherrydvr/unity/releases/download/bleeding_edge/$fileName.exe',
-      );
-
-      final file = File(path.join(tempDir, '$fileName-$version.exe'));
-      if (await file.exists()) await file.delete();
-
-      await Dio().downloadUri(
-        windowsPath,
-        file.path,
-        onReceiveProgress: (received, total) {
-          downloadProgress = received / total * 100;
-          notifyListeners();
-        },
-      );
+      fileName = UpdateVersion.windowsDownloadFileName;
+      extension = '.exe';
     } else if (Platform.isLinux) {
+      assert(linuxEnvironment != null);
+      fileName = UpdateVersion.linuxDownloadFileName;
+      extension = '.$linuxEnvironment';
     } else {
       downloading = false;
-      throw UnsupportedError('Unsupported platform');
+      notifyListeners();
+      throw UnsupportedError(
+        'Unsupported platform: ${Platform.operatingSystem}',
+      );
     }
+
+    final file = File(path.join(tempDir, '$fileName-$version$extension'));
+    if (await file.exists()) await file.delete();
+
+    final executablePath = Uri.https(
+      'github.com',
+      '/bluecherrydvr/unity/releases/download/bleeding_edge/$fileName$extension',
+    );
+
+    await Dio().downloadUri(
+      executablePath,
+      file.path,
+      onReceiveProgress: (received, total) {
+        downloadProgress = received / total * 100;
+        notifyListeners();
+      },
+    );
 
     downloading = false;
     downloadProgress = 0.0;
@@ -222,11 +285,15 @@ class UpdateManager extends ChangeNotifier {
   /// Installs the executable for the latest version.
   ///
   /// It can not downgrade
-  Future<void> install() async {
+  Future<void> install({
+    required VoidCallback onFail,
+  }) async {
     assert(isDesktop, 'This should never be reached on non-desktop platforms');
 
-    final executable = executableFor(latestVersion.version);
+    // TODO(bdlukaa): Introduce this on ready-to-review PR
+    // assert(latestVersion.version != packageInfo.version, 'Already up to date');
 
+    final executable = executableFor(latestVersion.version);
     assert(executable != null, 'Executable not found');
 
     windowManager.hide();
@@ -238,6 +305,24 @@ class UpdateManager extends ChangeNotifier {
         '/silent',
         '/noicons',
       ]);
+    } else if (Platform.isLinux) {
+      switch (linuxEnvironment) {
+        case UpdateVersion.rpm:
+          Process.run('tar', ['-U', executable!.path]);
+          break;
+        case UpdateVersion.deb:
+          Process.run('sudo', ['dpkg', '-i', executable!.path]);
+          break;
+        case UpdateVersion.tarball: // tarball
+          Process.run('tar', ['-i', executable!.path]);
+          break;
+        case UpdateVersion.appImage:
+          throw UnsupportedError('AppImages do not support updating from app');
+        default:
+          throw UnsupportedError(
+            'Can not install an executable on an unknown environment',
+          );
+      }
     }
 
     windowManager.close();

@@ -29,6 +29,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:version/version.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:xml/xml.dart';
 
 class UpdateVersion {
@@ -226,7 +227,9 @@ class UpdateManager extends ChangeNotifier {
 
     final executable = executableFor(latestVersion.version);
 
-    assert(executable != null);
+    assert(executable != null, 'Executable not found');
+
+    windowManager.hide();
 
     if (Platform.isWindows) {
       // https://jrsoftware.org/ishelp/index.php?topic=technotes
@@ -236,6 +239,8 @@ class UpdateManager extends ChangeNotifier {
         '/noicons',
       ]);
     }
+
+    windowManager.close();
   }
 
   /// Check for new updates.

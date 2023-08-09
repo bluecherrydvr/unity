@@ -20,6 +20,7 @@ jobs:
         with:
           channel: master
 
+      - run: flutter upgrade
       - run: flutter pub get
       - run: flutter gen-l10n
 

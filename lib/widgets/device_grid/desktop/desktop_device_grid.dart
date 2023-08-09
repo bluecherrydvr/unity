@@ -561,7 +561,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 const SizedBox(width: 12.0),
               ]),
             ),
-          if (!isSubView)
+          if (!isSubView && view.currentLayout.devices.contains(widget.device))
             PositionedDirectional(
               top: 4.0,
               end: 4.0,

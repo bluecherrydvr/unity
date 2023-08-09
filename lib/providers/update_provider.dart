@@ -32,6 +32,10 @@ import 'package:version/version.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xml/xml.dart';
 
+enum FailType {
+  executableNotFound,
+}
+
 class UpdateVersion {
   final String version;
   final String description;
@@ -97,9 +101,15 @@ class UpdateManager extends ChangeNotifier {
   ///
   /// If false, the user is up to date with the latest version.
   bool get hasUpdateAvailable {
-    final currentVersion = packageInfo.version;
-    return Version.parse(currentVersion) !=
-        Version.parse(latestVersion.version);
+    final currentVersion = Version.parse(packageInfo.version);
+    final latestVersion = Version.parse(this.latestVersion.version);
+
+    assert(
+      latestVersion >= currentVersion,
+      'The latest version can not be older than the current version',
+    );
+
+    return currentVersion != latestVersion;
   }
 
   List<UpdateVersion> versions = [];
@@ -112,6 +122,8 @@ class UpdateManager extends ChangeNotifier {
     } else {
       await _restore();
     }
+
+    tempDir = (await getTemporaryDirectory()).path;
 
     await Future.wait([
       checkForUpdates(),
@@ -138,7 +150,9 @@ class UpdateManager extends ChangeNotifier {
     final data = await downloads.read() as Map;
 
     _automaticDownloads = data[kHiveAutomaticUpdates];
-    _lastCheck = DateTime.tryParse(data[kHiveLastCheck] ?? '');
+    _lastCheck = data[kHiveLastCheck] == null
+        ? null
+        : DateTime.tryParse(data[kHiveLastCheck]!);
 
     if (notifyListeners) this.notifyListeners();
   }
@@ -183,7 +197,10 @@ class UpdateManager extends ChangeNotifier {
   ///
   ///  * [install], which uses this method to install the correct executable.
   String? get linuxEnvironment {
-    assert(Platform.isLinux);
+    assert(
+      Platform.isLinux,
+      'This should never be reached on non-Linux platforms.',
+    );
 
     if (!const bool.hasEnvironment('linux_environment')) return null;
 
@@ -220,15 +237,21 @@ class UpdateManager extends ChangeNotifier {
     assert(isDesktop, 'This should never be reached on non-desktop platforms');
 
     if (Platform.isWindows) {
-      const fileName = 'bluecherry-windows-setup';
-      final file = File(path.join(tempDir, '$fileName-$version.exe'));
+      final file = File(path.join(
+        tempDir,
+        '${UpdateVersion.windowsDownloadFileName}-$version.exe',
+      ));
       if (file.existsSync()) return file;
     } else if (Platform.isLinux) {
-      final fileName = 'bluecherry-linux-x86_64-$version.$linuxEnvironment';
-      final file = File(fileName);
+      final file = File(path.join(
+        tempDir,
+        '${UpdateVersion.linuxDownloadFileName}-$version.$linuxEnvironment',
+      ));
       if (file.existsSync()) return file;
     } else {
-      throw UnsupportedError('Unsupported platform');
+      throw UnsupportedError(
+        'Unsupported platform. Only Windows and Linux are supported',
+      );
     }
     return null;
   }
@@ -284,9 +307,12 @@ class UpdateManager extends ChangeNotifier {
   ///
   /// It can not downgrade
   Future<void> install({
-    required VoidCallback onFail,
+    required ValueChanged<FailType> onFail,
   }) async {
-    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+    assert(
+      isUpdatingSupported,
+      'This should never be reached on unsupported platforms',
+    );
 
     // TODO(bdlukaa): Introduce this on ready-to-review PR
     // assert(latestVersion.version != packageInfo.version, 'Already up to date');
@@ -294,11 +320,16 @@ class UpdateManager extends ChangeNotifier {
     final executable = executableFor(latestVersion.version);
     assert(executable != null, 'Executable not found');
 
+    if (executable == null) {
+      onFail(FailType.executableNotFound);
+      return;
+    }
+
     windowManager.hide();
 
     if (Platform.isWindows) {
       // https://jrsoftware.org/ishelp/index.php?topic=technotes
-      Process.run(executable!.path, [
+      Process.run(executable.path, [
         '/SP-',
         '/silent',
         '/noicons',
@@ -306,13 +337,13 @@ class UpdateManager extends ChangeNotifier {
     } else if (Platform.isLinux) {
       switch (linuxEnvironment) {
         case UpdateVersion.rpm:
-          Process.run('tar', ['-U', executable!.path]);
+          Process.run('tar', ['-U', executable.path]);
           break;
         case UpdateVersion.deb:
-          Process.run('sudo', ['dpkg', '-i', executable!.path]);
+          Process.run('sudo', ['dpkg', '-i', executable.path]);
           break;
         case UpdateVersion.tarball: // tarball
-          Process.run('tar', ['-i', executable!.path]);
+          Process.run('tar', ['-i', executable.path]);
           break;
         case UpdateVersion.appImage:
           throw UnsupportedError('AppImages do not support updating from app');
@@ -330,8 +361,6 @@ class UpdateManager extends ChangeNotifier {
   Future<void> checkForUpdates() async {
     loading = true;
     notifyListeners();
-
-    tempDir = (await getTemporaryDirectory()).path;
 
     final versions = <UpdateVersion>[];
     // Parse the versions from the server

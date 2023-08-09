@@ -87,7 +87,9 @@ class AppUpdateCard extends StatelessWidget {
                   )
                 else if (executable != null)
                   FilledButton(
-                    onPressed: () => update.install(onFail: () {}),
+                    onPressed: () => update.install(
+                      onFail: (type) => showInstallFailDialog(context, type),
+                    ),
                     child: Text(loc.installVersion),
                   )
                 else
@@ -182,6 +184,36 @@ class AppUpdateCard extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void showInstallFailDialog(BuildContext context, FailType failType) {
+    final loc = AppLocalizations.of(context);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        late String title;
+        late String failMessage;
+
+        switch (failType) {
+          case FailType.executableNotFound:
+            title = loc.failedToUpdate;
+            failMessage = loc.executableNotFound;
+            break;
+        }
+
+        return AlertDialog(
+          title: Text(title),
+          content: Text(failMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.ok),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

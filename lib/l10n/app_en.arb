@@ -263,5 +263,7 @@
   "newVersionAvailable": "New version available",
   "installVersion": "Install",
   "downloadVersion": "Download",
-  "learnMore": "Learn more"
+  "learnMore": "Learn more",
+  "failedToUpdate": "Failed to update",
+  "executableNotFound": "Executable not found"
 }

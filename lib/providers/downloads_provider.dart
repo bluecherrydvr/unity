@@ -124,15 +124,14 @@ class DownloadsManager extends ChangeNotifier {
   Future<void> _restore({bool notifyListeners = true}) async {
     final data = await downloads.read() as Map;
 
-    downloadedEvents = ((await compute(
-              jsonDecode,
-              data[kHiveDownloads] as String,
-            ) ??
-            []) as List)
-        .cast<Map>()
-        .map<DownloadedEvent>((item) {
-      return DownloadedEvent.fromJson(item.cast<String, dynamic>());
-    }).toList();
+    downloadedEvents = data[kHiveDownloads] == null
+        ? []
+        : ((await compute(jsonDecode, data[kHiveDownloads] as String) ?? [])
+                as List)
+            .cast<Map>()
+            .map<DownloadedEvent>((item) {
+            return DownloadedEvent.fromJson(item.cast<String, dynamic>());
+          }).toList();
 
     if (notifyListeners) {
       this.notifyListeners();

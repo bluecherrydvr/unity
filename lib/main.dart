@@ -56,13 +56,17 @@ import 'package:unity_video_player/unity_video_player.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
   // On windows, the window is hidden until flutter draws its first frame.
   // To create a splash screen effect while the dependencies are loading, we
   // can run the [SplashScreen] widget as the app.
-  if (isDesktop) runApp(const SplashScreen());
+  if (isDesktop) {
+    configureWindow();
+    runApp(const SplashScreen());
+  }
 
-  WidgetsFlutterBinding.ensureInitialized();
   DevHttpOverrides.configureCertificates();
   await UnityVideoPlayerInterface.instance.initialize();
   await configureStorage();
@@ -76,8 +80,6 @@ Future<void> main(List<String> args) async {
 
       final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
       final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
-
-      configureWindow();
 
       switch (windowType) {
         case MultiWindowType.device:
@@ -129,7 +131,6 @@ Future<void> main(List<String> args) async {
   // settings provider needs to be initalized alone
   await SettingsProvider.ensureInitialized();
   await Future.wait([
-    if (isDesktop) configureWindow(),
     MobileViewProvider.ensureInitialized(),
     DesktopViewProvider.ensureInitialized(),
     ServersProvider.ensureInitialized(),

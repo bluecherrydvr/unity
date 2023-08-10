@@ -96,8 +96,8 @@ class _EditServerState extends State<EditServer> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return PopScope(
-      canPop: !disableFinishButton,
+    return WillPopScope(
+      onWillPop: () async => !disableFinishButton,
       child: Form(
         key: formKey,
         child: Column(mainAxisSize: MainAxisSize.min, children: [

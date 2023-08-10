@@ -124,8 +124,8 @@ class _SettingsState extends State<Settings> {
                   }[e]!),
                 );
               }).toList()),
-              divider,
               if (update.isUpdatingSupported) ...[
+                divider,
                 SliverToBoxAdapter(child: SubHeader(loc.updates)),
                 const SliverToBoxAdapter(child: AppUpdateCard()),
                 const SliverToBoxAdapter(child: AppUpdateOptions()),

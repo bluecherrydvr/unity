@@ -17,7 +17,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "master"
+          channel: "beta"
           # cache: true
       # TODO: Signing Android application.
       # - name: Create Key Store
@@ -67,7 +67,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "master"
+          channel: "beta"
           architecture: x64
           # cache: true
           
@@ -101,7 +101,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "master"
+          channel: "beta"
           # cache: true
       - run: git config --system core.longpaths true
       - run: flutter gen-l10n
@@ -146,7 +146,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "master"
+          channel: "beta"
           # cache: true
       
       - name: Initiate Flutter
@@ -173,6 +173,9 @@ jobs:
 
       - name: Build Flutter for DEB
         run: |
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
           flutter build linux --verbose --dart-define-from-file=linux/env/deb.json
 
           rm -r linux/debian/usr/bin
@@ -187,6 +190,9 @@ jobs:
 
       - name: Build Flutter for Tarball
         run: |
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
           flutter build linux --verbose --dart-define-from-file=linux/env/tar.gz.json
 
           rm -r linux/debian/usr/bin
@@ -205,6 +211,10 @@ jobs:
         run: |
           rm -r AppDir/
           mkdir -p AppDir/
+
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
           flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json
 
       - name: Build AppImage

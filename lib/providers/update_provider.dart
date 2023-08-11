@@ -28,6 +28,7 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:version/version.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xml/xml.dart';
@@ -87,7 +88,7 @@ class UpdateManager extends ChangeNotifier {
 
   /// The URL to the appcast file.
   static const appCastUrl =
-      'https://raw.githubusercontent.com/bdlukaa/unity/upgrade/bluecherry_appcast.xml';
+      'https://raw.githubusercontent.com/bluecherrydvr/unity/main/bluecherry_appcast.xml';
 
   /// Initializes the [UpdateManager] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -314,8 +315,7 @@ class UpdateManager extends ChangeNotifier {
       'This should never be reached on unsupported platforms',
     );
 
-    // TODO(bdlukaa): Introduce this on ready-to-review PR
-    // assert(latestVersion.version != packageInfo.version, 'Already up to date');
+    assert(latestVersion.version != packageInfo.version, 'Already up to date');
 
     final executable = executableFor(latestVersion.version);
     assert(executable != null, 'Executable not found');
@@ -326,6 +326,7 @@ class UpdateManager extends ChangeNotifier {
     }
 
     windowManager.hide();
+    await UnityVideoPlayerInterface.dispose();
 
     if (Platform.isWindows) {
       // https://jrsoftware.org/ishelp/index.php?topic=technotes

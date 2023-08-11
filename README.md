@@ -28,7 +28,7 @@ This project & work under this repository is licensed under [GNU General Public 
 
 | Android | iOS | Windows | GNU/Linux | MacOS |
 | ------- | --- | ------- | ----- | ----- |
-| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk) | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta8/bluecherry-dvr-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/Bluecherry-latest.AppImage) | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~ |
+| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk) | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta8/bluecherry-windows-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/Bluecherry-latest.AppImage) | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~ |
 | [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-armeabi-v7a-release.apk) |  | 🚧 **SOON** ~~`winget install bluecherry`~~ | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.deb) |  |
 | [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk) |  | 🚧 **SOON** ~~Microsoft Store~~ | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |  |
 | 🚧 **SOON** ~~Play Store~~ |  |  | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) |  |
@@ -87,7 +87,7 @@ Let's say, we're adding French (`fr`) translation.
 
 Send us details about any issues you discover [in the issues](https://github.com/bluecherrydvr/unity/issues) or [in the forums](https://forums.bluecherrydvr.com/).
 
-## Contribute
+## Contribute & Technical Review
 
 The code uses [Provider](https://github.com/rrousselGit/provider) for state-management because it is widely known by Flutter community, doesn't bring any unnecessary complexity to the codebase & is scalable/stable enough.
 
@@ -120,6 +120,7 @@ lib
 │   ├───mobile_view_provider.dart                      [stores, provides & caches mobile camera layout etc.]
 │   ├───server_provider.dart                           [stores, provides & caches multiple DVR servers added by the user.]
 │   └───settings_provider.dart                         [stores, provides & caches various in-app configurations & settings.]
+│   └───update_provider.dart                         [manages app updates and app status.]
 │
 ├───utils                                              [constant values, helper functions & theme-related stuff.]
 │   ├───constants.dart
@@ -139,3 +140,23 @@ lib
 ```
 
 Feel free to send any pull-requests to add any features you wish or fix any bugs you notice.
+
+### Build
+
+The build process is pretty straight-forward. You need to have [Flutter](https://flutter.dev/docs/get-started/install) installed on your system.
+
+```bash
+git clone https://github.com/bluecherrydvr/unity
+cd unity
+flutter pub get
+flutter gen-l10n
+flutter build [linux|windows|android|ios]
+```
+
+The automated build process is done using GitHub Actions. You may find the workflow [here](.github/workflows/main.yml). The workflow builds the app for all supported platforms & uploads the artifacts to the release page. 
+
+On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage`, `deb`, `rpm` or `tar.gz` (Tarball).
+
+```bash
+flutter run --dart-define-from-file=linux/env/[DISTRO_ENV].json
+```

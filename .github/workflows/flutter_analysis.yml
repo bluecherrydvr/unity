@@ -18,8 +18,9 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
         with:
-          channel: master
+          channel: beta
 
+      - run: flutter upgrade
       - run: flutter pub get
       - run: flutter gen-l10n
 

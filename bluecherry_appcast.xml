@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>Bluecherry - Appcast</title>
+        <item>
+            <title>Version 3.0.0-beta8</title>
+            <description>Linux support and a bunch of bug fixes and performance improvements.</description>
+            <pubDate>Thu, 29 Jun 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta7</title>
+            <description>PTZ cameras support, reworked grid on mobile and bug fixes.</description>
+            <pubDate>Fri, 26 May 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta6</title>
+            <description>Focused on bug fixes</description>
+            <pubDate>Thu, 16 Mar 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta5</title>
+            <description>Events Timeline</description>
+            <pubDate>Thu, 2 Mar 2023</pubDate>
+        </item>
+
+        <item>
+            <title>Version 3.0.0-beta4</title>
+            <description>Playback updates. Keyboard support</description>
+            <pubDate>Thu, 2 Feb 2023</pubDate>
+        </item>
+    </channel>
+</rss>

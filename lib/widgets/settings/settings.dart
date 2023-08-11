@@ -24,12 +24,14 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/settings/update.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -63,6 +65,7 @@ class _SettingsState extends State<Settings> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final update = context.watch<UpdateManager>();
 
     const divider = SliverToBoxAdapter(
       child: Padding(
@@ -93,42 +96,57 @@ class _SettingsState extends State<Settings> {
               SliverToBoxAdapter(
                 child: SubHeader(loc.theme),
               ),
-              SliverList(
-                delegate: SliverChildListDelegate(ThemeMode.values.map((e) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: theme.iconTheme.color,
-                      child: Icon({
-                        ThemeMode.system: Icons.brightness_auto,
-                        ThemeMode.light: Icons.light_mode,
-                        ThemeMode.dark: Icons.dark_mode,
-                      }[e]!),
-                    ),
-                    onTap: () {
+              SliverList.list(
+                  children: ThemeMode.values.map((e) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: theme.iconTheme.color,
+                    child: Icon({
+                      ThemeMode.system: Icons.brightness_auto,
+                      ThemeMode.light: Icons.light_mode,
+                      ThemeMode.dark: Icons.dark_mode,
+                    }[e]!),
+                  ),
+                  onTap: () {
+                    settings.themeMode = e;
+                  },
+                  trailing: Radio(
+                    value: e,
+                    groupValue: settings.themeMode,
+                    onChanged: (value) {
                       settings.themeMode = e;
                     },
-                    trailing: Radio(
-                      value: e,
-                      groupValue: settings.themeMode,
-                      onChanged: (value) {
-                        settings.themeMode = e;
-                      },
-                    ),
-                    title: Text({
-                      ThemeMode.system: loc.system,
-                      ThemeMode.light: loc.light,
-                      ThemeMode.dark: loc.dark,
-                    }[e]!),
-                  );
-                }).toList()),
-              ),
+                  ),
+                  title: Text({
+                    ThemeMode.system: loc.system,
+                    ThemeMode.light: loc.light,
+                    ThemeMode.dark: loc.dark,
+                  }[e]!),
+                );
+              }).toList()),
+              if (update.isUpdatingSupported) ...[
+                divider,
+                SliverToBoxAdapter(
+                  child: SubHeader(
+                    loc.updates,
+                    subtext: loc.runningOn(() {
+                      if (Platform.isLinux) {
+                        return 'Linux ${update.linuxEnvironment}';
+                      } else if (Platform.isWindows) {
+                        return 'Windows';
+                      }
+
+                      return defaultTargetPlatform.name;
+                    }()),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: AppUpdateCard()),
+                const SliverToBoxAdapter(child: AppUpdateOptions()),
+              ],
               divider,
-              SliverToBoxAdapter(
-                child: SubHeader(loc.miscellaneous),
-              ),
-              SliverList(
-                  delegate: SliverChildListDelegate([
+              SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
+              SliverList.list(children: [
                 CorrectedListTile(
                   iconData: Icons.message,
                   onTap: () async {
@@ -283,14 +301,14 @@ class _SettingsState extends State<Settings> {
                     );
                   }).toList(),
                 ),
-              ])),
+              ]),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),
               const SliverToBoxAdapter(child: DateFormatSection()),
               divider,
               SliverToBoxAdapter(child: SubHeader(loc.timeFormat)),
-              SliverList(
-                  delegate: SliverChildListDelegate([
+              SliverList.list(
+                  children: [
                 'HH:mm',
                 'hh:mm a',
               ].map((pattern) {
@@ -314,7 +332,7 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                 );
-              }).toList())),
+              }).toList()),
               divider,
               // SubHeader('Language'),
               // SliverList(
@@ -337,12 +355,7 @@ class _SettingsState extends State<Settings> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8.0),
-                      FutureBuilder<String>(
-                        future: appVersion,
-                        builder: (context, snapshot) {
-                          return Text(snapshot.data ?? '');
-                        },
-                      ),
+                      Text(update.packageInfo.version),
                       const SizedBox(height: 8.0),
                       Text(
                         loc.versionText,

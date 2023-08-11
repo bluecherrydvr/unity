@@ -183,6 +183,9 @@
   "filter": "Filter",
   "fromDate": "From",
   "toDate": "To",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "never": "never",
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
   "nEvents": "{n} events",
@@ -242,5 +245,31 @@
   "p720": "720p",
   "p480": "480p",
   "p360": "360p",
-  "p240": "240p"
+  "p240": "240p",
+  "@updates": {},
+  "updates": "Updates",
+  "upToDate": "You are up to date.",
+  "lastChecked": "Last checked: {date}",
+  "@lastChecked": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "checkForUpdates": "Check for updates",
+  "checkingForUpdates": "Checking for updates",
+  "automaticDownloadUpdates": "Automatic download updates",
+  "automaticDownloadUpdatesDescription": "Be among the first to get the latest updates, fixes and improvements as they roll out.",
+  "updateHistory": "Update history",
+  "newVersionAvailable": "New version available",
+  "installVersion": "Install",
+  "downloadVersion": "Download",
+  "learnMore": "Learn more",
+  "failedToUpdate": "Failed to update",
+  "executableNotFound": "Executable not found",
+  "runningOn": "Running on {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {}
+    }
+  }
 }

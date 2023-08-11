@@ -60,7 +60,6 @@ AppDir:
     include:
     - assets/images/background.webp
     - assets/images/icon.png
-    - version.txt
     exclude:
     - usr/share/man
     - usr/share/doc/*/README.*

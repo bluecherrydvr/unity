@@ -292,6 +292,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     final buttonOpacity = disableFinishButton ? 0.5 : 1.0;
 
     return WillPopScope(
+      onWillPop: () async {
+        if (widget.getServer() == null) {
+          widget.controller.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+        return false;
+      },
       child: Scaffold(
         appBar: AppBar(
           leading: NavigatorPopButton(
@@ -554,15 +563,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           ),
         ),
       ),
-      onWillPop: () {
-        if (widget.getServer() == null) {
-          widget.controller.previousPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-        return Future.value(false);
-      },
     );
   }
 
@@ -655,6 +655,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
     final server = widget.getServer();
 
     return WillPopScope(
+      onWillPop: () async => false,
       child: Scaffold(
         appBar: showIf<AppBar>(
           isMobile,
@@ -814,9 +815,6 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
-      onWillPop: () {
-        return Future.value(false);
-      },
     );
   }
 }

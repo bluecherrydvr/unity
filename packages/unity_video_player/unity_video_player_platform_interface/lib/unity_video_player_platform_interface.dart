@@ -67,6 +67,16 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   static void unregisterPlayer(UnityVideoPlayer player) {
     _appPlayers.remove(player);
   }
+
+  /// Diposes all the player instances
+  static Future<void> dispose() {
+    return Future.microtask(() async {
+      for (final player in UnityVideoPlayerInterface.players.toList()) {
+        debugPrint('Disposing player ${player.hashCode}');
+        await player.dispose();
+      }
+    });
+  }
 }
 
 typedef VideoViewInheritance = _UnityVideoView;

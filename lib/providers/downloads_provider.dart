@@ -112,8 +112,6 @@ class DownloadsManager extends ChangeNotifier {
     }
   }
 
-  /// Saves current layout/order of [Device]s to cache using `package:hive`.
-  /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notify = true}) async {
     await downloads.write({
       kHiveDownloads:
@@ -123,19 +121,17 @@ class DownloadsManager extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  /// Restores current layout/order of [Device]s from `package:hive` cache.
   Future<void> _restore({bool notifyListeners = true}) async {
     final data = await downloads.read() as Map;
 
-    downloadedEvents = ((await compute(
-              jsonDecode,
-              data[kHiveDownloads] as String,
-            ) ??
-            []) as List)
-        .cast<Map>()
-        .map<DownloadedEvent>((item) {
-      return DownloadedEvent.fromJson(item.cast<String, dynamic>());
-    }).toList();
+    downloadedEvents = data[kHiveDownloads] == null
+        ? []
+        : ((await compute(jsonDecode, data[kHiveDownloads] as String) ?? [])
+                as List)
+            .cast<Map>()
+            .map<DownloadedEvent>((item) {
+            return DownloadedEvent.fromJson(item.cast<String, dynamic>());
+          }).toList();
 
     if (notifyListeners) {
       this.notifyListeners();
@@ -178,7 +174,7 @@ class DownloadsManager extends ChangeNotifier {
 
     final dir = SettingsProvider.instance.downloadsDirectory;
     final fileName = 'event_${event.id}${event.deviceID}${event.server.ip}.mp4';
-    final downloadPath = '$dir${path.separator}$fileName';
+    final downloadPath = path.join(dir, fileName);
 
     await Dio().downloadUri(
       event.mediaURL!,

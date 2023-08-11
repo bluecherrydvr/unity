@@ -63,7 +63,7 @@ Future<void> main(List<String> args) async {
   // To create a splash screen effect while the dependencies are loading, we
   // can run the [SplashScreen] widget as the app.
   if (isDesktop) {
-    configureWindow();
+    await configureWindow();
     runApp(const SplashScreen());
   }
 

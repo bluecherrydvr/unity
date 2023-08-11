@@ -265,5 +265,11 @@
   "downloadVersion": "Download",
   "learnMore": "Learn more",
   "failedToUpdate": "Failed to update",
-  "executableNotFound": "Executable not found"
+  "executableNotFound": "Executable not found",
+  "runningOn": "Running on {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {}
+    }
+  }
 }

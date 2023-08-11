@@ -38,7 +38,7 @@ class AppUpdateCard extends StatelessWidget {
     final update = context.watch<UpdateManager>();
 
     if (update.hasUpdateAvailable) {
-      final executable = update.executableFor(update.latestVersion.version);
+      final executable = update.executableFor(update.latestVersion!.version);
       return Card(
         margin: const EdgeInsetsDirectional.only(
           start: 10.0,
@@ -64,7 +64,7 @@ class AppUpdateCard extends StatelessWidget {
                     loc.newVersionAvailable,
                     style: theme.textTheme.titleMedium,
                   ),
-                  Text(update.latestVersion.description),
+                  Text(update.latestVersion!.description),
                 ],
               ),
             ),
@@ -72,7 +72,7 @@ class AppUpdateCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  update.latestVersion.version,
+                  update.latestVersion!.version,
                   style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: 6.0),
@@ -95,7 +95,7 @@ class AppUpdateCard extends StatelessWidget {
                 else
                   FilledButton(
                     onPressed: () => update.download(
-                      update.latestVersion.version,
+                      update.latestVersion!.version,
                     ),
                     child: Text(loc.downloadVersion),
                   ),

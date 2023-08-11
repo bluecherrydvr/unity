@@ -31,6 +31,7 @@ import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/update.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -126,7 +127,20 @@ class _SettingsState extends State<Settings> {
               }).toList()),
               if (update.isUpdatingSupported) ...[
                 divider,
-                SliverToBoxAdapter(child: SubHeader(loc.updates)),
+                SliverToBoxAdapter(
+                  child: SubHeader(
+                    loc.updates,
+                    subtext: loc.runningOn(() {
+                      if (Platform.isLinux) {
+                        return 'Linux ${update.linuxEnvironment}';
+                      } else if (Platform.isWindows) {
+                        return 'Windows';
+                      }
+
+                      return defaultTargetPlatform.name;
+                    }()),
+                  ),
+                ),
                 const SliverToBoxAdapter(child: AppUpdateCard()),
                 const SliverToBoxAdapter(child: AppUpdateOptions()),
               ],

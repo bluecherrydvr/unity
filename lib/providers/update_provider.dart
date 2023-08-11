@@ -102,8 +102,10 @@ class UpdateManager extends ChangeNotifier {
   ///
   /// If false, the user is up to date with the latest version.
   bool get hasUpdateAvailable {
+    if (this.latestVersion == null) return false;
+
     final currentVersion = Version.parse(packageInfo.version);
-    final latestVersion = Version.parse(this.latestVersion.version);
+    final latestVersion = Version.parse(this.latestVersion!.version);
 
     assert(
       latestVersion >= currentVersion,
@@ -114,7 +116,9 @@ class UpdateManager extends ChangeNotifier {
   }
 
   List<UpdateVersion> versions = [];
-  UpdateVersion get latestVersion => versions.last;
+  UpdateVersion? get latestVersion {
+    return versions.isEmpty ? null : versions.last;
+  }
 
   Future<void> initialize() async {
     final data = await downloads.read() as Map;
@@ -134,7 +138,7 @@ class UpdateManager extends ChangeNotifier {
     ]);
 
     if (hasUpdateAvailable && automaticDownloads) {
-      download(latestVersion.version);
+      download(latestVersion!.version);
     }
   }
 
@@ -315,9 +319,9 @@ class UpdateManager extends ChangeNotifier {
       'This should never be reached on unsupported platforms',
     );
 
-    assert(latestVersion.version != packageInfo.version, 'Already up to date');
+    assert(hasUpdateAvailable, 'Already up to date');
 
-    final executable = executableFor(latestVersion.version);
+    final executable = executableFor(latestVersion!.version);
     assert(executable != null, 'Executable not found');
 
     if (executable == null) {
@@ -363,9 +367,19 @@ class UpdateManager extends ChangeNotifier {
     loading = true;
     notifyListeners();
 
+    final response = await http.get(Uri.parse(appCastUrl));
+
+    if (response.statusCode != 200) {
+      debugPrint(
+        'Failed to check for updates (${response.statusCode}): ${response.body}',
+      );
+      loading = false;
+      notifyListeners();
+      return;
+    }
+
     final versions = <UpdateVersion>[];
-    // Parse the versions from the server
-    final doc = XmlDocument.parse((await http.get(Uri.parse(appCastUrl))).body);
+    final doc = XmlDocument.parse(response.body);
     for (final item in doc.findAllElements('item')) {
       late String version;
       late String description;

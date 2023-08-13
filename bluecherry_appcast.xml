@@ -3,6 +3,12 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta9</title>
+            <description>Add in-ap Upgrade. Improved Linux support and local memory management.</description>
+            <pubDate>Sun, 13 Aug 2023</pubDate>
+        </item>
+
+        <item>
             <title>Version 3.0.0-beta8</title>
             <description>Linux support and a bunch of bug fixes and performance improvements.</description>
             <pubDate>Thu, 29 Jun 2023</pubDate>

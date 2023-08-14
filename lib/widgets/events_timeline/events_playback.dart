@@ -17,9 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -172,7 +175,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
     final parsedTiles = devices.entries
         .where((e) => e.value.isNotEmpty)
-        .map((e) => e.buildTimelineTile());
+        .map((e) => e.buildTimelineTile(context));
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
@@ -253,7 +256,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 }
 
 extension DevicesMapExtension on MapEntry<Device, List<Event>> {
-  TimelineTile buildTimelineTile() {
+  TimelineTile buildTimelineTile(BuildContext context) {
     final device = key;
     final events = value;
     debugPrint('Loaded ${events.length} events for $device');
@@ -261,10 +264,18 @@ extension DevicesMapExtension on MapEntry<Device, List<Event>> {
     return TimelineTile(
       device: device,
       events: events.map((event) {
+        final downloads = context.read<DownloadsManager>();
+        final mediaUrl = downloads.isEventDownloaded(event.id)
+            ? Uri.file(
+                downloads.getDownloadedPathForEvent(event.id),
+                windows: Platform.isWindows,
+              ).toString()
+            : event.mediaURL!.toString();
+
         return TimelineEvent(
           startTime: event.published,
           duration: event.duration,
-          videoUrl: event.mediaURL!.toString(),
+          videoUrl: mediaUrl,
           event: event,
         );
       }).toList(),

@@ -146,7 +146,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                     widget.timeline.add([
                       state.realDevices.entries
                           .firstWhere((e) => e.key == device)
-                          .buildTimelineTile(),
+                          .buildTimelineTile(context),
                     ]);
                   }
                 }
@@ -202,7 +202,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                             widget.timeline.add([
                               state.realDevices.entries
                                   .firstWhere((e) => e.key == device)
-                                  .buildTimelineTile(),
+                                  .buildTimelineTile(context),
                             ]);
                           }
                           setState(() {});

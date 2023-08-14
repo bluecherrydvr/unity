@@ -47,6 +47,18 @@ class Event {
     this.mediaURL,
   );
 
+  const Event.factory({
+    required this.server,
+    required this.id,
+    required this.deviceID,
+    required this.title,
+    required this.published,
+    required this.updated,
+    required this.category,
+    required this.mediaID,
+    required this.mediaURL,
+  });
+
   Event.dump({
     Server? server,
     this.id = 1,

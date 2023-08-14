@@ -18,7 +18,6 @@
  */
 
 import 'package:bluecherry_client/api/api.dart';
-import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/material.dart';

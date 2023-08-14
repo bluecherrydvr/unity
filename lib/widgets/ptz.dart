@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 typedef PTZComamndsBuilder = Widget Function(
   BuildContext context,
   List<PTZControllerCommand> commands,
+  BoxConstraints constraints,
 );
 
 class PTZControllerCommand {
@@ -67,7 +68,9 @@ class _PTZControllerState extends State<PTZController> {
         forceEnabled: true,
         hitTestBehavior: HitTestBehavior.translucent,
         listenTo: const {ButtonStates.hovering},
-        builder: (context, _) => widget.builder(context, commands),
+        builder: (context, _) => LayoutBuilder(builder: (context, constraints) {
+          return widget.builder(context, commands, constraints);
+        }),
       );
     }
 
@@ -163,7 +166,9 @@ class _PTZControllerState extends State<PTZController> {
       },
       onScaleEnd: (_) => lock = false,
       builder: (context, states) {
-        return widget.builder(context, commands);
+        return LayoutBuilder(builder: (context, constraints) {
+          return widget.builder(context, commands, constraints);
+        });
       },
     );
   }

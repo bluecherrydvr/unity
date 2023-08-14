@@ -108,7 +108,7 @@ class _DeviceFullscreenViewerMobileState
               child: PTZController(
                 device: widget.device,
                 enabled: !overlay && ptzEnabled,
-                builder: (context, commands) {
+                builder: (context, commands, constraints) {
                   return UnityVideoView(
                     heroTag: widget.device.streamURL,
                     player: widget.videoPlayerController,

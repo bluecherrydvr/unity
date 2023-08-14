@@ -20,14 +20,14 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
-import 'package:bluecherry_client/api/ptz.dart';
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:xml2json/xml2json.dart';
+
+export 'events.dart';
+export 'ptz.dart';
 
 class API {
   static final API instance = API();
@@ -138,90 +138,6 @@ class API {
     return null;
   }
 
-  /// Gets the [Event]s present on the [server].
-  ///
-  /// If server is offline, then it returns an empty list.
-  Future<Iterable<Event>> getEvents(Server server) async {
-    if (!server.online) {
-      debugPrint('Can not get events of an offline server: $server');
-      return [];
-    }
-
-    return compute(_getEvents, server);
-  }
-
-  static Future<Iterable<Event>> _getEvents(Server server) async {
-    if (!server.online) {
-      debugPrint('Can not get events of an offline server: $server');
-      return [];
-    }
-
-    DevHttpOverrides.configureCertificates();
-
-    assert(server.serverUUID != null && server.cookie != null);
-    final response = await get(
-      Uri.https(
-        '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-        '/events/',
-        {
-          'XML': '1',
-          'limit': '$kEventsLimit',
-        },
-      ),
-      headers: {
-        'Cookie': server.cookie!,
-      },
-    );
-
-    try {
-      debugPrint('Getting events for server ${server.name}');
-      // debugPrint(response.body);
-
-      final parser = Xml2Json()..parse(response.body);
-      final events = (jsonDecode(parser.toGData())['feed']['entry'] as List)
-          .map((e) {
-            if (!e.containsKey('content')) debugPrint(e.toString());
-            return Event(
-              server,
-              int.parse(e['id']['raw']),
-              int.parse((e['category']['term'] as String).split('/').first),
-              e['title']['\$t'],
-              e['published'] == null || e['published']['\$t'] == null
-                  ? DateTime.now()
-                  : DateTime.parse(e['published']['\$t']).toLocal(),
-              e['updated'] == null || e['updated']['\$t'] == null
-                  ? DateTime.now()
-                  : DateTime.parse(e['updated']['\$t']).toLocal(),
-              e['category']['term'],
-              !e.containsKey('content')
-                  ? null
-                  : int.parse(e['content']['media_id']),
-              !e.containsKey('content')
-                  ? null
-                  : Uri.parse(
-                      e['content'][r'$t'].replaceAll(
-                        'https://',
-                        'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                      ),
-                    ),
-            );
-          })
-          .where((e) => e.duration > const Duration(minutes: 1))
-          .cast<Event>();
-
-      debugPrint('Loaded ${events.length} events for server ${server.name}');
-      return events;
-    } on Xml2JsonException {
-      debugPrint('Failed to parse XML response from server $server');
-      debugPrint(response.body);
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to getEvents on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
-    return <Event>[];
-  }
-
   /// Returns the notification API endpoint.
   ///
   /// Returns the endpoint as [String] if the request was successful, otherwise returns `null`.
@@ -322,110 +238,5 @@ class API {
       debugPrint(stacktrace.toString());
       return false;
     }
-  }
-
-  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
-  Future<bool> ptz({
-    required Device device,
-    required Movement movement,
-    PTZCommand command = PTZCommand.move,
-    int panSpeed = 1,
-    int tiltSpeed = 1,
-    int duration = 250,
-  }) async {
-    if (!device.hasPTZ) return false;
-
-    final server = device.server;
-
-    final url = Uri.https(
-      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-      '/media/ptz.php',
-      {
-        'id': '${device.id}',
-        'command': command.name,
-
-        // commands
-        if (movement == Movement.moveNorth)
-          'tilt': 'u' //up
-        else if (movement == Movement.moveSouth)
-          'tilt': 'd' //down
-        else if (movement == Movement.moveWest)
-          'pan': 'l' //left
-        else if (movement == Movement.moveEast)
-          'pan': 'r' //right
-        else if (movement == Movement.moveWide)
-          'zoom': 'w' //wide
-        else if (movement == Movement.moveTele)
-          'zoom': 't', //tight
-
-        // speeds
-        if (command == PTZCommand.move) ...{
-          if (panSpeed > 0) 'panspeed': '$panSpeed',
-          if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
-          if (duration >= -1) 'duration': '$duration',
-        },
-      },
-    );
-
-    debugPrint(url.toString());
-
-    final response = await get(
-      url,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': server.cookie!,
-      },
-    );
-
-    debugPrint('${command.name} ${response.statusCode}');
-
-    if (response.statusCode == 200) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
-  Future<bool> presets({
-    required Device device,
-    required PresetCommand command,
-    String? presetId,
-    String? presetName,
-  }) async {
-    if (!device.hasPTZ) return false;
-
-    final server = device.server;
-
-    assert(presetName != null || command != PresetCommand.save);
-
-    final url = Uri.https(
-      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-      '/media/ptz.php',
-      {
-        'id': '${device.id}',
-        'command': command.name,
-        if (presetId != null) 'preset': presetId,
-        if (presetName != null) 'name': presetName,
-      },
-    );
-
-    debugPrint(url.toString());
-
-    final response = await get(
-      url,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': server.cookie!,
-      },
-    );
-
-    debugPrint('${command.name} ${response.body} ${response.statusCode}');
-
-    if (response.statusCode == 200) {
-      return true;
-    }
-
-    return false;
   }
 }

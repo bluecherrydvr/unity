@@ -48,13 +48,49 @@ int calculateCrossAxisCount(int deviceAmount) {
 class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
+
     final isReversed = widget.width <= 900;
 
     final children = [
       CollapsableSidebar(
         left: !isReversed,
-        builder: (context, collapseButton) {
+        builder: (context, collapsed, collapseButton) {
+          if (collapsed) {
+            return Column(children: [
+              collapseButton,
+              const Spacer(),
+              IconButton(
+                icon: Icon(
+                  Icons.cyclone,
+                  size: 18.0,
+                  color: settings.layoutCyclingEnabled
+                      ? theme.colorScheme.primary
+                      : IconTheme.of(context).color,
+                ),
+                padding: EdgeInsets.zero,
+                tooltip: loc.cycle,
+                onPressed: settings.toggleCycling,
+              ),
+              Container(
+                padding: const EdgeInsetsDirectional.all(8.0),
+                margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.primaryContainer,
+                ),
+                child: Text(
+                  '${view.currentLayout.devices.length}',
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ]);
+          }
           return DesktopSidebar(collapseButton: collapseButton);
         },
       ),

@@ -310,7 +310,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                 ),
                 CollapsableSidebar(
                   left: false,
-                  builder: (context, collapsableButton) {
+                  builder: (context, collapsed, collapseButton) {
+                    if (collapsed) {
+                      return collapseButton;
+                    }
                     return Column(children: [
                       Row(children: [
                         const SizedBox(width: 16.0),
@@ -322,7 +325,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                         ),
                         Align(
                           alignment: AlignmentDirectional.topEnd,
-                          child: collapsableButton,
+                          child: collapseButton,
                         ),
                       ]),
                       Expanded(

@@ -19,7 +19,9 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -241,73 +243,10 @@ class DeviceTileState extends State<DeviceTile> {
       context.read<MobileViewProvider>().hoverStates[widget.tab]
           ?[widget.index] = value;
 
-  Widget get playerView {
-    debugPrint('${widget.device} ${videoPlayer?.dataSource.toString()}');
-    if (videoPlayer == null) return const SizedBox.shrink();
-
-    return UnityVideoView(
-      heroTag: widget.device.streamURL,
-      player: videoPlayer!,
-      paneBuilder: (context, controller) {
-        final error = UnityVideoView.of(context).error;
-
-        return Material(
-          color: Colors.transparent,
-          child: () {
-            if (error != null) {
-              return ErrorWarning(message: error);
-            } else if (!controller.isSeekable) {
-              return const Center(
-                child: CircularProgressIndicator.adaptive(
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
-                  strokeWidth: 4.4,
-                ),
-              );
-            } else if (hover) {
-              return TweenAnimationBuilder(
-                tween: Tween<double>(
-                  begin: 0.0,
-                  end: hover ? 1.0 : 0.0,
-                ),
-                duration: const Duration(milliseconds: 300),
-                builder: (context, value, child) {
-                  return Center(
-                    child: Opacity(
-                      opacity: value,
-                      child: IconButton(
-                        splashRadius: 20.0,
-                        onPressed: () async {
-                          if (videoPlayer == null) return;
-
-                          await Navigator.of(context).pushNamed(
-                            '/fullscreen',
-                            arguments: {
-                              'device': widget.device,
-                              'player': videoPlayer,
-                            },
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.fullscreen,
-                          color: Colors.white,
-                          size: 32.0,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-
-            return const SizedBox.shrink();
-          }(),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (videoPlayer == null) return const SizedBox.shrink();
+
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
@@ -327,77 +266,124 @@ class DeviceTileState extends State<DeviceTile> {
           },
         );
       },
-      child: ClipRect(
-        child: Stack(children: [
-          if (videoPlayer == null)
-            Container(
-              color: Colors.black,
-              width: double.infinity,
-              height: double.infinity,
-              child: const CircularProgressIndicator.adaptive(),
-            )
-          else
-            playerView,
-          PositionedDirectional(
-            bottom: 0.0,
-            start: 0.0,
-            end: 0.0,
-            child: AnimatedSlide(
-              offset: Offset(0, hover ? 0.0 : 1.0),
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              child: Container(
-                height: 48.0,
-                alignment: AlignmentDirectional.centerEnd,
-                color: Colors.black26,
-                child: Row(children: [
-                  const SizedBox(width: 16.0),
-                  const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 20.0,
+      child: UnityVideoView(
+        heroTag: widget.device.streamURL,
+        player: videoPlayer!,
+        paneBuilder: (context, controller) {
+          final video = UnityVideoView.of(context);
+          final error = video.error;
+
+          return ClipRect(
+            child: Stack(children: [
+              if (error != null)
+                ErrorWarning(message: error)
+              else if (!controller.isSeekable || videoPlayer == null)
+                const Center(
+                  child: CircularProgressIndicator.adaptive(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                    strokeWidth: 4.4,
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.device.name
-                              .split(' ')
-                              .map((word) =>
-                                  '${word[0].toUpperCase()}${word.substring(1)}')
-                              .join(' '),
-                          style: theme.textTheme.displayLarge?.copyWith(
-                            color: Colors.white,
-                            fontSize: 14.0,
-                          ),
-                        ),
-                        Text(
-                          widget.device.server.name,
-                          style: theme.textTheme.displaySmall?.copyWith(
-                            color: Colors.white70,
-                            fontSize: 10.0,
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+              Center(
+                child: TweenAnimationBuilder(
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: hover ? 1.0 : 0.0,
                   ),
-                  if (widget.device.hasPTZ)
-                    Icon(
-                      Icons.videogame_asset,
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: child,
+                    );
+                  },
+                  child: IconButton(
+                    splashRadius: 20.0,
+                    onPressed: () async {
+                      if (videoPlayer == null) return;
+
+                      await Navigator.of(context).pushNamed(
+                        '/fullscreen',
+                        arguments: {
+                          'device': widget.device,
+                          'player': videoPlayer,
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.fullscreen,
                       color: Colors.white,
-                      size: 20.0,
-                      semanticLabel: loc.ptzSupported,
+                      size: 32.0,
                     ),
-                  const SizedBox(width: 16.0),
-                ]),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ]),
+              PositionedDirectional(
+                top: 6.0,
+                start: 6.0,
+                child: VideoStatusLabel(isImageOld: video.isImageOld),
+              ),
+              PositionedDirectional(
+                bottom: 0.0,
+                start: 0.0,
+                end: 0.0,
+                child: AnimatedSlide(
+                  offset: Offset(0, hover ? 0.0 : 1.0),
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Container(
+                    height: 48.0,
+                    alignment: AlignmentDirectional.centerEnd,
+                    color: Colors.black26,
+                    child: Row(children: [
+                      const SizedBox(width: 16.0),
+                      const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 20.0,
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.device.name
+                                  .split(' ')
+                                  .map((word) => word.uppercaseFirst())
+                                  .join(' '),
+                              style: theme.textTheme.displayLarge?.copyWith(
+                                color: Colors.white,
+                                fontSize: 14.0,
+                              ),
+                            ),
+                            Text(
+                              widget.device.server.name,
+                              style: theme.textTheme.displaySmall?.copyWith(
+                                color: Colors.white70,
+                                fontSize: 10.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.device.hasPTZ)
+                        Icon(
+                          Icons.videogame_asset,
+                          color: Colors.white,
+                          size: 20.0,
+                          semanticLabel: loc.ptzSupported,
+                        ),
+                      const SizedBox(width: 16.0),
+                    ]),
+                  ),
+                ),
+              ),
+            ]),
+          );
+        },
       ),
     );
   }

@@ -567,35 +567,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     ),
                     const SizedBox(width: 12.0),
                   ],
-                  () {
-                    final color = video.isImageOld
-                        ? Colors.amber.shade600
-                        : Colors.red.shade600;
-                    final text = video.isImageOld ? loc.timedOut : loc.live;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: 4.0,
-                        vertical: 2.0,
-                      ),
-                      margin: const EdgeInsetsDirectional.only(
-                        end: 6.0,
-                        bottom: 6.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: Text(
-                        text,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: color.computeLuminance() > 0.5
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                    );
-                  }(),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      end: 6.0,
+                      bottom: 6.0,
+                    ),
+                    child: VideoStatusLabel(isImageOld: video.isImageOld),
+                  ),
                 ],
               ),
             ),

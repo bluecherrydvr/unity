@@ -36,6 +36,7 @@ import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/layout_manager.dart';
 import 'package:bluecherry_client/widgets/device_grid/mobile/device_view.dart';
+import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';

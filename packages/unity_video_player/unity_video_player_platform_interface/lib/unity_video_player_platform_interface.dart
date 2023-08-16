@@ -79,16 +79,16 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   }
 }
 
-typedef VideoViewInheritance = _UnityVideoView;
-
-class _UnityVideoView extends InheritedWidget {
-  const _UnityVideoView({
+class VideoViewInheritance extends InheritedWidget {
+  const VideoViewInheritance({
+    super.key,
     required super.child,
     required this.error,
     required this.position,
     required this.duration,
-    required this.player,
     required this.isImageOld,
+    required this.lastImageUpdate,
+    required this.player,
   });
 
   /// When the video is in an error state, this will be set with a description
@@ -110,15 +110,18 @@ class _UnityVideoView extends InheritedWidget {
   /// This is usually used when the video is unpauseable and unseekable.
   final bool isImageOld;
 
+  /// The last time the image was updated.
+  final DateTime? lastImageUpdate;
+
   /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
 
-  static _UnityVideoView? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_UnityVideoView>();
+  static VideoViewInheritance? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<VideoViewInheritance>();
   }
 
   @override
-  bool updateShouldNotify(_UnityVideoView oldWidget) {
+  bool updateShouldNotify(VideoViewInheritance oldWidget) {
     return error != oldWidget.error ||
         position != oldWidget.position ||
         duration != oldWidget.duration;
@@ -163,11 +166,11 @@ class UnityVideoView extends StatefulWidget {
   });
 
   static VideoViewInheritance of(BuildContext context) {
-    return _UnityVideoView.maybeOf(context)!;
+    return VideoViewInheritance.maybeOf(context)!;
   }
 
   static VideoViewInheritance? maybeOf(BuildContext context) {
-    return _UnityVideoView.maybeOf(context);
+    return VideoViewInheritance.maybeOf(context);
   }
 
   @override
@@ -184,6 +187,8 @@ class UnityVideoViewState extends State<UnityVideoView> {
   Timer? _oldImageTimer;
   bool _isImageOld = false;
   bool get isImageOld => _isImageOld;
+  DateTime? _lastImageTime;
+  DateTime? get lastImageUpdate => _lastImageTime;
 
   @override
   void initState() {
@@ -218,6 +223,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   void _onDurationUpdate(Duration duration) {
     if (mounted) {
       setState(() {
+        _lastImageTime = DateTime.now();
         _isImageOld = false;
         _oldImageTimer?.cancel();
         _oldImageTimer = Timer(timerInterval, () {
@@ -258,6 +264,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
       position: widget.player.currentPos,
       duration: widget.player.duration,
       isImageOld: isImageOld,
+      lastImageUpdate: lastImageUpdate,
       child: UnityVideoPlayerInterface.instance.createVideoView(
         player: widget.player,
         color: widget.color,

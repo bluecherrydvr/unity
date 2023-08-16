@@ -608,7 +608,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       end: 6.0,
                       bottom: 6.0,
                     ),
-                    child: VideoStatusLabel(isImageOld: video.isImageOld),
+                    child: VideoStatusLabel(
+                      video: video,
+                      device: widget.device,
+                    ),
                   ),
                 ],
               ),

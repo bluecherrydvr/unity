@@ -229,7 +229,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   ),
                 ),
               ),
-              if (isMobile || hovering)
+              if ((isMobile || hovering) && widget.device.status)
                 Tooltip(
                   message: loc.cameraOptions,
                   preferBelow: false,

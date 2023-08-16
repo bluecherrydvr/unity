@@ -18,7 +18,6 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -54,11 +53,20 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
     entry = OverlayEntry(builder: (context) {
       return LayoutBuilder(builder: (context, constraints) {
         return Stack(children: [
-          Positioned(
-            bottom: constraints.maxHeight - position.dy + 8.0,
-            right: constraints.maxWidth - position.dx - boxSize.width,
-            child: DeviceVideoInfo(device: widget.device, video: widget.video),
-          ),
+          if (position.dy > DeviceVideoInfo.constraints.minHeight + 8.0)
+            Positioned(
+              bottom: constraints.maxHeight - position.dy + 8.0,
+              right: constraints.maxWidth - position.dx - boxSize.width,
+              child:
+                  DeviceVideoInfo(device: widget.device, video: widget.video),
+            )
+          else
+            Positioned(
+              top: position.dy + boxSize.height + 8.0,
+              left: position.dx,
+              child:
+                  DeviceVideoInfo(device: widget.device, video: widget.video),
+            ),
         ]);
       });
     });
@@ -68,6 +76,12 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   void dismissOverlay() {
     entry?.remove();
     entry = null;
+  }
+
+  @override
+  void dispose() {
+    dismissOverlay();
+    super.dispose();
   }
 
   @override
@@ -128,11 +142,17 @@ class DeviceVideoInfo extends StatelessWidget {
 
   const DeviceVideoInfo({super.key, required this.device, required this.video});
 
+  static const constraints = BoxConstraints(
+    minWidth: 211.0,
+    minHeight: 124.0,
+  );
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Container(
+      constraints: constraints,
       decoration: BoxDecoration(
         color: theme.colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(6.0),
@@ -166,15 +186,6 @@ class DeviceVideoInfo extends StatelessWidget {
               data: video.lastImageUpdate == null
                   ? loc.unknown
                   : DateFormat.Hms().format(video.lastImageUpdate!),
-            ),
-            _buildTextSpan(
-              context,
-              title: loc.imageUpdateRate,
-              data: video.lastImageUpdate == null
-                  ? loc.unknown
-                  : DateTime.now()
-                      .difference(video.lastImageUpdate!)
-                      .humanReadableCompact(context),
               last: true,
             ),
           ],

@@ -51,6 +51,7 @@
   "offline": "Offline",
   "live": "LIVE",
   "timedOut": "TIMED OUT",
+  "loading": "LOADING",
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
   "eventBrowser": "Events History",

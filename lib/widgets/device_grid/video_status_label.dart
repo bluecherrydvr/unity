@@ -88,9 +88,18 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final color =
-        widget.video.isImageOld ? Colors.amber.shade600 : Colors.red.shade600;
-    final text = widget.video.isImageOld ? loc.timedOut : loc.live;
+    final isLoading = widget.video.lastImageUpdate == null;
+
+    final color = isLoading
+        ? Colors.blue
+        : widget.video.isImageOld
+            ? Colors.amber.shade600
+            : Colors.red.shade600;
+    final text = isLoading
+        ? loc.loading
+        : widget.video.isImageOld
+            ? loc.timedOut
+            : loc.live;
 
     // This opens the overlay when a property is updated. This is a frame late
     if (isOverlayOpen) {

@@ -284,40 +284,41 @@ class DeviceTileState extends State<DeviceTile> {
                     strokeWidth: 4.4,
                   ),
                 ),
-              Center(
-                child: TweenAnimationBuilder(
-                  tween: Tween<double>(
-                    begin: 0.0,
-                    end: hover ? 1.0 : 0.0,
-                  ),
-                  duration: const Duration(milliseconds: 300),
-                  builder: (context, value, child) {
-                    return Opacity(
-                      opacity: value,
-                      child: child,
-                    );
-                  },
-                  child: IconButton(
-                    splashRadius: 20.0,
-                    onPressed: () async {
-                      if (videoPlayer == null) return;
-
-                      await Navigator.of(context).pushNamed(
-                        '/fullscreen',
-                        arguments: {
-                          'device': widget.device,
-                          'player': videoPlayer,
-                        },
+              if (video.lastImageUpdate != null)
+                Center(
+                  child: TweenAnimationBuilder(
+                    tween: Tween<double>(
+                      begin: 0.0,
+                      end: hover ? 1.0 : 0.0,
+                    ),
+                    duration: const Duration(milliseconds: 300),
+                    builder: (context, value, child) {
+                      return Opacity(
+                        opacity: value,
+                        child: child,
                       );
                     },
-                    icon: const Icon(
-                      Icons.fullscreen,
-                      color: Colors.white,
-                      size: 32.0,
+                    child: IconButton(
+                      splashRadius: 20.0,
+                      onPressed: () async {
+                        if (videoPlayer == null) return;
+
+                        await Navigator.of(context).pushNamed(
+                          '/fullscreen',
+                          arguments: {
+                            'device': widget.device,
+                            'player': videoPlayer,
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.fullscreen,
+                        color: Colors.white,
+                        size: 32.0,
+                      ),
                     ),
                   ),
                 ),
-              ),
               PositionedDirectional(
                 top: 6.0,
                 start: 6.0,

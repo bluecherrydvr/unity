@@ -143,18 +143,27 @@ class DeviceSelectorScreen extends StatelessWidget {
                                 ? theme.extension<UnityColors>()!.successColor
                                 : theme.disabledColor
                             : theme.colorScheme.error,
-                        child: const Icon(Icons.camera_alt),
+                        child: Icon(
+                          !enabled ? Icons.videocam : Icons.videocam_outlined,
+                        ),
                       ),
                       title: RichText(
-                        text: TextSpan(children: [
-                          TextSpan(text: device.name.uppercaseFirst()),
-                          if (eventsPerDevice[device] != null)
-                            TextSpan(
-                              text:
-                                  '  (${loc.nEvents(eventsPerDevice[device]!)})',
-                              style: theme.textTheme.labelSmall,
-                            ),
-                        ]),
+                        text: TextSpan(
+                          children: [
+                            TextSpan(text: device.name.uppercaseFirst()),
+                            if (eventsPerDevice[device] != null)
+                              TextSpan(
+                                text:
+                                    '  (${loc.nEvents(eventsPerDevice[device]!)})',
+                                style: theme.textTheme.labelSmall,
+                              ),
+                          ],
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: enabled
+                                ? theme.colorScheme.onSurface
+                                : theme.disabledColor,
+                          ),
+                        ),
                       ),
                       subtitle: Text([
                         device.uri,

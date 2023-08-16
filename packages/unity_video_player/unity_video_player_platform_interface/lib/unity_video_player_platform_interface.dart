@@ -183,7 +183,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
   late StreamSubscription<Duration> _onPositionUpdateSubscription;
 
-  static const timerInterval = Duration(seconds: 4);
+  static const timerInterval = Duration(seconds: 6);
   Timer? _oldImageTimer;
   bool _isImageOld = false;
   bool get isImageOld => _isImageOld;

@@ -153,7 +153,8 @@ class DeviceVideoInfo extends StatelessWidget {
 
   static const constraints = BoxConstraints(
     minWidth: 211.0,
-    minHeight: 124.0,
+    // minHeight: 124.0,
+    minHeight: 144.0,
   );
 
   @override
@@ -189,6 +190,7 @@ class DeviceVideoInfo extends StatelessWidget {
               title: loc.resolution,
               data: '${device.resolutionX}x${device.resolutionY}',
             ),
+            _buildTextSpan(context, title: 'FPS', data: '${video.fps}'),
             _buildTextSpan(
               context,
               title: loc.lastImageUpdate,

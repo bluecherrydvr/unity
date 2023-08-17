@@ -88,6 +88,7 @@ class VideoViewInheritance extends InheritedWidget {
     required this.duration,
     required this.isImageOld,
     required this.lastImageUpdate,
+    required this.fps,
     required this.player,
   });
 
@@ -112,6 +113,9 @@ class VideoViewInheritance extends InheritedWidget {
 
   /// The last time the image was updated.
   final DateTime? lastImageUpdate;
+
+  /// The FPS of the video.
+  final int fps;
 
   /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
@@ -182,6 +186,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   late StreamSubscription<String> _onErrorSubscription;
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
   late StreamSubscription<Duration> _onPositionUpdateSubscription;
+  late StreamSubscription<double> _fpsSubscription;
 
   static const timerInterval = Duration(seconds: 6);
   Timer? _oldImageTimer;
@@ -198,6 +203,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
         widget.player.onDurationUpdate.listen(_onDurationUpdate);
     _onPositionUpdateSubscription =
         widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
+    _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
   }
 
   @override
@@ -207,12 +213,14 @@ class UnityVideoViewState extends State<UnityVideoView> {
     if (widget.player != oldWidget.player) {
       _onErrorSubscription.cancel();
       _onDurationUpdateSubscription.cancel();
+      _fpsSubscription.cancel();
 
       _onErrorSubscription = widget.player.onError.listen(_onError);
       _onDurationUpdateSubscription =
           widget.player.onDurationUpdate.listen(_onDurationUpdate);
       _onPositionUpdateSubscription =
           widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
+      _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
     }
   }
 
@@ -246,11 +254,16 @@ class UnityVideoViewState extends State<UnityVideoView> {
     }
   }
 
+  void _onFpsUpdate(double fps) {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
     _onErrorSubscription.cancel();
     _onDurationUpdateSubscription.cancel();
     _onPositionUpdateSubscription.cancel();
+    _fpsSubscription.cancel();
     _oldImageTimer?.cancel();
     _oldImageTimer = null;
     super.dispose();
@@ -264,6 +277,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
       position: widget.player.currentPos,
       duration: widget.player.duration,
       isImageOld: isImageOld,
+      fps: widget.player.fps.toInt(),
       lastImageUpdate: lastImageUpdate,
       child: UnityVideoPlayerInterface.instance.createVideoView(
         player: widget.player,
@@ -366,6 +380,9 @@ abstract class UnityVideoPlayer {
   /// Whether the media is playing
   bool get isPlaying;
   Stream<bool> get onPlayingStateUpdate;
+
+  double get fps;
+  Stream<double> get fpsStream;
 
   /// Whether the media is seekable
   bool get isSeekable;

@@ -108,6 +108,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late VideoController mkVideoController;
   late StreamSubscription errorStream;
 
+  double _fps = 0;
+  @override
+  double get fps => _fps;
+  final _fpsStreamController = StreamController<double>.broadcast();
+  @override
+  Stream<double> get fpsStream => _fpsStreamController.stream;
+
   UnityVideoPlayerMediaKit({
     int? width,
     int? height,
@@ -128,6 +135,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     if (mkPlayer.platform is NativePlayer) {
       final platform = (mkPlayer.platform as NativePlayer);
 
+      platform.observeProperty('estimated-vf-fps', (fps) async {
+        _fps = double.parse(fps);
+        _fpsStreamController.add(_fps);
+      });
+
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
         platform.setProperty("cache", "yes");
@@ -140,10 +152,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           platform.setProperty("cache-dir", value.path);
         });
       } else {
-        platform.setProperty("profile", "low-latency");
         platform.setProperty("cache", "no");
         platform.setProperty("video-sync", "audio");
-        platform.setProperty("untimed", "");
+        // these two properties reduce latency, but it causes problems with FPS
+        // platform.setProperty("profile", "low-latency");
+        // platform.setProperty("untimed", "");
       }
     }
 
@@ -270,8 +283,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> dispose() async {
+    if (mkPlayer.platform is NativePlayer) {
+      final platform = (mkPlayer.platform as NativePlayer);
+
+      await platform.unobserveProperty('estimated-vf-fps');
+    }
     await errorStream.cancel();
     await mkPlayer.dispose();
+    _fpsStreamController.close();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

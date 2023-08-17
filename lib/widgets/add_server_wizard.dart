@@ -445,14 +445,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   Padding(
                     padding: const EdgeInsetsDirectional.only(top: 8.0),
                     child: MaterialButton(
-                      onPressed: () {
-                        textEditingControllers[3].text = kDefaultUsername;
-                        textEditingControllers[4].text = kDefaultPassword;
-                      },
+                      onPressed: disableFinishButton
+                          ? null
+                          : () {
+                              textEditingControllers[3].text = kDefaultUsername;
+                              textEditingControllers[4].text = kDefaultPassword;
+                            },
                       textColor: theme.colorScheme.secondary,
-                      child: Text(
-                        loc.useDefault.toUpperCase(),
-                      ),
+                      child: Text(loc.useDefault.toUpperCase()),
                     ),
                   ),
                 ]),

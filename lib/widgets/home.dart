@@ -52,14 +52,14 @@ class NavigatorData {
         selectedIcon: Icons.window,
         text: loc.screens,
       ),
-      const NavigatorData(
+      NavigatorData(
         icon: Icons.subscriptions_outlined,
         selectedIcon: Icons.subscriptions,
-        text: 'Events Playback',
+        text: loc.eventsTimeline,
       ),
       NavigatorData(
-        icon: Icons.camera_outlined,
-        selectedIcon: Icons.camera,
+        icon: Icons.videocam_outlined,
+        selectedIcon: Icons.videocam,
         text: loc.directCamera,
       ),
       NavigatorData(

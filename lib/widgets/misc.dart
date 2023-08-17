@@ -245,7 +245,8 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null;
+    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null ||
+        context.findAncestorWidgetOfExactType<AlertDialog>() != null;
 
     return Material(
       type: isInCard ? MaterialType.transparency : MaterialType.canvas,

@@ -56,6 +56,7 @@
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
   "eventBrowser": "Events History",
+  "eventsTimeline": "Timeline of Events",
   "server": "Server",
   "device": "Device",
   "event": "Event",

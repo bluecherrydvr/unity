@@ -220,9 +220,12 @@ extension EventsExtension on Iterable<Event> {
 
 extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
-  List<Device> sorted() {
-    return [...this]
-      ..sort((a, b) => a.name.compareTo(b.name))
-      ..sort((a, b) => a.status ? 0 : 1);
+  List<Device> sorted([Iterable? available]) {
+    final list = [...this]..sort((a, b) => a.name.compareTo(b.name));
+
+    if (available != null) list.sort((a, b) => available.contains(a) ? 0 : 1);
+    list.sort((a, b) => a.status ? 0 : 1);
+
+    return list;
   }
 }

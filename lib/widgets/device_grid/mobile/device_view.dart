@@ -342,7 +342,7 @@ class DeviceTileState extends State<DeviceTile> {
                     child: Row(children: [
                       const SizedBox(width: 16.0),
                       const Icon(
-                        Icons.camera_alt,
+                        Icons.videocam,
                         color: Colors.white,
                         size: 20.0,
                       ),

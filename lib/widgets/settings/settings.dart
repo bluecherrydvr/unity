@@ -148,7 +148,7 @@ class _SettingsState extends State<Settings> {
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 CorrectedListTile(
-                  iconData: Icons.message,
+                  iconData: Icons.notifications_paused,
                   onTap: () async {
                     if (settings.snoozedUntil.isAfter(DateTime.now())) {
                       settings.snoozedUntil =
@@ -219,9 +219,9 @@ class _SettingsState extends State<Settings> {
                 ),
                 ExpansionTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: const Color.fromRGBO(0, 0, 0, 0),
                     foregroundColor: theme.iconTheme.color,
-                    child: const Icon(Icons.camera_alt),
+                    child: const Icon(Icons.fit_screen),
                   ),
                   title: Text(loc.cameraViewFit),
                   textColor: theme.textTheme.bodyLarge?.color,
@@ -345,9 +345,7 @@ class _SettingsState extends State<Settings> {
               //   ),
               // ),
               // divider,
-              SliverToBoxAdapter(
-                child: SubHeader(loc.version),
-              ),
+              SliverToBoxAdapter(child: SubHeader(loc.version)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),

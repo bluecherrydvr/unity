@@ -240,17 +240,22 @@ class AppUpdateOptions extends StatelessWidget {
         ),
         title: Text(loc.automaticDownloadUpdates),
         subtitle: RichText(
-          text: TextSpan(children: [
-            TextSpan(text: loc.automaticDownloadUpdatesDescription),
-            TextSpan(
-              text: '\n${loc.learnMore}',
-              style: theme.textTheme.labelMedium!.copyWith(
-                color: theme.colorScheme.primary,
+          text: TextSpan(
+            children: [
+              TextSpan(text: loc.automaticDownloadUpdatesDescription),
+              TextSpan(
+                text: '\n${loc.learnMore}',
+                style: theme.textTheme.labelMedium!.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+                mouseCursor: SystemMouseCursors.click,
+                recognizer: TapGestureRecognizer()..onTap = () {},
               ),
-              mouseCursor: SystemMouseCursors.click,
-              recognizer: TapGestureRecognizer()..onTap = () {},
+            ],
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface,
             ),
-          ]),
+          ),
         ),
         isThreeLine: true,
       ),
@@ -289,17 +294,20 @@ class AppUpdateOptions extends StatelessWidget {
                 return ListTile(
                   title: Row(children: [
                     RichText(
-                      text: TextSpan(children: [
-                        TextSpan(text: version.version),
-                        const TextSpan(text: '   '),
-                        TextSpan(
-                          text: SettingsProvider.instance.dateFormat.format(
-                            DateFormat('EEE, d MMM yyyy')
-                                .parse(version.publishedAt),
+                      text: TextSpan(
+                        children: [
+                          TextSpan(text: version.version),
+                          const TextSpan(text: '   '),
+                          TextSpan(
+                            text: SettingsProvider.instance.dateFormat.format(
+                              DateFormat('EEE, d MMM yyyy')
+                                  .parse(version.publishedAt),
+                            ),
+                            style: theme.textTheme.labelSmall,
                           ),
-                          style: theme.textTheme.labelSmall,
-                        ),
-                      ]),
+                        ],
+                        style: theme.textTheme.bodyMedium,
+                      ),
                     ),
                     const Expanded(
                       child: Padding(

@@ -142,7 +142,7 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
               ),
               _buildTilePart(
                 child: Text(loc.device),
-                icon: const Icon(Icons.camera),
+                icon: const Icon(Icons.videocam),
               ),
               _buildTilePart(
                 child: Text(loc.event),

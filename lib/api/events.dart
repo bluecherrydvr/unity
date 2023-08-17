@@ -4,7 +4,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
@@ -19,10 +19,11 @@ extension EventsExtension on API {
       return [];
     }
 
-    return compute(_getEvents, server);
+    return compute(_getEvents, {'server': server, 'limit': await eventsLimit});
   }
 
-  static Future<Iterable<Event>> _getEvents(Server server) async {
+  static Future<Iterable<Event>> _getEvents(Map data) async {
+    final server = data['server'];
     if (!server.online) {
       debugPrint('Can not get events of an offline server: $server');
       return [];
@@ -37,7 +38,7 @@ extension EventsExtension on API {
         '/events/',
         {
           'XML': '1',
-          'limit': '$kEventsLimit',
+          'limit': '${data['limit']}',
         },
       ),
       headers: {

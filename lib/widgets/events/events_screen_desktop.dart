@@ -62,6 +62,8 @@ class EventsScreenDesktop extends StatelessWidget {
         SliverFixedExtentList.builder(
           itemCount: events.length,
           itemExtent: 50.0,
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: false,
           itemBuilder: (context, index) {
             final event = events.elementAt(index);
 

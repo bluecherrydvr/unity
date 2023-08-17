@@ -37,6 +37,7 @@ dependencies:
   
   device_info_plus: ^9.0.3
   package_info_plus: ^4.1.0
+  connectivity_plus: ^4.0.2
   version: ^3.0.2
   url_launcher: ^6.1.10
 

@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,24 @@ bool get isCupertino {
   }
 
   return cupertinoPlatforms.contains(defaultTargetPlatform);
+}
+
+/// Determines the amount of events that can be loaded at once.
+///
+/// The calculation is based on the current connectivity status. If the device
+/// is connected to a WiFi network, then it returns 750, otherwise it returns
+/// 200.
+Future<int> get eventsLimit async {
+  final connectivityResult = await Connectivity().checkConnectivity();
+
+  switch (connectivityResult) {
+    case ConnectivityResult.wifi:
+    case ConnectivityResult.ethernet:
+    case ConnectivityResult.vpn:
+      return 750;
+    default:
+      return 200;
+  }
 }
 
 class NavigatorPopButton extends StatelessWidget {

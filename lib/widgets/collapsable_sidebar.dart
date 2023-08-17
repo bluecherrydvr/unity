@@ -21,10 +21,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
-const kCompactSidebarConstraints = BoxConstraints(maxWidth: 50.0);
+const kCompactSidebarConstraints = BoxConstraints(maxWidth: 46.0);
 
 typedef SidebarBuilder = Widget Function(
   BuildContext context,
+  bool collapsed,
   Widget collapseButton,
 );
 
@@ -85,20 +86,21 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
+    final loc = AppLocalizations.of(context);
 
     return AnimatedBuilder(
       animation: collapseAnimation,
       builder: (context, child) {
+        final collapsed = collapseController.isCompleted;
         final collapseButton = Padding(
-          padding: widget.left
-              ? const EdgeInsetsDirectional.only(start: 5.0)
-              : const EdgeInsetsDirectional.only(end: 5.0),
+          padding: collapsed
+              ? EdgeInsets.zero
+              : widget.left
+                  ? const EdgeInsetsDirectional.only(start: 5.0)
+                  : const EdgeInsetsDirectional.only(end: 5.0),
           child: IconButton(
             key: collapseButtonKey,
-            tooltip: collapseController.isCompleted
-                ? localizations.open
-                : localizations.close,
+            tooltip: collapsed ? loc.open : loc.close,
             icon: RotationTransition(
               turns: (widget.left
                       ? Tween(
@@ -123,6 +125,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
             },
           ),
         );
+
         return ConstrainedBox(
           constraints: BoxConstraintsTween(
             begin: kSidebarConstraints,
@@ -134,11 +137,12 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
                 alignment: widget.left
                     ? AlignmentDirectional.topStart
                     : AlignmentDirectional.topEnd,
-                child: collapseButton,
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
+                child: widget.builder(context, true, collapseButton),
               );
             }
 
-            return widget.builder(context, collapseButton);
+            return widget.builder(context, false, collapseButton);
           }(),
         );
       },

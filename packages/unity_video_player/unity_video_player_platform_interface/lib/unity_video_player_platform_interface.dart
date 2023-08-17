@@ -79,42 +79,82 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   }
 }
 
-typedef VideoViewInheritance = _UnityVideoView;
-
-class _UnityVideoView extends InheritedWidget {
-  const _UnityVideoView({
+class VideoViewInheritance extends InheritedWidget {
+  const VideoViewInheritance({
+    super.key,
     required super.child,
     required this.error,
     required this.position,
     required this.duration,
+    required this.isImageOld,
+    required this.lastImageUpdate,
     required this.player,
   });
 
+  /// When the video is in an error state, this will be set with a description
   final String? error;
+
+  /// The current position of the video. This is updated as the video plays.
   final Duration position;
+
+  /// The duration of the video. This is updated when the video is ready to play
+  /// or when it's buffering.
   final Duration duration;
+
+  /// Whether the frame is old.
+  ///
+  /// This can be used to warn the user the image is stuck at some point and
+  /// some action is required to continue playing, such as reconnecting to the
+  /// internet or reloading the camera.
+  ///
+  /// This is usually used when the video is unpauseable and unseekable.
+  final bool isImageOld;
+
+  /// The last time the image was updated.
+  final DateTime? lastImageUpdate;
+
+  /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
 
-  static _UnityVideoView? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_UnityVideoView>();
+  static VideoViewInheritance? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<VideoViewInheritance>();
   }
 
   @override
-  bool updateShouldNotify(_UnityVideoView oldWidget) {
+  bool updateShouldNotify(VideoViewInheritance oldWidget) {
     return error != oldWidget.error ||
         position != oldWidget.position ||
         duration != oldWidget.duration;
   }
 }
 
+/// A widget that displays a video from a [UnityVideoPlayer].
 class UnityVideoView extends StatefulWidget {
+  /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
+
+  /// The image fit. Defaults to [UnityVideoFit.contain].
   final UnityVideoFit fit;
+
+  /// Builds the foreground of the video view.
   final UnityVideoPaneBuilder? paneBuilder;
+
+  /// Builds the video view itself. Can be used to wrap the video with some
+  /// widget.
   final UnityVideoBuilder? videoBuilder;
+
+  /// The background color of the view when nothing is painted. Defaults to
+  /// black.
   final Color color;
+
+  /// The hero tag for the video view.
+  ///
+  /// See also:
+  ///
+  ///   * [Hero.tag], the identifier for this particular hero.
   final dynamic heroTag;
 
+  /// Creates a new video view.
   const UnityVideoView({
     super.key,
     required this.player,
@@ -126,11 +166,11 @@ class UnityVideoView extends StatefulWidget {
   });
 
   static VideoViewInheritance of(BuildContext context) {
-    return _UnityVideoView.maybeOf(context)!;
+    return VideoViewInheritance.maybeOf(context)!;
   }
 
   static VideoViewInheritance? maybeOf(BuildContext context) {
-    return _UnityVideoView.maybeOf(context);
+    return VideoViewInheritance.maybeOf(context);
   }
 
   @override
@@ -143,6 +183,13 @@ class UnityVideoViewState extends State<UnityVideoView> {
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
   late StreamSubscription<Duration> _onPositionUpdateSubscription;
 
+  static const timerInterval = Duration(seconds: 6);
+  Timer? _oldImageTimer;
+  bool _isImageOld = false;
+  bool get isImageOld => _isImageOld;
+  DateTime? _lastImageTime;
+  DateTime? get lastImageUpdate => _lastImageTime;
+
   @override
   void initState() {
     super.initState();
@@ -150,7 +197,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
     _onDurationUpdateSubscription =
         widget.player.onDurationUpdate.listen(_onDurationUpdate);
     _onPositionUpdateSubscription =
-        widget.player.onCurrentPosUpdate.listen(_onDurationUpdate);
+        widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
   }
 
   @override
@@ -165,7 +212,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
       _onDurationUpdateSubscription =
           widget.player.onDurationUpdate.listen(_onDurationUpdate);
       _onPositionUpdateSubscription =
-          widget.player.onCurrentPosUpdate.listen(_onDurationUpdate);
+          widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
     }
   }
 
@@ -174,7 +221,29 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 
   void _onDurationUpdate(Duration duration) {
-    if (mounted) setState(() => error = null);
+    if (mounted) {
+      setState(() {
+        _lastImageTime = DateTime.now();
+        _isImageOld = false;
+        _oldImageTimer?.cancel();
+        _oldImageTimer = Timer(timerInterval, () {
+          if (!mounted) _oldImageTimer?.cancel();
+          // If the image is still the same after the interval, then it's old.
+          if (widget.player.duration <= duration) {
+            setState(() => _isImageOld = true);
+          }
+        });
+        error = null;
+      });
+    }
+  }
+
+  void _onPositionUpdate(Duration duration) {
+    if (mounted) {
+      setState(() {
+        error = null;
+      });
+    }
   }
 
   @override
@@ -182,16 +251,20 @@ class UnityVideoViewState extends State<UnityVideoView> {
     _onErrorSubscription.cancel();
     _onDurationUpdateSubscription.cancel();
     _onPositionUpdateSubscription.cancel();
+    _oldImageTimer?.cancel();
+    _oldImageTimer = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final videoView = _UnityVideoView(
+    final videoView = VideoViewInheritance(
       player: widget.player,
       error: error,
       position: widget.player.currentPos,
       duration: widget.player.duration,
+      isImageOld: isImageOld,
+      lastImageUpdate: lastImageUpdate,
       child: UnityVideoPlayerInterface.instance.createVideoView(
         player: widget.player,
         color: widget.color,

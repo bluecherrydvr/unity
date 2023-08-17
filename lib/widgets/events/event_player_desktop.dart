@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -140,6 +141,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
     const padd = SizedBox(width: 16.0);
 
+    final device = currentEvent.server.devices.firstWhereOrNull(
+      (d) => d.id == currentEvent.deviceID,
+    );
+
     return KeyboardListener(
       focusNode: focusNode,
       autofocus: true,
@@ -168,11 +173,22 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                           heroTag: currentEvent.mediaURL,
                           player: videoController,
                           paneBuilder: (context, controller) {
-                            final error = UnityVideoView.of(context).error;
-                            if (error != null) {
-                              return ErrorWarning(message: error);
-                            }
-                            return const SizedBox.shrink();
+                            final video = UnityVideoView.of(context);
+
+                            return Stack(children: [
+                              if (video.error != null)
+                                ErrorWarning(message: video.error!),
+                              if (device != null)
+                                Positioned(
+                                  bottom: 8.0,
+                                  right: 8.0,
+                                  child: VideoStatusLabel(
+                                    device: device,
+                                    video: video,
+                                    event: currentEvent,
+                                  ),
+                                ),
+                            ]);
                           },
                         ),
                       ),

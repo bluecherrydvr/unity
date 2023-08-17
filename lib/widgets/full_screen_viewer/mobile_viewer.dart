@@ -96,25 +96,31 @@ class _DeviceFullscreenViewerMobileState
         onExit: (_) {
           if (mounted) setState(() => overlay = false);
         },
-        child: Stack(children: [
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeInOut,
-            opacity: overlay ? 0.75 : 1.0,
-            child: GestureDetector(
-              onTapUp: (event) => toggleOverlay(event.kind),
-              onLongPressUp: toggleOverlay,
-              onDoubleTapDown: (event) => toggleOverlay(event.kind),
-              child: PTZController(
-                device: widget.device,
-                enabled: !overlay && ptzEnabled,
-                builder: (context, commands, constraints) {
-                  return UnityVideoView(
-                    heroTag: widget.device.streamURL,
-                    player: widget.videoPlayerController,
-                    fit: fit,
-                    paneBuilder: (context, controller) {
-                      final error = UnityVideoView.of(context).error;
+        child: GestureDetector(
+          onTapUp: (event) => toggleOverlay(event.kind),
+          onLongPressUp: toggleOverlay,
+          onDoubleTapDown: (event) => toggleOverlay(event.kind),
+          child: PTZController(
+            device: widget.device,
+            enabled: !overlay && ptzEnabled,
+            builder: (context, commands, constraints) {
+              return UnityVideoView(
+                heroTag: widget.device.streamURL,
+                player: widget.videoPlayerController,
+                fit: fit,
+                videoBuilder: (context, child) {
+                  return AnimatedOpacity(
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeInOut,
+                    opacity: overlay ? 0.75 : 1.0,
+                    child: child,
+                  );
+                },
+                paneBuilder: (context, controller) {
+                  final error = UnityVideoView.of(context).error;
+
+                  return Stack(children: [
+                    () {
                       if (error != null) {
                         return ErrorWarning(message: error);
                       } else if (!controller.isSeekable ||
@@ -150,113 +156,126 @@ class _DeviceFullscreenViewerMobileState
                             ),
                           ),
                         );
+                      } else {
+                        return const SizedBox.shrink();
                       }
-
-                      return const SizedBox.shrink();
-                    },
-                    // ),
-                  );
-                },
-              ),
-            ),
-          ),
-          PositionedDirectional(
-            top: 0.0,
-            start: 0.0,
-            end: 0.0,
-            child: AnimatedSlide(
-              offset: Offset(0, overlay ? 0.0 : -1.0),
-              duration: const Duration(milliseconds: 320),
-              curve: Curves.easeInOut,
-              child: ColoredBox(
-                color: Colors.black38,
-                child: ListTile(
-                  title: Text(
-                    widget.device.name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    widget.device.server.name,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  leading: IconButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: Icon(
-                      isCupertino ? Icons.arrow_back_ios : Icons.arrow_back,
-                    ),
-                    tooltip:
-                        MaterialLocalizations.of(context).backButtonTooltip,
-                    color: Colors.white,
-                  ),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    IconButton(
-                      tooltip: loc.cameraViewFit,
-                      onPressed: () {
-                        setState(() {
-                          fit = fit == UnityVideoFit.fill
-                              ? UnityVideoFit.contain
-                              : UnityVideoFit.fill;
-                        });
-                      },
-                      icon: const Icon(Icons.aspect_ratio),
-                      color: Colors.white,
-                    ),
-                    if (widget.device.hasPTZ) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.videogame_asset,
-                          color: ptzEnabled
-                              ? Colors.white
-                              : theme.colorScheme.onInverseSurface
-                                  .withOpacity(0.86),
+                    }(),
+                    PositionedDirectional(
+                      top: 0.0,
+                      start: 0.0,
+                      end: 0.0,
+                      child: AnimatedSlide(
+                        offset: Offset(0, overlay ? 0.0 : -1.0),
+                        duration: const Duration(milliseconds: 320),
+                        curve: Curves.easeInOut,
+                        child: ColoredBox(
+                          color: Colors.black38,
+                          child: ListTile(
+                            title: Text(
+                              widget.device.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              widget.device.server.name,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            leading: IconButton(
+                              onPressed: () => Navigator.of(context).maybePop(),
+                              icon: Icon(
+                                isCupertino
+                                    ? Icons.arrow_back_ios
+                                    : Icons.arrow_back,
+                              ),
+                              tooltip: MaterialLocalizations.of(context)
+                                  .backButtonTooltip,
+                              color: Colors.white,
+                            ),
+                            trailing:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              IconButton(
+                                tooltip: loc.cameraViewFit,
+                                onPressed: () {
+                                  setState(() {
+                                    fit = fit == UnityVideoFit.fill
+                                        ? UnityVideoFit.contain
+                                        : UnityVideoFit.fill;
+                                  });
+                                },
+                                icon: const Icon(Icons.aspect_ratio),
+                                color: Colors.white,
+                              ),
+                              if (widget.device.hasPTZ) ...[
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.videogame_asset,
+                                    color: ptzEnabled
+                                        ? Colors.white
+                                        : theme.colorScheme.onInverseSurface
+                                            .withOpacity(0.86),
+                                  ),
+                                  tooltip: ptzEnabled
+                                      ? loc.enabledPTZ
+                                      : loc.disabledPTZ,
+                                  onPressed: () =>
+                                      setState(() => ptzEnabled = !ptzEnabled),
+                                ),
+                                // TODO(bdlukaa): enable presets when the API is ready
+                                // IconButton(
+                                //   icon: Icon(
+                                //     Icons.dataset,
+                                //     color: ptzEnabled ? Colors.white : theme.disabledColor,
+                                //   ),
+                                //   tooltip: ptzEnabled
+                                //       ? loc.enabledPTZ
+                                //       : loc.disabledPTZ,
+                                //   onPressed: !ptzEnabled
+                                //       ? null
+                                //       : () {
+                                //           showDialog(
+                                //             context: context,
+                                //             builder: (context) {
+                                //               return PresetsDialog(device: widget.device);
+                                //             },
+                                //           );
+                                //         },
+                                // ),
+                              ],
+                              const SizedBox(width: 16.0),
+                            ]),
+                          ),
                         ),
-                        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                        onPressed: () =>
-                            setState(() => ptzEnabled = !ptzEnabled),
                       ),
-                      // TODO(bdlukaa): enable presets when the API is ready
-                      // IconButton(
-                      //   icon: Icon(
-                      //     Icons.dataset,
-                      //     color: ptzEnabled ? Colors.white : theme.disabledColor,
-                      //   ),
-                      //   tooltip: ptzEnabled
-                      //       ? loc.enabledPTZ
-                      //       : loc.disabledPTZ,
-                      //   onPressed: !ptzEnabled
-                      //       ? null
-                      //       : () {
-                      //           showDialog(
-                      //             context: context,
-                      //             builder: (context) {
-                      //               return PresetsDialog(device: widget.device);
-                      //             },
-                      //           );
-                      //         },
-                      // ),
-                    ],
-                    const SizedBox(width: 16.0),
-                  ]),
-                ),
-              ),
-            ),
+                    ),
+                    if (!overlay && ptzEnabled)
+                      PositionedDirectional(
+                        key: const ValueKey('restorer'),
+                        start: 14.0,
+                        top: 14.0,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white,
+                            size: 28.0,
+                          ),
+                          tooltip:
+                              MaterialLocalizations.of(context).showMenuTooltip,
+                          onPressed: toggleOverlay,
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 8.0,
+                      right: 8.0,
+                      child: VideoStatusLabel(
+                        device: widget.device,
+                        video: UnityVideoView.of(context),
+                      ),
+                    ),
+                  ]);
+                },
+              );
+            },
           ),
-          if (!overlay && ptzEnabled)
-            PositionedDirectional(
-              key: const ValueKey('restorer'),
-              start: 14.0,
-              top: 14.0,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: Colors.white,
-                  size: 28.0,
-                ),
-                tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-                onPressed: toggleOverlay,
-              ),
-            ),
-        ]),
+        ),
       ),
     );
   }

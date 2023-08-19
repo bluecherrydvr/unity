@@ -230,12 +230,16 @@ class _SettingsState extends State<Settings> {
                   ),
                   children: UnityVideoFit.values.map((e) {
                     return RadioListTile(
+                      contentPadding: const EdgeInsetsDirectional.only(
+                        start: 68.0,
+                        end: 16.0,
+                      ),
                       value: e,
                       groupValue: settings.cameraViewFit,
                       onChanged: (value) {
                         settings.cameraViewFit = e;
                       },
-                      secondary: const Icon(null),
+                      secondary: Icon(e.icon),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),

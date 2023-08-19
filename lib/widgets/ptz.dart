@@ -21,6 +21,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 typedef PTZComamndsBuilder = Widget Function(
   BuildContext context,
@@ -171,5 +172,92 @@ class _PTZControllerState extends State<PTZController> {
         });
       },
     );
+  }
+}
+
+/// This widget is used to display the PTZ commands sent to the server.
+///
+/// When the server receives the command, the command vanishes.
+class PTZData extends StatelessWidget {
+  final List<PTZControllerCommand> commands;
+
+  const PTZData({super.key, required this.commands});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Container(
+        margin: const EdgeInsetsDirectional.only(end: 16.0),
+        constraints: const BoxConstraints(minHeight: 140.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: commands.map<String>((cmd) {
+            switch (cmd.command) {
+              case PTZCommand.move:
+                return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+              case PTZCommand.stop:
+                return cmd.command.locale(context);
+            }
+          }).map<Widget>((text) {
+            return Text(
+              text,
+              style: const TextStyle(color: Colors.white),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+/// A button that toggles PTZ on/off.
+class PTZToggleButton extends StatelessWidget {
+  final bool ptzEnabled;
+  final ValueChanged<bool> onChanged;
+
+  const PTZToggleButton({
+    super.key,
+    required this.ptzEnabled,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Row(children: [
+      IconButton(
+        icon: Icon(
+          Icons.videogame_asset,
+          color: ptzEnabled
+              ? Colors.white
+              : theme.colorScheme.onInverseSurface.withOpacity(0.86),
+        ),
+        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
+        onPressed: () => onChanged(!ptzEnabled),
+      ),
+      // TODO(bdlukaa): enable presets when the API is ready
+      // IconButton(
+      //   icon: Icon(
+      //     Icons.dataset,
+      //     color: ptzEnabled ? Colors.white : theme.disabledColor,
+      //   ),
+      //   tooltip: ptzEnabled
+      //       ? loc.enabledPTZ
+      //       : loc.disabledPTZ,
+      //   onPressed: !ptzEnabled
+      //       ? null
+      //       : () {
+      //           showDialog(
+      //             context: context,
+      //             builder: (context) {
+      //               return PresetsDialog(device: widget.device);
+      //             },
+      //           );
+      //         },
+      // ),
+    ]);
   }
 }

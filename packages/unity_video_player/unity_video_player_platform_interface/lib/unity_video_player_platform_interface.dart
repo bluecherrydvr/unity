@@ -2,7 +2,7 @@ library unity_video_player_platform_interface;
 
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 typedef UnityVideoPaneBuilder = Widget Function(
@@ -18,7 +18,29 @@ typedef UnityVideoBuilder = Widget Function(
 enum UnityVideoFit {
   contain,
   fill,
-  cover,
+  cover;
+
+  IconData get icon {
+    switch (this) {
+      case UnityVideoFit.contain:
+        return Icons.fit_screen;
+      case UnityVideoFit.fill:
+        return Icons.aspect_ratio;
+      case UnityVideoFit.cover:
+        return Icons.image_aspect_ratio;
+    }
+  }
+
+  UnityVideoFit get next {
+    switch (this) {
+      case UnityVideoFit.contain:
+        return UnityVideoFit.fill;
+      case UnityVideoFit.fill:
+        return UnityVideoFit.cover;
+      case UnityVideoFit.cover:
+        return UnityVideoFit.contain;
+    }
+  }
 }
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
@@ -392,10 +414,10 @@ abstract class UnityVideoPlayer {
     List<String> url, {
     bool autoPlay = true,
   });
-  Future<void> setVolume(double volume);
 
-  /// The current media volume
-  Future<double> get volume;
+  Future<void> setVolume(double volume);
+  double get volume;
+  Stream<double> get volumeStream;
 
   Future<void> setSpeed(double speed);
   Future<void> seekTo(Duration position);

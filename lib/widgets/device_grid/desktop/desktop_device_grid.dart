@@ -381,13 +381,13 @@ const shadows = [
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
-  double? volume;
+  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late double? volume = widget.controller?.volume;
 
   void updateVolume() {
-    assert(widget.controller != null);
-    widget.controller?.volume.then((value) {
-      if (mounted) setState(() => volume = value);
-    });
+    if (widget.controller != null && mounted) {
+      setState(() => volume = widget.controller!.volume);
+    }
   }
 
   @override
@@ -455,22 +455,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           PositionedDirectional(
             end: 16.0,
             top: 50.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: commands.map<String>((cmd) {
-                switch (cmd.command) {
-                  case PTZCommand.move:
-                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-                  case PTZCommand.stop:
-                    return cmd.command.locale(context);
-                }
-              }).map<Widget>((text) {
-                return Text(
-                  text,
-                  style: const TextStyle(color: Colors.white70),
-                );
-              }).toList(),
-            ),
+            child: PTZData(commands: commands),
           ),
           if (video != null) ...[
             if (!widget.controller!.isSeekable)
@@ -494,37 +479,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 children: [
                   if (states.isHovering) ...[
                     const SizedBox(width: 12.0),
-                    if (widget.device.hasPTZ) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.videogame_asset,
-                          color: ptzEnabled ? Colors.white : null,
-                        ),
-                        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                        onPressed: () =>
-                            setState(() => ptzEnabled = !ptzEnabled),
+                    if (widget.device.hasPTZ)
+                      PTZToggleButton(
+                        ptzEnabled: ptzEnabled,
+                        onChanged: (enabled) =>
+                            setState(() => ptzEnabled = enabled),
                       ),
-                      // TODO(bdlukaa): enable presets when the API is ready
-                      // IconButton(
-                      //   icon: Icon(
-                      //     Icons.dataset,
-                      //     color: ptzEnabled ? Colors.white : null,
-                      //   ),
-                      //   tooltip: ptzEnabled
-                      //       ? loc.enabledPTZ
-                      //       : loc.disabledPTZ,
-                      //   onPressed: !ptzEnabled
-                      //       ? null
-                      //       : () {
-                      //           showDialog(
-                      //             context: context,
-                      //             builder: (context) {
-                      //               return PresetsDialog(device: widget.device);
-                      //             },
-                      //           );
-                      //         },
-                      // ),
-                    ],
                     const Spacer(),
                     () {
                       final isMuted = volume == 0.0;
@@ -550,10 +510,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
-                    if (isDesktop && !isSubView)
+                    if (isDesktopPlatform && !isSubView)
                       IconButton(
                         icon: Icon(
-                          Icons.open_in_new,
+                          Icons.open_in_new_sharp,
                           shadows: outlinedText(),
                         ),
                         tooltip: loc.openInANewWindow,
@@ -601,8 +561,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       iconSize: 18.0,
                       onPressed: () => view.reload(widget.device),
                     ),
-                    const SizedBox(width: 12.0),
                   ],
+                  CameraViewFitButton(
+                    fit: fit,
+                    onChanged: (value) => setState(() => fit = value),
+                  ),
+                  const SizedBox(width: 12.0),
                   Padding(
                     padding: const EdgeInsetsDirectional.only(
                       end: 6.0,

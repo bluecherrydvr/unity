@@ -33,17 +33,17 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
 import 'package:bluecherry_client/widgets/home.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/multi_window/single_camera_window.dart';
 import 'package:bluecherry_client/widgets/multi_window/single_layout_window.dart';
 import 'package:bluecherry_client/widgets/multi_window/window.dart';
+import 'package:bluecherry_client/widgets/player/live_player.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +62,7 @@ Future<void> main(List<String> args) async {
   // On windows, the window is hidden until flutter draws its first frame.
   // To create a splash screen effect while the dependencies are loading, we
   // can run the [SplashScreen] widget as the app.
-  if (isDesktop) {
+  if (isDesktopPlatform) {
     await configureWindow();
     runApp(const SplashScreen());
   }
@@ -71,7 +71,7 @@ Future<void> main(List<String> args) async {
   await UnityVideoPlayerInterface.instance.initialize();
   await configureStorage();
 
-  if (isDesktop && args.isNotEmpty) {
+  if (isDesktopPlatform && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
     try {
       // this is just a mock. HomeProvider depends on this, so we mock the instance
@@ -113,7 +113,7 @@ Future<void> main(List<String> args) async {
   // Request notifications permission for iOS, Android 13+ and Windows.
   //
   // permission_handler only supports these platforms
-  if (isMobile || Platform.isWindows) {
+  if (isMobilePlatform || Platform.isWindows) {
     () async {
       if (await Permission.notification.isDenied) {
         final state = await Permission.notification.request();
@@ -139,8 +139,8 @@ Future<void> main(List<String> args) async {
     UpdateManager.ensureInitialized(),
   ]);
 
-  /// Firebase messaging isn't available on desktop platforms
-  if (kIsWeb || isMobile || Platform.isMacOS) {
+  /// Firebase messaging isn't available on windows nor linux
+  if (kIsWeb || isMobilePlatform || Platform.isMacOS) {
     FirebaseConfiguration.ensureInitialized();
   }
 
@@ -233,10 +233,9 @@ class UnityApp extends StatelessWidget {
                   arguments: device,
                 ),
                 builder: (context) {
-                  return DeviceFullscreenViewer(
+                  return LivePlayer(
+                    player: player,
                     device: device,
-                    videoPlayerController: player,
-                    restoreStatusBarStyleOnDispose: true,
                     ptzEnabled: ptzEnabled,
                   );
                 },

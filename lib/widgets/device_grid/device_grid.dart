@@ -30,6 +30,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';

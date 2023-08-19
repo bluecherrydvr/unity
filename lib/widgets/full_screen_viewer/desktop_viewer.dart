@@ -43,9 +43,7 @@ class _DeviceFullscreenViewerDesktopState
     return Material(
       child: Column(children: [
         if (isMobile)
-          AppBar(
-            title: Text(widget.device.fullName),
-          )
+          AppBar(title: Text(widget.device.fullName))
         else
           WindowButtons(title: widget.device.fullName, showNavigator: false),
         Expanded(

@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/update.dart';
@@ -89,13 +90,9 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
-              SliverToBoxAdapter(
-                child: SubHeader(loc.servers),
-              ),
+              SliverToBoxAdapter(child: SubHeader(loc.servers)),
               const SliverToBoxAdapter(child: ServersList()),
-              SliverToBoxAdapter(
-                child: SubHeader(loc.theme),
-              ),
+              SliverToBoxAdapter(child: SubHeader(loc.theme)),
               SliverList.list(
                   children: ThemeMode.values.map((e) {
                 return ListTile(

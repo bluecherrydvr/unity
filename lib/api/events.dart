@@ -4,7 +4,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';

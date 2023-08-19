@@ -20,7 +20,6 @@
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

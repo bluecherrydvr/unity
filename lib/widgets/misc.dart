@@ -20,54 +20,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bluecherry_client/main.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
-bool get isDesktop {
-  if (kIsWeb) return false;
-  return [
-    TargetPlatform.windows,
-    TargetPlatform.linux,
-    TargetPlatform.macOS,
-  ].contains(defaultTargetPlatform);
-}
 
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
-
-bool get isMobile => Platform.isAndroid || Platform.isIOS;
-
-/// Whether the current platform is iOS or macOS
-bool get isCupertino {
-  final cupertinoPlatforms = [TargetPlatform.iOS, TargetPlatform.macOS];
-  final navigatorContext = navigatorKey.currentContext;
-  if (navigatorContext != null) {
-    final theme = Theme.of(navigatorContext);
-    return cupertinoPlatforms.contains(theme.platform);
-  }
-
-  return cupertinoPlatforms.contains(defaultTargetPlatform);
-}
-
-/// Determines the amount of events that can be loaded at once.
-///
-/// The calculation is based on the current connectivity status. If the device
-/// is connected to a WiFi network, then it returns 750, otherwise it returns
-/// 200.
-Future<int> get eventsLimit async {
-  final connectivityResult = await Connectivity().checkConnectivity();
-
-  switch (connectivityResult) {
-    case ConnectivityResult.wifi:
-    case ConnectivityResult.ethernet:
-    case ConnectivityResult.vpn:
-      return 750;
-    default:
-      return 200;
-  }
-}
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;

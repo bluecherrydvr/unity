@@ -27,11 +27,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+/// A widget that provides a [Window] for the [child] widget.
+///
+/// This is used to provide an app for secondary windows.
 class AlternativeWindow extends StatefulWidget {
   final ThemeMode mode;
 
   final Widget child;
 
+  /// Creates a new [AlternativeWindow] instance.
   const AlternativeWindow({
     Key? key,
     required this.mode,

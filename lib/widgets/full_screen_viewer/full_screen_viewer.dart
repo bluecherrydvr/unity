@@ -26,7 +26,6 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

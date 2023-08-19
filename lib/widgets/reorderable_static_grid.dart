@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderables/reorderables.dart';
 

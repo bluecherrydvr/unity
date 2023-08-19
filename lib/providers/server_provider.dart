@@ -24,8 +24,8 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 
 /// This class manages & saves (caching) the currently added [Server]s by the user.
@@ -79,7 +79,7 @@ class ServersProvider extends ChangeNotifier {
     await _save();
     refreshDevices();
 
-    if (isMobile) {
+    if (isMobilePlatform) {
       // Register notification token.
       try {
         final data = await serversStorage.read() as Map;

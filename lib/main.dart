@@ -76,6 +76,7 @@ Future<void> main(List<String> args) async {
     try {
       // this is just a mock. HomeProvider depends on this, so we mock the instance
       ServersProvider.instance = ServersProvider();
+      await SettingsProvider.ensureInitialized();
       await DesktopViewProvider.ensureInitialized();
 
       final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];

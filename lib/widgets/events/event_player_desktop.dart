@@ -31,6 +31,7 @@ import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/player/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -60,6 +61,8 @@ class EventPlayerDesktop extends StatefulWidget {
 class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   late Event currentEvent;
   final focusNode = FocusNode();
+
+  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
 
   late final videoController = widget.player ??
       UnityVideoPlayer.create(
@@ -172,22 +175,35 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                         child: UnityVideoView(
                           heroTag: currentEvent.mediaURL,
                           player: videoController,
+                          fit: fit,
                           paneBuilder: (context, controller) {
                             final video = UnityVideoView.of(context);
 
                             return Stack(children: [
                               if (video.error != null)
                                 ErrorWarning(message: video.error!),
-                              if (device != null)
-                                Positioned(
-                                  bottom: 8.0,
-                                  right: 8.0,
-                                  child: VideoStatusLabel(
-                                    device: device,
-                                    video: video,
-                                    event: currentEvent,
+                              Positioned(
+                                bottom: 8.0,
+                                right: 8.0,
+                                child: Row(children: [
+                                  CameraViewFitButton(
+                                    fit: fit,
+                                    onChanged: (value) =>
+                                        setState(() => fit = value),
                                   ),
-                                ),
+                                  if (device != null)
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: 8.0,
+                                      ),
+                                      child: VideoStatusLabel(
+                                        device: device,
+                                        video: video,
+                                        event: currentEvent,
+                                      ),
+                                    ),
+                                ]),
+                              ),
                             ]);
                           },
                         ),

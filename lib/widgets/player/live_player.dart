@@ -68,7 +68,7 @@ class _LivePlayerState extends State<LivePlayer> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth <= kMobileBreakpoint.width) {
+      if (consts.maxWidth >= kMobileBreakpoint.width) {
         return _DesktopLivePlayer(
           player: widget.player,
           device: widget.device,
@@ -331,6 +331,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
               fit: fit,
               paneBuilder: (context, player) {
                 return Stack(children: [
+                  if (commands.isNotEmpty) PTZData(commands: commands),
                   PositionedDirectional(
                     bottom: 8.0,
                     end: 8.0,

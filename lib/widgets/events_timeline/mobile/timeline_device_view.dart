@@ -318,6 +318,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             return UnityVideoView(
               heroTag: currentEvent!.videoUrl,
               player: tile.videoController,
+              fit: settings.cameraViewFit,
               paneBuilder: !kDebugMode
                   ? null
                   : (context, controller) {

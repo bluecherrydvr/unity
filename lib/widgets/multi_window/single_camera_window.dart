@@ -20,6 +20,7 @@
 import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class CameraView extends StatefulWidget {
 class _CameraViewState extends State<CameraView> {
   late final UnityVideoPlayer controller;
   late final StreamSubscription _durationSubscription;
+  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
 
   @override
   void initState() {
@@ -69,10 +71,12 @@ class _CameraViewState extends State<CameraView> {
         Expanded(
           child: UnityVideoView(
             player: controller,
+            fit: fit,
             paneBuilder: (context, controller) {
               return DesktopTileViewport(
                 controller: controller,
                 device: widget.device,
+                onFitChanged: (fit) => setState(() => this.fit = fit),
               );
             },
           ),

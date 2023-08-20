@@ -103,7 +103,7 @@ extension NotificationExtensions on NotificationClickAction {
 }
 
 extension CameraViewFitExtension on UnityVideoFit {
-  String str(BuildContext context) {
+  String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return {
       UnityVideoFit.contain: loc.contain,

@@ -105,6 +105,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     return Scaffold(
       body: Column(children: [
         const WindowButtons(showNavigator: false),
@@ -113,6 +114,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
             child: UnityVideoView(
               heroTag: widget.event.mediaURL,
               player: videoController,
+              fit: settings.cameraViewFit,
               videoBuilder: (context, video) {
                 return InteractiveViewer(
                   minScale: 1.0,

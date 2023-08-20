@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class CameraViewFitButton extends StatelessWidget {
@@ -34,9 +34,8 @@ class CameraViewFitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return IconButton(
-      tooltip: loc.cameraViewFit,
+      tooltip: fit.locale(context),
       onPressed: () => onChanged(fit.next),
       iconSize: 18.0,
       icon: Icon(fit.icon, shadows: outlinedText()),

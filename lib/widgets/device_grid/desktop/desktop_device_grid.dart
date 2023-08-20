@@ -275,28 +275,44 @@ class LayoutView extends StatelessWidget {
   }
 }
 
-class DesktopDeviceTile extends StatelessWidget {
+class DesktopDeviceTile extends StatefulWidget {
   const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
   @override
+  State<DesktopDeviceTile> createState() => _DesktopDeviceTileState();
+}
+
+class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
+  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+
+  @override
   Widget build(BuildContext context) {
-    final videoPlayer = UnityPlayers.players[device];
+    final videoPlayer = UnityPlayers.players[widget.device];
 
     if (videoPlayer == null) {
       return Card(
         clipBehavior: Clip.hardEdge,
-        child: DesktopTileViewport(controller: null, device: device),
+        child: DesktopTileViewport(
+          controller: null,
+          device: widget.device,
+          onFitChanged: (fit) => setState(() => this.fit = fit),
+        ),
       );
     }
 
     return UnityVideoView(
-      key: ValueKey(device.fullName),
-      heroTag: device.streamURL,
+      key: ValueKey(widget.device.fullName),
+      heroTag: widget.device.streamURL,
       player: videoPlayer,
+      fit: fit,
       paneBuilder: (context, controller) {
-        return DesktopTileViewport(controller: controller, device: device);
+        return DesktopTileViewport(
+          controller: controller,
+          device: widget.device,
+          onFitChanged: (fit) => setState(() => this.fit = fit),
+        );
       },
     );
   }
@@ -348,40 +364,22 @@ class DesktopCompactTile extends StatelessWidget {
 class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
+  final ValueChanged<UnityVideoFit> onFitChanged;
 
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
+    required this.onFitChanged,
   });
 
   @override
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
-const shadows = [
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(-4, -4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(4, 4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(-4, 4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(4, -4),
-  ),
-];
-
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
   late double? volume = widget.controller?.volume;
 
   void updateVolume() {
@@ -561,11 +559,14 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       iconSize: 18.0,
                       onPressed: () => view.reload(widget.device),
                     ),
+                    CameraViewFitButton(
+                      fit: context
+                              .findAncestorWidgetOfExactType<UnityVideoView>()
+                              ?.fit ??
+                          SettingsProvider.instance.cameraViewFit,
+                      onChanged: widget.onFitChanged,
+                    ),
                   ],
-                  CameraViewFitButton(
-                    fit: fit,
-                    onChanged: (value) => setState(() => fit = value),
-                  ),
                   const SizedBox(width: 12.0),
                   Padding(
                     padding: const EdgeInsetsDirectional.only(

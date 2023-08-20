@@ -223,7 +223,7 @@ class _SettingsState extends State<Settings> {
                   title: Text(loc.cameraViewFit),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    settings.cameraViewFit.str(context),
+                    settings.cameraViewFit.locale(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
@@ -243,9 +243,7 @@ class _SettingsState extends State<Settings> {
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: Text(
-                          e.str(context),
-                        ),
+                        child: Text(e.locale(context)),
                       ),
                     );
                   }).toList(),

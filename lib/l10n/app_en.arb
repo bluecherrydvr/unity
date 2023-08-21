@@ -69,6 +69,7 @@
   "date": "Date",
   "lastUpdate": "Last Update",
   "theme": "Theme",
+  "themeDescription": "Change the appearance of the app",
   "system": "System",
   "light": "Light",
   "dark": "Dark",
@@ -86,6 +87,12 @@
   },
   "pressBackAgainToExit": "Press back button again to exit",
   "servers": "Servers",
+  "nServers": "{n, plural, =0{No servers} =1{1 server} other{{n} servers}}",
+  "@nServers": {
+    "placeholders": {
+      "n": {"type": "int", "example": "1"}
+    }
+  },
   "dateFormat": "Date Format",
   "timeFormat": "Time Format",
   "nDevices": "{n} devices",
@@ -103,7 +110,7 @@
   },
   "yes": "Yes",
   "no": "No",
-  "version": "Version",
+  "about": "About",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
   "snooze15": "15 minutes",
   "snooze30": "30 minutes",

@@ -77,9 +77,15 @@ class HomeProvider extends ChangeNotifier {
       initiallyExpandedDownloadEventId = null;
     }
 
+    if (tab != UnityTab.addServer.index) {
+      automaticallyGoToAddServersScreen = false;
+    }
+
     notifyListeners();
     refreshDeviceOrientation(context);
   }
+
+  bool automaticallyGoToAddServersScreen = false;
 
   int? initiallyExpandedDownloadEventId;
   void toDownloads(int eventId, BuildContext context) {

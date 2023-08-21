@@ -67,6 +67,7 @@ class _SettingsState extends State<Settings> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final update = context.watch<UpdateManager>();
+    final servers = context.watch<ServersProvider>();
 
     return Material(
       type: MaterialType.transparency,
@@ -80,9 +81,19 @@ class _SettingsState extends State<Settings> {
             ),
           Expanded(
             child: CustomScrollView(slivers: [
-              SliverToBoxAdapter(child: SubHeader(loc.servers)),
+              SliverToBoxAdapter(
+                child: SubHeader(
+                  loc.servers,
+                  subtext: loc.nServers(servers.servers.length),
+                ),
+              ),
               const SliverToBoxAdapter(child: ServersList()),
-              SliverToBoxAdapter(child: SubHeader(loc.theme)),
+              SliverToBoxAdapter(
+                child: SubHeader(
+                  loc.theme,
+                  subtext: loc.themeDescription,
+                ),
+              ),
               SliverList.list(
                   children: ThemeMode.values.map((e) {
                 return ListTile(
@@ -291,7 +302,7 @@ class _SettingsState extends State<Settings> {
                 ),
               ]),
               const SliverToBoxAdapter(child: DateTimeSection()),
-              SliverToBoxAdapter(child: SubHeader(loc.version)),
+              SliverToBoxAdapter(child: SubHeader(loc.about)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),

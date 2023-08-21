@@ -19,6 +19,8 @@
 
 part of '../device_grid.dart';
 
+const _kReverseBreakpoint = 900.0;
+
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
@@ -53,7 +55,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
 
-    final isReversed = widget.width <= 900;
+    final isReversed = widget.width <= _kReverseBreakpoint;
 
     final children = [
       CollapsableSidebar(
@@ -266,11 +268,16 @@ class LayoutView extends StatelessWidget {
           );
         }
 
+        final isReversed =
+            context.findAncestorWidgetOfExactType<DesktopDeviceGrid>()!.width <
+                _kReverseBreakpoint;
+
         return Material(
           color: Colors.black,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadiusDirectional.only(
-              topStart: Radius.circular(8.0),
+              topStart: isReversed ? Radius.zero : const Radius.circular(8.0),
+              topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
             ),
           ),
           child: Center(child: child),

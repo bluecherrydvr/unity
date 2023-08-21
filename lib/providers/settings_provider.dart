@@ -35,6 +35,8 @@ class SettingsProvider extends ChangeNotifier {
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
+  // TODO(bdlukaa): consider using https://github.com/Nikoro/system_date_time_format
+  // to get the system date/time format
   static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const kDefaultTimeFormat = 'hh:mm a';
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);

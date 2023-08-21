@@ -192,7 +192,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   if (action.buttonKeyPressed.isEmpty) {
     debugPrint('action.buttonKeyPressed.isEmpty');
     // Fetch device & server details to show the [DeviceFullscreenViewer].
-    if (SettingsProvider.instance.notificationClickAction ==
+    if (SettingsProvider.instance.notificationClickBehavior ==
         NotificationClickAction.showFullscreenCamera) {
       final eventType = action.payload!['eventType'];
       final serverUUID = action.payload!['serverId'];

@@ -116,7 +116,7 @@
   "noDevices": "Aucun appareil",
   "noEventsFound": "Aucun événement trouvé",
   "invalidResponse": "Réponse invalide reçu du serveur",
-  "notificationClickAction": "Action de clic sur les notifications",
+  "notificationClickBehavior": "Action de clic sur les notifications",
   "showFullscreenCamera": "Montrer en plein écran",
   "openInANewWindow": "Ouvrir dans une nouvelle fenêtre",
   "enableAudio": "Activer l'audio",

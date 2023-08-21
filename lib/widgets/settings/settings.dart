@@ -187,10 +187,10 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.beenhere_rounded),
                   ),
-                  title: Text(loc.notificationClickAction),
+                  title: Text(loc.notificationClickBehavior),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    settings.notificationClickAction.str(context),
+                    settings.notificationClickBehavior.str(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
@@ -198,9 +198,9 @@ class _SettingsState extends State<Settings> {
                   children: NotificationClickAction.values.map((e) {
                     return RadioListTile(
                       value: e,
-                      groupValue: settings.notificationClickAction,
+                      groupValue: settings.notificationClickBehavior,
                       onChanged: (value) {
-                        settings.notificationClickAction = e;
+                        settings.notificationClickBehavior = e;
                       },
                       secondary: const Icon(null),
                       controlAffinity: ListTileControlAffinity.trailing,

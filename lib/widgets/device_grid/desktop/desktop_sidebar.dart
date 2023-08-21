@@ -20,8 +20,8 @@
 part of '../device_grid.dart';
 
 const kDeviceSelectorTileHeight = 32.0;
-const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
-const kCompactSidebarConstraints = BoxConstraints(maxWidth: 65.0);
+const kSidebarConstraints = BoxConstraints(maxWidth: 256.0);
+const kCompactSidebarConstraints = BoxConstraints(maxWidth: 80.0);
 
 class DesktopSidebar extends StatefulWidget {
   final Widget collapseButton;

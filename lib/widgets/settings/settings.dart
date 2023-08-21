@@ -40,7 +40,7 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-part 'date_format_section.dart';
+part 'date_time.dart';
 part 'server_tile.dart';
 
 typedef ChangeTabCallback = void Function(int tab);
@@ -67,16 +67,6 @@ class _SettingsState extends State<Settings> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final update = context.watch<UpdateManager>();
-
-    const divider = SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsetsDirectional.only(top: 8.0),
-        child: Divider(
-          height: 1.0,
-          thickness: 1.0,
-        ),
-      ),
-    );
 
     return Material(
       type: MaterialType.transparency,
@@ -123,7 +113,6 @@ class _SettingsState extends State<Settings> {
                 );
               }).toList()),
               if (update.isUpdatingSupported) ...[
-                divider,
                 SliverToBoxAdapter(
                   child: SubHeader(
                     loc.updates,
@@ -141,7 +130,6 @@ class _SettingsState extends State<Settings> {
                 const SliverToBoxAdapter(child: AppUpdateCard()),
                 const SliverToBoxAdapter(child: AppUpdateOptions()),
               ],
-              divider,
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 CorrectedListTile(
@@ -249,7 +237,8 @@ class _SettingsState extends State<Settings> {
                   }).toList(),
                 ),
                 CorrectedListTile(
-                  iconData: Icons.download,
+                  iconData: Icons.folder,
+                  trailing: Icons.navigate_next,
                   title: loc.downloadPath,
                   subtitle: settings.downloadsDirectory,
                   height: 72.0,
@@ -301,49 +290,7 @@ class _SettingsState extends State<Settings> {
                   }).toList(),
                 ),
               ]),
-              divider,
-              SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),
-              const SliverToBoxAdapter(child: DateFormatSection()),
-              divider,
-              SliverToBoxAdapter(child: SubHeader(loc.timeFormat)),
-              SliverList.list(
-                  children: [
-                'HH:mm',
-                'hh:mm a',
-              ].map((pattern) {
-                return ListTile(
-                  onTap: () {
-                    settings.timeFormat = DateFormat(pattern, 'en_US');
-                  },
-                  trailing: Radio(
-                    value: pattern,
-                    groupValue: settings.timeFormat.pattern,
-                    onChanged: (value) {
-                      settings.timeFormat = DateFormat(pattern, 'en_US');
-                    },
-                  ),
-                  title: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8.0),
-                    child: Text(
-                      DateFormat(pattern, 'en_US').format(
-                        DateTime.utc(1969, 7, 20, 14, 18, 04),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList()),
-              divider,
-              // SubHeader('Language'),
-              // SliverList(
-              //   delegate: SliverChildListDelegate(
-              //     AppLocalizations.supportedLocales.map((locale) {
-              //       return ListTile(
-              //         title: Text(locale.languageCode),
-              //       );
-              //     }).toList(),
-              //   ),
-              // ),
-              // divider,
+              const SliverToBoxAdapter(child: DateTimeSection()),
               SliverToBoxAdapter(child: SubHeader(loc.version)),
               SliverToBoxAdapter(
                 child: Padding(
@@ -370,6 +317,7 @@ class _SettingsState extends State<Settings> {
                         minWidth: 0.0,
                         child: Text(
                           loc.website,
+                          semanticsLabel: 'www.bluecherrydvr.com',
                           style: TextStyle(
                             color: theme.colorScheme.primary,
                           ),

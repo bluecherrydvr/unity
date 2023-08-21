@@ -111,6 +111,17 @@ extension CameraViewFitExtension on UnityVideoFit {
       UnityVideoFit.fill: loc.fill,
     }[this]!;
   }
+
+  IconData get icon {
+    switch (this) {
+      case UnityVideoFit.contain:
+        return Icons.fit_screen;
+      case UnityVideoFit.fill:
+        return Icons.rectangle_rounded;
+      case UnityVideoFit.cover:
+        return Icons.aspect_ratio;
+    }
+  }
 }
 
 extension UnityVideoQualityExtension on UnityVideoQuality {

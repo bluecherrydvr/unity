@@ -2,7 +2,7 @@ library unity_video_player_platform_interface;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 typedef UnityVideoPaneBuilder = Widget Function(
@@ -19,17 +19,6 @@ enum UnityVideoFit {
   contain,
   fill,
   cover;
-
-  IconData get icon {
-    switch (this) {
-      case UnityVideoFit.contain:
-        return Icons.fit_screen;
-      case UnityVideoFit.fill:
-        return Icons.aspect_ratio;
-      case UnityVideoFit.cover:
-        return Icons.image_aspect_ratio;
-    }
-  }
 
   UnityVideoFit get next {
     switch (this) {

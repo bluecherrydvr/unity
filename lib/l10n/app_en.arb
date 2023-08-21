@@ -29,14 +29,14 @@
   "errorTextField": "{field} is not entered.",
   "@errorTextField": {
     "placeholders": {
-      "field": {}
+      "field": {"type": "String"}
     }
   },
   "serverAdded": "Server has been added",
   "serverNotAddedError": "{serverName} could not be added. Please check the entered details and check if the server is online.",
   "@serverNotAddedError": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {"type": "String"}
     }
   },
   "noServersAvailable": "No servers available",
@@ -81,7 +81,7 @@
   "editServer": "Edit server {serverName}",
   "@editServer": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {"type": "String"}
     }
   },
   "pressBackAgainToExit": "Press back button again to exit",
@@ -91,14 +91,14 @@
   "nDevices": "{n} devices",
   "@nDevices": {
     "placeholders": {
-      "n": {}
+      "n": {"type": "int"}
     }
   },
   "remove": "Remove ?",
   "removeServerDescription": "{serverName} will be removed from the application. You'll not be able to view cameras from this server & will no longer receive notifications.",
   "@removeServerDescription": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {"type": "String"}
     }
   },
   "yes": "Yes",
@@ -115,7 +115,7 @@
   "snoozedUntil": "Snoozed until {time}",
   "@snoozedUntil": {
     "placeholders": {
-      "time": {}
+      "time": {"type": "String"}
     }
   },
   "cameraViewFit": "Camera View Fit",
@@ -160,14 +160,15 @@
   "seeInDownloads": "See in Downloads",
   "delete": "Delete",
   "showInFiles": "Show in Files",
-  "noDownloads": "You have no downloads",
+  "noDownloads": "You haven't downloaded anything yet :/",
+  "howToDownload": "Go to the \"Events History\" screen to download events.",
   "downloadTitle": "{event} on {device} under server {server} at {date}",
   "@downloadTitle": {
     "placeholders": {
-      "event": {},
-      "device": {},
-      "server": {},
-      "date": {}
+      "event": {"type": "String"},
+      "device": {"type": "String"},
+      "server": {"type": "String"},
+      "date": {"type": "String"}
     }
   },
   "downloadPath": "Download path",
@@ -177,13 +178,13 @@
   "volume": "Volume • {v}",
   "@volume": {
     "placeholders": {
-      "v": {}
+      "v": {"type": "String"}
     }
   },
   "speed": "Speed • {s}",
   "@speed": {
     "placeholders": {
-      "s": {}
+      "s": {"type": "String"}
     }
   },
   "noRecords": "This camera has no records in the current period",
@@ -198,7 +199,7 @@
   "nEvents": "{n} events",
   "@nEvents": {
     "placeholders": {
-      "n": {}
+      "n": {"type": "int"}
     }
   },
   "@Event Priorities": {},
@@ -260,7 +261,7 @@
   "lastChecked": "Last checked: {date}",
   "@lastChecked": {
     "placeholders": {
-      "date": {}
+      "date": {"type": "String"}
     }
   },
   "checkForUpdates": "Check for updates",
@@ -277,7 +278,7 @@
   "runningOn": "Running on {platform}",
   "@runningOn": {
     "placeholders": {
-      "platform": {}
+      "platform": {"type": "String"}
     }
   }
 }

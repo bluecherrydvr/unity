@@ -122,6 +122,7 @@ class CorrectedListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final double? height;
+  final IconData? trailing;
 
   const CorrectedListTile({
     super.key,
@@ -130,6 +131,7 @@ class CorrectedListTile extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.height,
+    this.trailing,
   });
 
   @override
@@ -173,6 +175,14 @@ class CorrectedListTile extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null)
+            Container(
+              margin: const EdgeInsetsDirectional.only(start: 12.0),
+              alignment: AlignmentDirectional.center,
+              width: 40.0,
+              height: 40.0,
+              child: Icon(trailing, color: theme.colorScheme.primary),
+            ),
           const SizedBox(width: 16.0),
         ]),
       ),

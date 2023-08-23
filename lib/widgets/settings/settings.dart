@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/update.dart';
@@ -39,7 +40,7 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-part 'date_format_section.dart';
+part 'date_time.dart';
 part 'server_tile.dart';
 
 typedef ChangeTabCallback = void Function(int tab);
@@ -66,16 +67,7 @@ class _SettingsState extends State<Settings> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final update = context.watch<UpdateManager>();
-
-    const divider = SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsetsDirectional.only(top: 8.0),
-        child: Divider(
-          height: 1.0,
-          thickness: 1.0,
-        ),
-      ),
-    );
+    final servers = context.watch<ServersProvider>();
 
     return Material(
       type: MaterialType.transparency,
@@ -90,11 +82,17 @@ class _SettingsState extends State<Settings> {
           Expanded(
             child: CustomScrollView(slivers: [
               SliverToBoxAdapter(
-                child: SubHeader(loc.servers),
+                child: SubHeader(
+                  loc.servers,
+                  subtext: loc.nServers(servers.servers.length),
+                ),
               ),
               const SliverToBoxAdapter(child: ServersList()),
               SliverToBoxAdapter(
-                child: SubHeader(loc.theme),
+                child: SubHeader(
+                  loc.theme,
+                  subtext: loc.themeDescription,
+                ),
               ),
               SliverList.list(
                   children: ThemeMode.values.map((e) {
@@ -126,7 +124,6 @@ class _SettingsState extends State<Settings> {
                 );
               }).toList()),
               if (update.isUpdatingSupported) ...[
-                divider,
                 SliverToBoxAdapter(
                   child: SubHeader(
                     loc.updates,
@@ -144,11 +141,10 @@ class _SettingsState extends State<Settings> {
                 const SliverToBoxAdapter(child: AppUpdateCard()),
                 const SliverToBoxAdapter(child: AppUpdateOptions()),
               ],
-              divider,
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 CorrectedListTile(
-                  iconData: Icons.message,
+                  iconData: Icons.notifications_paused,
                   onTap: () async {
                     if (settings.snoozedUntil.isAfter(DateTime.now())) {
                       settings.snoozedUntil =
@@ -191,10 +187,10 @@ class _SettingsState extends State<Settings> {
                     foregroundColor: theme.iconTheme.color,
                     child: const Icon(Icons.beenhere_rounded),
                   ),
-                  title: Text(loc.notificationClickAction),
+                  title: Text(loc.notificationClickBehavior),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    settings.notificationClickAction.str(context),
+                    settings.notificationClickBehavior.str(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
@@ -202,9 +198,9 @@ class _SettingsState extends State<Settings> {
                   children: NotificationClickAction.values.map((e) {
                     return RadioListTile(
                       value: e,
-                      groupValue: settings.notificationClickAction,
+                      groupValue: settings.notificationClickBehavior,
                       onChanged: (value) {
-                        settings.notificationClickAction = e;
+                        settings.notificationClickBehavior = e;
                       },
                       secondary: const Icon(null),
                       controlAffinity: ListTileControlAffinity.trailing,
@@ -219,38 +215,41 @@ class _SettingsState extends State<Settings> {
                 ),
                 ExpansionTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: const Color.fromRGBO(0, 0, 0, 0),
                     foregroundColor: theme.iconTheme.color,
-                    child: const Icon(Icons.camera_alt),
+                    child: const Icon(Icons.fit_screen),
                   ),
                   title: Text(loc.cameraViewFit),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    settings.cameraViewFit.str(context),
+                    settings.cameraViewFit.locale(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
                   ),
                   children: UnityVideoFit.values.map((e) {
                     return RadioListTile(
+                      contentPadding: const EdgeInsetsDirectional.only(
+                        start: 68.0,
+                        end: 16.0,
+                      ),
                       value: e,
                       groupValue: settings.cameraViewFit,
                       onChanged: (value) {
                         settings.cameraViewFit = e;
                       },
-                      secondary: const Icon(null),
+                      secondary: Icon(e.icon),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: Text(
-                          e.str(context),
-                        ),
+                        child: Text(e.locale(context)),
                       ),
                     );
                   }).toList(),
                 ),
                 CorrectedListTile(
-                  iconData: Icons.download,
+                  iconData: Icons.folder,
+                  trailing: Icons.navigate_next,
                   title: loc.downloadPath,
                   subtitle: settings.downloadsDirectory,
                   height: 72.0,
@@ -302,52 +301,8 @@ class _SettingsState extends State<Settings> {
                   }).toList(),
                 ),
               ]),
-              divider,
-              SliverToBoxAdapter(child: SubHeader(loc.dateFormat)),
-              const SliverToBoxAdapter(child: DateFormatSection()),
-              divider,
-              SliverToBoxAdapter(child: SubHeader(loc.timeFormat)),
-              SliverList.list(
-                  children: [
-                'HH:mm',
-                'hh:mm a',
-              ].map((pattern) {
-                return ListTile(
-                  onTap: () {
-                    settings.timeFormat = DateFormat(pattern, 'en_US');
-                  },
-                  trailing: Radio(
-                    value: pattern,
-                    groupValue: settings.timeFormat.pattern,
-                    onChanged: (value) {
-                      settings.timeFormat = DateFormat(pattern, 'en_US');
-                    },
-                  ),
-                  title: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8.0),
-                    child: Text(
-                      DateFormat(pattern, 'en_US').format(
-                        DateTime.utc(1969, 7, 20, 14, 18, 04),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList()),
-              divider,
-              // SubHeader('Language'),
-              // SliverList(
-              //   delegate: SliverChildListDelegate(
-              //     AppLocalizations.supportedLocales.map((locale) {
-              //       return ListTile(
-              //         title: Text(locale.languageCode),
-              //       );
-              //     }).toList(),
-              //   ),
-              // ),
-              // divider,
-              SliverToBoxAdapter(
-                child: SubHeader(loc.version),
-              ),
+              const SliverToBoxAdapter(child: DateTimeSection()),
+              SliverToBoxAdapter(child: SubHeader(loc.about)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -373,6 +328,7 @@ class _SettingsState extends State<Settings> {
                         minWidth: 0.0,
                         child: Text(
                           loc.website,
+                          semanticsLabel: 'www.bluecherrydvr.com',
                           style: TextStyle(
                             color: theme.colorScheme.primary,
                           ),

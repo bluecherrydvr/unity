@@ -20,35 +20,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bluecherry_client/main.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 
 const double kDesktopAppBarHeight = 64.0;
-bool get isDesktop {
-  if (kIsWeb) return false;
-  return [
-    TargetPlatform.windows,
-    TargetPlatform.linux,
-    TargetPlatform.macOS,
-  ].contains(defaultTargetPlatform);
-}
 
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
-
-bool get isMobile => Platform.isAndroid || Platform.isIOS;
-
-/// Whether the current platform is iOS or macOS
-bool get isCupertino {
-  final cupertinoPlatforms = [TargetPlatform.iOS, TargetPlatform.macOS];
-  final navigatorContext = navigatorKey.currentContext;
-  if (navigatorContext != null) {
-    final theme = Theme.of(navigatorContext);
-    return cupertinoPlatforms.contains(theme.platform);
-  }
-
-  return cupertinoPlatforms.contains(defaultTargetPlatform);
-}
 
 class NavigatorPopButton extends StatelessWidget {
   final Color? color;
@@ -145,6 +122,7 @@ class CorrectedListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final double? height;
+  final IconData? trailing;
 
   const CorrectedListTile({
     super.key,
@@ -153,6 +131,7 @@ class CorrectedListTile extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.height,
+    this.trailing,
   });
 
   @override
@@ -196,6 +175,14 @@ class CorrectedListTile extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null)
+            Container(
+              margin: const EdgeInsetsDirectional.only(start: 12.0),
+              alignment: AlignmentDirectional.center,
+              width: 40.0,
+              height: 40.0,
+              child: Icon(trailing, color: theme.colorScheme.primary),
+            ),
           const SizedBox(width: 16.0),
         ]),
       ),
@@ -226,7 +213,8 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null;
+    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null ||
+        context.findAncestorWidgetOfExactType<AlertDialog>() != null;
 
     return Material(
       type: isInCard ? MaterialType.transparency : MaterialType.canvas,

@@ -18,6 +18,9 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -26,19 +29,42 @@ import 'package:unity_video_player/unity_video_player.dart';
 class VideoStatusLabel extends StatefulWidget {
   final VideoViewInheritance video;
   final Device device;
+  final Event? event;
 
   const VideoStatusLabel({
     super.key,
     required this.video,
     required this.device,
+    this.event,
   });
 
   @override
   State<VideoStatusLabel> createState() => _VideoStatusLabelState();
 }
 
+enum _VideoLabel {
+  loading,
+  live,
+  timedOut,
+  recorded,
+}
+
 class _VideoStatusLabelState extends State<VideoStatusLabel> {
   final overlayKey = GlobalKey(debugLabel: 'Label Overlay');
+
+  bool get isLoading => widget.video.lastImageUpdate == null;
+  bool get isLive =>
+      widget.video.player.dataSource != null &&
+      // It is only LIVE if it starts with rtsp or hsl
+      !widget.video.player.dataSource!.startsWith('http');
+
+  _VideoLabel get status => isLoading
+      ? _VideoLabel.loading
+      : !isLive
+          ? _VideoLabel.recorded
+          : widget.video.isImageOld
+              ? _VideoLabel.timedOut
+              : _VideoLabel.live;
 
   bool _openWithTap = false;
   OverlayEntry? entry;
@@ -52,21 +78,33 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
 
     entry = OverlayEntry(builder: (context) {
       return LayoutBuilder(builder: (context, constraints) {
+        final label = _DeviceVideoInfo(
+          device: widget.device,
+          video: widget.video,
+          label: status,
+          isLive: isLive,
+          event: widget.event,
+        );
+        final minHeight = label.buildTextSpans(context).length * 15;
         return Stack(children: [
-          if (position.dy > DeviceVideoInfo.constraints.minHeight + 8.0)
+          if (position.dy > minHeight + 8.0)
             Positioned(
               bottom: constraints.maxHeight - position.dy + 8.0,
               right: constraints.maxWidth - position.dx - boxSize.width,
-              child:
-                  DeviceVideoInfo(device: widget.device, video: widget.video),
+              child: label,
             )
           else
-            Positioned(
-              top: position.dy + boxSize.height + 8.0,
-              left: position.dx,
-              child:
-                  DeviceVideoInfo(device: widget.device, video: widget.video),
-            ),
+            () {
+              final willLeftOverflow = position.dx + _DeviceVideoInfo.minWidth >
+                  constraints.maxWidth;
+              return Positioned(
+                top: position.dy + boxSize.height + 8.0,
+                left: willLeftOverflow
+                    ? (constraints.maxWidth - _DeviceVideoInfo.minWidth - 8.0)
+                    : position.dx,
+                child: label,
+              );
+            }(),
         ]);
       });
     });
@@ -88,18 +126,20 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final isLoading = widget.video.lastImageUpdate == null;
 
-    final color = isLoading
-        ? Colors.blue
-        : widget.video.isImageOld
-            ? Colors.amber.shade600
-            : Colors.red.shade600;
-    final text = isLoading
-        ? loc.loading
-        : widget.video.isImageOld
-            ? loc.timedOut
-            : loc.live;
+    final text = switch (status) {
+      _VideoLabel.live => loc.live,
+      _VideoLabel.loading => loc.loading,
+      _VideoLabel.recorded => loc.recorded,
+      _VideoLabel.timedOut => loc.timedOut,
+    };
+
+    final color = switch (status) {
+      _VideoLabel.live => Colors.red.shade600,
+      _VideoLabel.loading => Colors.blue,
+      _VideoLabel.recorded => Colors.green,
+      _VideoLabel.timedOut => Colors.amber.shade600,
+    };
 
     // This opens the overlay when a property is updated. This is a frame late
     if (isOverlayOpen) {
@@ -145,23 +185,89 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   }
 }
 
-class DeviceVideoInfo extends StatelessWidget {
+class _DeviceVideoInfo extends StatelessWidget {
   final Device device;
   final VideoViewInheritance video;
+  final _VideoLabel label;
+  final bool isLive;
 
-  const DeviceVideoInfo({super.key, required this.device, required this.video});
+  final Event? event;
 
-  static const constraints = BoxConstraints(
-    minWidth: 211.0,
-    minHeight: 124.0,
-  );
+  const _DeviceVideoInfo({
+    required this.device,
+    required this.video,
+    required this.label,
+    required this.isLive,
+    required this.event,
+  });
+
+  static const minWidth = 211.0;
+
+  List<TextSpan> buildTextSpans(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (isLive) {
+      return [
+        _buildTextSpan(context, title: loc.device, data: device.name),
+        _buildTextSpan(
+          context,
+          title: loc.server,
+          data: '${device.server.name} (${device.id})',
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.ptzSupported,
+          data: device.hasPTZ ? loc.yes : loc.no,
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.resolution,
+          data: '${device.resolutionX}x${device.resolutionY}',
+        ),
+        _buildTextSpan(context, title: loc.fps, data: '${video.fps}'),
+        _buildTextSpan(
+          context,
+          title: loc.lastImageUpdate,
+          data: video.lastImageUpdate == null
+              ? loc.unknown
+              : DateFormat.Hms().format(video.lastImageUpdate!),
+          last: true,
+        ),
+      ];
+    } else {
+      // If not live, it is a recorded footage
+      assert(event != null);
+      return [
+        _buildTextSpan(context, title: loc.device, data: device.name),
+        _buildTextSpan(
+          context,
+          title: loc.server,
+          data: '${device.server.name} (${device.id})',
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.duration,
+          data: event!.duration.humanReadable(context),
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.date,
+          data: SettingsProvider.instance.formatDate(event!.published),
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.eventType,
+          data: event!.type.locale(context),
+          last: true,
+        ),
+      ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Container(
-      constraints: constraints,
+      constraints: const BoxConstraints(minWidth: minWidth),
       decoration: BoxDecoration(
         color: theme.colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(6.0),
@@ -170,36 +276,7 @@ class DeviceVideoInfo extends StatelessWidget {
         vertical: 12.0,
         horizontal: 12.0,
       ),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            _buildTextSpan(context, title: loc.device, data: device.name),
-            _buildTextSpan(
-              context,
-              title: loc.server,
-              data: '${device.server.name} (${device.id})',
-            ),
-            _buildTextSpan(
-              context,
-              title: loc.ptzSupported,
-              data: device.hasPTZ ? loc.yes : loc.no,
-            ),
-            _buildTextSpan(
-              context,
-              title: loc.resolution,
-              data: '${device.resolutionX}x${device.resolutionY}',
-            ),
-            _buildTextSpan(
-              context,
-              title: loc.lastImageUpdate,
-              data: video.lastImageUpdate == null
-                  ? loc.unknown
-                  : DateFormat.Hms().format(video.lastImageUpdate!),
-              last: true,
-            ),
-          ],
-        ),
-      ),
+      child: RichText(text: TextSpan(children: buildTextSpans(context))),
     );
   }
 

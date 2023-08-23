@@ -37,6 +37,7 @@ dependencies:
   
   device_info_plus: ^9.0.3
   package_info_plus: ^4.1.0
+  connectivity_plus: ^4.0.2
   version: ^3.0.2
   url_launcher: ^6.1.10
 
@@ -62,13 +63,6 @@ dev_dependencies:
   flutter_lints: ^2.0.1
   msix: ^3.7.0
   flutter_launcher_icons: ^0.13.0
-
-dependency_overrides:
-  media_kit:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 0d579f626e1d85b5243c879511b38ccdddf722cf
-      path: media_kit/
 
 flutter:
   uses-material-design: true

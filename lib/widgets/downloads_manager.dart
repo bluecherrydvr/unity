@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -56,9 +57,7 @@ class DownloadsManagerScreen extends StatelessWidget {
       Expanded(
         child: LayoutBuilder(builder: (context, consts) {
           if (downloads.isEmpty) {
-            return Center(
-              child: Text(loc.noDownloads),
-            );
+            return const NoDownloads();
           }
 
           final size = consts.biggest;
@@ -436,6 +435,40 @@ class DownloadIndicator extends StatelessWidget {
           );
         }
       }(),
+    );
+  }
+}
+
+class NoDownloads extends StatelessWidget {
+  const NoDownloads({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final home = context.watch<HomeProvider>();
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.folder_off,
+          size: 48.0,
+        ),
+        const SizedBox(height: 6.0),
+        Text(loc.noDownloads),
+        Text.rich(
+          TextSpan(
+            text: loc.howToDownload,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                home.setTab(UnityTab.eventsScreen.index, context);
+              },
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

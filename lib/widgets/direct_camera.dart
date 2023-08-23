@@ -144,7 +144,11 @@ class _DevicesForServer extends StatelessWidget {
                   foregroundColor: device.status
                       ? theme.extension<UnityColors>()!.successColor
                       : theme.colorScheme.error,
-                  child: const Icon(Icons.camera_alt),
+                  child: Icon(
+                    device.status
+                        ? Icons.videocam_outlined
+                        : Icons.videocam_off_outlined,
+                  ),
                 ),
                 title: Text(
                   device.name.uppercaseFirst(),
@@ -180,7 +184,11 @@ class _DevicesForServer extends StatelessWidget {
                           CircleAvatar(
                             backgroundColor: Colors.transparent,
                             foregroundColor: foregroundColor,
-                            child: const Icon(Icons.camera_alt),
+                            child: Icon(
+                              device.status
+                                  ? Icons.videocam_outlined
+                                  : Icons.videocam_off,
+                            ),
                           ),
                           Text(
                             device.name,

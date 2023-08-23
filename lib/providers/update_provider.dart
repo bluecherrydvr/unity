@@ -20,8 +20,8 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -239,7 +239,10 @@ class UpdateManager extends ChangeNotifier {
   /// If the executable is not found, returns `null`. To download the executable,
   /// call [download(version)].
   File? executableFor(String version) {
-    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+    assert(
+      isDesktopPlatform,
+      'This should never be reached on non-desktop platforms',
+    );
 
     if (Platform.isWindows) {
       final file = File(path.join(

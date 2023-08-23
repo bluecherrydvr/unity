@@ -35,6 +35,8 @@ class SettingsProvider extends ChangeNotifier {
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
+  // TODO(bdlukaa): consider using https://github.com/Nikoro/system_date_time_format
+  // to get the system date/time format
   static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const kDefaultTimeFormat = 'hh:mm a';
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
@@ -53,8 +55,8 @@ class SettingsProvider extends ChangeNotifier {
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
   DateTime get snoozedUntil => _snoozedUntil;
-  NotificationClickAction get notificationClickAction =>
-      _notificationClickAction;
+  NotificationClickAction get notificationClickBehavior =>
+      _notificationClickBehavior;
   UnityVideoFit get cameraViewFit => _cameraViewFit;
   String get downloadsDirectory => _downloadsDirectory;
   bool get layoutCyclingEnabled => _layoutCyclingEnabled;
@@ -88,8 +90,8 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  set notificationClickAction(NotificationClickAction value) {
-    _notificationClickAction = value;
+  set notificationClickBehavior(NotificationClickAction value) {
+    _notificationClickBehavior = value;
     _save();
   }
 
@@ -117,7 +119,7 @@ class SettingsProvider extends ChangeNotifier {
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
-  late NotificationClickAction _notificationClickAction;
+  late NotificationClickAction _notificationClickBehavior;
   late UnityVideoFit _cameraViewFit;
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
@@ -143,7 +145,7 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDateFormat: dateFormat.pattern!,
       kHiveTimeFormat: timeFormat.pattern!,
       kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
-      kHiveNotificationClickAction: notificationClickAction.index,
+      kHiveNotificationClickAction: notificationClickBehavior.index,
       kHiveCameraViewFit: cameraViewFit.index,
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
@@ -191,10 +193,10 @@ class SettingsProvider extends ChangeNotifier {
       _snoozedUntil = defaultSnoozedUntil;
     }
     if (data.containsKey(kHiveNotificationClickAction)) {
-      _notificationClickAction =
+      _notificationClickBehavior =
           NotificationClickAction.values[data[kHiveNotificationClickAction]!];
     } else {
-      _notificationClickAction = kDefaultNotificationClickAction;
+      _notificationClickBehavior = kDefaultNotificationClickAction;
     }
     if (data.containsKey(kHiveCameraViewFit)) {
       _cameraViewFit = UnityVideoFit.values[data[kHiveCameraViewFit]!];

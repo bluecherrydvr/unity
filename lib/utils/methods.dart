@@ -17,6 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+import 'package:bluecherry_client/main.dart' show navigatorKey;
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -80,4 +84,67 @@ T? showIf<T extends Widget>(bool condition, {required T child}) {
   if (condition) return child;
 
   return null;
+}
+
+/// Returns true if the app is running on a desktop platform. This is useful
+/// for determining whether to show desktop-specific UI elements.
+bool get isDesktop {
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
+/// Returns true if the app is running on a desktop platform. This is useful
+/// to execute code that should only run on desktop platforms.
+bool get isDesktopPlatform {
+  if (kIsWeb) return false;
+  return Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+}
+
+/// Returns true if the app is running on a mobile platform. This is useful
+/// for determining whether to show mobile-specific UI elements.
+bool get isMobile {
+  return [
+    TargetPlatform.android,
+    TargetPlatform.iOS,
+  ].contains(defaultTargetPlatform);
+}
+
+/// Returns true if the app is running on a mobile platform. This is useful
+/// to execute code that should only run on mobile platforms.
+bool get isMobilePlatform {
+  if (kIsWeb) return false;
+  return Platform.isAndroid || Platform.isIOS;
+}
+
+/// Whether the current platform is iOS or macOS
+bool get isCupertino {
+  final cupertinoPlatforms = [TargetPlatform.iOS, TargetPlatform.macOS];
+  final navigatorContext = navigatorKey.currentContext;
+  if (navigatorContext != null) {
+    final theme = Theme.of(navigatorContext);
+    return cupertinoPlatforms.contains(theme.platform);
+  }
+
+  return cupertinoPlatforms.contains(defaultTargetPlatform);
+}
+
+/// Determines the amount of events that can be loaded at once.
+///
+/// The calculation is based on the current connectivity status. If the device
+/// is connected to a WiFi network, then it returns 750, otherwise it returns
+/// 200.
+Future<int> get eventsLimit async {
+  final connectivityResult = await Connectivity().checkConnectivity();
+
+  switch (connectivityResult) {
+    case ConnectivityResult.wifi:
+    case ConnectivityResult.ethernet:
+    case ConnectivityResult.vpn:
+      return 750;
+    default:
+      return 200;
+  }
 }

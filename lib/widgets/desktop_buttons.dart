@@ -23,10 +23,10 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/home.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -103,7 +103,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   }
 
   Future<void> _init() async {
-    if (isDesktop) {
+    if (isDesktopPlatform) {
       // Add this line to override the default close handler
       await windowManager.setPreventClose(true);
       if (mounted) setState(() {});

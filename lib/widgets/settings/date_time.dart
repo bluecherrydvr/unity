@@ -19,6 +19,31 @@
 
 part of 'settings.dart';
 
+class DateTimeSection extends StatelessWidget {
+  const DateTimeSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Column(children: [
+      // SubHeader('Language'),
+      // SliverList(
+      //   delegate: SliverChildListDelegate(
+      //     AppLocalizations.supportedLocales.map((locale) {
+      //       return ListTile(
+      //         title: Text(locale.languageCode),
+      //       );
+      //     }).toList(),
+      //   ),
+      // ),
+      SubHeader(loc.dateFormat),
+      const DateFormatSection(),
+      SubHeader(loc.timeFormat),
+      const TimeFormatSection(),
+    ]);
+  }
+}
+
 class DateFormatSection extends StatelessWidget {
   const DateFormatSection({super.key});
 
@@ -81,6 +106,41 @@ class DateFormatSection extends StatelessWidget {
           }).toList(),
         );
       }
+    });
+  }
+}
+
+class TimeFormatSection extends StatelessWidget {
+  const TimeFormatSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    return LayoutBuilder(builder: (context, constraints) {
+      const patterns = ['HH:mm', 'hh:mm a'];
+      final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
+      return Column(
+        children: patterns.map((pattern) {
+          return ListTile(
+            onTap: () {
+              settings.timeFormat = DateFormat(pattern, 'en_US');
+            },
+            trailing: Radio(
+              value: pattern,
+              groupValue: settings.timeFormat.pattern,
+              onChanged: (value) {
+                settings.timeFormat = DateFormat(pattern, 'en_US');
+              },
+            ),
+            title: Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8.0),
+              child: Text(
+                DateFormat(pattern, 'en_US').format(date),
+              ),
+            ),
+          );
+        }).toList(),
+      );
     });
   }
 }

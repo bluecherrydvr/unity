@@ -19,6 +19,8 @@
 
 part of '../device_grid.dart';
 
+const _kReverseBreakpoint = 900.0;
+
 typedef FoldedDevices = List<List<Device>>;
 
 class DesktopDeviceGrid extends StatefulWidget {
@@ -53,7 +55,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
 
-    final isReversed = widget.width <= 900;
+    final isReversed = widget.width <= _kReverseBreakpoint;
 
     final children = [
       CollapsableSidebar(
@@ -266,8 +268,18 @@ class LayoutView extends StatelessWidget {
           );
         }
 
+        final isReversed =
+            context.findAncestorWidgetOfExactType<DesktopDeviceGrid>()!.width <
+                _kReverseBreakpoint;
+
         return Material(
           color: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusDirectional.only(
+              topStart: isReversed ? Radius.zero : const Radius.circular(8.0),
+              topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
+            ),
+          ),
           child: Center(child: child),
         );
       },
@@ -275,28 +287,44 @@ class LayoutView extends StatelessWidget {
   }
 }
 
-class DesktopDeviceTile extends StatelessWidget {
+class DesktopDeviceTile extends StatefulWidget {
   const DesktopDeviceTile({super.key, required this.device});
 
   final Device device;
 
   @override
+  State<DesktopDeviceTile> createState() => _DesktopDeviceTileState();
+}
+
+class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
+  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+
+  @override
   Widget build(BuildContext context) {
-    final videoPlayer = UnityPlayers.players[device];
+    final videoPlayer = UnityPlayers.players[widget.device];
 
     if (videoPlayer == null) {
       return Card(
         clipBehavior: Clip.hardEdge,
-        child: DesktopTileViewport(controller: null, device: device),
+        child: DesktopTileViewport(
+          controller: null,
+          device: widget.device,
+          onFitChanged: (fit) => setState(() => this.fit = fit),
+        ),
       );
     }
 
     return UnityVideoView(
-      key: ValueKey(device.fullName),
-      heroTag: device.streamURL,
+      key: ValueKey(widget.device.fullName),
+      heroTag: widget.device.streamURL,
       player: videoPlayer,
+      fit: fit,
       paneBuilder: (context, controller) {
-        return DesktopTileViewport(controller: controller, device: device);
+        return DesktopTileViewport(
+          controller: controller,
+          device: widget.device,
+          onFitChanged: (fit) => setState(() => this.fit = fit),
+        );
       },
     );
   }
@@ -348,46 +376,28 @@ class DesktopCompactTile extends StatelessWidget {
 class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
+  final ValueChanged<UnityVideoFit> onFitChanged;
 
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
+    required this.onFitChanged,
   });
 
   @override
   State<DesktopTileViewport> createState() => _DesktopTileViewportState();
 }
 
-const shadows = [
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(-4, -4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(4, 4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(-4, 4),
-  ),
-  Shadow(
-    blurRadius: 10,
-    offset: Offset(4, -4),
-  ),
-];
-
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
 
-  double? volume;
+  late double? volume = widget.controller?.volume;
 
   void updateVolume() {
-    assert(widget.controller != null);
-    widget.controller?.volume.then((value) {
-      if (mounted) setState(() => volume = value);
-    });
+    if (widget.controller != null && mounted) {
+      setState(() => volume = widget.controller!.volume);
+    }
   }
 
   @override
@@ -455,22 +465,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           PositionedDirectional(
             end: 16.0,
             top: 50.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: commands.map<String>((cmd) {
-                switch (cmd.command) {
-                  case PTZCommand.move:
-                    return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-                  case PTZCommand.stop:
-                    return cmd.command.locale(context);
-                }
-              }).map<Widget>((text) {
-                return Text(
-                  text,
-                  style: const TextStyle(color: Colors.white70),
-                );
-              }).toList(),
-            ),
+            child: PTZData(commands: commands),
           ),
           if (video != null) ...[
             if (!widget.controller!.isSeekable)
@@ -494,37 +489,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 children: [
                   if (states.isHovering) ...[
                     const SizedBox(width: 12.0),
-                    if (widget.device.hasPTZ) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.videogame_asset,
-                          color: ptzEnabled ? Colors.white : null,
-                        ),
-                        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                        onPressed: () =>
-                            setState(() => ptzEnabled = !ptzEnabled),
+                    if (widget.device.hasPTZ)
+                      PTZToggleButton(
+                        ptzEnabled: ptzEnabled,
+                        onChanged: (enabled) =>
+                            setState(() => ptzEnabled = enabled),
                       ),
-                      // TODO(bdlukaa): enable presets when the API is ready
-                      // IconButton(
-                      //   icon: Icon(
-                      //     Icons.dataset,
-                      //     color: ptzEnabled ? Colors.white : null,
-                      //   ),
-                      //   tooltip: ptzEnabled
-                      //       ? loc.enabledPTZ
-                      //       : loc.disabledPTZ,
-                      //   onPressed: !ptzEnabled
-                      //       ? null
-                      //       : () {
-                      //           showDialog(
-                      //             context: context,
-                      //             builder: (context) {
-                      //               return PresetsDialog(device: widget.device);
-                      //             },
-                      //           );
-                      //         },
-                      // ),
-                    ],
                     const Spacer(),
                     () {
                       final isMuted = volume == 0.0;
@@ -550,10 +520,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                         },
                       );
                     }(),
-                    if (isDesktop && !isSubView)
+                    if (isDesktopPlatform && !isSubView)
                       IconButton(
                         icon: Icon(
-                          Icons.open_in_new,
+                          Icons.open_in_new_sharp,
                           shadows: outlinedText(),
                         ),
                         tooltip: loc.openInANewWindow,
@@ -601,8 +571,15 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       iconSize: 18.0,
                       onPressed: () => view.reload(widget.device),
                     ),
-                    const SizedBox(width: 12.0),
+                    CameraViewFitButton(
+                      fit: context
+                              .findAncestorWidgetOfExactType<UnityVideoView>()
+                              ?.fit ??
+                          SettingsProvider.instance.cameraViewFit,
+                      onChanged: widget.onFitChanged,
+                    ),
                   ],
+                  const SizedBox(width: 12.0),
                   Padding(
                     padding: const EdgeInsetsDirectional.only(
                       end: 6.0,

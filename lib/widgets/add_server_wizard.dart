@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -41,7 +42,10 @@ class AddServerWizard extends StatefulWidget {
 
 class _AddServerWizardState extends State<AddServerWizard> {
   Server? server;
-  final PageController controller = PageController();
+  final PageController controller = PageController(
+    initialPage:
+        HomeProvider.instance.automaticallyGoToAddServersScreen ? 1 : 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -445,14 +449,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   Padding(
                     padding: const EdgeInsetsDirectional.only(top: 8.0),
                     child: MaterialButton(
-                      onPressed: () {
-                        textEditingControllers[3].text = kDefaultUsername;
-                        textEditingControllers[4].text = kDefaultPassword;
-                      },
+                      onPressed: disableFinishButton
+                          ? null
+                          : () {
+                              textEditingControllers[3].text = kDefaultUsername;
+                              textEditingControllers[4].text = kDefaultPassword;
+                            },
                       textColor: theme.colorScheme.secondary,
-                      child: Text(
-                        loc.useDefault.toUpperCase(),
-                      ),
+                      child: Text(loc.useDefault.toUpperCase()),
                     ),
                   ),
                 ]),

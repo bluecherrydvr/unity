@@ -32,7 +32,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/full_screen_viewer/full_screen_viewer.dart';
+import 'package:bluecherry_client/widgets/player/live_player.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -192,7 +192,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   if (action.buttonKeyPressed.isEmpty) {
     debugPrint('action.buttonKeyPressed.isEmpty');
     // Fetch device & server details to show the [DeviceFullscreenViewer].
-    if (SettingsProvider.instance.notificationClickAction ==
+    if (SettingsProvider.instance.notificationClickBehavior ==
         NotificationClickAction.showFullscreenCamera) {
       final eventType = action.payload!['eventType'];
       final serverUUID = action.payload!['serverId'];
@@ -218,13 +218,12 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       if (_mutex == null) {
         _mutex = id;
         await navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (context) => DeviceFullscreenViewer(
+          MaterialPageRoute(builder: (context) {
+            return LivePlayer(
               device: device,
-              videoPlayerController: player,
-              restoreStatusBarStyleOnDispose: true,
-            ),
-          ),
+              player: player,
+            );
+          }),
         );
         _mutex = null;
       }
@@ -235,13 +234,12 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         await Future.delayed(const Duration(seconds: 1));
         _mutex = id;
         await navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (context) => DeviceFullscreenViewer(
+          MaterialPageRoute(builder: (context) {
+            return LivePlayer(
               device: device,
-              videoPlayerController: player,
-              restoreStatusBarStyleOnDispose: true,
-            ),
-          ),
+              player: player,
+            );
+          }),
         );
         _mutex = null;
       }

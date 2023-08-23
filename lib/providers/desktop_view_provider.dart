@@ -131,9 +131,7 @@ class DesktopViewProvider extends ChangeNotifier {
     if (!UnityPlayers.players.containsKey(device)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
-      UnityPlayers.players[device]?.release();
-      UnityPlayers.players[device]?.dispose();
-      UnityPlayers.players.remove(device);
+      UnityPlayers.releaseDevice(device);
     }
   }
 

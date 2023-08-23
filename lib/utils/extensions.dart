@@ -103,13 +103,24 @@ extension NotificationExtensions on NotificationClickAction {
 }
 
 extension CameraViewFitExtension on UnityVideoFit {
-  String str(BuildContext context) {
+  String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return {
       UnityVideoFit.contain: loc.contain,
       UnityVideoFit.cover: loc.cover,
       UnityVideoFit.fill: loc.fill,
     }[this]!;
+  }
+
+  IconData get icon {
+    switch (this) {
+      case UnityVideoFit.contain:
+        return Icons.fit_screen;
+      case UnityVideoFit.fill:
+        return Icons.rectangle_rounded;
+      case UnityVideoFit.cover:
+        return Icons.aspect_ratio;
+    }
   }
 }
 
@@ -220,9 +231,12 @@ extension EventsExtension on Iterable<Event> {
 
 extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
-  List<Device> sorted() {
-    return [...this]
-      ..sort((a, b) => a.name.compareTo(b.name))
-      ..sort((a, b) => a.status ? 0 : 1);
+  List<Device> sorted([Iterable? available]) {
+    final list = [...this]..sort((a, b) => a.name.compareTo(b.name));
+
+    if (available != null) list.sort((a, b) => available.contains(a) ? 0 : 1);
+    list.sort((a, b) => a.status ? 0 : 1);
+
+    return list;
   }
 }

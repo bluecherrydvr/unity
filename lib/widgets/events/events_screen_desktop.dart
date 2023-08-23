@@ -62,6 +62,8 @@ class EventsScreenDesktop extends StatelessWidget {
         SliverFixedExtentList.builder(
           itemCount: events.length,
           itemExtent: 50.0,
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: false,
           itemBuilder: (context, index) {
             final event = events.elementAt(index);
 
@@ -140,7 +142,7 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
               ),
               _buildTilePart(
                 child: Text(loc.device),
-                icon: const Icon(Icons.camera),
+                icon: const Icon(Icons.videocam),
               ),
               _buildTilePart(
                 child: Text(loc.event),

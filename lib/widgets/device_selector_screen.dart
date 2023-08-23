@@ -101,7 +101,7 @@ class DeviceSelectorScreen extends StatelessWidget {
             right: viewPadding.right,
             bottom: viewPadding.bottom,
           ),
-          child: CustomScrollView(slivers: [
+          child: CustomScrollView(primary: true, slivers: [
             for (final server in servers.servers)
               MultiSliver(pushPinnedChildren: true, children: [
                 SliverPinnedHeader(
@@ -126,8 +126,10 @@ class DeviceSelectorScreen extends StatelessWidget {
                 ),
                 SliverList.builder(
                   itemCount: server.devices.length,
+                  addAutomaticKeepAlives: false,
+                  addRepaintBoundaries: false,
                   itemBuilder: (context, index) {
-                    final devices = server.devices.sorted();
+                    final devices = server.devices.sorted(available);
                     final device = devices[index];
 
                     final isSelected = selected.contains(device);
@@ -144,11 +146,20 @@ class DeviceSelectorScreen extends StatelessWidget {
                                 : theme.disabledColor
                             : theme.colorScheme.error,
                         child: Icon(
-                          !enabled ? Icons.videocam : Icons.videocam_outlined,
+                          !device.status
+                              ? Icons.videocam_off_outlined
+                              : !enabled
+                                  ? Icons.videocam
+                                  : Icons.videocam_outlined,
                         ),
                       ),
                       title: RichText(
                         text: TextSpan(
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: enabled
+                                ? theme.colorScheme.onSurface
+                                : theme.disabledColor,
+                          ),
                           children: [
                             TextSpan(text: device.name.uppercaseFirst()),
                             if (eventsPerDevice[device] != null)
@@ -158,11 +169,6 @@ class DeviceSelectorScreen extends StatelessWidget {
                                 style: theme.textTheme.labelSmall,
                               ),
                           ],
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: enabled
-                                ? theme.colorScheme.onSurface
-                                : theme.disabledColor,
-                          ),
                         ),
                       ),
                       subtitle: Text([

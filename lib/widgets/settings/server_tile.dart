@@ -31,6 +31,12 @@ class ServersList extends StatelessWidget {
     final home = context.watch<HomeProvider>();
     final serversProvider = context.watch<ServersProvider>();
 
+    void addServersScreen() {
+      home
+        ..automaticallyGoToAddServersScreen = true
+        ..setTab(UnityTab.addServer.index, context);
+    }
+
     return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= kMobileBreakpoint.width) {
         return Padding(
@@ -45,7 +51,7 @@ class ServersList extends StatelessWidget {
               child: Card(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8.0),
-                  onTap: () => home.setTab(UnityTab.addServer.index, context),
+                  onTap: addServersScreen,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -86,7 +92,7 @@ class ServersList extends StatelessWidget {
               child: const Icon(Icons.add),
             ),
             title: Text(loc.addNewServer),
-            onTap: () => home.setTab(UnityTab.addServer.index, context),
+            onTap: addServersScreen,
           ),
           const Padding(
             padding: EdgeInsetsDirectional.only(top: 8.0),

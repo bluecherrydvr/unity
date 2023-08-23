@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
@@ -249,6 +250,7 @@ class DeviceTileState extends State<DeviceTile> {
 
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     return GestureDetectorWithReducedDoubleTapTime(
       onTap: () {
@@ -269,6 +271,7 @@ class DeviceTileState extends State<DeviceTile> {
       child: UnityVideoView(
         heroTag: widget.device.streamURL,
         player: videoPlayer!,
+        fit: settings.cameraViewFit,
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
           final error = video.error;
@@ -342,7 +345,7 @@ class DeviceTileState extends State<DeviceTile> {
                     child: Row(children: [
                       const SizedBox(width: 16.0),
                       const Icon(
-                        Icons.camera_alt,
+                        Icons.videocam,
                         color: Colors.white,
                         size: 20.0,
                       ),

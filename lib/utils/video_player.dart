@@ -44,4 +44,10 @@ class UnityPlayers {
 
     return controller;
   }
+
+  static void releaseDevice(Device device) {
+    players[device]?.release();
+    players[device]?.dispose();
+    players.remove(device);
+  }
 }

@@ -19,6 +19,7 @@
 
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
@@ -26,7 +27,6 @@ import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -52,14 +52,14 @@ class NavigatorData {
         selectedIcon: Icons.window,
         text: loc.screens,
       ),
-      const NavigatorData(
+      NavigatorData(
         icon: Icons.subscriptions_outlined,
         selectedIcon: Icons.subscriptions,
-        text: 'Events Playback',
+        text: loc.eventsTimeline,
       ),
       NavigatorData(
-        icon: Icons.camera_outlined,
-        selectedIcon: Icons.camera,
+        icon: Icons.videocam_outlined,
+        selectedIcon: Icons.videocam,
         text: loc.directCamera,
       ),
       NavigatorData(

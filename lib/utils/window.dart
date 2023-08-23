@@ -23,7 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
@@ -67,7 +67,10 @@ enum MultiWindowType { device, layout }
 extension DeviceWindowExtension on Device {
   /// Opens this device in a new window
   Future<void> openInANewWindow() async {
-    assert(isDesktop, 'Can not open a new window in a non-desktop environment');
+    assert(
+      isDesktopPlatform,
+      'Can not open a new window in a non-desktop environment',
+    );
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
@@ -82,7 +85,10 @@ extension DeviceWindowExtension on Device {
 
 extension LayoutWindowExtension on Layout {
   Future<void> openInANewWindow() async {
-    assert(isDesktop, 'Can not open a new window in a non-desktop environment');
+    assert(
+      isDesktopPlatform,
+      'Can not open a new window in a non-desktop environment',
+    );
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
@@ -97,7 +103,7 @@ extension LayoutWindowExtension on Layout {
 
 /// Launches the file explorer at the given path
 void launchFileExplorer(String path) {
-  assert(isDesktop);
+  assert(isDesktopPlatform);
 
   if (Platform.isWindows) {
     Process.run('explorer', [path]);

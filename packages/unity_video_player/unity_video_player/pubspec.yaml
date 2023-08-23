@@ -20,13 +20,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.0
 
-dependency_overrides:
-  media_kit:
-    git:
-      url: https://github.com/alexmercerind/media_kit.git
-      ref: 0d579f626e1d85b5243c879511b38ccdddf722cf
-      path: media_kit/
-
 flutter:
   plugin:
     platforms:

@@ -82,7 +82,9 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         : widget.event.mediaURL.toString();
 
     debugPrint(mediaUrl);
-    videoController.setDataSource(mediaUrl);
+    videoController
+      ..setDataSource(mediaUrl)
+      ..setSpeed(1.0);
 
     super.didChangeDependencies();
   }
@@ -103,6 +105,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     return Scaffold(
       body: Column(children: [
         const WindowButtons(showNavigator: false),
@@ -111,6 +114,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
             child: UnityVideoView(
               heroTag: widget.event.mediaURL,
               player: videoController,
+              fit: settings.cameraViewFit,
               videoBuilder: (context, video) {
                 return InteractiveViewer(
                   minScale: 1.0,
@@ -166,6 +170,7 @@ class _VideoViewportState extends State<VideoViewport> {
       if (mounted && !isSliding) {
         setState(() {
           visible = false;
+          Tooltip.dismissAllToolTips();
         });
       }
     });
@@ -177,159 +182,169 @@ class _VideoViewportState extends State<VideoViewport> {
     final player = UnityVideoView.of(context);
     final error = player.error;
 
-    return Stack(children: [
-      Positioned.fill(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (!visible) {
-              setState(() => visible = true);
-              startTimer();
-            } else {
-              setState(() => visible = false);
-            }
-          },
-          child: IgnorePointer(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              decoration: BoxDecoration(
-                gradient: visible
-                    ? const LinearGradient(
-                        stops: [
-                          1.0,
-                          0.8,
-                          0.0,
-                          0.8,
-                          1.0,
-                        ],
-                        colors: [
-                          Colors.black38,
-                          Colors.transparent,
-                          Colors.transparent,
-                          Colors.transparent,
-                          Colors.black38,
-                        ],
-                      )
-                    : null,
+    return DefaultTextStyle(
+      style: const TextStyle(color: Colors.white),
+      child: IconTheme.merge(
+        data: const IconThemeData(color: Colors.white),
+        child: Stack(children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (!visible) {
+                  setState(() => visible = true);
+                  startTimer();
+                } else {
+                  setState(() => visible = false);
+                }
+              },
+              child: IgnorePointer(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    gradient: visible
+                        ? const LinearGradient(
+                            stops: [
+                              1.0,
+                              0.8,
+                              0.0,
+                              0.8,
+                              1.0,
+                            ],
+                            colors: [
+                              Colors.black38,
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.black38,
+                            ],
+                          )
+                        : null,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-      if (visible || player.player.isBuffering) ...[
-        Positioned(
-          height: kToolbarHeight,
-          left: 0,
-          right: 0,
-          top: MediaQuery.paddingOf(context).top,
-          child: SafeArea(
-            child: Row(children: [
-              const BackButton(),
-              Expanded(
-                child: Text(
-                  '${widget.event.deviceName} (${widget.event.server.name})',
-                ),
-              ),
-              DownloadIndicator(event: widget.event),
-            ]),
-          ),
-        ),
-        Positioned.fill(
-          child: () {
-            if (error != null) {
-              return ErrorWarning(message: error);
-            } else if (player.player.isBuffering) {
-              return const Center(
-                child: CircularProgressIndicator.adaptive(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 2.0,
-                ),
-              );
-            } else {
-              return Center(
-                child: GestureDetector(
-                  child: PlayPauseIcon(
-                    isPlaying: player.player.isPlaying,
-                    color: Colors.white,
-                    size: 56.0,
-                  ),
-                  onTap: () {
-                    if (player.player.isPlaying) {
-                      widget.player.pause();
-                    } else {
-                      widget.player.start();
-                    }
-                  },
-                ),
-              );
-            }
-          }(),
-        ),
-        if (player.duration != Duration.zero)
-          PositionedDirectional(
-            bottom: 0.0,
-            start: 0.0,
-            end: 0.0,
-            child: Row(children: [
-              const SizedBox(width: 16.0),
-              Container(
-                alignment: AlignmentDirectional.centerEnd,
-                height: 36.0,
-                child: Text(
-                  player.position.label,
-                  style: theme.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              Expanded(
-                child: SliderTheme(
-                  data: SliderThemeData(
-                    overlayShape:
-                        const RoundSliderOverlayShape(overlayRadius: 12.0),
-                    overlayColor: theme.colorScheme.primary.withOpacity(0.4),
-                    thumbColor: theme.colorScheme.primary,
-                    trackHeight: 2.0,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 6.0,
+          if (visible || player.player.isBuffering) ...[
+            Positioned(
+              height: kToolbarHeight,
+              left: 8.0,
+              right: 8.0,
+              top: MediaQuery.paddingOf(context).top,
+              child: SafeArea(
+                child: Row(children: [
+                  const BackButton(),
+                  Expanded(
+                    child: Text(
+                      '${widget.event.deviceName} (${widget.event.server.name})',
                     ),
                   ),
-                  child: Slider(
-                    divisions: player.duration.inMilliseconds,
-                    label: player.position.humanReadableCompact(context),
-                    value: player.position.inMilliseconds.toDouble(),
-                    max: player.duration.inMilliseconds.toDouble(),
-                    secondaryTrackValue:
-                        player.player.currentBuffer.inMilliseconds.toDouble(),
-                    onChangeStart: (_) => isSliding = true,
-                    onChanged: (value) async {
-                      player.player.pause();
-                      final position = Duration(milliseconds: value.toInt());
-                      await player.player.seekTo(position);
-                    },
-                    onChangeEnd: (_) {
-                      player.player.start();
-                      isSliding = false;
-                      if (!timer.isActive) setState(() => visible = false);
-                    },
+                  DownloadIndicator(event: widget.event),
+                ]),
+              ),
+            ),
+            Positioned.fill(
+              child: () {
+                if (error != null) {
+                  return ErrorWarning(message: error);
+                } else if (player.player.isBuffering) {
+                  return const Center(
+                    child: CircularProgressIndicator.adaptive(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2.0,
+                    ),
+                  );
+                } else {
+                  return Center(
+                    child: GestureDetector(
+                      child: PlayPauseIcon(
+                        isPlaying: player.player.isPlaying,
+                        color: Colors.white,
+                        size: 56.0,
+                      ),
+                      onTap: () {
+                        if (player.player.isPlaying) {
+                          widget.player.pause();
+                        } else {
+                          widget.player.start();
+                        }
+                      },
+                    ),
+                  );
+                }
+              }(),
+            ),
+            if (player.duration != Duration.zero)
+              PositionedDirectional(
+                bottom: 0.0,
+                start: 0.0,
+                end: 0.0,
+                child: Row(children: [
+                  const SizedBox(width: 16.0),
+                  Container(
+                    alignment: AlignmentDirectional.centerEnd,
+                    height: 36.0,
+                    child: Text(
+                      player.position.label,
+                      style: theme.textTheme.bodyMedium!
+                          .copyWith(color: Colors.white),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        overlayShape:
+                            const RoundSliderOverlayShape(overlayRadius: 12.0),
+                        overlayColor:
+                            theme.colorScheme.primary.withOpacity(0.4),
+                        thumbColor: theme.colorScheme.primary,
+                        trackHeight: 2.0,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 6.0,
+                        ),
+                      ),
+                      child: Slider(
+                        label: player.position.humanReadableCompact(context),
+                        value: player.position.inMilliseconds.toDouble(),
+                        max: player.duration.inMilliseconds.toDouble(),
+                        secondaryTrackValue: player
+                            .player.currentBuffer.inMilliseconds
+                            .toDouble(),
+                        onChangeStart: (_) => isSliding = true,
+                        onChanged: (value) async {
+                          player.player.pause();
+                          final position =
+                              Duration(milliseconds: value.toInt());
+                          await player.player.seekTo(position);
+                        },
+                        onChangeEnd: (_) {
+                          player.player.start();
+                          isSliding = false;
+                          if (!timer.isActive) {
+                            setState(() => visible = false);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Container(
+                    alignment: AlignmentDirectional.centerStart,
+                    height: 36.0,
+                    child: Text(
+                      player.duration.label,
+                      style: theme.textTheme.bodyMedium!
+                          .copyWith(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                ]),
               ),
-              const SizedBox(width: 8.0),
-              Container(
-                alignment: AlignmentDirectional.centerStart,
-                height: 36.0,
-                child: Text(
-                  player.duration.label,
-                  style: theme.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-            ]),
-          ),
-      ],
-    ]);
+          ],
+        ]),
+      ),
+    );
   }
 
   @override
@@ -356,7 +371,7 @@ class _DesktopVideoViewport extends StatefulWidget {
 class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
 
     return Stack(children: [
       PositionedDirectional(
@@ -364,7 +379,12 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
         start: 12.0,
         end: 12.0,
         child: Row(children: [
-          Text(settings.formatTime(widget.event.published)),
+          Text(
+            DateFormat.Hms().format(
+              widget.event.published.add(widget.player.currentPos),
+            ),
+            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
+          ),
           Expanded(
             child: Slider(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
@@ -377,9 +397,10 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
             ),
           ),
           Text(
-            settings.formatTime(
+            DateFormat.Hms().format(
               widget.event.published.add(widget.event.duration),
             ),
+            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
           ),
         ]),
       ),

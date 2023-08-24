@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  unity_video_player_media_kit:
-    path: ../unity_video_player_media_kit
+  unity_video_player_main:
+    path: ../unity_video_player_main
 
 dev_dependencies:
   flutter_test:
@@ -24,12 +24,12 @@ flutter:
   plugin:
     platforms:
       android:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_main
       ios:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_main
       macos:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_main
       linux:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_main
       windows:
-        default_package: unity_video_player_media_kit
+        default_package: unity_video_player_main

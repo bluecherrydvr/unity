@@ -840,10 +840,10 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  unity_video_player_media_kit:
+  unity_video_player_main:
     dependency: transitive
     description:
-      path: "packages/unity_video_player/unity_video_player_media_kit"
+      path: "packages/unity_video_player/unity_video_player_main"
       relative: true
     source: path
     version: "0.0.1"

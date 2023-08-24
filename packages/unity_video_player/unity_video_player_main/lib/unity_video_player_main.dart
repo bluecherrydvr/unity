@@ -1,4 +1,4 @@
-library unity_video_player_media_kit;
+library unity_video_player_main;
 
 import 'dart:async';
 

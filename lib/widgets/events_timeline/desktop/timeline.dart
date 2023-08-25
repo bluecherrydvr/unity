@@ -160,6 +160,8 @@ class Timeline extends ChangeNotifier {
         ..onPlayingStateUpdate.listen((_) => _eventCallback(tile))
         ..onCurrentPosUpdate.listen((_) => _eventCallback(tile, notify: false));
     }
+
+    zoomController.addListener(notifyListeners);
   }
 
   void _eventCallback(TimelineTile tile, {bool notify = true}) {
@@ -302,6 +304,8 @@ class Timeline extends ChangeNotifier {
     play();
   }
 
+  final indicatorKey = GlobalKey(debugLabel: 'Indicator key');
+  final zoomController = ScrollController();
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
@@ -351,6 +355,7 @@ class Timeline extends ChangeNotifier {
     for (final tile in tiles) {
       tile.videoController.dispose();
     }
+    zoomController.dispose();
     super.dispose();
   }
 }
@@ -461,6 +466,18 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                         strokeWidth: 2,
                       ),
                     ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 120.0),
+                    child: Slider(
+                      value: timeline.zoom,
+                      min: 1.0,
+                      max: 5.0,
+                      onChanged: (s) => timeline.zoom = s,
+                      onChangeEnd: (s) {
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+                  ),
                   Text(
                     '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
                     'x',
@@ -530,42 +547,28 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.dateFormat.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          FractionallySizedBox(
-            widthFactor: timeline.zoom,
-            child: LayoutBuilder(builder: (context, constraints) {
-              final minuteWidth =
-                  (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
+          LayoutBuilder(builder: (context, constraints) {
+            final tileWidth =
+                (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
+            final hourWidth = tileWidth / 24;
+            final minuteWidth = tileWidth / _minutesInADay;
 
-              return Stack(children: [
-                Column(children: [
-                  Row(children: [
-                    const SizedBox(width: _kDeviceNameWidth),
-                    ...List.generate(24, (index) {
-                      final hour = index + 1;
-                      if (hour == 24) {
-                        return const Expanded(child: SizedBox.shrink());
-                      }
-
-                      return Expanded(
-                        child: Transform.translate(
-                          offset: Offset(
-                            hour.toString().length * 4,
-                            0.0,
-                          ),
-                          child: Text(
-                            '$hour',
-                            style: theme.textTheme.labelMedium,
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      );
-                    }),
-                  ]),
+            return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              SizedBox(
+                width: _kDeviceNameWidth,
+                child: Column(children: [
+                  ...timeline.tiles.map((tile) {
+                    return _TimelineTile.name(tile: tile);
+                  }),
+                ]),
+              ),
+              Expanded(
+                child: Stack(children: [
                   GestureDetector(
                     onHorizontalDragUpdate: (details) {
-                      final pointerPosition =
-                          (details.localPosition.dx - _kDeviceNameWidth) /
-                              (constraints.maxWidth - _kDeviceNameWidth);
+                      final pointerPosition = (details.localPosition.dx +
+                              timeline.zoomController.offset) /
+                          tileWidth;
                       if (pointerPosition < 0 || pointerPosition > 1) return;
 
                       final minutes =
@@ -573,31 +576,60 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       final position = Duration(minutes: minutes);
                       timeline.seekTo(position);
                     },
-                    child: Column(children: [
-                      ...timeline.tiles.map((tile) {
-                        return _TimelineTile(
-                          key: ValueKey(tile),
-                          tile: tile,
-                        );
-                      }),
-                    ]),
-                  )
-                ]),
-                Positioned(
-                  left: (timeline.currentPosition.inMinutes * minuteWidth) +
-                      _kDeviceNameWidth,
-                  width: 1.8,
-                  top: 16.0,
-                  height: _kTimelineTileHeight * timeline.tiles.length,
-                  child: IgnorePointer(
-                    child: ColoredBox(
-                      color: theme.colorScheme.onBackground,
+                    child: SingleChildScrollView(
+                      controller: timeline.zoomController,
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: tileWidth,
+                        child: Column(children: [
+                          Row(children: [
+                            ...List.generate(24, (index) {
+                              final hour = index + 1;
+                              if (hour == 24) return SizedBox(width: hourWidth);
+
+                              return SizedBox(
+                                width: hourWidth,
+                                child: Transform.translate(
+                                  offset: Offset(
+                                    hour.toString().length * 4,
+                                    0.0,
+                                  ),
+                                  child: Text(
+                                    '$hour',
+                                    style: theme.textTheme.labelMedium,
+                                    textAlign: TextAlign.end,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ]),
+                          ...timeline.tiles.map((tile) {
+                            return _TimelineTile(
+                              key: ValueKey(tile),
+                              tile: tile,
+                            );
+                          }),
+                        ]),
+                      ),
                     ),
                   ),
-                ),
-              ]);
-            }),
-          ),
+                  Positioned(
+                    key: timeline.indicatorKey,
+                    left: (timeline.currentPosition.inMinutes * minuteWidth) -
+                        timeline.zoomController.offset,
+                    width: 1.8,
+                    top: 16.0,
+                    height: _kTimelineTileHeight * timeline.tiles.length,
+                    child: IgnorePointer(
+                      child: ColoredBox(
+                        color: theme.colorScheme.onBackground,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ]);
+          }),
         ]),
       ),
     ]);
@@ -609,17 +641,15 @@ class _TimelineTile extends StatelessWidget {
 
   const _TimelineTile({super.key, required this.tile});
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  static Widget name({required TimelineTile tile}) {
+    return Builder(builder: (context) {
+      final theme = Theme.of(context);
+      final border = Border(
+        right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
+        top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+      );
 
-    final border = Border(
-      right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
-      top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-    );
-
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Tooltip(
+      return Tooltip(
         message:
             '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
         preferBelow: false,
@@ -647,7 +677,20 @@ class _TimelineTile extends StatelessWidget {
             ]),
           ),
         ),
-      ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final border = Border(
+      right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
+      top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+    );
+
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       ...List.generate(24, (index) {
         final hour = index;
 

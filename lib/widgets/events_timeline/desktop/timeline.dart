@@ -363,6 +363,7 @@ class Timeline extends ChangeNotifier {
 const _kDeviceNameWidth = 100.0;
 const _kTimelineTileHeight = 30.0;
 final _minutesInADay = const Duration(days: 1).inMinutes;
+final _secondsInADay = const Duration(days: 1).inSeconds;
 
 class TimelineEventsView extends StatefulWidget {
   final Timeline? timeline;
@@ -471,7 +472,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     child: Slider(
                       value: timeline.zoom,
                       min: 1.0,
-                      max: 5.0,
+                      max: 7.5,
                       onChanged: (s) => timeline.zoom = s,
                       onChangeEnd: (s) {
                         FocusScope.of(context).unfocus();
@@ -552,6 +553,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
             final hourWidth = tileWidth / 24;
             final minuteWidth = tileWidth / _minutesInADay;
+            final secondsWidth = tileWidth / _secondsInADay;
 
             return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               SizedBox(
@@ -571,9 +573,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                           tileWidth;
                       if (pointerPosition < 0 || pointerPosition > 1) return;
 
-                      final minutes =
-                          (_minutesInADay * pointerPosition).round();
-                      final position = Duration(minutes: minutes);
+                      final seconds =
+                          (_secondsInADay * pointerPosition).round();
+                      final position = Duration(seconds: seconds);
                       timeline.seekTo(position);
                     },
                     child: SingleChildScrollView(
@@ -615,7 +617,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                   ),
                   Positioned(
                     key: timeline.indicatorKey,
-                    left: (timeline.currentPosition.inMinutes * minuteWidth) -
+                    left: (timeline.currentPosition.inSeconds * secondsWidth) -
                         timeline.zoomController.offset,
                     width: 1.8,
                     top: 16.0,
@@ -703,13 +705,18 @@ class _TimelineTile extends StatelessWidget {
                 return const SizedBox.shrink();
               }
 
-              final minuteWidth = constraints.maxWidth / 60;
+              final secondWidth = constraints.maxWidth / 60 / 60;
+
               return Stack(clipBehavior: Clip.none, children: [
                 for (final event in tile.events
                     .where((event) => event.startTime.hour == hour))
                   Positioned(
-                    left: event.startTime.minute * minuteWidth,
-                    width: event.duration.inMinutes * minuteWidth,
+                    // the minute (in seconds) + the start second * the width of
+                    // a second
+                    left: ((event.startTime.minute * 60) +
+                            event.startTime.second) *
+                        secondWidth,
+                    width: event.duration.inSeconds * secondWidth,
                     height: _kTimelineTileHeight,
                     child: ColoredBox(
                       color: theme.colorScheme.primary,

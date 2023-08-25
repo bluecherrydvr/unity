@@ -305,7 +305,9 @@ class Timeline extends ChangeNotifier {
   }
 
   final indicatorKey = GlobalKey(debugLabel: 'Indicator key');
-  final zoomController = ScrollController();
+  final zoomController = ScrollController(
+    debugLabel: 'Zoom Indicator Controller',
+  );
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
@@ -362,7 +364,6 @@ class Timeline extends ChangeNotifier {
 
 const _kDeviceNameWidth = 100.0;
 const _kTimelineTileHeight = 30.0;
-final _minutesInADay = const Duration(days: 1).inMinutes;
 final _secondsInADay = const Duration(days: 1).inSeconds;
 
 class TimelineEventsView extends StatefulWidget {
@@ -552,7 +553,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             final tileWidth =
                 (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
             final hourWidth = tileWidth / 24;
-            final minuteWidth = tileWidth / _minutesInADay;
             final secondsWidth = tileWidth / _secondsInADay;
 
             return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -568,6 +568,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 child: Stack(children: [
                   GestureDetector(
                     onHorizontalDragUpdate: (details) {
+                      if (!timeline.zoomController.hasClients) return;
                       final pointerPosition = (details.localPosition.dx +
                               timeline.zoomController.offset) /
                           tileWidth;
@@ -615,19 +616,21 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    key: timeline.indicatorKey,
-                    left: (timeline.currentPosition.inSeconds * secondsWidth) -
-                        timeline.zoomController.offset,
-                    width: 1.8,
-                    top: 16.0,
-                    height: _kTimelineTileHeight * timeline.tiles.length,
-                    child: IgnorePointer(
-                      child: ColoredBox(
-                        color: theme.colorScheme.onBackground,
+                  if (timeline.zoomController.hasClients)
+                    Positioned(
+                      key: timeline.indicatorKey,
+                      left:
+                          (timeline.currentPosition.inSeconds * secondsWidth) -
+                              timeline.zoomController.offset,
+                      width: 1.8,
+                      top: 16.0,
+                      height: _kTimelineTileHeight * timeline.tiles.length,
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          color: theme.colorScheme.onBackground,
+                        ),
                       ),
                     ),
-                  ),
                 ]),
               ),
             ]);

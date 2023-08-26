@@ -587,27 +587,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       child: SizedBox(
                         width: tileWidth,
                         child: Column(children: [
-                          Row(children: [
-                            ...List.generate(24, (index) {
-                              final hour = index + 1;
-                              if (hour == 24) return SizedBox(width: hourWidth);
-
-                              return SizedBox(
-                                width: hourWidth,
-                                child: Transform.translate(
-                                  offset: Offset(
-                                    hour.toString().length * 4,
-                                    0.0,
-                                  ),
-                                  child: Text(
-                                    '$hour',
-                                    style: theme.textTheme.labelMedium,
-                                    textAlign: TextAlign.end,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ]),
+                          _TimelineHours(hourWidth: hourWidth),
                           ...timeline.tiles.map((tile) {
                             return _TimelineTile(
                               key: ValueKey(tile),
@@ -730,6 +710,62 @@ class _TimelineTile extends StatelessWidget {
               ]);
             }),
           ),
+        );
+      }),
+    ]);
+  }
+}
+
+class _TimelineHours extends StatelessWidget {
+  /// The width of an hour
+  final double hourWidth;
+  const _TimelineHours({required this.hourWidth});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final decWidth = hourWidth / 10;
+    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+      ...List.generate(24, (index) {
+        final hour = index + 1;
+        if (hour == 24) return SizedBox(width: hourWidth);
+
+        final hourWidget = Transform.translate(
+          offset: Offset(
+            hour.toString().length * 4,
+            0.0,
+          ),
+          child: Text(
+            '$hour',
+            style: theme.textTheme.labelMedium,
+            textAlign: TextAlign.end,
+          ),
+        );
+
+        if (decWidth > 25.0) {
+          return SizedBox(
+            width: hourWidth,
+            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              ...List.generate(9, (index) {
+                return Container(
+                  margin: EdgeInsets.only(
+                    left: decWidth,
+                  ),
+                  height: 6.5,
+                  width: 1,
+                  color: Colors.black,
+                );
+              }),
+              const Spacer(),
+              hourWidget,
+            ]),
+          );
+        }
+
+        return SizedBox(
+          width: hourWidth,
+          child: hourWidget,
         );
       }),
     ]);

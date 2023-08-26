@@ -31,6 +31,7 @@ import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sideb
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -312,8 +313,31 @@ class Timeline extends ChangeNotifier {
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
-    if (value >= 1.0 && value <= maxZoom) {
-      _zoom = value;
+    if (value >= 0.0 && value <= maxZoom) {
+      _zoom = clampDouble(value, 1.0, maxZoom);
+
+      if (_zoom > 1.0) {
+        final visibilityFactor =
+            zoomController.position.viewportDimension / 6.0;
+        final zoomedWidth = zoomController.position.viewportDimension * zoom;
+        final secondWidth = zoomedWidth / _secondsInADay;
+        final to = currentPosition.inSeconds * secondWidth;
+
+        if (to < zoomController.position.viewportDimension) {
+          // If the current position is at the beggining of the viewport, jump
+          // to 0.0
+          zoomController.jumpTo(0.0);
+        } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
+          // If the current position is at the end of the viewport, jump to the
+          // beggining of the end of the viewport
+          zoomController
+              .jumpTo(zoomedWidth - zoomController.position.viewportDimension);
+        } else {
+          // Otherwise, jump to the current position minus the visibility factor,
+          // to ensure that the current position is visible at a viable position
+          zoomController.jumpTo(to - visibilityFactor);
+        }
+      }
       notifyListeners();
     }
   }
@@ -563,7 +587,11 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 child: Stack(children: [
                   GestureDetector(
                     onHorizontalDragUpdate: (details) {
-                      if (!timeline.zoomController.hasClients) return;
+                      if (!timeline.zoomController.hasClients ||
+                          details.localPosition.dx >=
+                              (constraints.maxWidth - _kDeviceNameWidth)) {
+                        return;
+                      }
                       final pointerPosition = (details.localPosition.dx +
                               timeline.zoomController.offset) /
                           tileWidth;
@@ -573,6 +601,20 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                           (_secondsInADay * pointerPosition).round();
                       final position = Duration(seconds: seconds);
                       timeline.seekTo(position);
+
+                      if (timeline.zoom > 1.0) {
+                        final endPosition =
+                            constraints.maxWidth - _kDeviceNameWidth - 100.0;
+                        if (details.localPosition.dx >= endPosition) {
+                          timeline.zoomController.jumpTo(
+                            timeline.zoomController.offset + 25.0,
+                          );
+                        } else if (details.localPosition.dx <= 100.0) {
+                          timeline.zoomController.jumpTo(
+                            timeline.zoomController.offset - 25.0,
+                          );
+                        }
+                      }
                     },
                     child: SingleChildScrollView(
                       controller: timeline.zoomController,

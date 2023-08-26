@@ -17,37 +17,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
+import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/player/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-class TimelineCard extends StatelessWidget {
+class TimelineCard extends StatefulWidget {
   const TimelineCard({super.key, required this.tile, required this.timeline});
 
   final Timeline timeline;
   final TimelineTile tile;
 
   @override
+  State<TimelineCard> createState() => _TimelineCardState();
+}
+
+class _TimelineCardState extends State<TimelineCard> {
+  UnityVideoFit? _fit;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+    final downloadsManager = context.watch<DownloadsManager>();
 
-    final device = tile.device;
-    final events = tile.events;
+    final device = widget.tile.device;
+    final events = widget.tile.events;
 
     final currentEvent = events.firstWhereOrNull((event) {
-      return event.isPlaying(timeline.currentDate);
+      return event.isPlaying(widget.timeline.currentDate);
     });
-
-    const showDebugInfo = kDebugMode;
 
     return Card(
       key: ValueKey(device),
@@ -56,9 +66,9 @@ class TimelineCard extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       child: UnityVideoView(
         heroTag: device.streamURL,
-        player: tile.videoController,
+        player: widget.tile.videoController,
         color: Colors.transparent,
-        fit: settings.cameraViewFit,
+        fit: _fit ?? settings.cameraViewFit,
         paneBuilder: (context, controller) {
           if (currentEvent == null) {
             return RepaintBoundary(
@@ -85,6 +95,16 @@ class TimelineCard extends StatelessWidget {
               ),
             );
           }
+
+          final isDownloaded = downloadsManager.isEventDownloaded(
+            currentEvent.event.id,
+          );
+          final isDownloading = downloadsManager.isEventDownloading(
+            currentEvent.event.id,
+          );
+
+          final video = UnityVideoView.of(context);
+
           return HoverButton(
             forceEnabled: true,
             margin: const EdgeInsets.all(16.0),
@@ -105,12 +125,13 @@ class TimelineCard extends StatelessWidget {
                       ),
                     ),
                     const TextSpan(text: '\n'),
-                    TextSpan(
-                      text: currentEvent
-                          .position(timeline.currentDate)
-                          .humanReadableCompact(context),
-                    ),
-                    if (showDebugInfo) ...[
+                    if (states.isHovering)
+                      TextSpan(
+                        text: currentEvent
+                            .position(widget.timeline.currentDate)
+                            .humanReadableCompact(context),
+                      ),
+                    if (kDebugMode) ...[
                       const TextSpan(text: '\ndebug: '),
                       TextSpan(
                         text:
@@ -120,27 +141,40 @@ class TimelineCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (showDebugInfo)
+              if (kDebugMode)
                 Align(
                   alignment: AlignmentDirectional.topEnd,
                   child: Text(
                     'debug buffering: '
-                    '${(tile.videoController.currentBuffer.inMilliseconds / tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
-                    '\n${tile.videoController.currentBuffer.humanReadableCompact(context)}',
+                    '${(widget.tile.videoController.currentBuffer.inMilliseconds / widget.tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
+                    '\n${widget.tile.videoController.currentBuffer.humanReadableCompact(context)}',
                     style: theme.textTheme.labelLarge!.copyWith(
                       color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),
                     ),
                   ),
                 ),
-              if (controller.isBuffering)
-                const PositionedDirectional(
-                  end: 0,
-                  top: 0,
-                  height: 24.0,
-                  width: 24.0,
-                  child: CircularProgressIndicator.adaptive(strokeWidth: 2.0),
-                ),
+              PositionedDirectional(
+                end: 0,
+                top: 0,
+                height: 24.0,
+                width: 24.0,
+                child: () {
+                  if (controller.isBuffering) {
+                    return const CircularProgressIndicator.adaptive(
+                      strokeWidth: 2.0,
+                    );
+                  }
+                  if (isDownloaded || isDownloading || states.isHovering) {
+                    DownloadIndicator(
+                      event: currentEvent.event,
+                      highlight: true,
+                      small: true,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }(),
+              ),
               if (states.isHovering)
                 Align(
                   alignment: AlignmentDirectional.bottomStart,
@@ -164,6 +198,41 @@ class TimelineCard extends StatelessWidget {
                     ),
                   ),
                 ),
+              Align(
+                alignment: AlignmentDirectional.bottomEnd,
+                child: SizedBox(
+                  height: 24.0,
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    if (states.isHovering) ...[
+                      CameraViewFitButton(
+                        fit: _fit ?? settings.cameraViewFit,
+                        onChanged: (fit) => setState(() => _fit = fit),
+                      ),
+                      IconButton(
+                        tooltip: loc.showFullscreenCamera,
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                            '/events',
+                            arguments: {'event': currentEvent.event},
+                          );
+                        },
+                        iconSize: 18.0,
+                        icon: Icon(
+                          Icons.fullscreen,
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
+                      )
+                    ],
+                    VideoStatusLabel(
+                      video: video,
+                      device: widget.tile.device,
+                      event: currentEvent.event,
+                    )
+                  ]),
+                ),
+              ),
             ]),
           );
         },

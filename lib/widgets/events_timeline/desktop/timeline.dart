@@ -31,6 +31,7 @@ import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sideb
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -311,9 +312,13 @@ class Timeline extends ChangeNotifier {
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
-    _zoom = value;
-    notifyListeners();
+    if (value >= 1.0 && value <= maxZoom) {
+      _zoom = value;
+      notifyListeners();
+    }
   }
+
+  static const maxZoom = 10.0;
 
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
@@ -408,7 +413,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return Column(children: [
+    final view = Column(children: [
       Expanded(
         child: Row(children: [
           Expanded(
@@ -470,18 +475,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                         strokeWidth: 2,
                       ),
                     ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 120.0),
-                    child: Slider(
-                      value: timeline.zoom,
-                      min: 1.0,
-                      max: 7.5,
-                      onChanged: (s) => timeline.zoom = s,
-                      onChangeEnd: (s) {
-                        FocusScope.of(context).unfocus();
-                      },
-                    ),
-                  ),
                   Text(
                     '${(_speed ?? timeline.speed) == 1.0 ? '1' : (_speed ?? timeline.speed).toStringAsFixed(1)}'
                     'x',
@@ -620,6 +613,35 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         ]),
       ),
     ]);
+
+    return Listener(
+      onPointerSignal: _receivedPointerSignal,
+      child: view,
+    );
+  }
+
+  // Handle mousewheel and web trackpad scroll events.
+  void _receivedPointerSignal(PointerSignalEvent event) {
+    final double scaleChange;
+    if (event is PointerScrollEvent) {
+      if (event.kind == PointerDeviceKind.trackpad) {
+        return;
+      }
+      // Ignore left and right mouse wheel scroll.
+      if (event.scrollDelta.dy == 0.0) {
+        return;
+      }
+      scaleChange = exp(event.scrollDelta.dy / 200);
+    } else if (event is PointerScaleEvent) {
+      scaleChange = event.scale;
+    } else {
+      return;
+    }
+    if (scaleChange < 1.0) {
+      timeline.zoom -= 0.8;
+    } else {
+      timeline.zoom += 0.6;
+    }
   }
 }
 

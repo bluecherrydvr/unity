@@ -584,8 +584,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 ]),
               ),
               Expanded(
-                child: Stack(children: [
+                child: Stack(clipBehavior: Clip.none, children: [
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onHorizontalDragUpdate: (details) {
                       if (!timeline.zoomController.hasClients ||
                           details.localPosition.dx >=
@@ -638,14 +639,29 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       key: timeline.indicatorKey,
                       left:
                           (timeline.currentPosition.inSeconds * secondsWidth) -
-                              timeline.zoomController.offset,
-                      width: 1.8,
-                      top: 16.0,
-                      height: _kTimelineTileHeight * timeline.tiles.length,
+                              timeline.zoomController.offset -
+                              (/* the width of half of the triangle */
+                                  8 / 2),
+                      width: 8,
+                      top: 12.0,
+                      bottom: 0.0,
                       child: IgnorePointer(
-                        child: ColoredBox(
-                          color: theme.colorScheme.onBackground,
-                        ),
+                        child: Column(children: [
+                          ClipPath(
+                            clipper: InvertedTriangleClipper(),
+                            child: Container(
+                              width: 8,
+                              height: 6,
+                              color: theme.colorScheme.onBackground,
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              color: theme.colorScheme.onBackground,
+                              width: 1.8,
+                            ),
+                          ),
+                        ]),
                       ),
                     ),
                 ]),
@@ -789,7 +805,7 @@ class _TimelineHours extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final decWidth = hourWidth / 10;
+    final decWidth = hourWidth / 6;
     return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
       ...List.generate(24, (index) {
         final hour = index + 1;
@@ -811,14 +827,17 @@ class _TimelineHours extends StatelessWidget {
           return SizedBox(
             width: hourWidth,
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              ...List.generate(9, (index) {
-                return Container(
-                  margin: EdgeInsets.only(
-                    left: decWidth,
+              ...List.generate(5, (index) {
+                return SizedBox(
+                  width: decWidth,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Container(
+                      height: 5.5,
+                      width: 1,
+                      color: Colors.black,
+                    ),
                   ),
-                  height: 6.5,
-                  width: 1,
-                  color: Colors.black,
                 );
               }),
               const Spacer(),

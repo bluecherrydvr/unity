@@ -256,5 +256,13 @@ class SettingsProvider extends ChangeNotifier {
 
 enum NotificationClickAction {
   showFullscreenCamera,
-  showEventsScreen,
+  showEventsScreen;
+
+  IconData get icon {
+    return switch (this) {
+      NotificationClickAction.showEventsScreen =>
+        Icons.featured_play_list_outlined,
+      NotificationClickAction.showFullscreenCamera => Icons.screenshot_monitor,
+    };
+  }
 }

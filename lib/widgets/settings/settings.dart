@@ -195,19 +195,23 @@ class _SettingsState extends State<Settings> {
                       color: theme.textTheme.bodySmall?.color,
                     ),
                   ),
-                  children: NotificationClickAction.values.map((e) {
+                  children: NotificationClickAction.values.map((behavior) {
                     return RadioListTile(
-                      value: e,
+                      contentPadding: const EdgeInsetsDirectional.only(
+                        start: 68.0,
+                        end: 16.0,
+                      ),
+                      value: behavior,
                       groupValue: settings.notificationClickBehavior,
                       onChanged: (value) {
-                        settings.notificationClickBehavior = e;
+                        settings.notificationClickBehavior = behavior;
                       },
-                      secondary: const Icon(null),
+                      secondary: Icon(behavior.icon),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
                         child: Text(
-                          e.str(context),
+                          behavior.str(context),
                         ),
                       ),
                     );

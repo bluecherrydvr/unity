@@ -345,6 +345,8 @@ class Timeline extends ChangeNotifier {
             tile.videoController.seekTo(e.position(currentDate));
           }
           if (!tile.videoController.isPlaying) tile.videoController.start();
+        } else {
+          tile.videoController.pause();
         }
       });
     });

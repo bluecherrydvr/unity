@@ -310,6 +310,14 @@ class Timeline extends ChangeNotifier {
   final zoomController = ScrollController(
     debugLabel: 'Zoom Indicator Controller',
   );
+  void scrollTo(double to, [double? max]) {
+    zoomController.jumpTo(clampDouble(
+      to,
+      0.0,
+      max ?? zoomController.position.maxScrollExtent,
+    ));
+  }
+
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
@@ -326,16 +334,17 @@ class Timeline extends ChangeNotifier {
         if (to < zoomController.position.viewportDimension) {
           // If the current position is at the beggining of the viewport, jump
           // to 0.0
-          zoomController.jumpTo(0.0);
+          scrollTo(0.0);
         } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
           // If the current position is at the end of the viewport, jump to the
           // beggining of the end of the viewport
-          zoomController
-              .jumpTo(zoomedWidth - zoomController.position.viewportDimension);
+          // scrollTo(zoomedWidth);
+          scrollTo(zoomedWidth - zoomController.position.viewportDimension,
+              zoomedWidth);
         } else {
           // Otherwise, jump to the current position minus the visibility factor,
           // to ensure that the current position is visible at a viable position
-          zoomController.jumpTo(to - visibilityFactor);
+          scrollTo(to - visibilityFactor);
         }
       }
       notifyListeners();
@@ -604,14 +613,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       timeline.seekTo(position);
 
                       if (timeline.zoom > 1.0) {
+                        // the position that the seeker will start moving
+                        // 100. removes it from the border
                         final endPosition =
                             constraints.maxWidth - _kDeviceNameWidth - 100.0;
                         if (details.localPosition.dx >= endPosition) {
-                          timeline.zoomController.jumpTo(
+                          timeline.scrollTo(
                             timeline.zoomController.offset + 25.0,
                           );
                         } else if (details.localPosition.dx <= 100.0) {
-                          timeline.zoomController.jumpTo(
+                          timeline.scrollTo(
                             timeline.zoomController.offset - 25.0,
                           );
                         }
@@ -809,19 +820,21 @@ class _TimelineHours extends StatelessWidget {
     return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
       ...List.generate(24, (index) {
         final hour = index + 1;
-        if (hour == 24) return SizedBox(width: hourWidth);
+        final shouldDisplayHour = hour < 24;
 
-        final hourWidget = Transform.translate(
-          offset: Offset(
-            hour.toString().length * 4,
-            0.0,
-          ),
-          child: Text(
-            '$hour',
-            style: theme.textTheme.labelMedium,
-            textAlign: TextAlign.end,
-          ),
-        );
+        final hourWidget = shouldDisplayHour
+            ? Transform.translate(
+                offset: Offset(
+                  hour.toString().length * 4,
+                  0.0,
+                ),
+                child: Text(
+                  '$hour',
+                  style: theme.textTheme.labelMedium,
+                  textAlign: TextAlign.end,
+                ),
+              )
+            : const SizedBox.shrink();
 
         if (decWidth > 25.0) {
           return SizedBox(
@@ -833,9 +846,9 @@ class _TimelineHours extends StatelessWidget {
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: Container(
-                      height: 5.5,
-                      width: 1,
-                      color: Colors.black,
+                      height: 6.5,
+                      width: 2,
+                      color: theme.colorScheme.onBackground,
                     ),
                   ),
                 );

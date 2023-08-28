@@ -424,3 +424,19 @@ class _PlayPauseIconState extends State<PlayPauseIcon>
     );
   }
 }
+
+class InvertedTriangleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    return Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(covariant InvertedTriangleClipper oldClipper) {
+    return false;
+  }
+}

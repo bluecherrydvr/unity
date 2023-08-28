@@ -351,9 +351,15 @@ class DownloadProgressIndicator extends StatelessWidget {
   const DownloadProgressIndicator({
     super.key,
     required this.progress,
+    this.color,
   });
 
   final DownloadProgress progress;
+
+  /// The color of the indicator.
+  ///
+  /// If not provided, the primary color is used instead.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -365,13 +371,14 @@ class DownloadProgressIndicator extends StatelessWidget {
         child: CircularProgressIndicator(
           value: progress,
           strokeWidth: 2.0,
+          color: color,
         ),
       ),
       Center(
         child: Icon(
           Icons.download,
           size: 14.0,
-          color: theme.colorScheme.primary,
+          color: color ?? theme.colorScheme.primary,
         ),
       ),
     ]);
@@ -385,7 +392,18 @@ class DownloadProgressIndicator extends StatelessWidget {
 class DownloadIndicator extends StatelessWidget {
   final Event event;
 
-  const DownloadIndicator({super.key, required this.event});
+  /// Whether to highlight the indicator with a white color and an outline border
+  final bool highlight;
+
+  /// Whether the indicator is small
+  final bool small;
+
+  const DownloadIndicator({
+    super.key,
+    required this.event,
+    this.highlight = false,
+    this.small = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -400,6 +418,7 @@ class DownloadIndicator extends StatelessWidget {
           return Icon(
             Icons.warning,
             color: theme.extension<UnityColors>()!.warningColor,
+            size: small ? 18.0 : null,
           );
         }
 
@@ -411,6 +430,7 @@ class DownloadIndicator extends StatelessWidget {
               context.read<HomeProvider>().toDownloads(event.id, context);
             },
             tooltip: loc.seeInDownloads,
+            iconSize: small ? 18.0 : null,
             icon: Icon(
               Icons.download_done,
               color: theme.extension<UnityColors>()!.successColor,
@@ -422,6 +442,7 @@ class DownloadIndicator extends StatelessWidget {
           return DownloadProgressIndicator(
             progress: downloads.downloading[downloads.downloading.keys
                 .firstWhere((e) => e.id == event.id)]!,
+            color: highlight ? Colors.amber : null,
           );
         }
 
@@ -430,8 +451,12 @@ class DownloadIndicator extends StatelessWidget {
             padding: EdgeInsets.zero,
             tooltip: loc.download,
             onPressed: () => downloads.download(event),
-            iconSize: 22.0,
-            icon: const Icon(Icons.download),
+            iconSize: small ? 18.0 : 22.0,
+            icon: Icon(
+              Icons.download,
+              color: highlight ? Colors.white : null,
+              shadows: highlight ? outlinedText() : null,
+            ),
           );
         }
       }(),

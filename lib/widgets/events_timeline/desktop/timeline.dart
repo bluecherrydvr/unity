@@ -31,6 +31,8 @@ import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sideb
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -160,6 +162,8 @@ class Timeline extends ChangeNotifier {
         ..onPlayingStateUpdate.listen((_) => _eventCallback(tile))
         ..onCurrentPosUpdate.listen((_) => _eventCallback(tile, notify: false));
     }
+
+    zoomController.addListener(notifyListeners);
   }
 
   void _eventCallback(TimelineTile tile, {bool notify = true}) {
@@ -302,12 +306,52 @@ class Timeline extends ChangeNotifier {
     play();
   }
 
+  final indicatorKey = GlobalKey(debugLabel: 'Indicator key');
+  final zoomController = ScrollController(
+    debugLabel: 'Zoom Indicator Controller',
+  );
+  void scrollTo(double to, [double? max]) {
+    zoomController.jumpTo(clampDouble(
+      to,
+      0.0,
+      max ?? zoomController.position.maxScrollExtent,
+    ));
+  }
+
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
-    _zoom = value;
-    notifyListeners();
+    if (value >= 0.0 && value <= maxZoom) {
+      _zoom = clampDouble(value, 1.0, maxZoom);
+
+      if (_zoom > 1.0) {
+        final visibilityFactor =
+            zoomController.position.viewportDimension / 6.0;
+        final zoomedWidth = zoomController.position.viewportDimension * zoom;
+        final secondWidth = zoomedWidth / _secondsInADay;
+        final to = currentPosition.inSeconds * secondWidth;
+
+        if (to < zoomController.position.viewportDimension) {
+          // If the current position is at the beggining of the viewport, jump
+          // to 0.0
+          scrollTo(0.0);
+        } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
+          // If the current position is at the end of the viewport, jump to the
+          // beggining of the end of the viewport
+          // scrollTo(zoomedWidth);
+          scrollTo(zoomedWidth - zoomController.position.viewportDimension,
+              zoomedWidth);
+        } else {
+          // Otherwise, jump to the current position minus the visibility factor,
+          // to ensure that the current position is visible at a viable position
+          scrollTo(to - visibilityFactor);
+        }
+      }
+      notifyListeners();
+    }
   }
+
+  static const maxZoom = 10.0;
 
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
@@ -339,6 +383,8 @@ class Timeline extends ChangeNotifier {
             tile.videoController.seekTo(e.position(currentDate));
           }
           if (!tile.videoController.isPlaying) tile.videoController.start();
+        } else {
+          tile.videoController.pause();
         }
       });
     });
@@ -351,13 +397,14 @@ class Timeline extends ChangeNotifier {
     for (final tile in tiles) {
       tile.videoController.dispose();
     }
+    zoomController.dispose();
     super.dispose();
   }
 }
 
 const _kDeviceNameWidth = 100.0;
 const _kTimelineTileHeight = 30.0;
-final _minutesInADay = const Duration(days: 1).inMinutes;
+final _secondsInADay = const Duration(days: 1).inSeconds;
 
 class TimelineEventsView extends StatefulWidget {
   final Timeline? timeline;
@@ -399,7 +446,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return Column(children: [
+    final view = Column(children: [
       Expanded(
         child: Row(children: [
           Expanded(
@@ -530,77 +577,140 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.dateFormat.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          FractionallySizedBox(
-            widthFactor: timeline.zoom,
-            child: LayoutBuilder(builder: (context, constraints) {
-              final minuteWidth =
-                  (constraints.maxWidth - _kDeviceNameWidth) / _minutesInADay;
+          LayoutBuilder(builder: (context, constraints) {
+            final tileWidth =
+                (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
+            final hourWidth = tileWidth / 24;
+            final secondsWidth = tileWidth / _secondsInADay;
 
-              return Stack(children: [
-                Column(children: [
-                  Row(children: [
-                    const SizedBox(width: _kDeviceNameWidth),
-                    ...List.generate(24, (index) {
-                      final hour = index + 1;
-                      if (hour == 24) {
-                        return const Expanded(child: SizedBox.shrink());
-                      }
-
-                      return Expanded(
-                        child: Transform.translate(
-                          offset: Offset(
-                            hour.toString().length * 4,
-                            0.0,
-                          ),
-                          child: Text(
-                            '$hour',
-                            style: theme.textTheme.labelMedium,
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      );
-                    }),
-                  ]),
+            return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              SizedBox(
+                width: _kDeviceNameWidth,
+                child: Column(children: [
+                  ...timeline.tiles.map((tile) {
+                    return _TimelineTile.name(tile: tile);
+                  }),
+                ]),
+              ),
+              Expanded(
+                child: Stack(clipBehavior: Clip.none, children: [
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onHorizontalDragUpdate: (details) {
-                      final pointerPosition =
-                          (details.localPosition.dx - _kDeviceNameWidth) /
-                              (constraints.maxWidth - _kDeviceNameWidth);
+                      if (!timeline.zoomController.hasClients ||
+                          details.localPosition.dx >=
+                              (constraints.maxWidth - _kDeviceNameWidth)) {
+                        return;
+                      }
+                      final pointerPosition = (details.localPosition.dx +
+                              timeline.zoomController.offset) /
+                          tileWidth;
                       if (pointerPosition < 0 || pointerPosition > 1) return;
 
-                      final minutes =
-                          (_minutesInADay * pointerPosition).round();
-                      final position = Duration(minutes: minutes);
+                      final seconds =
+                          (_secondsInADay * pointerPosition).round();
+                      final position = Duration(seconds: seconds);
                       timeline.seekTo(position);
+
+                      if (timeline.zoom > 1.0) {
+                        // the position that the seeker will start moving
+                        // 100. removes it from the border
+                        final endPosition =
+                            constraints.maxWidth - _kDeviceNameWidth - 100.0;
+                        if (details.localPosition.dx >= endPosition) {
+                          timeline.scrollTo(
+                            timeline.zoomController.offset + 25.0,
+                          );
+                        } else if (details.localPosition.dx <= 100.0) {
+                          timeline.scrollTo(
+                            timeline.zoomController.offset - 25.0,
+                          );
+                        }
+                      }
                     },
-                    child: Column(children: [
-                      ...timeline.tiles.map((tile) {
-                        return _TimelineTile(
-                          key: ValueKey(tile),
-                          tile: tile,
-                        );
-                      }),
-                    ]),
-                  )
-                ]),
-                Positioned(
-                  left: (timeline.currentPosition.inMinutes * minuteWidth) +
-                      _kDeviceNameWidth,
-                  width: 1.8,
-                  top: 16.0,
-                  height: _kTimelineTileHeight * timeline.tiles.length,
-                  child: IgnorePointer(
-                    child: ColoredBox(
-                      color: theme.colorScheme.onBackground,
+                    child: SingleChildScrollView(
+                      controller: timeline.zoomController,
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: tileWidth,
+                        child: Column(children: [
+                          _TimelineHours(hourWidth: hourWidth),
+                          ...timeline.tiles.map((tile) {
+                            return _TimelineTile(
+                              key: ValueKey(tile),
+                              tile: tile,
+                            );
+                          }),
+                        ]),
+                      ),
                     ),
                   ),
-                ),
-              ]);
-            }),
-          ),
+                  if (timeline.zoomController.hasClients)
+                    Positioned(
+                      key: timeline.indicatorKey,
+                      left:
+                          (timeline.currentPosition.inSeconds * secondsWidth) -
+                              timeline.zoomController.offset -
+                              (/* the width of half of the triangle */
+                                  8 / 2),
+                      width: 8,
+                      top: 12.0,
+                      bottom: 0.0,
+                      child: IgnorePointer(
+                        child: Column(children: [
+                          ClipPath(
+                            clipper: InvertedTriangleClipper(),
+                            child: Container(
+                              width: 8,
+                              height: 6,
+                              color: theme.colorScheme.onBackground,
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              color: theme.colorScheme.onBackground,
+                              width: 1.8,
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                ]),
+              ),
+            ]);
+          }),
         ]),
       ),
     ]);
+
+    return Listener(
+      onPointerSignal: _receivedPointerSignal,
+      child: view,
+    );
+  }
+
+  // Handle mousewheel and web trackpad scroll events.
+  void _receivedPointerSignal(PointerSignalEvent event) {
+    final double scaleChange;
+    if (event is PointerScrollEvent) {
+      if (event.kind == PointerDeviceKind.trackpad) {
+        return;
+      }
+      // Ignore left and right mouse wheel scroll.
+      if (event.scrollDelta.dy == 0.0) {
+        return;
+      }
+      scaleChange = exp(event.scrollDelta.dy / 200);
+    } else if (event is PointerScaleEvent) {
+      scaleChange = event.scale;
+    } else {
+      return;
+    }
+    if (scaleChange < 1.0) {
+      timeline.zoom -= 0.8;
+    } else {
+      timeline.zoom += 0.6;
+    }
   }
 }
 
@@ -609,17 +719,15 @@ class _TimelineTile extends StatelessWidget {
 
   const _TimelineTile({super.key, required this.tile});
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  static Widget name({required TimelineTile tile}) {
+    return Builder(builder: (context) {
+      final theme = Theme.of(context);
+      final border = Border(
+        right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
+        top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+      );
 
-    final border = Border(
-      right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
-      top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-    );
-
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Tooltip(
+      return Tooltip(
         message:
             '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
         preferBelow: false,
@@ -647,7 +755,20 @@ class _TimelineTile extends StatelessWidget {
             ]),
           ),
         ),
-      ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final border = Border(
+      right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
+      top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+    );
+
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       ...List.generate(24, (index) {
         final hour = index;
 
@@ -660,13 +781,18 @@ class _TimelineTile extends StatelessWidget {
                 return const SizedBox.shrink();
               }
 
-              final minuteWidth = constraints.maxWidth / 60;
+              final secondWidth = constraints.maxWidth / 60 / 60;
+
               return Stack(clipBehavior: Clip.none, children: [
                 for (final event in tile.events
                     .where((event) => event.startTime.hour == hour))
                   Positioned(
-                    left: event.startTime.minute * minuteWidth,
-                    width: event.duration.inMinutes * minuteWidth,
+                    // the minute (in seconds) + the start second * the width of
+                    // a second
+                    left: ((event.startTime.minute * 60) +
+                            event.startTime.second) *
+                        secondWidth,
+                    width: event.duration.inSeconds * secondWidth,
                     height: _kTimelineTileHeight,
                     child: ColoredBox(
                       color: theme.colorScheme.primary,
@@ -675,6 +801,67 @@ class _TimelineTile extends StatelessWidget {
               ]);
             }),
           ),
+        );
+      }),
+    ]);
+  }
+}
+
+class _TimelineHours extends StatelessWidget {
+  /// The width of an hour
+  final double hourWidth;
+  const _TimelineHours({required this.hourWidth});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final decWidth = hourWidth / 6;
+    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+      ...List.generate(24, (index) {
+        final hour = index + 1;
+        final shouldDisplayHour = hour < 24;
+
+        final hourWidget = shouldDisplayHour
+            ? Transform.translate(
+                offset: Offset(
+                  hour.toString().length * 4,
+                  0.0,
+                ),
+                child: Text(
+                  '$hour',
+                  style: theme.textTheme.labelMedium,
+                  textAlign: TextAlign.end,
+                ),
+              )
+            : const SizedBox.shrink();
+
+        if (decWidth > 25.0) {
+          return SizedBox(
+            width: hourWidth,
+            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              ...List.generate(5, (index) {
+                return SizedBox(
+                  width: decWidth,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Container(
+                      height: 6.5,
+                      width: 2,
+                      color: theme.colorScheme.onBackground,
+                    ),
+                  ),
+                );
+              }),
+              const Spacer(),
+              hourWidget,
+            ]),
+          );
+        }
+
+        return SizedBox(
+          width: hourWidth,
+          child: hourWidget,
         );
       }),
     ]);

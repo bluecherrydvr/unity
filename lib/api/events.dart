@@ -23,11 +23,13 @@ extension EventsExtension on API {
   }
 
   static Future<Iterable<Event>> _getEvents(Map data) async {
-    final server = data['server'];
+    final server = data['server'] as Server;
     if (!server.online) {
       debugPrint('Can not get events of an offline server: $server');
       return [];
     }
+
+    final limit = data['limit'] as int;
 
     DevHttpOverrides.configureCertificates();
 
@@ -36,10 +38,7 @@ extension EventsExtension on API {
       Uri.https(
         '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
         '/events/',
-        {
-          'XML': '1',
-          'limit': '${data['limit']}',
-        },
+        {'XML': '1', 'limit': '$limit'},
       ),
       headers: {
         'Cookie': server.cookie!,

@@ -340,72 +340,73 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                     ]),
                   ]),
                 ),
-                CollapsableSidebar(
-                  left: false,
-                  builder: (context, collapsed, collapseButton) {
-                    if (collapsed) {
-                      return collapseButton;
-                    }
-                    return Column(children: [
-                      Row(children: [
-                        const SizedBox(width: 16.0),
-                        Expanded(
-                          child: Text(
-                            loc.nextEvents,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional.topEnd,
-                          child: collapseButton,
-                        ),
-                      ]),
-                      Expanded(
-                        child: ListView(
-                          padding: const EdgeInsetsDirectional.only(
-                            end: 16.0,
-                            start: 16.0,
-                            bottom: 12.0,
-                          ),
-                          children: [
-                            // Text(
-                            //   '${currentEvent.deviceName} (${currentEvent.server.name})',
-                            //   style: const TextStyle(
-                            //     fontWeight: FontWeight.bold,
-                            //   ),
-                            //   maxLines: 1,
-                            // ),
-                            // Text(
-                            //   settings.formatDate(currentEvent.published),
-                            //   style: const TextStyle(fontSize: 12.0),
-                            // ),
-                            // Text(
-                            //   '(${currentEvent.priority.locale(context)})'
-                            //   ' ${currentEvent.type.locale(context)}',
-                            // ),
-                            EventTile(
-                              key: ValueKey(currentEvent),
-                              event: currentEvent,
+                if (widget.upcomingEvents.isNotEmpty)
+                  CollapsableSidebar(
+                    left: false,
+                    builder: (context, collapsed, collapseButton) {
+                      if (collapsed) {
+                        return collapseButton;
+                      }
+                      return Column(children: [
+                        Row(children: [
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: Text(
+                              loc.nextEvents,
+                              style: theme.textTheme.bodySmall,
                             ),
-                            ...widget.upcomingEvents.map((event) {
-                              if (event == currentEvent) {
-                                return const SizedBox.shrink();
-                              }
-                              return Padding(
-                                padding:
-                                    const EdgeInsetsDirectional.only(top: 6.0),
-                                child: EventTile(
-                                  event: event,
-                                  onPlay: () => setEvent(event),
-                                ),
-                              );
-                            }),
-                          ],
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional.topEnd,
+                            child: collapseButton,
+                          ),
+                        ]),
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsetsDirectional.only(
+                              end: 16.0,
+                              start: 16.0,
+                              bottom: 12.0,
+                            ),
+                            children: [
+                              // Text(
+                              //   '${currentEvent.deviceName} (${currentEvent.server.name})',
+                              //   style: const TextStyle(
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              //   maxLines: 1,
+                              // ),
+                              // Text(
+                              //   settings.formatDate(currentEvent.published),
+                              //   style: const TextStyle(fontSize: 12.0),
+                              // ),
+                              // Text(
+                              //   '(${currentEvent.priority.locale(context)})'
+                              //   ' ${currentEvent.type.locale(context)}',
+                              // ),
+                              EventTile(
+                                key: ValueKey(currentEvent),
+                                event: currentEvent,
+                              ),
+                              ...widget.upcomingEvents.map((event) {
+                                if (event == currentEvent) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                      top: 6.0),
+                                  child: EventTile(
+                                    event: event,
+                                    onPlay: () => setEvent(event),
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
                         ),
-                      ),
-                    ]);
-                  },
-                ),
+                      ]);
+                    },
+                  ),
               ]),
             ),
           ]),

@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -132,7 +133,11 @@ class Layout {
               builder
                 ..element('id', nest: () => builder.text(device.id))
                 ..element('name', nest: () => builder.text(device.name))
-                ..element('server', nest: () => builder.text(device.server.ip));
+                ..element('server', nest: () => builder.text(device.server.ip))
+                ..element(
+                  'server_port',
+                  nest: () => builder.text(device.server.port),
+                );
             });
           }
         });
@@ -157,5 +162,58 @@ class Layout {
         await file.writeAsString(toXml());
       }
     }
+  }
+
+  static Layout fromXML(String xml, {required String fallbackName}) {
+    final document = XmlDocument.parse(xml);
+    final layout = document.getElement('layout');
+    if (layout == null) throw ArgumentError('Invalid layout file');
+    final name = layout.getElement('name')?.innerText ?? fallbackName;
+    final type = layout.getElement('type')?.innerText;
+    final devices = () sync* {
+      for (final deviceElement
+          in layout.getElement('devices')!.findElements('device')) {
+        final id = deviceElement.getElement('id')?.innerText;
+        if (id == null) {
+          throw ArgumentError('Invalid layout file: device id not found');
+        } else if (int.tryParse(id) == null) {
+          throw ArgumentError('Invalid layout file: device id not valid');
+        }
+        final name = deviceElement.getElement('name')?.innerText;
+        final server = deviceElement.getElement('server')?.innerText;
+        final serverPort = deviceElement.getElement('server_port')?.innerText;
+        if (server == null) {
+          throw ArgumentError('Invalid layout file: device server not found');
+        }
+        if (serverPort == null) {
+          throw ArgumentError('Invalid layout file: server port not found');
+        } else if (int.tryParse(serverPort) == null) {
+          throw ArgumentError('Invalid layout file: server port not valid');
+        }
+
+        yield Device(
+          name ?? '',
+          int.parse(id),
+          true,
+          640,
+          480,
+          Server(
+            server,
+            server,
+            int.parse(serverPort),
+            '',
+            '',
+            [],
+          ),
+        );
+      }
+    }();
+
+    return Layout(
+      name: name,
+      type: DesktopLayoutType.values.firstWhereOrNull((t) => t.name == type) ??
+          DesktopLayoutType.singleView,
+      devices: devices.toList(),
+    );
   }
 }

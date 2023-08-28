@@ -18,13 +18,18 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -371,10 +376,61 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
     super.dispose();
   }
 
+  Stream<Layout>? import(BuildContext context, String fallbackName) async* {
+    final loc = AppLocalizations.of(context);
+    final result = await FilePicker.platform.pickFiles(
+      allowedExtensions: ['xml'],
+      allowCompression: false,
+      allowMultiple: true,
+      type: FileType.custom,
+      dialogTitle: loc.importLayout,
+      lockParentWindow: true,
+    );
+    if (result != null) {
+      for (final platformFile in result.files) {
+        String xml;
+        if (platformFile.path == null) {
+          xml = String.fromCharCodes(platformFile.bytes!.buffer.asUint8List());
+        } else {
+          final file = File(platformFile.path!);
+          xml = await file.readAsString();
+        }
+        var layout = Layout.fromXML(xml, fallbackName: fallbackName);
+
+        if (DesktopViewProvider.instance.layouts
+            .any((l) => l.name == layout.name)) {
+          layout = layout.copyWith(name: '${layout.name}_imported');
+        }
+
+        var devices = <Device>[];
+        for (final layoutDevice in layout.devices) {
+          final servers = ServersProvider.instance;
+          final server = servers.servers.firstWhereOrNull((server) =>
+              server.ip == layoutDevice.server.ip &&
+              server.port == layoutDevice.server.port);
+          // TODO(bdlukaa): add a warning a server is not added, thefore can't be reached
+          if (server == null) continue;
+
+          final device =
+              server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
+          if (device == null) continue;
+          devices.add(device);
+        }
+
+        layout.devices
+          ..clear()
+          ..addAll(devices);
+
+        yield layout;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
 
     return AlertDialog(
       title: Text(loc.createNewLayout),
@@ -398,23 +454,38 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
       ]),
       actions: [
-        OutlinedButton(
-          onPressed: Navigator.of(context).pop,
-          child: Text(loc.cancel),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            view.addLayout(Layout(
-              name: controller.text.isNotEmpty
-                  ? controller.text
-                  : 'Layout ${view.layouts.length + 1}',
-              type: DesktopLayoutType.values[selected],
-              devices: [],
-            ));
-            Navigator.of(context).pop();
-          },
-          child: Text(loc.finish),
-        ),
+        Row(children: [
+          ElevatedButton(
+            onPressed: () async {
+              final layouts = await import(context, fallbackName)?.toList();
+              if (layouts != null) {
+                for (final layout in layouts) {
+                  view.addLayout(layout);
+                }
+              }
+              if (mounted) Navigator.of(context).pop();
+            },
+            child: Text(loc.importLayout),
+          ),
+          const Spacer(),
+          OutlinedButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text(loc.cancel),
+          ),
+          const SizedBox(width: 12.0),
+          FilledButton(
+            onPressed: () {
+              view.addLayout(Layout(
+                name:
+                    controller.text.isNotEmpty ? controller.text : fallbackName,
+                type: DesktopLayoutType.values[selected],
+                devices: [],
+              ));
+              Navigator.of(context).pop();
+            },
+            child: Text(loc.finish),
+          ),
+        ]),
       ],
     );
   }

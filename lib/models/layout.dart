@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -122,7 +123,12 @@ class Layout {
 
   /// Exports the layout to an XML file
   String toXml() {
-    final builder = XmlBuilder()..processing('xml', 'version="1.0"');
+    final builder = XmlBuilder()
+      ..processing('xml', 'version="1.0"')
+      ..processing(
+        'client-version',
+        UpdateManager.instance.packageInfo.version,
+      );
     builder.element('layout', nest: () {
       builder
         ..element('name', nest: () => builder.text(name))
@@ -164,6 +170,11 @@ class Layout {
     }
   }
 
+  /// Imports a layout from a file.
+  ///
+  /// If the file is not valid, an [ArgumentError] will be thrown.
+  ///
+  /// [fallbackName] is used if the layout file does not contain a name.
   static Layout fromXML(String xml, {required String fallbackName}) {
     final document = XmlDocument.parse(xml);
     final layout = document.getElement('layout');

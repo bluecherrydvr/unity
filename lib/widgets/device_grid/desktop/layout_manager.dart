@@ -395,7 +395,26 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           final file = File(platformFile.path!);
           xml = await file.readAsString();
         }
-        var layout = Layout.fromXML(xml, fallbackName: fallbackName);
+        Layout layout;
+        try {
+          layout = Layout.fromXML(xml, fallbackName: fallbackName);
+        } on ArgumentError catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.layoutImportFileCorruptedWithMessage(e.message),
+            );
+          }
+          return;
+        } catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.layoutImportFileCorrupted,
+            );
+          }
+          return;
+        }
 
         if (DesktopViewProvider.instance.layouts
             .any((l) => l.name == layout.name)) {
@@ -408,8 +427,19 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           final server = servers.servers.firstWhereOrNull((server) =>
               server.ip == layoutDevice.server.ip &&
               server.port == layoutDevice.server.port);
-          // TODO(bdlukaa): add a warning a server is not added, thefore can't be reached
-          if (server == null) continue;
+          if (server == null) {
+            if (context.mounted) {
+              showImportFailedMessage(
+                context,
+                loc.failedToImportMessage(
+                  layout.name,
+                  layoutDevice.server.ip,
+                  layoutDevice.server.port,
+                ),
+              );
+            }
+            continue;
+          }
 
           final device =
               server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
@@ -424,6 +454,35 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         yield layout;
       }
     }
+  }
+
+  void showImportFailedMessage(BuildContext context, String message) {
+    final loc = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        padding: const EdgeInsetsDirectional.only(
+          start: 16.0,
+          top: 8.0,
+          bottom: 8.0,
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        actions: [
+          Builder(builder: (context) {
+            return TextButton(
+              child: Text(loc.close),
+              onPressed: () {
+                ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+              },
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   @override

@@ -168,11 +168,34 @@
   "@Layouts": {},
   "cycle": "Cycle",
   "cycleTogglePeriod": "Layout cycle toggle period",
-  "fallbackLayoutName": "Layout {n}",
+  "fallbackLayoutName": "Layout {layout}",
+  "@fallbackLayoutName": {
+    "placeholders": {
+      "layout": {
+        "type": "int"
+      }
+    }
+  },
   "newLayout": "New layout",
   "editLayout": "Edit layout",
   "exportLayout": "Export layout",
   "importLayout": "Import layout",
+  "failedToImportMessage": "While attempting to import {layoutName}, we found a device that is connected to a server you are not connected to. Please, connect to the server and try again.\nServer: {server_ip}:{server_port}",
+  "@failedToImportMessage": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      },
+      "server_ip": {
+        "type": "String"
+      },
+      "server_port": {
+        "type": "int"
+      }
+    }
+  },
+  "layoutImportFileCorrupted": "The file you attempted to import is corrupted or missing information.",
+  "layoutImportFileCorruptedWithMessage": "The file you attempted to import is corrupted or missing information: \"{message}\"",
   "singleView": "Single view",
   "multipleView": "Multiple view",
   "compactView": "Compact view",

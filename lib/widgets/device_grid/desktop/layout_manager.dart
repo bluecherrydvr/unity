@@ -20,12 +20,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -395,7 +392,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           final file = File(platformFile.path!);
           xml = await file.readAsString();
         }
-        Layout layout;
+        final Layout layout;
         try {
           layout = Layout.fromXML(xml, fallbackName: fallbackName);
         } on ArgumentError catch (e) {
@@ -403,6 +400,18 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             showImportFailedMessage(
               context,
               loc.layoutImportFileCorruptedWithMessage(e.message),
+            );
+          }
+          return;
+        } on DeviceServerNotFound catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.failedToImportMessage(
+                e.layoutName,
+                e.server.ip,
+                e.server.port,
+              ),
             );
           }
           return;
@@ -415,41 +424,6 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           }
           return;
         }
-
-        if (DesktopViewProvider.instance.layouts
-            .any((l) => l.name == layout.name)) {
-          layout = layout.copyWith(name: '${layout.name}_imported');
-        }
-
-        var devices = <Device>[];
-        for (final layoutDevice in layout.devices) {
-          final servers = ServersProvider.instance;
-          final server = servers.servers.firstWhereOrNull((server) =>
-              server.ip == layoutDevice.server.ip &&
-              server.port == layoutDevice.server.port);
-          if (server == null) {
-            if (context.mounted) {
-              showImportFailedMessage(
-                context,
-                loc.failedToImportMessage(
-                  layout.name,
-                  layoutDevice.server.ip,
-                  layoutDevice.server.port,
-                ),
-              );
-            }
-            continue;
-          }
-
-          final device =
-              server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
-          if (device == null) continue;
-          devices.add(device);
-        }
-
-        layout.devices
-          ..clear()
-          ..addAll(devices);
 
         yield layout;
       }

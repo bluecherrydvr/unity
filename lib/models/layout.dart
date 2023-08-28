@@ -22,6 +22,8 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:collection/collection.dart';
@@ -175,15 +177,19 @@ class Layout {
   /// If the file is not valid, an [ArgumentError] will be thrown.
   ///
   /// [fallbackName] is used if the layout file does not contain a name.
+  ///
+  /// The devices will be imported with a few information from the file. The
+  /// devices may need to be updated according to the current server list. See
+  /// [NewLayoutDialog], which does it accordingly
   static Layout fromXML(String xml, {required String fallbackName}) {
     final document = XmlDocument.parse(xml);
-    final layout = document.getElement('layout');
-    if (layout == null) throw ArgumentError('Invalid layout file');
-    final name = layout.getElement('name')?.innerText ?? fallbackName;
-    final type = layout.getElement('type')?.innerText;
+    final layoutElement = document.getElement('layout');
+    if (layoutElement == null) throw ArgumentError('Invalid layout file');
+    var name = layoutElement.getElement('name')?.innerText ?? fallbackName;
+    final type = layoutElement.getElement('type')?.innerText;
     final devices = () sync* {
       for (final deviceElement
-          in layout.getElement('devices')!.findElements('device')) {
+          in layoutElement.getElement('devices')!.findElements('device')) {
         final id = deviceElement.getElement('id')?.innerText;
         if (id == null) {
           throw ArgumentError('Invalid layout file: device id not found');
@@ -220,11 +226,46 @@ class Layout {
       }
     }();
 
-    return Layout(
+    if (DesktopViewProvider.instance.layouts.any((l) => l.name == name)) {
+      name = '${name}_imported';
+    }
+
+    final layout = Layout(
       name: name,
       type: DesktopLayoutType.values.firstWhereOrNull((t) => t.name == type) ??
           DesktopLayoutType.singleView,
       devices: devices.toList(),
     );
+
+    for (final layoutDevice in layout.devices.toList()) {
+      final servers = ServersProvider.instance;
+      final server = servers.servers.firstWhereOrNull((server) =>
+          server.ip == layoutDevice.server.ip &&
+          server.port == layoutDevice.server.port);
+      if (server == null) {
+        throw DeviceServerNotFound(
+          layoutName: layout.name,
+          server: layoutDevice.server,
+        );
+      }
+
+      final device =
+          server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
+      if (device == null) continue;
+      layout.devices.remove(layoutDevice);
+      layout.devices.add(device);
+    }
+
+    return layout;
   }
+}
+
+class DeviceServerNotFound extends Error {
+  final String layoutName;
+  final Server server;
+
+  DeviceServerNotFound({
+    required this.layoutName,
+    required this.server,
+  });
 }

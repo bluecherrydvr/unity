@@ -272,6 +272,12 @@ class LayoutTile extends StatelessWidget {
           onTap: layout.openInANewWindow,
           child: Text(loc.openInANewWindow),
         ),
+        PopupMenuItem(
+          onTap: () {
+            layout.export(dialogTitle: loc.exportLayout);
+          },
+          child: Text(loc.exportLayout),
+        ),
       ],
     );
   }

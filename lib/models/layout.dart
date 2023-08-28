@@ -18,10 +18,13 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
-// ignore: depend_on_referenced_packages
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:xml/xml.dart';
 
 /// Describes how the grid should behave in large screens
 enum DesktopLayoutType {
@@ -114,5 +117,45 @@ class Layout {
       devices: devices ?? this.devices,
       type: type ?? this.type,
     );
+  }
+
+  /// Exports the layout to an XML file
+  String toXml() {
+    final builder = XmlBuilder()..processing('xml', 'version="1.0"');
+    builder.element('layout', nest: () {
+      builder
+        ..element('name', nest: () => builder.text(name))
+        ..element('type', nest: () => builder.text(type.name))
+        ..element('devices', nest: () {
+          for (final device in devices) {
+            builder.element('device', nest: () {
+              builder
+                ..element('id', nest: () => builder.text(device.id))
+                ..element('name', nest: () => builder.text(device.name))
+                ..element('server', nest: () => builder.text(device.server.ip));
+            });
+          }
+        });
+    });
+    final document = builder.buildDocument();
+    return document.toXmlString(pretty: true);
+  }
+
+  /// Saves the layout to a file, which can be imported later
+  Future<void> export({required String dialogTitle}) async {
+    if (isDesktopPlatform) {
+      final outputFile = await FilePicker.platform.saveFile(
+        allowedExtensions: ['xml'],
+        type: FileType.custom,
+        lockParentWindow: true,
+        dialogTitle: dialogTitle,
+        fileName: 'Layout-${name.replaceAll(' ', '_')}.xml',
+      );
+      if (outputFile != null) {
+        final file = File(outputFile);
+        if (!await file.exists()) await file.create();
+        await file.writeAsString(toXml());
+      }
+    }
   }
 }

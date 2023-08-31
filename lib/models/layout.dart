@@ -18,10 +18,17 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
-// ignore: depend_on_referenced_packages
+import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:xml/xml.dart';
 
 /// Describes how the grid should behave in large screens
 enum DesktopLayoutType {
@@ -115,4 +122,150 @@ class Layout {
       type: type ?? this.type,
     );
   }
+
+  /// Exports the layout to an XML file
+  String toXml() {
+    final builder = XmlBuilder()
+      ..processing('xml', 'version="1.0"')
+      ..processing(
+        'client-version',
+        UpdateManager.instance.packageInfo.version,
+      );
+    builder.element('layout', nest: () {
+      builder
+        ..element('name', nest: () => builder.text(name))
+        ..element('type', nest: () => builder.text(type.name))
+        ..element('devices', nest: () {
+          for (final device in devices) {
+            builder.element('device', nest: () {
+              builder
+                ..element('id', nest: () => builder.text(device.id))
+                ..element('name', nest: () => builder.text(device.name))
+                ..element('server', nest: () => builder.text(device.server.ip))
+                ..element(
+                  'server_port',
+                  nest: () => builder.text(device.server.port),
+                );
+            });
+          }
+        });
+    });
+    final document = builder.buildDocument();
+    return document.toXmlString(pretty: true);
+  }
+
+  /// Saves the layout to a file, which can be imported later
+  Future<void> export({required String dialogTitle}) async {
+    if (isDesktopPlatform) {
+      final outputFile = await FilePicker.platform.saveFile(
+        allowedExtensions: ['xml'],
+        type: FileType.custom,
+        lockParentWindow: true,
+        dialogTitle: dialogTitle,
+        fileName: 'Layout-${name.replaceAll(' ', '_')}.xml',
+      );
+      if (outputFile != null) {
+        final file = File(outputFile);
+        if (!await file.exists()) await file.create();
+        await file.writeAsString(toXml());
+      }
+    }
+  }
+
+  /// Imports a layout from a file.
+  ///
+  /// If the file is not valid, an [ArgumentError] will be thrown.
+  ///
+  /// [fallbackName] is used if the layout file does not contain a name.
+  ///
+  /// The devices will be imported with a few information from the file. The
+  /// devices may need to be updated according to the current server list. See
+  /// [NewLayoutDialog], which does it accordingly
+  static Layout fromXML(String xml, {required String fallbackName}) {
+    final document = XmlDocument.parse(xml);
+    final layoutElement = document.getElement('layout');
+    if (layoutElement == null) throw ArgumentError('Invalid layout file');
+    var name = layoutElement.getElement('name')?.innerText ?? fallbackName;
+    final type = layoutElement.getElement('type')?.innerText;
+    final devices = () sync* {
+      for (final deviceElement
+          in layoutElement.getElement('devices')!.findElements('device')) {
+        final id = deviceElement.getElement('id')?.innerText;
+        if (id == null) {
+          throw ArgumentError('Invalid layout file: device id not found');
+        } else if (int.tryParse(id) == null) {
+          throw ArgumentError('Invalid layout file: device id not valid');
+        }
+        final name = deviceElement.getElement('name')?.innerText;
+        final server = deviceElement.getElement('server')?.innerText;
+        final serverPort = deviceElement.getElement('server_port')?.innerText;
+        if (server == null) {
+          throw ArgumentError('Invalid layout file: device server not found');
+        }
+        if (serverPort == null) {
+          throw ArgumentError('Invalid layout file: server port not found');
+        } else if (int.tryParse(serverPort) == null) {
+          throw ArgumentError('Invalid layout file: server port not valid');
+        }
+
+        yield Device(
+          name ?? '',
+          int.parse(id),
+          true,
+          640,
+          480,
+          Server(
+            server,
+            server,
+            int.parse(serverPort),
+            '',
+            '',
+            [],
+          ),
+        );
+      }
+    }();
+
+    if (DesktopViewProvider.instance.layouts.any((l) => l.name == name)) {
+      name = '${name}_imported';
+    }
+
+    final layout = Layout(
+      name: name,
+      type: DesktopLayoutType.values.firstWhereOrNull((t) => t.name == type) ??
+          DesktopLayoutType.singleView,
+      devices: devices.toList(),
+    );
+
+    for (final layoutDevice in layout.devices.toList()) {
+      final servers = ServersProvider.instance;
+      final server = servers.servers.firstWhereOrNull((server) =>
+          server.ip == layoutDevice.server.ip &&
+          server.port == layoutDevice.server.port);
+      if (server == null) {
+        throw DeviceServerNotFound(
+          layoutName: layout.name,
+          server: layoutDevice.server,
+        );
+      }
+
+      final device =
+          server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
+      if (device == null) continue;
+      layout.devices.remove(layoutDevice);
+      layout.devices.add(device);
+    }
+
+    return layout;
+  }
+}
+
+class DeviceServerNotFound extends Error {
+  final String layoutName;
+  final Server server;
+
+  DeviceServerNotFound({
+    required this.layoutName,
+    required this.server,
+  });
 }

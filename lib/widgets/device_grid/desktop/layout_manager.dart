@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
@@ -25,6 +26,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -272,6 +274,12 @@ class LayoutTile extends StatelessWidget {
           onTap: layout.openInANewWindow,
           child: Text(loc.openInANewWindow),
         ),
+        PopupMenuItem(
+          onTap: () {
+            layout.export(dialogTitle: loc.exportLayout);
+          },
+          child: Text(loc.exportLayout),
+        ),
       ],
     );
   }
@@ -365,10 +373,97 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
     super.dispose();
   }
 
+  Stream<Layout>? import(BuildContext context, String fallbackName) async* {
+    final loc = AppLocalizations.of(context);
+    final result = await FilePicker.platform.pickFiles(
+      allowedExtensions: ['xml'],
+      allowCompression: false,
+      allowMultiple: true,
+      type: FileType.custom,
+      dialogTitle: loc.importLayout,
+      lockParentWindow: true,
+    );
+    if (result != null) {
+      for (final platformFile in result.files) {
+        String xml;
+        if (platformFile.path == null) {
+          xml = String.fromCharCodes(platformFile.bytes!.buffer.asUint8List());
+        } else {
+          final file = File(platformFile.path!);
+          xml = await file.readAsString();
+        }
+        final Layout layout;
+        try {
+          layout = Layout.fromXML(xml, fallbackName: fallbackName);
+        } on ArgumentError catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.layoutImportFileCorruptedWithMessage(e.message),
+            );
+          }
+          return;
+        } on DeviceServerNotFound catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.failedToImportMessage(
+                e.layoutName,
+                e.server.ip,
+                e.server.port,
+              ),
+            );
+          }
+          return;
+        } catch (e) {
+          if (mounted) {
+            showImportFailedMessage(
+              context,
+              loc.layoutImportFileCorrupted,
+            );
+          }
+          return;
+        }
+
+        yield layout;
+      }
+    }
+  }
+
+  void showImportFailedMessage(BuildContext context, String message) {
+    final loc = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        padding: const EdgeInsetsDirectional.only(
+          start: 16.0,
+          top: 8.0,
+          bottom: 8.0,
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        actions: [
+          Builder(builder: (context) {
+            return TextButton(
+              child: Text(loc.close),
+              onPressed: () {
+                ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
 
     return AlertDialog(
       title: Text(loc.createNewLayout),
@@ -392,23 +487,38 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
       ]),
       actions: [
-        OutlinedButton(
-          onPressed: Navigator.of(context).pop,
-          child: Text(loc.cancel),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            view.addLayout(Layout(
-              name: controller.text.isNotEmpty
-                  ? controller.text
-                  : 'Layout ${view.layouts.length + 1}',
-              type: DesktopLayoutType.values[selected],
-              devices: [],
-            ));
-            Navigator.of(context).pop();
-          },
-          child: Text(loc.finish),
-        ),
+        Row(children: [
+          ElevatedButton(
+            onPressed: () async {
+              final layouts = await import(context, fallbackName)?.toList();
+              if (layouts != null) {
+                for (final layout in layouts) {
+                  view.addLayout(layout);
+                }
+              }
+              if (mounted) Navigator.of(context).pop();
+            },
+            child: Text(loc.importLayout),
+          ),
+          const Spacer(),
+          OutlinedButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text(loc.cancel),
+          ),
+          const SizedBox(width: 12.0),
+          FilledButton(
+            onPressed: () {
+              view.addLayout(Layout(
+                name:
+                    controller.text.isNotEmpty ? controller.text : fallbackName,
+                type: DesktopLayoutType.values[selected],
+                devices: [],
+              ));
+              Navigator.of(context).pop();
+            },
+            child: Text(loc.finish),
+          ),
+        ]),
       ],
     );
   }

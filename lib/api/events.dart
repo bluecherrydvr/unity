@@ -51,7 +51,8 @@ extension EventsExtension on API {
       debugPrint('Getting events for server ${server.name}');
 
       final parser = Xml2Json()..parse(response.body);
-      events = (jsonDecode(parser.toGData())['feed']['entry'] as List)
+      events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable)
+          .cast<Map>()
           .map((e) {
             if (!e.containsKey('content')) debugPrint(e.toString());
             return Event(
@@ -85,7 +86,7 @@ extension EventsExtension on API {
       debugPrint('Failed to parse XML response from server ${server.name}');
       debugPrint('Attempting to parse using JSON');
 
-      events = ((jsonDecode(response.body) as Map)['entry'] as List)
+      events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
           .cast<Map>()
           .map((eventObject) {
         final published = DateTime.parse(eventObject['published']).toLocal();

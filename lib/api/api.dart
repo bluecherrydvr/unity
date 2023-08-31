@@ -112,7 +112,7 @@ class API {
           (await compute(jsonDecode, parser.toParker()))['devices']['device'];
 
       Iterable<Device> devices;
-      if (devicesResult is List) {
+      if (devicesResult is Iterable) {
         // This is reached in the case the server has multiple cameras
         devices = devicesResult.cast<Map>().map((device) {
           return Device.fromServerJson(device, server);

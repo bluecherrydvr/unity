@@ -190,7 +190,7 @@ class _SettingsState extends State<Settings> {
                   title: Text(loc.notificationClickBehavior),
                   textColor: theme.textTheme.bodyLarge?.color,
                   subtitle: Text(
-                    settings.notificationClickBehavior.str(context),
+                    settings.notificationClickBehavior.locale(context),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                     ),
@@ -210,9 +210,7 @@ class _SettingsState extends State<Settings> {
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: Text(
-                          behavior.str(context),
-                        ),
+                        child: Text(behavior.locale(context)),
                       ),
                     );
                   }).toList(),

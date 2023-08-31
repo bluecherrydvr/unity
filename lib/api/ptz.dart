@@ -29,13 +29,10 @@ enum PTZCommand {
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    switch (this) {
-      case PTZCommand.stop:
-        return localizations.stop;
-      case PTZCommand.move:
-      default:
-        return localizations.move;
-    }
+    return switch (this) {
+      PTZCommand.stop => localizations.stop,
+      PTZCommand.move => localizations.move,
+    };
   }
 }
 
@@ -50,23 +47,15 @@ enum Movement {
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    switch (this) {
-      case Movement.moveNorth:
-        return localizations.moveNorth;
-      case Movement.moveSouth:
-        return localizations.moveSouth;
-      case Movement.moveWest:
-        return localizations.moveWest;
-      case Movement.moveEast:
-        return localizations.moveEast;
-      case Movement.moveWide:
-        return localizations.moveWide;
-      case Movement.moveTele:
-        return localizations.moveTele;
-      case Movement.noMovement:
-      default:
-        return localizations.noMovement;
-    }
+    return switch (this) {
+      Movement.moveNorth => localizations.moveNorth,
+      Movement.moveSouth => localizations.moveSouth,
+      Movement.moveWest => localizations.moveWest,
+      Movement.moveEast => localizations.moveEast,
+      Movement.moveWide => localizations.moveWide,
+      Movement.moveTele => localizations.moveTele,
+      Movement.noMovement => localizations.noMovement,
+    };
   }
 }
 

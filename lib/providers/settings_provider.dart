@@ -23,6 +23,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -256,6 +257,14 @@ enum NotificationClickBehavior {
         Icons.featured_play_list_outlined,
       NotificationClickBehavior.showFullscreenCamera =>
         Icons.screenshot_monitor,
+    };
+  }
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      NotificationClickBehavior.showEventsScreen => loc.showFullscreenCamera,
+      NotificationClickBehavior.showFullscreenCamera => loc.showEventsScreen,
     };
   }
 }

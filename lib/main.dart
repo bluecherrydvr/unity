@@ -125,10 +125,8 @@ Future<void> main(List<String> args) async {
 
   // We use [Future.wait] to decrease startup time.
   //
-  // With it, all these functions will be running at the same time.
-  debugPrint(
-      'Video Playback\$${UnityVideoPlayerInterface.instance.runtimeType}');
-
+  // With it, all these functions will be running at the same time, reducing the
+  // wait time at the splash screen
   // settings provider needs to be initalized alone
   await SettingsProvider.ensureInitialized();
   await Future.wait([

@@ -30,7 +30,7 @@ const kDefaultUsername = 'Admin';
 /// Default password used in Bluecherry DVR server.
 const kDefaultPassword = 'bluecherry';
 
-/// Keys used for storing data in cache using `package:hive`.
+// Keys used for storing data in cache using `package:hive`.
 
 const kHiveServers = 'servers';
 const kHiveMobileView = 'mobile_view';

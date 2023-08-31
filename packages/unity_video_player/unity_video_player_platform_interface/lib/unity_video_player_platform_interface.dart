@@ -21,14 +21,11 @@ enum UnityVideoFit {
   cover;
 
   UnityVideoFit get next {
-    switch (this) {
-      case UnityVideoFit.contain:
-        return UnityVideoFit.fill;
-      case UnityVideoFit.fill:
-        return UnityVideoFit.cover;
-      case UnityVideoFit.cover:
-        return UnityVideoFit.contain;
-    }
+    return switch (this) {
+      UnityVideoFit.contain => UnityVideoFit.fill,
+      UnityVideoFit.fill => UnityVideoFit.cover,
+      UnityVideoFit.cover => UnityVideoFit.contain
+    };
   }
 }
 

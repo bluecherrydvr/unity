@@ -45,7 +45,7 @@ extension EventsExtension on API {
       },
     );
 
-    Iterable<Event> events = <Event>[];
+    var events = const Iterable<Event>.empty();
 
     try {
       debugPrint('Getting events for server ${server.name}');

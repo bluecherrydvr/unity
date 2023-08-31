@@ -92,11 +92,8 @@ class _DevicesForServer extends StatelessWidget {
 
     final serverIndicator = SubHeader(
       server.name,
-      subtext: server.online
-          ? loc.nDevices(
-              server.devices.length,
-            )
-          : loc.offline,
+      subtext:
+          server.online ? loc.nDevices(server.devices.length) : loc.offline,
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),
@@ -150,9 +147,7 @@ class _DevicesForServer extends StatelessWidget {
                         : Icons.videocam_off_outlined,
                   ),
                 ),
-                title: Text(
-                  device.name.uppercaseFirst(),
-                ),
+                title: Text(device.name.uppercaseFirst()),
                 subtitle: Text([
                   device.uri,
                   '${device.resolutionX}x${device.resolutionY}',
@@ -213,14 +208,9 @@ class _DevicesForServer extends StatelessWidget {
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',
-      arguments: {
-        'device': device,
-        'player': player,
-      },
+      arguments: {'device': device, 'player': player},
     );
 
-    if (!UnityPlayers.players.containsKey(device)) {
-      await player.release();
-    }
+    if (!UnityPlayers.players.containsKey(device)) await player.release();
   }
 }

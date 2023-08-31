@@ -35,6 +35,7 @@ dependencies:
   firebase_messaging: ^14.4.1
   awesome_notifications: ^0.7.5-dev.3
   
+  system_date_time_format: ^0.7.0
   device_info_plus: ^9.0.3
   package_info_plus: ^4.1.0
   connectivity_plus: ^4.0.2

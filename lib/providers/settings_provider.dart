@@ -26,17 +26,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.
-///
 class SettingsProvider extends ChangeNotifier {
-  /// `late` initialized [ServersProvider] instance.
+  /// `late` initialized [SettingsProvider] instance.
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
-  // TODO(bdlukaa): consider using https://github.com/Nikoro/system_date_time_format
-  // to get the system date/time format
   static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const kDefaultTimeFormat = 'hh:mm a';
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
@@ -169,21 +167,18 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _themeMode = kDefaultThemeMode;
     }
+    final format = SystemDateTimeFormat();
+    final systemLocale = Intl.getCurrentLocale();
+    final timePattern = await format.getTimePattern();
     if (data.containsKey(kHiveDateFormat)) {
-      _dateFormat = DateFormat(
-        data[kHiveDateFormat]!,
-        'en_US',
-      );
+      _dateFormat = DateFormat(data[kHiveDateFormat]!, systemLocale);
     } else {
-      _dateFormat = DateFormat(kDefaultDateFormat, 'en_US');
+      _dateFormat = DateFormat(kDefaultDateFormat, systemLocale);
     }
     if (data.containsKey(kHiveTimeFormat)) {
-      _timeFormat = DateFormat(
-        data[kHiveTimeFormat]!,
-        'en_US',
-      );
+      _timeFormat = DateFormat(data[kHiveTimeFormat]!, systemLocale);
     } else {
-      _timeFormat = DateFormat(kDefaultTimeFormat, 'en_US');
+      _timeFormat = DateFormat(timePattern ?? kDefaultTimeFormat, systemLocale);
     }
     if (data.containsKey(kHiveSnoozedUntil)) {
       _snoozedUntil = DateTime.parse(
@@ -245,13 +240,10 @@ class SettingsProvider extends ChangeNotifier {
     return timeFormat.format(time);
   }
 
-  void toggleCycling() {
+  bool toggleCycling() {
     layoutCyclingEnabled = !layoutCyclingEnabled;
+    return layoutCyclingEnabled;
   }
-
-  @override
-  // ignore: must_call_super
-  void dispose() {}
 }
 
 enum NotificationClickAction {

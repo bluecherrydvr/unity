@@ -91,13 +91,13 @@ extension IterableExtension<T> on Iterable<T> {
   }
 }
 
-extension NotificationExtensions on NotificationClickAction {
+extension NotificationExtensions on NotificationClickBehavior {
   String str(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     return {
-      NotificationClickAction.showFullscreenCamera: loc.showFullscreenCamera,
-      NotificationClickAction.showEventsScreen: loc.showEventsScreen,
+      NotificationClickBehavior.showFullscreenCamera: loc.showFullscreenCamera,
+      NotificationClickBehavior.showEventsScreen: loc.showEventsScreen,
     }[this]!;
   }
 }

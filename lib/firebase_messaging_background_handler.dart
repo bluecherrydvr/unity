@@ -193,7 +193,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
     debugPrint('action.buttonKeyPressed.isEmpty');
     // Fetch device & server details to show the [DeviceFullscreenViewer].
     if (SettingsProvider.instance.notificationClickBehavior ==
-        NotificationClickAction.showFullscreenCamera) {
+        NotificationClickBehavior.showFullscreenCamera) {
       final eventType = action.payload!['eventType'];
       final serverUUID = action.payload!['serverId'];
       final id = action.payload!['deviceId'];
@@ -219,10 +219,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         _mutex = id;
         await navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (context) {
-            return LivePlayer(
-              device: device,
-              player: player,
-            );
+            return LivePlayer(device: device, player: player);
           }),
         );
         _mutex = null;
@@ -235,10 +232,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         _mutex = id;
         await navigatorKey.currentState?.push(
           MaterialPageRoute(builder: (context) {
-            return LivePlayer(
-              device: device,
-              player: player,
-            );
+            return LivePlayer(device: device, player: player);
           }),
         );
         _mutex = null;

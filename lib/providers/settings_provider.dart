@@ -38,8 +38,8 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const kDefaultTimeFormat = 'hh:mm a';
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
-  static const kDefaultNotificationClickAction =
-      NotificationClickAction.showFullscreenCamera;
+  static const kDefaultNotificationClickBehavior =
+      NotificationClickBehavior.showFullscreenCamera;
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
   static const kDefaultLayoutCyclingEnabled = false;
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
@@ -53,7 +53,7 @@ class SettingsProvider extends ChangeNotifier {
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
   DateTime get snoozedUntil => _snoozedUntil;
-  NotificationClickAction get notificationClickBehavior =>
+  NotificationClickBehavior get notificationClickBehavior =>
       _notificationClickBehavior;
   UnityVideoFit get cameraViewFit => _cameraViewFit;
   String get downloadsDirectory => _downloadsDirectory;
@@ -88,7 +88,7 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  set notificationClickBehavior(NotificationClickAction value) {
+  set notificationClickBehavior(NotificationClickBehavior value) {
     _notificationClickBehavior = value;
     _save();
   }
@@ -117,7 +117,7 @@ class SettingsProvider extends ChangeNotifier {
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
-  late NotificationClickAction _notificationClickBehavior;
+  late NotificationClickBehavior _notificationClickBehavior;
   late UnityVideoFit _cameraViewFit;
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
@@ -143,7 +143,7 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDateFormat: dateFormat.pattern!,
       kHiveTimeFormat: timeFormat.pattern!,
       kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
-      kHiveNotificationClickAction: notificationClickBehavior.index,
+      kHiveNotificationClickBehavior: notificationClickBehavior.index,
       kHiveCameraViewFit: cameraViewFit.index,
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
@@ -187,11 +187,11 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _snoozedUntil = defaultSnoozedUntil;
     }
-    if (data.containsKey(kHiveNotificationClickAction)) {
-      _notificationClickBehavior =
-          NotificationClickAction.values[data[kHiveNotificationClickAction]!];
+    if (data.containsKey(kHiveNotificationClickBehavior)) {
+      _notificationClickBehavior = NotificationClickBehavior
+          .values[data[kHiveNotificationClickBehavior]!];
     } else {
-      _notificationClickBehavior = kDefaultNotificationClickAction;
+      _notificationClickBehavior = kDefaultNotificationClickBehavior;
     }
     if (data.containsKey(kHiveCameraViewFit)) {
       _cameraViewFit = UnityVideoFit.values[data[kHiveCameraViewFit]!];
@@ -246,15 +246,16 @@ class SettingsProvider extends ChangeNotifier {
   }
 }
 
-enum NotificationClickAction {
+enum NotificationClickBehavior {
   showFullscreenCamera,
   showEventsScreen;
 
   IconData get icon {
     return switch (this) {
-      NotificationClickAction.showEventsScreen =>
+      NotificationClickBehavior.showEventsScreen =>
         Icons.featured_play_list_outlined,
-      NotificationClickAction.showFullscreenCamera => Icons.screenshot_monitor,
+      NotificationClickBehavior.showFullscreenCamera =>
+        Icons.screenshot_monitor,
     };
   }
 }

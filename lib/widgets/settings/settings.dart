@@ -195,7 +195,7 @@ class _SettingsState extends State<Settings> {
                       color: theme.textTheme.bodySmall?.color,
                     ),
                   ),
-                  children: NotificationClickAction.values.map((behavior) {
+                  children: NotificationClickBehavior.values.map((behavior) {
                     return RadioListTile(
                       contentPadding: const EdgeInsetsDirectional.only(
                         start: 68.0,

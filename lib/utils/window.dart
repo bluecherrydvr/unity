@@ -111,5 +111,9 @@ void launchFileExplorer(String path) {
     Process.run('xdg-open', [path]);
   } else if (Platform.isMacOS) {
     Process.run('open', [path]);
+  } else {
+    throw UnsupportedError(
+      '${Platform.operatingSystem} is not a supported platform',
+    );
   }
 }

@@ -77,6 +77,9 @@ class Device {
     );
   }
 
+  /// Returns the stream URL for this device.
+  ///
+  /// If the app is running on the web, then HLS is used, otherwise RTSP is used.
   String get streamURL {
     if (kIsWeb) {
       return hslURL;
@@ -100,14 +103,16 @@ class Device {
     return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/hls/$id/index.m3u8';
   }
 
-  /// Server name / Device name
+  /// Returns the full name of this device, including the server name.
+  ///
+  /// Example: `device (server)`
   String get fullName {
     return '$name (${server.name})';
   }
 
   @override
   String toString() =>
-      'Device($name, $uri, $status, $resolutionX, $resolutionY)';
+      'Device($name, $uri, online: $status, ${resolutionX}x$resolutionY, ptz: $hasPTZ)';
 
   @override
   bool operator ==(dynamic other) {

@@ -226,16 +226,12 @@ enum EventPriority {
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    switch (this) {
-      case EventPriority.info:
-        return localizations.info;
-      case EventPriority.warning:
-        return localizations.warn;
-      case EventPriority.alarm:
-        return localizations.alarm;
-      case EventPriority.critical:
-        return localizations.critical;
-    }
+    return switch (this) {
+      EventPriority.info => localizations.info,
+      EventPriority.warning => localizations.warn,
+      EventPriority.alarm => localizations.alarm,
+      EventPriority.critical => localizations.critical
+    };
   }
 }
 
@@ -255,31 +251,19 @@ enum EventType {
 
   String locale(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    switch (this) {
-      case EventType.motion:
-        return localizations.motion;
-      case EventType.continuous:
-        return localizations.continuous;
-      case EventType.notFound:
-        return localizations.notFound;
-      case EventType.cameraVideoLost:
-        return localizations.cameraVideoLost;
-      case EventType.cameraAudioLost:
-        return localizations.cameraAudioLost;
-      case EventType.systemDiskSpace:
-        return localizations.systemDiskSpace;
-      case EventType.systemCrash:
-        return localizations.systemCrash;
-      case EventType.systemBoot:
-        return localizations.systemBoot;
-      case EventType.systemShutdown:
-        return localizations.systemShutdown;
-      case EventType.systemReboot:
-        return localizations.systemReboot;
-      case EventType.systemPowerOutage:
-        return localizations.systemPowerOutage;
-      case EventType.unknown:
-        return localizations.unknown;
-    }
+    return switch (this) {
+      EventType.motion => localizations.motion,
+      EventType.continuous => localizations.continuous,
+      EventType.notFound => localizations.notFound,
+      EventType.cameraVideoLost => localizations.cameraVideoLost,
+      EventType.cameraAudioLost => localizations.cameraAudioLost,
+      EventType.systemDiskSpace => localizations.systemDiskSpace,
+      EventType.systemCrash => localizations.systemCrash,
+      EventType.systemBoot => localizations.systemBoot,
+      EventType.systemShutdown => localizations.systemShutdown,
+      EventType.systemReboot => localizations.systemReboot,
+      EventType.systemPowerOutage => localizations.systemPowerOutage,
+      EventType.unknown => localizations.unknown
+    };
   }
 }

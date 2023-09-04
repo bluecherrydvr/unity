@@ -92,7 +92,7 @@ class _EventsScreenState extends State<EventsScreen> {
             await API.instance.checkServerCredentials(server),
           );
           if (mounted) {
-            setState(() {
+            super.setState(() {
               events[server] = iterable;
               invalid[server] = false;
             });
@@ -112,7 +112,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     if (mounted) {
-      setState(() {
+      super.setState(() {
         isFirstTimeLoading = false;
       });
     }

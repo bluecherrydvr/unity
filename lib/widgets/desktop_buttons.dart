@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -278,17 +279,135 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 }
 
 /// A widget that shows whether something in the app is loading
-class UnityLoadingIndicator extends StatelessWidget {
+class UnityLoadingIndicator extends StatefulWidget {
   const UnityLoadingIndicator({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // TODO(bdlukaa): show current tasks on hover
+  State<UnityLoadingIndicator> createState() => _UnityLoadingIndicatorState();
+}
 
-    return const SizedBox(
-      height: 20.0,
-      width: 20.0,
-      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+class _UnityLoadingIndicatorState extends State<UnityLoadingIndicator> {
+  OverlayEntry? _overlayEntry;
+  void showCurrentTasks() {
+    final overlay = Overlay.of(context);
+
+    final box = context.findRenderObject() as RenderBox;
+    final pos = box.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(builder: (context) {
+      return LayoutBuilder(builder: (context, constraints) {
+        final willFitY = constraints.maxHeight - (pos.dy + box.size.height) >
+            CurrentTasks.width;
+
+        return Stack(children: [
+          Positioned(
+            top: willFitY ? pos.dy + box.size.height : null,
+            bottom: willFitY ? null : constraints.maxHeight - pos.dy + 1.0,
+            left: clampDouble(
+              pos.dx - (CurrentTasks.width / 2),
+              0,
+              constraints.maxWidth,
+            ),
+            child: const CurrentTasks(),
+          ),
+        ]);
+      });
+    });
+
+    overlay.insert(_overlayEntry!);
+  }
+
+  void dismissOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  bool _openedWithTap = false;
+
+  @override
+  void dispose() {
+    dismissOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(debugCheckHasOverlay(context));
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapUp: (d) {
+        if (d.kind == PointerDeviceKind.touch) {
+          if (_overlayEntry != null) {
+            dismissOverlay();
+            _openedWithTap = false;
+          } else {
+            showCurrentTasks();
+            _openedWithTap = true;
+          }
+        }
+      },
+      child: MouseRegion(
+        hitTestBehavior: HitTestBehavior.opaque,
+        onHover: (_) {
+          if (_overlayEntry != null) return;
+          showCurrentTasks();
+          _openedWithTap = false;
+        },
+        onExit: (_) {
+          if (!_openedWithTap) dismissOverlay();
+        },
+        child: const SizedBox(
+          height: 20.0,
+          width: 20.0,
+          child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+}
+
+class CurrentTasks extends StatelessWidget {
+  const CurrentTasks({super.key});
+
+  static const width = 250.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final home = context.watch<HomeProvider>();
+
+    return Card(
+      child: Container(
+        width: width,
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 12.0,
+          vertical: 10.0,
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Expanded(
+              child: Text(
+                loc.currentTasks,
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+            Text(
+              '${home.loadReasons.length}',
+              style: theme.textTheme.labelSmall,
+            ),
+          ]),
+          if (home.loadReasons.isEmpty)
+            Text(loc.noCurrentTasks, style: theme.textTheme.labelSmall)
+          else
+            ...home.loadReasons.map((reason) {
+              return Text(
+                reason.locale(context),
+                style: theme.textTheme.bodyMedium,
+              );
+            }),
+        ]),
+      ),
     );
   }
 }

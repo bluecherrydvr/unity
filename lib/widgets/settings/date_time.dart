@@ -50,6 +50,7 @@ class DateFormatSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final locale = Localizations.localeOf(context).toLanguageTag();
     return LayoutBuilder(builder: (context, consts) {
       final formats = [
         'dd MMMM yyyy',
@@ -60,7 +61,7 @@ class DateFormatSection extends StatelessWidget {
         'MM-dd-yyyy',
         'dd-MM-yyyy',
         'yyyy-MM-dd'
-      ];
+      ].map((e) => DateFormat(e, locale));
 
       if (consts.maxWidth >= 800) {
         final crossAxisCount = consts.maxWidth >= 870 ? 4 : 3;
@@ -68,16 +69,15 @@ class DateFormatSection extends StatelessWidget {
           children: formats.map((format) {
             return SizedBox(
               width: consts.maxWidth / crossAxisCount,
-              child: RadioListTile(
-                value: format,
+              child: RadioListTile<String?>(
+                value: format.pattern,
                 groupValue: settings.dateFormat.pattern,
                 onChanged: (value) {
-                  settings.dateFormat = DateFormat(format, 'en_US');
+                  settings.dateFormat = format;
                 },
                 controlAffinity: ListTileControlAffinity.trailing,
                 title: AutoSizeText(
-                  DateFormat(format, 'en_US')
-                      .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
                   maxLines: 1,
                   softWrap: false,
                 ),
@@ -87,19 +87,18 @@ class DateFormatSection extends StatelessWidget {
         );
       } else {
         return Column(
-          children: formats.map((format) {
-            return RadioListTile(
-              value: format,
+          children: formats.map<Widget>((format) {
+            return RadioListTile<String?>(
+              value: format.pattern,
               groupValue: settings.dateFormat.pattern,
               onChanged: (value) {
-                settings.dateFormat = DateFormat(format, 'en_US');
+                settings.dateFormat = format;
               },
               controlAffinity: ListTileControlAffinity.trailing,
               title: Padding(
                 padding: const EdgeInsetsDirectional.only(start: 8.0),
                 child: Text(
-                  DateFormat(format, 'en_US')
-                      .format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
                 ),
               ),
             );
@@ -116,27 +115,23 @@ class TimeFormatSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final locale = Localizations.localeOf(context).toLanguageTag();
+
     return LayoutBuilder(builder: (context, constraints) {
-      const patterns = ['HH:mm', 'hh:mm a'];
+      final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
       final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
       return Column(
-        children: patterns.map((pattern) {
+        children: patterns.map<Widget>((format) {
           return ListTile(
-            onTap: () {
-              settings.timeFormat = DateFormat(pattern, 'en_US');
-            },
-            trailing: Radio(
-              value: pattern,
+            onTap: () => settings.timeFormat = format,
+            trailing: Radio<String?>(
+              value: format.pattern,
               groupValue: settings.timeFormat.pattern,
-              onChanged: (value) {
-                settings.timeFormat = DateFormat(pattern, 'en_US');
-              },
+              onChanged: (value) => settings.timeFormat = format,
             ),
             title: Padding(
               padding: const EdgeInsetsDirectional.only(start: 8.0),
-              child: Text(
-                DateFormat(pattern, 'en_US').format(date),
-              ),
+              child: Text(format.format(date)),
             ),
           );
         }).toList(),

@@ -23,25 +23,24 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.
-///
 class SettingsProvider extends ChangeNotifier {
-  /// `late` initialized [ServersProvider] instance.
+  /// `late` initialized [SettingsProvider] instance.
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
-  // TODO(bdlukaa): consider using https://github.com/Nikoro/system_date_time_format
-  // to get the system date/time format
   static const kDefaultDateFormat = 'EEEE, dd MMMM yyyy';
   static const kDefaultTimeFormat = 'hh:mm a';
   static final defaultSnoozedUntil = DateTime(1969, 7, 20, 20, 18, 04);
-  static const kDefaultNotificationClickAction =
-      NotificationClickAction.showFullscreenCamera;
+  static const kDefaultNotificationClickBehavior =
+      NotificationClickBehavior.showFullscreenCamera;
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
   static const kDefaultLayoutCyclingEnabled = false;
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
@@ -55,7 +54,7 @@ class SettingsProvider extends ChangeNotifier {
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
   DateTime get snoozedUntil => _snoozedUntil;
-  NotificationClickAction get notificationClickBehavior =>
+  NotificationClickBehavior get notificationClickBehavior =>
       _notificationClickBehavior;
   UnityVideoFit get cameraViewFit => _cameraViewFit;
   String get downloadsDirectory => _downloadsDirectory;
@@ -90,7 +89,7 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  set notificationClickBehavior(NotificationClickAction value) {
+  set notificationClickBehavior(NotificationClickBehavior value) {
     _notificationClickBehavior = value;
     _save();
   }
@@ -119,7 +118,7 @@ class SettingsProvider extends ChangeNotifier {
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
   late DateTime _snoozedUntil;
-  late NotificationClickAction _notificationClickBehavior;
+  late NotificationClickBehavior _notificationClickBehavior;
   late UnityVideoFit _cameraViewFit;
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
@@ -145,7 +144,7 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDateFormat: dateFormat.pattern!,
       kHiveTimeFormat: timeFormat.pattern!,
       kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
-      kHiveNotificationClickAction: notificationClickBehavior.index,
+      kHiveNotificationClickBehavior: notificationClickBehavior.index,
       kHiveCameraViewFit: cameraViewFit.index,
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
@@ -169,21 +168,18 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _themeMode = kDefaultThemeMode;
     }
+    final format = SystemDateTimeFormat();
+    final systemLocale = Intl.getCurrentLocale();
+    final timePattern = await format.getTimePattern();
     if (data.containsKey(kHiveDateFormat)) {
-      _dateFormat = DateFormat(
-        data[kHiveDateFormat]!,
-        'en_US',
-      );
+      _dateFormat = DateFormat(data[kHiveDateFormat]!, systemLocale);
     } else {
-      _dateFormat = DateFormat(kDefaultDateFormat, 'en_US');
+      _dateFormat = DateFormat(kDefaultDateFormat, systemLocale);
     }
     if (data.containsKey(kHiveTimeFormat)) {
-      _timeFormat = DateFormat(
-        data[kHiveTimeFormat]!,
-        'en_US',
-      );
+      _timeFormat = DateFormat(data[kHiveTimeFormat]!, systemLocale);
     } else {
-      _timeFormat = DateFormat(kDefaultTimeFormat, 'en_US');
+      _timeFormat = DateFormat(timePattern ?? kDefaultTimeFormat, systemLocale);
     }
     if (data.containsKey(kHiveSnoozedUntil)) {
       _snoozedUntil = DateTime.parse(
@@ -192,11 +188,11 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _snoozedUntil = defaultSnoozedUntil;
     }
-    if (data.containsKey(kHiveNotificationClickAction)) {
-      _notificationClickBehavior =
-          NotificationClickAction.values[data[kHiveNotificationClickAction]!];
+    if (data.containsKey(kHiveNotificationClickBehavior)) {
+      _notificationClickBehavior = NotificationClickBehavior
+          .values[data[kHiveNotificationClickBehavior]!];
     } else {
-      _notificationClickBehavior = kDefaultNotificationClickAction;
+      _notificationClickBehavior = kDefaultNotificationClickBehavior;
     }
     if (data.containsKey(kHiveCameraViewFit)) {
       _cameraViewFit = UnityVideoFit.values[data[kHiveCameraViewFit]!];
@@ -245,24 +241,30 @@ class SettingsProvider extends ChangeNotifier {
     return timeFormat.format(time);
   }
 
-  void toggleCycling() {
+  bool toggleCycling() {
     layoutCyclingEnabled = !layoutCyclingEnabled;
+    return layoutCyclingEnabled;
   }
-
-  @override
-  // ignore: must_call_super
-  void dispose() {}
 }
 
-enum NotificationClickAction {
+enum NotificationClickBehavior {
   showFullscreenCamera,
   showEventsScreen;
 
   IconData get icon {
     return switch (this) {
-      NotificationClickAction.showEventsScreen =>
+      NotificationClickBehavior.showEventsScreen =>
         Icons.featured_play_list_outlined,
-      NotificationClickAction.showFullscreenCamera => Icons.screenshot_monitor,
+      NotificationClickBehavior.showFullscreenCamera =>
+        Icons.screenshot_monitor,
+    };
+  }
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      NotificationClickBehavior.showEventsScreen => loc.showFullscreenCamera,
+      NotificationClickBehavior.showFullscreenCamera => loc.showEventsScreen,
     };
   }
 }

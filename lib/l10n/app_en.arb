@@ -347,5 +347,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "@CURRENT TASKS": {},
+  "currentTasks": "Current tasks",
+  "noCurrentTasks": "No tasks",
+  "taskFetchingEvent": "Fetching events",
+  "taskFetchingEventsPlayback": "Fetching events playback",
+  "taskDownloadingEvent": "Downloading event"
 }

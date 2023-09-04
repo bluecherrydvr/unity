@@ -201,10 +201,7 @@ class PTZData extends StatelessWidget {
                 return cmd.command.locale(context);
             }
           }).map<Widget>((text) {
-            return Text(
-              text,
-              style: const TextStyle(color: Colors.white),
-            );
+            return Text(text, style: const TextStyle(color: Colors.white));
           }).toList(),
         ),
       ),

@@ -97,8 +97,6 @@ class _MKVideo extends StatelessWidget {
       fill: color,
       fit: fit,
       controls: NoVideoControls,
-      pauseUponEnteringBackgroundMode: true,
-      wakelock: true,
     );
   }
 }
@@ -133,27 +131,29 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
     if (mkPlayer.platform is NativePlayer) {
-      final platform = (mkPlayer.platform as NativePlayer);
-
-      platform.observeProperty('estimated-vf-fps', (fps) async {
-        _fps = double.parse(fps);
-        _fpsStreamController.add(_fps);
-      });
+      final platform = (mkPlayer.platform as NativePlayer)
+        ..observeProperty('estimated-vf-fps', (fps) async {
+          _fps = double.parse(fps);
+          _fpsStreamController.add(_fps);
+        });
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
-        platform.setProperty("cache", "yes");
-        // https://mpv.io/manual/stable/#options-cache-pause-initial
-        platform.setProperty("cache-pause-initial", "yes");
-        // https://mpv.io/manual/stable/#options-cache-pause-wait
-        platform.setProperty("cache-pause-wait", "1");
+        platform
+          ..setProperty('cache', 'yes')
+          // https://mpv.io/manual/stable/#options-cache-pause-initial
+          ..setProperty('cache-pause-initial', 'yes')
+          // https://mpv.io/manual/stable/#options-cache-pause-wait
+          ..setProperty('cache-pause-wait', '1');
         getTemporaryDirectory().then((value) {
-          platform.setProperty("cache-on-disk", "yes");
-          platform.setProperty("cache-dir", value.path);
+          platform
+            ..setProperty('cache-on-disk', 'yes')
+            ..setProperty('cache-dir', value.path);
         });
       } else {
-        platform.setProperty("cache", "no");
-        platform.setProperty("video-sync", "audio");
+        platform
+          ..setProperty('cache', 'no')
+          ..setProperty('video-sync', 'audio');
         // these two properties reduce latency, but it causes problems with FPS
         // platform.setProperty("profile", "low-latency");
         // platform.setProperty("untimed", "");
@@ -235,7 +235,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }) {
     return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
-        Playlist(url.map((source) => Media(source)).toList()),
+        Playlist(url.map(Media.new).toList()),
         play: autoPlay,
       );
     });
@@ -255,7 +255,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setSpeed(double speed) async => mkPlayer.setRate(speed);
   @override
-  Future<void> seekTo(Duration position) async => await mkPlayer.seek(position);
+  Future<void> seekTo(Duration position) async => mkPlayer.seek(position);
 
   @override
   Future<void> setSize(Size size) {
@@ -287,7 +287,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> dispose() async {
     if (mkPlayer.platform is NativePlayer) {
-      final platform = (mkPlayer.platform as NativePlayer);
+      final platform = mkPlayer.platform as NativePlayer;
 
       await platform.unobserveProperty('estimated-vf-fps');
     }

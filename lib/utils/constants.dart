@@ -30,7 +30,7 @@ const kDefaultUsername = 'Admin';
 /// Default password used in Bluecherry DVR server.
 const kDefaultPassword = 'bluecherry';
 
-/// Keys used for storing data in cache using `package:hive`.
+// Keys used for storing data in cache using `package:hive`.
 
 const kHiveServers = 'servers';
 const kHiveMobileView = 'mobile_view';
@@ -42,7 +42,7 @@ const kHiveThemeMode = 'theme_mode';
 const kHiveDateFormat = 'date_format';
 const kHiveTimeFormat = 'time_format';
 const kHiveSnoozedUntil = 'snoozed_until';
-const kHiveNotificationClickAction = 'notification_click_action';
+const kHiveNotificationClickBehavior = 'notification_click_action';
 const kHiveCameraViewFit = 'camera_view_fit';
 const kHiveDownloadsDirectorySetting = 'downloads_dir';
 const kHiveDownloads = 'downloads';

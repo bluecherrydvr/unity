@@ -18,18 +18,20 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
+export 'package:collection/collection.dart' show IterableExtension;
+
 extension DurationExtension on Duration {
   /// Return [Duration] as typical formatted string.
+  ///
+  /// 00:00:00
   String get label {
     if (this > const Duration(days: 1)) {
       final days = inDays.toString().padLeft(3, '0');
@@ -70,35 +72,8 @@ extension DurationExtension on Duration {
     );
   }
 
-  Duration ensurePositive() {
-    if (isNegative) return this * -1;
-
-    return this;
-  }
-
   double get inDoubleSeconds {
     return inMilliseconds / 1000;
-  }
-}
-
-extension IterableExtension<T> on Iterable<T> {
-  T? firstWhereOrNull(bool Function(T element) test) {
-    try {
-      return firstWhere(test);
-    } catch (_) {
-      return null;
-    }
-  }
-}
-
-extension NotificationExtensions on NotificationClickAction {
-  String str(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
-    return {
-      NotificationClickAction.showFullscreenCamera: loc.showFullscreenCamera,
-      NotificationClickAction.showEventsScreen: loc.showEventsScreen,
-    }[this]!;
   }
 }
 
@@ -113,19 +88,16 @@ extension CameraViewFitExtension on UnityVideoFit {
   }
 
   IconData get icon {
-    switch (this) {
-      case UnityVideoFit.contain:
-        return Icons.fit_screen;
-      case UnityVideoFit.fill:
-        return Icons.rectangle_rounded;
-      case UnityVideoFit.cover:
-        return Icons.aspect_ratio;
-    }
+    return switch (this) {
+      UnityVideoFit.contain => Icons.fit_screen,
+      UnityVideoFit.fill => Icons.rectangle_rounded,
+      UnityVideoFit.cover => Icons.aspect_ratio
+    };
   }
 }
 
 extension UnityVideoQualityExtension on UnityVideoQuality {
-  String str(BuildContext context) {
+  String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return {
           UnityVideoQuality.p1080: loc.p1080,
@@ -146,14 +118,6 @@ extension StringExtension on String {
   }
 }
 
-extension NumberExtension on num {
-  /// Ensure this number is positive
-  num ensurePositive() {
-    if (isNegative) return -this;
-    return this;
-  }
-}
-
 extension ServerExtension on List<Server> {
   Device? findDevice(String id) {
     for (final server in this) {
@@ -168,64 +132,10 @@ extension ServerExtension on List<Server> {
 }
 
 extension DateTimeExtension on DateTime {
-  bool hasForDate(DateTime date) {
-    return year == date.year &&
-        month == date.month &&
-        day == date.day &&
-        hour == date.hour &&
-        minute == date.minute;
-  }
-
   bool isInBetween(DateTime first, DateTime second) {
     return (isAfter(first) && isBefore(second)) ||
         isAtSameMomentAs(first) ||
         isAtSameMomentAs(second);
-  }
-}
-
-extension EventsExtension on Iterable<Event> {
-  bool hasForDate(DateTime date) {
-    return any((event) {
-      final start = event.published;
-
-      final end = event.published.add(event.duration);
-
-      return date.isInBetween(start, end);
-    });
-  }
-
-  Event forDate(DateTime date) {
-    return forDateList(date).first;
-  }
-
-  Iterable<Event> forDateList(DateTime date) {
-    return where((event) {
-      final start = event.published;
-
-      final end = event.published.add(event.duration);
-
-      return date.isInBetween(start, end);
-    });
-  }
-
-  Event get oldest {
-    final copy = [...this]..sort((e1, e2) {
-        return e1.published.compareTo(e2.published);
-      });
-
-    return copy.first;
-  }
-
-  Event get newest {
-    final copy = [...this]..sort((e1, e2) {
-        return e1.published.compareTo(e2.published);
-      });
-
-    return copy.last;
-  }
-
-  Iterable<Event> inBetween(DateTime d1, DateTime d2) {
-    return where((e) => e.published.isInBetween(d1, d2));
   }
 }
 

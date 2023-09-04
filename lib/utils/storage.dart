@@ -67,8 +67,8 @@ Future<void> configureStorage() async {
         settings._replaceIfNotNull(
             kHiveSnoozedUntil, hive.get(kHiveSnoozedUntil)),
         settings._replaceIfNotNull(
-          kHiveNotificationClickAction,
-          hive.get(kHiveNotificationClickAction),
+          kHiveNotificationClickBehavior,
+          hive.get(kHiveNotificationClickBehavior),
         ),
         settings._replaceIfNotNull(
           kHiveCameraViewFit,

@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 enum UnityTab {
@@ -31,27 +32,29 @@ enum UnityTab {
   eventsScreen,
   addServer,
   downloads,
-  settings,
+  settings;
 }
 
 enum UnityLoadingReason {
   /// Fetching the events in the [EventsPlayback] screen
   fetchingEventsPlayback,
 
-  /// Fetching the periods in [EventsPlayback] screen.
-  ///
-  /// It is a heavy computational task, so it's useful to warn the user something
-  /// is going on
-  fetchingEventsPlaybackPeriods,
-
   /// Fetching the events in the [EventsScreen] screen
   fetchingEventsHistory,
 
   /// Downloading an event media
-  downloadEvent,
+  downloadEvent;
 
-  /// Whether a timeline event is loading
-  timelineEventLoading,
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return switch (this) {
+      UnityLoadingReason.downloadEvent => loc.taskDownloadingEvent,
+      UnityLoadingReason.fetchingEventsHistory => loc.taskFetchingEvent,
+      UnityLoadingReason.fetchingEventsPlayback =>
+        loc.taskFetchingEventsPlayback,
+    };
+  }
 }
 
 class HomeProvider extends ChangeNotifier {

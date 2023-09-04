@@ -266,7 +266,10 @@ class UpdateManager extends ChangeNotifier {
 
   /// Downloads the latest version executable.
   Future<void> download(String version) async {
-    assert(isDesktop, 'This should never be reached on non-desktop platforms');
+    assert(
+      isDesktopPlatform,
+      'This should never be reached on non-desktop platforms',
+    );
 
     downloading = true;
     notifyListeners();

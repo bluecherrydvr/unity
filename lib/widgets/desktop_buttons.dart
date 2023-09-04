@@ -295,13 +295,23 @@ class _UnityLoadingIndicatorState extends State<UnityLoadingIndicator> {
     final pos = box.localToGlobal(Offset.zero);
 
     _overlayEntry = OverlayEntry(builder: (context) {
-      return Stack(children: [
-        Positioned(
-          top: pos.dy + box.size.height,
-          left: pos.dx - (CurrentTasks.width / 2),
-          child: const CurrentTasks(),
-        ),
-      ]);
+      return LayoutBuilder(builder: (context, constraints) {
+        final willFitY = constraints.maxHeight - (pos.dy + box.size.height) >
+            CurrentTasks.width;
+
+        return Stack(children: [
+          Positioned(
+            top: willFitY ? pos.dy + box.size.height : null,
+            bottom: willFitY ? null : constraints.maxHeight - pos.dy + 1.0,
+            left: clampDouble(
+              pos.dx - (CurrentTasks.width / 2),
+              0,
+              constraints.maxWidth,
+            ),
+            child: const CurrentTasks(),
+          ),
+        ]);
+      });
     });
 
     overlay.insert(_overlayEntry!);

@@ -34,7 +34,7 @@ class ServersList extends StatelessWidget {
     void addServersScreen() {
       home
         ..automaticallyGoToAddServersScreen = true
-        ..setTab(UnityTab.addServer.index, context);
+        ..setTab(UnityTab.addServer, context);
     }
 
     return LayoutBuilder(builder: (context, consts) {
@@ -387,9 +387,7 @@ Future showServerMenu({
       const PopupMenuDivider(height: 1.0),
       PopupMenuItem(
         child: Text(loc.browseEvents),
-        onTap: () {
-          home.setTab(UnityTab.eventsScreen.index, context);
-        },
+        onTap: () => home.setTab(UnityTab.eventsScreen, context),
       ),
       PopupMenuItem(
         child: Text(loc.configureServer),

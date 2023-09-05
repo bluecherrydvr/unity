@@ -66,21 +66,22 @@ class HomeProvider extends ChangeNotifier {
 
   static HomeProvider get instance => _instance;
 
-  int tab = ServersProvider.instance.serverAdded
-      ? UnityTab.deviceGrid.index
-      : UnityTab.addServer.index;
+  UnityTab tab = ServersProvider.instance.hasServers
+      ? UnityTab.deviceGrid
+      : UnityTab.addServer;
 
   List<UnityLoadingReason> loadReasons = [];
 
-  Future<void> setTab(int tab, BuildContext context) async {
-    if (tab.isNegative) return;
+  Future<void> setTab(UnityTab tab, BuildContext context) async {
+    if (tab == this.tab) return;
+
     this.tab = tab;
 
-    if (tab != UnityTab.downloads.index) {
+    if (tab != UnityTab.downloads) {
       initiallyExpandedDownloadEventId = null;
     }
 
-    if (tab != UnityTab.addServer.index) {
+    if (tab != UnityTab.addServer) {
       automaticallyGoToAddServersScreen = false;
     }
 
@@ -94,7 +95,7 @@ class HomeProvider extends ChangeNotifier {
   void toDownloads(int eventId, BuildContext context) {
     initiallyExpandedDownloadEventId = eventId;
 
-    setTab(UnityTab.downloads.index, context);
+    setTab(UnityTab.downloads, context);
   }
 
   static Future<void> setDefaultStatusBarStyle({bool? isLight}) async {
@@ -118,19 +119,19 @@ class HomeProvider extends ChangeNotifier {
       final tab = home.tab;
 
       /// On device grid, use landscape
-      if ([UnityTab.deviceGrid.index].contains(tab)) {
+      if ([UnityTab.deviceGrid].contains(tab)) {
         setDefaultStatusBarStyle();
         DeviceOrientations.instance.set([
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ]);
-      } else if ([UnityTab.directCameraScreen.index].contains(tab)) {
+      } else if ([UnityTab.directCameraScreen].contains(tab)) {
         setDefaultStatusBarStyle();
         DeviceOrientations.instance.set([
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ]);
-      } else if ([UnityTab.addServer.index].contains(tab)) {
+      } else if ([UnityTab.addServer].contains(tab)) {
         setDefaultStatusBarStyle(isLight: true);
         DeviceOrientations.instance.set([
           DeviceOrientation.portraitUp,

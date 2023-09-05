@@ -178,13 +178,12 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                           }
                         }
 
-                        final names = navData.map((d) => d.text);
-
-                        if (tab >= names.length) {
+                        // If it is in another screen, show the title or fallback to "Bluecherry"
+                        if (tab.index >= UnityTab.values.length) {
                           return widget.title ?? 'Bluecherry';
                         }
 
-                        return names.elementAt(tab);
+                        return navData.firstWhere((d) => d.tab == tab).text;
                       }(),
                       style: TextStyle(
                         color: theme.brightness == Brightness.light
@@ -202,8 +201,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: UnityLoadingIndicator(),
                   )
-                else if (home.tab == UnityTab.eventsScreen.index ||
-                    home.tab == UnityTab.eventsPlayback.index && !canPop)
+                else if (home.tab == UnityTab.eventsScreen ||
+                    home.tab == UnityTab.eventsPlayback && !canPop)
                   IconButton(
                     onPressed: () {
                       eventsScreenKey.currentState?.fetch();
@@ -229,9 +228,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ...navData.map((data) {
-                    final index = navData.indexOf(data);
-                    final isSelected = tab == index;
-
+                    final isSelected = tab == data.tab;
                     final icon = isSelected ? data.selectedIcon : data.icon;
                     final text = data.text;
 
@@ -249,7 +246,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                       ),
                       iconSize: 22.0,
                       tooltip: text,
-                      onPressed: () => home.setTab(index, context),
+                      onPressed: () => home.setTab(data.tab, context),
                     );
                   }),
                 ]),

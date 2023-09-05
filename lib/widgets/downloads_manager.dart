@@ -487,9 +487,7 @@ class NoDownloads extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                home.setTab(UnityTab.eventsScreen.index, context);
-              },
+              ..onTap = () => home.setTab(UnityTab.eventsScreen, context),
           ),
           textAlign: TextAlign.center,
         ),

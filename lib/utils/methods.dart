@@ -109,6 +109,7 @@ bool get isMobile {
   return [
     TargetPlatform.android,
     TargetPlatform.iOS,
+    TargetPlatform.fuchsia,
   ].contains(defaultTargetPlatform);
 }
 

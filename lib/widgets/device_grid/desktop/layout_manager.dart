@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -86,49 +87,51 @@ class _LayoutManagerState extends State<LayoutManager> {
       child: Column(children: [
         Material(
           color: theme.appBarTheme.backgroundColor,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(
-              top: 2.0,
-              bottom: 2.0,
-              end: 12.0,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(
+                top: 2.0,
+                bottom: 2.0,
+                end: 12.0,
+              ),
+              child: Row(children: [
+                widget.collapseButton,
+                const SizedBox(width: 5.0),
+                Expanded(
+                  child: Text(
+                    loc.view,
+                    maxLines: 1,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.cyclone,
+                    size: 18.0,
+                    color: settings.layoutCyclingEnabled
+                        ? theme.colorScheme.primary
+                        : IconTheme.of(context).color,
+                  ),
+                  padding: EdgeInsets.zero,
+                  tooltip: loc.cycle,
+                  onPressed: settings.toggleCycling,
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    size: 18.0,
+                    color: IconTheme.of(context).color,
+                  ),
+                  tooltip: loc.newLayout,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const NewLayoutDialog(),
+                    );
+                  },
+                ),
+              ]),
             ),
-            child: Row(children: [
-              widget.collapseButton,
-              const SizedBox(width: 5.0),
-              Expanded(
-                child: Text(
-                  loc.view,
-                  maxLines: 1,
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.cyclone,
-                  size: 18.0,
-                  color: settings.layoutCyclingEnabled
-                      ? theme.colorScheme.primary
-                      : IconTheme.of(context).color,
-                ),
-                padding: EdgeInsets.zero,
-                tooltip: loc.cycle,
-                onPressed: settings.toggleCycling,
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.add,
-                  size: 18.0,
-                  color: IconTheme.of(context).color,
-                ),
-                tooltip: loc.newLayout,
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const NewLayoutDialog(),
-                  );
-                },
-              ),
-            ]),
           ),
         ),
         Expanded(
@@ -270,10 +273,11 @@ class LayoutTile extends StatelessWidget {
             );
           },
         ),
-        PopupMenuItem(
-          onTap: layout.openInANewWindow,
-          child: Text(loc.openInANewWindow),
-        ),
+        if (isDesktopPlatform)
+          PopupMenuItem(
+            onTap: layout.openInANewWindow,
+            child: Text(loc.openInANewWindow),
+          ),
         PopupMenuItem(
           onTap: () {
             layout.export(dialogTitle: loc.exportLayout);

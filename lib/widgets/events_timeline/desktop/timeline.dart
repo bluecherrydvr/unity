@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
@@ -371,9 +372,12 @@ class Timeline extends ChangeNotifier {
   }
 
   void play([TimelineEvent? event]) {
+    timer?.cancel();
     timer ??= Timer.periodic(Duration(milliseconds: 1000 ~/ _speed), (timer) {
-      if (event == null) currentPosition += const Duration(seconds: 1);
-      notifyListeners();
+      if (event == null) {
+        currentPosition += const Duration(seconds: 1);
+        notifyListeners();
+      }
 
       forEachEvent((tile, e) {
         if (tile.videoController.isPlaying) return;
@@ -628,20 +632,24 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                         }
                       }
                     },
-                    child: SingleChildScrollView(
+                    child: Scrollbar(
                       controller: timeline.zoomController,
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: tileWidth,
-                        child: Column(children: [
-                          _TimelineHours(hourWidth: hourWidth),
-                          ...timeline.tiles.map((tile) {
-                            return _TimelineTile(
-                              key: ValueKey(tile),
-                              tile: tile,
-                            );
-                          }),
-                        ]),
+                      thumbVisibility: isMobilePlatform || kIsWeb,
+                      child: SingleChildScrollView(
+                        controller: timeline.zoomController,
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: tileWidth,
+                          child: Column(children: [
+                            _TimelineHours(hourWidth: hourWidth),
+                            ...timeline.tiles.map((tile) {
+                              return _TimelineTile(
+                                key: ValueKey(tile),
+                                tile: tile,
+                              );
+                            }),
+                          ]),
+                        ),
                       ),
                     ),
                   ),

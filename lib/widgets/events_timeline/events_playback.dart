@@ -179,12 +179,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
-    setState(() {
-      timeline = Timeline(
-        tiles: parsedTiles.toList(),
-        date: date,
-      );
-    });
+    if (mounted) {
+      setState(() {
+        timeline = Timeline(
+          tiles: parsedTiles.toList(),
+          date: date,
+        );
+      });
+    }
   }
 
   @override
@@ -246,9 +248,11 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           }
           return SafeArea(child: TimelineDeviceView(timeline: timeline!));
         }
-        return TimelineEventsView(
-          // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
-          timeline: timeline,
+        return SafeArea(
+          child: TimelineEventsView(
+            // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
+            timeline: timeline,
+          ),
         );
       }),
     );

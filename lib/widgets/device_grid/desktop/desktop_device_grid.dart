@@ -280,7 +280,7 @@ class LayoutView extends StatelessWidget {
               topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
             ),
           ),
-          child: Center(child: child),
+          child: SafeArea(child: Center(child: child)),
         );
       },
     );

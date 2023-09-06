@@ -46,67 +46,60 @@ class DownloadsManagerScreen extends StatelessWidget {
     final downloads = context.watch<DownloadsManager>();
 
     return Column(children: [
-      showIf(
-            Scaffold.hasDrawer(context),
-            child: AppBar(
-              leading: MaybeUnityDrawerButton(context),
-              title: Text(loc.downloads),
-            ),
-          ) ??
-          const SizedBox.shrink(),
+      if (Scaffold.hasDrawer(context))
+        AppBar(
+          leading: MaybeUnityDrawerButton(context),
+          title: Text(loc.downloads),
+        )
+      else
+        const SafeArea(child: SizedBox.shrink()),
       Expanded(
         child: LayoutBuilder(builder: (context, consts) {
-          if (downloads.isEmpty) {
-            return const NoDownloads();
-          }
+          if (downloads.isEmpty) return const NoDownloads();
 
           final size = consts.biggest;
-          return CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsetsDirectional.only(
-                  top: _kDownloadsManagerPadding / 2,
-                  bottom: _kDownloadsManagerPadding / 2,
-                ),
-                sliver: SliverList.builder(
-                  itemCount: downloads.downloading.length,
-                  itemBuilder: (context, index) {
-                    final entry =
-                        downloads.downloading.entries.elementAt(index);
-                    final event = entry.key;
-                    final progress = entry.value;
-
-                    return DownloadTile(
-                      key: ValueKey(event.id),
-                      event: event,
-                      upcomingEvents: downloads.downloadedEvents
-                          .map((e) => e.event)
-                          .toList(),
-                      size: size,
-                      progress: progress,
-                      initiallyExpanded: initiallyExpandedEventId == event.id,
-                    );
-                  },
-                ),
+          return CustomScrollView(slivers: [
+            SliverPadding(
+              padding: const EdgeInsetsDirectional.only(
+                top: _kDownloadsManagerPadding / 2,
+                bottom: _kDownloadsManagerPadding / 2,
               ),
-              SliverList.builder(
-                itemCount: downloads.downloadedEvents.length,
+              sliver: SliverList.builder(
+                itemCount: downloads.downloading.length,
                 itemBuilder: (context, index) {
-                  final de = downloads.downloadedEvents[index];
+                  final entry = downloads.downloading.entries.elementAt(index);
+                  final event = entry.key;
+                  final progress = entry.value;
 
                   return DownloadTile(
-                    key: ValueKey(de.event.id),
-                    event: de.event,
+                    key: ValueKey(event.id),
+                    event: event,
                     upcomingEvents:
                         downloads.downloadedEvents.map((e) => e.event).toList(),
                     size: size,
-                    downloadPath: de.downloadPath,
-                    initiallyExpanded: initiallyExpandedEventId == de.event.id,
+                    progress: progress,
+                    initiallyExpanded: initiallyExpandedEventId == event.id,
                   );
                 },
               ),
-            ],
-          );
+            ),
+            SliverList.builder(
+              itemCount: downloads.downloadedEvents.length,
+              itemBuilder: (context, index) {
+                final de = downloads.downloadedEvents[index];
+
+                return DownloadTile(
+                  key: ValueKey(de.event.id),
+                  event: de.event,
+                  upcomingEvents:
+                      downloads.downloadedEvents.map((e) => e.event).toList(),
+                  size: size,
+                  downloadPath: de.downloadPath,
+                  initiallyExpanded: initiallyExpandedEventId == de.event.id,
+                );
+              },
+            ),
+          ]);
         }),
       ),
     ]);

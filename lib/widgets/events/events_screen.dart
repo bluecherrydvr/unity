@@ -433,8 +433,8 @@ class _EventsScreenState extends State<EventsScreen> {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (context) {
-        final theme = Theme.of(context);
         final loc = AppLocalizations.of(context);
 
         return DraggableScrollableSheet(
@@ -451,20 +451,6 @@ class _EventsScreenState extends State<EventsScreen> {
               }
 
               return ListView(controller: controller, children: [
-                Center(
-                  child: Container(
-                    width: 50,
-                    height: 6.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: theme.dividerColor,
-                    ),
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 12.0,
-                    ),
-                  ),
-                ),
                 const SubHeader('Time filter'),
                 DropdownButton<EventsTimeFilter>(
                   isExpanded: true,

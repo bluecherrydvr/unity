@@ -66,6 +66,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   }
 
   int lastEventIndex = -1;
+  bool get isFirstEvent => lastEventIndex <= 0;
+  bool get isLastEvent =>
+      lastEventIndex.isNegative || lastEventIndex == tile!.events.length - 1;
 
   /// Whether the user is scrolling the timeline. If true, [ensureScrollPosition]
   /// will not execute to avoid conflicts
@@ -259,7 +262,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
     isScrolling = false;
     if (wasPlayingOnScroll) {
-      widget.timeline.play();
+      widget.timeline.play(currentEvent);
     }
   }
 
@@ -466,8 +469,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         ),
         IconButton(
           icon: const Icon(Icons.skip_previous),
-          tooltip: loc.previous,
-          onPressed: lastEventIndex <= 0
+          tooltip: isFirstEvent ? null : loc.previous,
+          onPressed: isFirstEvent
               ? null
               : () {
                   setEvent(tile!.events.elementAt(lastEventIndex - 1));
@@ -499,12 +502,11 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         const SizedBox(width: 6.0),
         IconButton(
           icon: const Icon(Icons.skip_next),
-          tooltip: loc.next,
-          onPressed: lastEventIndex.isNegative ||
-                  lastEventIndex == tile!.events.length - 1
+          tooltip: isLastEvent ? null : loc.next,
+          onPressed: isLastEvent
               ? null
               : () {
-                  setEvent(tile.events.elementAt(lastEventIndex + 1));
+                  setEvent(tile!.events.elementAt(lastEventIndex + 1));
                 },
         ),
         Expanded(

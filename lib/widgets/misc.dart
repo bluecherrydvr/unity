@@ -205,7 +205,7 @@ class SubHeader extends StatelessWidget {
     this.subtextStyle,
     this.trailing,
     super.key,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+    this.padding = const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
     this.height = 56.0,
   });
 
@@ -213,11 +213,8 @@ class SubHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final isInCard = context.findAncestorWidgetOfExactType<Card>() != null ||
-        context.findAncestorWidgetOfExactType<AlertDialog>() != null;
-
     return Material(
-      type: isInCard ? MaterialType.transparency : MaterialType.canvas,
+      type: MaterialType.transparency,
       child: Container(
         height: height,
         alignment: AlignmentDirectional.centerStart,

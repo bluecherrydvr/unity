@@ -42,7 +42,6 @@ class EventsScreenMobile extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return Material(
-      color: Colors.blue,
       child: RefreshIndicator.adaptive(
         onRefresh: refresh,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,

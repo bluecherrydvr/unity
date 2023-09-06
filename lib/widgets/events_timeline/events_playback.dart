@@ -232,7 +232,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       child: LayoutBuilder(builder: (context, constraints) {
         final hasDrawer = Scaffold.hasDrawer(context);
 
-        if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
+        if (hasDrawer ||
+            // special case: the width is less than the mobile breakpoint
+            constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (timeline == null) {
             return SafeArea(
               child: Padding(

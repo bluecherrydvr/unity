@@ -36,6 +36,7 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
@@ -148,8 +149,52 @@ Future<void> main(List<String> args) async {
   runApp(const UnityApp());
 }
 
-class UnityApp extends StatelessWidget {
+class UnityApp extends StatefulWidget {
   const UnityApp({super.key});
+
+  @override
+  State<UnityApp> createState() => _UnityAppState();
+}
+
+class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Whether the app is in background or not
+  bool isInBackground = false;
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        debugPrint('in foreground');
+
+        // When the app is resumed from background to foreground, reload all
+        // unity players
+        if (isInBackground) {
+          UnityPlayers.reloadAll();
+        }
+
+        isInBackground = false;
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        debugPrint('in background');
+        isInBackground = true;
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +221,9 @@ class UnityApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<UpdateManager>.value(
           value: UpdateManager.instance,
+        ),
+        ChangeNotifierProvider<UnityPlayers>.value(
+          value: UnityPlayers.instance,
         ),
       ],
       child: Consumer<SettingsProvider>(

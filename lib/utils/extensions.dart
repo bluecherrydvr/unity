@@ -80,11 +80,11 @@ extension DurationExtension on Duration {
 extension CameraViewFitExtension on UnityVideoFit {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return {
-      UnityVideoFit.contain: loc.contain,
-      UnityVideoFit.cover: loc.cover,
-      UnityVideoFit.fill: loc.fill,
-    }[this]!;
+    return switch (this) {
+      UnityVideoFit.contain => loc.contain,
+      UnityVideoFit.fill => loc.fill,
+      UnityVideoFit.cover => loc.cover,
+    };
   }
 
   IconData get icon {
@@ -99,14 +99,13 @@ extension CameraViewFitExtension on UnityVideoFit {
 extension UnityVideoQualityExtension on UnityVideoQuality {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return {
-          UnityVideoQuality.p1080: loc.p1080,
-          UnityVideoQuality.p720: loc.p720,
-          UnityVideoQuality.p480: loc.p480,
-          UnityVideoQuality.p360: loc.p360,
-          UnityVideoQuality.p240: loc.p240,
-        }[this] ??
-        name;
+    return switch (this) {
+      UnityVideoQuality.p1080 => loc.p1080,
+      UnityVideoQuality.p720 => loc.p720,
+      UnityVideoQuality.p480 => loc.p480,
+      UnityVideoQuality.p360 => loc.p360,
+      UnityVideoQuality.p240 => loc.p240,
+    };
   }
 }
 

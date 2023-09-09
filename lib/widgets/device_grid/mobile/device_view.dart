@@ -233,8 +233,6 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  UnityVideoPlayer? get videoPlayer => UnityPlayers.players[widget.device];
-
   bool get hover =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]
           ?[widget.index] ??
@@ -246,6 +244,8 @@ class DeviceTileState extends State<DeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<UnityPlayers>();
+    final videoPlayer = UnityPlayers.players[widget.device];
     if (videoPlayer == null) return const SizedBox.shrink();
 
     final loc = AppLocalizations.of(context);
@@ -258,8 +258,6 @@ class DeviceTileState extends State<DeviceTile> {
       },
       // Fullscreen on double-tap.
       onDoubleTap: () async {
-        if (videoPlayer == null) return;
-
         await Navigator.of(context).pushNamed(
           '/fullscreen',
           arguments: {
@@ -270,7 +268,7 @@ class DeviceTileState extends State<DeviceTile> {
       },
       child: UnityVideoView(
         heroTag: widget.device.streamURL,
-        player: videoPlayer!,
+        player: videoPlayer,
         fit: settings.cameraViewFit,
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
@@ -280,7 +278,7 @@ class DeviceTileState extends State<DeviceTile> {
             child: Stack(children: [
               if (error != null)
                 ErrorWarning(message: error)
-              else if (!controller.isSeekable || videoPlayer == null)
+              else if (!controller.isSeekable)
                 const Center(
                   child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -304,8 +302,6 @@ class DeviceTileState extends State<DeviceTile> {
                     child: IconButton(
                       splashRadius: 20.0,
                       onPressed: () async {
-                        if (videoPlayer == null) return;
-
                         await Navigator.of(context).pushNamed(
                           '/fullscreen',
                           arguments: {

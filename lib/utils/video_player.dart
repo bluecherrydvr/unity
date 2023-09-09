@@ -21,8 +21,10 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:flutter/foundation.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-class UnityPlayers {
-  const UnityPlayers._();
+class UnityPlayers with ChangeNotifier {
+  UnityPlayers._();
+
+  static final instance = UnityPlayers._();
 
   /// Instances of video players corresponding to a particular [Device].
   ///
@@ -45,9 +47,24 @@ class UnityPlayers {
     return controller;
   }
 
-  static void releaseDevice(Device device) {
-    players[device]?.release();
-    players[device]?.dispose();
+  /// Release the video player for the given [Device].
+  static Future<void> releaseDevice(Device device) async {
+    await players[device]?.release();
+    await players[device]?.dispose();
     players.remove(device);
+  }
+
+  /// Reload the video player for the given [Device].
+  static Future<void> reloadDevice(Device device) async {
+    await releaseDevice(device);
+    players[device] = forDevice(device);
+    instance.notifyListeners();
+  }
+
+  /// Reload all video players.
+  static void reloadAll() {
+    for (final device in players.keys) {
+      reloadDevice(device);
+    }
   }
 }

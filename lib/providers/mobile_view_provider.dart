@@ -196,12 +196,8 @@ class MobileViewProvider extends ChangeNotifier {
   /// e.g. in response to a network error etc.
   Future<void> reload(int tab, int index) async {
     final device = devices[tab]![index]!;
-    await UnityPlayers.players[device]?.reset();
-    await UnityPlayers.players[device]?.setDataSource(device.streamURL);
-    await UnityPlayers.players[device]?.setVolume(0.0);
-    await UnityPlayers.players[device]?.setSpeed(1.0);
+    await UnityPlayers.reloadDevice(device);
     notifyListeners();
-    return _save(notifyListeners: false);
   }
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.

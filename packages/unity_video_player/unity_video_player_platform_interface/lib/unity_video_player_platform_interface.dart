@@ -222,6 +222,9 @@ class UnityVideoViewState extends State<UnityVideoView> {
       _onErrorSubscription.cancel();
       _onDurationUpdateSubscription.cancel();
       _fpsSubscription.cancel();
+      _oldImageTimer?.cancel();
+      _lastImageTime = null;
+      _isImageOld = false;
 
       _onErrorSubscription = widget.player.onError.listen(_onError);
       _onDurationUpdateSubscription =
@@ -255,11 +258,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 
   void _onPositionUpdate(Duration duration) {
-    if (mounted) {
-      setState(() {
-        error = null;
-      });
-    }
+    if (mounted) setState(() => error = null);
   }
 
   void _onFpsUpdate(double fps) {
@@ -297,10 +296,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
     );
 
     if (widget.heroTag != null) {
-      return Hero(
-        tag: widget.heroTag,
-        child: videoView,
-      );
+      return Hero(tag: widget.heroTag, child: videoView);
     }
 
     return videoView;

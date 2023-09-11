@@ -66,10 +66,13 @@ abstract class APIHelpers {
 
   /// Converts [eventID] into human-readable string.
   /// Used by notification handler.
-  static String getEventNameFromID(String eventID) => {
-        'device_state': 'Device State Event',
-        'motion_event': 'Motion Event',
-      }[eventID]!;
+  static String getEventNameFromID(String eventID) {
+    return switch (eventID) {
+      'device_state' => 'Device State Event',
+      'motion_event' => 'Motion Event',
+      _ => 'Event',
+    };
+  }
 
   /// Returns the [File] path of the thumbnail downloaded for a [deviceID] from the [server].
   /// Returns `null` & [File] could not be fetched i.e. screenshot does not exist on the server.

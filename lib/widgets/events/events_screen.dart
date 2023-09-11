@@ -135,13 +135,13 @@ class _EventsScreenState extends State<EventsScreen> {
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
     final disabledDevices = data['disabledDevices'] as List<String>;
 
-    final hourRange = {
-      EventsTimeFilter.last12Hours: 12,
-      EventsTimeFilter.last24Hours: 24,
-      EventsTimeFilter.last6Hours: 6,
-      EventsTimeFilter.lastHour: 1,
-      EventsTimeFilter.any: -1,
-    }[timeFilter]!;
+    final hourRange = switch (timeFilter) {
+      EventsTimeFilter.last12Hours => 12,
+      EventsTimeFilter.last24Hours => 24,
+      EventsTimeFilter.last6Hours => 6,
+      EventsTimeFilter.lastHour => 1,
+      EventsTimeFilter.any => -1,
+    };
 
     final now = DateTime.now();
     return events.values.expand((events) sync* {

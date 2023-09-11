@@ -100,11 +100,11 @@ class _SettingsState extends State<Settings> {
                   leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     foregroundColor: theme.iconTheme.color,
-                    child: Icon({
-                      ThemeMode.system: Icons.brightness_auto,
-                      ThemeMode.light: Icons.light_mode,
-                      ThemeMode.dark: Icons.dark_mode,
-                    }[e]!),
+                    child: Icon(switch (e) {
+                      ThemeMode.system => Icons.brightness_auto,
+                      ThemeMode.light => Icons.light_mode,
+                      ThemeMode.dark => Icons.dark_mode,
+                    }),
                   ),
                   onTap: () {
                     settings.themeMode = e;
@@ -116,11 +116,11 @@ class _SettingsState extends State<Settings> {
                       settings.themeMode = e;
                     },
                   ),
-                  title: Text({
-                    ThemeMode.system: loc.system,
-                    ThemeMode.light: loc.light,
-                    ThemeMode.dark: loc.dark,
-                  }[e]!),
+                  title: Text(switch (e) {
+                    ThemeMode.system => loc.system,
+                    ThemeMode.light => loc.light,
+                    ThemeMode.dark => loc.dark,
+                  }),
                 );
               }).toList()),
               if (update.isUpdatingSupported) ...[

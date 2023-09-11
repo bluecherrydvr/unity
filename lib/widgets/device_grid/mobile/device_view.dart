@@ -111,18 +111,18 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                     buttonPos.dy + menuWidth,
                   );
 
-                  final value = await showMenu<int>(
+                  final value = await showMenu<IconData>(
                     context: context,
                     position: position,
                     constraints: const BoxConstraints(
                       maxWidth: menuWidth,
                       minWidth: menuWidth,
                     ),
-                    items: [
-                      loc.removeCamera,
-                      loc.replaceCamera,
-                      loc.reloadCamera,
-                    ].asMap().entries.map((e) {
+                    items: {
+                      Icons.close_outlined: loc.removeCamera,
+                      Icons.add_outlined: loc.replaceCamera,
+                      Icons.replay_outlined: loc.reloadCamera,
+                    }.entries.map((e) {
                       return PopupMenuItem(
                         value: e.key,
                         padding: EdgeInsets.zero,
@@ -130,11 +130,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                           leading: CircleAvatar(
                             backgroundColor: Colors.transparent,
                             foregroundColor: theme.iconTheme.color,
-                            child: Icon(<int, IconData>{
-                              0: Icons.close_outlined,
-                              1: Icons.add_outlined,
-                              2: Icons.replay_outlined,
-                            }[e.key]!),
+                            child: Icon(e.key),
                           ),
                           title: Text(e.value),
                         ),
@@ -145,12 +141,12 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                   if (value == null || !mounted) return;
 
                   switch (value) {
-                    case 0:
+                    case Icons.close_outlined:
                       view.remove(widget.tab, widget.index);
                       if (mounted) setState(() {});
 
                       break;
-                    case 1:
+                    case Icons.add_outlined:
                       if (mounted) {
                         final result = await showDeviceSelectorScreen(context);
                         if (result != null) {
@@ -159,7 +155,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                         }
                       }
                       break;
-                    case 2:
+                    case Icons.replay_outlined:
                       view.reload(widget.tab, widget.index);
                       break;
                   }

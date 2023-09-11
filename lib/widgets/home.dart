@@ -161,29 +161,22 @@ class _MobileHomeState extends State<Home> {
                         child: child,
                       );
                     },
-                    child: <UnityTab, Widget Function()>{
-                      UnityTab.deviceGrid: () => const DeviceGrid(),
-                      UnityTab.directCameraScreen: () {
-                        return const DirectCameraScreen();
-                      },
-                      UnityTab.eventsPlayback: EventsPlayback.new,
-                      UnityTab.eventsScreen: () {
-                        return EventsScreen(key: eventsScreenKey);
-                      },
-                      UnityTab.addServer: () {
-                        return AddServerWizard(
+                    child: switch (tab) {
+                      UnityTab.deviceGrid => const DeviceGrid(),
+                      UnityTab.directCameraScreen => const DirectCameraScreen(),
+                      UnityTab.eventsPlayback => EventsPlayback(),
+                      UnityTab.eventsScreen =>
+                        EventsScreen(key: eventsScreenKey),
+                      UnityTab.addServer => AddServerWizard(
                           onFinish: () async =>
                               home.setTab(UnityTab.deviceGrid, context),
-                        );
-                      },
-                      UnityTab.downloads: () {
-                        return DownloadsManagerScreen(
+                        ),
+                      UnityTab.downloads => DownloadsManagerScreen(
                           initiallyExpandedEventId:
                               home.initiallyExpandedDownloadEventId,
-                        );
-                      },
-                      UnityTab.settings: () => const Settings(),
-                    }[tab]!(),
+                        ),
+                      UnityTab.settings => const Settings(),
+                    },
                   ),
                 ),
               ),

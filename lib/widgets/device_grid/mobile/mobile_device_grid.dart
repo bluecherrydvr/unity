@@ -78,10 +78,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
       else
         Expanded(
           child: PageTransitionSwitcher(
-            child: {
-              for (var key in view.devices.keys)
-                key: _MobileDeviceGridChild(tab: key)
-            }[view.tab],
+            child: view.devices.keys
+                .map((key) => _MobileDeviceGridChild(tab: key))
+                .elementAt(view.tab),
             transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
               return FadeThroughTransition(
                 animation: primaryAnimation,
@@ -209,18 +208,18 @@ class _MobileDeviceGridChild extends StatelessWidget {
           aspectRatio: 16 / 9,
           child: Center(
             child: StaticGrid(
-              crossAxisCount: <int, int>{
-                    9: 3,
-                    6: 3,
-                    4: 2,
-                    2: 2,
-                  }[tab] ??
-                  1,
-              childAspectRatio: <int, double>{
-                    2: width * 0.5 / height,
-                    4: width / height,
-                  }[tab] ??
-                  16 / 9,
+              crossAxisCount: switch (tab) {
+                9 => 3,
+                6 => 3,
+                4 => 2,
+                2 => 2,
+                _ => 1,
+              },
+              childAspectRatio: switch (tab) {
+                2 => width * 0.5 / height,
+                4 => width / height,
+                _ => 16 / 9,
+              },
               reorderable: view.current.any((device) => device != null),
               padding: EdgeInsets.zero,
               onReorder: (initial, end) => view.reorder(tab, initial, end),

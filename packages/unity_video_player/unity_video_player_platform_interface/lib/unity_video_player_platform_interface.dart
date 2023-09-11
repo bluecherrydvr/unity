@@ -332,14 +332,14 @@ enum UnityVideoQuality {
 
   /// Returns the video quality for the video height
   static UnityVideoQuality qualityForResolutionY(int? height) {
-    return {
-          1080: p1080,
-          720: p720,
-          480: p480,
-          360: p360,
-          240: p240,
-        }[height] ??
-        UnityVideoQuality.p480;
+    return switch(height) {
+      1080 => p1080,
+      720 => p720,
+      480 => p480,
+      360 => p360,
+      240 => p240,
+      _ => p480,
+    };
   }
 }
 

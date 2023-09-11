@@ -118,29 +118,20 @@ class HomeProvider extends ChangeNotifier {
       final home = context.read<HomeProvider>();
       final tab = home.tab;
 
-      /// On device grid, use landscape
-      if ([UnityTab.deviceGrid].contains(tab)) {
-        setDefaultStatusBarStyle();
-        DeviceOrientations.instance.set([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-      } else if ([UnityTab.directCameraScreen].contains(tab)) {
-        setDefaultStatusBarStyle();
-        DeviceOrientations.instance.set([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-      } else if ([UnityTab.addServer].contains(tab)) {
-        setDefaultStatusBarStyle(isLight: true);
-        DeviceOrientations.instance.set([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-      } else {
-        // Restore the values
-        setDefaultStatusBarStyle();
-        DeviceOrientations.instance.set(DeviceOrientation.values);
+      switch (tab) {
+        case UnityTab.deviceGrid:
+          setDefaultStatusBarStyle();
+          DeviceOrientations.instance.set([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+          break;
+        default:
+          setDefaultStatusBarStyle();
+          // The empty list causes the application to defer to the operating system default.
+          // [SystemChrome.setPreferredOrientations]
+          DeviceOrientations.instance.set([]);
+          break;
       }
     }
   }

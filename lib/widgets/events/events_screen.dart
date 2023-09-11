@@ -322,7 +322,6 @@ class _EventsScreenState extends State<EventsScreen> {
     double gapCheckboxText = 0.0,
     required void Function(VoidCallback fn) setState,
   }) {
-    final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
     return TreeView(
@@ -335,43 +334,30 @@ class _EventsScreenState extends State<EventsScreen> {
         final serverEvents = events[server];
 
         return TreeNode(
-          content: Row(children: [
-            buildCheckbox(
-              value: !allowedServers.contains(server) || isOffline
-                  ? false
-                  : isTriState
-                      ? null
-                      : true,
-              isError: isOffline,
-              onChanged: (v) {
-                setState(() {
-                  if (isTriState) {
-                    disabledDevices.removeWhere((d) =>
-                        server.devices.any((device) => device.rtspURL == d));
-                  } else if (v == null || !v) {
-                    allowedServers.remove(server);
-                  } else {
-                    allowedServers.add(server);
-                  }
-                });
-              },
-              checkboxScale: checkboxScale,
-            ),
-            SizedBox(width: gapCheckboxText),
-            Expanded(
-              child: Text(
-                server.name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
-            Text(
-              '${server.devices.length}',
-              style: theme.textTheme.labelSmall,
-            ),
-            const SizedBox(width: 10.0),
-          ]),
+          content: buildCheckbox(
+            value: !allowedServers.contains(server) || isOffline
+                ? false
+                : isTriState
+                    ? null
+                    : true,
+            isError: isOffline,
+            onChanged: (v) {
+              setState(() {
+                if (isTriState) {
+                  disabledDevices.removeWhere((d) =>
+                      server.devices.any((device) => device.rtspURL == d));
+                } else if (v == null || !v) {
+                  allowedServers.remove(server);
+                } else {
+                  allowedServers.add(server);
+                }
+              });
+            },
+            checkboxScale: checkboxScale,
+            text: server.name,
+            secondaryText: '${server.devices.length}',
+            gapCheckboxText: gapCheckboxText,
+          ),
           children: () {
             if (isOffline) {
               return <TreeNode>[];
@@ -383,43 +369,30 @@ class _EventsScreenState extends State<EventsScreen> {
                 final eventsForDevice =
                     serverEvents?.where((event) => event.deviceID == device.id);
                 return TreeNode(
-                  content: Row(children: [
-                    IgnorePointer(
-                      ignoring: !device.status,
-                      child: buildCheckbox(
-                        value: device.status ? enabled : false,
-                        isError: !device.status,
-                        onChanged: (v) {
-                          if (!device.status) return;
+                  content: IgnorePointer(
+                    ignoring: !device.status,
+                    child: buildCheckbox(
+                      value: device.status ? enabled : false,
+                      isError: !device.status,
+                      onChanged: (v) {
+                        if (!device.status) return;
 
-                          setState(() {
-                            if (enabled) {
-                              disabledDevices.add(device.rtspURL);
-                            } else {
-                              disabledDevices.remove(device.rtspURL);
-                            }
-                          });
-                        },
-                        checkboxScale: checkboxScale,
-                      ),
+                        setState(() {
+                          if (enabled) {
+                            disabledDevices.add(device.rtspURL);
+                          } else {
+                            disabledDevices.remove(device.rtspURL);
+                          }
+                        });
+                      },
+                      checkboxScale: checkboxScale,
+                      text: device.name,
+                      secondaryText: eventsForDevice != null
+                          ? ' (${eventsForDevice.length})'
+                          : null,
+                      gapCheckboxText: gapCheckboxText,
                     ),
-                    SizedBox(width: gapCheckboxText),
-                    Flexible(
-                      child: Text(
-                        device.name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                    ),
-                    if (eventsForDevice != null) ...[
-                      Text(
-                        ' (${eventsForDevice.length})',
-                        style: theme.textTheme.labelSmall,
-                      ),
-                      const SizedBox(width: 10.0),
-                    ],
-                  ]),
+                  ),
                 );
               }).toList();
             }

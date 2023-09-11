@@ -11,16 +11,16 @@ Widget buildCheckbox({
   required bool? value,
   required ValueChanged<bool?> onChanged,
   required bool isError,
+  required String text,
+  required double gapCheckboxText,
+  String? secondaryText,
   double checkboxScale = 0.8,
 }) {
-  return Transform.scale(
+  final checkbox = Transform.scale(
     scale: checkboxScale,
     child: Checkbox(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      visualDensity: const VisualDensity(
-        horizontal: -4,
-        vertical: -4,
-      ),
+      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
       splashRadius: 0.0,
       tristate: true,
       value: value,
@@ -28,6 +28,40 @@ Widget buildCheckbox({
       onChanged: onChanged,
     ),
   );
+
+  return Builder(builder: (context) {
+    final theme = Theme.of(context);
+    return Row(children: [
+      checkbox,
+      Expanded(
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () {
+              onChanged(value == null ? true : !value);
+            },
+            child: Row(children: [
+              SizedBox(width: gapCheckboxText),
+              Flexible(
+                child: Text(
+                  text,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
+              if (secondaryText != null)
+                Text(
+                  secondaryText,
+                  style: theme.textTheme.labelSmall,
+                ),
+              const SizedBox(width: 10.0),
+            ]),
+          ),
+        ),
+      )
+    ]);
+  });
 }
 
 /// Tree view with collapsible and expandable nodes.

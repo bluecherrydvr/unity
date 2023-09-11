@@ -104,8 +104,6 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
       return const SizedBox.shrink();
     }
     final state = eventsPlaybackScreenKey.currentState!;
-
-    final theme = Theme.of(context);
     final servers = state.devices.keys.map((d) => d.server).toSet();
 
     return TreeView(
@@ -119,57 +117,44 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
             server.devices.where(state.realDevices.containsKey).sorted();
 
         return TreeNode(
-          content: Row(children: [
-            buildCheckbox(
-              value: isOffline ||
-                      !widget.timeline.tiles.any(
-                        (tile) => server.devices.contains(tile.device),
-                      )
-                  ? false
-                  : isTriState
-                      ? null
-                      : true,
-              isError: isOffline,
-              onChanged: (v) {
-                if (isTriState || v == null || !v) {
-                  for (final device in serverDevices) {
-                    if (widget.timeline.tiles
-                        .any((tile) => tile.device == device)) {
-                      widget.timeline.removeTile(
-                        widget.timeline.tiles
-                            .firstWhere((tile) => tile.device == device),
-                      );
-                    }
-                  }
-                } else {
-                  for (final device in serverDevices) {
-                    widget.timeline.add([
-                      state.realDevices.entries
-                          .firstWhere((e) => e.key == device)
-                          .buildTimelineTile(context),
-                    ]);
+          content: buildCheckbox(
+            value: isOffline ||
+                    !widget.timeline.tiles.any(
+                      (tile) => server.devices.contains(tile.device),
+                    )
+                ? false
+                : isTriState
+                    ? null
+                    : true,
+            isError: isOffline,
+            onChanged: (v) {
+              if (isTriState || v == null || !v) {
+                for (final device in serverDevices) {
+                  if (widget.timeline.tiles
+                      .any((tile) => tile.device == device)) {
+                    widget.timeline.removeTile(
+                      widget.timeline.tiles
+                          .firstWhere((tile) => tile.device == device),
+                    );
                   }
                 }
+              } else {
+                for (final device in serverDevices) {
+                  widget.timeline.add([
+                    state.realDevices.entries
+                        .firstWhere((e) => e.key == device)
+                        .buildTimelineTile(context),
+                  ]);
+                }
+              }
 
-                setState(() {});
-              },
-              checkboxScale: checkboxScale,
-            ),
-            SizedBox(width: gapCheckboxText),
-            Expanded(
-              child: Text(
-                server.name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
-            Text(
-              '${serverDevices.length}',
-              style: theme.textTheme.labelSmall,
-            ),
-            const SizedBox(width: 10.0),
-          ]),
+              setState(() {});
+            },
+            checkboxScale: checkboxScale,
+            text: server.name,
+            secondaryText: '${serverDevices.length}',
+            gapCheckboxText: gapCheckboxText,
+          ),
           children: () {
             if (isOffline) {
               return <TreeNode>[];
@@ -181,52 +166,39 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                 final eventsForDevice = state.devices[device];
 
                 return TreeNode(
-                  content: Row(children: [
-                    IgnorePointer(
-                      ignoring: !device.status,
-                      child: buildCheckbox(
-                        value: device.status ? enabled : false,
-                        isError: !device.status,
-                        onChanged: (v) {
-                          if (!device.status) return;
+                  content: IgnorePointer(
+                    ignoring: !device.status,
+                    child: buildCheckbox(
+                      value: device.status ? enabled : false,
+                      isError: !device.status,
+                      onChanged: (v) {
+                        if (!device.status) return;
 
-                          if (enabled && state.disabledDevices.length < 4) {
-                            widget.timeline.removeTile(
-                              widget.timeline.tiles.firstWhere(
-                                (tile) => tile.device == device,
-                              ),
-                            );
-                          } else if (state.realDevices.entries
-                                  .any((e) => e.key == device) &&
-                              !enabled) {
-                            widget.timeline.add([
-                              state.realDevices.entries
-                                  .firstWhere((e) => e.key == device)
-                                  .buildTimelineTile(context),
-                            ]);
-                          }
-                          setState(() {});
-                        },
-                        checkboxScale: checkboxScale,
-                      ),
+                        if (enabled && state.disabledDevices.length < 4) {
+                          widget.timeline.removeTile(
+                            widget.timeline.tiles.firstWhere(
+                              (tile) => tile.device == device,
+                            ),
+                          );
+                        } else if (state.realDevices.entries
+                                .any((e) => e.key == device) &&
+                            !enabled) {
+                          widget.timeline.add([
+                            state.realDevices.entries
+                                .firstWhere((e) => e.key == device)
+                                .buildTimelineTile(context),
+                          ]);
+                        }
+                        setState(() {});
+                      },
+                      checkboxScale: checkboxScale,
+                      text: device.name,
+                      secondaryText: eventsForDevice != null
+                          ? ' (${eventsForDevice.length})'
+                          : null,
+                      gapCheckboxText: gapCheckboxText,
                     ),
-                    SizedBox(width: gapCheckboxText),
-                    Flexible(
-                      child: Text(
-                        device.name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                    ),
-                    if (eventsForDevice != null) ...[
-                      Text(
-                        ' (${eventsForDevice.length})',
-                        style: theme.textTheme.labelSmall,
-                      ),
-                      const SizedBox(width: 10.0),
-                    ],
-                  ]),
+                  ),
                 );
               }).toList();
             }

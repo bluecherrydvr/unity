@@ -85,7 +85,7 @@ class Event {
 
   Duration get duration {
     final dur = updated.difference(published);
-    if (dur < Duration.zero) return updated.difference(published);
+    if (dur < Duration.zero) return published.difference(updated);
     return dur;
   }
 

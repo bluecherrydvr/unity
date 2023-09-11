@@ -137,22 +137,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         // If there is already an event that conflicts with this one in time, do
         // not add it
         if (realDevices[device]!.any((e) {
-          return e.published.isInBetween(
-                event.published,
-                event.published.add(event.duration),
-              ) ||
-              e.published.add(e.duration).isInBetween(
-                    event.published,
-                    event.published.add(event.duration),
-                  ) ||
-              event.published.isInBetween(
-                e.published,
-                e.published.add(e.duration),
-              ) ||
-              event.published.add(event.duration).isInBetween(
-                    e.published,
-                    e.published.add(e.duration),
-                  );
+          return e.published.isInBetween(event.published, event.updated,
+                  allowSameMoment: true) ||
+              e.updated.isInBetween(event.published, event.updated,
+                  allowSameMoment: true) ||
+              event.published
+                  .isInBetween(e.published, e.updated, allowSameMoment: true) ||
+              event.updated
+                  .isInBetween(e.published, e.updated, allowSameMoment: true);
         })) continue;
 
         realDevices[device] ??= [];

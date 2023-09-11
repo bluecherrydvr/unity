@@ -219,9 +219,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 snapshot.data ?? videoController.currentPos;
                             return Row(children: [
                               Text(
-                                DateFormat.Hms().format(
-                                  currentEvent.published.add(pos).toLocal(),
-                                ),
+                                DateFormat.Hms()
+                                    .format(currentEvent.published.add(pos)),
                               ),
                               padd,
                               Expanded(
@@ -271,7 +270,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       padd,
                       Text(
                         DateFormat.Hms().format(
-                          currentEvent.published.add(duration).toLocal(),
+                          currentEvent.published.add(duration),
                         ),
                       ),
                       padd,

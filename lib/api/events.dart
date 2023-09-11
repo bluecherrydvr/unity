@@ -40,9 +40,7 @@ extension EventsExtension on API {
         '/events/',
         {'XML': '1', 'limit': '$limit'},
       ),
-      headers: {
-        'Cookie': server.cookie!,
-      },
+      headers: {'Cookie': server.cookie!},
     );
 
     var events = const Iterable<Event>.empty();
@@ -62,10 +60,10 @@ extension EventsExtension on API {
               e['title']['\$t'],
               e['published'] == null || e['published']['\$t'] == null
                   ? DateTime.now()
-                  : DateTime.parse(e['published']['\$t']).toLocal(),
+                  : DateTime.parse(e['published']['\$t']),
               e['updated'] == null || e['updated']['\$t'] == null
                   ? DateTime.now()
-                  : DateTime.parse(e['updated']['\$t']).toLocal(),
+                  : DateTime.parse(e['updated']['\$t']),
               e['category']['term'],
               !e.containsKey('content')
                   ? null
@@ -89,7 +87,7 @@ extension EventsExtension on API {
       events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
           .cast<Map>()
           .map((eventObject) {
-        final published = DateTime.parse(eventObject['published']).toLocal();
+        final published = DateTime.parse(eventObject['published']);
         final event = Event.factory(
           server: server,
           id: () {
@@ -114,7 +112,7 @@ extension EventsExtension on API {
           published: published,
           updated: eventObject['updated'] == null
               ? published
-              : DateTime.parse(eventObject['updated']).toLocal(),
+              : DateTime.parse(eventObject['updated']),
           category: eventObject['category']['term'],
           mediaID: eventObject.containsKey('content')
               ? int.parse(eventObject['content']['media_id'])

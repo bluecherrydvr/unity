@@ -131,10 +131,21 @@ extension ServerExtension on List<Server> {
 }
 
 extension DateTimeExtension on DateTime {
-  bool isInBetween(DateTime first, DateTime second) {
-    return (isAfter(first) && isBefore(second)) ||
-        isAtSameMomentAs(first) ||
-        isAtSameMomentAs(second);
+  /// Returns true if this date is between [first] and [second]
+  ///
+  /// If [allowSameMoment] is true, then the date can be equal to [first] or [second].
+  bool isInBetween(
+    DateTime first,
+    DateTime second, {
+    bool allowSameMoment = false,
+  }) {
+    final isBetween = toLocal().isAfter(first.toLocal()) &&
+        toLocal().isBefore(second.toLocal());
+
+    if (allowSameMoment) return isBetween;
+    return isBetween ||
+        toLocal().isAtSameMomentAs(first.toLocal()) ||
+        toLocal().isAtSameMomentAs(second.toLocal());
   }
 }
 

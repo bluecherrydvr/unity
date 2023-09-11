@@ -35,7 +35,7 @@
     }
   },
   "serverAdded": "Server has been added",
-  "serverNotAddedError": "{serverName} could not be added. Please check the entered details and check if the server is online.",
+  "serverNotAddedError": "{serverName} could not be added.",
   "@serverNotAddedError": {
     "placeholders": {
       "serverName": {
@@ -43,9 +43,11 @@
       }
     }
   },
+  "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
   "noServersAvailable": "No servers available",
   "error": "Error",
   "ok": "OK",
+  "retry": "Retry",
   "removeCamera": "Remove Camera",
   "replaceCamera": "Replace Camera",
   "reloadCamera": "Reload Camera",

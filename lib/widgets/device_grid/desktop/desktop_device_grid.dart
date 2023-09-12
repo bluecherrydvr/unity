@@ -280,7 +280,7 @@ class LayoutView extends StatelessWidget {
               topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
             ),
           ),
-          child: Center(child: child),
+          child: SafeArea(child: Center(child: child)),
         );
       },
     );
@@ -301,6 +301,9 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    // watch for changes in the players list. usually happens when reloading
+    // or releasing a device
+    context.watch<UnityPlayers>();
     final videoPlayer = UnityPlayers.players[widget.device];
 
     if (videoPlayer == null) {
@@ -569,7 +572,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       tooltip: loc.reloadCamera,
                       color: Colors.white,
                       iconSize: 18.0,
-                      onPressed: () => view.reload(widget.device),
+                      onPressed: () async {
+                        await UnityPlayers.reloadDevice(widget.device);
+                        setState(() {});
+                      },
                     ),
                     CameraViewFitButton(
                       fit: context

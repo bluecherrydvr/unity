@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
@@ -71,11 +72,11 @@ class TimelineEvent {
 
   TimelineEvent({
     required this.duration,
-    required this.startTime,
+    required DateTime startTime,
     required this.event,
     this.videoUrl =
         'https://user-images.githubusercontent.com/28951144/229373695-22f88f13-d18f-4288-9bf1-c3e078d83722.mp4',
-  });
+  }) : startTime = startTime.toLocal();
 
   static List<TimelineEvent> get fakeData {
     return [
@@ -224,10 +225,12 @@ class Timeline extends ChangeNotifier {
 
   void add(Iterable<TimelineTile> tiles) {
     assert(tiles.every((tile) {
-      return tile.events.every((event) =>
-          event.startTime.year == date.year &&
-          event.startTime.month == date.month &&
-          event.startTime.day == date.day);
+      return tile.events.every((event) {
+        return DateUtils.isSameDay(
+          event.startTime.toLocal(),
+          date.toLocal(),
+        );
+      });
     }), 'All events must have happened in the same day');
     this.tiles.addAll(tiles);
     assert(
@@ -371,9 +374,12 @@ class Timeline extends ChangeNotifier {
   }
 
   void play([TimelineEvent? event]) {
+    timer?.cancel();
     timer ??= Timer.periodic(Duration(milliseconds: 1000 ~/ _speed), (timer) {
-      if (event == null) currentPosition += const Duration(seconds: 1);
-      notifyListeners();
+      if (event == null) {
+        currentPosition += const Duration(seconds: 1);
+        notifyListeners();
+      }
 
       forEachEvent((tile, e) {
         if (tile.videoController.isPlaying) return;
@@ -628,53 +634,61 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                         }
                       }
                     },
-                    child: SingleChildScrollView(
+                    child: Scrollbar(
                       controller: timeline.zoomController,
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: tileWidth,
-                        child: Column(children: [
-                          _TimelineHours(hourWidth: hourWidth),
-                          ...timeline.tiles.map((tile) {
-                            return _TimelineTile(
-                              key: ValueKey(tile),
-                              tile: tile,
-                            );
-                          }),
-                        ]),
+                      thumbVisibility: isMobilePlatform || kIsWeb,
+                      child: SingleChildScrollView(
+                        controller: timeline.zoomController,
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: tileWidth,
+                          child: Column(children: [
+                            _TimelineHours(hourWidth: hourWidth),
+                            ...timeline.tiles.map((tile) {
+                              return _TimelineTile(
+                                key: ValueKey(tile),
+                                tile: tile,
+                              );
+                            }),
+                          ]),
+                        ),
                       ),
                     ),
                   ),
                   if (timeline.zoomController.hasClients)
-                    Positioned(
-                      key: timeline.indicatorKey,
-                      left:
+                    () {
+                      final left =
                           (timeline.currentPosition.inSeconds * secondsWidth) -
                               timeline.zoomController.offset -
                               (/* the width of half of the triangle */
-                                  8 / 2),
-                      width: 8,
-                      top: 12.0,
-                      bottom: 0.0,
-                      child: IgnorePointer(
-                        child: Column(children: [
-                          ClipPath(
-                            clipper: InvertedTriangleClipper(),
-                            child: Container(
-                              width: 8,
-                              height: 6,
-                              color: theme.colorScheme.onBackground,
+                                  8 / 2);
+                      if (left < -8.0) return const SizedBox.shrink();
+                      return Positioned(
+                        key: timeline.indicatorKey,
+                        left: left,
+                        width: 8,
+                        top: 12.0,
+                        bottom: 0.0,
+                        child: IgnorePointer(
+                          child: Column(children: [
+                            ClipPath(
+                              clipper: InvertedTriangleClipper(),
+                              child: Container(
+                                width: 8,
+                                height: 6,
+                                color: theme.colorScheme.onBackground,
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              color: theme.colorScheme.onBackground,
-                              width: 1.8,
+                            Expanded(
+                              child: Container(
+                                color: theme.colorScheme.onBackground,
+                                width: 1.8,
+                              ),
                             ),
-                          ),
-                        ]),
-                      ),
-                    ),
+                          ]),
+                        ),
+                      );
+                    }(),
                 ]),
               ),
             ]);
@@ -795,6 +809,14 @@ class _TimelineTile extends StatelessWidget {
                     width: event.duration.inSeconds * secondWidth,
                     height: _kTimelineTileHeight,
                     child: ColoredBox(
+                      // color: kDebugMode
+                      //     ? [
+                      //         ...Colors.primaries,
+                      //         ...Colors.accents
+                      //       ][Random().nextInt(
+                      //         [...Colors.primaries, ...Colors.accents].length -
+                      //             1)]
+                      //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
                     ),
                   ),

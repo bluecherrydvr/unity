@@ -175,17 +175,6 @@ class DesktopViewProvider extends ChangeNotifier {
     return _save(notifyListeners: false);
   }
 
-  /// Reloads a camera [Device] tile from the camera grid, at specified [tab] [index].
-  /// e.g. in response to a network error etc.
-  Future<void> reload(Device device) async {
-    await UnityPlayers.players[device]?.reset();
-    await UnityPlayers.players[device]?.setDataSource(device.streamURL);
-    await UnityPlayers.players[device]?.setVolume(0.0);
-    await UnityPlayers.players[device]?.setSpeed(1.0);
-    notifyListeners();
-    return _save(notifyListeners: false);
-  }
-
   /// Adds a new layout
   Future<void> addLayout(Layout layout) {
     if (!layouts.contains(layout)) {

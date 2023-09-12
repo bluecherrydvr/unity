@@ -28,6 +28,13 @@ import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:path_provider_windows/path_provider_windows.dart'
+    hide WindowsKnownFolder;
+// ignore: implementation_imports
+import 'package:path_provider_windows/src/folders.dart' show WindowsKnownFolder;
 
 class DownloadedEvent {
   final Event event;
@@ -94,6 +101,24 @@ class DownloadsManager extends ChangeNotifier {
     instance = DownloadsManager._();
     await instance.initialize();
     return instance;
+  }
+
+  static Future<Directory> get kDefaultDownloadsDirectory async {
+    Directory? dir;
+    if (PathProviderPlatform.instance is PathProviderWindows) {
+      final instance = PathProviderPlatform.instance as PathProviderWindows;
+      final videosPath =
+          // ignore: unnecessary_cast
+          await instance.getPath(WindowsKnownFolder.Videos) as String;
+      dir = Directory(path.join(videosPath, 'Bluecherry Client', 'Downloads'));
+    }
+
+    if (dir == null) {
+      final docsDir = await getApplicationSupportDirectory();
+      dir = Directory(path.join(docsDir.path, 'downloads'));
+    }
+
+    return dir.create(recursive: true);
   }
 
   /// All the downloaded events

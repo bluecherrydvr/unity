@@ -135,13 +135,13 @@ class _EventsScreenState extends State<EventsScreen> {
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
     final disabledDevices = data['disabledDevices'] as List<String>;
 
-    final hourRange = {
-      EventsTimeFilter.last12Hours: 12,
-      EventsTimeFilter.last24Hours: 24,
-      EventsTimeFilter.last6Hours: 6,
-      EventsTimeFilter.lastHour: 1,
-      EventsTimeFilter.any: -1,
-    }[timeFilter]!;
+    final hourRange = switch (timeFilter) {
+      EventsTimeFilter.last12Hours => 12,
+      EventsTimeFilter.last24Hours => 24,
+      EventsTimeFilter.last6Hours => 6,
+      EventsTimeFilter.lastHour => 1,
+      EventsTimeFilter.any => -1,
+    };
 
     final now = DateTime.now();
     return events.values.expand((events) sync* {
@@ -247,64 +247,66 @@ class _EventsScreenState extends State<EventsScreen> {
           child: Card(
             margin: EdgeInsets.zero,
             shape: const RoundedRectangleBorder(),
-            child: DropdownButtonHideUnderline(
-              child: Column(children: [
-                SubHeader(loc.servers, height: 40.0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: buildTreeView(context, setState: setState),
+            child: SafeArea(
+              child: DropdownButtonHideUnderline(
+                child: Column(children: [
+                  SubHeader(loc.servers, height: 40.0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: buildTreeView(context, setState: setState),
+                    ),
                   ),
-                ),
-                const SubHeader('Time filter', height: 24.0),
-                DropdownButton<EventsTimeFilter>(
-                  isExpanded: true,
-                  value: timeFilter,
-                  items: const [
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.any,
-                      child: Text('Any'),
+                  const SubHeader('Time filter', height: 24.0),
+                  DropdownButton<EventsTimeFilter>(
+                    isExpanded: true,
+                    value: timeFilter,
+                    items: const [
+                      DropdownMenuItem(
+                        value: EventsTimeFilter.any,
+                        child: Text('Any'),
+                      ),
+                      DropdownMenuItem(
+                        value: EventsTimeFilter.lastHour,
+                        child: Text('Last hour'),
+                      ),
+                      DropdownMenuItem(
+                        value: EventsTimeFilter.last6Hours,
+                        child: Text('Last 6 hours'),
+                      ),
+                      DropdownMenuItem(
+                        value: EventsTimeFilter.last12Hours,
+                        child: Text('Last 12 hours'),
+                      ),
+                      DropdownMenuItem(
+                        value: EventsTimeFilter.last24Hours,
+                        child: Text('Last 24 hours'),
+                      ),
+                      // DropdownMenuItem(
+                      //   child: Text('Select time range'),
+                      //   value: EventsTimeFilter.custom,
+                      // ),
+                    ],
+                    onChanged: (v) => setState(
+                      () => timeFilter = v ?? timeFilter,
                     ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.lastHour,
-                      child: Text('Last hour'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last6Hours,
-                      child: Text('Last 6 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last12Hours,
-                      child: Text('Last 12 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last24Hours,
-                      child: Text('Last 24 hours'),
-                    ),
-                    // DropdownMenuItem(
-                    //   child: Text('Select time range'),
-                    //   value: EventsTimeFilter.custom,
-                    // ),
-                  ],
-                  onChanged: (v) => setState(
-                    () => timeFilter = v ?? timeFilter,
                   ),
-                ),
-                const SubHeader('Minimum level', height: 24.0),
-                DropdownButton<EventsMinLevelFilter>(
-                  isExpanded: true,
-                  value: levelFilter,
-                  items: EventsMinLevelFilter.values.map((level) {
-                    return DropdownMenuItem(
-                      value: level,
-                      child: Text(level.name.uppercaseFirst()),
-                    );
-                  }).toList(),
-                  onChanged: (v) => setState(
-                    () => levelFilter = v ?? levelFilter,
+                  const SubHeader('Minimum level', height: 24.0),
+                  DropdownButton<EventsMinLevelFilter>(
+                    isExpanded: true,
+                    value: levelFilter,
+                    items: EventsMinLevelFilter.values.map((level) {
+                      return DropdownMenuItem(
+                        value: level,
+                        child: Text(level.name.uppercaseFirst()),
+                      );
+                    }).toList(),
+                    onChanged: (v) => setState(
+                      () => levelFilter = v ?? levelFilter,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-              ]),
+                  const SizedBox(height: 16.0),
+                ]),
+              ),
             ),
           ),
         ),
@@ -320,7 +322,6 @@ class _EventsScreenState extends State<EventsScreen> {
     double gapCheckboxText = 0.0,
     required void Function(VoidCallback fn) setState,
   }) {
-    final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
 
     return TreeView(
@@ -333,43 +334,30 @@ class _EventsScreenState extends State<EventsScreen> {
         final serverEvents = events[server];
 
         return TreeNode(
-          content: Row(children: [
-            buildCheckbox(
-              value: !allowedServers.contains(server) || isOffline
-                  ? false
-                  : isTriState
-                      ? null
-                      : true,
-              isError: isOffline,
-              onChanged: (v) {
-                setState(() {
-                  if (isTriState) {
-                    disabledDevices.removeWhere((d) =>
-                        server.devices.any((device) => device.rtspURL == d));
-                  } else if (v == null || !v) {
-                    allowedServers.remove(server);
-                  } else {
-                    allowedServers.add(server);
-                  }
-                });
-              },
-              checkboxScale: checkboxScale,
-            ),
-            SizedBox(width: gapCheckboxText),
-            Expanded(
-              child: Text(
-                server.name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
-            Text(
-              '${server.devices.length}',
-              style: theme.textTheme.labelSmall,
-            ),
-            const SizedBox(width: 10.0),
-          ]),
+          content: buildCheckbox(
+            value: !allowedServers.contains(server) || isOffline
+                ? false
+                : isTriState
+                    ? null
+                    : true,
+            isError: isOffline,
+            onChanged: (v) {
+              setState(() {
+                if (isTriState) {
+                  disabledDevices.removeWhere((d) =>
+                      server.devices.any((device) => device.rtspURL == d));
+                } else if (v == null || !v) {
+                  allowedServers.remove(server);
+                } else {
+                  allowedServers.add(server);
+                }
+              });
+            },
+            checkboxScale: checkboxScale,
+            text: server.name,
+            secondaryText: '${server.devices.length}',
+            gapCheckboxText: gapCheckboxText,
+          ),
           children: () {
             if (isOffline) {
               return <TreeNode>[];
@@ -381,43 +369,30 @@ class _EventsScreenState extends State<EventsScreen> {
                 final eventsForDevice =
                     serverEvents?.where((event) => event.deviceID == device.id);
                 return TreeNode(
-                  content: Row(children: [
-                    IgnorePointer(
-                      ignoring: !device.status,
-                      child: buildCheckbox(
-                        value: device.status ? enabled : false,
-                        isError: !device.status,
-                        onChanged: (v) {
-                          if (!device.status) return;
+                  content: IgnorePointer(
+                    ignoring: !device.status,
+                    child: buildCheckbox(
+                      value: device.status ? enabled : false,
+                      isError: !device.status,
+                      onChanged: (v) {
+                        if (!device.status) return;
 
-                          setState(() {
-                            if (enabled) {
-                              disabledDevices.add(device.rtspURL);
-                            } else {
-                              disabledDevices.remove(device.rtspURL);
-                            }
-                          });
-                        },
-                        checkboxScale: checkboxScale,
-                      ),
+                        setState(() {
+                          if (enabled) {
+                            disabledDevices.add(device.rtspURL);
+                          } else {
+                            disabledDevices.remove(device.rtspURL);
+                          }
+                        });
+                      },
+                      checkboxScale: checkboxScale,
+                      text: device.name,
+                      secondaryText: eventsForDevice != null
+                          ? ' (${eventsForDevice.length})'
+                          : null,
+                      gapCheckboxText: gapCheckboxText,
                     ),
-                    SizedBox(width: gapCheckboxText),
-                    Flexible(
-                      child: Text(
-                        device.name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                    ),
-                    if (eventsForDevice != null) ...[
-                      Text(
-                        ' (${eventsForDevice.length})',
-                        style: theme.textTheme.labelSmall,
-                      ),
-                      const SizedBox(width: 10.0),
-                    ],
-                  ]),
+                  ),
                 );
               }).toList();
             }
@@ -431,8 +406,8 @@ class _EventsScreenState extends State<EventsScreen> {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (context) {
-        final theme = Theme.of(context);
         final loc = AppLocalizations.of(context);
 
         return DraggableScrollableSheet(
@@ -449,20 +424,6 @@ class _EventsScreenState extends State<EventsScreen> {
               }
 
               return ListView(controller: controller, children: [
-                Center(
-                  child: Container(
-                    width: 50,
-                    height: 6.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: theme.dividerColor,
-                    ),
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 12.0,
-                    ),
-                  ),
-                ),
                 const SubHeader('Time filter'),
                 DropdownButton<EventsTimeFilter>(
                   isExpanded: true,

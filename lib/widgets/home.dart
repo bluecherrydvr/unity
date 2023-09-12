@@ -19,6 +19,7 @@
 
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -33,11 +34,14 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class NavigatorData {
+  /// The tab that this navigator data represents.
+  final UnityTab tab;
   final IconData icon;
   final IconData selectedIcon;
   final String text;
 
   const NavigatorData({
+    required this.tab,
     required this.icon,
     required this.selectedIcon,
     required this.text,
@@ -45,39 +49,48 @@ class NavigatorData {
 
   static List<NavigatorData> of(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final screenSize = MediaQuery.of(context).size;
 
     return [
       NavigatorData(
+        tab: UnityTab.deviceGrid,
         icon: Icons.window_outlined,
         selectedIcon: Icons.window,
         text: loc.screens,
       ),
       NavigatorData(
+        tab: UnityTab.eventsPlayback,
         icon: Icons.subscriptions_outlined,
         selectedIcon: Icons.subscriptions,
         text: loc.eventsTimeline,
       ),
+      if (screenSize.width <= kMobileBreakpoint.width)
+        NavigatorData(
+          tab: UnityTab.directCameraScreen,
+          icon: Icons.videocam_outlined,
+          selectedIcon: Icons.videocam,
+          text: loc.directCamera,
+        ),
       NavigatorData(
-        icon: Icons.videocam_outlined,
-        selectedIcon: Icons.videocam,
-        text: loc.directCamera,
-      ),
-      NavigatorData(
+        tab: UnityTab.eventsScreen,
         icon: Icons.featured_play_list_outlined,
         selectedIcon: Icons.featured_play_list,
         text: loc.eventBrowser,
       ),
       NavigatorData(
+        tab: UnityTab.addServer,
         icon: Icons.dns_outlined,
         selectedIcon: Icons.dns,
         text: loc.addServer,
       ),
       NavigatorData(
+        tab: UnityTab.downloads,
         icon: Icons.download_outlined,
         selectedIcon: Icons.download,
         text: loc.downloads,
       ),
       NavigatorData(
+        tab: UnityTab.settings,
         icon: Icons.settings_outlined,
         selectedIcon: Icons.settings,
         text: loc.settings,
@@ -148,26 +161,22 @@ class _MobileHomeState extends State<Home> {
                         child: child,
                       );
                     },
-                    child: <UnityTab, Widget Function()>{
-                      UnityTab.deviceGrid: () => const DeviceGrid(),
-                      UnityTab.directCameraScreen: () {
-                        return const DirectCameraScreen();
-                      },
-                      UnityTab.eventsPlayback: EventsPlayback.new,
-                      UnityTab.eventsScreen: () => EventsScreen(
-                            key: eventsScreenKey,
-                          ),
-                      UnityTab.addServer: () => AddServerWizard(
-                            onFinish: () async => home.setTab(0, context),
-                          ),
-                      UnityTab.downloads: () {
-                        return DownloadsManagerScreen(
+                    child: switch (tab) {
+                      UnityTab.deviceGrid => const DeviceGrid(),
+                      UnityTab.directCameraScreen => const DirectCameraScreen(),
+                      UnityTab.eventsPlayback => EventsPlayback(),
+                      UnityTab.eventsScreen =>
+                        EventsScreen(key: eventsScreenKey),
+                      UnityTab.addServer => AddServerWizard(
+                          onFinish: () async =>
+                              home.setTab(UnityTab.deviceGrid, context),
+                        ),
+                      UnityTab.downloads => DownloadsManagerScreen(
                           initiallyExpandedEventId:
                               home.initiallyExpandedDownloadEventId,
-                        );
-                      },
-                      UnityTab.settings: () => const Settings(),
-                    }[UnityTab.values[tab]]!(),
+                        ),
+                      UnityTab.settings => const Settings(),
+                    },
                   ),
                 ),
               ),
@@ -202,8 +211,7 @@ class _MobileHomeState extends State<Home> {
           ),
           const SizedBox(height: 8.0),
           ...navData.map((data) {
-            final index = navData.indexOf(data);
-            final isSelected = tab == index;
+            final isSelected = tab == data.tab;
 
             final icon = isSelected ? data.selectedIcon : data.icon;
             final text = data.text;
@@ -227,8 +235,8 @@ class _MobileHomeState extends State<Home> {
 
                     await Future.delayed(const Duration(milliseconds: 200));
                     navigator.pop();
-                    if (tab != index && mounted) {
-                      home.setTab(index, context);
+                    if (tab != data.tab && mounted) {
+                      home.setTab(data.tab, context);
                     }
                   },
                   child: DecoratedBox(
@@ -301,8 +309,7 @@ class _MobileHomeState extends State<Home> {
               color: theme.unselectedForegroundColor,
             ),
             destinations: navData.map((data) {
-              final index = navData.indexOf(data);
-              final isSelected = home.tab == index;
+              final isSelected = home.tab == data.tab;
 
               final icon = isSelected ? data.selectedIcon : data.icon;
               final text = data.text;
@@ -317,11 +324,13 @@ class _MobileHomeState extends State<Home> {
                 label: Text(text),
               );
             }).toList(),
-            selectedIndex: home.tab,
+            selectedIndex: navData.indexOf(navData.firstWhere(
+              (data) => data.tab == home.tab,
+              orElse: () => navData.first,
+            )),
             onDestinationSelected: (index) {
-              if (home.tab != index) {
-                home.setTab(index, context);
-              }
+              final nav = navData[index];
+              home.setTab(nav.tab, context);
             },
           ),
         ),

@@ -222,6 +222,9 @@ class UnityVideoViewState extends State<UnityVideoView> {
       _onErrorSubscription.cancel();
       _onDurationUpdateSubscription.cancel();
       _fpsSubscription.cancel();
+      _oldImageTimer?.cancel();
+      _lastImageTime = null;
+      _isImageOld = false;
 
       _onErrorSubscription = widget.player.onError.listen(_onError);
       _onDurationUpdateSubscription =
@@ -255,11 +258,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 
   void _onPositionUpdate(Duration duration) {
-    if (mounted) {
-      setState(() {
-        error = null;
-      });
-    }
+    if (mounted) setState(() => error = null);
   }
 
   void _onFpsUpdate(double fps) {
@@ -297,10 +296,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
     );
 
     if (widget.heroTag != null) {
-      return Hero(
-        tag: widget.heroTag,
-        child: videoView,
-      );
+      return Hero(tag: widget.heroTag, child: videoView);
     }
 
     return videoView;
@@ -336,14 +332,14 @@ enum UnityVideoQuality {
 
   /// Returns the video quality for the video height
   static UnityVideoQuality qualityForResolutionY(int? height) {
-    return {
-          1080: p1080,
-          720: p720,
-          480: p480,
-          360: p360,
-          240: p240,
-        }[height] ??
-        UnityVideoQuality.p480;
+    return switch (height) {
+      1080 => p1080,
+      720 => p720,
+      480 => p480,
+      360 => p360,
+      240 => p240,
+      _ => p480,
+    };
   }
 }
 

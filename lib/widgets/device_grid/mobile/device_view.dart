@@ -111,18 +111,18 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                     buttonPos.dy + menuWidth,
                   );
 
-                  final value = await showMenu<int>(
+                  final value = await showMenu<IconData>(
                     context: context,
                     position: position,
                     constraints: const BoxConstraints(
                       maxWidth: menuWidth,
                       minWidth: menuWidth,
                     ),
-                    items: [
-                      loc.removeCamera,
-                      loc.replaceCamera,
-                      loc.reloadCamera,
-                    ].asMap().entries.map((e) {
+                    items: {
+                      Icons.close_outlined: loc.removeCamera,
+                      Icons.add_outlined: loc.replaceCamera,
+                      Icons.replay_outlined: loc.reloadCamera,
+                    }.entries.map((e) {
                       return PopupMenuItem(
                         value: e.key,
                         padding: EdgeInsets.zero,
@@ -130,11 +130,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                           leading: CircleAvatar(
                             backgroundColor: Colors.transparent,
                             foregroundColor: theme.iconTheme.color,
-                            child: Icon(<int, IconData>{
-                              0: Icons.close_outlined,
-                              1: Icons.add_outlined,
-                              2: Icons.replay_outlined,
-                            }[e.key]!),
+                            child: Icon(e.key),
                           ),
                           title: Text(e.value),
                         ),
@@ -145,12 +141,12 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                   if (value == null || !mounted) return;
 
                   switch (value) {
-                    case 0:
+                    case Icons.close_outlined:
                       view.remove(widget.tab, widget.index);
                       if (mounted) setState(() {});
 
                       break;
-                    case 1:
+                    case Icons.add_outlined:
                       if (mounted) {
                         final result = await showDeviceSelectorScreen(context);
                         if (result != null) {
@@ -159,7 +155,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                         }
                       }
                       break;
-                    case 2:
+                    case Icons.replay_outlined:
                       view.reload(widget.tab, widget.index);
                       break;
                   }
@@ -233,8 +229,6 @@ class DeviceTile extends StatefulWidget {
 }
 
 class DeviceTileState extends State<DeviceTile> {
-  UnityVideoPlayer? get videoPlayer => UnityPlayers.players[widget.device];
-
   bool get hover =>
       context.read<MobileViewProvider>().hoverStates[widget.tab]
           ?[widget.index] ??
@@ -246,6 +240,8 @@ class DeviceTileState extends State<DeviceTile> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<UnityPlayers>();
+    final videoPlayer = UnityPlayers.players[widget.device];
     if (videoPlayer == null) return const SizedBox.shrink();
 
     final loc = AppLocalizations.of(context);
@@ -258,8 +254,6 @@ class DeviceTileState extends State<DeviceTile> {
       },
       // Fullscreen on double-tap.
       onDoubleTap: () async {
-        if (videoPlayer == null) return;
-
         await Navigator.of(context).pushNamed(
           '/fullscreen',
           arguments: {
@@ -270,7 +264,7 @@ class DeviceTileState extends State<DeviceTile> {
       },
       child: UnityVideoView(
         heroTag: widget.device.streamURL,
-        player: videoPlayer!,
+        player: videoPlayer,
         fit: settings.cameraViewFit,
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
@@ -280,7 +274,7 @@ class DeviceTileState extends State<DeviceTile> {
             child: Stack(children: [
               if (error != null)
                 ErrorWarning(message: error)
-              else if (!controller.isSeekable || videoPlayer == null)
+              else if (!controller.isSeekable)
                 const Center(
                   child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -304,8 +298,6 @@ class DeviceTileState extends State<DeviceTile> {
                     child: IconButton(
                       splashRadius: 20.0,
                       onPressed: () async {
-                        if (videoPlayer == null) return;
-
                         await Navigator.of(context).pushNamed(
                           '/fullscreen',
                           arguments: {

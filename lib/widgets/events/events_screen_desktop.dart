@@ -57,61 +57,63 @@ class EventsScreenDesktop extends StatelessWidget {
     }
 
     return Material(
-      child: CustomScrollView(slivers: [
-        SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
-        SliverFixedExtentList.builder(
-          itemCount: events.length,
-          itemExtent: 50.0,
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: false,
-          itemBuilder: (context, index) {
-            final event = events.elementAt(index);
+      child: SafeArea(
+        child: CustomScrollView(slivers: [
+          SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
+          SliverFixedExtentList.builder(
+            itemCount: events.length,
+            itemExtent: 50.0,
+            addAutomaticKeepAlives: false,
+            addRepaintBoundaries: false,
+            itemBuilder: (context, index) {
+              final event = events.elementAt(index);
 
-            return InkWell(
-              onTap: event.mediaURL == null
-                  ? null
-                  : () {
-                      debugPrint('Displaying event $event');
-                      Navigator.of(context).pushNamed(
-                        '/events',
-                        arguments: {'event': event, 'upcoming': events},
-                      );
-                    },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(children: [
-                  Container(
-                    width: 40.0,
-                    height: 40.0,
-                    alignment: AlignmentDirectional.center,
-                    child: DownloadIndicator(event: event),
-                  ),
-                  _buildTilePart(child: Text(event.server.name), flex: 2),
-                  _buildTilePart(child: Text(event.deviceName)),
-                  _buildTilePart(
-                    child: Text(event.type.locale(context).uppercaseFirst()),
-                  ),
-                  _buildTilePart(
-                    child: Text(event.duration
-                        .humanReadableCompact(context)
-                        .uppercaseFirst()),
-                  ),
-                  _buildTilePart(
-                    child:
-                        Text(event.priority.locale(context).uppercaseFirst()),
-                  ),
-                  _buildTilePart(
-                    child: Text(
-                      '${settings.formatDate(event.updated.toLocal())} ${settings.formatTime(event.updated).toUpperCase()}',
+              return InkWell(
+                onTap: event.mediaURL == null
+                    ? null
+                    : () {
+                        debugPrint('Displaying event $event');
+                        Navigator.of(context).pushNamed(
+                          '/events',
+                          arguments: {'event': event, 'upcoming': events},
+                        );
+                      },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(children: [
+                    Container(
+                      width: 40.0,
+                      height: 40.0,
+                      alignment: AlignmentDirectional.center,
+                      child: DownloadIndicator(event: event),
                     ),
-                    flex: 2,
-                  ),
-                ]),
-              ),
-            );
-          },
-        ),
-      ]),
+                    _buildTilePart(child: Text(event.server.name), flex: 2),
+                    _buildTilePart(child: Text(event.deviceName)),
+                    _buildTilePart(
+                      child: Text(event.type.locale(context).uppercaseFirst()),
+                    ),
+                    _buildTilePart(
+                      child: Text(event.duration
+                          .humanReadableCompact(context)
+                          .uppercaseFirst()),
+                    ),
+                    _buildTilePart(
+                      child:
+                          Text(event.priority.locale(context).uppercaseFirst()),
+                    ),
+                    _buildTilePart(
+                      child: Text(
+                        '${settings.formatDate(event.updated)} ${settings.formatTime(event.updated).toUpperCase()}',
+                      ),
+                      flex: 2,
+                    ),
+                  ]),
+                ),
+              );
+            },
+          ),
+        ]),
+      ),
     );
   }
 }

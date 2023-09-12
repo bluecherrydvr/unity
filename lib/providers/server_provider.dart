@@ -47,7 +47,8 @@ class ServersProvider extends ChangeNotifier {
     return instance;
   }
 
-  bool get serverAdded => servers.isNotEmpty;
+  /// Whether any server is added.
+  bool get hasServers => servers.isNotEmpty;
 
   List<Server> servers = <Server>[];
 

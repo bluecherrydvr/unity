@@ -176,7 +176,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     ),
                     const SizedBox(height: 16.0),
                     Material(
-                      color: theme.colorScheme.secondary,
+                      // color: theme.colorScheme.primaryContainer,
                       child: InkWell(
                         onTap: () {
                           controller.nextPage(
@@ -190,8 +190,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                           height: 56.0,
                           child: Text(
                             loc.letsGo.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimaryContainer,
                               fontSize: 16.0,
                               fontWeight: FontWeight.w600,
                             ),
@@ -293,7 +293,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final buttonOpacity = disableFinishButton ? 0.5 : 1.0;
 
     return WillPopScope(
       onWillPop: () async {
@@ -362,6 +361,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   Expanded(
                     flex: 5,
                     child: TextFormField(
+                      enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return loc.errorTextField(
@@ -386,6 +386,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   Expanded(
                     flex: 2,
                     child: TextFormField(
+                      enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return loc.errorTextField(
@@ -407,6 +408,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 ]),
                 const SizedBox(height: 16.0),
                 TextFormField(
+                  enabled: !disableFinishButton,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return loc.errorTextField(
@@ -429,6 +431,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 Row(children: [
                   Expanded(
                     child: TextFormField(
+                      enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return loc.errorTextField(
@@ -455,7 +458,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                               textEditingControllers[3].text = kDefaultUsername;
                               textEditingControllers[4].text = kDefaultPassword;
                             },
-                      textColor: theme.colorScheme.secondary,
                       child: Text(loc.useDefault.toUpperCase()),
                     ),
                   ),
@@ -464,6 +466,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Expanded(
                     child: TextFormField(
+                      enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return loc.errorTextField(
@@ -542,9 +545,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                               curve: Curves.easeInOut,
                             );
                           },
-                    textColor: theme.colorScheme.secondary.withOpacity(
-                      buttonOpacity,
-                    ),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(8.0),
                       child: Text(loc.skip.toUpperCase()),
@@ -553,9 +553,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   MaterialButton(
                     onPressed:
                         disableFinishButton ? null : () => finish(context),
-                    textColor: theme.colorScheme.secondary.withOpacity(
-                      buttonOpacity,
-                    ),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(8.0),
                       child: Text(loc.finish.toUpperCase()),
@@ -607,20 +604,27 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               final loc = AppLocalizations.of(context);
 
               return AlertDialog(
-                title: Text(loc.error),
+                title: Text(loc.serverNotAddedError(server.name)),
                 content: Text(
-                  loc.serverNotAddedError(server.name),
+                  loc.serverNotAddedErrorDescription,
                   style: theme.textTheme.headlineMedium,
                 ),
                 actions: [
-                  MaterialButton(
-                    onPressed: Navigator.of(context).maybePop,
-                    textColor: theme.colorScheme.secondary,
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).maybePop();
+                      if (this.context.mounted) finish(this.context);
+                    },
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(
-                        loc.ok,
-                      ),
+                      child: Text(loc.retry.toUpperCase()),
+                    ),
+                  ),
+                  MaterialButton(
+                    onPressed: Navigator.of(context).maybePop,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(loc.ok),
                     ),
                   ),
                 ],
@@ -813,7 +817,6 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           onPressed: () {
             widget.onFinish.call();
           },
-          backgroundColor: theme.colorScheme.secondary,
           label: Text(loc.finish.toUpperCase()),
           icon: const Icon(Icons.check),
         ),

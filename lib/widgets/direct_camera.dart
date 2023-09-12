@@ -22,7 +22,6 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -31,34 +30,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class DirectCameraScreen extends StatefulWidget {
+class DirectCameraScreen extends StatelessWidget {
   const DirectCameraScreen({super.key});
 
-  @override
-  State<DirectCameraScreen> createState() => _DirectCameraScreenState();
-}
-
-class _DirectCameraScreenState extends State<DirectCameraScreen> {
   @override
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
 
     return Column(children: [
-      showIf(
-            Scaffold.hasDrawer(context),
-            child: AppBar(
-              leading: MaybeUnityDrawerButton(context),
-              title: Text(loc.directCamera),
-            ),
-          ) ??
-          const SizedBox.shrink(),
+      if (Scaffold.hasDrawer(context))
+        AppBar(
+          leading: MaybeUnityDrawerButton(context),
+          title: Text(loc.directCamera),
+        )
+      else
+        const SafeArea(child: SizedBox.shrink()),
       Expanded(
         child: () {
           if (serversProviders.servers.isEmpty) {
             return const NoServerWarning();
           } else {
-            return RefreshIndicator(
+            return RefreshIndicator.adaptive(
               onRefresh: serversProviders.refreshDevices,
               child: ListView.builder(
                 padding: MediaQuery.viewPaddingOf(context),

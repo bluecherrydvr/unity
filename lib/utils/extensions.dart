@@ -80,11 +80,11 @@ extension DurationExtension on Duration {
 extension CameraViewFitExtension on UnityVideoFit {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return {
-      UnityVideoFit.contain: loc.contain,
-      UnityVideoFit.cover: loc.cover,
-      UnityVideoFit.fill: loc.fill,
-    }[this]!;
+    return switch (this) {
+      UnityVideoFit.contain => loc.contain,
+      UnityVideoFit.fill => loc.fill,
+      UnityVideoFit.cover => loc.cover,
+    };
   }
 
   IconData get icon {
@@ -99,14 +99,13 @@ extension CameraViewFitExtension on UnityVideoFit {
 extension UnityVideoQualityExtension on UnityVideoQuality {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return {
-          UnityVideoQuality.p1080: loc.p1080,
-          UnityVideoQuality.p720: loc.p720,
-          UnityVideoQuality.p480: loc.p480,
-          UnityVideoQuality.p360: loc.p360,
-          UnityVideoQuality.p240: loc.p240,
-        }[this] ??
-        name;
+    return switch (this) {
+      UnityVideoQuality.p1080 => loc.p1080,
+      UnityVideoQuality.p720 => loc.p720,
+      UnityVideoQuality.p480 => loc.p480,
+      UnityVideoQuality.p360 => loc.p360,
+      UnityVideoQuality.p240 => loc.p240,
+    };
   }
 }
 
@@ -132,10 +131,21 @@ extension ServerExtension on List<Server> {
 }
 
 extension DateTimeExtension on DateTime {
-  bool isInBetween(DateTime first, DateTime second) {
-    return (isAfter(first) && isBefore(second)) ||
-        isAtSameMomentAs(first) ||
-        isAtSameMomentAs(second);
+  /// Returns true if this date is between [first] and [second]
+  ///
+  /// If [allowSameMoment] is true, then the date can be equal to [first] or [second].
+  bool isInBetween(
+    DateTime first,
+    DateTime second, {
+    bool allowSameMoment = false,
+  }) {
+    final isBetween = toLocal().isAfter(first.toLocal()) &&
+        toLocal().isBefore(second.toLocal());
+
+    if (allowSameMoment) return isBetween;
+    return isBetween ||
+        toLocal().isAtSameMomentAs(first.toLocal()) ||
+        toLocal().isAtSameMomentAs(second.toLocal());
   }
 }
 

@@ -259,11 +259,12 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   else {
     debugPrint('action.buttonKeyPressed.isNotEmpty');
     final duration = Duration(
-      minutes: {
-        'snooze_15': 15,
-        'snooze_30': 30,
-        'snooze_60': 60,
-      }[action.buttonKeyPressed]!,
+      minutes: switch (action.buttonKeyPressed) {
+        'snooze_15' => 15,
+        'snooze_30' => 30,
+        'snooze_60' => 60,
+        _ => 15,
+      },
     );
     debugPrint(DateTime.now().add(duration).toString());
     SettingsProvider.instance.snoozedUntil = DateTime.now().add(duration);

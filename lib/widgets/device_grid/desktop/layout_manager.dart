@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -86,49 +87,51 @@ class _LayoutManagerState extends State<LayoutManager> {
       child: Column(children: [
         Material(
           color: theme.appBarTheme.backgroundColor,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(
-              top: 2.0,
-              bottom: 2.0,
-              end: 12.0,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(
+                top: 2.0,
+                bottom: 2.0,
+                end: 12.0,
+              ),
+              child: Row(children: [
+                widget.collapseButton,
+                const SizedBox(width: 5.0),
+                Expanded(
+                  child: Text(
+                    loc.view,
+                    maxLines: 1,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.cyclone,
+                    size: 18.0,
+                    color: settings.layoutCyclingEnabled
+                        ? theme.colorScheme.primary
+                        : IconTheme.of(context).color,
+                  ),
+                  padding: EdgeInsets.zero,
+                  tooltip: loc.cycle,
+                  onPressed: settings.toggleCycling,
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    size: 18.0,
+                    color: IconTheme.of(context).color,
+                  ),
+                  tooltip: loc.newLayout,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const NewLayoutDialog(),
+                    );
+                  },
+                ),
+              ]),
             ),
-            child: Row(children: [
-              widget.collapseButton,
-              const SizedBox(width: 5.0),
-              Expanded(
-                child: Text(
-                  loc.view,
-                  maxLines: 1,
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.cyclone,
-                  size: 18.0,
-                  color: settings.layoutCyclingEnabled
-                      ? theme.colorScheme.primary
-                      : IconTheme.of(context).color,
-                ),
-                padding: EdgeInsets.zero,
-                tooltip: loc.cycle,
-                onPressed: settings.toggleCycling,
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.add,
-                  size: 18.0,
-                  color: IconTheme.of(context).color,
-                ),
-                tooltip: loc.newLayout,
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const NewLayoutDialog(),
-                  );
-                },
-              ),
-            ]),
           ),
         ),
         Expanded(
@@ -153,7 +156,7 @@ class _LayoutManagerState extends State<LayoutManager> {
   }
 }
 
-class LayoutTile extends StatelessWidget {
+class LayoutTile extends StatefulWidget {
   const LayoutTile({
     super.key,
     required this.layout,
@@ -166,40 +169,60 @@ class LayoutTile extends StatelessWidget {
   final int reorderableIndex;
 
   @override
+  State<LayoutTile> createState() => _LayoutTileState();
+}
+
+class _LayoutTileState extends State<LayoutTile> {
+  PointerDeviceKind? longPressKind;
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return ReorderableDragStartListener(
-      index: reorderableIndex,
-      enabled: selected,
+      index: widget.reorderableIndex,
+      enabled: widget.selected,
       child: HoverButton(
+        hitTestBehavior: HitTestBehavior.translucent,
         onSecondaryTap: () => _displayOptions(context),
-        onLongPressDown: (d) {
-          if (d.kind == PointerDeviceKind.touch) _displayOptions(context);
+        onLongPressDown: (d) => longPressKind = d.kind,
+        onLongPressStart: (d) {
+          switch (longPressKind) {
+            case PointerDeviceKind.touch:
+            case PointerDeviceKind.stylus:
+            case PointerDeviceKind.invertedStylus:
+              _displayOptions(context);
+              break;
+            default:
+              break;
+          }
         },
+        onLongPressEnd: (d) => longPressKind = null,
+        onLongPressCancel: () => longPressKind = null,
+        onLongPressUp: () => longPressKind = null,
         builder: (context, states) => ListTile(
           dense: true,
           visualDensity: VisualDensity.compact,
-          selected: selected,
+          selected: widget.selected,
           leading: AnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
             child: ReorderableDragStartListener(
-              index: reorderableIndex,
-              enabled: !selected,
+              index: widget.reorderableIndex,
+              enabled: !widget.selected,
               child: Icon(
-                selected
-                    ? selectedIconForLayout(layout.type)
-                    : iconForLayout(layout.type),
-                key: ValueKey(layout.type),
+                widget.selected
+                    ? selectedIconForLayout(widget.layout.type)
+                    : iconForLayout(widget.layout.type),
+                key: ValueKey(widget.layout.type),
                 size: 20.0,
               ),
             ),
           ),
           minLeadingWidth: 24.0,
-          title: Text(layout.name, maxLines: 1),
+          title: Text(widget.layout.name, maxLines: 1),
           subtitle: Text(
-            loc.nDevices(layout.devices.length),
+            loc.nDevices(widget.layout.devices.length),
             maxLines: 1,
           ),
           trailing: states.isHovering
@@ -213,8 +236,9 @@ class LayoutTile extends StatelessWidget {
                   ),
                 )
               : null,
-          onTap: !selected
-              ? () => view.updateCurrentLayout(view.layouts.indexOf(layout))
+          onTap: !widget.selected
+              ? () =>
+                  view.updateCurrentLayout(view.layouts.indexOf(widget.layout))
               : null,
         ),
       ),
@@ -254,7 +278,7 @@ class LayoutTile extends StatelessWidget {
           label: Padding(
             padding: padding.add(const EdgeInsets.symmetric(vertical: 6.0)),
             child: Text(
-              layout.name,
+              widget.layout.name,
               maxLines: 1,
               style: theme.textTheme.labelSmall,
             ),
@@ -266,17 +290,18 @@ class LayoutTile extends StatelessWidget {
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) => EditLayoutDialog(layout: layout),
+              builder: (context) => EditLayoutDialog(layout: widget.layout),
             );
           },
         ),
-        PopupMenuItem(
-          onTap: layout.openInANewWindow,
-          child: Text(loc.openInANewWindow),
-        ),
+        if (isDesktopPlatform)
+          PopupMenuItem(
+            onTap: widget.layout.openInANewWindow,
+            child: Text(loc.openInANewWindow),
+          ),
         PopupMenuItem(
           onTap: () {
-            layout.export(dialogTitle: loc.exportLayout);
+            widget.layout.export(dialogTitle: loc.exportLayout);
           },
           child: Text(loc.exportLayout),
         ),

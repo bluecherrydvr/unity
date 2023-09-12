@@ -42,7 +42,7 @@ class EventsScreenMobile extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return Material(
-      child: RefreshIndicator(
+      child: RefreshIndicator.adaptive(
         onRefresh: refresh,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
         child: ListView.builder(
@@ -57,7 +57,7 @@ class EventsScreenMobile extends StatelessWidget {
             return IgnorePointer(
               ignoring: !server.online || !isLoaded,
               child: ExpansionTile(
-                initiallyExpanded: servers.servers.length.compareTo(1) == 0,
+                initiallyExpanded: servers.servers.length == 1,
                 maintainState: true,
                 leading: CircleAvatar(
                   backgroundColor: Colors.transparent,

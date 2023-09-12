@@ -27,6 +27,8 @@ class HoverButton extends StatefulWidget {
     this.onLongPressEnd,
     this.onLongPressDown,
     this.onLongPressStart,
+    this.onLongPressCancel,
+    this.onLongPressUp,
     this.onHorizontalDragStart,
     this.onHorizontalDragUpdate,
     this.onHorizontalDragEnd,
@@ -66,6 +68,8 @@ class HoverButton extends StatefulWidget {
   final GestureLongPressStartCallback? onLongPressStart;
   final GestureLongPressEndCallback? onLongPressEnd;
   final GestureLongPressDownCallback? onLongPressDown;
+  final GestureLongPressCancelCallback? onLongPressCancel;
+  final VoidCallback? onLongPressUp;
 
   final VoidCallback? onPressed;
   final VoidCallback? onTapUp;
@@ -308,6 +312,8 @@ class HoverButtonState extends State<HoverButton> {
             }
           : null,
       onLongPressDown: widget.onLongPressDown,
+      onLongPressCancel: widget.onLongPressCancel,
+      onLongPressUp: widget.onLongPressUp,
       onHorizontalDragStart: widget.onHorizontalDragStart,
       onHorizontalDragUpdate: widget.onHorizontalDragUpdate,
       onHorizontalDragEnd: widget.onHorizontalDragEnd,

@@ -250,7 +250,6 @@ ThemeData createTheme({
       height: isMobile ? 32.0 : null,
       verticalOffset: isDesktop ? 28.0 : null,
       preferBelow: isDesktop ? true : null,
-      waitDuration: const Duration(seconds: 1),
     ),
     fontFamily: defaultTargetPlatform == TargetPlatform.linux ? 'Inter' : null,
     expansionTileTheme: const ExpansionTileThemeData(

@@ -25,7 +25,6 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/mobile/timeline_device_view.dart';
@@ -138,22 +137,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         // If there is already an event that conflicts with this one in time, do
         // not add it
         if (realDevices[device]!.any((e) {
-          return e.published.isInBetween(
-                event.published,
-                event.published.add(event.duration),
-              ) ||
-              e.published.add(e.duration).isInBetween(
-                    event.published,
-                    event.published.add(event.duration),
-                  ) ||
-              event.published.isInBetween(
-                e.published,
-                e.published.add(e.duration),
-              ) ||
-              event.published.add(event.duration).isInBetween(
-                    e.published,
-                    e.published.add(e.duration),
-                  );
+          return e.published.isInBetween(event.published, event.updated,
+                  allowSameMoment: true) ||
+              e.updated.isInBetween(event.published, event.updated,
+                  allowSameMoment: true) ||
+              event.published
+                  .isInBetween(e.published, e.updated, allowSameMoment: true) ||
+              event.updated
+                  .isInBetween(e.published, e.updated, allowSameMoment: true);
         })) continue;
 
         realDevices[device] ??= [];
@@ -179,12 +170,14 @@ class _EventsPlaybackState extends State<EventsPlayback> {
 
     home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
 
-    setState(() {
-      timeline = Timeline(
-        tiles: parsedTiles.toList(),
-        date: date,
-      );
-    });
+    if (mounted) {
+      setState(() {
+        timeline = Timeline(
+          tiles: parsedTiles.toList(),
+          date: date,
+        );
+      });
+    }
   }
 
   @override
@@ -230,7 +223,9 @@ class _EventsPlaybackState extends State<EventsPlayback> {
       child: LayoutBuilder(builder: (context, constraints) {
         final hasDrawer = Scaffold.hasDrawer(context);
 
-        if (hasDrawer || constraints.maxWidth < kMobileBreakpoint.width) {
+        if (hasDrawer ||
+            // special case: the width is less than the mobile breakpoint
+            constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (timeline == null) {
             return SafeArea(
               child: Padding(
@@ -246,9 +241,11 @@ class _EventsPlaybackState extends State<EventsPlayback> {
           }
           return SafeArea(child: TimelineDeviceView(timeline: timeline!));
         }
-        return TimelineEventsView(
-          // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
-          timeline: timeline,
+        return SafeArea(
+          child: TimelineEventsView(
+            // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
+            timeline: timeline,
+          ),
         );
       }),
     );

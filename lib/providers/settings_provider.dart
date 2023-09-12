@@ -19,14 +19,13 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -44,10 +43,8 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
   static const kDefaultLayoutCyclingEnabled = false;
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
-  static Future<Directory> kDefaultDownloadsDirectory() async {
-    final docsDir = await getApplicationSupportDirectory();
-    return Directory(path.join(docsDir.path, 'downloads')).create();
-  }
+  static Future<Directory> get kDefaultDownloadsDirectory =>
+      DownloadsManager.kDefaultDownloadsDirectory;
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
@@ -203,7 +200,7 @@ class SettingsProvider extends ChangeNotifier {
     if (data.containsKey(kHiveDownloadsDirectorySetting)) {
       _downloadsDirectory = data[kHiveDownloadsDirectorySetting];
     } else {
-      _downloadsDirectory = (await kDefaultDownloadsDirectory()).path;
+      _downloadsDirectory = (await kDefaultDownloadsDirectory).path;
     }
 
     if (data.containsKey(kHiveLayoutCycling)) {

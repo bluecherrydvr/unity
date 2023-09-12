@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta10</title>
+            <description>Fixed events parsing from latest server</description>
+            <pubDate>Mon, 14 Aug 2023</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta9</title>
             <description>Add in-ap Upgrade. Improved Linux support and local memory management.</description>
             <pubDate>Sun, 13 Aug 2023</pubDate>

@@ -3,9 +3,9 @@ on:
   push:
     branches:
       - main
+  release:
   pull_request:
   workflow_dispatch:
-  release:
 
 jobs:
   build_android:
@@ -59,7 +59,7 @@ jobs:
       
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
-        if: ${{ github.event_name == 'published' }}
+        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -103,7 +103,7 @@ jobs:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #- name: Release
       # # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
-      # if: ${{ github.event_name == 'published' }}
+      # if: ${{ github.event_name == 'release' }}
       # uses: softprops/action-gh-release@v1
       # with:
       #   files: |
@@ -150,7 +150,7 @@ jobs:
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
-        if: ${{ github.event_name == 'published' }}
+        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -270,7 +270,7 @@ jobs:
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
-        if: ${{ github.event_name == 'published' }}
+        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v1
         with:
           files: |

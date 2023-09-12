@@ -1,0 +1,281 @@
+name: Bluecherry Client Flutter
+on:
+  push:
+    branches:
+      - main
+  release:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_android:
+    name: Bluecherry Client Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "beta"
+          # cache: true
+      # TODO: Signing Android application.
+      # - name: Create Key Store
+      #   id: create_key_store
+      #   uses: timheuer/base64-to-file@v1
+      #   with:
+      #     fileName: "keystore.pfx"
+      #     encodedString: ${{ secrets.KEY_STORE }}
+      # - name: Create Key Properties
+      #   id: create_key_properties
+      #   uses: timheuer/base64-to-file@v1
+      #   with:
+      #     fileName: "key.properties"
+      #     encodedString: ${{ secrets.KEY_PROPERTIES }}
+      # - run: cp "${{ steps.create_key_store.outputs.filePath }}" android/app/keystore.jks
+      # - run: cp "${{ steps.create_key_properties.outputs.filePath }}" android/key.properties
+      - run: flutter gen-l10n
+      - run: flutter pub get
+      - run: flutter build apk --verbose --split-per-abi
+      - run: flutter build appbundle --verbose
+      - run: cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk bluecherry-android-arm64-v8a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-android-armeabi-v7a-release.apk
+      - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-android-x86_64-release.apk
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          body: ""
+          tag_name: "bleeding_edge"
+          files: |
+            bluecherry-android-arm64-v8a-release.apk
+            bluecherry-android-armeabi-v7a-release.apk
+            bluecherry-android-x86_64-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bluecherry-android-arm64-v8a-release.apk
+            bluecherry-android-armeabi-v7a-release.apk
+            bluecherry-android-x86_64-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_iOS:
+    name: Bluecherry Client iOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "beta"
+          architecture: x64
+          # cache: true
+          
+      - run: flutter gen-l10n
+      - run: flutter pub get
+      - run: flutter build ios --verbose --release --no-codesign
+      - run: flutter build ipa --verbose --release --no-codesign
+
+      # App should be published with TestFlight
+      # - name: Release
+      #   # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+      #   if: ${{ github.event_name == 'push' }}
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     draft: true
+      #     prerelease: false
+      #     body: ""
+      #     tag_name: "bleeding_edge"
+      #     files: |
+      #       .exe
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Release
+      # # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+      # if: startsWith(github.ref, 'refs/tags/')
+      # uses: softprops/action-gh-release@v1
+      # with:
+      #   files: |
+      #     .exe
+      #   token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_windows:
+    name: Bluecherry Client Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "beta"
+          # cache: true
+      - run: git config --system core.longpaths true
+      - run: flutter gen-l10n
+      - run: flutter pub get
+      - run: flutter build windows --verbose
+
+      - name: Building the installer
+        run: |
+          "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/windows-installer.iss"
+        shell: cmd
+
+      - run: cp installer\Output\bluecherry-windows-setup.exe bluecherry-windows-setup.exe
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "bleeding_edge"
+          files: |
+            bluecherry-windows-setup.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bluecherry-windows-setup.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_linux:
+    name: Bluecherry Client Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "beta"
+          # cache: true
+      
+      - name: Initiate Flutter
+        run: |
+          flutter gen-l10n
+          flutter pub get
+
+      - name: Build Flutter for RPM
+        run: |
+          flutter build linux --verbose --dart-define-from-file=linux/env/rpm.json
+
+      - name: Build RPM Package
+        run: |
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+          
+          sed -i "s:cp -rf :cp -rf $(pwd)/:" linux/rpm/bluecherry.spec
+          cd linux/debian
+          sed -i "s:FILES_HERE:$(find usr \( -type l -o -type f \) -follow -print | awk '{printf "/%s\\n", $0}'):" ../rpm/bluecherry.spec
+          cd ../../
+          rpmbuild -bb linux/rpm/bluecherry.spec -D "_topdir $(pwd)/rpmbuild"
+          cp rpmbuild/RPMS/x86_64/*.rpm bluecherry-linux-x86_64.rpm
+
+      - name: Build Flutter for DEB
+        run: |
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
+          flutter build linux --verbose --dart-define-from-file=linux/env/deb.json
+
+          rm -r linux/debian/usr/bin
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+
+      - name: Build DEB Package
+        run: |
+          dpkg-deb --build --root-owner-group linux/debian
+          cp linux/*.deb bluecherry-linux-x86_64.deb
+
+      - name: Build Flutter for Tarball
+        run: |
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
+          flutter build linux --verbose --dart-define-from-file=linux/env/tar.gz.json
+
+          rm -r linux/debian/usr/bin
+          mkdir -p linux/debian/usr/bin
+          cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
+          ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
+
+      - name: Build Tarball
+        run: |
+          mkdir -p AppDir/
+          cp -r linux/debian/usr AppDir/
+          ln -sr AppDir/usr/bin/bluecherry_client AppDir/bluecherry_client
+          tar czf bluecherry-linux-x86_64.tar.gz -C AppDir/ .
+
+      - name: Build Flutter for AppImage
+        run: |
+          rm -r AppDir/
+          mkdir -p AppDir/
+
+          flutter clean
+          flutter gen-l10n
+          flutter pub get
+          flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json
+
+      - name: Build AppImage
+        run: |
+          sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+          appimage-builder --skip-tests
+          cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          body: ""
+          tag_name: "bleeding_edge"
+          files: |
+            bluecherry-linux-x86_64.AppImage
+            bluecherry-linux-x86_64.deb
+            bluecherry-linux-x86_64.tar.gz
+            bluecherry-linux-x86_64.rpm
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bluecherry-linux-x86_64.AppImage
+            bluecherry-linux-x86_64.deb
+            bluecherry-linux-x86_64.tar.gz
+            bluecherry-linux-x86_64.rpm
+          token: ${{ secrets.GITHUB_TOKEN }}

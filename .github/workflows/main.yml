@@ -55,6 +55,17 @@ jobs:
             bluecherry-android-armeabi-v7a-release.apk
             bluecherry-android-x86_64-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'published' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bluecherry-android-arm64-v8a-release.apk
+            bluecherry-android-armeabi-v7a-release.apk
+            bluecherry-android-x86_64-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   build_iOS:
     name: Bluecherry Client iOS
@@ -89,6 +100,14 @@ jobs:
       #     files: |
       #       .exe
       #     token: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Release
+      # # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+      # if: ${{ github.event_name == 'published' }}
+      # uses: softprops/action-gh-release@v1
+      # with:
+      #   files: |
+      #     .exe
+      #   token: ${{ secrets.GITHUB_TOKEN }}
 
   build_windows:
     name: Bluecherry Client Windows
@@ -124,6 +143,15 @@ jobs:
           prerelease: false
           body: ""
           tag_name: "bleeding_edge"
+          files: |
+            bluecherry-windows-setup.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'published' }}
+        uses: softprops/action-gh-release@v1
+        with:
           files: |
             bluecherry-windows-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -232,6 +260,18 @@ jobs:
           prerelease: true
           body: ""
           tag_name: "bleeding_edge"
+          files: |
+            bluecherry-linux-x86_64.AppImage
+            bluecherry-linux-x86_64.deb
+            bluecherry-linux-x86_64.tar.gz
+            bluecherry-linux-x86_64.rpm
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'published' }}
+        uses: softprops/action-gh-release@v1
+        with:
           files: |
             bluecherry-linux-x86_64.AppImage
             bluecherry-linux-x86_64.deb

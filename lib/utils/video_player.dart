@@ -62,8 +62,15 @@ class UnityPlayers with ChangeNotifier {
   }
 
   /// Reload all video players.
-  static void reloadAll() {
-    for (final device in players.keys) {
+  ///
+  /// [onlyIfTimedOut], if true, the device will only be reloaded if it's timed out
+  static void reloadAll({bool onlyIfTimedOut = false}) {
+    for (final entry in players.entries) {
+      final device = entry.key;
+      final player = entry.value;
+      if (onlyIfTimedOut) {
+        if (!player.isImageOld) continue;
+      }
       reloadDevice(device);
     }
   }

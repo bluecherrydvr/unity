@@ -196,13 +196,6 @@ class UnityVideoViewState extends State<UnityVideoView> {
   late StreamSubscription<Duration> _onPositionUpdateSubscription;
   late StreamSubscription<double> _fpsSubscription;
 
-  static const timerInterval = Duration(seconds: 6);
-  Timer? _oldImageTimer;
-  bool _isImageOld = false;
-  bool get isImageOld => _isImageOld;
-  DateTime? _lastImageTime;
-  DateTime? get lastImageUpdate => _lastImageTime;
-
   @override
   void initState() {
     super.initState();
@@ -222,9 +215,6 @@ class UnityVideoViewState extends State<UnityVideoView> {
       _onErrorSubscription.cancel();
       _onDurationUpdateSubscription.cancel();
       _fpsSubscription.cancel();
-      _oldImageTimer?.cancel();
-      _lastImageTime = null;
-      _isImageOld = false;
 
       _onErrorSubscription = widget.player.onError.listen(_onError);
       _onDurationUpdateSubscription =
@@ -242,16 +232,6 @@ class UnityVideoViewState extends State<UnityVideoView> {
   void _onDurationUpdate(Duration duration) {
     if (mounted) {
       setState(() {
-        _lastImageTime = DateTime.now();
-        _isImageOld = false;
-        _oldImageTimer?.cancel();
-        _oldImageTimer = Timer(timerInterval, () {
-          if (!mounted) _oldImageTimer?.cancel();
-          // If the image is still the same after the interval, then it's old.
-          if (widget.player.duration <= duration) {
-            setState(() => _isImageOld = true);
-          }
-        });
         error = null;
       });
     }
@@ -271,8 +251,6 @@ class UnityVideoViewState extends State<UnityVideoView> {
     _onDurationUpdateSubscription.cancel();
     _onPositionUpdateSubscription.cancel();
     _fpsSubscription.cancel();
-    _oldImageTimer?.cancel();
-    _oldImageTimer = null;
     super.dispose();
   }
 
@@ -283,9 +261,9 @@ class UnityVideoViewState extends State<UnityVideoView> {
       error: error,
       position: widget.player.currentPos,
       duration: widget.player.duration,
-      isImageOld: isImageOld,
+      isImageOld: widget.player.isImageOld,
       fps: widget.player.fps.toInt(),
-      lastImageUpdate: lastImageUpdate,
+      lastImageUpdate: widget.player.lastImageUpdate,
       child: UnityVideoPlayerInterface.instance.createVideoView(
         player: widget.player,
         color: widget.color,
@@ -355,7 +333,31 @@ abstract class UnityVideoPlayer {
     )..quality = quality;
   }
 
+  static const timerInterval = Duration(seconds: 6);
+  Timer? _oldImageTimer;
+  bool _isImageOld = false;
+  bool get isImageOld => _isImageOld;
+  DateTime? _lastImageTime;
+  DateTime? get lastImageUpdate => _lastImageTime;
+  late StreamSubscription<Duration> _onDurationUpdateSubscription;
+
   UnityVideoQuality? quality;
+
+  UnityVideoPlayer() {
+    _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
+  }
+
+  void _onDurationUpdate(Duration duration) {
+    _lastImageTime = DateTime.now();
+    _isImageOld = false;
+    _oldImageTimer?.cancel();
+    _oldImageTimer = Timer(timerInterval, () {
+      // If the image is still the same after the interval, then it's old.
+      if (duration <= duration) {
+        _isImageOld = true;
+      }
+    });
+  }
 
   /// The current data source url
   String? get dataSource;
@@ -416,5 +418,11 @@ abstract class UnityVideoPlayer {
   Future<void> release();
   Future<void> reset();
 
-  Future<void> dispose();
+  @mustCallSuper
+  Future<void> dispose() async {
+    _onDurationUpdateSubscription.cancel();
+    _oldImageTimer?.cancel();
+    _lastImageTime = null;
+    _isImageOld = false;
+  }
 }

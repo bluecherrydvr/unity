@@ -421,15 +421,41 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final view = context.watch<DesktopViewProvider>();
+    final closeButton = IconButton(
+      icon: const Icon(Icons.close_outlined),
+      color: theme.colorScheme.error,
+      tooltip: loc.removeCamera,
+      iconSize: 18.0,
+      onPressed: () {
+        view.remove(widget.device);
+      },
+    );
+
     final error = UnityVideoView.maybeOf(context)?.error;
     if (error != null) {
-      return ErrorWarning(message: error);
+      return Stack(children: [
+        Positioned.fill(child: ErrorWarning(message: error)),
+        PositionedDirectional(
+          top: 0,
+          end: 0,
+          child: closeButton,
+        ),
+        PositionedDirectional(
+          bottom: 0,
+          end: 0,
+          child: VideoStatusLabel(
+            video: UnityVideoView.of(context),
+            device: widget.device,
+          ),
+        ),
+      ]);
     }
 
     final video = UnityVideoView.maybeOf(context);
 
-    final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     Widget foreground = PTZController(
@@ -437,7 +463,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       device: widget.device,
       builder: (context, commands, constraints) {
         final states = HoverButton.of(context).states;
-        final loc = AppLocalizations.of(context);
 
         return Stack(children: [
           Padding(
@@ -608,15 +633,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   opacity: !states.isHovering ? 0 : 1,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
-                  child: IconButton(
-                    icon: const Icon(Icons.close_outlined),
-                    color: theme.colorScheme.error,
-                    tooltip: loc.removeCamera,
-                    iconSize: 18.0,
-                    onPressed: () {
-                      view.remove(widget.device);
-                    },
-                  ),
+                  child: closeButton,
                 ),
               ),
           ],

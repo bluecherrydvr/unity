@@ -47,6 +47,7 @@ enum _VideoLabel {
   live,
   timedOut,
   recorded,
+  error,
 }
 
 class _VideoStatusLabelState extends State<VideoStatusLabel> {
@@ -58,13 +59,15 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       // It is only LIVE if it starts with rtsp or hsl
       !widget.video.player.dataSource!.startsWith('http');
 
-  _VideoLabel get status => isLoading
-      ? _VideoLabel.loading
-      : !isLive
-          ? _VideoLabel.recorded
-          : widget.video.isImageOld
-              ? _VideoLabel.timedOut
-              : _VideoLabel.live;
+  _VideoLabel get status => widget.video.error != null
+      ? _VideoLabel.error
+      : isLoading
+          ? _VideoLabel.loading
+          : !isLive
+              ? _VideoLabel.recorded
+              : widget.video.isImageOld
+                  ? _VideoLabel.timedOut
+                  : _VideoLabel.live;
 
   bool _openWithTap = false;
   OverlayEntry? entry;
@@ -132,6 +135,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       _VideoLabel.loading => loc.loading,
       _VideoLabel.recorded => loc.recorded,
       _VideoLabel.timedOut => loc.timedOut,
+      _VideoLabel.error => loc.error,
     };
 
     final color = switch (status) {
@@ -139,6 +143,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       _VideoLabel.loading => Colors.blue,
       _VideoLabel.recorded => Colors.green,
       _VideoLabel.timedOut => Colors.amber.shade600,
+      _VideoLabel.error => Colors.grey,
     };
 
     // This opens the overlay when a property is updated. This is a frame late

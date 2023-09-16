@@ -181,7 +181,7 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
         // When the app is resumed from background to foreground, reload all
         // unity players
         if (isInBackground) {
-          UnityPlayers.reloadAll();
+          UnityPlayers.reloadAll(onlyIfTimedOut: true);
         }
 
         isInBackground = false;

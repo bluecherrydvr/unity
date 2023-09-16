@@ -294,15 +294,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
         if (widget.getServer() == null) {
           widget.controller.previousPage(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
           );
         }
-        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -662,8 +662,8 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
     final loc = AppLocalizations.of(context);
     final server = widget.getServer();
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         appBar: showIf<AppBar>(
           isMobile,

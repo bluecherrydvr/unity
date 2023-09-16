@@ -288,6 +288,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> dispose() async {
+    await super.dispose();
     if (mkPlayer.platform is NativePlayer) {
       final platform = mkPlayer.platform as NativePlayer;
 

@@ -31,7 +31,7 @@ dependencies:
 
   intl: ^0.18.1
   duration: ^3.0.12
-  firebase_core: 2.10.0
+  firebase_core: ^2.15.1
   firebase_messaging: ^14.4.1
   awesome_notifications: ^0.7.5-dev.3
   
@@ -50,7 +50,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
-  permission_handler: ^10.2.0
+  permission_handler: ^11.0.0
   uuid: ^3.0.7
 
   # Desktop

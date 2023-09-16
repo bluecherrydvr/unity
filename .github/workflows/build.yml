@@ -20,7 +20,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           # cache: true
       # TODO: Signing Android application.
       # - name: Create Key Store
@@ -81,7 +81,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           architecture: x64
           # cache: true
           
@@ -123,7 +123,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           # cache: true
       - run: git config --system core.longpaths true
       - run: flutter gen-l10n
@@ -177,7 +177,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "beta"
+          channel: "master"
           # cache: true
       
       - name: Initiate Flutter

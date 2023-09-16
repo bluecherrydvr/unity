@@ -439,13 +439,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       return Stack(children: [
         Positioned.fill(child: ErrorWarning(message: error)),
         PositionedDirectional(
-          top: 0,
-          end: 0,
+          top: 4,
+          end: 4,
           child: closeButton,
         ),
         PositionedDirectional(
-          bottom: 0,
-          end: 0,
+          bottom: 6.0,
+          end: 6.0,
           child: VideoStatusLabel(
             video: UnityVideoView.of(context),
             device: widget.device,

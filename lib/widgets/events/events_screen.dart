@@ -30,7 +30,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
+import 'package:bluecherry_client/utils/widgets/tree_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -200,38 +200,13 @@ class _EventsScreenState extends State<EventsScreen> {
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
-        return Column(children: [
-          AppBar(
-            leading: MaybeUnityDrawerButton(context),
-            title: Text(loc.eventBrowser),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  eventsScreenKey.currentState?.fetch();
-                },
-                icon: const Icon(Icons.refresh),
-                iconSize: 20.0,
-                tooltip: loc.refresh,
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 15.0),
-                child: IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  tooltip: loc.filter,
-                  onPressed: () => showMobileFilter(context),
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: EventsScreenMobile(
-              events: filteredEvents,
-              loadedServers: events.keys,
-              refresh: fetch,
-              invalid: invalid,
-            ),
-          ),
-        ]);
+        return EventsScreenMobile(
+          events: filteredEvents,
+          loadedServers: events.keys,
+          refresh: fetch,
+          invalid: invalid,
+          showFilter: () => showMobileFilter(context),
+        );
       }
 
       return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -246,8 +221,9 @@ class _EventsScreenState extends State<EventsScreen> {
                   SubHeader(
                     loc.servers,
                     height: 38.0,
-                    trailing:
-                        Text('${ServersProvider.instance.servers.length}'),
+                    trailing: Text(
+                      '${ServersProvider.instance.servers.length}',
+                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -256,20 +232,20 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                   SubHeader(loc.timeFilter, height: 24.0),
                   buildTimeFilterTile(),
-                  const SubHeader('Minimum level', height: 24.0),
-                  DropdownButton<EventsMinLevelFilter>(
-                    isExpanded: true,
-                    value: levelFilter,
-                    items: EventsMinLevelFilter.values.map((level) {
-                      return DropdownMenuItem(
-                        value: level,
-                        child: Text(level.name.uppercaseFirst()),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setState(
-                      () => levelFilter = v ?? levelFilter,
-                    ),
-                  ),
+                  // const SubHeader('Minimum level', height: 24.0),
+                  // DropdownButton<EventsMinLevelFilter>(
+                  //   isExpanded: true,
+                  //   value: levelFilter,
+                  //   items: EventsMinLevelFilter.values.map((level) {
+                  //     return DropdownMenuItem(
+                  //       value: level,
+                  //       child: Text(level.name.uppercaseFirst()),
+                  //     );
+                  //   }).toList(),
+                  //   onChanged: (v) => setState(
+                  //     () => levelFilter = v ?? levelFilter,
+                  //   ),
+                  // ),
                   const SizedBox(height: 8.0),
                   FilledButton(
                     onPressed: isLoading ? null : fetch,
@@ -287,7 +263,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-  Widget buildTimeFilterTile() {
+  Widget buildTimeFilterTile({VoidCallback? onSelect}) {
     return Builder(builder: (context) {
       final loc = AppLocalizations.of(context);
       return ListTile(
@@ -314,6 +290,7 @@ class _EventsScreenState extends State<EventsScreen> {
           if (range != null) {
             startTime = range.start;
             endTime = range.end;
+            onSelect?.call();
           }
         },
       );
@@ -410,45 +387,50 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  Future<void> showMobileFilter(BuildContext context) {
-    return showModalBottomSheet(
+  Future<void> showMobileFilter(BuildContext context) async {
+    /// This is used to update the screen when the bottom sheet is closed.
+    var hasChanged = false;
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) {
-        final loc = AppLocalizations.of(context);
-
         return DraggableScrollableSheet(
           expand: false,
-          maxChildSize: 0.8,
-          initialChildSize: 0.7,
+          maxChildSize: 0.85,
+          initialChildSize: 0.85,
           builder: (context, controller) {
+            final loc = AppLocalizations.of(context);
             return StatefulBuilder(builder: (context, localSetState) {
               /// This updates the screen in the back and the bottom sheet.
               /// This is used to avoid the creation of a new StatefulWidget
               void setState(VoidCallback fn) {
                 this.setState(fn);
                 localSetState(fn);
+                hasChanged = true;
               }
 
               return ListView(controller: controller, children: [
-                SubHeader(loc.timeFilter),
-                buildTimeFilterTile(),
-                const SubHeader('Minimum level'),
-                DropdownButton<EventsMinLevelFilter>(
-                  isExpanded: true,
-                  value: levelFilter,
-                  items: EventsMinLevelFilter.values.map((level) {
-                    return DropdownMenuItem(
-                      value: level,
-                      child: Text(level.name.uppercaseFirst()),
-                    );
-                  }).toList(),
-                  onChanged: (v) => setState(
-                    () => levelFilter = v ?? levelFilter,
-                  ),
-                ),
-                SubHeader(loc.servers),
+                SubHeader(loc.timeFilter, height: 20.0),
+                buildTimeFilterTile(onSelect: () => hasChanged = true),
+                // const SubHeader('Minimum level'),
+                // DropdownButtonHideUnderline(
+                //   child: DropdownButton<EventsMinLevelFilter>(
+                //     isExpanded: true,
+                //     value: levelFilter,
+                //     items: EventsMinLevelFilter.values.map((level) {
+                //       return DropdownMenuItem(
+                //         value: level,
+                //         child: Text(level.name.uppercaseFirst()),
+                //       );
+                //     }).toList(),
+                //     onChanged: (v) => setState(
+                //       () => levelFilter = v ?? levelFilter,
+                //     ),
+                //   ),
+                // ),
+                SubHeader(loc.servers, height: 36.0),
                 buildTreeView(
                   context,
                   gapCheckboxText: 10.0,
@@ -461,6 +443,8 @@ class _EventsScreenState extends State<EventsScreen> {
         );
       },
     );
+
+    if (hasChanged) fetch();
   }
 }
 

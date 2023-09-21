@@ -20,7 +20,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
+import 'package:bluecherry_client/utils/widgets/tree_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';

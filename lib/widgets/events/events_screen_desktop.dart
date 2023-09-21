@@ -46,6 +46,7 @@ class EventsScreenDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
 
     if (HomeProvider.instance
         .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
@@ -55,12 +56,22 @@ class EventsScreenDesktop extends StatelessWidget {
         ),
       );
     } else if (events.isEmpty) {
-      return Center(
-        child: Text(
+      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Icon(Icons.production_quantity_limits, size: 48.0),
+        Text(
           loc.noEventsFound,
           textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge,
         ),
-      );
+        const SizedBox(height: 6.0),
+        Text(
+          '''Tips:
+•  Select only one camera to see the events from that specific camera
+•  Use the calendar to select a specific date or a date range
+•  Use the "Filter" button to perform the search''',
+          style: theme.textTheme.bodySmall,
+        ),
+      ]);
     }
 
     return Material(
@@ -69,13 +80,20 @@ class EventsScreenDesktop extends StatelessWidget {
           SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
           SliverFixedExtentList.builder(
             itemCount: events.length,
-            itemExtent: 50.0,
+            itemExtent: 48.0,
             addAutomaticKeepAlives: false,
             addRepaintBoundaries: false,
+            findChildIndexCallback: (key) {
+              final k = key as ValueKey<Event>;
+              return events.indexed
+                  .firstWhereOrNull((e) => e.$2 == k.value)
+                  ?.$1;
+            },
             itemBuilder: (context, index) {
               final event = events.elementAt(index);
 
               return InkWell(
+                key: ValueKey(event),
                 onTap: event.mediaURL == null
                     ? null
                     : () {

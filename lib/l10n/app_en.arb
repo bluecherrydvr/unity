@@ -148,7 +148,7 @@
   "cover": "Cover",
   "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
-  "noEventsFound": "No events found",
+  "noEventsFound": "NO EVENTS FOUND",
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
   "notificationClickBehavior": "Notification Click Behavior",
@@ -253,11 +253,23 @@
   },
   "noRecords": "This camera has no records in the current period.",
   "filter": "Filter",
+  "timeFilter": "Time filter",
   "fromDate": "From",
   "toDate": "To",
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "never",
+  "fromToDate": "{from} to {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
   "nEvents": "{n, plural, =0{No events} =1{1 event} other{{n} events}}",

@@ -240,38 +240,19 @@ class _EventsScreenState extends State<EventsScreen> {
             child: SafeArea(
               child: DropdownButtonHideUnderline(
                 child: Column(children: [
-                  SubHeader(loc.servers, height: 40.0),
+                  SubHeader(
+                    loc.servers,
+                    height: 38.0,
+                    trailing:
+                        Text('${ServersProvider.instance.servers.length}'),
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       child: buildTreeView(context, setState: setState),
                     ),
                   ),
-                  const SubHeader('Time filter', height: 24.0),
-                  ListTile(
-                    title: Text(() {
-                      final formatter = DateFormat.MEd();
-                      if (startTime == null || endTime == null) {
-                        return 'Today';
-                      } else if (DateUtils.isSameDay(startTime, endTime)) {
-                        return formatter.format(startTime!);
-                      } else {
-                        return '${formatter.format(startTime!)} to ${formatter.format(endTime!)}';
-                      }
-                    }()),
-                    onTap: () async {
-                      final range = await showDateRangePicker(
-                        context: context,
-                        firstDate: DateTime(1970),
-                        lastDate: DateTime.now(),
-                        initialEntryMode: DatePickerEntryMode.calendarOnly,
-                        saveText: 'Load',
-                      );
-                      if (range != null) {
-                        startTime = range.start;
-                        endTime = range.end;
-                      }
-                    },
-                  ),
+                  SubHeader(loc.timeFilter, height: 24.0),
+                  buildTimeFilterTile(),
                   const SubHeader('Minimum level', height: 24.0),
                   DropdownButton<EventsMinLevelFilter>(
                     isExpanded: true,
@@ -289,9 +270,9 @@ class _EventsScreenState extends State<EventsScreen> {
                   const SizedBox(height: 8.0),
                   FilledButton(
                     onPressed: isLoading ? null : fetch,
-                    child: const Text('Load'),
+                    child: Text(loc.filter),
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 12.0),
                 ]),
               ),
             ),
@@ -300,6 +281,39 @@ class _EventsScreenState extends State<EventsScreen> {
         const VerticalDivider(width: 1),
         Expanded(child: EventsScreenDesktop(events: filteredEvents)),
       ]);
+    });
+  }
+
+  Widget buildTimeFilterTile() {
+    return Builder(builder: (context) {
+      final loc = AppLocalizations.of(context);
+      return ListTile(
+        title: Text(() {
+          final formatter = DateFormat.MEd();
+          if (startTime == null || endTime == null) {
+            return loc.today;
+          } else if (DateUtils.isSameDay(startTime, endTime)) {
+            return formatter.format(startTime!);
+          } else {
+            return loc.fromToDate(
+              formatter.format(startTime!),
+              formatter.format(endTime!),
+            );
+          }
+        }()),
+        onTap: () async {
+          final range = await showDateRangePicker(
+            context: context,
+            firstDate: DateTime(1970),
+            lastDate: DateTime.now(),
+            initialEntryMode: DatePickerEntryMode.calendarOnly,
+          );
+          if (range != null) {
+            startTime = range.start;
+            endTime = range.end;
+          }
+        },
+      );
     });
   }
 
@@ -342,7 +356,7 @@ class _EventsScreenState extends State<EventsScreen> {
             },
             checkboxScale: checkboxScale,
             text: server.name,
-            secondaryText: '${server.devices.length}',
+            secondaryText: isOffline ? null : '${server.devices.length}',
             gapCheckboxText: gapCheckboxText,
             textFit: FlexFit.tight,
           ),
@@ -375,7 +389,7 @@ class _EventsScreenState extends State<EventsScreen> {
                       },
                       checkboxScale: checkboxScale,
                       text: device.name,
-                      secondaryText: eventsForDevice != null
+                      secondaryText: eventsForDevice != null && device.status
                           ? ' (${eventsForDevice.length})'
                           : null,
                       gapCheckboxText: gapCheckboxText,
@@ -412,41 +426,8 @@ class _EventsScreenState extends State<EventsScreen> {
               }
 
               return ListView(controller: controller, children: [
-                const SubHeader('Time filter'),
-                // TODO:
-                // DropdownButton<EventsTimeFilter>(
-                //   isExpanded: true,
-                //   value: timeFilter,
-                //   items: const [
-                //     DropdownMenuItem(
-                //       value: EventsTimeFilter.any,
-                //       child: Text('Any'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: EventsTimeFilter.lastHour,
-                //       child: Text('Last hour'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: EventsTimeFilter.last6Hours,
-                //       child: Text('Last 6 hours'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: EventsTimeFilter.last12Hours,
-                //       child: Text('Last 12 hours'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: EventsTimeFilter.last24Hours,
-                //       child: Text('Last 24 hours'),
-                //     ),
-                //     // DropdownMenuItem(
-                //     //   child: Text('Select time range'),
-                //     //   value: EventsTimeFilter.custom,
-                //     // ),
-                //   ],
-                //   onChanged: (v) => setState(
-                //     () => timeFilter = v ?? timeFilter,
-                //   ),
-                // ),
+                SubHeader(loc.timeFilter),
+                buildTimeFilterTile(),
                 const SubHeader('Minimum level'),
                 DropdownButton<EventsMinLevelFilter>(
                   isExpanded: true,

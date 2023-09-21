@@ -50,6 +50,9 @@ Widget buildCheckbox({
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   softWrap: false,
+                  style: TextStyle(
+                    decoration: isError ? TextDecoration.lineThrough : null,
+                  ),
                 ),
               ),
               if (secondaryText != null)

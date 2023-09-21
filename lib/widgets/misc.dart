@@ -247,7 +247,11 @@ class SubHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          if (trailing != null)
+            DefaultTextStyle(
+              style: theme.textTheme.labelSmall ?? const TextStyle(),
+              child: trailing!,
+            ),
         ]),
       ),
     );

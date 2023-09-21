@@ -60,18 +60,22 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  EventsTimeFilter timeFilter = EventsTimeFilter.last24Hours;
+  DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
   List<Server> allowedServers = [...ServersProvider.instance.servers];
 
-  bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
 
   Iterable<Event> filteredEvents = [];
 
-  /// The devices that can't be displayed in the list
-  List<String> disabledDevices = [];
+  /// The devices that can't be displayed in the list.
+  ///
+  /// The rtsp url is used to identify the device.
+  List<String> disabledDevices = [
+    for (final server in ServersProvider.instance.servers)
+      ...server.devices.map((d) => d.rtspURL)
+  ];
 
   @override
   void initState() {
@@ -80,16 +84,23 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Future<void> fetch() async {
+    events.clear();
+    filteredEvents = [];
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
     try {
       // Load the events at the same time
       await Future.wait(ServersProvider.instance.servers.map((server) async {
-        if (!server.online) return;
+        if (!server.online || !allowedServers.contains(server)) return;
 
         try {
+          final allowedDevices = server.devices
+              .where((d) => d.status && !disabledDevices.contains(d.rtspURL));
           final iterable = await API.instance.getEvents(
             await API.instance.checkServerCredentials(server),
+            startTime: startTime,
+            endTime: endTime,
+            device: allowedDevices.length == 1 ? allowedDevices.first : null,
           );
           if (mounted) {
             super.setState(() {
@@ -111,18 +122,12 @@ class _EventsScreenState extends State<EventsScreen> {
     await computeFiltered();
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
-    if (mounted) {
-      super.setState(() {
-        isFirstTimeLoading = false;
-      });
-    }
   }
 
   Future<void> computeFiltered() async {
     filteredEvents = await compute(_updateFiltered, {
       'events': events,
       'allowedServers': allowedServers,
-      'timeFilter': timeFilter,
       'levelFilter': levelFilter,
       'disabledDevices': disabledDevices,
     });
@@ -131,31 +136,14 @@ class _EventsScreenState extends State<EventsScreen> {
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
     final events = data['events'] as EventsData;
     final allowedServers = data['allowedServers'] as List<Server>;
-    final timeFilter = data['timeFilter'] as EventsTimeFilter;
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
     final disabledDevices = data['disabledDevices'] as List<String>;
 
-    final hourRange = switch (timeFilter) {
-      EventsTimeFilter.last12Hours => 12,
-      EventsTimeFilter.last24Hours => 24,
-      EventsTimeFilter.last6Hours => 6,
-      EventsTimeFilter.lastHour => 1,
-      EventsTimeFilter.any => -1,
-    };
-
-    final now = DateTime.now();
     return events.values.expand((events) sync* {
       for (final event in events) {
         // allow events from the allowed servers
         if (!allowedServers.any((element) => event.server.ip == element.ip)) {
           continue;
-        }
-
-        // allow events within the time range
-        if (timeFilter != EventsTimeFilter.any) {
-          if (now.difference(event.published).inHours > hourRange) {
-            continue;
-          }
         }
 
         switch (levelFilter) {
@@ -203,6 +191,9 @@ class _EventsScreenState extends State<EventsScreen> {
 
     final hasDrawer = Scaffold.hasDrawer(context);
     final loc = AppLocalizations.of(context);
+    final isLoading = HomeProvider.instance.isLoadingFor(
+      UnityLoadingReason.fetchingEventsHistory,
+    );
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
@@ -234,7 +225,6 @@ class _EventsScreenState extends State<EventsScreen> {
               events: filteredEvents,
               loadedServers: events.keys,
               refresh: fetch,
-              // isFirstTimeLoading: isFirstTimeLoading,
               invalid: invalid,
             ),
           ),
@@ -257,38 +247,30 @@ class _EventsScreenState extends State<EventsScreen> {
                     ),
                   ),
                   const SubHeader('Time filter', height: 24.0),
-                  DropdownButton<EventsTimeFilter>(
-                    isExpanded: true,
-                    value: timeFilter,
-                    items: const [
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.any,
-                        child: Text('Any'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.lastHour,
-                        child: Text('Last hour'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last6Hours,
-                        child: Text('Last 6 hours'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last12Hours,
-                        child: Text('Last 12 hours'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last24Hours,
-                        child: Text('Last 24 hours'),
-                      ),
-                      // DropdownMenuItem(
-                      //   child: Text('Select time range'),
-                      //   value: EventsTimeFilter.custom,
-                      // ),
-                    ],
-                    onChanged: (v) => setState(
-                      () => timeFilter = v ?? timeFilter,
-                    ),
+                  ListTile(
+                    title: Text(() {
+                      final formatter = DateFormat.MEd();
+                      if (startTime == null || endTime == null) {
+                        return 'Today';
+                      } else if (DateUtils.isSameDay(startTime, endTime)) {
+                        return formatter.format(startTime!);
+                      } else {
+                        return '${formatter.format(startTime!)} to ${formatter.format(endTime!)}';
+                      }
+                    }()),
+                    onTap: () async {
+                      final range = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(1970),
+                        lastDate: DateTime.now(),
+                        initialEntryMode: DatePickerEntryMode.calendarOnly,
+                        saveText: 'Load',
+                      );
+                      if (range != null) {
+                        startTime = range.start;
+                        endTime = range.end;
+                      }
+                    },
                   ),
                   const SubHeader('Minimum level', height: 24.0),
                   DropdownButton<EventsMinLevelFilter>(
@@ -303,6 +285,11 @@ class _EventsScreenState extends State<EventsScreen> {
                     onChanged: (v) => setState(
                       () => levelFilter = v ?? levelFilter,
                     ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  FilledButton(
+                    onPressed: isLoading ? null : fetch,
+                    child: const Text('Load'),
                   ),
                   const SizedBox(height: 16.0),
                 ]),
@@ -357,6 +344,7 @@ class _EventsScreenState extends State<EventsScreen> {
             text: server.name,
             secondaryText: '${server.devices.length}',
             gapCheckboxText: gapCheckboxText,
+            textFit: FlexFit.tight,
           ),
           children: () {
             if (isOffline) {
@@ -425,39 +413,40 @@ class _EventsScreenState extends State<EventsScreen> {
 
               return ListView(controller: controller, children: [
                 const SubHeader('Time filter'),
-                DropdownButton<EventsTimeFilter>(
-                  isExpanded: true,
-                  value: timeFilter,
-                  items: const [
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.any,
-                      child: Text('Any'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.lastHour,
-                      child: Text('Last hour'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last6Hours,
-                      child: Text('Last 6 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last12Hours,
-                      child: Text('Last 12 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last24Hours,
-                      child: Text('Last 24 hours'),
-                    ),
-                    // DropdownMenuItem(
-                    //   child: Text('Select time range'),
-                    //   value: EventsTimeFilter.custom,
-                    // ),
-                  ],
-                  onChanged: (v) => setState(
-                    () => timeFilter = v ?? timeFilter,
-                  ),
-                ),
+                // TODO:
+                // DropdownButton<EventsTimeFilter>(
+                //   isExpanded: true,
+                //   value: timeFilter,
+                //   items: const [
+                //     DropdownMenuItem(
+                //       value: EventsTimeFilter.any,
+                //       child: Text('Any'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: EventsTimeFilter.lastHour,
+                //       child: Text('Last hour'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: EventsTimeFilter.last6Hours,
+                //       child: Text('Last 6 hours'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: EventsTimeFilter.last12Hours,
+                //       child: Text('Last 12 hours'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: EventsTimeFilter.last24Hours,
+                //       child: Text('Last 24 hours'),
+                //     ),
+                //     // DropdownMenuItem(
+                //     //   child: Text('Select time range'),
+                //     //   value: EventsTimeFilter.custom,
+                //     // ),
+                //   ],
+                //   onChanged: (v) => setState(
+                //     () => timeFilter = v ?? timeFilter,
+                //   ),
+                // ),
                 const SubHeader('Minimum level'),
                 DropdownButton<EventsMinLevelFilter>(
                   isExpanded: true,
@@ -486,14 +475,6 @@ class _EventsScreenState extends State<EventsScreen> {
       },
     );
   }
-}
-
-enum EventsTimeFilter {
-  lastHour,
-  last6Hours,
-  last12Hours,
-  last24Hours,
-  any,
 }
 
 enum EventsMinLevelFilter {

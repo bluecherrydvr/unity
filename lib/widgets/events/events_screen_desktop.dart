@@ -47,7 +47,14 @@ class EventsScreenDesktop extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    if (events.isEmpty) {
+    if (HomeProvider.instance
+        .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
+      return const Center(
+        child: CircularProgressIndicator.adaptive(
+          strokeWidth: 2.0,
+        ),
+      );
+    } else if (events.isEmpty) {
       return Center(
         child: Text(
           loc.noEventsFound,

@@ -15,6 +15,7 @@ Widget buildCheckbox({
   required double gapCheckboxText,
   String? secondaryText,
   double checkboxScale = 0.8,
+  FlexFit textFit = FlexFit.loose,
 }) {
   final checkbox = Transform.scale(
     scale: checkboxScale,
@@ -43,6 +44,7 @@ Widget buildCheckbox({
             child: Row(children: [
               SizedBox(width: gapCheckboxText),
               Flexible(
+                fit: textFit,
                 child: Text(
                   text,
                   overflow: TextOverflow.ellipsis,

@@ -48,15 +48,26 @@ extension EventsExtension on API {
 
     final limit = data['limit'] as int;
     final startTime = data['startTime'] as DateTime?;
-    final endTime = data['endTime'] as DateTime?;
+    var endTime = data['endTime'] as DateTime?;
     final deviceId = data['device_id'] as int?;
+
+    if (startTime != null && endTime != null) {
+      if (startTime == endTime) {
+        endTime = endTime.add(const Duration(
+          hours: 23,
+          minutes: 59,
+          seconds: 59,
+        ));
+      }
+    }
 
     DevHttpOverrides.configureCertificates();
 
     debugPrint(
-      'Getting events for server ${server.name} with limit $limit'
+      'Getting events for server ${server.name} with limit $limit '
       '${startTime != null ? 'from ${startTime.toIso8601String()} ' : ''}'
-      '${endTime != null ? 'to ${endTime.toIso8601String()}' : ''}',
+      '${endTime != null ? 'to ${endTime.toIso8601String()} ' : ''}'
+      '${deviceId != null ? 'for device $deviceId' : ''}',
     );
 
     assert(server.serverUUID != null && server.cookie != null);

@@ -62,7 +62,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
-  List<Server> allowedServers = [...ServersProvider.instance.servers];
+  List<Server> allowedServers = [];
 
   final EventsData events = {};
   Map<Server, bool> invalid = {};
@@ -83,6 +83,7 @@ class _EventsScreenState extends State<EventsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
+  /// Fetches the events from the servers.
   Future<void> fetch() async {
     events.clear();
     filteredEvents = [];
@@ -96,18 +97,23 @@ class _EventsScreenState extends State<EventsScreen> {
         try {
           final allowedDevices = server.devices
               .where((d) => d.status && !disabledDevices.contains(d.rtspURL));
-          final iterable = await API.instance.getEvents(
-            await API.instance.checkServerCredentials(server),
-            startTime: startTime,
-            endTime: endTime,
-            device: allowedDevices.length == 1 ? allowedDevices.first : null,
-          );
-          if (mounted) {
-            super.setState(() {
-              events[server] = iterable;
-              invalid[server] = false;
-            });
-          }
+
+          // Perform a query for each selected device
+          await Future.wait(allowedDevices.map((device) async {
+            final iterable = await API.instance.getEvents(
+              await API.instance.checkServerCredentials(server),
+              startTime: startTime,
+              endTime: endTime,
+              device: device,
+            );
+            if (mounted) {
+              super.setState(() {
+                events[server] ??= [];
+                events[server] = [...events[server]!, ...iterable];
+                invalid[server] = false;
+              });
+            }
+          }));
         } catch (exception, stacktrace) {
           debugPrint(exception.toString());
           debugPrint(stacktrace.toString());
@@ -175,11 +181,8 @@ class _EventsScreenState extends State<EventsScreen> {
   void setState(VoidCallback fn) {
     super.setState(fn);
     // computes the events based on the filter, then update the screen
-    final home = context.read<HomeProvider>()
-      ..loading(UnityLoadingReason.fetchingEventsHistory);
     computeFiltered().then((_) {
       if (mounted) super.setState(() {});
-      home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     });
   }
 
@@ -380,6 +383,9 @@ class _EventsScreenState extends State<EventsScreen> {
                         if (!device.status) return;
 
                         setState(() {
+                          if (!allowedServers.contains(server)) {
+                            allowedServers.add(server);
+                          }
                           if (enabled) {
                             disabledDevices.add(device.rtspURL);
                           } else {

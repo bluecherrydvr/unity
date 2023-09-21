@@ -46,7 +46,7 @@ extension EventsExtension on API {
       return [];
     }
 
-    final limit = data['limit'] as int;
+    final limit = (data['limit'] as int?) ?? -1;
     final startTime = data['startTime'] as DateTime?;
     var endTime = data['endTime'] as DateTime?;
     final deviceId = data['device_id'] as int?;

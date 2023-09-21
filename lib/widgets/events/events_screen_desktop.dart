@@ -48,14 +48,16 @@ class EventsScreenDesktop extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final theme = Theme.of(context);
 
-    if (HomeProvider.instance
-        .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
-      return const Center(
-        child: CircularProgressIndicator.adaptive(
-          strokeWidth: 2.0,
-        ),
-      );
-    } else if (events.isEmpty) {
+    if (events.isEmpty) {
+      if (HomeProvider.instance
+          .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
+        return const Center(
+          child: CircularProgressIndicator.adaptive(
+            strokeWidth: 2.0,
+          ),
+        );
+      }
+
       return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Icon(Icons.production_quantity_limits, size: 48.0),
         Text(
@@ -64,11 +66,10 @@ class EventsScreenDesktop extends StatelessWidget {
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 6.0),
+        const Divider(),
+        const SizedBox(height: 6.0),
         Text(
-          '''Tips:
-•  Select only one camera to see the events from that specific camera
-•  Use the calendar to select a specific date or a date range
-•  Use the "Filter" button to perform the search''',
+          loc.noEventsFoundTips,
           style: theme.textTheme.bodySmall,
         ),
       ]);
@@ -77,7 +78,10 @@ class EventsScreenDesktop extends StatelessWidget {
     return Material(
       child: SafeArea(
         child: CustomScrollView(slivers: [
-          SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
+          SliverPersistentHeader(
+            delegate: _TableHeader(eventsAmount: events.length),
+            pinned: true,
+          ),
           SliverFixedExtentList.builder(
             itemCount: events.length,
             itemExtent: 48.0,
@@ -144,6 +148,10 @@ class EventsScreenDesktop extends StatelessWidget {
 }
 
 class _TableHeader extends SliverPersistentHeaderDelegate {
+  final int eventsAmount;
+
+  _TableHeader({required this.eventsAmount});
+
   @override
   Widget build(
     BuildContext context,
@@ -157,11 +165,20 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
       child: Card(
         child: Container(
           height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          margin: const EdgeInsets.symmetric(horizontal: 15.0),
           child: DefaultTextStyle(
             style: theme.textTheme.headlineSmall ?? const TextStyle(),
             child: Row(children: [
-              const SizedBox(width: 40.0, height: 40.0),
+              SizedBox(
+                width: 40.0,
+                height: 40.0,
+                child: Center(
+                  child: Text(
+                    '$eventsAmount',
+                    style: theme.textTheme.labelMedium,
+                  ),
+                ),
+              ),
               _buildTilePart(
                 icon: const Icon(Icons.dns),
                 child: Text(loc.server),
@@ -202,7 +219,7 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
   double get minExtent => 50;
 
   @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+  bool shouldRebuild(covariant _TableHeader oldDelegate) {
+    return eventsAmount != oldDelegate.eventsAmount;
   }
 }

@@ -181,7 +181,15 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
               ),
             );
           }
-          return SafeArea(child: TimelineDeviceView(timeline: timeline!));
+          return SafeArea(
+            child: TimelineDeviceView(
+              timeline: timeline!,
+              onDateChanged: (date) {
+                this.date = date;
+                fetch();
+              },
+            ),
+          );
         }
         return SafeArea(
           child: TimelineEventsView(

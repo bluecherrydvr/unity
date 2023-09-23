@@ -19,6 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
@@ -47,58 +48,67 @@ class TimelineSidebar extends StatelessWidget {
 
     final state = eventsPlaybackScreenKey.currentState!;
 
-    return Container(
-      constraints: kSidebarConstraints,
-      height: double.infinity,
-      child: Card(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadiusDirectional.vertical(
-            top: Radius.circular(12.0),
-          ),
+    return Card(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadiusDirectional.vertical(
+          top: Radius.circular(12.0),
         ),
-        margin: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
-        child: Column(children: [
-          SubHeader(loc.servers, height: 40.0),
-          Expanded(
-            child: StatefulBuilder(builder: (context, setState) {
-              return EventsDevicesPicker(
-                allowedServers: state.allowedServers,
-                disabledDevices: state.disabledDevices,
-                events: state.events,
-                onServerAdded: (server) =>
-                    setState(() => state.allowedServers.add(server)),
-                onServerRemoved: (server) =>
-                    setState(() => state.allowedServers.remove(server)),
-                onDisabledDeviceAdded: (device) =>
-                    setState(() => state.disabledDevices.add(device)),
-                onDisabledDeviceRemoved: (device) =>
-                    setState(() => state.disabledDevices.remove(device)),
-              );
-            }),
-            // child: buildTreeView(context, setState: setState),
-          ),
-          SubHeader(loc.timeFilter, height: 24.0),
-          ListTile(
-            title: AutoSizeText(
-              settings.dateFormat.format(date),
-              maxLines: 1,
+      ),
+      margin: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
+      child: CollapsableSidebar(
+        builder: (context, collapsed, collapseButton) {
+          if (collapsed) {
+            return Padding(
+              padding: const EdgeInsetsDirectional.only(top: 4.0),
+              child: Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: collapseButton,
+              ),
+            );
+          }
+
+          return Column(children: [
+            SubHeader(
+              loc.servers,
+              height: 40.0,
+              trailing: collapseButton,
+              padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
-            onTap: () async {
-              final result = await showDatePicker(
-                context: context,
-                initialDate: date,
-                firstDate: DateTime.utc(1970),
-                lastDate: DateTime.now(),
-                initialEntryMode: DatePickerEntryMode.calendarOnly,
-                currentDate: date,
-              );
-              if (result != null) {
-                debugPrint('date picked: from $date to $result');
-                onDateChanged(result);
-              }
-            },
-          ),
-        ]),
+            Expanded(
+              child: StatefulBuilder(builder: (context, setState) {
+                return EventsDevicesPicker(
+                  disabledDevices: state.disabledDevices,
+                  events: state.events,
+                  onDisabledDeviceAdded: (device) =>
+                      setState(() => state.disabledDevices.add(device)),
+                  onDisabledDeviceRemoved: (device) =>
+                      setState(() => state.disabledDevices.remove(device)),
+                );
+              }),
+            ),
+            SubHeader(loc.timeFilter, height: 24.0),
+            ListTile(
+              title: AutoSizeText(
+                settings.dateFormat.format(date),
+                maxLines: 1,
+              ),
+              onTap: () async {
+                final result = await showDatePicker(
+                  context: context,
+                  initialDate: date,
+                  firstDate: DateTime.utc(1970),
+                  lastDate: DateTime.now(),
+                  initialEntryMode: DatePickerEntryMode.calendarOnly,
+                  currentDate: date,
+                );
+                if (result != null) {
+                  debugPrint('date picked: from $date to $result');
+                  onDateChanged(result);
+                }
+              },
+            ),
+          ]);
+        },
       ),
     );
   }

@@ -62,7 +62,6 @@ class EventsScreen extends StatefulWidget {
 class EventsScreenState<T extends StatefulWidget> extends State<T> {
   DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
-  Set<Server> allowedServers = {};
 
   final EventsData events = {};
   Map<Server, bool> invalid = {};
@@ -92,7 +91,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     try {
       // Load the events at the same time
       await Future.wait(ServersProvider.instance.servers.map((server) async {
-        if (!server.online || !allowedServers.contains(server)) return;
+        if (!server.online) return;
 
         try {
           final allowedDevices = server.devices
@@ -133,7 +132,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   Future<void> computeFiltered() async {
     filteredEvents = await compute(_updateFiltered, {
       'events': events,
-      'allowedServers': allowedServers,
       'levelFilter': levelFilter,
       'disabledDevices': disabledDevices,
     });
@@ -141,17 +139,11 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
 
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
     final events = data['events'] as EventsData;
-    final allowedServers = data['allowedServers'] as Set<Server>;
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
     final disabledDevices = data['disabledDevices'] as Set<String>;
 
     return events.values.expand((events) sync* {
       for (final event in events) {
-        // allow events from the allowed servers
-        if (!allowedServers.any((element) => event.server.ip == element.ip)) {
-          continue;
-        }
-
         switch (levelFilter) {
           case EventsMinLevelFilter.alarming:
             if (!event.isAlarm) continue;
@@ -230,11 +222,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                       child: EventsDevicesPicker(
                         events: events,
                         disabledDevices: disabledDevices,
-                        allowedServers: allowedServers,
-                        onServerAdded: (server) =>
-                            setState(() => allowedServers.add(server)),
-                        onServerRemoved: (server) =>
-                            setState(() => allowedServers.remove(server)),
                         onDisabledDeviceAdded: (device) =>
                             setState(() => disabledDevices.add(device)),
                         onDisabledDeviceRemoved: (device) =>
@@ -347,13 +334,8 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
               EventsDevicesPicker(
                 events: events,
                 disabledDevices: disabledDevices,
-                allowedServers: allowedServers,
                 gapCheckboxText: 10.0,
                 checkboxScale: 1.15,
-                onServerAdded: (server) =>
-                    setState(() => allowedServers.add(server)),
-                onServerRemoved: (server) =>
-                    setState(() => allowedServers.remove(server)),
                 onDisabledDeviceAdded: (device) =>
                     setState(() => disabledDevices.add(device)),
                 onDisabledDeviceRemoved: (device) =>
@@ -380,12 +362,9 @@ enum EventsMinLevelFilter {
 class EventsDevicesPicker extends StatelessWidget {
   final EventsData events;
   final Set<String> disabledDevices;
-  final Set<Server> allowedServers;
   final double checkboxScale;
   final double gapCheckboxText;
 
-  final ValueChanged<Server> onServerAdded;
-  final ValueChanged<Server> onServerRemoved;
   final ValueChanged<String> onDisabledDeviceAdded;
   final ValueChanged<String> onDisabledDeviceRemoved;
 
@@ -393,9 +372,6 @@ class EventsDevicesPicker extends StatelessWidget {
     super.key,
     required this.events,
     required this.disabledDevices,
-    required this.allowedServers,
-    required this.onServerAdded,
-    required this.onServerRemoved,
     required this.onDisabledDeviceAdded,
     required this.onDisabledDeviceRemoved,
     this.checkboxScale = 0.8,
@@ -406,84 +382,84 @@ class EventsDevicesPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
 
-    return TreeView(
-      indent: 56,
-      iconSize: 18.0,
-      nodes: servers.servers.map((server) {
-        final isTriState = disabledDevices
-            .any((d) => server.devices.any((device) => device.rtspURL == d));
-        final isOffline = !server.online;
-        final serverEvents = events[server];
+    return SingleChildScrollView(
+      child: TreeView(
+        indent: 56,
+        iconSize: 18.0,
+        nodes: servers.servers.map((server) {
+          final disabledDevicesForServer = disabledDevices.where(
+              (d) => server.devices.any((device) => device.rtspURL == d));
+          final isTriState = disabledDevices
+              .any((d) => server.devices.any((device) => device.rtspURL == d));
+          final isOffline = !server.online;
+          final serverEvents = events[server];
 
-        return TreeNode(
-          content: buildCheckbox(
-            value: !allowedServers.contains(server) || isOffline
-                ? false
-                : isTriState
-                    ? null
-                    : true,
-            isError: isOffline,
-            onChanged: (v) {
-              if (isTriState) {
-                disabledDevices
-                    .where((d) =>
-                        server.devices.any((device) => device.rtspURL == d))
-                    .forEach(onDisabledDeviceRemoved);
-              } else if (v == null || !v) {
-                onServerRemoved(server);
+          return TreeNode(
+            content: buildCheckbox(
+              value: disabledDevicesForServer.length == server.devices.length ||
+                      isOffline
+                  ? false
+                  : isTriState
+                      ? null
+                      : true,
+              isError: isOffline,
+              onChanged: (v) {
+                if (v == true) {
+                  for (final d in server.devices) {
+                    onDisabledDeviceRemoved(d.rtspURL);
+                  }
+                } else if (v == null || !v) {
+                  for (final d in server.devices) {
+                    onDisabledDeviceAdded(d.rtspURL);
+                  }
+                }
+              },
+              checkboxScale: checkboxScale,
+              text: server.name,
+              secondaryText: isOffline ? null : '${server.devices.length}',
+              gapCheckboxText: gapCheckboxText,
+              textFit: FlexFit.tight,
+            ),
+            children: () {
+              if (isOffline) {
+                return <TreeNode>[];
               } else {
-                onServerAdded(server);
-              }
-            },
-            checkboxScale: checkboxScale,
-            text: server.name,
-            secondaryText: isOffline ? null : '${server.devices.length}',
-            gapCheckboxText: gapCheckboxText,
-            textFit: FlexFit.tight,
-          ),
-          children: () {
-            if (isOffline) {
-              return <TreeNode>[];
-            } else {
-              return server.devices.sorted().map((device) {
-                final enabled = isOffline || !allowedServers.contains(server)
-                    ? false
-                    : !disabledDevices.contains(device.rtspURL);
-                final eventsForDevice =
-                    serverEvents?.where((event) => event.deviceID == device.id);
-                return TreeNode(
-                  content: IgnorePointer(
-                    ignoring: !device.status,
-                    child: buildCheckbox(
-                      value: device.status ? enabled : false,
-                      isError: !device.status,
-                      onChanged: (v) {
-                        if (!device.status) return;
+                return server.devices.sorted().map((device) {
+                  final enabled = isOffline
+                      ? false
+                      : !disabledDevices.contains(device.rtspURL);
+                  final eventsForDevice = serverEvents
+                      ?.where((event) => event.deviceID == device.id);
+                  return TreeNode(
+                    content: IgnorePointer(
+                      ignoring: !device.status,
+                      child: buildCheckbox(
+                        value: device.status ? enabled : false,
+                        isError: !device.status,
+                        onChanged: (v) {
+                          if (!device.status) return;
 
-                        if (!allowedServers.contains(server)) {
-                          onServerAdded(server);
-                        }
-
-                        if (enabled) {
-                          onDisabledDeviceAdded(device.rtspURL);
-                        } else {
-                          onDisabledDeviceRemoved(device.rtspURL);
-                        }
-                      },
-                      checkboxScale: checkboxScale,
-                      text: device.name,
-                      secondaryText: eventsForDevice != null && device.status
-                          ? ' (${eventsForDevice.length})'
-                          : null,
-                      gapCheckboxText: gapCheckboxText,
+                          if (enabled) {
+                            onDisabledDeviceAdded(device.rtspURL);
+                          } else {
+                            onDisabledDeviceRemoved(device.rtspURL);
+                          }
+                        },
+                        checkboxScale: checkboxScale,
+                        text: device.name,
+                        secondaryText: eventsForDevice != null && device.status
+                            ? ' (${eventsForDevice.length})'
+                            : null,
+                        gapCheckboxText: gapCheckboxText,
+                      ),
                     ),
-                  ),
-                );
-              }).toList();
-            }
-          }(),
-        );
-      }).toList(),
+                  );
+                }).toList();
+              }
+            }(),
+          );
+        }).toList(),
+      ),
     );
   }
 }

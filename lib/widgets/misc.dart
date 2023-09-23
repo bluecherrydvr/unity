@@ -219,7 +219,7 @@ class SubHeader extends StatelessWidget {
         height: height,
         alignment: AlignmentDirectional.centerStart,
         padding: padding,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,

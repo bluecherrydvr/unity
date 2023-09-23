@@ -58,13 +58,17 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     super.dispose();
   }
 
-  DateTime date = DateTime.now();
+  DateTime date = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  ).toLocal();
 
   @override
   Future<void> fetch() async {
     setState(() {
-      startTime = DateTime(date.year, date.month, date.day).toLocal();
-      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      startTime = DateTime(date.year, date.month, date.day);
+      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59);
       timeline?.dispose();
       timeline = null;
     });
@@ -77,6 +81,12 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
       final device =
           event.server.devices.firstWhere((d) => d.id == event.deviceID);
+
+      if (!DateUtils.isSameDay(event.published, date) ||
+          !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+        continue;
+      }
+
       devices[device] ??= [];
 
       if (devices[device]!.any((e) {
@@ -98,10 +108,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
     if (mounted) {
       setState(() {
-        timeline = Timeline(
-          tiles: parsedTiles,
-          date: date,
-        );
+        timeline = Timeline(tiles: parsedTiles, date: date);
       });
     }
   }
@@ -175,7 +182,6 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
               date: date,
               onDateChanged: (date) => setState(() => this.date = date),
               onFetch: fetch,
-              timeline: timeline,
             ),
             onFetch: fetch,
           ),

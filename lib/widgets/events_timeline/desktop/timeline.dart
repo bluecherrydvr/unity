@@ -361,7 +361,7 @@ class Timeline extends ChangeNotifier {
     }
   }
 
-  static const maxZoom = 10.0;
+  static const maxZoom = 100.0;
 
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
@@ -591,11 +591,12 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       return Icons.volume_up;
                     }
                   }()),
+                  const Spacer(),
                   Expanded(
                     child: Center(
                       child: FilledButton(
                         onPressed: home.isLoadingFor(
-                          UnityLoadingReason.fetchingEventsPlayback,
+                          UnityLoadingReason.fetchingEventsHistory,
                         )
                             ? null
                             : widget.onFetch,

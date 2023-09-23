@@ -94,7 +94,7 @@ extension EventsExtension on API {
         events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
             .cast<Map>()
             .map((eventObject) {
-          final published = DateTime.parse(eventObject['published']);
+          final published = DateTime.parse(eventObject['published']).toLocal();
           final event = Event.factory(
             server: server,
             id: () {
@@ -119,7 +119,7 @@ extension EventsExtension on API {
             published: published,
             updated: eventObject['updated'] == null
                 ? published
-                : DateTime.parse(eventObject['updated']),
+                : DateTime.parse(eventObject['updated']).toLocal(),
             category: eventObject['category']['term'],
             mediaID: eventObject.containsKey('content')
                 ? int.parse(eventObject['content']['media_id'])
@@ -148,11 +148,11 @@ extension EventsExtension on API {
                 int.parse((e['category']['term'] as String).split('/').first),
                 e['title']['\$t'],
                 e['published'] == null || e['published']['\$t'] == null
-                    ? DateTime.now()
-                    : DateTime.parse(e['published']['\$t']),
+                    ? DateTime.now().toLocal()
+                    : DateTime.parse(e['published']['\$t']).toLocal(),
                 e['updated'] == null || e['updated']['\$t'] == null
-                    ? DateTime.now()
-                    : DateTime.parse(e['updated']['\$t']),
+                    ? DateTime.now().toLocal()
+                    : DateTime.parse(e['updated']['\$t']).toLocal(),
                 e['category']['term'],
                 !e.containsKey('content')
                     ? null

@@ -21,34 +21,25 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class TimelineSidebar extends StatefulWidget {
+class TimelineSidebar extends StatelessWidget {
   const TimelineSidebar({
     super.key,
-    required this.timeline,
     required this.date,
     required this.onDateChanged,
     required this.onFetch,
   });
-
-  final Timeline? timeline;
 
   final DateTime date;
   final ValueChanged<DateTime> onDateChanged;
 
   final VoidCallback onFetch;
 
-  @override
-  State<TimelineSidebar> createState() => _TimelineSidebarState();
-}
-
-class _TimelineSidebarState extends State<TimelineSidebar> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -69,39 +60,41 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
         child: Column(children: [
           SubHeader(loc.servers, height: 40.0),
           Expanded(
-            child: EventsDevicesPicker(
-              allowedServers: state.allowedServers,
-              disabledDevices: state.disabledDevices,
-              events: state.events,
-              onServerAdded: (server) =>
-                  setState(() => state.allowedServers.add(server)),
-              onServerRemoved: (server) =>
-                  setState(() => state.allowedServers.remove(server)),
-              onDisabledDeviceAdded: (device) =>
-                  setState(() => state.disabledDevices.add(device)),
-              onDisabledDeviceRemoved: (device) =>
-                  setState(() => state.disabledDevices.remove(device)),
-            ),
+            child: StatefulBuilder(builder: (context, setState) {
+              return EventsDevicesPicker(
+                allowedServers: state.allowedServers,
+                disabledDevices: state.disabledDevices,
+                events: state.events,
+                onServerAdded: (server) =>
+                    setState(() => state.allowedServers.add(server)),
+                onServerRemoved: (server) =>
+                    setState(() => state.allowedServers.remove(server)),
+                onDisabledDeviceAdded: (device) =>
+                    setState(() => state.disabledDevices.add(device)),
+                onDisabledDeviceRemoved: (device) =>
+                    setState(() => state.disabledDevices.remove(device)),
+              );
+            }),
             // child: buildTreeView(context, setState: setState),
           ),
           SubHeader(loc.timeFilter, height: 24.0),
           ListTile(
             title: AutoSizeText(
-              settings.dateFormat.format(widget.date),
+              settings.dateFormat.format(date),
               maxLines: 1,
             ),
             onTap: () async {
-              final date = await showDatePicker(
+              final result = await showDatePicker(
                 context: context,
-                initialDate: widget.date,
+                initialDate: date,
                 firstDate: DateTime.utc(1970),
                 lastDate: DateTime.now(),
                 initialEntryMode: DatePickerEntryMode.calendarOnly,
-                currentDate: widget.date,
+                currentDate: date,
               );
-              if (date != null) {
-                widget.onDateChanged(date);
-                debugPrint('date: $date');
+              if (result != null) {
+                debugPrint('date picked: from $date to $result');
+                onDateChanged(result);
               }
             },
           ),

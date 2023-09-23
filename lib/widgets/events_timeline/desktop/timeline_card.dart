@@ -85,10 +85,7 @@ class _TimelineCardState extends State<TimelineCard> {
                       style: theme.textTheme.titleMedium,
                     ),
                     Center(
-                      child: Text(
-                        loc.noRecords,
-                        textAlign: TextAlign.center,
-                      ),
+                      child: Text(loc.noRecords, textAlign: TextAlign.center),
                     ),
                   ]),
                 ),

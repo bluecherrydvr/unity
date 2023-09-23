@@ -141,34 +141,32 @@ extension EventsExtension on API {
         events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable)
             .cast<Map>()
             .map((e) {
-              if (!e.containsKey('content')) debugPrint(e.toString());
-              return Event(
-                server,
-                int.parse(e['id']['raw']),
-                int.parse((e['category']['term'] as String).split('/').first),
-                e['title']['\$t'],
-                e['published'] == null || e['published']['\$t'] == null
-                    ? DateTime.now().toLocal()
-                    : DateTime.parse(e['published']['\$t']).toLocal(),
-                e['updated'] == null || e['updated']['\$t'] == null
-                    ? DateTime.now().toLocal()
-                    : DateTime.parse(e['updated']['\$t']).toLocal(),
-                e['category']['term'],
-                !e.containsKey('content')
-                    ? null
-                    : int.parse(e['content']['media_id']),
-                !e.containsKey('content')
-                    ? null
-                    : Uri.parse(
-                        e['content'][r'$t'].replaceAll(
-                          'https://',
-                          'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                        ),
-                      ),
-              );
-            })
-            .where((e) => e.duration > const Duration(minutes: 1))
-            .cast<Event>();
+          if (!e.containsKey('content')) debugPrint(e.toString());
+          return Event(
+            server,
+            int.parse(e['id']['raw']),
+            int.parse((e['category']['term'] as String).split('/').first),
+            e['title']['\$t'],
+            e['published'] == null || e['published']['\$t'] == null
+                ? DateTime.now().toLocal()
+                : DateTime.parse(e['published']['\$t']).toLocal(),
+            e['updated'] == null || e['updated']['\$t'] == null
+                ? DateTime.now().toLocal()
+                : DateTime.parse(e['updated']['\$t']).toLocal(),
+            e['category']['term'],
+            !e.containsKey('content')
+                ? null
+                : int.parse(e['content']['media_id']),
+            !e.containsKey('content')
+                ? null
+                : Uri.parse(
+                    e['content'][r'$t'].replaceAll(
+                      'https://',
+                      'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                    ),
+                  ),
+          );
+        }).cast<Event>();
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to getEvents on server ${server.name}');
@@ -182,6 +180,6 @@ extension EventsExtension on API {
       '${deviceId != null ? ' for device $deviceId' : ''}',
     );
 
-    return events;
+    return events.where((e) => e.duration > const Duration(seconds: 5));
   }
 }

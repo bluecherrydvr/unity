@@ -19,21 +19,30 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/widgets/tree_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
-  const TimelineSidebar({super.key, required this.timeline});
+  const TimelineSidebar({
+    super.key,
+    required this.timeline,
+    required this.date,
+    required this.onDateChanged,
+    required this.onFetch,
+  });
 
-  final Timeline timeline;
+  final Timeline? timeline;
+
+  final DateTime date;
+  final ValueChanged<DateTime> onDateChanged;
+
+  final VoidCallback onFetch;
 
   @override
   State<TimelineSidebar> createState() => _TimelineSidebarState();
@@ -44,6 +53,8 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+
+    final state = eventsPlaybackScreenKey.currentState!;
 
     return Container(
       constraints: kSidebarConstraints,
@@ -58,153 +69,44 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
         child: Column(children: [
           SubHeader(loc.servers, height: 40.0),
           Expanded(
-            child: buildTreeView(context, setState: setState),
-          ),
-          if (kDebugMode) ...[
-            const SubHeader('Time filter', height: 24.0),
-            ListTile(
-              title: AutoSizeText(
-                settings.dateFormat.format(widget.timeline.currentDate),
-                maxLines: 1,
-              ),
-              onTap: () async {
-                if (eventsPlaybackScreenKey.currentState == null) return;
-                final oldestDate = (eventsPlaybackScreenKey
-                        .currentState!.realDevices.values
-                        .expand((e) => e)
-                        .toList()
-                      ..sort((a, b) => a.published.compareTo(b.published)))
-                    .first
-                    .published;
-
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: widget.timeline.currentDate,
-                  firstDate: oldestDate,
-                  lastDate: DateTime.now(),
-                  initialEntryMode: DatePickerEntryMode.calendarOnly,
-                  currentDate: widget.timeline.currentDate,
-                );
-                debugPrint('date: $date');
-              },
+            child: EventsDevicesPicker(
+              allowedServers: state.allowedServers,
+              disabledDevices: state.disabledDevices,
+              events: state.events,
+              onServerAdded: (server) =>
+                  setState(() => state.allowedServers.add(server)),
+              onServerRemoved: (server) =>
+                  setState(() => state.allowedServers.remove(server)),
+              onDisabledDeviceAdded: (device) =>
+                  setState(() => state.disabledDevices.add(device)),
+              onDisabledDeviceRemoved: (device) =>
+                  setState(() => state.disabledDevices.remove(device)),
             ),
-          ],
+            // child: buildTreeView(context, setState: setState),
+          ),
+          SubHeader(loc.timeFilter, height: 24.0),
+          ListTile(
+            title: AutoSizeText(
+              settings.dateFormat.format(widget.date),
+              maxLines: 1,
+            ),
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: widget.date,
+                firstDate: DateTime.utc(1970),
+                lastDate: DateTime.now(),
+                initialEntryMode: DatePickerEntryMode.calendarOnly,
+                currentDate: widget.date,
+              );
+              if (date != null) {
+                widget.onDateChanged(date);
+                debugPrint('date: $date');
+              }
+            },
+          ),
         ]),
       ),
-    );
-  }
-
-  Widget buildTreeView(
-    BuildContext context, {
-    double checkboxScale = 0.8,
-    double gapCheckboxText = 0.0,
-    required void Function(VoidCallback fn) setState,
-  }) {
-    if (eventsPlaybackScreenKey.currentState == null) {
-      return const SizedBox.shrink();
-    }
-    final state = eventsPlaybackScreenKey.currentState!;
-    final servers = state.devices.keys.map((d) => d.server).toSet();
-
-    return TreeView(
-      indent: 56,
-      iconSize: 18.0,
-      nodes: servers.map((server) {
-        final isTriState = state.disabledDevices.any(server.devices.contains);
-        final isOffline = !server.online;
-
-        final serverDevices =
-            server.devices.where(state.realDevices.containsKey).sorted();
-
-        return TreeNode(
-          content: buildCheckbox(
-            value: isOffline ||
-                    !widget.timeline.tiles.any(
-                      (tile) => server.devices.contains(tile.device),
-                    )
-                ? false
-                : isTriState
-                    ? null
-                    : true,
-            isError: isOffline,
-            onChanged: (v) {
-              if (isTriState || v == null || !v) {
-                for (final device in serverDevices) {
-                  if (widget.timeline.tiles
-                      .any((tile) => tile.device == device)) {
-                    widget.timeline.removeTile(
-                      widget.timeline.tiles
-                          .firstWhere((tile) => tile.device == device),
-                    );
-                  }
-                }
-              } else {
-                for (final device in serverDevices) {
-                  widget.timeline.add([
-                    state.realDevices.entries
-                        .firstWhere((e) => e.key == device)
-                        .buildTimelineTile(context),
-                  ]);
-                }
-              }
-
-              setState(() {});
-            },
-            checkboxScale: checkboxScale,
-            text: server.name,
-            secondaryText: '${serverDevices.length}',
-            gapCheckboxText: gapCheckboxText,
-          ),
-          children: () {
-            if (isOffline) {
-              return <TreeNode>[];
-            } else {
-              return serverDevices.map((device) {
-                final enabled = widget.timeline.tiles.any(
-                  (tile) => tile.device == device,
-                );
-                final eventsForDevice = state.devices[device];
-
-                return TreeNode(
-                  content: IgnorePointer(
-                    ignoring: !device.status,
-                    child: buildCheckbox(
-                      value: device.status ? enabled : false,
-                      isError: !device.status,
-                      onChanged: (v) {
-                        if (!device.status) return;
-
-                        if (enabled && state.disabledDevices.length < 4) {
-                          widget.timeline.removeTile(
-                            widget.timeline.tiles.firstWhere(
-                              (tile) => tile.device == device,
-                            ),
-                          );
-                        } else if (state.realDevices.entries
-                                .any((e) => e.key == device) &&
-                            !enabled) {
-                          widget.timeline.add([
-                            state.realDevices.entries
-                                .firstWhere((e) => e.key == device)
-                                .buildTimelineTile(context),
-                          ]);
-                        }
-                        setState(() {});
-                      },
-                      checkboxScale: checkboxScale,
-                      text: device.name,
-                      secondaryText: eventsForDevice != null
-                          ? ' (${eventsForDevice.length})'
-                          : null,
-                      gapCheckboxText: gapCheckboxText,
-                    ),
-                  ),
-                );
-              }).toList();
-            }
-          }(),
-        );
-      }).toList(),
     );
   }
 }

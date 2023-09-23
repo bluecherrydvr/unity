@@ -47,13 +47,13 @@ extension EventsExtension on API {
     }
 
     final limit = (data['limit'] as int?) ?? -1;
-    final startTime = data['startTime'] as DateTime?;
-    var endTime = data['endTime'] as DateTime?;
+    var startTime = data['startTime'] as DateTime?;
+    final endTime = data['endTime'] as DateTime?;
     final deviceId = data['device_id'] as int?;
 
     if (startTime != null && endTime != null) {
       if (startTime == endTime) {
-        endTime = endTime.add(const Duration(
+        startTime = startTime.subtract(const Duration(
           hours: 23,
           minutes: 59,
           seconds: 59,
@@ -176,7 +176,10 @@ extension EventsExtension on API {
       debugPrint(stacktrace.toString());
     }
 
-    debugPrint('Loaded ${events.length} events for server ${server.name}');
+    debugPrint(
+      'Loaded ${events.length} events for server ${server.name}'
+      '${deviceId != null ? ' for device $deviceId' : ''}',
+    );
 
     return events;
   }

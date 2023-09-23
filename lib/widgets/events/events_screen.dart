@@ -50,19 +50,19 @@ part 'events_screen_mobile.dart';
 
 typedef EventsData = Map<Server, Iterable<Event>>;
 
-final eventsScreenKey = GlobalKey<_EventsScreenState>();
+final eventsScreenKey = GlobalKey<EventsScreenState>();
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({required super.key});
 
   @override
-  State<EventsScreen> createState() => _EventsScreenState();
+  State<EventsScreen> createState() => EventsScreenState<EventsScreen>();
 }
 
-class _EventsScreenState extends State<EventsScreen> {
+class EventsScreenState<T extends StatefulWidget> extends State<T> {
   DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
-  List<Server> allowedServers = [];
+  Set<Server> allowedServers = {};
 
   final EventsData events = {};
   Map<Server, bool> invalid = {};
@@ -72,10 +72,10 @@ class _EventsScreenState extends State<EventsScreen> {
   /// The devices that can't be displayed in the list.
   ///
   /// The rtsp url is used to identify the device.
-  List<String> disabledDevices = [
+  Set<String> disabledDevices = {
     for (final server in ServersProvider.instance.servers)
       ...server.devices.map((d) => d.rtspURL)
-  ];
+  };
 
   @override
   void initState() {
@@ -141,9 +141,9 @@ class _EventsScreenState extends State<EventsScreen> {
 
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
     final events = data['events'] as EventsData;
-    final allowedServers = data['allowedServers'] as List<Server>;
+    final allowedServers = data['allowedServers'] as Set<Server>;
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
-    final disabledDevices = data['disabledDevices'] as List<String>;
+    final disabledDevices = data['disabledDevices'] as Set<String>;
 
     return events.values.expand((events) sync* {
       for (final event in events) {
@@ -227,7 +227,19 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: buildTreeView(context, setState: setState),
+                      child: EventsDevicesPicker(
+                        events: events,
+                        disabledDevices: disabledDevices,
+                        allowedServers: allowedServers,
+                        onServerAdded: (server) =>
+                            setState(() => allowedServers.add(server)),
+                        onServerRemoved: (server) =>
+                            setState(() => allowedServers.remove(server)),
+                        onDisabledDeviceAdded: (device) =>
+                            setState(() => disabledDevices.add(device)),
+                        onDisabledDeviceRemoved: (device) =>
+                            setState(() => disabledDevices.remove(device)),
+                      ),
                     ),
                   ),
                   SubHeader(loc.timeFilter, height: 24.0),
@@ -297,12 +309,101 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-  Widget buildTreeView(
-    BuildContext context, {
-    double checkboxScale = 0.8,
-    double gapCheckboxText = 0.0,
-    required void Function(VoidCallback fn) setState,
-  }) {
+  Future<void> showMobileFilter(BuildContext context) async {
+    /// This is used to update the screen when the bottom sheet is closed.
+    var hasChanged = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          maxChildSize: 0.85,
+          initialChildSize: 0.85,
+          builder: (context, controller) {
+            final loc = AppLocalizations.of(context);
+            return ListView(controller: controller, children: [
+              SubHeader(loc.timeFilter, height: 20.0),
+              buildTimeFilterTile(onSelect: () => hasChanged = true),
+              // const SubHeader('Minimum level'),
+              // DropdownButtonHideUnderline(
+              //   child: DropdownButton<EventsMinLevelFilter>(
+              //     isExpanded: true,
+              //     value: levelFilter,
+              //     items: EventsMinLevelFilter.values.map((level) {
+              //       return DropdownMenuItem(
+              //         value: level,
+              //         child: Text(level.name.uppercaseFirst()),
+              //       );
+              //     }).toList(),
+              //     onChanged: (v) => setState(
+              //       () => levelFilter = v ?? levelFilter,
+              //     ),
+              //   ),
+              // ),
+              SubHeader(loc.servers, height: 36.0),
+              EventsDevicesPicker(
+                events: events,
+                disabledDevices: disabledDevices,
+                allowedServers: allowedServers,
+                gapCheckboxText: 10.0,
+                checkboxScale: 1.15,
+                onServerAdded: (server) =>
+                    setState(() => allowedServers.add(server)),
+                onServerRemoved: (server) =>
+                    setState(() => allowedServers.remove(server)),
+                onDisabledDeviceAdded: (device) =>
+                    setState(() => disabledDevices.add(device)),
+                onDisabledDeviceRemoved: (device) =>
+                    setState(() => disabledDevices.remove(device)),
+              ),
+            ]);
+          },
+        );
+      },
+    );
+
+    if (hasChanged) fetch();
+  }
+}
+
+enum EventsMinLevelFilter {
+  any,
+  info,
+  warning,
+  alarming,
+  critical,
+}
+
+class EventsDevicesPicker extends StatelessWidget {
+  final EventsData events;
+  final Set<String> disabledDevices;
+  final Set<Server> allowedServers;
+  final double checkboxScale;
+  final double gapCheckboxText;
+
+  final ValueChanged<Server> onServerAdded;
+  final ValueChanged<Server> onServerRemoved;
+  final ValueChanged<String> onDisabledDeviceAdded;
+  final ValueChanged<String> onDisabledDeviceRemoved;
+
+  const EventsDevicesPicker({
+    super.key,
+    required this.events,
+    required this.disabledDevices,
+    required this.allowedServers,
+    required this.onServerAdded,
+    required this.onServerRemoved,
+    required this.onDisabledDeviceAdded,
+    required this.onDisabledDeviceRemoved,
+    this.checkboxScale = 0.8,
+    this.gapCheckboxText = 0.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
 
     return TreeView(
@@ -323,16 +424,16 @@ class _EventsScreenState extends State<EventsScreen> {
                     : true,
             isError: isOffline,
             onChanged: (v) {
-              setState(() {
-                if (isTriState) {
-                  disabledDevices.removeWhere((d) =>
-                      server.devices.any((device) => device.rtspURL == d));
-                } else if (v == null || !v) {
-                  allowedServers.remove(server);
-                } else {
-                  allowedServers.add(server);
-                }
-              });
+              if (isTriState) {
+                disabledDevices
+                    .where((d) =>
+                        server.devices.any((device) => device.rtspURL == d))
+                    .forEach(onDisabledDeviceRemoved);
+              } else if (v == null || !v) {
+                onServerRemoved(server);
+              } else {
+                onServerAdded(server);
+              }
             },
             checkboxScale: checkboxScale,
             text: server.name,
@@ -359,16 +460,15 @@ class _EventsScreenState extends State<EventsScreen> {
                       onChanged: (v) {
                         if (!device.status) return;
 
-                        setState(() {
-                          if (!allowedServers.contains(server)) {
-                            allowedServers.add(server);
-                          }
-                          if (enabled) {
-                            disabledDevices.add(device.rtspURL);
-                          } else {
-                            disabledDevices.remove(device.rtspURL);
-                          }
-                        });
+                        if (!allowedServers.contains(server)) {
+                          onServerAdded(server);
+                        }
+
+                        if (enabled) {
+                          onDisabledDeviceAdded(device.rtspURL);
+                        } else {
+                          onDisabledDeviceRemoved(device.rtspURL);
+                        }
                       },
                       checkboxScale: checkboxScale,
                       text: device.name,
@@ -386,72 +486,4 @@ class _EventsScreenState extends State<EventsScreen> {
       }).toList(),
     );
   }
-
-  Future<void> showMobileFilter(BuildContext context) async {
-    /// This is used to update the screen when the bottom sheet is closed.
-    var hasChanged = false;
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          maxChildSize: 0.85,
-          initialChildSize: 0.85,
-          builder: (context, controller) {
-            final loc = AppLocalizations.of(context);
-            return StatefulBuilder(builder: (context, localSetState) {
-              /// This updates the screen in the back and the bottom sheet.
-              /// This is used to avoid the creation of a new StatefulWidget
-              void setState(VoidCallback fn) {
-                this.setState(fn);
-                localSetState(fn);
-                hasChanged = true;
-              }
-
-              return ListView(controller: controller, children: [
-                SubHeader(loc.timeFilter, height: 20.0),
-                buildTimeFilterTile(onSelect: () => hasChanged = true),
-                // const SubHeader('Minimum level'),
-                // DropdownButtonHideUnderline(
-                //   child: DropdownButton<EventsMinLevelFilter>(
-                //     isExpanded: true,
-                //     value: levelFilter,
-                //     items: EventsMinLevelFilter.values.map((level) {
-                //       return DropdownMenuItem(
-                //         value: level,
-                //         child: Text(level.name.uppercaseFirst()),
-                //       );
-                //     }).toList(),
-                //     onChanged: (v) => setState(
-                //       () => levelFilter = v ?? levelFilter,
-                //     ),
-                //   ),
-                // ),
-                SubHeader(loc.servers, height: 36.0),
-                buildTreeView(
-                  context,
-                  gapCheckboxText: 10.0,
-                  checkboxScale: 1.15,
-                  setState: setState,
-                ),
-              ]);
-            });
-          },
-        );
-      },
-    );
-
-    if (hasChanged) fetch();
-  }
-}
-
-enum EventsMinLevelFilter {
-  any,
-  info,
-  warning,
-  alarming,
-  critical,
 }

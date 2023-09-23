@@ -22,13 +22,13 @@ import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
@@ -224,15 +224,22 @@ class Timeline extends ChangeNotifier {
   }
 
   void add(Iterable<TimelineTile> tiles) {
-    assert(tiles.every((tile) {
-      return tile.events.every((event) {
+    // assert(tiles.every((tile) {
+    //   return tile.events.every((event) {
+    //     return DateUtils.isSameDay(
+    //       event.startTime.toLocal(),
+    //       date.toLocal(),
+    //     );
+    //   });
+    // }), 'All events must have happened in the same day');
+    this.tiles.addAll(tiles.where((tile) {
+      return tile.events.any((event) {
         return DateUtils.isSameDay(
           event.startTime.toLocal(),
           date.toLocal(),
         );
       });
-    }), 'All events must have happened in the same day');
-    this.tiles.addAll(tiles);
+    }));
     assert(
       this.tiles.length <= kMaxDevicesOnScreen,
       'There must be at most $kMaxDevicesOnScreen devices on screen',
@@ -415,7 +422,15 @@ final _secondsInADay = const Duration(days: 1).inSeconds;
 class TimelineEventsView extends StatefulWidget {
   final Timeline? timeline;
 
-  const TimelineEventsView({super.key, required this.timeline});
+  final VoidCallback onFetch;
+  final Widget sidebar;
+
+  const TimelineEventsView({
+    super.key,
+    required this.timeline,
+    required this.onFetch,
+    required this.sidebar,
+  });
 
   @override
   State<TimelineEventsView> createState() => _TimelineEventsViewState();
@@ -451,6 +466,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+    final home = context.watch<HomeProvider>();
 
     final view = Column(children: [
       Expanded(
@@ -477,7 +493,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               ),
             ),
           ),
-          TimelineSidebar(timeline: timeline),
+          widget.sidebar,
         ]),
       ),
       Card(
@@ -575,6 +591,18 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       return Icons.volume_up;
                     }
                   }()),
+                  Expanded(
+                    child: Center(
+                      child: FilledButton(
+                        onPressed: home.isLoadingFor(
+                          UnityLoadingReason.fetchingEventsPlayback,
+                        )
+                            ? null
+                            : widget.onFetch,
+                        child: Text(loc.filter),
+                      ),
+                    ),
+                  ),
                 ]),
               ),
             ]),
@@ -675,7 +703,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               clipper: InvertedTriangleClipper(),
                               child: Container(
                                 width: 8,
-                                height: 6,
+                                height: 4,
                                 color: theme.colorScheme.onBackground,
                               ),
                             ),

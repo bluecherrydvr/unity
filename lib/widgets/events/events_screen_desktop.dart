@@ -44,35 +44,14 @@ class EventsScreenDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
-    final theme = Theme.of(context);
 
     if (events.isEmpty) {
-      if (HomeProvider.instance
-          .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
-        return const Center(
-          child: CircularProgressIndicator.adaptive(
-            strokeWidth: 2.0,
-          ),
-        );
-      }
-
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.production_quantity_limits, size: 48.0),
-        Text(
-          loc.noEventsFound,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 6.0),
-        const Divider(),
-        const SizedBox(height: 6.0),
-        Text(
-          loc.noEventsFoundTips,
-          style: theme.textTheme.bodySmall,
-        ),
-      ]);
+      return NoEventsLoaded(
+        isLoading: context
+            .watch<HomeProvider>()
+            .isLoadingFor(UnityLoadingReason.fetchingEventsHistory),
+      );
     }
 
     return Material(
@@ -221,5 +200,41 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _TableHeader oldDelegate) {
     return eventsAmount != oldDelegate.eventsAmount;
+  }
+}
+
+class NoEventsLoaded extends StatelessWidget {
+  final bool isLoading;
+
+  const NoEventsLoaded({super.key, this.isLoading = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator.adaptive(
+          strokeWidth: 2.0,
+        ),
+      );
+    }
+
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      const Icon(Icons.production_quantity_limits, size: 48.0),
+      Text(
+        loc.noEventsLoaded,
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodyLarge,
+      ),
+      const SizedBox(height: 6.0),
+      const Divider(),
+      const SizedBox(height: 6.0),
+      Text(
+        loc.noEventsLoadedTips,
+        style: theme.textTheme.bodySmall,
+      ),
+    ]);
   }
 }

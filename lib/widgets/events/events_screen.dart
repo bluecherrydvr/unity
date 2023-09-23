@@ -331,16 +331,25 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
               //   ),
               // ),
               SubHeader(loc.servers, height: 36.0),
-              EventsDevicesPicker(
-                events: events,
-                disabledDevices: disabledDevices,
-                gapCheckboxText: 10.0,
-                checkboxScale: 1.15,
-                onDisabledDeviceAdded: (device) =>
-                    setState(() => disabledDevices.add(device)),
-                onDisabledDeviceRemoved: (device) =>
-                    setState(() => disabledDevices.remove(device)),
-              ),
+              StatefulBuilder(builder: (context, localSetState) {
+                void setState(VoidCallback callback) {
+                  callback();
+                  hasChanged = true;
+                  this.setState(() {});
+                  localSetState(() {});
+                }
+
+                return EventsDevicesPicker(
+                  events: events,
+                  disabledDevices: disabledDevices,
+                  gapCheckboxText: 10.0,
+                  checkboxScale: 1.15,
+                  onDisabledDeviceAdded: (device) =>
+                      setState(() => disabledDevices.add(device)),
+                  onDisabledDeviceRemoved: (device) =>
+                      setState(() => disabledDevices.remove(device)),
+                );
+              }),
             ]);
           },
         );

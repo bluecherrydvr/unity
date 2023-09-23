@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -484,7 +485,11 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     ),
                     onReorder: (a, b) {},
                     childAspectRatio: 16 / 9,
-                    emptyChild: Center(child: Text(loc.noEventsFound)),
+                    emptyChild: NoEventsLoaded(
+                      isLoading: context.watch<HomeProvider>().isLoadingFor(
+                            UnityLoadingReason.fetchingEventsHistory,
+                          ),
+                    ),
                     children: timeline.tiles.map((tile) {
                       return TimelineCard(tile: tile, timeline: timeline);
                     }).toList(),

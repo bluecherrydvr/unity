@@ -64,9 +64,12 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     DateTime.now().day,
   ).toLocal();
 
+  bool hasEverFetched = false;
+
   @override
   Future<void> fetch() async {
     setState(() {
+      hasEverFetched = true;
       startTime = DateTime(date.year, date.month, date.day);
       endTime = DateTime(date.year, date.month, date.day, 23, 59, 59);
       timeline?.dispose();
@@ -159,6 +162,12 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
         if (hasDrawer ||
             // special case: the width is less than the mobile breakpoint
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
+          if (!hasEverFetched) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              disabledDevices.clear();
+              fetch();
+            });
+          }
           if (timeline == null) {
             return SafeArea(
               child: Padding(

@@ -20,7 +20,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -54,7 +53,7 @@ class TimelineSidebar extends StatelessWidget {
           top: Radius.circular(12.0),
         ),
       ),
-      margin: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
+      margin: const EdgeInsetsDirectional.only(end: 4.0),
       child: CollapsableSidebar(
         builder: (context, collapsed, collapseButton) {
           if (collapsed) {

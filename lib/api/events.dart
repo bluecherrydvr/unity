@@ -172,6 +172,7 @@ extension EventsExtension on API {
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to getEvents on server ${server.name}');
+      debugPrint(response.body);
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }

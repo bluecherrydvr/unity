@@ -80,7 +80,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     device = await showDeviceSelectorScreen(
       context,
       available: widget.timeline.tiles.map((t) => t.device),
-      selected: [if (tile?.device != null) tile!.device],
+      selected: [if (tile != null) tile!.device],
       eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>(
         {},
         (map, tile) {
@@ -461,7 +461,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             IconButton(
               icon: const Icon(Icons.fullscreen),
-              tooltip: loc.showFullscreenCamera,
+              tooltip: currentEvent == null ? null : loc.showFullscreenCamera,
               onPressed:
                   currentEvent == null ? null : () => enterFullscreen(context),
             ),

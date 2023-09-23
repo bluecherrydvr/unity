@@ -83,35 +83,20 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
       ),
       body: () {
         if (widget.events.isEmpty) {
-          if (HomeProvider.instance
-              .isLoadingFor(UnityLoadingReason.fetchingEventsHistory)) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(
-                strokeWidth: 2.0,
-              ),
-            );
-          }
-
+          final isLoading = HomeProvider.instance
+              .isLoadingFor(UnityLoadingReason.fetchingEventsHistory);
           return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.production_quantity_limits, size: 48.0),
-            Text(
-              loc.noEventsFound,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge,
+            NoEventsLoaded(
+              isLoading: isLoading,
             ),
-            const SizedBox(height: 6.0),
-            const Divider(),
-            const SizedBox(height: 6.0),
-            Text(
-              loc.noEventsFoundTips,
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12.0),
-            ElevatedButton.icon(
-              onPressed: widget.showFilter,
-              icon: const Icon(Icons.filter_list),
-              label: Text(loc.filter),
-            ),
+            if (!isLoading) ...[
+              const SizedBox(height: 12.0),
+              ElevatedButton.icon(
+                onPressed: widget.showFilter,
+                icon: const Icon(Icons.filter_list),
+                label: Text(loc.filter),
+              ),
+            ],
           ]);
         }
 
@@ -185,7 +170,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                                   height: 72.0,
                                   child: Center(
                                     child: Text(
-                                      loc.noEventsFound,
+                                      loc.noEventsLoaded,
                                       style: theme.textTheme.headlineSmall
                                           ?.copyWith(fontSize: 16.0),
                                     ),

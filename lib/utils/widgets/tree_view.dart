@@ -1,6 +1,7 @@
 // ORIGINAL PACKAGE: https://pub.dev/packages/flutter_simple_treeview
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart'
     show TreeNode, TreeController;
 
@@ -204,6 +205,7 @@ class _NodeWidgetState extends State<NodeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     var icon = _isLeaf
         ? null
         : _isExpanded
@@ -224,18 +226,24 @@ class _NodeWidgetState extends State<NodeWidget> {
       ignoring: _isLeaf ? false : !_isEnabled,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          if (!_isLeaf)
+          if (!_isLeaf && _isEnabled)
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 8.0),
-              child: InkWell(
-                onTap: onIconPressed,
-                borderRadius: BorderRadius.circular(100),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.5),
-                  child: Icon(icon, size: widget.iconSize),
+              child: Tooltip(
+                message: _isExpanded ? loc.collapse : loc.expand,
+                child: InkWell(
+                  onTap: onIconPressed,
+                  borderRadius: BorderRadius.circular(100),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.5),
+                    child: Icon(icon, size: widget.iconSize),
+                  ),
                 ),
               ),
-            ),
+            )
+          // If it is not leaf nor enabled, mimic the space of the icon button
+          else if (!_isLeaf && !_isEnabled)
+            const SizedBox(width: 35.0),
           Expanded(child: widget.treeNode.content),
         ]),
         if (_isExpanded && !_isLeaf)

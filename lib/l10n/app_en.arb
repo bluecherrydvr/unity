@@ -301,6 +301,8 @@
   "unknown": "Unknown",
   "close": "Close",
   "open": "Open",
+  "collapse": "Collapse",
+  "expand": "Expand",
   "@PTZ": {},
   "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ is enabled",

@@ -622,29 +622,33 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.dateFormat.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          Listener(
-            onPointerSignal: _receivedPointerSignal,
-            child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxHeight: _kTimelineTileHeight * 4.5),
-              child: LayoutBuilder(builder: (context, constraints) {
-                final tileWidth =
-                    (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
-                final hourWidth = tileWidth / 24;
-                final secondsWidth = tileWidth / _secondsInADay;
+          ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxHeight: _kTimelineTileHeight * 4.5),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final tileWidth =
+                  (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
+              final hourWidth = tileWidth / 24;
+              final secondsWidth = tileWidth / _secondsInADay;
 
-                return SingleChildScrollView(
+              return EnforceScrollbarScroll(
+                controller: verticalScrollController,
+                onPointerSignal: _receivedPointerSignal,
+                child: SingleChildScrollView(
                   controller: verticalScrollController,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       SizedBox(
                         width: _kDeviceNameWidth,
-                        child: Column(children: [
-                          ...timeline.tiles.map((tile) {
-                            return _TimelineTile.name(tile: tile);
-                          }),
-                        ]),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ...timeline.tiles.map((tile) {
+                              return _TimelineTile.name(tile: tile);
+                            }),
+                          ],
+                        ),
                       ),
                       Expanded(
                         child: Stack(clipBehavior: Clip.none, children: [
@@ -687,26 +691,35 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                                 }
                               }
                             },
-                            child: Scrollbar(
-                              controller: timeline.zoomController,
-                              thumbVisibility: isMobilePlatform || kIsWeb,
-                              child: SingleChildScrollView(
-                                controller: timeline.zoomController,
-                                scrollDirection: Axis.horizontal,
-                                child: SizedBox(
-                                  width: tileWidth,
-                                  child: Column(children: [
-                                    _TimelineHours(hourWidth: hourWidth),
-                                    ...timeline.tiles.map((tile) {
-                                      return _TimelineTile(
-                                        key: ValueKey(tile),
-                                        tile: tile,
-                                      );
-                                    }),
-                                  ]),
+                            child: Builder(builder: (context) {
+                              return ScrollConfiguration(
+                                behavior:
+                                    ScrollConfiguration.of(context).copyWith(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                 ),
-                              ),
-                            ),
+                                child: Scrollbar(
+                                  controller: timeline.zoomController,
+                                  thumbVisibility: isMobilePlatform || kIsWeb,
+                                  child: SingleChildScrollView(
+                                    controller: timeline.zoomController,
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                      width: tileWidth,
+                                      child: Column(children: [
+                                        _TimelineHours(hourWidth: hourWidth),
+                                        ...timeline.tiles.map((tile) {
+                                          return _TimelineTile(
+                                            key: ValueKey(tile),
+                                            tile: tile,
+                                          );
+                                        }),
+                                      ]),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                           ),
                           if (timeline.zoomController.hasClients)
                             Builder(builder: (context) {
@@ -746,9 +759,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       ),
                     ],
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
           ),
         ]),
       ),
@@ -757,6 +770,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
   // Handle mousewheel and web trackpad scroll events.
   void _receivedPointerSignal(PointerSignalEvent event) {
+    if (widget.timeline == null || widget.timeline!.tiles.isEmpty) return;
     final double scaleChange;
     if (event is PointerScrollEvent) {
       if (event.kind == PointerDeviceKind.trackpad) {

@@ -66,14 +66,14 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   final EventsData events = {};
   Map<Server, bool> invalid = {};
 
-  Iterable<Event> filteredEvents = [];
+  List<Event> filteredEvents = [];
 
   /// The devices that can't be displayed in the list.
   ///
   /// The rtsp url is used to identify the device.
   Set<String> disabledDevices = {
     for (final server in ServersProvider.instance.servers)
-      ...server.devices.map((d) => d.rtspURL)
+      ...server.devices.map((d) => d.streamURL)
   };
 
   @override
@@ -88,41 +88,38 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     filteredEvents = [];
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
-    try {
-      // Load the events at the same time
-      await Future.wait(ServersProvider.instance.servers.map((server) async {
-        if (!server.online) return;
+    // Load the events at the same time
+    await Future.wait(ServersProvider.instance.servers.map((server) async {
+      if (!server.online || server.devices.isEmpty) return;
 
-        try {
-          final allowedDevices = server.devices
-              .where((d) => d.status && !disabledDevices.contains(d.rtspURL));
+      server = await API.instance.checkServerCredentials(server);
 
-          // Perform a query for each selected device
-          await Future.wait(allowedDevices.map((device) async {
-            final iterable = await API.instance.getEvents(
-              await API.instance.checkServerCredentials(server),
-              startTime: startTime,
-              endTime: endTime,
-              device: device,
-            );
-            if (mounted) {
-              super.setState(() {
-                events[server] ??= [];
-                events[server] = [...events[server]!, ...iterable];
-                invalid[server] = false;
-              });
-            }
-          }));
-        } catch (exception, stacktrace) {
-          debugPrint(exception.toString());
-          debugPrint(stacktrace.toString());
-          invalid[server] = true;
-        }
-      }));
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
+      try {
+        final allowedDevices = server.devices
+            .where((d) => d.status && !disabledDevices.contains(d.streamURL));
+
+        // Perform a query for each selected device
+        await Future.wait(allowedDevices.map((device) async {
+          final iterable = await API.instance.getEvents(
+            server,
+            startTime: startTime,
+            endTime: endTime,
+            device: device,
+          );
+          if (mounted) {
+            super.setState(() {
+              events[server] ??= [];
+              events[server] = [...events[server]!, ...iterable];
+              invalid[server] = false;
+            });
+          }
+        }));
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+        invalid[server] = true;
+      }
+    }));
 
     await computeFiltered();
 
@@ -130,11 +127,12 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   }
 
   Future<void> computeFiltered() async {
-    filteredEvents = await compute(_updateFiltered, {
+    filteredEvents = (await compute(_updateFiltered, {
       'events': events,
       'levelFilter': levelFilter,
       'disabledDevices': disabledDevices,
-    });
+    }))
+        .toList();
   }
 
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
@@ -160,7 +158,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
         final devices = event.server.devices.where((device) =>
             device.name.toLowerCase() == event.deviceName.toLowerCase());
         if (devices.isNotEmpty) {
-          if (disabledDevices.contains(devices.first.rtspURL)) continue;
+          if (disabledDevices.contains(devices.first.streamURL)) continue;
         }
 
         yield event;
@@ -397,9 +395,9 @@ class EventsDevicesPicker extends StatelessWidget {
         iconSize: 18.0,
         nodes: servers.servers.map((server) {
           final disabledDevicesForServer = disabledDevices.where(
-              (d) => server.devices.any((device) => device.rtspURL == d));
-          final isTriState = disabledDevices
-              .any((d) => server.devices.any((device) => device.rtspURL == d));
+              (d) => server.devices.any((device) => device.streamURL == d));
+          final isTriState = disabledDevices.any(
+              (d) => server.devices.any((device) => device.streamURL == d));
           final isOffline = !server.online;
           final serverEvents = events[server];
 
@@ -415,11 +413,11 @@ class EventsDevicesPicker extends StatelessWidget {
               onChanged: (v) {
                 if (v == true) {
                   for (final d in server.devices) {
-                    onDisabledDeviceRemoved(d.rtspURL);
+                    onDisabledDeviceRemoved(d.streamURL);
                   }
                 } else if (v == null || !v) {
                   for (final d in server.devices) {
-                    onDisabledDeviceAdded(d.rtspURL);
+                    onDisabledDeviceAdded(d.streamURL);
                   }
                 }
               },
@@ -436,7 +434,7 @@ class EventsDevicesPicker extends StatelessWidget {
                 return server.devices.sorted().map((device) {
                   final enabled = isOffline
                       ? false
-                      : !disabledDevices.contains(device.rtspURL);
+                      : !disabledDevices.contains(device.streamURL);
                   final eventsForDevice = serverEvents
                       ?.where((event) => event.deviceID == device.id);
                   return TreeNode(
@@ -449,9 +447,9 @@ class EventsDevicesPicker extends StatelessWidget {
                           if (!device.status) return;
 
                           if (enabled) {
-                            onDisabledDeviceAdded(device.rtspURL);
+                            onDisabledDeviceAdded(device.streamURL);
                           } else {
-                            onDisabledDeviceRemoved(device.rtspURL);
+                            onDisabledDeviceRemoved(device.streamURL);
                           }
                         },
                         checkboxScale: checkboxScale,

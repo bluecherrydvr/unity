@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -79,13 +80,18 @@ class _TimelineCardState extends State<TimelineCard> {
                 elevation: 1.0,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Stack(children: [
+                  child: Column(children: [
                     Text(
                       device.name,
                       style: theme.textTheme.titleMedium,
                     ),
-                    Center(
-                      child: Text(loc.noRecords, textAlign: TextAlign.center),
+                    Expanded(
+                      child: Center(
+                        child: AutoSizeText(
+                          loc.noRecords,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ),
                   ]),
                 ),

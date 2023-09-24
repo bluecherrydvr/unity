@@ -70,8 +70,9 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   Future<void> fetch() async {
     setState(() {
       hasEverFetched = true;
-      startTime = DateTime(date.year, date.month, date.day);
-      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59);
+      date = date.toLocal();
+      startTime = DateTime(date.year, date.month, date.day).toLocal();
+      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
@@ -80,16 +81,15 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     final devices = <Device, List<Event>>{};
 
     for (final event in filteredEvents) {
-      if (event.isAlarm) continue;
-
-      final device =
-          event.server.devices.firstWhere((d) => d.id == event.deviceID);
+      if (event.isAlarm || event.mediaURL == null) continue;
 
       if (!DateUtils.isSameDay(event.published, date) ||
           !DateUtils.isSameDay(event.published.add(event.duration), date)) {
         continue;
       }
 
+      final device =
+          event.server.devices.firstWhere((d) => d.id == event.deviceID);
       devices[device] ??= [];
 
       if (devices[device]!.any((e) {

@@ -75,6 +75,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   bool get isLastEvent =>
       lastEventIndex.isNegative || lastEventIndex == tile!.events.length - 1;
 
+  Iterable<TimelineEvent> get eventsBefore => tile!.events
+      .whereIndexed((index, _) => index < tile!.events.indexOf(currentEvent!));
+
   /// Whether the user is scrolling the timeline. If true, [ensureScrollPosition]
   /// will not execute to avoid conflicts
   bool isScrolling = false;
@@ -180,10 +183,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         scrolledManually) {
       return;
     }
-    final eventsBefore = tile!.events.where(
-      (e) => e.event.published.isBefore(currentEvent!.event.published),
-    );
-
     final eventsFactor = eventsBefore.isEmpty
         ? Duration.zero
         : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
@@ -234,9 +233,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     final scrollPosition = controller.position.pixels;
 
     for (final event in tile!.events) {
-      final eventsBefore = tile!.events.where(
-        (e) => e.event.published.isBefore(event.event.published),
-      );
       Duration eventsBeforeDuration() =>
           eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
 
@@ -464,6 +460,22 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       Row(children: [
         Expanded(
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            if (tile != null) ...[
+              const Spacer(),
+              Container(
+                margin: const EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                color: theme.colorScheme.secondaryContainer,
+                child: Text(
+                  loc.nEvents(tile.events.length),
+                  style: theme.textTheme.labelSmall,
+                ),
+              ),
+              const Spacer(),
+            ],
             IconButton(
               icon: const Icon(Icons.fullscreen),
               tooltip: currentEvent == null ? null : loc.showFullscreenCamera,

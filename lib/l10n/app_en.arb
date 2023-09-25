@@ -61,6 +61,7 @@
   "recorded": "RECORDED",
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
+  "addAllToView": "Add all to view",
   "eventBrowser": "Events History",
   "eventsTimeline": "Timeline of Events",
   "server": "Server",

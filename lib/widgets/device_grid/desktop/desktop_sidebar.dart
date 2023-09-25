@@ -26,16 +26,15 @@ const kCompactSidebarConstraints = BoxConstraints(maxWidth: 80.0);
 class DesktopSidebar extends StatefulWidget {
   final Widget collapseButton;
 
-  const DesktopSidebar({
-    super.key,
-    required this.collapseButton,
-  });
+  const DesktopSidebar({super.key, required this.collapseButton});
 
   @override
   State<DesktopSidebar> createState() => _DesktopSidebarState();
 }
 
 class _DesktopSidebarState extends State<DesktopSidebar> {
+  bool isSidebarHovering = false;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -49,87 +48,97 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         LayoutManager(collapseButton: widget.collapseButton),
         Expanded(
-          child: Material(
-            type: MaterialType.transparency,
-            child: ListView.builder(
-              padding: EdgeInsetsDirectional.only(
-                bottom: MediaQuery.viewPaddingOf(context).bottom,
-              ),
-              itemCount: ServersProvider.instance.servers.length,
-              itemBuilder: (context, i) {
-                final server = ServersProvider.instance.servers[i];
-                final devices = server.devices.sorted();
-                final isLoading = servers.isServerLoading(server);
+          child: MouseRegion(
+            onEnter: (e) => setState(() => isSidebarHovering = true),
+            onExit: (e) => setState(() => isSidebarHovering = false),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ListView.builder(
+                padding: EdgeInsetsDirectional.only(
+                  bottom: MediaQuery.viewPaddingOf(context).bottom,
+                ),
+                itemCount: ServersProvider.instance.servers.length,
+                itemBuilder: (context, i) {
+                  final server = ServersProvider.instance.servers[i];
+                  final devices = server.devices.sorted();
+                  final isLoading = servers.isServerLoading(server);
 
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount:
-                      !server.online || isLoading ? 1 : devices.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return SubHeader(
-                        server.name,
-                        subtext: server.online
-                            ? loc.nDevices(
-                                devices.length,
-                              )
-                            : loc.offline,
-                        subtextStyle: TextStyle(
-                          color:
-                              !server.online ? theme.colorScheme.error : null,
-                        ),
-                        trailing: isLoading
-                            ? const SizedBox(
-                                height: 16.0,
-                                width: 16.0,
-                                child: CircularProgressIndicator.adaptive(
-                                  strokeWidth: 1.5,
-                                ),
-                              )
-                            : null,
-                      );
-                    }
-
-                    index--;
-                    final device = devices[index];
-                    final selected =
-                        view.currentLayout.devices.contains(device);
-
-                    final tile = DesktopDeviceSelectorTile(
-                      device: device,
-                      selected: selected,
-                    );
-
-                    if (selected || !device.status) return tile;
-
-                    final isBlocked = view.currentLayout.type ==
-                            DesktopLayoutType.singleView &&
-                        view.currentLayout.devices.isNotEmpty;
-
-                    return Draggable<Device>(
-                      data: device,
-                      feedback: Card(
-                        child: SizedBox(
-                          height: kDeviceSelectorTileHeight,
-                          width: kSidebarConstraints.maxWidth,
-                          child: Row(children: [
-                            Expanded(child: tile),
-                            if (isBlocked)
-                              Icon(
-                                Icons.block,
-                                color: theme.colorScheme.error,
-                                size: 18.0,
-                              ),
-                            const SizedBox(width: 16.0),
-                          ]),
-                        ),
+                  return Column(children: [
+                    SubHeader(
+                      server.name,
+                      subtext: server.online
+                          ? loc.nDevices(devices.length)
+                          : loc.offline,
+                      subtextStyle: TextStyle(
+                        color: !server.online ? theme.colorScheme.error : null,
                       ),
-                      child: tile,
-                    );
-                  },
-                );
-              },
+                      trailing: isLoading
+                          ? const SizedBox(
+                              height: 16.0,
+                              width: 16.0,
+                              child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 1.5,
+                              ),
+                            )
+                          : isSidebarHovering
+                              ? IconButton(
+                                  icon: const Icon(Icons.playlist_add),
+                                  tooltip: loc.addAllToView,
+                                  onPressed: () {
+                                    for (final device in devices) {
+                                      if (device.status &&
+                                          !view.currentLayout.devices
+                                              .contains(device)) {
+                                        view.add(device);
+                                      }
+                                    }
+                                  },
+                                )
+                              : null,
+                    ),
+                    ...List.generate(
+                      !server.online || isLoading ? 1 : devices.length,
+                      (index) {
+                        final device = devices[index];
+                        final selected =
+                            view.currentLayout.devices.contains(device);
+
+                        final tile = DesktopDeviceSelectorTile(
+                          device: device,
+                          selected: selected,
+                        );
+
+                        if (selected || !device.status) return tile;
+
+                        final isBlocked = view.currentLayout.type ==
+                                DesktopLayoutType.singleView &&
+                            view.currentLayout.devices.isNotEmpty;
+
+                        return Draggable<Device>(
+                          data: device,
+                          feedback: Card(
+                            child: SizedBox(
+                              height: kDeviceSelectorTileHeight,
+                              width: kSidebarConstraints.maxWidth,
+                              child: Row(children: [
+                                Expanded(child: tile),
+                                if (isBlocked)
+                                  Icon(
+                                    Icons.block,
+                                    color: theme.colorScheme.error,
+                                    size: 18.0,
+                                  ),
+                                const SizedBox(width: 16.0),
+                              ]),
+                            ),
+                          ),
+                          child: tile,
+                        );
+                      },
+                    ),
+                  ]);
+                },
+              ),
             ),
           ),
         ),
@@ -226,6 +235,9 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                         : !widget.device.status
                             ? theme.disabledColor
                             : null,
+                    decoration: !widget.device.status
+                        ? TextDecoration.lineThrough
+                        : null,
                   ),
                 ),
               ),

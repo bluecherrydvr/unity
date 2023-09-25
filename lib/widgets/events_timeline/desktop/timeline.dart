@@ -331,34 +331,33 @@ class Timeline extends ChangeNotifier {
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
-    if (value >= 0.0 && value <= maxZoom) {
-      _zoom = clampDouble(value, 1.0, maxZoom);
+    value = _zoom = clampDouble(value, 1.0, maxZoom);
 
-      if (_zoom > 1.0) {
-        final visibilityFactor =
-            zoomController.position.viewportDimension / 6.0;
-        final zoomedWidth = zoomController.position.viewportDimension * zoom;
-        final secondWidth = zoomedWidth / _secondsInADay;
-        final to = currentPosition.inSeconds * secondWidth;
+    if (_zoom == 1.0) {
+      scrollTo(0.0);
+    } else if (_zoom > 1.0) {
+      final visibilityFactor = zoomController.position.viewportDimension / 6.0;
+      final zoomedWidth = zoomController.position.viewportDimension * zoom;
+      final secondWidth = zoomedWidth / _secondsInADay;
+      final to = currentPosition.inSeconds * secondWidth;
 
-        if (to < zoomController.position.viewportDimension) {
-          // If the current position is at the beggining of the viewport, jump
-          // to 0.0
-          scrollTo(0.0);
-        } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
-          // If the current position is at the end of the viewport, jump to the
-          // beggining of the end of the viewport
-          // scrollTo(zoomedWidth);
-          scrollTo(zoomedWidth - zoomController.position.viewportDimension,
-              zoomedWidth);
-        } else {
-          // Otherwise, jump to the current position minus the visibility factor,
-          // to ensure that the current position is visible at a viable position
-          scrollTo(to - visibilityFactor);
-        }
+      if (to < zoomController.position.viewportDimension) {
+        // If the current position is at the beggining of the viewport, jump
+        // to 0.0
+        scrollTo(0.0);
+      } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
+        // If the current position is at the end of the viewport, jump to the
+        // beggining of the end of the viewport
+        // scrollTo(zoomedWidth);
+        scrollTo(zoomedWidth - zoomController.position.viewportDimension,
+            zoomedWidth);
+      } else {
+        // Otherwise, jump to the current position minus the visibility factor,
+        // to ensure that the current position is visible at a viable position
+        scrollTo(to - visibilityFactor);
       }
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   static const maxZoom = 100.0;
@@ -623,143 +622,183 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
           ConstrainedBox(
-            constraints:
-                const BoxConstraints(maxHeight: _kTimelineTileHeight * 4.5),
+            constraints: const BoxConstraints(
+              maxHeight: _kTimelineTileHeight * 4.5,
+            ),
             child: LayoutBuilder(builder: (context, constraints) {
               final tileWidth =
                   (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
               final hourWidth = tileWidth / 24;
               final secondsWidth = tileWidth / _secondsInADay;
 
-              return EnforceScrollbarScroll(
-                controller: verticalScrollController,
-                onPointerSignal: _receivedPointerSignal,
-                child: SingleChildScrollView(
-                  controller: verticalScrollController,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        width: _kDeviceNameWidth,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ...timeline.tiles.map((tile) {
-                              return _TimelineTile.name(tile: tile);
-                            }),
-                          ],
+              return Stack(
+                fit: StackFit.passthrough,
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Column(mainAxisSize: MainAxisSize.min, children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: _kDeviceNameWidth,
+                      ),
+                      // a hacky workaround to make the hours to follow the zoom
+                      // controller.
+                      child: AnimatedBuilder(
+                        animation: Listenable.merge([timeline.zoomController]),
+                        builder: (context, _) {
+                          final offset = timeline.zoomController.hasClients
+                              ? timeline.zoomController.offset
+                              : 0.0;
+                          return SingleChildScrollView(
+                            key: ValueKey(offset),
+                            scrollDirection: Axis.horizontal,
+                            controller: ScrollController(
+                              initialScrollOffset: offset,
+                              debugLabel: 'Timeline Hours Scroll Controller',
+                            ),
+                            child: _TimelineHours(hourWidth: hourWidth),
+                          );
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      child: EnforceScrollbarScroll(
+                        controller: verticalScrollController,
+                        onPointerSignal: _receivedPointerSignal,
+                        child: SingleChildScrollView(
+                          controller: verticalScrollController,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: _kDeviceNameWidth,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ...timeline.tiles.map((tile) {
+                                      return _TimelineTile.name(tile: tile);
+                                    }),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onHorizontalDragUpdate: (details) {
+                                    if (!timeline.zoomController.hasClients ||
+                                        details.localPosition.dx >=
+                                            (constraints.maxWidth -
+                                                _kDeviceNameWidth)) {
+                                      return;
+                                    }
+                                    final pointerPosition = (details
+                                                .localPosition.dx +
+                                            timeline.zoomController.offset) /
+                                        tileWidth;
+                                    if (pointerPosition < 0 ||
+                                        pointerPosition > 1) {
+                                      return;
+                                    }
+
+                                    final seconds =
+                                        (_secondsInADay * pointerPosition)
+                                            .round();
+                                    final position = Duration(seconds: seconds);
+                                    timeline.seekTo(position);
+
+                                    if (timeline.zoom > 1.0) {
+                                      // the position that the seeker will start moving
+                                      // 100. removes it from the border
+                                      final endPosition = constraints.maxWidth -
+                                          _kDeviceNameWidth -
+                                          100.0;
+                                      if (details.localPosition.dx >=
+                                          endPosition) {
+                                        timeline.scrollTo(
+                                          timeline.zoomController.offset + 25.0,
+                                        );
+                                      } else if (details.localPosition.dx <=
+                                          100.0) {
+                                        timeline.scrollTo(
+                                          timeline.zoomController.offset - 25.0,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  child: Builder(builder: (context) {
+                                    return ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                      ),
+                                      child: Scrollbar(
+                                        controller: timeline.zoomController,
+                                        thumbVisibility:
+                                            isMobilePlatform || kIsWeb,
+                                        child: SingleChildScrollView(
+                                          controller: timeline.zoomController,
+                                          scrollDirection: Axis.horizontal,
+                                          child: SizedBox(
+                                            width: tileWidth,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ...timeline.tiles.map((tile) {
+                                                  return _TimelineTile(
+                                                    key: ValueKey(tile),
+                                                    tile: tile,
+                                                  );
+                                                }),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Expanded(
-                        child: Stack(clipBehavior: Clip.none, children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onHorizontalDragUpdate: (details) {
-                              if (!timeline.zoomController.hasClients ||
-                                  details.localPosition.dx >=
-                                      (constraints.maxWidth -
-                                          _kDeviceNameWidth)) {
-                                return;
-                              }
-                              final pointerPosition =
-                                  (details.localPosition.dx +
-                                          timeline.zoomController.offset) /
-                                      tileWidth;
-                              if (pointerPosition < 0 || pointerPosition > 1) {
-                                return;
-                              }
-
-                              final seconds =
-                                  (_secondsInADay * pointerPosition).round();
-                              final position = Duration(seconds: seconds);
-                              timeline.seekTo(position);
-
-                              if (timeline.zoom > 1.0) {
-                                // the position that the seeker will start moving
-                                // 100. removes it from the border
-                                final endPosition = constraints.maxWidth -
-                                    _kDeviceNameWidth -
-                                    100.0;
-                                if (details.localPosition.dx >= endPosition) {
-                                  timeline.scrollTo(
-                                    timeline.zoomController.offset + 25.0,
-                                  );
-                                } else if (details.localPosition.dx <= 100.0) {
-                                  timeline.scrollTo(
-                                    timeline.zoomController.offset - 25.0,
-                                  );
-                                }
-                              }
-                            },
-                            child: Builder(builder: (context) {
-                              return ScrollConfiguration(
-                                behavior:
-                                    ScrollConfiguration.of(context).copyWith(
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                ),
-                                child: Scrollbar(
-                                  controller: timeline.zoomController,
-                                  thumbVisibility: isMobilePlatform || kIsWeb,
-                                  child: SingleChildScrollView(
-                                    controller: timeline.zoomController,
-                                    scrollDirection: Axis.horizontal,
-                                    child: SizedBox(
-                                      width: tileWidth,
-                                      child: Column(children: [
-                                        _TimelineHours(hourWidth: hourWidth),
-                                        ...timeline.tiles.map((tile) {
-                                          return _TimelineTile(
-                                            key: ValueKey(tile),
-                                            tile: tile,
-                                          );
-                                        }),
-                                      ]),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                          if (timeline.zoomController.hasClients)
-                            Builder(builder: (context) {
-                              final left = (timeline.currentPosition.inSeconds *
-                                      secondsWidth) -
-                                  timeline.zoomController.offset -
-                                  (/* the width of half of the triangle */
-                                      8 / 2);
-                              if (left < -8.0) return const SizedBox.shrink();
-                              return Positioned(
-                                key: timeline.indicatorKey,
-                                left: left,
+                    ),
+                  ]),
+                  if (timeline.zoomController.hasClients)
+                    Builder(builder: (context) {
+                      final left =
+                          (timeline.currentPosition.inSeconds * secondsWidth) -
+                              timeline.zoomController.offset -
+                              (/* the width of half of the triangle */
+                                  8 / 2);
+                      if (left < -8.0) return const SizedBox.shrink();
+                      return Positioned(
+                        key: timeline.indicatorKey,
+                        left: _kDeviceNameWidth + left,
+                        width: 8,
+                        top: 12.0,
+                        bottom: 0.0,
+                        child: IgnorePointer(
+                          child: Column(children: [
+                            ClipPath(
+                              clipper: InvertedTriangleClipper(),
+                              child: Container(
                                 width: 8,
-                                top: 12.0,
-                                bottom: 0.0,
-                                child: IgnorePointer(
-                                  child: Column(children: [
-                                    ClipPath(
-                                      clipper: InvertedTriangleClipper(),
-                                      child: Container(
-                                        width: 8,
-                                        height: 4,
-                                        color: theme.colorScheme.onBackground,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        color: theme.colorScheme.onBackground,
-                                        width: 1.8,
-                                      ),
-                                    ),
-                                  ]),
-                                ),
-                              );
-                            }),
-                        ]),
-                      ),
-                    ],
-                  ),
-                ),
+                                height: 4,
+                                color: theme.colorScheme.onBackground,
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                color: theme.colorScheme.onBackground,
+                                width: 1.8,
+                              ),
+                            ),
+                          ]),
+                        ),
+                      );
+                    }),
+                ],
               );
             }),
           ),

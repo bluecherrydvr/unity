@@ -22,14 +22,14 @@ import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
-import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
 import 'package:flutter/foundation.dart';
@@ -224,19 +224,26 @@ class Timeline extends ChangeNotifier {
   }
 
   void add(Iterable<TimelineTile> tiles) {
-    assert(tiles.every((tile) {
-      return tile.events.every((event) {
+    // assert(tiles.every((tile) {
+    //   return tile.events.every((event) {
+    //     return DateUtils.isSameDay(
+    //       event.startTime.toLocal(),
+    //       date.toLocal(),
+    //     );
+    //   });
+    // }), 'All events must have happened in the same day');
+    this.tiles.addAll(tiles.where((tile) {
+      return tile.events.any((event) {
         return DateUtils.isSameDay(
           event.startTime.toLocal(),
           date.toLocal(),
         );
       });
-    }), 'All events must have happened in the same day');
-    this.tiles.addAll(tiles);
-    assert(
-      this.tiles.length <= kMaxDevicesOnScreen,
-      'There must be at most $kMaxDevicesOnScreen devices on screen',
-    );
+    }));
+    // assert(
+    //   this.tiles.length <= kMaxDevicesOnScreen,
+    //   'There must be at most $kMaxDevicesOnScreen devices on screen',
+    // );
     notifyListeners();
   }
 
@@ -324,37 +331,36 @@ class Timeline extends ChangeNotifier {
   double _zoom = 1.0;
   double get zoom => _zoom;
   set zoom(double value) {
-    if (value >= 0.0 && value <= maxZoom) {
-      _zoom = clampDouble(value, 1.0, maxZoom);
+    value = _zoom = clampDouble(value, 1.0, maxZoom);
 
-      if (_zoom > 1.0) {
-        final visibilityFactor =
-            zoomController.position.viewportDimension / 6.0;
-        final zoomedWidth = zoomController.position.viewportDimension * zoom;
-        final secondWidth = zoomedWidth / _secondsInADay;
-        final to = currentPosition.inSeconds * secondWidth;
+    if (_zoom == 1.0) {
+      scrollTo(0.0);
+    } else if (_zoom > 1.0) {
+      final visibilityFactor = zoomController.position.viewportDimension / 6.0;
+      final zoomedWidth = zoomController.position.viewportDimension * zoom;
+      final secondWidth = zoomedWidth / _secondsInADay;
+      final to = currentPosition.inSeconds * secondWidth;
 
-        if (to < zoomController.position.viewportDimension) {
-          // If the current position is at the beggining of the viewport, jump
-          // to 0.0
-          scrollTo(0.0);
-        } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
-          // If the current position is at the end of the viewport, jump to the
-          // beggining of the end of the viewport
-          // scrollTo(zoomedWidth);
-          scrollTo(zoomedWidth - zoomController.position.viewportDimension,
-              zoomedWidth);
-        } else {
-          // Otherwise, jump to the current position minus the visibility factor,
-          // to ensure that the current position is visible at a viable position
-          scrollTo(to - visibilityFactor);
-        }
+      if (to < zoomController.position.viewportDimension) {
+        // If the current position is at the beggining of the viewport, jump
+        // to 0.0
+        scrollTo(0.0);
+      } else if (zoomedWidth - (visibilityFactor * zoom) < to) {
+        // If the current position is at the end of the viewport, jump to the
+        // beggining of the end of the viewport
+        // scrollTo(zoomedWidth);
+        scrollTo(zoomedWidth - zoomController.position.viewportDimension,
+            zoomedWidth);
+      } else {
+        // Otherwise, jump to the current position minus the visibility factor,
+        // to ensure that the current position is visible at a viable position
+        scrollTo(to - visibilityFactor);
       }
-      notifyListeners();
     }
+    notifyListeners();
   }
 
-  static const maxZoom = 10.0;
+  static const maxZoom = 100.0;
 
   Timer? timer;
   bool get isPlaying => timer != null && timer!.isActive;
@@ -415,7 +421,15 @@ final _secondsInADay = const Duration(days: 1).inSeconds;
 class TimelineEventsView extends StatefulWidget {
   final Timeline? timeline;
 
-  const TimelineEventsView({super.key, required this.timeline});
+  final VoidCallback onFetch;
+  final Widget sidebar;
+
+  const TimelineEventsView({
+    super.key,
+    required this.timeline,
+    required this.onFetch,
+    required this.sidebar,
+  });
 
   @override
   State<TimelineEventsView> createState() => _TimelineEventsViewState();
@@ -424,6 +438,8 @@ class TimelineEventsView extends StatefulWidget {
 class _TimelineEventsViewState extends State<TimelineEventsView> {
   double? _speed;
   double? _volume;
+
+  final verticalScrollController = ScrollController();
 
   @override
   void initState() {
@@ -447,37 +463,46 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   }
 
   @override
+  void dispose() {
+    verticalScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+    final home = context.watch<HomeProvider>();
 
-    final view = Column(children: [
+    return Column(children: [
       Expanded(
         child: Row(children: [
           Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Center(
-                  child: StaticGrid(
-                    padding: EdgeInsets.zero,
-                    reorderable: false,
-                    crossAxisCount: calculateCrossAxisCount(
-                      timeline.tiles.length,
-                    ),
-                    onReorder: (a, b) {},
-                    childAspectRatio: 16 / 9,
-                    emptyChild: Center(child: Text(loc.noEventsFound)),
-                    children: timeline.tiles.map((tile) {
-                      return TimelineCard(tile: tile, timeline: timeline);
-                    }).toList(),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Center(
+                child: StaticGrid(
+                  padding: EdgeInsets.zero,
+                  reorderable: false,
+                  crossAxisCount: calculateCrossAxisCount(
+                    timeline.tiles.length,
                   ),
+                  onReorder: (a, b) {},
+                  childAspectRatio: 16 / 9,
+                  emptyChild: NoEventsLoaded(
+                    isLoading: context.watch<HomeProvider>().isLoadingFor(
+                          UnityLoadingReason.fetchingEventsHistory,
+                        ),
+                  ),
+                  children: timeline.tiles.map((tile) {
+                    return TimelineCard(tile: tile, timeline: timeline);
+                  }).toList(),
                 ),
               ),
             ),
           ),
-          TimelineSidebar(timeline: timeline),
+          widget.sidebar,
         ]),
       ),
       Card(
@@ -575,6 +600,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       return Icons.volume_up;
                     }
                   }()),
+                  const Spacer(),
+                  Expanded(
+                    child: Center(
+                      child: FilledButton(
+                        onPressed: home.isLoadingFor(
+                          UnityLoadingReason.fetchingEventsHistory,
+                        )
+                            ? null
+                            : widget.onFetch,
+                        child: Text(loc.filter),
+                      ),
+                    ),
+                  ),
                 ]),
               ),
             ]),
@@ -583,80 +621,151 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.dateFormat.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          LayoutBuilder(builder: (context, constraints) {
-            final tileWidth =
-                (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
-            final hourWidth = tileWidth / 24;
-            final secondsWidth = tileWidth / _secondsInADay;
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: _kTimelineTileHeight * 4.5,
+            ),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final tileWidth =
+                  (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
+              final hourWidth = tileWidth / 24;
+              final secondsWidth = tileWidth / _secondsInADay;
 
-            return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              SizedBox(
-                width: _kDeviceNameWidth,
-                child: Column(children: [
-                  ...timeline.tiles.map((tile) {
-                    return _TimelineTile.name(tile: tile);
-                  }),
-                ]),
-              ),
-              Expanded(
-                child: Stack(clipBehavior: Clip.none, children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onHorizontalDragUpdate: (details) {
-                      if (!timeline.zoomController.hasClients ||
-                          details.localPosition.dx >=
-                              (constraints.maxWidth - _kDeviceNameWidth)) {
-                        return;
-                      }
-                      final pointerPosition = (details.localPosition.dx +
-                              timeline.zoomController.offset) /
-                          tileWidth;
-                      if (pointerPosition < 0 || pointerPosition > 1) return;
-
-                      final seconds =
-                          (_secondsInADay * pointerPosition).round();
-                      final position = Duration(seconds: seconds);
-                      timeline.seekTo(position);
-
-                      if (timeline.zoom > 1.0) {
-                        // the position that the seeker will start moving
-                        // 100. removes it from the border
-                        final endPosition =
-                            constraints.maxWidth - _kDeviceNameWidth - 100.0;
-                        if (details.localPosition.dx >= endPosition) {
-                          timeline.scrollTo(
-                            timeline.zoomController.offset + 25.0,
+              return Stack(
+                fit: StackFit.passthrough,
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Column(mainAxisSize: MainAxisSize.min, children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: _kDeviceNameWidth,
+                      ),
+                      // a hacky workaround to make the hours to follow the zoom
+                      // controller.
+                      child: AnimatedBuilder(
+                        animation: Listenable.merge([timeline.zoomController]),
+                        builder: (context, _) {
+                          final offset = timeline.zoomController.hasClients
+                              ? timeline.zoomController.offset
+                              : 0.0;
+                          return SingleChildScrollView(
+                            key: ValueKey(offset),
+                            scrollDirection: Axis.horizontal,
+                            controller: ScrollController(
+                              initialScrollOffset: offset,
+                              debugLabel: 'Timeline Hours Scroll Controller',
+                            ),
+                            child: _TimelineHours(hourWidth: hourWidth),
                           );
-                        } else if (details.localPosition.dx <= 100.0) {
-                          timeline.scrollTo(
-                            timeline.zoomController.offset - 25.0,
-                          );
-                        }
-                      }
-                    },
-                    child: Scrollbar(
-                      controller: timeline.zoomController,
-                      thumbVisibility: isMobilePlatform || kIsWeb,
-                      child: SingleChildScrollView(
-                        controller: timeline.zoomController,
-                        scrollDirection: Axis.horizontal,
-                        child: SizedBox(
-                          width: tileWidth,
-                          child: Column(children: [
-                            _TimelineHours(hourWidth: hourWidth),
-                            ...timeline.tiles.map((tile) {
-                              return _TimelineTile(
-                                key: ValueKey(tile),
-                                tile: tile,
-                              );
-                            }),
-                          ]),
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      child: EnforceScrollbarScroll(
+                        controller: verticalScrollController,
+                        onPointerSignal: _receivedPointerSignal,
+                        child: SingleChildScrollView(
+                          controller: verticalScrollController,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: _kDeviceNameWidth,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ...timeline.tiles.map((tile) {
+                                      return _TimelineTile.name(tile: tile);
+                                    }),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onHorizontalDragUpdate: (details) {
+                                    if (!timeline.zoomController.hasClients ||
+                                        details.localPosition.dx >=
+                                            (constraints.maxWidth -
+                                                _kDeviceNameWidth)) {
+                                      return;
+                                    }
+                                    final pointerPosition = (details
+                                                .localPosition.dx +
+                                            timeline.zoomController.offset) /
+                                        tileWidth;
+                                    if (pointerPosition < 0 ||
+                                        pointerPosition > 1) {
+                                      return;
+                                    }
+
+                                    final seconds =
+                                        (_secondsInADay * pointerPosition)
+                                            .round();
+                                    final position = Duration(seconds: seconds);
+                                    timeline.seekTo(position);
+
+                                    if (timeline.zoom > 1.0) {
+                                      // the position that the seeker will start moving
+                                      // 100. removes it from the border
+                                      final endPosition = constraints.maxWidth -
+                                          _kDeviceNameWidth -
+                                          100.0;
+                                      if (details.localPosition.dx >=
+                                          endPosition) {
+                                        timeline.scrollTo(
+                                          timeline.zoomController.offset + 25.0,
+                                        );
+                                      } else if (details.localPosition.dx <=
+                                          100.0) {
+                                        timeline.scrollTo(
+                                          timeline.zoomController.offset - 25.0,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  child: Builder(builder: (context) {
+                                    return ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                      ),
+                                      child: Scrollbar(
+                                        controller: timeline.zoomController,
+                                        thumbVisibility:
+                                            isMobilePlatform || kIsWeb,
+                                        child: SingleChildScrollView(
+                                          controller: timeline.zoomController,
+                                          scrollDirection: Axis.horizontal,
+                                          child: SizedBox(
+                                            width: tileWidth,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ...timeline.tiles.map((tile) {
+                                                  return _TimelineTile(
+                                                    key: ValueKey(tile),
+                                                    tile: tile,
+                                                  );
+                                                }),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ]),
                   if (timeline.zoomController.hasClients)
-                    () {
+                    Builder(builder: (context) {
                       final left =
                           (timeline.currentPosition.inSeconds * secondsWidth) -
                               timeline.zoomController.offset -
@@ -665,7 +774,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       if (left < -8.0) return const SizedBox.shrink();
                       return Positioned(
                         key: timeline.indicatorKey,
-                        left: left,
+                        left: _kDeviceNameWidth + left,
                         width: 8,
                         top: 12.0,
                         bottom: 0.0,
@@ -675,7 +784,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               clipper: InvertedTriangleClipper(),
                               child: Container(
                                 width: 8,
-                                height: 6,
+                                height: 4,
                                 color: theme.colorScheme.onBackground,
                               ),
                             ),
@@ -688,23 +797,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                           ]),
                         ),
                       );
-                    }(),
-                ]),
-              ),
-            ]);
-          }),
+                    }),
+                ],
+              );
+            }),
+          ),
         ]),
       ),
     ]);
-
-    return Listener(
-      onPointerSignal: _receivedPointerSignal,
-      child: view,
-    );
   }
 
   // Handle mousewheel and web trackpad scroll events.
   void _receivedPointerSignal(PointerSignalEvent event) {
+    if (widget.timeline == null || widget.timeline!.tiles.isEmpty) return;
     final double scaleChange;
     if (event is PointerScrollEvent) {
       if (event.kind == PointerDeviceKind.trackpad) {

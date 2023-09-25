@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 const double kDesktopAppBarHeight = 64.0;
 
@@ -219,7 +220,7 @@ class SubHeader extends StatelessWidget {
         height: height,
         alignment: AlignmentDirectional.centerStart,
         padding: padding,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: Row(children: [
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -247,7 +248,11 @@ class SubHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          if (trailing != null)
+            DefaultTextStyle(
+              style: theme.textTheme.labelSmall ?? const TextStyle(),
+              child: trailing!,
+            ),
         ]),
       ),
     );
@@ -435,5 +440,47 @@ class InvertedTriangleClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant InvertedTriangleClipper oldClipper) {
     return false;
+  }
+}
+
+class EnforceScrollbarScroll extends StatefulWidget {
+  final ScrollController controller;
+  final PointerSignalEventListener? onPointerSignal;
+  final Widget child;
+
+  const EnforceScrollbarScroll({
+    super.key,
+    required this.controller,
+    required this.child,
+    this.onPointerSignal,
+  });
+
+  @override
+  State<EnforceScrollbarScroll> createState() => _EnforceScrollbarScrollState();
+}
+
+class _EnforceScrollbarScrollState extends State<EnforceScrollbarScroll> {
+  bool isScrolling = false;
+  bool isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (_) => setState(() => isScrolling = true),
+      onPointerUp: (_) => setState(() => isScrolling = false),
+      onPointerSignal: widget.onPointerSignal,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          physics: isHovered && !isScrolling
+              ? const NeverScrollableScrollPhysics()
+              : null,
+        ),
+        child: MouseRegion(
+          onEnter: (v) => setState(() => isHovered = true),
+          onExit: (v) => setState(() => isHovered = false),
+          child: widget.child,
+        ),
+      ),
+    );
   }
 }

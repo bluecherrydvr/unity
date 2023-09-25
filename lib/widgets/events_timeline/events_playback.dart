@@ -19,14 +19,13 @@
 
 import 'dart:io';
 
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
-import 'package:bluecherry_client/providers/home_provider.dart';
-import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/events_timeline/mobile/timeline_device_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -42,7 +41,7 @@ class EventsPlayback extends StatefulWidget {
   State<EventsPlayback> createState() => _EventsPlaybackState();
 }
 
-class _EventsPlaybackState extends State<EventsPlayback> {
+class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   Timeline? timeline;
   final focusNode = FocusNode();
 
@@ -59,123 +58,60 @@ class _EventsPlaybackState extends State<EventsPlayback> {
     super.dispose();
   }
 
-  Map<Device, List<Event>> realDevices = {};
-  Map<Device, List<Event>> devices = {}; // filtered
+  DateTime date = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  ).toLocal();
 
-  Set<Device> disabledDevices = {};
+  bool hasEverFetched = false;
 
-  Future<void> fetch([bool fetchFromServer = true]) async {
+  @override
+  Future<void> fetch() async {
     setState(() {
+      hasEverFetched = true;
+      date = date.toLocal();
+      startTime = DateTime(date.year, date.month, date.day).toLocal();
+      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
-    final home = context.read<HomeProvider>()
-      ..loading(UnityLoadingReason.fetchingEventsPlayback);
-    var date = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-    for (final server in ServersProvider.instance.servers) {
-      if (!server.online) continue;
+    await super.fetch();
 
-      final events = fetchFromServer
-          ? ((await API.instance.getEvents(
-              await API.instance.checkServerCredentials(server),
-            ))
-              .where((event) => event.mediaURL != null)
-              .toList()
-            ..sort((a, b) {
-              return a.published.compareTo(b.published);
-            }))
-          : realDevices.values.expand((e) => e).toList();
+    final devices = <Device, List<Event>>{};
 
-      if (events.isEmpty) continue;
+    for (final event in filteredEvents) {
+      if (event.isAlarm || event.mediaURL == null) continue;
 
-      // If there are any events for today, use today as the date
-      if (events.any(
-        (event) => DateUtils.isSameDay(
-          event.published.toUtc(),
-          DateTime.now().toUtc(),
-        ),
-      )) {
-        date = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-        );
-      } else {
-        // Otherwise, use the most recent date that has events
-        final recentDate = (events.toList()
-              ..sort((a, b) => b.published.compareTo(a.published)))
-            .first
-            .published;
-        date = DateTime(
-          recentDate.year,
-          recentDate.month,
-          recentDate.day,
-        );
+      if (!DateUtils.isSameDay(event.published, date) ||
+          !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+        continue;
       }
 
-      for (final event in events) {
-        // If the event is not long enough to be displayed, do not add it
-        if (event.duration < const Duration(minutes: 1) ||
-            event.mediaURL == null) {
-          continue;
-        }
+      final device =
+          event.server.devices.firstWhere((d) => d.id == event.deviceID);
+      devices[device] ??= [];
 
-        if (!DateUtils.isSameDay(event.published, date) ||
-            !DateUtils.isSameDay(event.published.add(event.duration), date)) {
-          continue;
-        }
+      if (devices[device]!.any((e) {
+        return e.published.isInBetween(event.published, event.updated,
+                allowSameMoment: true) ||
+            e.updated.isInBetween(event.published, event.updated,
+                allowSameMoment: true) ||
+            event.published
+                .isInBetween(e.published, e.updated, allowSameMoment: true) ||
+            event.updated
+                .isInBetween(e.published, e.updated, allowSameMoment: true);
+      })) continue;
 
-        final device = event.server.devices
-            .firstWhere((device) => device.id == event.deviceID);
-
-        realDevices[device] ??= [];
-
-        // If there is already an event that conflicts with this one in time, do
-        // not add it
-        if (realDevices[device]!.any((e) {
-          return e.published.isInBetween(event.published, event.updated,
-                  allowSameMoment: true) ||
-              e.updated.isInBetween(event.published, event.updated,
-                  allowSameMoment: true) ||
-              event.published
-                  .isInBetween(e.published, e.updated, allowSameMoment: true) ||
-              event.updated
-                  .isInBetween(e.published, e.updated, allowSameMoment: true);
-        })) continue;
-
-        realDevices[device] ??= [];
-        realDevices[device]!.add(event);
-
-        // If there are more than kMaxDevicesOnScreen devices, do not add any more devices
-        if (disabledDevices.contains(device)) {
-          if (devices.containsKey(device)) devices.remove(device);
-          continue;
-        } else if (devices.length == kMaxDevicesOnScreen &&
-            !devices.containsKey(device)) {
-          disabledDevices.add(device);
-          continue;
-        }
-
-        devices[device] = realDevices[device]!;
-      }
+      devices[device]!.add(event);
     }
 
-    final parsedTiles = devices.entries
-        .where((e) => e.value.isNotEmpty)
-        .map((e) => e.buildTimelineTile(context));
-
-    home.notLoading(UnityLoadingReason.fetchingEventsPlayback);
+    final parsedTiles =
+        devices.entries.map((e) => e.buildTimelineTile(context)).toList();
 
     if (mounted) {
       setState(() {
-        timeline = Timeline(
-          tiles: parsedTiles.toList(),
-          date: date,
-        );
+        timeline = Timeline(tiles: parsedTiles, date: date);
       });
     }
   }
@@ -226,25 +162,43 @@ class _EventsPlaybackState extends State<EventsPlayback> {
         if (hasDrawer ||
             // special case: the width is less than the mobile breakpoint
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
+          if (!hasEverFetched) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              disabledDevices.clear();
+              fetch();
+            });
+          }
           if (timeline == null) {
             return SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Stack(children: [
                   if (hasDrawer) const DrawerButton(),
-                  const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  ),
+                  const Center(child: CircularProgressIndicator.adaptive()),
                 ]),
               ),
             );
           }
-          return SafeArea(child: TimelineDeviceView(timeline: timeline!));
+          return SafeArea(
+            child: TimelineDeviceView(
+              timeline: timeline!,
+              onDateChanged: (date) {
+                this.date = date;
+                fetch();
+              },
+            ),
+          );
         }
         return SafeArea(
           child: TimelineEventsView(
             // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
             timeline: timeline,
+            sidebar: TimelineSidebar(
+              date: date,
+              onDateChanged: (date) => setState(() => this.date = date),
+              onFetch: fetch,
+            ),
+            onFetch: fetch,
           ),
         );
       }),
@@ -252,7 +206,7 @@ class _EventsPlaybackState extends State<EventsPlayback> {
   }
 }
 
-extension DevicesMapExtension on MapEntry<Device, List<Event>> {
+extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
   TimelineTile buildTimelineTile(BuildContext context) {
     final device = key;
     final events = value;

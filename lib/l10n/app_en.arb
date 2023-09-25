@@ -61,6 +61,7 @@
   "recorded": "RECORDED",
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
+  "addAllToView": "Add all to view",
   "eventBrowser": "Events History",
   "eventsTimeline": "Timeline of Events",
   "server": "Server",
@@ -148,7 +149,8 @@
   "cover": "Cover",
   "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
-  "noEventsFound": "No events found",
+  "noEventsLoaded": "NO EVENTS LOADED",
+  "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
   "notificationClickBehavior": "Notification Click Behavior",
@@ -253,11 +255,23 @@
   },
   "noRecords": "This camera has no records in the current period.",
   "filter": "Filter",
+  "timeFilter": "Time filter",
   "fromDate": "From",
   "toDate": "To",
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "never",
+  "fromToDate": "{from} to {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
   "nEvents": "{n, plural, =0{No events} =1{1 event} other{{n} events}}",
@@ -288,6 +302,8 @@
   "unknown": "Unknown",
   "close": "Close",
   "open": "Open",
+  "collapse": "Collapse",
+  "expand": "Expand",
   "@PTZ": {},
   "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ is enabled",

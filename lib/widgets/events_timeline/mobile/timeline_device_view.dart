@@ -40,9 +40,14 @@ import 'package:unity_video_player/unity_video_player.dart';
 const _kEventSeparatorWidth = 8.0;
 
 class TimelineDeviceView extends StatefulWidget {
-  const TimelineDeviceView({super.key, required this.timeline});
+  const TimelineDeviceView({
+    super.key,
+    required this.timeline,
+    required this.onDateChanged,
+  });
 
   final Timeline timeline;
+  final ValueChanged<DateTime> onDateChanged;
 
   @override
   State<TimelineDeviceView> createState() => _TimelineDeviceViewState();
@@ -70,6 +75,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   bool get isLastEvent =>
       lastEventIndex.isNegative || lastEventIndex == tile!.events.length - 1;
 
+  Iterable<TimelineEvent> get eventsBefore => tile!.events
+      .whereIndexed((index, _) => index < tile!.events.indexOf(currentEvent!));
+
   /// Whether the user is scrolling the timeline. If true, [ensureScrollPosition]
   /// will not execute to avoid conflicts
   bool isScrolling = false;
@@ -80,7 +88,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     device = await showDeviceSelectorScreen(
       context,
       available: widget.timeline.tiles.map((t) => t.device),
-      selected: [if (tile?.device != null) tile!.device],
+      selected: [if (tile != null) tile!.device],
       eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>(
         {},
         (map, tile) {
@@ -175,10 +183,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         scrolledManually) {
       return;
     }
-    final eventsBefore = tile!.events.where(
-      (e) => e.event.published.isBefore(currentEvent!.event.published),
-    );
-
     final eventsFactor = eventsBefore.isEmpty
         ? Duration.zero
         : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
@@ -229,9 +233,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     final scrollPosition = controller.position.pixels;
 
     for (final event in tile!.events) {
-      final eventsBefore = tile!.events.where(
-        (e) => e.event.published.isBefore(event.event.published),
-      );
       Duration eventsBeforeDuration() =>
           eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
 
@@ -319,7 +320,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             }
 
             return UnityVideoView(
-              heroTag: currentEvent!.videoUrl,
+              heroTag: currentEvent?.videoUrl,
               player: tile.videoController,
               fit: settings.cameraViewFit,
               paneBuilder: !kDebugMode
@@ -459,9 +460,25 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       Row(children: [
         Expanded(
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            if (tile != null) ...[
+              const Spacer(),
+              Container(
+                margin: const EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                color: theme.colorScheme.secondaryContainer,
+                child: Text(
+                  loc.nEvents(tile.events.length),
+                  style: theme.textTheme.labelSmall,
+                ),
+              ),
+              const Spacer(),
+            ],
             IconButton(
               icon: const Icon(Icons.fullscreen),
-              tooltip: loc.showFullscreenCamera,
+              tooltip: currentEvent == null ? null : loc.showFullscreenCamera,
               onPressed:
                   currentEvent == null ? null : () => enterFullscreen(context),
             ),
@@ -513,13 +530,22 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           child: Padding(
             padding: const EdgeInsetsDirectional.only(end: 12.0),
             child: Row(children: [
-              // IconButton(
-              //   icon: const Icon(Icons.filter_list),
-              //   tooltip: loc.filter,
-              //   onPressed: lastEventIndex.isNegative
-              //       ? null
-              //       : () => _showFilterSheet(context),
-              // ),
+              IconButton(
+                icon: const Icon(Icons.event),
+                tooltip: loc.timeFilter,
+                onPressed: () async {
+                  final result = await showDatePicker(
+                    context: context,
+                    initialDate: widget.timeline.currentDate,
+                    firstDate: DateTime.utc(1970),
+                    lastDate: DateTime.now(),
+                    initialEntryMode: DatePickerEntryMode.calendarOnly,
+                  );
+                  if (result != null) {
+                    widget.onDateChanged(result);
+                  }
+                },
+              ),
               const Spacer(),
               if (tile != null &&
                   (isBuffering ||
@@ -633,30 +659,6 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       ),
     );
   }
-
-  // Future<void> _showFilterSheet(BuildContext context) async {
-  //   await showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     showDragHandle: true,
-  //     builder: (context) {
-  //       return DraggableScrollableSheet(
-  //         maxChildSize: 0.8,
-  //         initialChildSize: 0.7,
-  //         expand: false,
-  //         builder: (context, controller) {
-  //           return ListView(
-  //             controller: controller,
-  //             padding: const EdgeInsetsDirectional.symmetric(
-  //               horizontal: 12.0,
-  //               vertical: 10.0,
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class _TimelineTile extends StatelessWidget {

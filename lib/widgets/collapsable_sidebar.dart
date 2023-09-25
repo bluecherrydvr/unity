@@ -100,7 +100,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
                   : const EdgeInsetsDirectional.only(end: 5.0),
           child: IconButton(
             key: collapseButtonKey,
-            tooltip: collapsed ? loc.open : loc.close,
+            tooltip: collapsed ? loc.expand : loc.collapse,
             icon: RotationTransition(
               turns: (widget.left
                       ? Tween(

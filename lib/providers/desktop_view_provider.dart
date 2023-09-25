@@ -105,6 +105,8 @@ class DesktopViewProvider extends ChangeNotifier {
       'The device is already in the layout',
     );
 
+    assert(device.status, 'The device must be online');
+
     if (!currentLayout.devices.contains(device)) {
       // If it's a single view layout, ensure the player will be disposed
       // properly before adding one

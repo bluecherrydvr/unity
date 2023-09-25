@@ -149,4 +149,6 @@ class HomeProvider extends ChangeNotifier {
 
     if (notify) notifyListeners();
   }
+
+  bool isLoadingFor(UnityLoadingReason reason) => loadReasons.contains(reason);
 }

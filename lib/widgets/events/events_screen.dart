@@ -30,7 +30,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/utils/tree_view/tree_view.dart';
+import 'package:bluecherry_client/utils/widgets/tree_view.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -50,28 +50,31 @@ part 'events_screen_mobile.dart';
 
 typedef EventsData = Map<Server, Iterable<Event>>;
 
-final eventsScreenKey = GlobalKey<_EventsScreenState>();
+final eventsScreenKey = GlobalKey<EventsScreenState>();
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({required super.key});
 
   @override
-  State<EventsScreen> createState() => _EventsScreenState();
+  State<EventsScreen> createState() => EventsScreenState<EventsScreen>();
 }
 
-class _EventsScreenState extends State<EventsScreen> {
-  EventsTimeFilter timeFilter = EventsTimeFilter.last24Hours;
+class EventsScreenState<T extends StatefulWidget> extends State<T> {
+  DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
-  List<Server> allowedServers = [...ServersProvider.instance.servers];
 
-  bool isFirstTimeLoading = true;
   final EventsData events = {};
   Map<Server, bool> invalid = {};
 
-  Iterable<Event> filteredEvents = [];
+  List<Event> filteredEvents = [];
 
-  /// The devices that can't be displayed in the list
-  List<String> disabledDevices = [];
+  /// The devices that can't be displayed in the list.
+  ///
+  /// The rtsp url is used to identify the device.
+  Set<String> disabledDevices = {
+    for (final server in ServersProvider.instance.servers)
+      ...server.devices.map((d) => d.streamURL)
+  };
 
   @override
   void initState() {
@@ -79,85 +82,66 @@ class _EventsScreenState extends State<EventsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
   }
 
+  /// Fetches the events from the servers.
   Future<void> fetch() async {
+    events.clear();
+    filteredEvents = [];
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
-    try {
-      // Load the events at the same time
-      await Future.wait(ServersProvider.instance.servers.map((server) async {
-        if (!server.online) return;
+    // Load the events at the same time
+    await Future.wait(ServersProvider.instance.servers.map((server) async {
+      if (!server.online || server.devices.isEmpty) return;
 
-        try {
+      server = await API.instance.checkServerCredentials(server);
+
+      try {
+        final allowedDevices = server.devices
+            .where((d) => d.status && !disabledDevices.contains(d.streamURL));
+
+        // Perform a query for each selected device
+        await Future.wait(allowedDevices.map((device) async {
           final iterable = await API.instance.getEvents(
-            await API.instance.checkServerCredentials(server),
+            server,
+            startTime: startTime,
+            endTime: endTime,
+            device: device,
           );
           if (mounted) {
             super.setState(() {
-              events[server] = iterable;
+              events[server] ??= [];
+              events[server] = [...events[server]!, ...iterable];
               invalid[server] = false;
             });
           }
-        } catch (exception, stacktrace) {
-          debugPrint(exception.toString());
-          debugPrint(stacktrace.toString());
-          invalid[server] = true;
-        }
-      }));
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
+        }));
+      } catch (exception, stacktrace) {
+        debugPrint(exception.toString());
+        debugPrint(stacktrace.toString());
+        invalid[server] = true;
+      }
+    }));
 
     await computeFiltered();
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
-    if (mounted) {
-      super.setState(() {
-        isFirstTimeLoading = false;
-      });
-    }
   }
 
   Future<void> computeFiltered() async {
-    filteredEvents = await compute(_updateFiltered, {
+    filteredEvents = (await compute(_updateFiltered, {
       'events': events,
-      'allowedServers': allowedServers,
-      'timeFilter': timeFilter,
       'levelFilter': levelFilter,
       'disabledDevices': disabledDevices,
-    });
+    }))
+        .toList();
   }
 
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
     final events = data['events'] as EventsData;
-    final allowedServers = data['allowedServers'] as List<Server>;
-    final timeFilter = data['timeFilter'] as EventsTimeFilter;
     final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
-    final disabledDevices = data['disabledDevices'] as List<String>;
+    final disabledDevices = data['disabledDevices'] as Set<String>;
 
-    final hourRange = switch (timeFilter) {
-      EventsTimeFilter.last12Hours => 12,
-      EventsTimeFilter.last24Hours => 24,
-      EventsTimeFilter.last6Hours => 6,
-      EventsTimeFilter.lastHour => 1,
-      EventsTimeFilter.any => -1,
-    };
-
-    final now = DateTime.now();
     return events.values.expand((events) sync* {
       for (final event in events) {
-        // allow events from the allowed servers
-        if (!allowedServers.any((element) => event.server.ip == element.ip)) {
-          continue;
-        }
-
-        // allow events within the time range
-        if (timeFilter != EventsTimeFilter.any) {
-          if (now.difference(event.published).inHours > hourRange) {
-            continue;
-          }
-        }
-
         switch (levelFilter) {
           case EventsMinLevelFilter.alarming:
             if (!event.isAlarm) continue;
@@ -174,7 +158,7 @@ class _EventsScreenState extends State<EventsScreen> {
         final devices = event.server.devices.where((device) =>
             device.name.toLowerCase() == event.deviceName.toLowerCase());
         if (devices.isNotEmpty) {
-          if (disabledDevices.contains(devices.first.rtspURL)) continue;
+          if (disabledDevices.contains(devices.first.streamURL)) continue;
         }
 
         yield event;
@@ -187,11 +171,8 @@ class _EventsScreenState extends State<EventsScreen> {
   void setState(VoidCallback fn) {
     super.setState(fn);
     // computes the events based on the filter, then update the screen
-    final home = context.read<HomeProvider>()
-      ..loading(UnityLoadingReason.fetchingEventsHistory);
     computeFiltered().then((_) {
       if (mounted) super.setState(() {});
-      home.notLoading(UnityLoadingReason.fetchingEventsHistory);
     });
   }
 
@@ -203,42 +184,19 @@ class _EventsScreenState extends State<EventsScreen> {
 
     final hasDrawer = Scaffold.hasDrawer(context);
     final loc = AppLocalizations.of(context);
+    final isLoading = HomeProvider.instance.isLoadingFor(
+      UnityLoadingReason.fetchingEventsHistory,
+    );
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
-        return Column(children: [
-          AppBar(
-            leading: MaybeUnityDrawerButton(context),
-            title: Text(loc.eventBrowser),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  eventsScreenKey.currentState?.fetch();
-                },
-                icon: const Icon(Icons.refresh),
-                iconSize: 20.0,
-                tooltip: loc.refresh,
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 15.0),
-                child: IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  tooltip: loc.filter,
-                  onPressed: () => showMobileFilter(context),
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: EventsScreenMobile(
-              events: filteredEvents,
-              loadedServers: events.keys,
-              refresh: fetch,
-              // isFirstTimeLoading: isFirstTimeLoading,
-              invalid: invalid,
-            ),
-          ),
-        ]);
+        return EventsScreenMobile(
+          events: filteredEvents,
+          loadedServers: events.keys,
+          refresh: fetch,
+          invalid: invalid,
+          showFilter: () => showMobileFilter(context),
+        );
       }
 
       return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -250,61 +208,47 @@ class _EventsScreenState extends State<EventsScreen> {
             child: SafeArea(
               child: DropdownButtonHideUnderline(
                 child: Column(children: [
-                  SubHeader(loc.servers, height: 40.0),
+                  SubHeader(
+                    loc.servers,
+                    height: 38.0,
+                    trailing: Text(
+                      '${ServersProvider.instance.servers.length}',
+                    ),
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: buildTreeView(context, setState: setState),
+                      child: EventsDevicesPicker(
+                        events: events,
+                        disabledDevices: disabledDevices,
+                        onDisabledDeviceAdded: (device) =>
+                            setState(() => disabledDevices.add(device)),
+                        onDisabledDeviceRemoved: (device) =>
+                            setState(() => disabledDevices.remove(device)),
+                      ),
                     ),
                   ),
-                  const SubHeader('Time filter', height: 24.0),
-                  DropdownButton<EventsTimeFilter>(
-                    isExpanded: true,
-                    value: timeFilter,
-                    items: const [
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.any,
-                        child: Text('Any'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.lastHour,
-                        child: Text('Last hour'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last6Hours,
-                        child: Text('Last 6 hours'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last12Hours,
-                        child: Text('Last 12 hours'),
-                      ),
-                      DropdownMenuItem(
-                        value: EventsTimeFilter.last24Hours,
-                        child: Text('Last 24 hours'),
-                      ),
-                      // DropdownMenuItem(
-                      //   child: Text('Select time range'),
-                      //   value: EventsTimeFilter.custom,
-                      // ),
-                    ],
-                    onChanged: (v) => setState(
-                      () => timeFilter = v ?? timeFilter,
-                    ),
+                  SubHeader(loc.timeFilter, height: 24.0),
+                  buildTimeFilterTile(),
+                  // const SubHeader('Minimum level', height: 24.0),
+                  // DropdownButton<EventsMinLevelFilter>(
+                  //   isExpanded: true,
+                  //   value: levelFilter,
+                  //   items: EventsMinLevelFilter.values.map((level) {
+                  //     return DropdownMenuItem(
+                  //       value: level,
+                  //       child: Text(level.name.uppercaseFirst()),
+                  //     );
+                  //   }).toList(),
+                  //   onChanged: (v) => setState(
+                  //     () => levelFilter = v ?? levelFilter,
+                  //   ),
+                  // ),
+                  const SizedBox(height: 8.0),
+                  FilledButton(
+                    onPressed: isLoading ? null : fetch,
+                    child: Text(loc.filter),
                   ),
-                  const SubHeader('Minimum level', height: 24.0),
-                  DropdownButton<EventsMinLevelFilter>(
-                    isExpanded: true,
-                    value: levelFilter,
-                    items: EventsMinLevelFilter.values.map((level) {
-                      return DropdownMenuItem(
-                        value: level,
-                        child: Text(level.name.uppercaseFirst()),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setState(
-                      () => levelFilter = v ?? levelFilter,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 12.0),
                 ]),
               ),
             ),
@@ -316,184 +260,102 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-  Widget buildTreeView(
-    BuildContext context, {
-    double checkboxScale = 0.8,
-    double gapCheckboxText = 0.0,
-    required void Function(VoidCallback fn) setState,
-  }) {
-    final servers = context.watch<ServersProvider>();
-
-    return TreeView(
-      indent: 56,
-      iconSize: 18.0,
-      nodes: servers.servers.map((server) {
-        final isTriState = disabledDevices
-            .any((d) => server.devices.any((device) => device.rtspURL == d));
-        final isOffline = !server.online;
-        final serverEvents = events[server];
-
-        return TreeNode(
-          content: buildCheckbox(
-            value: !allowedServers.contains(server) || isOffline
-                ? false
-                : isTriState
-                    ? null
-                    : true,
-            isError: isOffline,
-            onChanged: (v) {
-              setState(() {
-                if (isTriState) {
-                  disabledDevices.removeWhere((d) =>
-                      server.devices.any((device) => device.rtspURL == d));
-                } else if (v == null || !v) {
-                  allowedServers.remove(server);
-                } else {
-                  allowedServers.add(server);
-                }
-              });
-            },
-            checkboxScale: checkboxScale,
-            text: server.name,
-            secondaryText: '${server.devices.length}',
-            gapCheckboxText: gapCheckboxText,
-          ),
-          children: () {
-            if (isOffline) {
-              return <TreeNode>[];
-            } else {
-              return server.devices.sorted().map((device) {
-                final enabled = isOffline || !allowedServers.contains(server)
-                    ? false
-                    : !disabledDevices.contains(device.rtspURL);
-                final eventsForDevice =
-                    serverEvents?.where((event) => event.deviceID == device.id);
-                return TreeNode(
-                  content: IgnorePointer(
-                    ignoring: !device.status,
-                    child: buildCheckbox(
-                      value: device.status ? enabled : false,
-                      isError: !device.status,
-                      onChanged: (v) {
-                        if (!device.status) return;
-
-                        setState(() {
-                          if (enabled) {
-                            disabledDevices.add(device.rtspURL);
-                          } else {
-                            disabledDevices.remove(device.rtspURL);
-                          }
-                        });
-                      },
-                      checkboxScale: checkboxScale,
-                      text: device.name,
-                      secondaryText: eventsForDevice != null
-                          ? ' (${eventsForDevice.length})'
-                          : null,
-                      gapCheckboxText: gapCheckboxText,
-                    ),
-                  ),
-                );
-              }).toList();
-            }
-          }(),
-        );
-      }).toList(),
-    );
+  Widget buildTimeFilterTile({VoidCallback? onSelect}) {
+    return Builder(builder: (context) {
+      final loc = AppLocalizations.of(context);
+      return ListTile(
+        title: Text(() {
+          final formatter = DateFormat.MEd();
+          if (startTime == null || endTime == null) {
+            return loc.today;
+          } else if (DateUtils.isSameDay(startTime, endTime)) {
+            return formatter.format(startTime!);
+          } else {
+            return loc.fromToDate(
+              formatter.format(startTime!),
+              formatter.format(endTime!),
+            );
+          }
+        }()),
+        onTap: () async {
+          final range = await showDateRangePicker(
+            context: context,
+            firstDate: DateTime(1970),
+            lastDate: DateTime.now(),
+            initialEntryMode: DatePickerEntryMode.calendarOnly,
+          );
+          if (range != null) {
+            startTime = range.start;
+            endTime = range.end;
+            onSelect?.call();
+          }
+        },
+      );
+    });
   }
 
-  Future<void> showMobileFilter(BuildContext context) {
-    return showModalBottomSheet(
+  Future<void> showMobileFilter(BuildContext context) async {
+    /// This is used to update the screen when the bottom sheet is closed.
+    var hasChanged = false;
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) {
-        final loc = AppLocalizations.of(context);
-
         return DraggableScrollableSheet(
           expand: false,
-          maxChildSize: 0.8,
-          initialChildSize: 0.7,
+          maxChildSize: 0.85,
+          initialChildSize: 0.85,
           builder: (context, controller) {
-            return StatefulBuilder(builder: (context, localSetState) {
-              /// This updates the screen in the back and the bottom sheet.
-              /// This is used to avoid the creation of a new StatefulWidget
-              void setState(VoidCallback fn) {
-                this.setState(fn);
-                localSetState(fn);
-              }
+            final loc = AppLocalizations.of(context);
+            return ListView(controller: controller, children: [
+              SubHeader(loc.timeFilter, height: 20.0),
+              buildTimeFilterTile(onSelect: () => hasChanged = true),
+              // const SubHeader('Minimum level'),
+              // DropdownButtonHideUnderline(
+              //   child: DropdownButton<EventsMinLevelFilter>(
+              //     isExpanded: true,
+              //     value: levelFilter,
+              //     items: EventsMinLevelFilter.values.map((level) {
+              //       return DropdownMenuItem(
+              //         value: level,
+              //         child: Text(level.name.uppercaseFirst()),
+              //       );
+              //     }).toList(),
+              //     onChanged: (v) => setState(
+              //       () => levelFilter = v ?? levelFilter,
+              //     ),
+              //   ),
+              // ),
+              SubHeader(loc.servers, height: 36.0),
+              StatefulBuilder(builder: (context, localSetState) {
+                void setState(VoidCallback callback) {
+                  callback();
+                  hasChanged = true;
+                  this.setState(() {});
+                  localSetState(() {});
+                }
 
-              return ListView(controller: controller, children: [
-                const SubHeader('Time filter'),
-                DropdownButton<EventsTimeFilter>(
-                  isExpanded: true,
-                  value: timeFilter,
-                  items: const [
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.any,
-                      child: Text('Any'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.lastHour,
-                      child: Text('Last hour'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last6Hours,
-                      child: Text('Last 6 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last12Hours,
-                      child: Text('Last 12 hours'),
-                    ),
-                    DropdownMenuItem(
-                      value: EventsTimeFilter.last24Hours,
-                      child: Text('Last 24 hours'),
-                    ),
-                    // DropdownMenuItem(
-                    //   child: Text('Select time range'),
-                    //   value: EventsTimeFilter.custom,
-                    // ),
-                  ],
-                  onChanged: (v) => setState(
-                    () => timeFilter = v ?? timeFilter,
-                  ),
-                ),
-                const SubHeader('Minimum level'),
-                DropdownButton<EventsMinLevelFilter>(
-                  isExpanded: true,
-                  value: levelFilter,
-                  items: EventsMinLevelFilter.values.map((level) {
-                    return DropdownMenuItem(
-                      value: level,
-                      child: Text(level.name.uppercaseFirst()),
-                    );
-                  }).toList(),
-                  onChanged: (v) => setState(
-                    () => levelFilter = v ?? levelFilter,
-                  ),
-                ),
-                SubHeader(loc.servers),
-                buildTreeView(
-                  context,
+                return EventsDevicesPicker(
+                  events: events,
+                  disabledDevices: disabledDevices,
                   gapCheckboxText: 10.0,
                   checkboxScale: 1.15,
-                  setState: setState,
-                ),
-              ]);
-            });
+                  onDisabledDeviceAdded: (device) =>
+                      setState(() => disabledDevices.add(device)),
+                  onDisabledDeviceRemoved: (device) =>
+                      setState(() => disabledDevices.remove(device)),
+                );
+              }),
+            ]);
           },
         );
       },
     );
-  }
-}
 
-enum EventsTimeFilter {
-  lastHour,
-  last6Hours,
-  last12Hours,
-  last24Hours,
-  any,
+    if (hasChanged) fetch();
+  }
 }
 
 enum EventsMinLevelFilter {
@@ -502,4 +364,109 @@ enum EventsMinLevelFilter {
   warning,
   alarming,
   critical,
+}
+
+class EventsDevicesPicker extends StatelessWidget {
+  final EventsData events;
+  final Set<String> disabledDevices;
+  final double checkboxScale;
+  final double gapCheckboxText;
+
+  final ValueChanged<String> onDisabledDeviceAdded;
+  final ValueChanged<String> onDisabledDeviceRemoved;
+
+  const EventsDevicesPicker({
+    super.key,
+    required this.events,
+    required this.disabledDevices,
+    required this.onDisabledDeviceAdded,
+    required this.onDisabledDeviceRemoved,
+    this.checkboxScale = 0.8,
+    this.gapCheckboxText = 0.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final servers = context.watch<ServersProvider>();
+
+    return SingleChildScrollView(
+      child: TreeView(
+        indent: 56,
+        iconSize: 18.0,
+        nodes: servers.servers.map((server) {
+          final disabledDevicesForServer = disabledDevices.where(
+              (d) => server.devices.any((device) => device.streamURL == d));
+          final isTriState = disabledDevices.any(
+              (d) => server.devices.any((device) => device.streamURL == d));
+          final isOffline = !server.online;
+          final serverEvents = events[server];
+
+          return TreeNode(
+            content: buildCheckbox(
+              value: disabledDevicesForServer.length == server.devices.length ||
+                      isOffline
+                  ? false
+                  : isTriState
+                      ? null
+                      : true,
+              isError: isOffline,
+              onChanged: (v) {
+                if (v == true) {
+                  for (final d in server.devices) {
+                    onDisabledDeviceRemoved(d.streamURL);
+                  }
+                } else if (v == null || !v) {
+                  for (final d in server.devices) {
+                    onDisabledDeviceAdded(d.streamURL);
+                  }
+                }
+              },
+              checkboxScale: checkboxScale,
+              text: server.name,
+              secondaryText: isOffline ? null : '${server.devices.length}',
+              gapCheckboxText: gapCheckboxText,
+              textFit: FlexFit.tight,
+            ),
+            children: () {
+              if (isOffline) {
+                return <TreeNode>[];
+              } else {
+                return server.devices.sorted().map((device) {
+                  final enabled = isOffline
+                      ? false
+                      : !disabledDevices.contains(device.streamURL);
+                  final eventsForDevice = serverEvents
+                      ?.where((event) => event.deviceID == device.id);
+                  return TreeNode(
+                    content: IgnorePointer(
+                      ignoring: !device.status,
+                      child: buildCheckbox(
+                        value: device.status ? enabled : false,
+                        isError: !device.status,
+                        onChanged: (v) {
+                          if (!device.status) return;
+
+                          if (enabled) {
+                            onDisabledDeviceAdded(device.streamURL);
+                          } else {
+                            onDisabledDeviceRemoved(device.streamURL);
+                          }
+                        },
+                        checkboxScale: checkboxScale,
+                        text: device.name,
+                        secondaryText: eventsForDevice != null && device.status
+                            ? ' (${eventsForDevice.length})'
+                            : null,
+                        gapCheckboxText: gapCheckboxText,
+                      ),
+                    ),
+                  );
+                }).toList();
+              }
+            }(),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }

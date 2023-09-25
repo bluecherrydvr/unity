@@ -44,31 +44,39 @@ class EventsScreenDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
     if (events.isEmpty) {
-      return Center(
-        child: Text(
-          loc.noEventsFound,
-          textAlign: TextAlign.center,
-        ),
+      return NoEventsLoaded(
+        isLoading: context
+            .watch<HomeProvider>()
+            .isLoadingFor(UnityLoadingReason.fetchingEventsHistory),
       );
     }
 
     return Material(
       child: SafeArea(
         child: CustomScrollView(slivers: [
-          SliverPersistentHeader(delegate: _TableHeader(), pinned: true),
+          SliverPersistentHeader(
+            delegate: _TableHeader(eventsAmount: events.length),
+            pinned: true,
+          ),
           SliverFixedExtentList.builder(
             itemCount: events.length,
-            itemExtent: 50.0,
+            itemExtent: 48.0,
             addAutomaticKeepAlives: false,
             addRepaintBoundaries: false,
+            findChildIndexCallback: (key) {
+              final k = key as ValueKey<Event>;
+              return events.indexed
+                  .firstWhereOrNull((e) => e.$2 == k.value)
+                  ?.$1;
+            },
             itemBuilder: (context, index) {
               final event = events.elementAt(index);
 
               return InkWell(
+                key: ValueKey(event),
                 onTap: event.mediaURL == null
                     ? null
                     : () {
@@ -119,6 +127,10 @@ class EventsScreenDesktop extends StatelessWidget {
 }
 
 class _TableHeader extends SliverPersistentHeaderDelegate {
+  final int eventsAmount;
+
+  _TableHeader({required this.eventsAmount});
+
   @override
   Widget build(
     BuildContext context,
@@ -132,11 +144,20 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
       child: Card(
         child: Container(
           height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          margin: const EdgeInsets.symmetric(horizontal: 15.0),
           child: DefaultTextStyle(
             style: theme.textTheme.headlineSmall ?? const TextStyle(),
             child: Row(children: [
-              const SizedBox(width: 40.0, height: 40.0),
+              SizedBox(
+                width: 40.0,
+                height: 40.0,
+                child: Center(
+                  child: Text(
+                    '$eventsAmount',
+                    style: theme.textTheme.labelMedium,
+                  ),
+                ),
+              ),
               _buildTilePart(
                 icon: const Icon(Icons.dns),
                 child: Text(loc.server),
@@ -177,7 +198,43 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
   double get minExtent => 50;
 
   @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+  bool shouldRebuild(covariant _TableHeader oldDelegate) {
+    return eventsAmount != oldDelegate.eventsAmount;
+  }
+}
+
+class NoEventsLoaded extends StatelessWidget {
+  final bool isLoading;
+
+  const NoEventsLoaded({super.key, this.isLoading = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator.adaptive(
+          strokeWidth: 2.0,
+        ),
+      );
+    }
+
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      const Icon(Icons.production_quantity_limits, size: 48.0),
+      Text(
+        loc.noEventsLoaded,
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodyLarge,
+      ),
+      const SizedBox(height: 6.0),
+      const Divider(),
+      const SizedBox(height: 6.0),
+      Text(
+        loc.noEventsLoadedTips,
+        style: theme.textTheme.bodySmall,
+      ),
+    ]);
   }
 }

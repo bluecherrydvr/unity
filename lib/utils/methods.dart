@@ -135,7 +135,7 @@ bool get isCupertino {
 /// Determines the amount of events that can be loaded at once.
 ///
 /// The calculation is based on the current connectivity status. If the device
-/// is connected to a WiFi network, then it returns 750, otherwise it returns
+/// is connected to a WiFi network, then it returns 400, otherwise it returns
 /// 200.
 Future<int> get eventsLimit async {
   final connectivityResult = await Connectivity().checkConnectivity();
@@ -144,7 +144,7 @@ Future<int> get eventsLimit async {
     case ConnectivityResult.wifi:
     case ConnectivityResult.ethernet:
     case ConnectivityResult.vpn:
-      return 750;
+      return 400;
     default:
       return 200;
   }

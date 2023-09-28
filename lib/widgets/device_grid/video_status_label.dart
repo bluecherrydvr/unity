@@ -57,10 +57,10 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   String get _source => widget.video.player.dataSource!;
   bool get isLive =>
       widget.video.player.dataSource != null &&
-      // It is only LIVE if it starts with rtsp and isn't hsl
+      // It is only LIVE if it starts with rtsp or is hsl
       (_source.startsWith('rtsp') ||
           _source.contains('media/mjpeg.php') ||
-          _source.endsWith('index.m3u8'));
+          _source.endsWith('index.m3u8') /* hsl */);
 
   _VideoLabel get status => widget.video.error != null
       ? _VideoLabel.error
@@ -213,14 +213,17 @@ class _DeviceVideoInfo extends StatelessWidget {
 
   List<TextSpan> buildTextSpans(BuildContext context) {
     final loc = AppLocalizations.of(context);
+
+    final name = _buildTextSpan(context, title: loc.device, data: device.name);
+    final server = _buildTextSpan(
+      context,
+      title: loc.server,
+      data: '${device.server.name} (${device.id})',
+    );
     if (isLive) {
       return [
-        _buildTextSpan(context, title: loc.device, data: device.name),
-        _buildTextSpan(
-          context,
-          title: loc.server,
-          data: '${device.server.name} (${device.id})',
-        ),
+        name,
+        server,
         _buildTextSpan(
           context,
           title: loc.ptzSupported,
@@ -241,16 +244,11 @@ class _DeviceVideoInfo extends StatelessWidget {
           last: true,
         ),
       ];
-    } else {
+    } else if (event != null) {
       // If not live, it is a recorded footage
-      assert(event != null);
       return [
-        _buildTextSpan(context, title: loc.device, data: device.name),
-        _buildTextSpan(
-          context,
-          title: loc.server,
-          data: '${device.server.name} (${device.id})',
-        ),
+        name,
+        server,
         _buildTextSpan(
           context,
           title: loc.duration,
@@ -268,6 +266,8 @@ class _DeviceVideoInfo extends StatelessWidget {
           last: true,
         ),
       ];
+    } else {
+      return [name, server];
     }
   }
 

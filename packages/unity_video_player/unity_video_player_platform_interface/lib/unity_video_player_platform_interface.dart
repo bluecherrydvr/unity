@@ -348,15 +348,17 @@ abstract class UnityVideoPlayer {
   }
 
   void _onDurationUpdate(Duration duration) {
-    _lastImageTime = DateTime.now();
-    _isImageOld = false;
-    _oldImageTimer?.cancel();
-    _oldImageTimer = Timer(timerInterval, () {
-      // If the image is still the same after the interval, then it's old.
-      if (duration <= duration) {
-        _isImageOld = true;
-      }
-    });
+    if (duration > Duration.zero) {
+      _lastImageTime = DateTime.now();
+      _isImageOld = false;
+      _oldImageTimer?.cancel();
+      _oldImageTimer = Timer(timerInterval, () {
+        // If the image is still the same after the interval, then it's old.
+        if (duration <= duration) {
+          _isImageOld = true;
+        }
+      });
+    }
   }
 
   /// The current data source url

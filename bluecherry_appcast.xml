@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta12</title>
+            <description>Possibility to filter events by time. Correctly show video when there is any special characters on the password.</description>
+            <pubDate>Thu, 28 Sep 2023</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta11</title>
             <description>Reworked the Timeline of Events and improved overall look and feel. A lot of bug fixes and UX improvements</description>
             <pubDate>Tue, 12 Sep 2023</pubDate>

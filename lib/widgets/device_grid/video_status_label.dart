@@ -54,10 +54,13 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   final overlayKey = GlobalKey(debugLabel: 'Label Overlay');
 
   bool get isLoading => widget.video.lastImageUpdate == null;
+  String get _source => widget.video.player.dataSource!;
   bool get isLive =>
       widget.video.player.dataSource != null &&
-      // It is only LIVE if it starts with rtsp or hsl
-      !widget.video.player.dataSource!.startsWith('http');
+      // It is only LIVE if it starts with rtsp and isn't hsl
+      (_source.startsWith('rtsp') ||
+          _source.contains('media/mjpeg.php') ||
+          _source.endsWith('index.m3u8'));
 
   _VideoLabel get status => widget.video.error != null
       ? _VideoLabel.error

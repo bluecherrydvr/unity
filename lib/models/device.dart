@@ -89,18 +89,40 @@ class Device {
   }
 
   String get rtspURL {
-    return ''
-        'rtsp://'
-        '${server.login}:${server.password}@${server.ip}:${server.rtspPort}'
-        '/$uri';
+    return Uri(
+      scheme: 'rtsp',
+      userInfo: '${Uri.encodeComponent(server.login)}'
+          ':'
+          '${Uri.encodeComponent(server.password)}',
+      host: server.ip,
+      port: server.rtspPort,
+      path: uri,
+    ).toString();
   }
 
   String get mjpegURL {
-    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/media/mjpeg.php?id=$id&multipart=true';
+    return Uri(
+      scheme: 'https',
+      userInfo: '${Uri.encodeComponent(server.login)}'
+          ':'
+          '${Uri.encodeComponent(server.password)}',
+      host: server.ip,
+      port: server.rtspPort,
+      path: 'media/mjpeg.php',
+      query: 'id=$id&multipart=true',
+    ).toString();
   }
 
   String get hslURL {
-    return 'https://${server.login}:${server.password}@${server.ip}:${server.port}/hls/$id/index.m3u8';
+    return Uri(
+      scheme: 'https',
+      userInfo: '${Uri.encodeComponent(server.login)}'
+          ':'
+          '${Uri.encodeComponent(server.password)}',
+      host: server.ip,
+      port: server.port,
+      path: 'hls/$id/index.m3u8',
+    ).toString();
   }
 
   /// Returns the full name of this device, including the server name.

@@ -80,7 +80,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                 strokeWidth: 1.5,
                               ),
                             )
-                          : isSidebarHovering
+                          : isSidebarHovering && devices.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.playlist_add),
                                   tooltip: loc.addAllToView,
@@ -96,46 +96,47 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                 )
                               : null,
                     ),
-                    ...List.generate(
-                      !server.online || isLoading ? 1 : devices.length,
-                      (index) {
-                        final device = devices[index];
-                        final selected =
-                            view.currentLayout.devices.contains(device);
+                    if (devices.isNotEmpty)
+                      ...List.generate(
+                        !server.online || isLoading ? 1 : devices.length,
+                        (index) {
+                          final device = devices[index];
+                          final selected =
+                              view.currentLayout.devices.contains(device);
 
-                        final tile = DesktopDeviceSelectorTile(
-                          device: device,
-                          selected: selected,
-                        );
+                          final tile = DesktopDeviceSelectorTile(
+                            device: device,
+                            selected: selected,
+                          );
 
-                        if (selected || !device.status) return tile;
+                          if (selected || !device.status) return tile;
 
-                        final isBlocked = view.currentLayout.type ==
-                                DesktopLayoutType.singleView &&
-                            view.currentLayout.devices.isNotEmpty;
+                          final isBlocked = view.currentLayout.type ==
+                                  DesktopLayoutType.singleView &&
+                              view.currentLayout.devices.isNotEmpty;
 
-                        return Draggable<Device>(
-                          data: device,
-                          feedback: Card(
-                            child: SizedBox(
-                              height: kDeviceSelectorTileHeight,
-                              width: kSidebarConstraints.maxWidth,
-                              child: Row(children: [
-                                Expanded(child: tile),
-                                if (isBlocked)
-                                  Icon(
-                                    Icons.block,
-                                    color: theme.colorScheme.error,
-                                    size: 18.0,
-                                  ),
-                                const SizedBox(width: 16.0),
-                              ]),
+                          return Draggable<Device>(
+                            data: device,
+                            feedback: Card(
+                              child: SizedBox(
+                                height: kDeviceSelectorTileHeight,
+                                width: kSidebarConstraints.maxWidth,
+                                child: Row(children: [
+                                  Expanded(child: tile),
+                                  if (isBlocked)
+                                    Icon(
+                                      Icons.block,
+                                      color: theme.colorScheme.error,
+                                      size: 18.0,
+                                    ),
+                                  const SizedBox(width: 16.0),
+                                ]),
+                              ),
                             ),
-                          ),
-                          child: tile,
-                        );
-                      },
-                    ),
+                            child: tile,
+                          );
+                        },
+                      ),
                   ]);
                 },
               ),

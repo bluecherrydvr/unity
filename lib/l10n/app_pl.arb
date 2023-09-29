@@ -23,9 +23,9 @@
   "website": "Strona domowa",
   "purchase": "Zakup licencji",
   "tip0": "Kamery pokazane są po lewej. You can double-click or drag the camera into the live area to view it.",
-  "tip1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
-  "tip2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
-  "tip3": "Click the events icon to open the history and watch or save recordings.",
+  "tip1": "Użyj przycisków powyżej podlgądu na żywo aby utworzyć, zapisać lub przełączyć układy - nawet z kamerami z różnych serwerów.",
+  "tip2": "Kliknij podwójnie na serwer aby otworzyć jego konfigurację w nowym oknie, gdzie można skonfigurować kamery i nagrania.",
+  "tip3": "Kliknij na ikonę zdarzeń aby przeglądać historię lub zapisać nagrania.",
   "errorTextField": "{field} nie jest wypełnione.",
   "@errorTextField": {
     "placeholders": {

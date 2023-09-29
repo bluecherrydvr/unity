@@ -1,0 +1,375 @@
+{
+  "@@locale": "pl",
+  "welcome": "Witamy",
+  "welcomeDescription": "Witamy w systemie monitoringu Blueberry!\nPodłącz się do serwera DVR.",
+  "configure": "Konfiguracja serwera DVR",
+  "configureDescription": "Ustawienia połączenia ze zdalnym serwerem DVR",
+  "hostname": "Nazwa hosta",
+  "port": "Port",
+  "name": "Nazwa",
+  "username": "Nazwa użytkownika",
+  "password": "Hasło",
+  "savePassword": "Zapisz hasło",
+  "useDefault": "Użyj wartości domyślnych",
+  "connect": "Połącz",
+  "connectAutomaticallyAtStartup": "Połącz automatycznie przy uruchomieniu",
+  "skip": "Pomiń",
+  "cancel": "Anuluj",
+  "letsGo": "Do dzieła!",
+  "finish": "Zakończ",
+  "letsGoDescription": "Kilka porad jak zacząć",
+  "projectName": "Bluecherry",
+  "projectDescription": "Oprogramowanie do monitoringu wizyjnego",
+  "website": "Strona domowa",
+  "purchase": "Zakup licencji",
+  "tip0": "Kamery pokazane są po lewej. You can double-click or drag the camera into the live area to view it.",
+  "tip1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
+  "tip2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
+  "tip3": "Click the events icon to open the history and watch or save recordings.",
+  "errorTextField": "{field} nie jest wypełnione.",
+  "@errorTextField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "serverAdded": "Dodano serwer",
+  "serverNotAddedError": "{serverName} nie został dodany.",
+  "@serverNotAddedError": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
+  "noServersAvailable": "No servers available",
+  "error": "Error",
+  "ok": "OK",
+  "retry": "Retry",
+  "removeCamera": "Usuń kamerę",
+  "replaceCamera": "Zastąp kamerę",
+  "reloadCamera": "Odśwież kamerę",
+  "selectACamera": "Wybierz kamerę",
+  "switchCamera": "Przełącz kamerę",
+  "online": "Online",
+  "offline": "Offline",
+  "live": "NA ŻYWO",
+  "timedOut": "PRZEKROCZONY CZAS",
+  "loading": "ŁADOWANIE",
+  "recorded": "NAGRANE",
+  "removeFromView": "Usuń z widoku",
+  "addToView": "Dodaj do widoku",
+  "addAllToView": "Dodaj wszystkie do widoku",
+  "eventBrowser": "Historia zdarzeń",
+  "eventsTimeline": "Oś czasu zdarzeń",
+  "server": "Serwer",
+  "device": "Urządzenie",
+  "event": "Zdarzenie",
+  "duration": "Czas trwania",
+  "priority": "Priorytet",
+  "next": "Następny",
+  "previous": "Poprzedni",
+  "lastImageUpdate": "Ostatnia aktualizacja obrazu",
+  "fps": "FPS",
+  "date": "Data",
+  "lastUpdate": "Ostatnia aktualizacja",
+  "theme": "Motyw",
+  "themeDescription": "Zmień wygląd aplikacji",
+  "system": "Systemowy",
+  "light": "Jasny",
+  "dark": "Ciemny",
+  "screens": "Ekrany",
+  "directCamera": "Kamera bezpośrednia",
+  "addServer": "Dodaj serwer",
+  "settings": "Ustawienia",
+  "noServersAdded": "Nie dodano serwerów",
+  "editServerInfo": "Modyfikuj informację serwera",
+  "editServer": "Modyfikuj serwer {serverName}",
+  "@editServer": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "pressBackAgainToExit": "Naciśnij ponownie przycisk wstecz aby wyjść",
+  "servers": "Serwery",
+  "nServers": "{n, plural, =0{Brak serwerów} =1{1 serwer} other{{n} serwerów}}",
+  "@nServers": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "dateFormat": "Format daty",
+  "timeFormat": "Format czasu",
+  "nDevices": "{n, plural, =0{Brak urządzeń} =1{1 urządzenie} other{{n} urządzeń}}",
+  "@nDevices": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "remove": "Usunąć ?",
+  "removeServerDescription": "{serverName} zostanie usunięty z aplikacji. Nie będzie możliwości podglądu kamer z tego serwera oraz nie będą odbierane z niego powiadomienia.",
+  "@removeServerDescription": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "yes": "Tak",
+  "no": "Nie",
+  "about": "O programie",
+  "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
+  "snooze15": "15 minut",
+  "snooze30": "30 minut",
+  "snooze60": "1 godzina",
+  "miscellaneous": "Różne",
+  "snoozeNotifications": "Uśpij powiadomienia",
+  "notSnoozed": "Nie usypiaj",
+  "snoozeNotificationsUntil": "Uśpij powiadomienia do",
+  "snoozedUntil": "Uśpiono do {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cameraViewFit": "Dopasowanie obrazu kamery",
+  "contain": "Zawartość",
+  "fill": "Wypełnienie",
+  "cover": "Pokrycie",
+  "gettingDevices": "Pobieranie urządzeń...",
+  "noDevices": "Brak urządzeń",
+  "noEventsLoaded": "NIE ZAŁADOWANO ZDARZEŃ",
+  "noEventsLoadedTips": "•  Wybież kamery do podglądu zdarzeń\n•  Użyj kalnedarza żeby wybrać konkretną datę lub zakres \n•  Użyj przycisku \"Filtr\" aby wyszukiwać",
+  "invalidResponse": "Odebrano nieprawidłową odpowiedź z serwera",
+  "cameraOptions": "Opcje",
+  "notificationClickBehavior": "Zachowanie po kliknięciu na powiadomienie",
+  "showFullscreenCamera": "Pokaż na pełnym ekranie",
+  "openInANewWindow": "Otwórz w nowym oknie",
+  "enableAudio": "Włącz dźwięk",
+  "disableAudio": "Wyłącz dźwięk",
+  "showEventsScreen": "Pokaż historię zdarzeń",
+  "addNewServer": "Dodaj nowy serwer",
+  "disconnectServer": "Rozłącz",
+  "serverOptions": "Opcje serwera",
+  "browseEvents": "Przegląd zdarzeń",
+  "eventType": "Typ zdarzenia",
+  "configureServer": "Konfiguracja serwera",
+  "refreshDevices": "Odśwież urządzenia",
+  "refreshServer": "Odśwież serwer",
+  "refresh": "Odśwież",
+  "view": "Widok",
+  "@Layouts": {},
+  "cycle": "Cykl",
+  "cycleTogglePeriod": "Okres cyklicznego przełączania układu",
+  "fallbackLayoutName": "Układ {layout}",
+  "@fallbackLayoutName": {
+    "placeholders": {
+      "layout": {
+        "type": "int"
+      }
+    }
+  },
+  "newLayout": "Nowy układ",
+  "editLayout": "Zmień układ",
+  "exportLayout": "Eksportuj układ",
+  "importLayout": "Importuj układ",
+  "failedToImportMessage": "Podczas próby importu {layoutName}, zostało odnalezione urządzenie podłączone do serwera, z którym nie ma połączenia. Podłącz się do tego serwera i spróbuj ponownie.\nSerwer: {server_ip}:{server_port}",
+  "@failedToImportMessage": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      },
+      "server_ip": {
+        "type": "String"
+      },
+      "server_port": {
+        "type": "int"
+      }
+    }
+  },
+  "layoutImportFileCorrupted": "Plik, który próbujesz zaimportować jest uszkodzony lub brakuje informacji.",
+  "layoutImportFileCorruptedWithMessage": "Plik, który próbujesz zaimportować jest uszkodzony lub brakuje informacji: \"{message}\"",
+  "singleView": "Widok pojedynczy",
+  "multipleView": "Widok wielokrotny",
+  "compactView": "Widok kompaktowy",
+  "createNewLayout": "Utwórz nowy układ",
+  "layoutNameHint": "Nazwa układu",
+  "layoutTypeHint": "Typ układu",
+  "@Downloads": {},
+  "downloads": "Pobrania",
+  "download": "Pobierz",
+  "downloaded": "Pobrane",
+  "downloading": "Pobieranie",
+  "seeInDownloads": "Zobacz w Pobranych",
+  "delete": "Usuń",
+  "showInFiles": "Pokaż w Plikach",
+  "noDownloads": "Jeszcze niczego nie pobrano :/",
+  "howToDownload": "Przejdź do ekranu \"Historii zdarzeń\" by pobrać zdarzenia.",
+  "downloadTitle": "{event} na {device} serwer {server} o {date}",
+  "@downloadTitle": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadPath": "Katalog pobranych",
+  "playbackOptions": "OPCJE ODTWARZANIA",
+  "play": "Odtwarzaj",
+  "pause": "Pauza",
+  "volume": "Głośność • {v}",
+  "@volume": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "speed": "Speed • {s}",
+  "@speed": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecords": "Ta kamera nie ma nagrań w tym zakresie.",
+  "filter": "Filtr",
+  "timeFilter": "Filtr czasu",
+  "fromDate": "Od",
+  "toDate": "Do",
+  "today": "Dziś",
+  "yesterday": "Wczoraj",
+  "never": "nigdy",
+  "fromToDate": "{from} do {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "allowAlarms": "Zezwól na alarmy",
+  "nextEvents": "Następne zdarzenia",
+  "nEvents": "{n, plural, =0{Brak zdarzeń} =1{1 zdarzenie} other{{n} zdarzeń}}",
+  "@nEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@Event Priorities": {},
+  "info": "Info",
+  "warn": "Ostrzeżenie",
+  "alarm": "Alarm",
+  "critical": "Krytyczne",
+  "@Event Types": {},
+  "motion": "Ruch",
+  "continuous": "Ciągły",
+  "notFound": "Nie znaleziono",
+  "cameraVideoLost": "Utracone wideo",
+  "cameraAudioLost": "Utracone audio",
+  "systemDiskSpace": "Przestrzeń dyskowa",
+  "systemCrash": "Błąd krytyczny",
+  "systemBoot": "Uruchomienie",
+  "systemShutdown": "Wyłączenie",
+  "systemReboot": "Ponowne uruchomienie",
+  "systemPowerOutage": "Utrata zasilania",
+  "unknown": "Nieznany",
+  "close": "Zamknij",
+  "open": "Otwórz",
+  "collapse": "Zwiń",
+  "expand": "Rozwiń",
+  "@PTZ": {},
+  "ptzSupported": "PTZ jest wspierane",
+  "enabledPTZ": "PTZ jest włączone",
+  "disabledPTZ": "PTZ jest wyłączone",
+  "move": "Ruch",
+  "stop": "Stop",
+  "noMovement": "Brak ruchu",
+  "moveNorth": "Przesuń w górę",
+  "moveSouth": "Przesuń w dół",
+  "moveWest": "Przesuń na zachód",
+  "moveEast": "Przesuń na wschód",
+  "moveWide": "Oddal",
+  "moveTele": "Przybliż",
+  "presets": "Ustawienia wstępne",
+  "noPresets": "Nie znaleziono ustawień wstępnych",
+  "newPreset": "Nowe ustawienie wstępne",
+  "goToPreset": "Idź do ustawienia wstępnego",
+  "renamePreset": "Zmień nazwę ustawienia",
+  "deletePreset": "Usuń ustawienie",
+  "refreshPresets": "Odśwież ustawienia",
+  "@Resolution": {},
+  "resolution": "Rozdzielczość",
+  "selectResolution": "Wybierz rozdzielczość",
+  "setResolution": "Ustaw rozdzielczość",
+  "setResolutionDescription": "Rozdzielczość strumienia wideo może mieć duży wpływ na wydajność aplikacji. Ustaw niższą rozdzielczość aby przyspieszyć działanie lub wyższą żeby zwiększyć jakość obrazu. Można ustawić rozdzielczość domyślną dla każdej kamery w ustawieniach.",
+  "hd": "Wysoka jakość",
+  "defaultResolution": "Rozdzielczość domyślna",
+  "p1080": "1080p",
+  "p720": "720p",
+  "p480": "480p",
+  "p360": "360p",
+  "p240": "240p",
+  "@updates": {},
+  "updates": "Aktualizacje",
+  "upToDate": "Aplikacja jest aktualna.",
+  "lastChecked": "Sprawdzono: {date}",
+  "@lastChecked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForUpdates": "Sprawdź aktualizację",
+  "checkingForUpdates": "Sprawdzanie aktualizacji",
+  "automaticDownloadUpdates": "Pobieraj aktualizacje automatycznie",
+  "automaticDownloadUpdatesDescription": "Bądź jedną z pierwszych osób, które otrzymają najnowsze aktualizacje, poprawki i ulepszenia w miarę ich wdrażania.",
+  "updateHistory": "Historia aktualizacji",
+  "newVersionAvailable": "Dostępna nowa wersja",
+  "installVersion": "Instaluj",
+  "downloadVersion": "Pobierz",
+  "learnMore": "Dowiedz się więcej",
+  "failedToUpdate": "Aktualizacja nieudana",
+  "executableNotFound": "Nie odnaleziono programu",
+  "runningOn": "Uruchomiono na {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@CURRENT TASKS": {},
+  "currentTasks": "Bieżące zadania",
+  "noCurrentTasks": "Brak zadań",
+  "taskFetchingEvent": "Pobieranie zdarzeń",
+  "taskFetchingEventsPlayback": "Pobieranie zdarzeń odtwarania",
+  "taskDownloadingEvent": "Pobieranie zdarzenia"
+}

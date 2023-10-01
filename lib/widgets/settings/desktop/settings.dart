@@ -19,6 +19,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
     return Row(children: [
       NavigationRail(
         destinations: [
@@ -56,16 +58,26 @@ class _DesktopSettingsState extends State<DesktopSettings> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: AnimatedSwitcher(
-              duration: kThemeChangeDuration,
-              child: switch (currentIndex) {
-                0 => const GeneralSettings(),
-                1 => const ServerSettings(),
-                2 => const AppearanceSettings(),
-                3 => const UpdatesSettings(),
-                4 => const LocalizationSettings(),
-                _ => const GeneralSettings(),
-              },
+            child: DropdownButtonHideUnderline(
+              child: Theme(
+                data: theme.copyWith(
+                  colorScheme: theme.colorScheme.copyWith(
+                    surface: theme.colorScheme.background,
+                    background: theme.colorScheme.surface,
+                  ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: kThemeChangeDuration,
+                  child: switch (currentIndex) {
+                    0 => const GeneralSettings(),
+                    1 => const ServerSettings(),
+                    2 => const AppearanceSettings(),
+                    3 => const UpdatesSettings(),
+                    4 => const LocalizationSettings(),
+                    _ => const GeneralSettings(),
+                  },
+                ),
+              ),
             ),
           ),
         ),

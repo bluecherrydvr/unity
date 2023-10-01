@@ -41,7 +41,7 @@ import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 part 'date_time.dart';
-part 'server_tile.dart';
+part '../shared/server_tile.dart';
 
 class MobileSettings extends StatefulWidget {
   const MobileSettings({super.key});

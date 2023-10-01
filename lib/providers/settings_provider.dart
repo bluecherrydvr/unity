@@ -45,6 +45,9 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
   static Future<Directory> get kDefaultDownloadsDirectory =>
       DownloadsManager.kDefaultDownloadsDirectory;
+  static const kDefaultStreamingType = StreamingType.rtsp;
+  static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
+  static const kDefaultVideoQuality = UnityVideoQuality.p480;
 
   // Getters.
   ThemeMode get themeMode => _themeMode;
@@ -57,6 +60,9 @@ class SettingsProvider extends ChangeNotifier {
   String get downloadsDirectory => _downloadsDirectory;
   bool get layoutCyclingEnabled => _layoutCyclingEnabled;
   Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
+  StreamingType get streamingType => _streamingType;
+  RTSPProtocol get rtspProtocol => _rtspProtocol;
+  UnityVideoQuality get videoQuality => _videoQuality;
 
   // Setters.
   set themeMode(ThemeMode value) {
@@ -111,6 +117,21 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
+  set streamingType(StreamingType value) {
+    _streamingType = value;
+    _save();
+  }
+
+  set rtspProtocol(RTSPProtocol value) {
+    _rtspProtocol = value;
+    _save();
+  }
+
+  set videoQuality(UnityVideoQuality value) {
+    _videoQuality = value;
+    _save();
+  }
+
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
@@ -120,6 +141,9 @@ class SettingsProvider extends ChangeNotifier {
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
   late Duration _layoutCyclingTogglePeriod;
+  late StreamingType _streamingType;
+  late RTSPProtocol _rtspProtocol;
+  late UnityVideoQuality _videoQuality;
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -146,6 +170,9 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
       kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
+      kHiveStreamingType: streamingType.index,
+      kHiveStreamingProtocol: rtspProtocol.index,
+      kHiveVideoQuality: videoQuality.index,
     });
 
     if (notify) notifyListeners();
@@ -217,6 +244,24 @@ class SettingsProvider extends ChangeNotifier {
       _layoutCyclingTogglePeriod = kDefaultLayoutCyclingTogglePeriod;
     }
 
+    if (data.containsKey(kHiveStreamingType)) {
+      _streamingType = StreamingType.values[data[kHiveStreamingType]!];
+    } else {
+      _streamingType = kDefaultStreamingType;
+    }
+
+    if (data.containsKey(kHiveStreamingProtocol)) {
+      _rtspProtocol = RTSPProtocol.values[data[kHiveStreamingProtocol]!];
+    } else {
+      _rtspProtocol = kDefaultRTSPProtocol;
+    }
+
+    if (data.containsKey(kHiveVideoQuality)) {
+      _videoQuality = UnityVideoQuality.values[data[kHiveVideoQuality]!];
+    } else {
+      _videoQuality = kDefaultVideoQuality;
+    }
+
     notifyListeners();
   }
 
@@ -264,4 +309,14 @@ enum NotificationClickBehavior {
       NotificationClickBehavior.showFullscreenCamera => loc.showEventsScreen,
     };
   }
+}
+
+enum StreamingType {
+  rtsp,
+  hls,
+}
+
+enum RTSPProtocol {
+  tcp,
+  udp,
 }

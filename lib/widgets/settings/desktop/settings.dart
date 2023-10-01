@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/widgets/settings/desktop/appearance.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/date_language.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/general.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/server.dart';
@@ -27,6 +27,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DesktopSettings extends StatefulWidget {
   const DesktopSettings({super.key});
+
+  static const horizontalPadding = EdgeInsets.symmetric(horizontal: 24.0);
+  static const verticalPadding = EdgeInsets.symmetric(vertical: 16.0);
 
   @override
   State<DesktopSettings> createState() => _DesktopSettingsState();
@@ -40,43 +43,41 @@ class _DesktopSettingsState extends State<DesktopSettings> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
-    return Row(children: [
-      NavigationRail(
-        destinations: [
-          const NavigationRailDestination(
-            icon: Icon(Icons.dashboard),
-            label: Text('General'),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.dns),
-            label: Text(loc.servers),
-          ),
-          const NavigationRailDestination(
-            icon: Icon(Icons.brightness_auto),
-            label: Text('Appearance'),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.update),
-            label: Text(loc.updates),
-          ),
-          const NavigationRailDestination(
-            icon: Icon(Icons.language),
-            label: Text('Date and Language'),
-          ),
-        ],
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) => setState(() => currentIndex = index),
-      ),
-      Expanded(
-        child: Card(
-          margin: EdgeInsetsDirectional.zero,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadiusDirectional.only(
-              topStart: Radius.circular(12.0),
+    return LayoutBuilder(builder: (context, constraints) {
+      return Row(children: [
+        NavigationRail(
+          extended: constraints.maxWidth >
+              kMobileBreakpoint.width + kMobileBreakpoint.width / 4,
+          destinations: [
+            const NavigationRailDestination(
+              icon: Icon(Icons.dashboard),
+              label: Text('General'),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            NavigationRailDestination(
+              icon: const Icon(Icons.dns),
+              label: Text(loc.servers),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.update),
+              label: Text(loc.updates),
+            ),
+            const NavigationRailDestination(
+              icon: Icon(Icons.language),
+              label: Text('Date and Language'),
+            ),
+          ],
+          selectedIndex: currentIndex,
+          onDestinationSelected: (index) =>
+              setState(() => currentIndex = index),
+        ),
+        Expanded(
+          child: Card(
+            margin: EdgeInsetsDirectional.zero,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadiusDirectional.only(
+                topStart: Radius.circular(12.0),
+              ),
+            ),
             child: DropdownButtonHideUnderline(
               child: Theme(
                 data: theme.copyWith(
@@ -90,9 +91,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                   child: switch (currentIndex) {
                     0 => const GeneralSettings(),
                     1 => const ServerSettings(),
-                    2 => const AppearanceSettings(),
-                    3 => const UpdatesSettings(),
-                    4 => const LocalizationSettings(),
+                    2 => const UpdatesSettings(),
+                    3 => const LocalizationSettings(),
                     _ => const GeneralSettings(),
                   },
                 ),
@@ -100,7 +100,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
             ),
           ),
         ),
-      ),
-    ]);
+      ]);
+    });
   }
 }

@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -32,14 +33,23 @@ class LocalizationSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return ListView(children: [
-      Text('Language', style: theme.textTheme.titleMedium),
+    return ListView(padding: DesktopSettings.verticalPadding, children: [
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text('Language', style: theme.textTheme.titleMedium),
+      ),
       const LanguageSection(),
       const SizedBox(height: 12.0),
-      Text(loc.dateFormat, style: theme.textTheme.titleMedium),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
+      ),
       const DateFormatSection(),
       const SizedBox(height: 12.0),
-      Text(loc.timeFormat, style: theme.textTheme.titleMedium),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
+      ),
       const TimeFormatSection(),
     ]);
   }

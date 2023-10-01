@@ -20,6 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -35,22 +36,27 @@ class UpdatesSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final update = context.watch<UpdateManager>();
 
-    return ListView(children: [
-      Text(
-        loc.updates,
-        style: theme.textTheme.titleMedium,
-      ),
-      Text(
-        loc.runningOn(() {
-          if (Platform.isLinux) {
-            return 'Linux ${update.linuxEnvironment}';
-          } else if (Platform.isWindows) {
-            return 'Windows';
-          }
+    return ListView(padding: DesktopSettings.verticalPadding, children: [
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+            loc.updates,
+            style: theme.textTheme.titleMedium,
+          ),
+          Text(
+            loc.runningOn(() {
+              if (Platform.isLinux) {
+                return 'Linux ${update.linuxEnvironment}';
+              } else if (Platform.isWindows) {
+                return 'Windows';
+              }
 
-          return defaultTargetPlatform.name;
-        }()),
-        style: theme.textTheme.labelSmall,
+              return defaultTargetPlatform.name;
+            }()),
+            style: theme.textTheme.labelSmall,
+          ),
+        ]),
       ),
       const AppUpdateCard(),
       const AppUpdateOptions(),

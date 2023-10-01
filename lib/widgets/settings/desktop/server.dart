@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -32,25 +33,41 @@ class ServerSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    return ListView(children: [
-      Text(
-        loc.servers,
-        style: theme.textTheme.titleMedium,
+    return ListView(padding: DesktopSettings.verticalPadding, children: [
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(
+          loc.servers,
+          style: theme.textTheme.titleMedium,
+        ),
       ),
       const ServersList(),
-      Text(
-        'Streaming Settings',
-        style: theme.textTheme.titleMedium,
+      const SizedBox(height: 8.0),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(
+          'Streaming Settings',
+          style: theme.textTheme.titleMedium,
+        ),
       ),
       const SizedBox(height: 8.0),
-      const StreamingSettings(),
+      const Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: StreamingSettings(),
+      ),
       const SizedBox(height: 12.0),
-      Text(
-        'Cameras Settings',
-        style: theme.textTheme.titleMedium,
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(
+          'Cameras Settings',
+          style: theme.textTheme.titleMedium,
+        ),
       ),
       const SizedBox(height: 8.0),
-      const CamerasSettings(),
+      const Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: CamerasSettings(),
+      ),
     ]);
   }
 }

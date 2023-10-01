@@ -50,6 +50,7 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultVideoQuality = UnityVideoQuality.p480;
 
   // Getters.
+  Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
@@ -65,6 +66,11 @@ class SettingsProvider extends ChangeNotifier {
   UnityVideoQuality get videoQuality => _videoQuality;
 
   // Setters.
+  set locale(Locale value) {
+    _locale = value;
+    _save();
+  }
+
   set themeMode(ThemeMode value) {
     _themeMode = value;
     _save().then((_) {
@@ -132,6 +138,7 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
+  late Locale _locale;
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
@@ -161,6 +168,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> _save({bool notify = true}) async {
     await settings.write({
+      kHiveLocale: locale.toLanguageTag(),
       kHiveThemeMode: themeMode.index,
       kHiveDateFormat: dateFormat.pattern!,
       kHiveTimeFormat: timeFormat.pattern!,
@@ -187,6 +195,11 @@ class SettingsProvider extends ChangeNotifier {
     // To circumvent this, we are closing all the existing opened [Hive] [Box]es and re-opening them again. This fetches the latest data.
     // Though, changes are still not instant.
     final data = await settings.read() as Map;
+    if (data.containsKey(kHiveLocale)) {
+      _locale = Locale(data[kHiveLocale]!);
+    } else {
+      _locale = Locale(Intl.getCurrentLocale());
+    }
     if (data.containsKey(kHiveThemeMode)) {
       _themeMode = ThemeMode.values[data[kHiveThemeMode]!];
     } else {

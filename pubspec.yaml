@@ -30,6 +30,7 @@ dependencies:
   sliver_tools: ^0.2.12
 
   intl: ^0.18.1
+  flutter_localized_locales: ^2.0.5
   duration: ^3.0.12
   firebase_core: 2.10.0
   firebase_messaging: ^14.4.1

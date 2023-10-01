@@ -38,6 +38,7 @@ const kHiveMobileViewTab = 'mobile_view_current_tab';
 const kHiveDesktopLayouts = 'desktop_view_layouts';
 const kHiveDesktopCurrentLayout = 'desktop_view_current_layout';
 const kHiveNotificationToken = 'notification_token';
+const kHiveLocale = 'locale';
 const kHiveThemeMode = 'theme_mode';
 const kHiveDateFormat = 'date_format';
 const kHiveTimeFormat = 'time_format';

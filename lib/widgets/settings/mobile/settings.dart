@@ -300,41 +300,7 @@ class _MobileSettingsState extends State<MobileSettings> {
               ]),
               const SliverToBoxAdapter(child: DateTimeSection()),
               SliverToBoxAdapter(child: SubHeader(loc.about)),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8.0),
-                      Text(update.packageInfo.version),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        loc.versionText,
-                        style: theme.textTheme.displayMedium,
-                      ),
-                      const SizedBox(height: 8.0),
-                      MaterialButton(
-                        onPressed: () {
-                          launchUrl(
-                            Uri.https('www.bluecherrydvr.com', '/'),
-                            mode: LaunchMode.externalApplication,
-                          );
-                        },
-                        padding: EdgeInsets.zero,
-                        minWidth: 0.0,
-                        child: Text(
-                          loc.website,
-                          semanticsLabel: 'www.bluecherrydvr.com',
-                          style: TextStyle(
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              const SliverToBoxAdapter(child: About()),
               const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
             ]),
           ),

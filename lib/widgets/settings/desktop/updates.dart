@@ -17,7 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
+import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class UpdatesSettings extends StatelessWidget {
   const UpdatesSettings({super.key});
@@ -25,11 +32,30 @@ class UpdatesSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final update = context.watch<UpdateManager>();
+
     return ListView(children: [
       Text(
-        'Updates',
-        style: theme.textTheme.titleLarge,
+        loc.updates,
+        style: theme.textTheme.titleMedium,
       ),
+      Text(
+        loc.runningOn(() {
+          if (Platform.isLinux) {
+            return 'Linux ${update.linuxEnvironment}';
+          } else if (Platform.isWindows) {
+            return 'Windows';
+          }
+
+          return defaultTargetPlatform.name;
+        }()),
+        style: theme.textTheme.labelSmall,
+      ),
+      const AppUpdateCard(),
+      const AppUpdateOptions(),
+      const Divider(),
+      const About(),
     ]);
   }
 }

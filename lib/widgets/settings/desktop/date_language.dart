@@ -53,7 +53,6 @@ class LanguageSection extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final currentLocale = Localizations.localeOf(context);
     const locales = AppLocalizations.supportedLocales;
-
     final names = LocaleNames.of(context)!;
 
     return LayoutBuilder(builder: (context, consts) {

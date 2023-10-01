@@ -25,6 +25,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// The card that displays the update information.
 class AppUpdateCard extends StatelessWidget {
@@ -334,6 +335,51 @@ class AppUpdateOptions extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class About extends StatelessWidget {
+  const About({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final update = context.watch<UpdateManager>();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8.0),
+          Text(update.packageInfo.version),
+          const SizedBox(height: 8.0),
+          Text(
+            loc.versionText,
+            style: theme.textTheme.displayMedium,
+          ),
+          const SizedBox(height: 8.0),
+          MaterialButton(
+            onPressed: () {
+              launchUrl(
+                Uri.https('www.bluecherrydvr.com', '/'),
+                mode: LaunchMode.externalApplication,
+              );
+            },
+            padding: EdgeInsets.zero,
+            minWidth: 0.0,
+            child: Text(
+              loc.website,
+              semanticsLabel: 'www.bluecherrydvr.com',
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

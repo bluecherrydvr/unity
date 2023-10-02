@@ -327,6 +327,7 @@ enum NotificationClickBehavior {
 enum StreamingType {
   rtsp,
   hls,
+  mpeg,
 }
 
 enum RTSPProtocol {

@@ -32,22 +32,23 @@ class LocalizationSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    const horizontalPadding = EdgeInsetsDirectional.symmetric(horizontal: 16.0);
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       Padding(
-        padding: DesktopSettings.horizontalPadding,
+        padding: horizontalPadding,
         child: Text('Language', style: theme.textTheme.titleMedium),
       ),
       const LanguageSection(),
       const SizedBox(height: 12.0),
       Padding(
-        padding: DesktopSettings.horizontalPadding,
+        padding: horizontalPadding,
         child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
       ),
       const DateFormatSection(),
       const SizedBox(height: 12.0),
       Padding(
-        padding: DesktopSettings.horizontalPadding,
+        padding: horizontalPadding,
         child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
       ),
       const TimeFormatSection(),

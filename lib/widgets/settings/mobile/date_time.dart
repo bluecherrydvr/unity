@@ -81,6 +81,7 @@ class DateFormatSection extends StatelessWidget {
                   maxLines: 1,
                   softWrap: false,
                 ),
+                subtitle: Text(format.pattern ?? ''),
               ),
             );
           }).toList(),
@@ -101,6 +102,7 @@ class DateFormatSection extends StatelessWidget {
                   format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
                 ),
               ),
+              subtitle: Text(format.pattern ?? ''),
             );
           }).toList(),
         );
@@ -129,10 +131,8 @@ class TimeFormatSection extends StatelessWidget {
               groupValue: settings.timeFormat.pattern,
               onChanged: (value) => settings.timeFormat = format,
             ),
-            title: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8.0),
-              child: Text(format.format(date)),
-            ),
+            title: Text(format.format(date)),
+            subtitle: Text(format.pattern ?? ''),
           );
         }).toList(),
       );

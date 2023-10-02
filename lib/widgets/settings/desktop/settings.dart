@@ -79,23 +79,26 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               ),
             ),
             child: DropdownButtonHideUnderline(
-              child: Theme(
-                data: theme.copyWith(
-                  colorScheme: theme.colorScheme.copyWith(
-                    surface: theme.colorScheme.background,
-                    background: theme.colorScheme.surface,
-                  ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: kThemeChangeDuration,
-                  child: switch (currentIndex) {
-                    0 => const GeneralSettings(),
-                    1 => const ServerSettings(),
-                    2 => const UpdatesSettings(),
-                    3 => const LocalizationSettings(),
-                    _ => const GeneralSettings(),
-                  },
-                ),
+              child: AnimatedSwitcher(
+                duration: kThemeChangeDuration,
+                child: switch (currentIndex) {
+                  0 => const GeneralSettings(),
+                  1 => Theme(
+                      data: theme.copyWith(
+                        cardTheme: CardTheme(
+                          color: ElevationOverlay.applySurfaceTint(
+                            theme.colorScheme.background,
+                            theme.colorScheme.surfaceTint,
+                            4,
+                          ),
+                        ),
+                      ),
+                      child: const ServerSettings(),
+                    ),
+                  2 => const UpdatesSettings(),
+                  3 => const LocalizationSettings(),
+                  _ => const GeneralSettings(),
+                },
               ),
             ),
           ),

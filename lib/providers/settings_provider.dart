@@ -47,7 +47,7 @@ class SettingsProvider extends ChangeNotifier {
       DownloadsManager.kDefaultDownloadsDirectory;
   static const kDefaultStreamingType = StreamingType.rtsp;
   static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
-  static const kDefaultVideoQuality = UnityVideoQuality.p480;
+  static const kDefaultVideoQuality = RenderingQuality.automatic;
 
   // Getters.
   Locale get locale => _locale;
@@ -63,7 +63,7 @@ class SettingsProvider extends ChangeNotifier {
   Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
   StreamingType get streamingType => _streamingType;
   RTSPProtocol get rtspProtocol => _rtspProtocol;
-  UnityVideoQuality get videoQuality => _videoQuality;
+  RenderingQuality get videoQuality => _videoQuality;
 
   // Setters.
   set locale(Locale value) {
@@ -133,7 +133,7 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  set videoQuality(UnityVideoQuality value) {
+  set videoQuality(RenderingQuality value) {
     _videoQuality = value;
     _save();
   }
@@ -150,7 +150,7 @@ class SettingsProvider extends ChangeNotifier {
   late Duration _layoutCyclingTogglePeriod;
   late StreamingType _streamingType;
   late RTSPProtocol _rtspProtocol;
-  late UnityVideoQuality _videoQuality;
+  late RenderingQuality _videoQuality;
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -270,7 +270,7 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     if (data.containsKey(kHiveVideoQuality)) {
-      _videoQuality = UnityVideoQuality.values[data[kHiveVideoQuality]!];
+      _videoQuality = RenderingQuality.values[data[kHiveVideoQuality]!];
     } else {
       _videoQuality = kDefaultVideoQuality;
     }
@@ -324,13 +324,29 @@ enum NotificationClickBehavior {
   }
 }
 
+enum RenderingQuality {
+  automatic,
+  p1080,
+  p720,
+  p480,
+  p360,
+  p240;
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      RenderingQuality.p1080 => loc.p1080,
+      RenderingQuality.p720 => loc.p720,
+      RenderingQuality.p480 => loc.p480,
+      RenderingQuality.p360 => loc.p360,
+      RenderingQuality.p240 => loc.p240,
+      RenderingQuality.automatic => 'Automatic',
+    };
+  }
+}
+
 enum StreamingType {
   rtsp,
   hls,
   mpeg,
-}
-
-enum RTSPProtocol {
-  tcp,
-  udp,
 }

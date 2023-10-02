@@ -82,7 +82,7 @@ class Device {
   /// If the app is running on the web, then HLS is used, otherwise RTSP is used.
   String get streamURL {
     if (kIsWeb) {
-      return hslURL;
+      return hlsURL;
     } else {
       return rtspURL;
     }
@@ -113,7 +113,7 @@ class Device {
     ).toString();
   }
 
-  String get hslURL {
+  String get hlsURL {
     return Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'

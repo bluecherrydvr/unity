@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -37,10 +38,23 @@ class UnityPlayers with ChangeNotifier {
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(Device device) {
     debugPrint(device.streamURL);
+    final settings = SettingsProvider.instance;
     final controller = UnityVideoPlayer.create(
-      quality: UnityVideoQuality.qualityForResolutionY(device.resolutionY),
+      quality: switch (settings.videoQuality) {
+        RenderingQuality.p1080 => UnityVideoQuality.p1080,
+        RenderingQuality.p720 => UnityVideoQuality.p720,
+        RenderingQuality.p480 => UnityVideoQuality.p480,
+        RenderingQuality.p360 => UnityVideoQuality.p360,
+        RenderingQuality.p240 => UnityVideoQuality.p240,
+        RenderingQuality.automatic =>
+          UnityVideoQuality.qualityForResolutionY(device.resolutionY),
+      },
     )
-      ..setDataSource(device.streamURL)
+      ..setDataSource(switch (settings.streamingType) {
+        StreamingType.rtsp => device.rtspURL,
+        StreamingType.hls => device.hlsURL,
+        StreamingType.mpeg => device.mjpegURL,
+      })
       ..setVolume(0.0)
       ..setSpeed(1.0);
 

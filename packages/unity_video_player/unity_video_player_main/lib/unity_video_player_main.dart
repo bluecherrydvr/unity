@@ -25,6 +25,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     int? width,
     int? height,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
@@ -119,6 +120,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     int? width,
     int? height,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width * pixelRatio).toInt();
@@ -138,6 +140,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
         });
+
+      if (rtspProtocol != null) {
+        platform.setProperty('rtsp-transport', rtspProtocol.name);
+      }
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache

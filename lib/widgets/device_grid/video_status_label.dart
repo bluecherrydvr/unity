@@ -57,10 +57,10 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   String get _source => widget.video.player.dataSource!;
   bool get isLive =>
       widget.video.player.dataSource != null &&
-      // It is only LIVE if it starts with rtsp or is hsl
+      // It is only LIVE if it starts with rtsp or is hls
       (_source.startsWith('rtsp') ||
           _source.contains('media/mjpeg.php') ||
-          _source.endsWith('index.m3u8') /* hsl */);
+          _source.endsWith('index.m3u8') /* hls */);
 
   _VideoLabel get status => widget.video.error != null
       ? _VideoLabel.error

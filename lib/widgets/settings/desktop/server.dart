@@ -140,16 +140,17 @@ class CamerasSettings extends StatelessWidget {
         child: ListTile(
           title: const Text('Rendering quality'),
           subtitle: const Text(
-            'The quality of the video rendering. The higher the quality, the more resources it takes.',
+            'The quality of the video rendering. The higher the quality, the more resources it takes.'
+            '\nWhen automatic, the quality is selected based on the camera resolution.',
           ),
-          trailing: DropdownButton<UnityVideoQuality>(
+          trailing: DropdownButton<RenderingQuality>(
             value: settings.videoQuality,
             onChanged: (v) {
               if (v != null) {
                 settings.videoQuality = v;
               }
             },
-            items: UnityVideoQuality.values.map((q) {
+            items: RenderingQuality.values.map((q) {
               return DropdownMenuItem(
                 value: q,
                 child: Text(q.locale(context)),

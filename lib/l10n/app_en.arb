@@ -89,7 +89,6 @@
       }
     }
   },
-  "pressBackAgainToExit": "Press back button again to exit",
   "servers": "Servers",
   "nServers": "{n, plural, =0{No servers} =1{1 server} other{{n} servers}}",
   "@nServers": {
@@ -313,6 +312,7 @@
   "setResolutionDescription": "The resolution of the video stream can highly impact the performance of the app. Set the resolution to a lower value to improve performance, or to a higher value to improve quality. You can set the default resolution to every camera in the settings",
   "hd": "High definition",
   "defaultResolution": "Default resolution",
+  "automaticResolution": "Automatic",
   "p1080": "1080p",
   "p720": "720p",
   "p480": "480p",

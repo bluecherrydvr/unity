@@ -89,7 +89,6 @@
       }
     }
   },
-  "pressBackAgainToExit": "Naciśnij ponownie przycisk wstecz aby wyjść",
   "servers": "Serwery",
   "nServers": "{n, plural, =0{Brak serwerów} =1{1 serwer} other{{n} serwerów}}",
   "@nServers": {
@@ -313,6 +312,7 @@
   "setResolutionDescription": "Rozdzielczość strumienia wideo może mieć duży wpływ na wydajność aplikacji. Ustaw niższą rozdzielczość aby przyspieszyć działanie lub wyższą żeby zwiększyć jakość obrazu. Można ustawić rozdzielczość domyślną dla każdej kamery w ustawieniach.",
   "hd": "Wysoka jakość",
   "defaultResolution": "Rozdzielczość domyślna",
+  "automaticResolution": "Automatic",
   "p1080": "1080p",
   "p720": "720p",
   "p480": "480p",

@@ -25,6 +25,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -206,6 +207,9 @@ class SettingsProvider extends ChangeNotifier {
       _themeMode = kDefaultThemeMode;
     }
     final format = SystemDateTimeFormat();
+    initializeDateFormatting(_locale.languageCode);
+    Intl.defaultLocale = _locale.toLanguageTag();
+
     final systemLocale = Intl.getCurrentLocale();
     final timePattern = await format.getTimePattern();
     if (data.containsKey(kHiveDateFormat)) {
@@ -340,7 +344,7 @@ enum RenderingQuality {
       RenderingQuality.p480 => loc.p480,
       RenderingQuality.p360 => loc.p360,
       RenderingQuality.p240 => loc.p240,
-      RenderingQuality.automatic => 'Automatic',
+      RenderingQuality.automatic => loc.automaticResolution,
     };
   }
 }

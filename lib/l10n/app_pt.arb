@@ -1,0 +1,409 @@
+{
+  "@@locale": "pt",
+  "welcome": "Bem vindo!",
+  "welcomeDescription": "Bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em un instante.",
+  "configure": "Configure um Servidor DVR",
+  "configureDescription": "Configure uma conexão com seu servidor DVR remoto",
+  "hostname": "Hostname",
+  "port": "Porta",
+  "name": "Nome",
+  "username": "Nome de usuário",
+  "password": "Senha",
+  "savePassword": "Salvar senha",
+  "useDefault": "Usar Padrão",
+  "connect": "Conectar",
+  "connectAutomaticallyAtStartup": "Conectar automaticamente ao iniciar",
+  "skip": "Pular",
+  "cancel": "Cancelar",
+  "letsGo": "Vamos lá!",
+  "finish": "Concluir",
+  "letsGoDescription": "Aqui algumas dicas de como começar",
+  "projectName": "Bluecherry",
+  "projectDescription": "Powerful Video Surveillance Software",
+  "website": "Website",
+  "purchase": "Compras",
+  "tip0": "Câmeras são mostradas à esquerda. Você pode dar dois cliques ou arrastar a câmera até a visualização para vê-la.",
+  "tip1": "Use os botões acima das câmeras para criar, salvar e alterar layouts - mesmo com câmeras de múltiplos servidores.",
+  "tip2": "Dê dois cliques em um servidor para abrir sua página de configuração em uma nova janela, onde você pode configurar câmeras e gravações.",
+  "tip3": "Aperte o ícone de eventos para abrir o histórico e assistir ou baixar as gravações.",
+  "errorTextField": "{field} não pode estar vazio.",
+  "@errorTextField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "serverAdded": "Servidor adicionado",
+  "serverNotAddedError": "{serverName} não pôde ser adicionado.",
+  "@serverNotAddedError": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNotAddedErrorDescription": "Por favor verifique os dados inseridos e certifique-se que o servidor está online.\n\nSe você está conectando remotamente, certifique-se que as portas 7001 e 7002 estão abertas para o servidor Bluecherry!",
+  "noServersAvailable": "Nenhum servidor disponível.",
+  "error": "Erro",
+  "ok": "OK",
+  "retry": "Tentar novamente",
+  "removeCamera": "Remover Câmera",
+  "replaceCamera": "Substituir Câmera",
+  "reloadCamera": "Recarregar Câmera",
+  "selectACamera": "Selecione uma câmera",
+  "switchCamera": "Trocar câmera",
+  "online": "Online",
+  "offline": "Offline",
+  "live": "AO VIVO",
+  "timedOut": "EXPIRADO",
+  "loading": "CARREGANDO",
+  "recorded": "GRAVADO",
+  "removeFromView": "Remover do layout",
+  "addToView": "Adicionar ao layout",
+  "addAllToView": "Adicionar tudo ao layout",
+  "eventBrowser": "Histórico de eventos",
+  "eventsTimeline": "Linha do tempo de eventos",
+  "server": "Servidor",
+  "device": "Dispositivo",
+  "event": "Evento",
+  "duration": "Duração",
+  "priority": "Prioridade",
+  "next": "Próximo",
+  "previous": "Anterior",
+  "lastImageUpdate": "Última atualização da imagem",
+  "fps": "FPS",
+  "date": "Data",
+  "lastUpdate": "Última atualização",
+  "screens": "Câmeras",
+  "directCamera": "Câmera específica",
+  "addServer": "Adicionar servidor",
+  "settings": "Configurações",
+  "noServersAdded": "Nenhum servidor adicionado",
+  "editServerInfo": "Editar informações do servidor",
+  "editServer": "Editar servidor {serverName}",
+  "@editServer": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "servers": "Servidores",
+  "nServers": "{n, plural, =0{Nenhum servidor} =1{1 servidor} other{{n} servidores}}",
+  "@nServers": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "dateFormat": "Formato de Data",
+  "timeFormat": "Formato de Hora",
+  "nDevices": "{n, plural, =0{Nenhum dispositivo} =1{1 dispositivo} other{{n} dispositivos}}",
+  "@nDevices": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "remove": "Remover ?",
+  "removeServerDescription": "{serverName} será removido. Você não poderá mais ver as câmeras deste servidor e não receberá mais notificações.",
+  "@removeServerDescription": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "yes": "Sim",
+  "no": "Não",
+  "about": "Sobre",
+  "versionText": "Copyright © 2022, Bluecherry LLC.\nTodos os direitos reservados.",
+  "gettingDevices": "Carregando dispositivos...",
+  "noDevices": "Nenhum dispositivo",
+  "noEventsLoaded": "NENHUM EVENTO CARREGADO",
+  "noEventsLoadedTips": "•  Selecione as câmeras cujas você quer ver os eventos\n•  Utilize o calendário para selecionar uma data específica ou intervalo de datas \n•  Use o botão \"Filtrar\" para pesquisar",
+  "invalidResponse": "Resposta inválida recebida do servidor",
+  "cameraOptions": "Opções",
+  "showFullscreenCamera": "Ver em tela cheia",
+  "openInANewWindow": "Abrir em nova janela",
+  "enableAudio": "Ativar audio",
+  "disableAudio": "Desativar audio",
+  "addNewServer": "Adicionar novo servidor",
+  "disconnectServer": "Desconectar",
+  "serverOptions": "Opções do servidor",
+  "browseEvents": "Ver eventos",
+  "eventType": "Tipo do evento",
+  "configureServer": "Configurar servidor",
+  "refreshDevices": "Recarregar dispositivos",
+  "refreshServer": "Recarregar servidor",
+  "refresh": "Recarregar",
+  "view": "View",
+  "@Layouts": {},
+  "cycle": "Ciclo",
+  "cycleTogglePeriod": "Duração da alternância de layouts",
+  "fallbackLayoutName": "Layout {layout}",
+  "@fallbackLayoutName": {
+    "placeholders": {
+      "layout": {
+        "type": "int"
+      }
+    }
+  },
+  "newLayout": "Novo layout",
+  "editLayout": "Editar layout",
+  "editSpecificLayout": "Editar {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
+  "exportLayout": "Exportar layout",
+  "importLayout": "Importar layout",
+  "failedToImportMessage": "Ao tentar importar {layoutName}, achamos um dispositívo que está conectando a um servidor que você não está conectado. Por favor, conecte-se ao servidor e tente novamente.\nServer: {server_ip}:{server_port}",
+  "@failedToImportMessage": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      },
+      "server_ip": {
+        "type": "String"
+      },
+      "server_port": {
+        "type": "int"
+      }
+    }
+  },
+  "layoutImportFileCorrupted": "O arquivo que você tentou importar está corrompido ou faltando informações.",
+  "layoutImportFileCorruptedWithMessage": "O arquivo que você tentou importar está corrompido ou faltando informações: \"{message}\"",
+  "singleView": "Câmera única",
+  "multipleView": "Múltiplas câmeras",
+  "compactView": "Visualização compacta",
+  "createNewLayout": "Criar novo layout",
+  "layoutNameHint": "Nome do layout",
+  "layoutTypeHint": "Tipo do layout",
+  "@Downloads": {},
+  "downloads": "Downloads",
+  "download": "Baixar",
+  "downloaded": "Baixado",
+  "downloading": "Baixando",
+  "seeInDownloads": "Ver nos Downloads",
+  "downloadPath": "Diretório de Download",
+  "delete": "Deletar",
+  "showInFiles": "Ver no Explorador de Arquivos",
+  "noDownloads": "Você ainda não fez o download de nenhum evento :/",
+  "howToDownload": "Và ao \"Histórico de Eventos\" para fazer o download de eventos.",
+  "downloadTitle": "{event} de {device} do servidor {server} em {date}",
+  "@downloadTitle": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "playbackOptions": "OPÇÕES DE REPRODUÇÃO",
+  "play": "Reproduzir",
+  "pause": "Pausar",
+  "volume": "Volume • {v}",
+  "@volume": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "speed": "Velocidade • {s}",
+  "@speed": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecords": "Essa câmera não tem gravações neste período.",
+  "filter": "Filtrar",
+  "timeFilter": "Filtro de tempo",
+  "fromDate": "De",
+  "toDate": "à",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "never": "Nunca",
+  "fromToDate": "{from} à {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "allowAlarms": "Permitir alarmes",
+  "nextEvents": "Próximos eventos",
+  "nEvents": "{n, plural, =0{Nenhum evento} =1{1 evento} other{{n} eventos}}",
+  "@nEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@Event Priorities": {},
+  "info": "Info",
+  "warn": "Aviso",
+  "alarm": "Alarme",
+  "critical": "Crítico",
+  "@Event Types": {},
+  "motion": "Movimento",
+  "continuous": "Contínuo",
+  "notFound": "Não encontrado",
+  "cameraVideoLost": "Video Perdido",
+  "cameraAudioLost": "Audio Perdido",
+  "systemDiskSpace": "Disk Space",
+  "systemCrash": "Crash",
+  "systemBoot": "Startup",
+  "systemShutdown": "Desligamento",
+  "systemReboot": "Reincialização",
+  "systemPowerOutage": "Perda de energia",
+  "unknown": "Desconhecido",
+  "close": "Fechar",
+  "open": "Abrir",
+  "collapse": "Fechar",
+  "expand": "Expandir",
+  "@PTZ": {},
+  "ptzSupported": "PTZ é suportado",
+  "enabledPTZ": "PTZ está ativado",
+  "disabledPTZ": "PTZ está desativado",
+  "move": "Movimento",
+  "stop": "Parar",
+  "noMovement": "Nenhum movimento",
+  "moveNorth": "Move up",
+  "moveSouth": "Move down",
+  "moveWest": "Move west",
+  "moveEast": "Move east",
+  "moveWide": "Afastar",
+  "moveTele": "Aproximar",
+  "presets": "Presets",
+  "noPresets": "Nenhum preset encontado",
+  "newPreset": "Novo preset",
+  "goToPreset": "Ir ao preset",
+  "renamePreset": "Renomear preset",
+  "deletePreset": "Deletar preset",
+  "refreshPresets": "Atualizar presets",
+  "@Resolution": {},
+  "resolution": "Resolução",
+  "selectResolution": "Selecionar resolução",
+  "setResolution": "Definir resolução",
+  "setResolutionDescription": "A resolução da renderização do vídeo pode impactar fortemente o desempenho do aplicativo. Defina a resolução para um valor mais baixo para melhorar o desempenho ou para um valor mais alto para melhorar a qualidade. Você pode definir a resolução padrão nas configurações",
+  "hd": "Alta definição",
+  "defaultResolution": "Resolução padrão",
+  "automaticResolution": "Automático",
+  "p1080": "1080p",
+  "p720": "720p",
+  "p480": "480p",
+  "p360": "360p",
+  "p240": "240p",
+  "@updates": {},
+  "updates": "Atualizações",
+  "upToDate": "Você está atualizado.",
+  "lastChecked": "Última verificação: {date}",
+  "@lastChecked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForUpdates": "Procurar atualizações",
+  "checkingForUpdates": "Procurando atualizações",
+  "automaticDownloadUpdates": "Baixar atualizações automaticamente",
+  "automaticDownloadUpdatesDescription": "Seja um dos primeiros a receber as atualizações, correções e melhorias mais recentes assim que lançadas.",
+  "updateHistory": "Histórico de atualizações",
+  "newVersionAvailable": "Nova versão disponível!",
+  "installVersion": "Instalar",
+  "downloadVersion": "Baixar",
+  "learnMore": "Saiba mais",
+  "failedToUpdate": "Falha ao atualizar",
+  "executableNotFound": "Executável não encontrado",
+  "runningOn": "Rodando no {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
+  "@CURRENT TASKS": {},
+  "currentTasks": "Tarefas",
+  "noCurrentTasks": "Nenhuma tarefa",
+  "taskFetchingEvent": "Buscando eventos",
+  "taskFetchingEventsPlayback": "Fetching events playback",
+  "taskDownloadingEvent": "Baixando evento",
+  "@@@SETTINGS": {},
+  "@@APPEARANCE": {},
+  "theme": "Aparência",
+  "themeDescription": "Mude a aparência do aplicativo",
+  "system": "Padrão do Sistema",
+  "light": "Claro",
+  "dark": "Escuro",
+  "@@MISC": {},
+  "general": "Geral",
+  "miscellaneous": "Outros",
+  "@Snoozing": {},
+  "snooze15": "15 minutos",
+  "snooze30": "30 minutos",
+  "snooze60": "1 hora",
+  "snoozeNotifications": "Silenciar notificações",
+  "notSnoozed": "Não silenciado",
+  "snoozeNotificationsUntil": "Silenciar notificações até",
+  "snoozedUntil": "Silenciado até {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@Notification click": {},
+  "notificationClickBehavior": "Ação ao clicar na notificação",
+  "showEventsScreen": "Mostar histórico de eventos",
+  "@@STREAMING": {},
+  "streamingSetings": "Configurações de streaming",
+  "streamingType": "Tipo de streaming",
+  "rtspProtocol": "Protocolo RTSP",
+  "camerasSettings": "Configurações das câmeras",
+  "renderingQuality": "Qualidade de renderização",
+  "renderingQualityDescription": "A qualidade de renderização. Quanto maior a qualidade, mais recursos são usados.\nQuando automatico, a resolução é selecionada baseada na resolução da câmera.",
+  "cameraViewFit": "Ajuste de imagem da câmera",
+  "cameraViewFitDescription": "Como o vídeo é renderizado na visualização.",
+  "contain": "Limitar",
+  "fill": "Preencher",
+  "cover": "Cobrir",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Data e Idioma",
+  "language": "Idioma"
+}

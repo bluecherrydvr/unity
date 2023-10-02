@@ -96,11 +96,8 @@ class DateFormatSection extends StatelessWidget {
                 settings.dateFormat = format;
               },
               controlAffinity: ListTileControlAffinity.trailing,
-              title: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Text(
-                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-                ),
+              title: Text(
+                format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
               ),
               subtitle: Text(format.pattern ?? ''),
             );

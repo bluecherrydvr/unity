@@ -384,7 +384,7 @@ class UpdateManager extends ChangeNotifier {
       return;
     }
 
-    final versions = <UpdateVersion>[];
+    var versions = <UpdateVersion>[];
     final doc = XmlDocument.parse(response.body);
     for (final item in doc.findAllElements('item')) {
       late String version;
@@ -410,9 +410,10 @@ class UpdateManager extends ChangeNotifier {
         publishedAt: publishedAt,
       ));
     }
-    versions.sort(
-      (a, b) => Version.parse(a.version).compareTo(Version.parse(b.version)),
-    );
+    // versions.sort(
+    //   (a, b) => a.publishedAt.compareTo(b.publishedAt),
+    // );
+    versions = versions.reversed.toList();
 
     if (versions != this.versions) this.versions = versions;
 

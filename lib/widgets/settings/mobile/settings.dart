@@ -118,24 +118,6 @@ class _MobileSettingsState extends State<MobileSettings> {
                   }),
                 );
               }).toList()),
-              if (update.isUpdatingSupported) ...[
-                SliverToBoxAdapter(
-                  child: SubHeader(
-                    loc.updates,
-                    subtext: loc.runningOn(() {
-                      if (Platform.isLinux) {
-                        return loc.linux(update.linuxEnvironment ?? '');
-                      } else if (Platform.isWindows) {
-                        return loc.windows;
-                      }
-
-                      return defaultTargetPlatform.name;
-                    }()),
-                  ),
-                ),
-                const SliverToBoxAdapter(child: AppUpdateCard()),
-                const SliverToBoxAdapter(child: AppUpdateOptions()),
-              ],
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 CorrectedListTile(
@@ -299,6 +281,24 @@ class _MobileSettingsState extends State<MobileSettings> {
                 ),
               ]),
               const SliverToBoxAdapter(child: DateTimeSection()),
+              if (update.isUpdatingSupported) ...[
+                SliverToBoxAdapter(
+                  child: SubHeader(
+                    loc.updates,
+                    subtext: loc.runningOn(() {
+                      if (Platform.isLinux) {
+                        return loc.linux(update.linuxEnvironment ?? '');
+                      } else if (Platform.isWindows) {
+                        return loc.windows;
+                      }
+
+                      return defaultTargetPlatform.name;
+                    }()),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: AppUpdateCard()),
+                const SliverToBoxAdapter(child: AppUpdateOptions()),
+              ],
               SliverToBoxAdapter(child: SubHeader(loc.about)),
               const SliverToBoxAdapter(child: About()),
               const SliverToBoxAdapter(child: SizedBox(height: 16.0)),

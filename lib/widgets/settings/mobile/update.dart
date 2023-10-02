@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -41,9 +42,10 @@ class AppUpdateCard extends StatelessWidget {
     if (update.hasUpdateAvailable) {
       final executable = update.executableFor(update.latestVersion!.version);
       return Card(
-        margin: const EdgeInsetsDirectional.only(
-          start: 10.0,
-          end: 10.0,
+        margin: EdgeInsetsDirectional.only(
+          top: 8.0,
+          start: DesktopSettings.horizontalPadding.left,
+          end: DesktopSettings.horizontalPadding.right,
           bottom: 6.0,
         ),
         child: Padding(
@@ -107,10 +109,11 @@ class AppUpdateCard extends StatelessWidget {
       );
     } else {
       return Card(
-        margin: const EdgeInsetsDirectional.only(
-          start: 10.0,
-          end: 10.0,
+        margin: EdgeInsetsDirectional.only(
+          top: 8.0,
           bottom: 6.0,
+          start: DesktopSettings.horizontalPadding.left,
+          end: DesktopSettings.horizontalPadding.right,
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),

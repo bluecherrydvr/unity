@@ -59,15 +59,19 @@ class GeneralSettings extends StatelessWidget {
           trailing: Radio(
             value: e,
             groupValue: settings.themeMode,
-            onChanged: (value) {
-              settings.themeMode = e;
-            },
+            onChanged: (_) => settings.themeMode = e,
           ),
           title: Text(switch (e) {
             ThemeMode.system => loc.system,
             ThemeMode.light => loc.light,
             ThemeMode.dark => loc.dark,
           }),
+          subtitle: e == ThemeMode.system
+              ? Text(switch (MediaQuery.platformBrightnessOf(context)) {
+                  Brightness.dark => loc.dark,
+                  Brightness.light => loc.light,
+                })
+              : null,
         );
       }),
       SubHeader(loc.miscellaneous, padding: DesktopSettings.horizontalPadding),

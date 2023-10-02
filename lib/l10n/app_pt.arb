@@ -141,7 +141,7 @@
   "refreshDevices": "Recarregar dispositivos",
   "refreshServer": "Recarregar servidor",
   "refresh": "Recarregar",
-  "view": "View",
+  "view": "Layouts",
   "@Layouts": {},
   "cycle": "Ciclo",
   "cycleTogglePeriod": "Duração da alternância de layouts",

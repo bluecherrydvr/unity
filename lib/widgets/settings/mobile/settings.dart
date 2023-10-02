@@ -54,9 +54,7 @@ class _MobileSettingsState extends State<MobileSettings> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      SettingsProvider.instance.reload();
-    });
+    SettingsProvider.instance.reload();
   }
 
   @override
@@ -116,6 +114,12 @@ class _MobileSettingsState extends State<MobileSettings> {
                     ThemeMode.light => loc.light,
                     ThemeMode.dark => loc.dark,
                   }),
+                  subtitle: e == ThemeMode.system
+                      ? Text(switch (MediaQuery.platformBrightnessOf(context)) {
+                          Brightness.dark => loc.dark,
+                          Brightness.light => loc.light,
+                        })
+                      : null,
                 );
               }).toList()),
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),

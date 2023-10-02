@@ -75,11 +75,6 @@
   "fps": "FPS",
   "date": "Date",
   "lastUpdate": "Last Update",
-  "theme": "Theme",
-  "themeDescription": "Change the appearance of the app",
-  "system": "System",
-  "light": "Light",
-  "dark": "Dark",
   "screens": "Screens",
   "directCamera": "Direct Camera",
   "addServer": "Add Server",
@@ -128,37 +123,16 @@
   "no": "No",
   "about": "About",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
-  "snooze15": "15 minutes",
-  "snooze30": "30 minutes",
-  "snooze60": "1 hour",
-  "miscellaneous": "Miscellaneous",
-  "snoozeNotifications": "Snooze Notifications",
-  "notSnoozed": "Not snoozing",
-  "snoozeNotificationsUntil": "Snooze notifications until",
-  "snoozedUntil": "Snoozed until {time}",
-  "@snoozedUntil": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "cameraViewFit": "Camera Image Fit",
-  "contain": "Contain",
-  "fill": "Fill",
-  "cover": "Cover",
   "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
   "noEventsLoaded": "NO EVENTS LOADED",
   "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
-  "notificationClickBehavior": "Notification Click Behavior",
   "showFullscreenCamera": "Show in fullscreen",
   "openInANewWindow": "Open in a new window",
   "enableAudio": "Enable audio",
   "disableAudio": "Disable audio",
-  "showEventsScreen": "Show events history",
   "addNewServer": "Add new server",
   "disconnectServer": "Disconnect",
   "serverOptions": "Server options",
@@ -212,6 +186,7 @@
   "downloaded": "Downloaded",
   "downloading": "Downloading",
   "seeInDownloads": "See in Downloads",
+  "downloadPath": "Download directory",
   "delete": "Delete",
   "showInFiles": "Show in Files",
   "noDownloads": "You haven't downloaded anything yet :/",
@@ -233,7 +208,6 @@
       }
     }
   },
-  "downloadPath": "Download directory",
   "playbackOptions": "PLAYBACK OPTIONS",
   "play": "Play",
   "pause": "Pause",
@@ -366,10 +340,62 @@
       }
     }
   },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
   "@CURRENT TASKS": {},
   "currentTasks": "Current tasks",
   "noCurrentTasks": "No tasks",
   "taskFetchingEvent": "Fetching events",
   "taskFetchingEventsPlayback": "Fetching events playback",
-  "taskDownloadingEvent": "Downloading event"
+  "taskDownloadingEvent": "Downloading event",
+  "@@@SETTINGS": {},
+  "@@APPEARANCE": {},
+  "theme": "Theme",
+  "themeDescription": "Change the appearance of the app",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "@@MISC": {},
+  "general": "General",
+  "miscellaneous": "Miscellaneous",
+  "@Snoozing": {},
+  "snooze15": "15 minutes",
+  "snooze30": "30 minutes",
+  "snooze60": "1 hour",
+  "snoozeNotifications": "Snooze Notifications",
+  "notSnoozed": "Not snoozing",
+  "snoozeNotificationsUntil": "Snooze notifications until",
+  "snoozedUntil": "Snoozed until {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@Notification click": {},
+  "notificationClickBehavior": "Notification Click Behavior",
+  "showEventsScreen": "Show events history",
+  "@@STREAMING": {},
+  "streamingSetings": "Streaming settings",
+  "streamingType": "Streaming type",
+  "rtspProtocol": "RTSP Protocol",
+  "camerasSettings": "Cameras settings",
+  "renderingQuality": "Rendering quality",
+  "renderingQualityDescription": "The quality of the video rendering. The higher the quality, the more resources it takes.\nWhen automatic, the quality is selected based on the camera resolution.",
+  "cameraViewFit": "Camera Image Fit",
+  "cameraViewFitDescription": "The way the video is displayed in the view.",
+  "contain": "Contain",
+  "fill": "Fill",
+  "cover": "Cover",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Date and Language",
+  "language": "Language"
 }

@@ -47,9 +47,9 @@ class UpdatesSettings extends StatelessWidget {
           Text(
             loc.runningOn(() {
               if (Platform.isLinux) {
-                return 'Linux ${update.linuxEnvironment}';
+                return loc.linux(update.linuxEnvironment ?? '');
               } else if (Platform.isWindows) {
-                return 'Windows';
+                return loc.windows;
               }
 
               return defaultTargetPlatform.name;

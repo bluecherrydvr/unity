@@ -49,9 +49,9 @@ class _DesktopSettingsState extends State<DesktopSettings> {
           extended: constraints.maxWidth >
               kMobileBreakpoint.width + kMobileBreakpoint.width / 4,
           destinations: [
-            const NavigationRailDestination(
-              icon: Icon(Icons.dashboard),
-              label: Text('General'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.dashboard),
+              label: Text(loc.general),
             ),
             NavigationRailDestination(
               icon: const Icon(Icons.dns),
@@ -61,9 +61,9 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               icon: const Icon(Icons.update),
               label: Text(loc.updates),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.language),
-              label: Text('Date and Language'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.language),
+              label: Text(loc.dateLanguage),
             ),
           ],
           selectedIndex: currentIndex,

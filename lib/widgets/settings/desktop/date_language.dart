@@ -37,7 +37,7 @@ class LocalizationSettings extends StatelessWidget {
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       Padding(
         padding: horizontalPadding,
-        child: Text('Language', style: theme.textTheme.titleMedium),
+        child: Text(loc.language, style: theme.textTheme.titleMedium),
       ),
       const LanguageSection(),
       const SizedBox(height: 12.0),

@@ -36,19 +36,13 @@ class ServerSettings extends StatelessWidget {
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       Padding(
         padding: DesktopSettings.horizontalPadding,
-        child: Text(
-          loc.servers,
-          style: theme.textTheme.titleMedium,
-        ),
+        child: Text(loc.servers, style: theme.textTheme.titleMedium),
       ),
       const ServersList(),
       const SizedBox(height: 8.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
-        child: Text(
-          'Streaming Settings',
-          style: theme.textTheme.titleMedium,
-        ),
+        child: Text(loc.streamingSetings, style: theme.textTheme.titleMedium),
       ),
       const SizedBox(height: 8.0),
       const Padding(
@@ -58,10 +52,7 @@ class ServerSettings extends StatelessWidget {
       const SizedBox(height: 12.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
-        child: Text(
-          'Cameras Settings',
-          style: theme.textTheme.titleMedium,
-        ),
+        child: Text(loc.camerasSettings, style: theme.textTheme.titleMedium),
       ),
       const SizedBox(height: 8.0),
       const Padding(
@@ -78,11 +69,13 @@ class StreamingSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
+
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Material(
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
-          title: const Text('Streaming type'),
+          title: Text(loc.streamingType),
           trailing: DropdownButton<StreamingType>(
             value: settings.streamingType,
             onChanged: (v) {
@@ -104,7 +97,7 @@ class StreamingSettings extends StatelessWidget {
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
           enabled: settings.streamingType == StreamingType.rtsp,
-          title: const Text('RTSP protocol'),
+          title: Text(loc.rtspProtocol),
           trailing: DropdownButton<RTSPProtocol>(
             value: settings.rtspProtocol,
             onChanged: settings.streamingType == StreamingType.rtsp
@@ -138,11 +131,8 @@ class CamerasSettings extends StatelessWidget {
       Material(
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
-          title: const Text('Rendering quality'),
-          subtitle: const Text(
-            'The quality of the video rendering. The higher the quality, the more resources it takes.'
-            '\nWhen automatic, the quality is selected based on the camera resolution.',
-          ),
+          title: Text(loc.renderingQuality),
+          subtitle: Text(loc.renderingQualityDescription),
           trailing: DropdownButton<RenderingQuality>(
             value: settings.videoQuality,
             onChanged: (v) {
@@ -164,7 +154,7 @@ class CamerasSettings extends StatelessWidget {
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
           title: Text(loc.cameraViewFit),
-          subtitle: const Text('The way the video is displayed in the view.'),
+          subtitle: Text(loc.cameraViewFitDescription),
           trailing: DropdownButton<UnityVideoFit>(
             value: settings.cameraViewFit,
             onChanged: (v) {

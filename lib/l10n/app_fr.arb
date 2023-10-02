@@ -39,29 +39,38 @@
       "serverName": {}
     }
   },
+  "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
   "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "ok": "OK",
+  "retry": "Retry",
   "removeCamera": "Enlever caméra",
   "replaceCamera": "Remplacer caméra",
   "reloadCamera": "Recharger caméra",
   "selectACamera": "Sélectionner une caméra",
+  "switchCamera": "Switch camera",
   "online": "En ligne",
   "offline": "Hors ligne",
+  "live": "LIVE",
+  "timedOut": "TIMED OUT",
+  "loading": "LOADING",
+  "recorded": "RECORDED",
   "removeFromView": "Retirer de la vue",
   "addToView": "Ajouter à la vue",
+  "addAllToView": "Add all to view",
   "eventBrowser": "Historique d'événements",
+  "eventsTimeline": "Timeline of Events",
   "server": "Serveur",
   "device": "Appareil",
   "event": "Évènement",
   "duration": "Durée",
   "priority": "Priorité",
+  "next": "Next",
+  "previous": "Previous",
+  "lastImageUpdate": "Last Image Update",
+  "fps": "FPS",
   "date": "Date",
   "lastUpdate": "Dernière mise à jour",
-  "theme": "Thème",
-  "system": "Système",
-  "light": "Clair",
-  "dark": "Sombre",
   "screens": "Écrans",
   "directCamera": "Caméra direct",
   "addServer": "Ajouter serveur",
@@ -76,6 +85,15 @@
   },
   "pressBackAgainToExit": "Appuyez sur le bouton retour de nouveau pour quitter",
   "servers": "Serveurs",
+  "nServers": "{n, plural, =0{No servers} =1{1 server} other{{n} servers}}",
+  "@nServers": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
   "dateFormat": "Format de la date",
   "timeFormat": "Format de l'heure",
   "nDevices": "{n} appareils",
@@ -93,35 +111,18 @@
   },
   "yes": "Oui",
   "no": "Non",
-  "version": "Version",
+  "about": "About",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nTout droit réservé.",
-  "snooze15": "15 minutes",
-  "snooze30": "30 minutes",
-  "snooze60": "1 heure",
-  "miscellaneous": "Divers",
-  "snoozeNotifications": "Mise en pause des notifications",
-  "notSnoozed": "Notifications actives",
-  "snoozeNotificationsUntil": "Notifications en pause jusqu'à",
-  "snoozedUntil": "Mis en pause jusqu'à {time}",
-  "@snoozedUntil": {
-    "placeholders": {
-      "time": {}
-    }
-  },
-  "cameraViewFit": "Ajustement de la vue caméra",
-  "contain": "Contenir",
-  "fill": "Remplir",
-  "cover": "Couvrir",
   "gettingDevices": "Obtention des appareils...",
   "noDevices": "Aucun appareil",
-  "noEventsFound": "Aucun événement trouvé",
+  "noEventsLoaded": "NO EVENTS LOADED",
+  "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
   "invalidResponse": "Réponse invalide reçu du serveur",
-  "notificationClickBehavior": "Action de clic sur les notifications",
+  "cameraOptions": "Options",
   "showFullscreenCamera": "Montrer en plein écran",
   "openInANewWindow": "Ouvrir dans une nouvelle fenêtre",
   "enableAudio": "Activer l'audio",
   "disableAudio": "Désactiver l'audio",
-  "showEventsScreen": "Montrer l'historique d'événements",
   "addNewServer": "Ajouter un nouveau serveur",
   "disconnectServer": "Déconnecter",
   "serverOptions": "Options serveur",
@@ -132,22 +133,62 @@
   "refreshServer": "Actualiser le serveur",
   "refresh": "Actualiser",
   "view": "Vue",
+  "@Layouts": {},
   "cycle": "Cycle",
   "cycleTogglePeriod": "Période de basculement de cycle",
+  "fallbackLayoutName": "Layout {layout}",
+  "@fallbackLayoutName": {
+    "placeholders": {
+      "layout": {
+        "type": "int"
+      }
+    }
+  },
   "newLayout": "Nouvelle disposition",
+  "editLayout": "Edit layout",
+  "editSpecificLayout": "Edit {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
+  "exportLayout": "Export layout",
+  "importLayout": "Import layout",
+  "failedToImportMessage": "While attempting to import {layoutName}, we found a device that is connected to a server you are not connected to. Please, connect to the server and try again.\nServer: {server_ip}:{server_port}",
+  "@failedToImportMessage": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      },
+      "server_ip": {
+        "type": "String"
+      },
+      "server_port": {
+        "type": "int"
+      }
+    }
+  },
+  "layoutImportFileCorrupted": "The file you attempted to import is corrupted or missing information.",
+  "layoutImportFileCorruptedWithMessage": "The file you attempted to import is corrupted or missing information: \"{message}\"",
   "singleView": "Vue unique",
   "multipleView": "Vue multiple",
   "compactView": "Vue compacte",
   "createNewLayout": "Créer une nouvelle disposition",
   "layoutNameHint": "Nom de la disposition",
   "layoutTypeHint": "Type de disposition",
+  "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",
   "downloaded": "Téléchargé",
+  "downloading": "Downloading",
   "seeInDownloads": "Voir dans téléchargements",
+  "downloadPath": "Emplacement de téléchargement",
   "delete": "Supprimer",
   "showInFiles": "Voir dans les fichiers",
   "noDownloads": "Vous n'avez aucun téléchargements",
+  "howToDownload": "Go to the \"Events History\" screen to download events.",
   "downloadTitle": "{event} sur {device} du serveur {server} à {date}",
   "@downloadTitle": {
     "placeholders": {
@@ -157,7 +198,6 @@
       "date": {}
     }
   },
-  "downloadPath": "Emplacement de téléchargement",
   "playbackOptions": "OPTION DE LECTURE",
   "play": "Jouer",
   "pause": "Pause",
@@ -175,12 +215,33 @@
   },
   "noRecords": "Cette caméra n'a aucun enregistrement dans la période actuelle",
   "filter": "Filtrer",
+  "timeFilter": "Time filter",
   "fromDate": "De",
   "toDate": "À",
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "never",
+  "fromToDate": "{from} to {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "allowAlarms": "Permettre les alarmes",
+  "nextEvents": "Next events",
+  "nEvents": "{n, plural, =0{No events} =1{1 event} other{{n} events}}",
+  "@nEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "@Event Priorities": {},
   "info": "Information",
   "warn": "Avertissement",
@@ -199,10 +260,12 @@
   "systemReboot": "Redémarrage",
   "systemPowerOutage": "Perte de courant",
   "unknown": "Inconnu",
-  "@": {},
   "close": "Ouvert",
   "open": "Fermé",
+  "collapse": "Collapse",
+  "expand": "Expand",
   "@PTZ": {},
+  "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ est activé",
   "disabledPTZ": "PTZ est désactivé",
   "move": "Mouvement",
@@ -222,6 +285,7 @@
   "deletePreset": "Delete preset",
   "refreshPresets": "Refresh presets",
   "@Resolution": {},
+  "resolution": "Resolution",
   "selectResolution": "Select resolution",
   "setResolution": "Set resolution",
   "setResolutionDescription": "The resolution of the video stream can highly impact the performance of the app. Set the resolution to a lower value to improve performance, or to a higher value to improve quality. You can set the default resolution to every camera in the settings",
@@ -249,5 +313,71 @@
   "newVersionAvailable": "New version available",
   "installVersion": "Install",
   "downloadVersion": "Download",
-  "learnMore": "Learn more"
+  "learnMore": "Learn more",
+  "failedToUpdate": "Failed to update",
+  "executableNotFound": "Executable not found",
+  "runningOn": "Running on {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
+  "@CURRENT TASKS": {},
+  "currentTasks": "Current tasks",
+  "noCurrentTasks": "No tasks",
+  "taskFetchingEvent": "Fetching events",
+  "taskFetchingEventsPlayback": "Fetching events playback",
+  "taskDownloadingEvent": "Downloading event",
+  "@@@SETTINGS": {},
+  "@@APPEARANCE": {},
+  "theme": "Thème",
+  "themeDescription": "Change the appearance of the app",
+  "system": "Système",
+  "light": "Clair",
+  "dark": "Sombre",
+  "@@MISC": {},
+  "general": "General",
+  "miscellaneous": "Divers",
+  "@Snoozing": {},
+  "snooze15": "15 minutes",
+  "snooze30": "30 minutes",
+  "snooze60": "1 heure",
+  "snoozeNotifications": "Mise en pause des notifications",
+  "notSnoozed": "Notifications actives",
+  "snoozeNotificationsUntil": "Notifications en pause jusqu'à",
+  "snoozedUntil": "Mis en pause jusqu'à {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "@Notification click": {},
+  "notificationClickBehavior": "Action de clic sur les notifications",
+  "showEventsScreen": "Montrer l'historique d'événements",
+  "@@STREAMING": {},
+  "streamingSetings": "Streaming settings",
+  "streamingType": "Streaming type",
+  "rtspProtocol": "RTSP Protocol",
+  "camerasSettings": "Cameras settings",
+  "renderingQuality": "Rendering quality",
+  "renderingQualityDescription": "The quality of the video rendering. The higher the quality, the more resources it takes.\nWhen automatic, the quality is selected based on the camera resolution.",
+  "cameraViewFit": "Ajustement de la vue caméra",
+  "cameraViewFitDescription": "The way the video is displayed in the view.",
+  "contain": "Contenir",
+  "fill": "Remplir",
+  "cover": "Couvrir",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Date and Language",
+  "language": "Language"
 }

@@ -571,7 +571,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Expanded(child: Text('Edit ${widget.layout.name}')),
+          Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
           if (view.layouts.length > 1)
             IconButton(
               icon: Icon(

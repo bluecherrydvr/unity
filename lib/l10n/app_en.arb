@@ -156,6 +156,14 @@
   },
   "newLayout": "New layout",
   "editLayout": "Edit layout",
+  "editSpecificLayout": "Edit {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
   "exportLayout": "Export layout",
   "importLayout": "Import layout",
   "failedToImportMessage": "While attempting to import {layoutName}, we found a device that is connected to a server you are not connected to. Please, connect to the server and try again.\nServer: {server_ip}:{server_port}",

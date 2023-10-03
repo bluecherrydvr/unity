@@ -23,6 +23,7 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -127,16 +128,19 @@ class SettingsProvider extends ChangeNotifier {
   set streamingType(StreamingType value) {
     _streamingType = value;
     _save();
+    UnityPlayers.reloadAll();
   }
 
   set rtspProtocol(RTSPProtocol value) {
     _rtspProtocol = value;
     _save();
+    UnityPlayers.reloadAll();
   }
 
   set videoQuality(RenderingQuality value) {
     _videoQuality = value;
     _save();
+    UnityPlayers.reloadAll();
   }
 
   late Locale _locale;

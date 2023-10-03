@@ -30,11 +30,13 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/date_language.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -99,9 +101,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                       ThemeMode.dark => Icons.dark_mode,
                     }),
                   ),
-                  onTap: () {
-                    settings.themeMode = e;
-                  },
+                  onTap: () => settings.themeMode = e,
                   trailing: Radio(
                     value: e,
                     groupValue: settings.themeMode,
@@ -151,15 +151,12 @@ class _MobileSettingsState extends State<MobileSettings> {
                   title: loc.snoozeNotifications,
                   height: 72.0,
                   subtitle: settings.snoozedUntil.isAfter(DateTime.now())
-                      ? loc.snoozedUntil(
-                          [
-                            if (settings.snoozedUntil
-                                    .difference(DateTime.now()) >
-                                const Duration(hours: 24))
-                              settings.formatDate(settings.snoozedUntil),
-                            settings.formatTime(settings.snoozedUntil),
-                          ].join(' '),
-                        )
+                      ? loc.snoozedUntil([
+                          if (settings.snoozedUntil.difference(DateTime.now()) >
+                              const Duration(hours: 24))
+                            settings.formatDate(settings.snoozedUntil),
+                          settings.formatTime(settings.snoozedUntil),
+                        ].join(' '))
                       : loc.notSnoozed,
                 ),
                 ExpansionTile(
@@ -218,9 +215,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                       ),
                       value: e,
                       groupValue: settings.cameraViewFit,
-                      onChanged: (value) {
-                        settings.cameraViewFit = e;
-                      },
+                      onChanged: (_) => settings.cameraViewFit = e,
                       secondary: Icon(e.icon),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
@@ -276,15 +271,43 @@ class _MobileSettingsState extends State<MobileSettings> {
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: Text(
-                          dur.humanReadable(context),
-                        ),
+                        child: Text(dur.humanReadable(context)),
                       ),
                     );
                   }).toList(),
                 ),
               ]),
-              const SliverToBoxAdapter(child: DateTimeSection()),
+              SliverToBoxAdapter(
+                child: CorrectedListTile(
+                  iconData: Icons.language,
+                  trailing: Icons.navigate_next,
+                  title: loc.dateLanguage,
+                  subtitle: '${settings.dateFormat.format(DateTime.now())} '
+                      '${settings.timeFormat.format(DateTime.now())}; '
+                      '${LocaleNames.of(context)!.nameOf(settings.locale.toLanguageTag())}',
+                  height: 72.0,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      showDragHandle: true,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return DraggableScrollableSheet(
+                          expand: false,
+                          minChildSize: 0.8,
+                          initialChildSize: 0.8,
+                          builder: (context, controller) {
+                            return PrimaryScrollController(
+                              controller: controller,
+                              child: const LocalizationSettings(),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
               if (update.isUpdatingSupported) ...[
                 SliverToBoxAdapter(
                   child: SubHeader(

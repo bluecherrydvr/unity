@@ -19,31 +19,6 @@
 
 part of 'settings.dart';
 
-class DateTimeSection extends StatelessWidget {
-  const DateTimeSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return Column(children: [
-      // SubHeader('Language'),
-      // SliverList(
-      //   delegate: SliverChildListDelegate(
-      //     AppLocalizations.supportedLocales.map((locale) {
-      //       return ListTile(
-      //         title: Text(locale.languageCode),
-      //       );
-      //     }).toList(),
-      //   ),
-      // ),
-      SubHeader(loc.dateFormat),
-      const DateFormatSection(),
-      SubHeader(loc.timeFormat),
-      const TimeFormatSection(),
-    ]);
-  }
-}
-
 class DateFormatSection extends StatelessWidget {
   const DateFormatSection({super.key});
 

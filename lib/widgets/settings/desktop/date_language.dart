@@ -35,7 +35,15 @@ class LocalizationSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      const LanguageSection(),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Material(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: const LanguageSection(),
+        ),
+      ),
       const SizedBox(height: 12.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
@@ -84,43 +92,37 @@ class LanguageSection extends StatelessWidget {
     const locales = AppLocalizations.supportedLocales;
     final names = LocaleNames.of(context)!;
 
-    return Padding(
-      padding: DesktopSettings.horizontalPadding,
-      child: Material(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: ListTile(
-          title: Text(loc.language, style: theme.textTheme.titleMedium),
-          trailing: DropdownButton<Locale>(
-            value: currentLocale,
-            onChanged: (value) => settings.locale = value!,
-            items: locales.map((locale) {
-              final name = names.nameOf(locale.toLanguageTag()) ??
-                  locale.toLanguageTag();
-              final nativeName = LocaleNamesLocalizationsDelegate
-                      .nativeLocaleNames[locale.toLanguageTag()] ??
-                  locale.toLanguageTag();
-              return DropdownMenuItem<Locale>(
-                value: locale,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      name.uppercaseFirst(),
-                      maxLines: 1,
-                      softWrap: false,
-                    ),
-                    Text(
-                      nativeName.uppercaseFirst(),
-                      style: theme.textTheme.labelSmall,
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+    return DropdownButtonHideUnderline(
+      child: ListTile(
+        title: Text(loc.language, style: theme.textTheme.titleMedium),
+        trailing: DropdownButton<Locale>(
+          value: currentLocale,
+          onChanged: (value) => settings.locale = value!,
+          items: locales.map((locale) {
+            final name =
+                names.nameOf(locale.toLanguageTag()) ?? locale.toLanguageTag();
+            final nativeName = LocaleNamesLocalizationsDelegate
+                    .nativeLocaleNames[locale.toLanguageTag()] ??
+                locale.toLanguageTag();
+            return DropdownMenuItem<Locale>(
+              value: locale,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    name.uppercaseFirst(),
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
+                  Text(
+                    nativeName.uppercaseFirst(),
+                    style: theme.textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         ),
       ),
     );

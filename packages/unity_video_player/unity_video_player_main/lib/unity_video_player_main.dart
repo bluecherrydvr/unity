@@ -140,6 +140,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
         });
+      platform.setProperty('msg-level', 'all=v');
+
+      mkPlayer.stream.log.listen((event) {
+        debugPrint('${event.level} / ${event.prefix}: ${event.text}');
+      });
+
+      platform.setProperty('tls-verify', 'no');
+      platform.setProperty('insecure', 'yes');
 
       if (rtspProtocol != null) {
         platform.setProperty('rtsp-transport', rtspProtocol.name);

@@ -37,7 +37,6 @@ class UnityPlayers with ChangeNotifier {
 
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(Device device) {
-    debugPrint(device.streamURL);
     final settings = SettingsProvider.instance;
     final controller = UnityVideoPlayer.create(
       quality: switch (settings.videoQuality) {
@@ -50,13 +49,19 @@ class UnityPlayers with ChangeNotifier {
           UnityVideoQuality.qualityForResolutionY(device.resolutionY),
       },
     )
-      ..setDataSource(switch (settings.streamingType) {
-        StreamingType.rtsp => device.rtspURL,
-        StreamingType.hls => device.hlsURL,
-        StreamingType.mpeg => device.mjpegURL,
-      })
       ..setVolume(0.0)
       ..setSpeed(1.0);
+
+    Future<void> setSource() async {
+      final source = switch (settings.streamingType) {
+        StreamingType.rtsp => device.rtspURL,
+        StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
+        StreamingType.mjpeg => device.mjpegURL,
+      };
+      controller.setDataSource(source);
+    }
+
+    setSource();
 
     return controller;
   }

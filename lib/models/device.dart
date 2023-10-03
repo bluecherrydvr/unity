@@ -17,8 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
+
 import 'package:bluecherry_client/models/server.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 /// A [Device] present on a server.
 class Device {
@@ -89,7 +92,7 @@ class Device {
   }
 
   String get rtspURL {
-    return Uri(
+    return Uri.encodeFull(Uri(
       scheme: 'rtsp',
       userInfo: '${Uri.encodeComponent(server.login)}'
           ':'
@@ -97,32 +100,71 @@ class Device {
       host: server.ip,
       port: server.rtspPort,
       path: uri,
-    ).toString();
+    ).toString());
   }
 
   String get mjpegURL {
-    return Uri(
-      scheme: 'https',
-      userInfo: '${Uri.encodeComponent(server.login)}'
-          ':'
-          '${Uri.encodeComponent(server.password)}',
-      host: server.ip,
-      port: server.rtspPort,
-      path: 'media/mjpeg.php',
-      query: 'id=$id&multipart=true',
-    ).toString();
-  }
-
-  String get hlsURL {
-    return Uri(
+    return Uri.encodeFull(Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
           ':'
           '${Uri.encodeComponent(server.password)}',
       host: server.ip,
       port: server.port,
-      path: 'hls/$id/index.m3u8',
-    ).toString();
+      pathSegments: ['media', 'mjpeg'],
+      queryParameters: {
+        'multipart': 'true',
+        'id': '$id',
+      },
+    ).toString());
+  }
+
+  String get hlsURL {
+    return Uri.encodeFull(Uri(
+      scheme: 'https',
+      userInfo: '${Uri.encodeComponent(server.login)}'
+          ':'
+          '${Uri.encodeComponent(server.password)}',
+      host: server.ip,
+      port: server.port,
+      pathSegments: ['hls', '$id', 'index.m3u8'],
+    ).toString());
+  }
+
+  Future<String?> getHLSUrl([Device? device]) async {
+    // return hlsURL;
+    device ??= this;
+    var data = {
+      'id': device.id.toString(),
+      'hostname': device.server.ip,
+      'port': device.server.port.toString(),
+    };
+
+    final uri = Uri(
+      scheme: 'https',
+      userInfo: '${Uri.encodeComponent(device.server.login)}'
+          ':'
+          '${Uri.encodeComponent(device.server.password)}',
+      host: device.server.ip,
+      port: device.server.port,
+      path: 'media/hls',
+      queryParameters: data,
+    );
+
+    var response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      var ret = json.decode(response.body) as Map;
+
+      if (ret['status'] == 6) {
+        var hlsLink = ret['msg'][0];
+        return Uri.encodeFull(hlsLink);
+      }
+    } else {
+      debugPrint('Request failed with status: ${response.statusCode}');
+    }
+
+    return null;
   }
 
   /// Returns the full name of this device, including the server name.

@@ -39,7 +39,7 @@ class ErrorWarning extends StatelessWidget {
           if (message.isNotEmpty) ...[
             const SizedBox(height: 8.0),
             Text(
-              message.toUpperCase(),
+              message,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white70,

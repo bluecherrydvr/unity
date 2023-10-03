@@ -140,7 +140,6 @@ class SettingsProvider extends ChangeNotifier {
   set videoQuality(RenderingQuality value) {
     _videoQuality = value;
     _save();
-    UnityPlayers.reloadAll();
   }
 
   late Locale _locale;
@@ -356,5 +355,5 @@ enum RenderingQuality {
 enum StreamingType {
   rtsp,
   hls,
-  mpeg,
+  mjpeg,
 }

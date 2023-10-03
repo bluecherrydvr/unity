@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
@@ -32,26 +33,41 @@ class LocalizationSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    const horizontalPadding = EdgeInsetsDirectional.symmetric(horizontal: 16.0);
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: horizontalPadding,
-        child: Text(loc.language, style: theme.textTheme.titleMedium),
-      ),
       const LanguageSection(),
       const SizedBox(height: 12.0),
       Padding(
-        padding: horizontalPadding,
+        padding: DesktopSettings.horizontalPadding,
         child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
       ),
-      const DateFormatSection(),
+      const SizedBox(height: 8.0),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Material(
+          clipBehavior: Clip.hardEdge,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusDirectional.circular(8.0),
+          ),
+          child: const DateFormatSection(),
+        ),
+      ),
       const SizedBox(height: 12.0),
       Padding(
-        padding: horizontalPadding,
+        padding: DesktopSettings.horizontalPadding,
         child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
       ),
-      const TimeFormatSection(),
+      const SizedBox(height: 8.0),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Material(
+          clipBehavior: Clip.hardEdge,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusDirectional.circular(8.0),
+          ),
+          child: const TimeFormatSection(),
+        ),
+      ),
     ]);
   }
 }
@@ -61,69 +77,52 @@ class LanguageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final currentLocale = Localizations.localeOf(context);
     const locales = AppLocalizations.supportedLocales;
     final names = LocaleNames.of(context)!;
 
-    return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= 800) {
-        final crossAxisCount = consts.maxWidth >= 870 ? 4 : 3;
-        return Wrap(
-          children: locales.map((locale) {
-            final name =
-                names.nameOf(locale.toLanguageTag()) ?? locale.toLanguageTag();
-            final nativeName = LocaleNamesLocalizationsDelegate
-                    .nativeLocaleNames[locale.toLanguageTag()] ??
-                locale.toLanguageTag();
-            return SizedBox(
-              width: consts.maxWidth / crossAxisCount,
-              child: RadioListTile<Locale>(
+    return Padding(
+      padding: DesktopSettings.horizontalPadding,
+      child: Material(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: ListTile(
+          title: Text(loc.language, style: theme.textTheme.titleMedium),
+          trailing: DropdownButton<Locale>(
+            value: currentLocale,
+            onChanged: (value) => settings.locale = value!,
+            items: locales.map((locale) {
+              final name = names.nameOf(locale.toLanguageTag()) ??
+                  locale.toLanguageTag();
+              final nativeName = LocaleNamesLocalizationsDelegate
+                      .nativeLocaleNames[locale.toLanguageTag()] ??
+                  locale.toLanguageTag();
+              return DropdownMenuItem<Locale>(
                 value: locale,
-                groupValue: currentLocale,
-                onChanged: (value) {
-                  settings.locale = locale;
-                },
-                controlAffinity: ListTileControlAffinity.trailing,
-                title: Text(
-                  name,
-                  maxLines: 1,
-                  softWrap: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name.uppercaseFirst(),
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
+                    Text(
+                      nativeName.uppercaseFirst(),
+                      style: theme.textTheme.labelSmall,
+                    ),
+                  ],
                 ),
-                subtitle: Text(
-                  nativeName,
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      } else {
-        return Column(
-          children: locales.map<Widget>((locale) {
-            final name =
-                names.nameOf(locale.toLanguageTag()) ?? locale.toLanguageTag();
-            final nativeName = LocaleNamesLocalizationsDelegate
-                    .nativeLocaleNames[locale.toLanguageTag()] ??
-                locale.toLanguageTag();
-            return RadioListTile<Locale>(
-              value: locale,
-              groupValue: currentLocale,
-              onChanged: (value) {
-                settings.locale = locale;
-              },
-              controlAffinity: ListTileControlAffinity.trailing,
-              title: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Text(name),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Text(nativeName),
-              ),
-            );
-          }).toList(),
-        );
-      }
-    });
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
   }
 }

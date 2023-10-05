@@ -46,6 +46,7 @@
   "serverNotAddedErrorDescription": "Por favor verifique os dados inseridos e certifique-se que o servidor está online.\n\nSe você está conectando remotamente, certifique-se que as portas 7001 e 7002 estão abertas para o servidor Bluecherry!",
   "noServersAvailable": "Nenhum servidor disponível.",
   "error": "Erro",
+  "videoError": "Ocorreu um erro ao tentar reproduzir o vídeo.",
   "ok": "OK",
   "retry": "Tentar novamente",
   "removeCamera": "Remover Câmera",

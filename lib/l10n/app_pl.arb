@@ -46,6 +46,7 @@
   "serverNotAddedErrorDescription": "Sprawdź wprowadzone dane i upewnij się, że serwer jest online.\n\nJeśli łączysz się zdalnie to upewnij się, że porty na serwerzy Blueberry: 7001 i 7002, są otwarte!",
   "noServersAvailable": "Brak dostępnych serwerów",
   "error": "Błąd",
+  "videoError": "An error happened while trying to play the video.",
   "ok": "OK",
   "retry": "Spróbuj ponownie",
   "removeCamera": "Usuń kamerę",

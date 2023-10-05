@@ -46,6 +46,7 @@
   "serverNotAddedErrorDescription": "Sprawdź wprowadzone dane i upewnij się, że serwer jest online.\n\nJeśli łączysz się zdalnie to upewnij się, że porty na serwerzy Blueberry: 7001 i 7002, są otwarte!",
   "noServersAvailable": "Brak dostępnych serwerów",
   "error": "Błąd",
+  "videoError": "An error happened while trying to play the video.",
   "ok": "OK",
   "retry": "Spróbuj ponownie",
   "removeCamera": "Usuń kamerę",
@@ -75,11 +76,6 @@
   "fps": "FPS",
   "date": "Data",
   "lastUpdate": "Ostatnia aktualizacja",
-  "theme": "Motyw",
-  "themeDescription": "Zmień wygląd aplikacji",
-  "system": "Systemowy",
-  "light": "Jasny",
-  "dark": "Ciemny",
   "screens": "Ekrany",
   "directCamera": "Kamera bezpośrednia",
   "addServer": "Dodaj serwer",
@@ -94,7 +90,6 @@
       }
     }
   },
-  "pressBackAgainToExit": "Naciśnij ponownie przycisk wstecz aby wyjść",
   "servers": "Serwery",
   "nServers": "{n, plural, =0{Brak serwerów} =1{1 serwer} other{{n} serwerów}}",
   "@nServers": {
@@ -128,37 +123,16 @@
   "no": "Nie",
   "about": "O programie",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
-  "snooze15": "15 minut",
-  "snooze30": "30 minut",
-  "snooze60": "1 godzina",
-  "miscellaneous": "Różne",
-  "snoozeNotifications": "Uśpij powiadomienia",
-  "notSnoozed": "Nie usypiaj",
-  "snoozeNotificationsUntil": "Uśpij powiadomienia do",
-  "snoozedUntil": "Uśpiono do {time}",
-  "@snoozedUntil": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "cameraViewFit": "Dopasowanie obrazu kamery",
-  "contain": "Zawartość",
-  "fill": "Wypełnienie",
-  "cover": "Pokrycie",
   "gettingDevices": "Pobieranie urządzeń...",
   "noDevices": "Brak urządzeń",
   "noEventsLoaded": "NIE ZAŁADOWANO ZDARZEŃ",
   "noEventsLoadedTips": "•  Wybież kamery do podglądu zdarzeń\n•  Użyj kalnedarza żeby wybrać konkretną datę lub zakres \n•  Użyj przycisku \"Filtr\" aby wyszukiwać",
   "invalidResponse": "Odebrano nieprawidłową odpowiedź z serwera",
   "cameraOptions": "Opcje",
-  "notificationClickBehavior": "Zachowanie po kliknięciu na powiadomienie",
   "showFullscreenCamera": "Pokaż na pełnym ekranie",
   "openInANewWindow": "Otwórz w nowym oknie",
   "enableAudio": "Włącz dźwięk",
   "disableAudio": "Wyłącz dźwięk",
-  "showEventsScreen": "Pokaż historię zdarzeń",
   "addNewServer": "Dodaj nowy serwer",
   "disconnectServer": "Rozłącz",
   "serverOptions": "Opcje serwera",
@@ -182,6 +156,14 @@
   },
   "newLayout": "Nowy układ",
   "editLayout": "Zmień układ",
+  "editSpecificLayout": "Edit {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
   "exportLayout": "Eksportuj układ",
   "importLayout": "Importuj układ",
   "failedToImportMessage": "Podczas próby importu {layoutName}, zostało odnalezione urządzenie podłączone do serwera, z którym nie ma połączenia. Podłącz się do tego serwera i spróbuj ponownie.\nSerwer: {server_ip}:{server_port}",
@@ -212,6 +194,7 @@
   "downloaded": "Pobrane",
   "downloading": "Pobieranie",
   "seeInDownloads": "Zobacz w Pobranych",
+  "downloadPath": "Katalog pobranych",
   "delete": "Usuń",
   "showInFiles": "Pokaż w Plikach",
   "noDownloads": "Jeszcze niczego nie pobrano :/",
@@ -233,7 +216,6 @@
       }
     }
   },
-  "downloadPath": "Katalog pobranych",
   "playbackOptions": "OPCJE ODTWARZANIA",
   "play": "Odtwarzaj",
   "pause": "Pauza",
@@ -331,6 +313,7 @@
   "setResolutionDescription": "Rozdzielczość strumienia wideo może mieć duży wpływ na wydajność aplikacji. Ustaw niższą rozdzielczość aby przyspieszyć działanie lub wyższą żeby zwiększyć jakość obrazu. Można ustawić rozdzielczość domyślną dla każdej kamery w ustawieniach.",
   "hd": "Wysoka jakość",
   "defaultResolution": "Rozdzielczość domyślna",
+  "automaticResolution": "Automatic",
   "p1080": "1080p",
   "p720": "720p",
   "p480": "480p",
@@ -366,10 +349,62 @@
       }
     }
   },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
   "@CURRENT TASKS": {},
   "currentTasks": "Bieżące zadania",
   "noCurrentTasks": "Brak zadań",
   "taskFetchingEvent": "Pobieranie zdarzeń",
   "taskFetchingEventsPlayback": "Pobieranie zdarzeń odtwarania",
-  "taskDownloadingEvent": "Pobieranie zdarzenia"
+  "taskDownloadingEvent": "Pobieranie zdarzenia",
+  "@@@SETTINGS": {},
+  "@@APPEARANCE": {},
+  "theme": "Motyw",
+  "themeDescription": "Zmień wygląd aplikacji",
+  "system": "Systemowy",
+  "light": "Jasny",
+  "dark": "Ciemny",
+  "@@MISC": {},
+  "general": "General",
+  "miscellaneous": "Różne",
+  "@Snoozing": {},
+  "snooze15": "15 minut",
+  "snooze30": "30 minut",
+  "snooze60": "1 godzina",
+  "snoozeNotifications": "Uśpij powiadomienia",
+  "notSnoozed": "Nie usypiaj",
+  "snoozeNotificationsUntil": "Uśpij powiadomienia do",
+  "snoozedUntil": "Uśpiono do {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@Notification click": {},
+  "notificationClickBehavior": "Zachowanie po kliknięciu na powiadomienie",
+  "showEventsScreen": "Pokaż historię zdarzeń",
+  "@@STREAMING": {},
+  "streamingSetings": "Streaming settings",
+  "streamingType": "Streaming type",
+  "rtspProtocol": "RTSP Protocol",
+  "camerasSettings": "Cameras settings",
+  "renderingQuality": "Rendering quality",
+  "renderingQualityDescription": "The quality of the video rendering. The higher the quality, the more resources it takes.\nWhen automatic, the quality is selected based on the camera resolution.",
+  "cameraViewFit": "Dopasowanie obrazu kamery",
+  "cameraViewFitDescription": "The way the video is displayed in the view.",
+  "contain": "Zawartość",
+  "fill": "Wypełnienie",
+  "cover": "Pokrycie",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Date and Language",
+  "language": "Language"
 }

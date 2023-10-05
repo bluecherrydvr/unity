@@ -29,6 +29,11 @@ enum UnityVideoFit {
   }
 }
 
+enum RTSPProtocol {
+  tcp,
+  udp,
+}
+
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
   UnityVideoPlayerInterface() : super(token: _token);
 
@@ -53,6 +58,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     int? width,
     int? height,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   });
 
   /// Creates a video view
@@ -325,11 +331,13 @@ abstract class UnityVideoPlayer {
   static UnityVideoPlayer create({
     UnityVideoQuality quality = UnityVideoQuality.p360,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
       height: quality.resolution.height.toInt(),
       enableCache: enableCache,
+      rtspProtocol: rtspProtocol,
     )..quality = quality;
   }
 

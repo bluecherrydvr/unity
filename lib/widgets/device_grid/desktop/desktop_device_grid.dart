@@ -435,28 +435,22 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     );
 
     final error = UnityVideoView.maybeOf(context)?.error;
-    if (error != null) {
-      return Stack(children: [
-        Positioned.fill(child: ErrorWarning(message: error)),
-        PositionedDirectional(
-          top: 4,
-          end: 4,
-          child: closeButton,
-        ),
-        PositionedDirectional(
-          bottom: 6.0,
-          end: 6.0,
-          child: VideoStatusLabel(
-            video: UnityVideoView.of(context),
-            device: widget.device,
-          ),
-        ),
-      ]);
-    }
-
     final video = UnityVideoView.maybeOf(context);
-
     final isSubView = AlternativeWindow.maybeOf(context) != null;
+
+    final reloadButton = IconButton(
+      icon: Icon(
+        Icons.replay_outlined,
+        shadows: outlinedText(),
+      ),
+      tooltip: loc.reloadCamera,
+      color: Colors.white,
+      iconSize: 18.0,
+      onPressed: () async {
+        await UnityPlayers.reloadDevice(widget.device);
+        setState(() {});
+      },
+    );
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -465,6 +459,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final states = HoverButton.of(context).states;
 
         return Stack(children: [
+          if (error != null)
+            Positioned.fill(child: ErrorWarning(message: error)),
           Padding(
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 12.0,
@@ -496,7 +492,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             child: PTZData(commands: commands),
           ),
           if (video != null) ...[
-            if (!widget.controller!.isSeekable)
+            if (!widget.controller!.isSeekable && error == null)
               const Center(
                 child: SizedBox(
                   height: 20.0,
@@ -511,118 +507,105 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               end: 0,
               start: 0,
               bottom: 4.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (states.isHovering) ...[
-                    const SizedBox(width: 12.0),
-                    if (widget.device.hasPTZ)
-                      PTZToggleButton(
-                        ptzEnabled: ptzEnabled,
-                        onChanged: (enabled) =>
-                            setState(() => ptzEnabled = enabled),
-                      ),
-                    const Spacer(),
-                    () {
-                      final isMuted = volume == 0.0;
+              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                if (states.isHovering && error == null) ...[
+                  const SizedBox(width: 12.0),
+                  if (widget.device.hasPTZ)
+                    PTZToggleButton(
+                      ptzEnabled: ptzEnabled,
+                      onChanged: (enabled) =>
+                          setState(() => ptzEnabled = enabled),
+                    ),
+                  const Spacer(),
+                  () {
+                    final isMuted = volume == 0.0;
 
-                      return IconButton(
-                        icon: Icon(
-                          isMuted
-                              ? Icons.volume_mute_rounded
-                              : Icons.volume_up_rounded,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () async {
-                          if (isMuted) {
-                            await widget.controller!.setVolume(1.0);
-                          } else {
-                            await widget.controller!.setVolume(0.0);
-                          }
-
-                          updateVolume();
-                        },
-                      );
-                    }(),
-                    if (isDesktopPlatform && !isSubView)
-                      IconButton(
-                        icon: Icon(
-                          Icons.open_in_new_sharp,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: loc.openInANewWindow,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () {
-                          widget.device.openInANewWindow();
-                        },
-                      ),
-                    if (!isSubView)
-                      IconButton(
-                        icon: Icon(
-                          Icons.fullscreen_rounded,
-                          shadows: outlinedText(),
-                        ),
-                        tooltip: loc.showFullscreenCamera,
-                        color: Colors.white,
-                        iconSize: 18.0,
-                        onPressed: () async {
-                          var player = UnityPlayers.players[widget.device];
-                          var isLocalController = false;
-                          if (player == null) {
-                            player = UnityPlayers.forDevice(widget.device);
-                            isLocalController = true;
-                          }
-
-                          await Navigator.of(context).pushNamed(
-                            '/fullscreen',
-                            arguments: {
-                              'device': widget.device,
-                              'player': player,
-                              'ptzEnabled': ptzEnabled,
-                            },
-                          );
-                          if (isLocalController) await player.release();
-                        },
-                      ),
-                    IconButton(
+                    return IconButton(
                       icon: Icon(
-                        Icons.replay_outlined,
+                        isMuted
+                            ? Icons.volume_mute_rounded
+                            : Icons.volume_up_rounded,
                         shadows: outlinedText(),
                       ),
-                      tooltip: loc.reloadCamera,
+                      tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
-                        await UnityPlayers.reloadDevice(widget.device);
-                        setState(() {});
+                        if (isMuted) {
+                          await widget.controller!.setVolume(1.0);
+                        } else {
+                          await widget.controller!.setVolume(0.0);
+                        }
+
+                        updateVolume();
+                      },
+                    );
+                  }(),
+                  if (isDesktopPlatform && !isSubView)
+                    IconButton(
+                      icon: Icon(
+                        Icons.open_in_new_sharp,
+                        shadows: outlinedText(),
+                      ),
+                      tooltip: loc.openInANewWindow,
+                      color: Colors.white,
+                      iconSize: 18.0,
+                      onPressed: () {
+                        widget.device.openInANewWindow();
                       },
                     ),
-                    CameraViewFitButton(
-                      fit: context
-                              .findAncestorWidgetOfExactType<UnityVideoView>()
-                              ?.fit ??
-                          SettingsProvider.instance.cameraViewFit,
-                      onChanged: widget.onFitChanged,
+                  if (!isSubView)
+                    IconButton(
+                      icon: Icon(
+                        Icons.fullscreen_rounded,
+                        shadows: outlinedText(),
+                      ),
+                      tooltip: loc.showFullscreenCamera,
+                      color: Colors.white,
+                      iconSize: 18.0,
+                      onPressed: () async {
+                        var player = UnityPlayers.players[widget.device];
+                        var isLocalController = false;
+                        if (player == null) {
+                          player = UnityPlayers.forDevice(widget.device);
+                          isLocalController = true;
+                        }
+
+                        await Navigator.of(context).pushNamed(
+                          '/fullscreen',
+                          arguments: {
+                            'device': widget.device,
+                            'player': player,
+                            'ptzEnabled': ptzEnabled,
+                          },
+                        );
+                        if (isLocalController) await player.release();
+                      },
                     ),
-                  ],
-                  const SizedBox(width: 12.0),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(
-                      end: 6.0,
-                      bottom: 6.0,
-                    ),
-                    child: VideoStatusLabel(
-                      video: video,
-                      device: widget.device,
-                    ),
+                  reloadButton,
+                  CameraViewFitButton(
+                    fit: context
+                            .findAncestorWidgetOfExactType<UnityVideoView>()
+                            ?.fit ??
+                        SettingsProvider.instance.cameraViewFit,
+                    onChanged: widget.onFitChanged,
                   ),
+                ] else ...[
+                  const Spacer(),
+                  if (states.isHovering) reloadButton,
                 ],
-              ),
+                const SizedBox(width: 12.0),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    end: 6.0,
+                    bottom: 6.0,
+                  ),
+                  child: VideoStatusLabel(
+                    video: video,
+                    device: widget.device,
+                  ),
+                ),
+              ]),
             ),
             if (!isSubView &&
                 view.currentLayout.devices.contains(widget.device))

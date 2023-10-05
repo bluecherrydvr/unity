@@ -46,6 +46,7 @@
   "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
   "noServersAvailable": "No servers available",
   "error": "Error",
+  "videoError": "An error happened while trying to play the video.",
   "ok": "OK",
   "retry": "Retry",
   "removeCamera": "Remove Camera",
@@ -75,11 +76,6 @@
   "fps": "FPS",
   "date": "Date",
   "lastUpdate": "Last Update",
-  "theme": "Theme",
-  "themeDescription": "Change the appearance of the app",
-  "system": "System",
-  "light": "Light",
-  "dark": "Dark",
   "screens": "Screens",
   "directCamera": "Direct Camera",
   "addServer": "Add Server",
@@ -94,7 +90,6 @@
       }
     }
   },
-  "pressBackAgainToExit": "Press back button again to exit",
   "servers": "Servers",
   "nServers": "{n, plural, =0{No servers} =1{1 server} other{{n} servers}}",
   "@nServers": {
@@ -128,37 +123,16 @@
   "no": "No",
   "about": "About",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
-  "snooze15": "15 minutes",
-  "snooze30": "30 minutes",
-  "snooze60": "1 hour",
-  "miscellaneous": "Miscellaneous",
-  "snoozeNotifications": "Snooze Notifications",
-  "notSnoozed": "Not snoozing",
-  "snoozeNotificationsUntil": "Snooze notifications until",
-  "snoozedUntil": "Snoozed until {time}",
-  "@snoozedUntil": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "cameraViewFit": "Camera Image Fit",
-  "contain": "Contain",
-  "fill": "Fill",
-  "cover": "Cover",
   "gettingDevices": "Getting devices...",
   "noDevices": "No devices",
   "noEventsLoaded": "NO EVENTS LOADED",
   "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
-  "notificationClickBehavior": "Notification Click Behavior",
   "showFullscreenCamera": "Show in fullscreen",
   "openInANewWindow": "Open in a new window",
   "enableAudio": "Enable audio",
   "disableAudio": "Disable audio",
-  "showEventsScreen": "Show events history",
   "addNewServer": "Add new server",
   "disconnectServer": "Disconnect",
   "serverOptions": "Server options",
@@ -182,6 +156,14 @@
   },
   "newLayout": "New layout",
   "editLayout": "Edit layout",
+  "editSpecificLayout": "Edit {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
   "exportLayout": "Export layout",
   "importLayout": "Import layout",
   "failedToImportMessage": "While attempting to import {layoutName}, we found a device that is connected to a server you are not connected to. Please, connect to the server and try again.\nServer: {server_ip}:{server_port}",
@@ -212,6 +194,7 @@
   "downloaded": "Downloaded",
   "downloading": "Downloading",
   "seeInDownloads": "See in Downloads",
+  "downloadPath": "Download directory",
   "delete": "Delete",
   "showInFiles": "Show in Files",
   "noDownloads": "You haven't downloaded anything yet :/",
@@ -233,7 +216,6 @@
       }
     }
   },
-  "downloadPath": "Download directory",
   "playbackOptions": "PLAYBACK OPTIONS",
   "play": "Play",
   "pause": "Pause",
@@ -331,6 +313,7 @@
   "setResolutionDescription": "The resolution of the video stream can highly impact the performance of the app. Set the resolution to a lower value to improve performance, or to a higher value to improve quality. You can set the default resolution to every camera in the settings",
   "hd": "High definition",
   "defaultResolution": "Default resolution",
+  "automaticResolution": "Automatic",
   "p1080": "1080p",
   "p720": "720p",
   "p480": "480p",
@@ -366,10 +349,62 @@
       }
     }
   },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
   "@CURRENT TASKS": {},
   "currentTasks": "Current tasks",
   "noCurrentTasks": "No tasks",
   "taskFetchingEvent": "Fetching events",
   "taskFetchingEventsPlayback": "Fetching events playback",
-  "taskDownloadingEvent": "Downloading event"
+  "taskDownloadingEvent": "Downloading event",
+  "@@@SETTINGS": {},
+  "@@APPEARANCE": {},
+  "theme": "Theme",
+  "themeDescription": "Change the appearance of the app",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "@@MISC": {},
+  "general": "General",
+  "miscellaneous": "Miscellaneous",
+  "@Snoozing": {},
+  "snooze15": "15 minutes",
+  "snooze30": "30 minutes",
+  "snooze60": "1 hour",
+  "snoozeNotifications": "Snooze Notifications",
+  "notSnoozed": "Not snoozing",
+  "snoozeNotificationsUntil": "Snooze notifications until",
+  "snoozedUntil": "Snoozed until {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@Notification click": {},
+  "notificationClickBehavior": "Notification Click Behavior",
+  "showEventsScreen": "Show events history",
+  "@@STREAMING": {},
+  "streamingSetings": "Streaming settings",
+  "streamingType": "Streaming type",
+  "rtspProtocol": "RTSP Protocol",
+  "camerasSettings": "Cameras settings",
+  "renderingQuality": "Rendering quality",
+  "renderingQualityDescription": "The quality of the video rendering. The higher the quality, the more resources it takes.\nWhen automatic, the quality is selected based on the camera resolution.",
+  "cameraViewFit": "Camera Image Fit",
+  "cameraViewFitDescription": "The way the video is displayed in the view.",
+  "contain": "Contain",
+  "fill": "Fill",
+  "cover": "Cover",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Date and Language",
+  "language": "Language"
 }

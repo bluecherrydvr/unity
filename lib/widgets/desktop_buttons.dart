@@ -129,7 +129,6 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
         final canPop = navigatorKey.currentState?.canPop() ?? false;
 
         return Material(
-          color: theme.appBarTheme.backgroundColor,
           child: Stack(children: [
             DragToMoveArea(
               child: Row(children: [

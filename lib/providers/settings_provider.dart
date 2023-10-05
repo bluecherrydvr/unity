@@ -23,8 +23,10 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -45,8 +47,12 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
   static Future<Directory> get kDefaultDownloadsDirectory =>
       DownloadsManager.kDefaultDownloadsDirectory;
+  static const kDefaultStreamingType = StreamingType.rtsp;
+  static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
+  static const kDefaultVideoQuality = RenderingQuality.automatic;
 
   // Getters.
+  Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
   DateFormat get dateFormat => _dateFormat;
   DateFormat get timeFormat => _timeFormat;
@@ -57,8 +63,16 @@ class SettingsProvider extends ChangeNotifier {
   String get downloadsDirectory => _downloadsDirectory;
   bool get layoutCyclingEnabled => _layoutCyclingEnabled;
   Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
+  StreamingType get streamingType => _streamingType;
+  RTSPProtocol get rtspProtocol => _rtspProtocol;
+  RenderingQuality get videoQuality => _videoQuality;
 
   // Setters.
+  set locale(Locale value) {
+    _locale = value;
+    _save();
+  }
+
   set themeMode(ThemeMode value) {
     _themeMode = value;
     _save().then((_) {
@@ -111,6 +125,24 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
+  set streamingType(StreamingType value) {
+    _streamingType = value;
+    _save();
+    UnityPlayers.reloadAll();
+  }
+
+  set rtspProtocol(RTSPProtocol value) {
+    _rtspProtocol = value;
+    _save();
+    UnityPlayers.reloadAll();
+  }
+
+  set videoQuality(RenderingQuality value) {
+    _videoQuality = value;
+    _save();
+  }
+
+  late Locale _locale;
   late ThemeMode _themeMode;
   late DateFormat _dateFormat;
   late DateFormat _timeFormat;
@@ -120,6 +152,9 @@ class SettingsProvider extends ChangeNotifier {
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
   late Duration _layoutCyclingTogglePeriod;
+  late StreamingType _streamingType;
+  late RTSPProtocol _rtspProtocol;
+  late RenderingQuality _videoQuality;
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -137,6 +172,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> _save({bool notify = true}) async {
     await settings.write({
+      kHiveLocale: locale.toLanguageTag(),
       kHiveThemeMode: themeMode.index,
       kHiveDateFormat: dateFormat.pattern!,
       kHiveTimeFormat: timeFormat.pattern!,
@@ -146,6 +182,9 @@ class SettingsProvider extends ChangeNotifier {
       kHiveDownloadsDirectorySetting: downloadsDirectory,
       kHiveLayoutCycling: layoutCyclingEnabled,
       kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
+      kHiveStreamingType: streamingType.index,
+      kHiveStreamingProtocol: rtspProtocol.index,
+      kHiveVideoQuality: videoQuality.index,
     });
 
     if (notify) notifyListeners();
@@ -160,12 +199,20 @@ class SettingsProvider extends ChangeNotifier {
     // To circumvent this, we are closing all the existing opened [Hive] [Box]es and re-opening them again. This fetches the latest data.
     // Though, changes are still not instant.
     final data = await settings.read() as Map;
+    if (data.containsKey(kHiveLocale)) {
+      _locale = Locale(data[kHiveLocale]!);
+    } else {
+      _locale = Locale(Intl.getCurrentLocale());
+    }
     if (data.containsKey(kHiveThemeMode)) {
       _themeMode = ThemeMode.values[data[kHiveThemeMode]!];
     } else {
       _themeMode = kDefaultThemeMode;
     }
     final format = SystemDateTimeFormat();
+    initializeDateFormatting(_locale.languageCode);
+    Intl.defaultLocale = _locale.toLanguageTag();
+
     final systemLocale = Intl.getCurrentLocale();
     final timePattern = await format.getTimePattern();
     if (data.containsKey(kHiveDateFormat)) {
@@ -217,6 +264,24 @@ class SettingsProvider extends ChangeNotifier {
       _layoutCyclingTogglePeriod = kDefaultLayoutCyclingTogglePeriod;
     }
 
+    if (data.containsKey(kHiveStreamingType)) {
+      _streamingType = StreamingType.values[data[kHiveStreamingType]!];
+    } else {
+      _streamingType = kDefaultStreamingType;
+    }
+
+    if (data.containsKey(kHiveStreamingProtocol)) {
+      _rtspProtocol = RTSPProtocol.values[data[kHiveStreamingProtocol]!];
+    } else {
+      _rtspProtocol = kDefaultRTSPProtocol;
+    }
+
+    if (data.containsKey(kHiveVideoQuality)) {
+      _videoQuality = RenderingQuality.values[data[kHiveVideoQuality]!];
+    } else {
+      _videoQuality = kDefaultVideoQuality;
+    }
+
     notifyListeners();
   }
 
@@ -264,4 +329,31 @@ enum NotificationClickBehavior {
       NotificationClickBehavior.showFullscreenCamera => loc.showEventsScreen,
     };
   }
+}
+
+enum RenderingQuality {
+  automatic,
+  p1080,
+  p720,
+  p480,
+  p360,
+  p240;
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      RenderingQuality.p1080 => loc.p1080,
+      RenderingQuality.p720 => loc.p720,
+      RenderingQuality.p480 => loc.p480,
+      RenderingQuality.p360 => loc.p360,
+      RenderingQuality.p240 => loc.p240,
+      RenderingQuality.automatic => loc.automaticResolution,
+    };
+  }
+}
+
+enum StreamingType {
+  rtsp,
+  hls,
+  mjpeg,
 }

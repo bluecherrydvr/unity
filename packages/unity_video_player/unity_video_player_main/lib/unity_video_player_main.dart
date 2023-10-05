@@ -25,6 +25,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     int? width,
     int? height,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
@@ -119,6 +120,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     int? width,
     int? height,
     bool enableCache = false,
+    RTSPProtocol? rtspProtocol,
   }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width * pixelRatio).toInt();
@@ -138,6 +140,22 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
         });
+      platform.setProperty('msg-level', 'all=v');
+
+      mkPlayer.stream.log.listen((event) {
+        // debugPrint('${event.level} / ${event.prefix}: ${event.text}');
+        if (event.level == 'fatal') {
+          // ignore: invalid_use_of_protected_member
+          platform.errorController.add(event.text);
+        }
+      });
+
+      platform.setProperty('tls-verify', 'no');
+      platform.setProperty('insecure', 'yes');
+
+      if (rtspProtocol != null) {
+        platform.setProperty('rtsp-transport', rtspProtocol.name);
+      }
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
@@ -185,7 +203,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  Stream<String> get onError => mkPlayer.stream.error.map((event) => event);
+  Stream<String> get onError => mkPlayer.stream.error;
 
   @override
   Duration get duration => mkPlayer.state.duration;

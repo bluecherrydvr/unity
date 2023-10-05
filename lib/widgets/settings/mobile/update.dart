@@ -19,12 +19,14 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// The card that displays the update information.
 class AppUpdateCard extends StatelessWidget {
@@ -40,9 +42,10 @@ class AppUpdateCard extends StatelessWidget {
     if (update.hasUpdateAvailable) {
       final executable = update.executableFor(update.latestVersion!.version);
       return Card(
-        margin: const EdgeInsetsDirectional.only(
-          start: 10.0,
-          end: 10.0,
+        margin: EdgeInsetsDirectional.only(
+          top: 8.0,
+          start: DesktopSettings.horizontalPadding.left,
+          end: DesktopSettings.horizontalPadding.right,
           bottom: 6.0,
         ),
         child: Padding(
@@ -106,10 +109,11 @@ class AppUpdateCard extends StatelessWidget {
       );
     } else {
       return Card(
-        margin: const EdgeInsetsDirectional.only(
-          start: 10.0,
-          end: 10.0,
+        margin: EdgeInsetsDirectional.only(
+          top: 8.0,
           bottom: 6.0,
+          start: DesktopSettings.horizontalPadding.left,
+          end: DesktopSettings.horizontalPadding.right,
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -300,7 +304,7 @@ class AppUpdateOptions extends StatelessWidget {
                           const TextSpan(text: '   '),
                           TextSpan(
                             text: SettingsProvider.instance.dateFormat.format(
-                              DateFormat('EEE, d MMM yyyy')
+                              DateFormat('EEE, d MMM yyyy', 'en_US')
                                   .parse(version.publishedAt),
                             ),
                             style: theme.textTheme.labelSmall,
@@ -334,6 +338,51 @@ class AppUpdateOptions extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class About extends StatelessWidget {
+  const About({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final update = context.watch<UpdateManager>();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8.0),
+          Text(update.packageInfo.version),
+          const SizedBox(height: 8.0),
+          Text(
+            loc.versionText,
+            style: theme.textTheme.displayMedium,
+          ),
+          const SizedBox(height: 8.0),
+          MaterialButton(
+            onPressed: () {
+              launchUrl(
+                Uri.https('www.bluecherrydvr.com', '/'),
+                mode: LaunchMode.externalApplication,
+              );
+            },
+            padding: EdgeInsets.zero,
+            minWidth: 0.0,
+            child: Text(
+              loc.website,
+              semanticsLabel: 'www.bluecherrydvr.com',
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

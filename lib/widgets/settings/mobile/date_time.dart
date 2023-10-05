@@ -19,31 +19,6 @@
 
 part of 'settings.dart';
 
-class DateTimeSection extends StatelessWidget {
-  const DateTimeSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return Column(children: [
-      // SubHeader('Language'),
-      // SliverList(
-      //   delegate: SliverChildListDelegate(
-      //     AppLocalizations.supportedLocales.map((locale) {
-      //       return ListTile(
-      //         title: Text(locale.languageCode),
-      //       );
-      //     }).toList(),
-      //   ),
-      // ),
-      SubHeader(loc.dateFormat),
-      const DateFormatSection(),
-      SubHeader(loc.timeFormat),
-      const TimeFormatSection(),
-    ]);
-  }
-}
-
 class DateFormatSection extends StatelessWidget {
   const DateFormatSection({super.key});
 
@@ -81,6 +56,7 @@ class DateFormatSection extends StatelessWidget {
                   maxLines: 1,
                   softWrap: false,
                 ),
+                subtitle: Text(format.pattern ?? ''),
               ),
             );
           }).toList(),
@@ -95,12 +71,10 @@ class DateFormatSection extends StatelessWidget {
                 settings.dateFormat = format;
               },
               controlAffinity: ListTileControlAffinity.trailing,
-              title: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Text(
-                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-                ),
+              title: Text(
+                format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
               ),
+              subtitle: Text(format.pattern ?? ''),
             );
           }).toList(),
         );
@@ -129,10 +103,8 @@ class TimeFormatSection extends StatelessWidget {
               groupValue: settings.timeFormat.pattern,
               onChanged: (value) => settings.timeFormat = format,
             ),
-            title: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8.0),
-              child: Text(format.format(date)),
-            ),
+            title: Text(format.format(date)),
+            subtitle: Text(format.pattern ?? ''),
           );
         }).toList(),
       );

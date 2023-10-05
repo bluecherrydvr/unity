@@ -143,7 +143,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('msg-level', 'all=v');
 
       mkPlayer.stream.log.listen((event) {
-        debugPrint('${event.level} / ${event.prefix}: ${event.text}');
+        // debugPrint('${event.level} / ${event.prefix}: ${event.text}');
+        if (event.level == 'fatal') {
+          // ignore: invalid_use_of_protected_member
+          platform.errorController.add(event.text);
+        }
       });
 
       platform.setProperty('tls-verify', 'no');
@@ -199,7 +203,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  Stream<String> get onError => mkPlayer.stream.error.map((event) => event);
+  Stream<String> get onError => mkPlayer.stream.error;
 
   @override
   Duration get duration => mkPlayer.state.duration;

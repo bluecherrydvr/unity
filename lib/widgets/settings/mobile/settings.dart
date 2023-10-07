@@ -69,7 +69,6 @@ class _MobileSettingsState extends State<MobileSettings> {
     return Material(
       type: MaterialType.transparency,
       child: SafeArea(
-        bottom: false,
         child: Column(children: [
           if (Scaffold.of(context).hasDrawer)
             AppBar(
@@ -284,7 +283,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                   subtitle: '${settings.dateFormat.format(DateTime.now())} '
                       '${settings.timeFormat.format(DateTime.now())}; '
                       '${LocaleNames.of(context)!.nameOf(settings.locale.toLanguageTag())}',
-                  height: 72.0,
+                  height: 80.0,
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
@@ -293,13 +292,11 @@ class _MobileSettingsState extends State<MobileSettings> {
                       builder: (context) {
                         return DraggableScrollableSheet(
                           expand: false,
+                          maxChildSize: 0.8,
                           minChildSize: 0.8,
                           initialChildSize: 0.8,
                           builder: (context, controller) {
-                            return PrimaryScrollController(
-                              controller: controller,
-                              child: const LocalizationSettings(),
-                            );
+                            return LocalizationSettings(controller: controller);
                           },
                         );
                       },

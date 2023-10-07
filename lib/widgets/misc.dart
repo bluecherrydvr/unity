@@ -243,11 +243,15 @@ class SubHeader extends StatelessWidget {
 Widget? MaybeUnityDrawerButton(
   BuildContext context, {
   EdgeInsetsGeometry padding = EdgeInsets.zero,
+  VoidCallback? open,
 }) {
   if (Scaffold.hasDrawer(context)) {
     return Padding(
       padding: padding,
-      child: const UnityDrawerButton(),
+      child: UnityDrawerButton(
+        enforce: true,
+        open: Scaffold.of(context).openDrawer,
+      ),
     );
   }
 
@@ -261,16 +265,21 @@ class UnityDrawerButton extends StatelessWidget {
   final double? iconSize;
   final double splashRadius;
 
+  final bool enforce;
+  final VoidCallback? open;
+
   const UnityDrawerButton({
     super.key,
     this.iconColor,
     this.iconSize = 22.0,
     this.splashRadius = 20.0,
+    this.enforce = false,
+    this.open,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (Scaffold.hasDrawer(context)) {
+    if (Scaffold.hasDrawer(context) || enforce) {
       return Tooltip(
         message: MaterialLocalizations.of(context).openAppDrawerTooltip,
         child: Center(
@@ -278,7 +287,7 @@ class UnityDrawerButton extends StatelessWidget {
             height: 44.0,
             width: 44.0,
             child: InkWell(
-              onTap: () => Scaffold.of(context).openDrawer(),
+              onTap: open ?? () => Scaffold.of(context).openDrawer(),
               radius: 10.0,
               borderRadius: BorderRadius.circular(100.0),
               child: Icon(Icons.menu, color: iconColor, size: iconSize),

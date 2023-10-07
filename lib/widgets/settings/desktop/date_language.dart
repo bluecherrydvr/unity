@@ -27,56 +27,62 @@ import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:provider/provider.dart';
 
 class LocalizationSettings extends StatelessWidget {
-  const LocalizationSettings({super.key});
+  final ScrollController? controller;
+
+  const LocalizationSettings({super.key, this.controller});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Material(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
+    return ListView(
+      padding: DesktopSettings.verticalPadding,
+      controller: controller,
+      children: [
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child: Material(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: const LanguageSection(),
           ),
-          child: const LanguageSection(),
         ),
-      ),
-      const SizedBox(height: 12.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
-      ),
-      const SizedBox(height: 8.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Material(
-          clipBehavior: Clip.hardEdge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusDirectional.circular(8.0),
+        const SizedBox(height: 12.0),
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
+        ),
+        const SizedBox(height: 8.0),
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child: Material(
+            clipBehavior: Clip.hardEdge,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusDirectional.circular(8.0),
+            ),
+            child: const DateFormatSection(),
           ),
-          child: const DateFormatSection(),
         ),
-      ),
-      const SizedBox(height: 12.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
-      ),
-      const SizedBox(height: 8.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Material(
-          clipBehavior: Clip.hardEdge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusDirectional.circular(8.0),
+        const SizedBox(height: 12.0),
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
+        ),
+        const SizedBox(height: 8.0),
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child: Material(
+            clipBehavior: Clip.hardEdge,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusDirectional.circular(8.0),
+            ),
+            child: const TimeFormatSection(),
           ),
-          child: const TimeFormatSection(),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -114,6 +120,7 @@ class LanguageSection extends StatelessWidget {
                     name.uppercaseFirst(),
                     maxLines: 1,
                     softWrap: false,
+                    style: theme.textTheme.bodyMedium,
                   ),
                   Text(
                     nativeName.uppercaseFirst(),

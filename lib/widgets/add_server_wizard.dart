@@ -263,6 +263,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final nameController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  bool showingPassword = false;
 
   bool savePassword = true;
   bool nameTextFieldEverFocused = false;
@@ -353,7 +354,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               child: Form(
                 key: formKey,
                 child: Column(children: [
-                  Row(children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Expanded(
                       flex: 5,
                       child: FocusTraversalOrder(
@@ -453,7 +454,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  Row(children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Expanded(
                       child: FocusTraversalOrder(
                         order: const NumericFocusOrder(5),
@@ -507,11 +508,28 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                             return null;
                           },
                           controller: passwordController,
-                          obscureText: true,
+                          obscureText: !showingPassword,
                           style: theme.textTheme.headlineMedium,
                           decoration: InputDecoration(
                             label: Text(loc.password),
                             border: const OutlineInputBorder(),
+                            suffix: Tooltip(
+                              message: showingPassword
+                                  ? loc.hidePassword
+                                  : loc.showPassword,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Icon(
+                                  showingPassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  size: 22.0,
+                                ),
+                                onTap: () => setState(
+                                  () => showingPassword = !showingPassword,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -537,7 +555,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     //     ],
                     //   ),
                     // ),
-                    const SizedBox(width: 16.0),
+                    // const SizedBox(width: 16.0),
                   ]),
                   // const SizedBox(height: 16.0),
                   // Row(

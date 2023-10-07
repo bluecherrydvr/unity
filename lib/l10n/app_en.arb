@@ -11,6 +11,8 @@
   "username": "Username",
   "password": "Password",
   "savePassword": "Save password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "useDefault": "Use Default",
   "connect": "Connect",
   "connectAutomaticallyAtStartup": "Connect automatically at startup",

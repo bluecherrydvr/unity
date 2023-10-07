@@ -308,6 +308,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       autocorrect: false,
       enableSuggestions: false,
       keyboardType: TextInputType.url,
+      textInputAction: TextInputAction.next,
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.hostname),
@@ -326,6 +327,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       controller: portController,
       autofocus: true,
       keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.next,
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.port),
@@ -344,6 +346,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       controller: rtspPortController,
       autofocus: true,
       keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.next,
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.rtspPort),
@@ -363,6 +366,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       controller: nameController,
       textCapitalization: TextCapitalization.words,
       keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.serverName),
@@ -382,6 +386,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       },
       controller: usernameController,
       style: theme.textTheme.headlineMedium,
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         label: Text(loc.username),
         border: const OutlineInputBorder(),
@@ -399,6 +405,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       controller: passwordController,
       obscureText: !showingPassword,
       style: theme.textTheme.headlineMedium,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
       decoration: InputDecoration(
         label: Text(loc.password),
         border: const OutlineInputBorder(),
@@ -416,6 +424,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           ),
         ),
       ),
+      onFieldSubmitted: (_) => finish(context),
     );
 
     return PopScope(
@@ -476,12 +485,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           elevation: 4.0,
           margin: const EdgeInsetsDirectional.all(16.0),
           child: Padding(
-            padding: const EdgeInsetsDirectional.all(16.0),
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
             child: FocusTraversalGroup(
               policy: OrderedTraversalPolicy(),
               child: Form(
                 key: formKey,
-                child: Column(children: [
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Expanded(
                       flex: 5,
@@ -524,7 +536,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     Padding(
                       padding: const EdgeInsetsDirectional.only(top: 8.0),
                       child: FocusTraversalOrder(
-                        order: const NumericFocusOrder(4),
+                        order: NumericFocusOrder(isMobilePlatform ? -1 : 4),
                         child: MaterialButton(
                           onPressed: disableFinishButton
                               ? null

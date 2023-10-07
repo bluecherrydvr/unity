@@ -115,6 +115,7 @@ class _EditServerState extends State<EditServer> {
                 autocorrect: false,
                 enableSuggestions: false,
                 keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.next,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.hostname),
@@ -136,6 +137,7 @@ class _EditServerState extends State<EditServer> {
                 controller: portController,
                 autofocus: true,
                 keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.port),
@@ -157,6 +159,7 @@ class _EditServerState extends State<EditServer> {
                 controller: rtspPortController,
                 autofocus: true,
                 keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.rtspPort),
@@ -178,6 +181,7 @@ class _EditServerState extends State<EditServer> {
             controller: nameController,
             textCapitalization: TextCapitalization.words,
             keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
             style: theme.textTheme.headlineMedium,
             decoration: InputDecoration(
               label: Text(loc.serverName),
@@ -195,6 +199,7 @@ class _EditServerState extends State<EditServer> {
                   }
                   return null;
                 },
+                textInputAction: TextInputAction.next,
                 controller: usernameController,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
@@ -218,6 +223,7 @@ class _EditServerState extends State<EditServer> {
                 controller: passwordController,
                 obscureText: !showPassword,
                 style: theme.textTheme.headlineMedium,
+                textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   label: Text(loc.password),
                   border: const OutlineInputBorder(),
@@ -241,6 +247,7 @@ class _EditServerState extends State<EditServer> {
                     ),
                   ),
                 ),
+                onFieldSubmitted: (_) => update(),
               ),
             ),
           ]),

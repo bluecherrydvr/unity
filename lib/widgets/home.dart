@@ -64,7 +64,8 @@ class NavigatorData {
         selectedIcon: Icons.subscriptions,
         text: loc.eventsTimeline,
       ),
-      if (screenSize.width <= kMobileBreakpoint.width)
+      if (screenSize.width <= kMobileBreakpoint.width ||
+          Scaffold.hasDrawer(context))
         NavigatorData(
           tab: UnityTab.directCameraScreen,
           icon: Icons.videocam_outlined,
@@ -140,7 +141,9 @@ class _MobileHomeState extends State<Home> {
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: isDesktop || showNavigationRail ? null : buildDrawer(context),
+        drawer: isDesktop || showNavigationRail
+            ? null
+            : Builder(builder: buildDrawer),
         body: Column(children: [
           const WindowButtons(),
           Expanded(
@@ -148,7 +151,7 @@ class _MobileHomeState extends State<Home> {
               if (showNavigationRail)
                 SafeArea(
                   right: Directionality.of(context) == TextDirection.rtl,
-                  child: buildNavigationRail(context),
+                  child: Builder(builder: buildNavigationRail),
                 ),
               Expanded(
                 child: ClipRect(
@@ -187,7 +190,7 @@ class _MobileHomeState extends State<Home> {
     });
   }
 
-  Drawer buildDrawer(BuildContext context) {
+  Widget buildDrawer(BuildContext context) {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
 
     final home = context.watch<HomeProvider>();

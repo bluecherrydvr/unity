@@ -27,7 +27,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/servers/edit_server.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/date_language.dart';
@@ -72,7 +71,7 @@ class _MobileSettingsState extends State<MobileSettings> {
       child: SafeArea(
         bottom: false,
         child: Column(children: [
-          if (isMobile)
+          if (Scaffold.of(context).hasDrawer)
             AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(loc.settings),

@@ -89,7 +89,7 @@ class MobileViewProvider extends ChangeNotifier {
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in current) {
         if (device != null) {
-          UnityPlayers.players[device] = UnityPlayers.forDevice(device);
+          UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
         }
       }
     }
@@ -115,15 +115,15 @@ class MobileViewProvider extends ChangeNotifier {
     final items = devices[value]!;
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
     for (final device in items) {
-      if (!UnityPlayers.players.keys.contains(device) && device != null) {
-        UnityPlayers.players[device] = UnityPlayers.forDevice(device);
+      if (device != null && !UnityPlayers.players.keys.contains(device.uuid)) {
+        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
       }
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
-    UnityPlayers.players.removeWhere((key, value) {
-      final result = items.contains(key);
+    UnityPlayers.players.removeWhere((deviceUUID, player) {
+      final result = items.contains(Device.fromUUID(deviceUUID));
       if (!result) {
-        value
+        player
           ..release()
           ..dispose();
       }
@@ -146,9 +146,9 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      UnityPlayers.players[device]?.release();
-      UnityPlayers.players[device]?.dispose();
-      UnityPlayers.players.remove(device);
+      UnityPlayers.players[device?.uuid]?.release();
+      UnityPlayers.players[device?.uuid]?.dispose();
+      UnityPlayers.players.remove(device?.uuid);
     }
     // Remove.
     devices[tab]![index] = null;
@@ -161,7 +161,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices[tab]!.contains(device)) {
       debugPrint('Added $device');
-      UnityPlayers.players[device] = UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
     }
     devices[tab]![index] = device;
     notifyListeners();
@@ -178,13 +178,13 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      await UnityPlayers.players[current]?.release();
-      UnityPlayers.players[current]?.dispose();
-      UnityPlayers.players.remove(current);
+      await UnityPlayers.players[current?.uuid]?.release();
+      UnityPlayers.players[current?.uuid]?.dispose();
+      UnityPlayers.players.remove(current?.uuid);
     }
     if (!devices[tab]!.contains(device)) {
       debugPrint('Replaced $device');
-      UnityPlayers.players[device] = UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
     }
     // Save the new [device] at the position.
     devices[tab]![index] = device;

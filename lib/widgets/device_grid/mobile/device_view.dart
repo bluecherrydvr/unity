@@ -241,7 +241,7 @@ class DeviceTileState extends State<DeviceTile> {
   @override
   Widget build(BuildContext context) {
     context.watch<UnityPlayers>();
-    final videoPlayer = UnityPlayers.players[widget.device];
+    final videoPlayer = UnityPlayers.players[widget.device.uuid];
     if (videoPlayer == null) return const SizedBox.shrink();
 
     final loc = AppLocalizations.of(context);

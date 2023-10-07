@@ -197,7 +197,7 @@ class _DevicesForServer extends StatelessWidget {
 
   Future<void> onTap(BuildContext context, Device device) async {
     final player =
-        UnityPlayers.players[device] ?? UnityPlayers.forDevice(device);
+        UnityPlayers.players[device.uuid] ?? UnityPlayers.forDevice(device);
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',

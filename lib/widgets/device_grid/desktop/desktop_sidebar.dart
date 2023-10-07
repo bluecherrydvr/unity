@@ -327,7 +327,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
-              var player = UnityPlayers.players[widget.device];
+              var player = UnityPlayers.players[widget.device.uuid];
               var isLocalController = false;
               if (player == null) {
                 player = UnityPlayers.forDevice(widget.device);

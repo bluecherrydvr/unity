@@ -73,27 +73,23 @@ class EventsProvider extends ChangeNotifier {
     }
   }
 
-  static String idForDevice(Device device) {
-    return '${device.server.ip}:${device.server.port}/${device.name}';
-  }
-
   Future<void> clear() {
     selectedIds.clear();
     return _save();
   }
 
   bool contains(Device device) {
-    return selectedIds.contains(idForDevice(device));
+    return selectedIds.contains(device.uuid);
   }
 
   Future<void> add(Device device) {
-    selectedIds.add(idForDevice(device));
+    selectedIds.add(device.uuid);
 
     return _save();
   }
 
   Future<void> remove(Device device) {
-    selectedIds.remove(idForDevice(device));
+    selectedIds.remove(device.uuid);
 
     return _save();
   }

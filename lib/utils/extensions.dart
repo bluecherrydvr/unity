@@ -19,7 +19,6 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/providers/events_playback_provider.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
@@ -120,9 +119,8 @@ extension StringExtension on String {
 extension ServerExtension on List<Server> {
   Device? findDevice(String id) {
     for (final server in this) {
-      if (server.devices.any((d) => EventsProvider.idForDevice(d) == id)) {
-        return server.devices
-            .firstWhere((d) => EventsProvider.idForDevice(d) == id);
+      if (server.devices.any((d) => d.uuid == id)) {
+        return server.devices.firstWhere((d) => d.uuid == id);
       }
     }
 

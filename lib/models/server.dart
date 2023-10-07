@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 
 /// A [Server] added by a user.
 class Server {
@@ -52,7 +53,7 @@ class Server {
     this.login,
     this.password,
     this.devices, {
-    this.rtspPort = 7002,
+    this.rtspPort = kDefaultRTSPPort,
     this.serverUUID,
     this.cookie,
     this.savePassword = false,
@@ -68,7 +69,7 @@ class Server {
     this.login = 'admin',
     this.password = 'admin',
     this.devices = const [],
-    this.rtspPort = 7002,
+    this.rtspPort = kDefaultRTSPPort,
     this.serverUUID,
     this.cookie,
     this.savePassword = false,

@@ -33,7 +33,7 @@ class UnityPlayers with ChangeNotifier {
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
   ///
-  static final Map<Device, UnityVideoPlayer> players = {};
+  static final players = <String, UnityVideoPlayer>{};
 
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(Device device) {
@@ -58,6 +58,7 @@ class UnityPlayers with ChangeNotifier {
         StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
         StreamingType.mjpeg => device.mjpegURL,
       };
+      print(source);
       controller.setDataSource(source);
     }
 
@@ -67,7 +68,7 @@ class UnityPlayers with ChangeNotifier {
   }
 
   /// Release the video player for the given [Device].
-  static Future<void> releaseDevice(Device device) async {
+  static Future<void> releaseDevice(String device) async {
     await players[device]?.release();
     await players[device]?.dispose();
     players.remove(device);
@@ -75,8 +76,8 @@ class UnityPlayers with ChangeNotifier {
 
   /// Reload the video player for the given [Device].
   static Future<void> reloadDevice(Device device) async {
-    await releaseDevice(device);
-    players[device] = forDevice(device);
+    await releaseDevice(device.uuid);
+    players[device.uuid] = forDevice(device);
     instance.notifyListeners();
   }
 
@@ -90,7 +91,7 @@ class UnityPlayers with ChangeNotifier {
       if (onlyIfTimedOut) {
         if (!player.isImageOld) continue;
       }
-      reloadDevice(device);
+      reloadDevice(Device.fromUUID(device));
     }
   }
 }

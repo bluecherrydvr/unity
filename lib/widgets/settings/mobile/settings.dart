@@ -28,8 +28,8 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/servers/edit_server.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/date_language.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
 import 'package:file_picker/file_picker.dart';
@@ -42,8 +42,8 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-part 'date_time.dart';
 part '../shared/server_tile.dart';
+part 'date_time.dart';
 
 class MobileSettings extends StatefulWidget {
   const MobileSettings({super.key});

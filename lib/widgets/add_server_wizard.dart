@@ -348,229 +348,251 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           margin: const EdgeInsetsDirectional.all(16.0),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(16.0),
-            child: Form(
-              key: formKey,
-              child: Column(children: [
-                Row(children: [
-                  Expanded(
-                    flex: 5,
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: Form(
+                key: formKey,
+                child: Column(children: [
+                  Row(children: [
+                    Expanded(
+                      flex: 5,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(0),
+                        child: TextFormField(
+                          enabled: !disableFinishButton,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return loc.errorTextField(
+                                loc.hostname,
+                              );
+                            }
+                            return null;
+                          },
+                          controller: hostnameController,
+                          autofocus: true,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          keyboardType: TextInputType.url,
+                          style: theme.textTheme.headlineMedium,
+                          decoration: InputDecoration(
+                            label: Text(loc.hostname),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 2,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(1),
+                        child: TextFormField(
+                          enabled: !disableFinishButton,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return loc.errorTextField(loc.port);
+                            }
+                            return null;
+                          },
+                          controller: portController,
+                          autofocus: true,
+                          keyboardType: TextInputType.number,
+                          style: theme.textTheme.headlineMedium,
+                          decoration: InputDecoration(
+                            label: Text(loc.port),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 2,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(2),
+                        child: TextFormField(
+                          enabled: !disableFinishButton,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return loc.errorTextField(loc.rtspPort);
+                            }
+                            return null;
+                          },
+                          controller: rtspPortController,
+                          autofocus: true,
+                          keyboardType: TextInputType.number,
+                          style: theme.textTheme.headlineMedium,
+                          decoration: InputDecoration(
+                            label: Text(loc.rtspPort),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 16.0),
+                  FocusTraversalOrder(
+                    order: const NumericFocusOrder(3),
                     child: TextFormField(
                       enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.hostname,
-                          );
+                          return loc.errorTextField(loc.name);
                         }
                         return null;
                       },
-                      controller: hostnameController,
-                      autofocus: true,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      keyboardType: TextInputType.url,
+                      onTap: () => nameTextFieldEverFocused = true,
+                      controller: nameController,
+                      textCapitalization: TextCapitalization.words,
+                      keyboardType: TextInputType.name,
                       style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
-                        label: Text(loc.hostname),
+                        label: Text(loc.name),
                         border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(loc.port);
-                        }
-                        return null;
-                      },
-                      controller: portController,
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.port),
-                        border: const OutlineInputBorder(),
+                  const SizedBox(height: 16.0),
+                  Row(children: [
+                    Expanded(
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(5),
+                        child: TextFormField(
+                          enabled: !disableFinishButton,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return loc.errorTextField(
+                                loc.username,
+                              );
+                            }
+                            return null;
+                          },
+                          controller: usernameController,
+                          style: theme.textTheme.headlineMedium,
+                          decoration: InputDecoration(
+                            label: Text(loc.username),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(loc.rtspPort);
-                        }
-                        return null;
-                      },
-                      controller: rtspPortController,
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.rtspPort),
-                        border: const OutlineInputBorder(),
+                    const SizedBox(width: 8.0),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(top: 8.0),
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(4),
+                        child: MaterialButton(
+                          onPressed: disableFinishButton
+                              ? null
+                              : () {
+                                  usernameController.text = kDefaultUsername;
+                                  passwordController.text = kDefaultPassword;
+                                },
+                          child: Text(loc.useDefault.toUpperCase()),
+                        ),
                       ),
                     ),
-                  ),
-                ]),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  enabled: !disableFinishButton,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return loc.errorTextField(
-                        loc.name,
-                      );
-                    }
-                    return null;
-                  },
-                  onTap: () => nameTextFieldEverFocused = true,
-                  controller: nameController,
-                  textCapitalization: TextCapitalization.words,
-                  keyboardType: TextInputType.name,
-                  style: theme.textTheme.headlineMedium,
-                  decoration: InputDecoration(
-                    label: Text(loc.name),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                Row(children: [
-                  Expanded(
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.username,
-                          );
-                        }
-                        return null;
-                      },
-                      controller: usernameController,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.username),
-                        border: const OutlineInputBorder(),
+                  ]),
+                  const SizedBox(height: 16.0),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Expanded(
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(6),
+                        child: TextFormField(
+                          enabled: !disableFinishButton,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return loc.errorTextField(loc.password);
+                            }
+                            return null;
+                          },
+                          controller: passwordController,
+                          obscureText: true,
+                          style: theme.textTheme.headlineMedium,
+                          decoration: InputDecoration(
+                            label: Text(loc.password),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(top: 8.0),
-                    child: MaterialButton(
+                    // Padding(
+                    //   padding: const EdgeInsetsDirectional.only(top: 8.0),
+                    //   child: Row(
+                    //     children: [
+                    //       Checkbox(
+                    //         value: savePassword,
+                    //         onChanged: (value) {
+                    //           setState(() {
+                    //             savePassword = value!;
+                    //           });
+                    //         },
+                    //       ),
+                    //       Text(
+                    //         'save_password'.tr(),
+                    //         maxLines: 2,
+                    //         overflow: TextOverflow.ellipsis,
+                    //         style: theme.textTheme.headline4,
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    const SizedBox(width: 16.0),
+                  ]),
+                  // const SizedBox(height: 16.0),
+                  // Row(
+                  //   children: [
+                  //     Checkbox(
+                  //       value: connectAutomaticallyAtStartup,
+                  //       onChanged: (value) {
+                  //         setState(() {
+                  //           connectAutomaticallyAtStartup = value!;
+                  //         });
+                  //       },
+                  //     ),
+                  //     Text(
+                  //       'connect_automatically_at_startup'.tr(),
+                  //       maxLines: 2,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       style: theme.textTheme.headline4,
+                  //     ),
+                  //   ],
+                  // ),
+                  const SizedBox(height: 16.0),
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    if (disableFinishButton)
+                      const SizedBox(
+                        height: 24.0,
+                        width: 24.0,
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 2.0,
+                        ),
+                      ),
+                    MaterialButton(
                       onPressed: disableFinishButton
                           ? null
                           : () {
-                              usernameController.text = kDefaultUsername;
-                              passwordController.text = kDefaultPassword;
+                              widget.controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
                             },
-                      child: Text(loc.useDefault.toUpperCase()),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 16.0),
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(loc.password);
-                        }
-                        return null;
-                      },
-                      controller: passwordController,
-                      obscureText: true,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.password),
-                        border: const OutlineInputBorder(),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(8.0),
+                        child: Text(loc.skip.toUpperCase()),
                       ),
                     ),
-                  ),
-                  // Padding(
-                  //   padding: const EdgeInsetsDirectional.only(top: 8.0),
-                  //   child: Row(
-                  //     children: [
-                  //       Checkbox(
-                  //         value: savePassword,
-                  //         onChanged: (value) {
-                  //           setState(() {
-                  //             savePassword = value!;
-                  //           });
-                  //         },
-                  //       ),
-                  //       Text(
-                  //         'save_password'.tr(),
-                  //         maxLines: 2,
-                  //         overflow: TextOverflow.ellipsis,
-                  //         style: theme.textTheme.headline4,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  const SizedBox(width: 16.0),
-                ]),
-                // const SizedBox(height: 16.0),
-                // Row(
-                //   children: [
-                //     Checkbox(
-                //       value: connectAutomaticallyAtStartup,
-                //       onChanged: (value) {
-                //         setState(() {
-                //           connectAutomaticallyAtStartup = value!;
-                //         });
-                //       },
-                //     ),
-                //     Text(
-                //       'connect_automatically_at_startup'.tr(),
-                //       maxLines: 2,
-                //       overflow: TextOverflow.ellipsis,
-                //       style: theme.textTheme.headline4,
-                //     ),
-                //   ],
-                // ),
-                const SizedBox(height: 16.0),
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  if (disableFinishButton)
-                    const SizedBox(
-                      height: 24.0,
-                      width: 24.0,
-                      child: CircularProgressIndicator.adaptive(
-                        strokeWidth: 2.0,
+                    MaterialButton(
+                      onPressed:
+                          disableFinishButton ? null : () => finish(context),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(8.0),
+                        child: Text(loc.finish.toUpperCase()),
                       ),
                     ),
-                  MaterialButton(
-                    onPressed: disableFinishButton
-                        ? null
-                        : () {
-                            widget.controller.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.skip.toUpperCase()),
-                    ),
-                  ),
-                  MaterialButton(
-                    onPressed:
-                        disableFinishButton ? null : () => finish(context),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.finish.toUpperCase()),
-                    ),
-                  ),
+                  ]),
                 ]),
-              ]),
+              ),
             ),
           ),
         ),

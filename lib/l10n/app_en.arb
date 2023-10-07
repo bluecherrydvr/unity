@@ -6,6 +6,7 @@
   "configureDescription": "Setup a connection to your remote DVR server",
   "hostname": "Hostname",
   "port": "Port",
+  "rtspPort": "RTSP Port",
   "name": "Name",
   "username": "Username",
   "password": "Password",

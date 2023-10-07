@@ -31,10 +31,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
-  const AddServerWizard({
-    super.key,
-    required this.onFinish,
-  });
+
+  const AddServerWizard({super.key, required this.onFinish});
 
   @override
   State<AddServerWizard> createState() => _AddServerWizardState();
@@ -154,7 +152,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const SizedBox(height: 16.0),
                         Column(
                           crossAxisAlignment:
-                              (theme.appBarTheme.centerTitle ?? false)
+                              (AppBarTheme.of(context).centerTitle ?? false)
                                   ? CrossAxisAlignment.center
                                   : CrossAxisAlignment.start,
                           children: [
@@ -243,7 +241,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
 
 class ConfigureDVRServerScreen extends StatefulWidget {
   final PageController controller;
-  final void Function(Server) setServer;
+  final ValueChanged<Server> setServer;
   final Server? Function() getServer;
 
   const ConfigureDVRServerScreen({
@@ -259,32 +257,28 @@ class ConfigureDVRServerScreen extends StatefulWidget {
 }
 
 class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
-  final List<TextEditingController> textEditingControllers = [
-    TextEditingController(),
-    TextEditingController(text: kDefaultPort.toString()),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-  ];
+  final hostnameController = TextEditingController();
+  final portController = TextEditingController(text: '$kDefaultPort');
+  final rtspPortController = TextEditingController(text: '$kDefaultRTSPPort');
+  final nameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+
   bool savePassword = true;
   bool nameTextFieldEverFocused = false;
   bool connectAutomaticallyAtStartup = true;
   bool disableFinishButton = false;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
-  String getServerHostname(String text) => (text.startsWith('http')
-          ? (text.split('//')..removeAt(0)).join('//')
-          : text)
-      .split('/')
-      .first;
+  String getServerHostname(String text) => Uri.parse(text).host;
 
   @override
   void initState() {
     super.initState();
-    textEditingControllers[0].addListener(() {
-      if (!nameTextFieldEverFocused) {
-        textEditingControllers[2].text =
-            getServerHostname(textEditingControllers[0].text);
+    hostnameController.addListener(() {
+      final hostname = getServerHostname(hostnameController.text);
+      if (!nameTextFieldEverFocused && hostname.isNotEmpty) {
+        nameController.text = hostname;
       }
     });
   }
@@ -352,10 +346,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         body: Card(
           elevation: 4.0,
           margin: const EdgeInsetsDirectional.all(16.0),
-          child: Form(
-            key: formKey,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(16.0),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.all(16.0),
+            child: Form(
+              key: formKey,
               child: Column(children: [
                 Row(children: [
                   Expanded(
@@ -370,7 +364,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         }
                         return null;
                       },
-                      controller: textEditingControllers[0],
+                      controller: hostnameController,
                       autofocus: true,
                       autocorrect: false,
                       enableSuggestions: false,
@@ -389,18 +383,37 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.port,
-                          );
+                          return loc.errorTextField(loc.port);
                         }
                         return null;
                       },
-                      controller: textEditingControllers[1],
+                      controller: portController,
                       autofocus: true,
                       keyboardType: TextInputType.number,
                       style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(loc.port),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      enabled: !disableFinishButton,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return loc.errorTextField(loc.rtspPort);
+                        }
+                        return null;
+                      },
+                      controller: rtspPortController,
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      style: theme.textTheme.headlineMedium,
+                      decoration: InputDecoration(
+                        label: Text(loc.rtspPort),
                         border: const OutlineInputBorder(),
                       ),
                     ),
@@ -418,7 +431,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     return null;
                   },
                   onTap: () => nameTextFieldEverFocused = true,
-                  controller: textEditingControllers[2],
+                  controller: nameController,
                   textCapitalization: TextCapitalization.words,
                   keyboardType: TextInputType.name,
                   style: theme.textTheme.headlineMedium,
@@ -440,7 +453,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         }
                         return null;
                       },
-                      controller: textEditingControllers[3],
+                      controller: usernameController,
                       style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
                         label: Text(loc.username),
@@ -455,8 +468,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       onPressed: disableFinishButton
                           ? null
                           : () {
-                              textEditingControllers[3].text = kDefaultUsername;
-                              textEditingControllers[4].text = kDefaultPassword;
+                              usernameController.text = kDefaultUsername;
+                              passwordController.text = kDefaultPassword;
                             },
                       child: Text(loc.useDefault.toUpperCase()),
                     ),
@@ -469,13 +482,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       enabled: !disableFinishButton,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.password,
-                          );
+                          return loc.errorTextField(loc.password);
                         }
                         return null;
                       },
-                      controller: textEditingControllers[4],
+                      controller: passwordController,
                       obscureText: true,
                       style: theme.textTheme.headlineMedium,
                       decoration: InputDecoration(
@@ -574,12 +585,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       if (mounted) setState(() => disableFinishButton = true);
       final server = await API.instance.checkServerCredentials(
         Server(
-          textEditingControllers[2].text.trim(),
-          getServerHostname(textEditingControllers[0].text.trim()),
-          int.parse(textEditingControllers[1].text.trim()),
-          textEditingControllers[3].text.trim(),
-          textEditingControllers[4].text,
+          nameController.text.trim(),
+          getServerHostname(hostnameController.text.trim()),
+          int.parse(portController.text.trim()),
+          usernameController.text.trim(),
+          passwordController.text,
           [],
+          rtspPort: int.parse(rtspPortController.text.trim()),
           savePassword: savePassword,
           connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),

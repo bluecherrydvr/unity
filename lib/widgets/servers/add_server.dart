@@ -271,7 +271,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   bool disableFinishButton = false;
   final formKey = GlobalKey<FormState>();
 
-  String getServerHostname(String text) => Uri.parse(text).host;
+  String getServerHostname(String text) {
+    if (Uri.parse(text).scheme.isEmpty) text = 'https://$text';
+    return Uri.parse(text).host;
+  }
 
   @override
   void initState() {
@@ -562,12 +565,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                         child: Text(loc.skip.toUpperCase()),
                       ),
                     ),
-                    MaterialButton(
-                      onPressed:
-                          disableFinishButton ? null : () => finish(context),
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(8.0),
-                        child: Text(loc.finish.toUpperCase()),
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(7),
+                      child: MaterialButton(
+                        onPressed:
+                            disableFinishButton ? null : () => finish(context),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.all(8.0),
+                          child: Text(loc.finish.toUpperCase()),
+                        ),
                       ),
                     ),
                   ]),

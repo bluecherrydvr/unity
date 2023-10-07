@@ -58,7 +58,7 @@ class UnityPlayers with ChangeNotifier {
         StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
         StreamingType.mjpeg => device.mjpegURL,
       };
-      print(source);
+      debugPrint(source);
       controller.setDataSource(source);
     }
 

@@ -7,7 +7,7 @@
   "hostname": "Hostname",
   "port": "Port",
   "rtspPort": "RTSP Port",
-  "name": "Name",
+  "serverName": "Server Name",
   "username": "Username",
   "password": "Password",
   "savePassword": "Save password",
@@ -29,7 +29,7 @@
   "tip1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
   "tip2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
   "tip3": "Click the events icon to open the history and watch or save recordings.",
-  "errorTextField": "{field} is not entered.",
+  "errorTextField": "{field} must not be empty.",
   "@errorTextField": {
     "placeholders": {
       "field": {

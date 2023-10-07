@@ -18,7 +18,6 @@
  */
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
@@ -27,25 +26,6 @@ import 'package:flutter/rendering.dart';
 const double kDesktopAppBarHeight = 64.0;
 
 final moreIconData = isDesktop ? Icons.more_horiz : Icons.more_vert;
-
-class NavigatorPopButton extends StatelessWidget {
-  final Color? color;
-  final VoidCallback? onTap;
-
-  const NavigatorPopButton({super.key, this.onTap, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      splashRadius: 22.0,
-      onPressed: onTap ?? Navigator.of(context).pop,
-      icon: Icon(
-        Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-        color: color,
-      ),
-    );
-  }
-}
 
 // ignore: must_be_immutable
 class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {

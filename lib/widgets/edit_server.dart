@@ -106,7 +106,7 @@ class _EditServerState extends State<EditServer> {
               flex: 5,
               child: TextFormField(
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
+                  if (value == null || value.isEmpty) {
                     return loc.errorTextField(
                       loc.hostname,
                     );
@@ -130,7 +130,7 @@ class _EditServerState extends State<EditServer> {
               flex: 2,
               child: TextFormField(
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
+                  if (value == null || value.isEmpty) {
                     return loc.errorTextField(
                       loc.port,
                     );
@@ -151,10 +151,8 @@ class _EditServerState extends State<EditServer> {
           const SizedBox(height: 16.0),
           TextFormField(
             validator: (value) {
-              if (value?.isEmpty ?? true) {
-                return loc.errorTextField(
-                  loc.name,
-                );
+              if (value == null || value.isEmpty) {
+                return loc.errorTextField(loc.serverName);
               }
               return null;
             },
@@ -164,7 +162,7 @@ class _EditServerState extends State<EditServer> {
             keyboardType: TextInputType.name,
             style: theme.textTheme.headlineMedium,
             decoration: InputDecoration(
-              label: Text(loc.name),
+              label: Text(loc.serverName),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -173,7 +171,7 @@ class _EditServerState extends State<EditServer> {
             Expanded(
               child: TextFormField(
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
+                  if (value == null || value.isEmpty) {
                     return loc.errorTextField(
                       loc.username,
                     );
@@ -194,7 +192,7 @@ class _EditServerState extends State<EditServer> {
             Expanded(
               child: TextFormField(
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
+                  if (value == null || value.isEmpty) {
                     return loc.errorTextField(
                       loc.password,
                     );

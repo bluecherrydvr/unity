@@ -60,7 +60,6 @@ class MobileDeviceView extends StatefulWidget {
 class _MobileDeviceViewState extends State<MobileDeviceView> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<MobileViewProvider>();
     final device = view.devices[widget.tab]![widget.index];
@@ -103,62 +102,41 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                     ancestor: Navigator.of(context).context.findRenderObject(),
                   );
 
-                  const menuWidth = 275.0;
-                  final position = RelativeRect.fromLTRB(
-                    buttonPos.dx - menuWidth,
-                    buttonPos.dy,
-                    buttonPos.dx,
-                    buttonPos.dy + menuWidth,
+                  const menuWidth = 200.0;
+                  final position = RelativeRect.fromDirectional(
+                    textDirection: Directionality.of(context),
+                    start: buttonPos.dx - menuWidth,
+                    top: buttonPos.dy,
+                    end: buttonPos.dx,
+                    bottom: buttonPos.dy + menuWidth,
                   );
 
-                  final value = await showMenu<IconData>(
+                  await showMenu<IconData>(
                     context: context,
                     position: position,
-                    constraints: const BoxConstraints(
-                      maxWidth: menuWidth,
-                      minWidth: menuWidth,
-                    ),
-                    items: {
-                      Icons.close_outlined: loc.removeCamera,
-                      Icons.add_outlined: loc.replaceCamera,
-                      Icons.replay_outlined: loc.reloadCamera,
-                    }.entries.map((e) {
-                      return PopupMenuItem(
-                        value: e.key,
-                        padding: EdgeInsets.zero,
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: theme.iconTheme.color,
-                            child: Icon(e.key),
-                          ),
-                          title: Text(e.value),
-                        ),
-                      );
-                    }).toList(),
+                    items: [
+                      PopupMenuItem(
+                        child: Text(loc.removeCamera),
+                        onTap: () => view.remove(widget.tab, widget.index),
+                      ),
+                      PopupMenuItem(
+                        child: Text(loc.replaceCamera),
+                        onTap: () async {
+                          if (mounted) {
+                            final device =
+                                await showDeviceSelectorScreen(context);
+                            if (device != null) {
+                              view.replace(widget.tab, widget.index, device);
+                            }
+                          }
+                        },
+                      ),
+                      PopupMenuItem(
+                        child: Text(loc.reloadCamera),
+                        onTap: () => view.reload(widget.tab, widget.index),
+                      ),
+                    ],
                   );
-
-                  if (value == null || !mounted) return;
-
-                  switch (value) {
-                    case Icons.close_outlined:
-                      view.remove(widget.tab, widget.index);
-                      if (mounted) setState(() {});
-
-                      break;
-                    case Icons.add_outlined:
-                      if (mounted) {
-                        final result = await showDeviceSelectorScreen(context);
-                        if (result != null) {
-                          view.replace(widget.tab, widget.index, result);
-                          if (mounted) setState(() {});
-                        }
-                      }
-                      break;
-                    case Icons.replay_outlined:
-                      view.reload(widget.tab, widget.index);
-                      break;
-                  }
                 },
                 child: IconButton(
                   onPressed: null,

@@ -37,7 +37,9 @@ import 'package:window_manager/window_manager.dart';
 final navigationStream = StreamController.broadcast();
 
 class NObserver extends NavigatorObserver {
-  void update(Route route) {
+  void update(Route? route) {
+    if (route == null) return;
+
     // do not update if it's a popup
     if (route is PopupRoute) return;
     if (route is DialogRoute) return;
@@ -61,6 +63,12 @@ class NObserver extends NavigatorObserver {
   void didRemove(Route route, Route? previousRoute) {
     update(route);
     super.didRemove(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    update(newRoute ?? oldRoute);
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
   }
 }
 

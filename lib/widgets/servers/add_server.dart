@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/servers/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -590,11 +591,30 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     if (formKey.currentState?.validate() ?? false) {
       final focusScope = FocusScope.of(context);
 
+      final name = nameController.text.trim();
+      final hostname = getServerHostname(hostnameController.text.trim());
+
+      if (ServersProvider.instance.servers
+          .any((s) => Uri.parse(s.login).host == Uri.parse(hostname).host)) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            final loc = AppLocalizations.of(context);
+
+            return ServerNotAddedErrorDialog(
+              name: name,
+              description: loc.serverAlreadyAdded(name),
+            );
+          },
+        );
+        return;
+      }
+
       if (mounted) setState(() => disableFinishButton = true);
       final server = await API.instance.checkServerCredentials(
         Server(
-          nameController.text.trim(),
-          getServerHostname(hostnameController.text.trim()),
+          name,
+          hostname,
           int.parse(portController.text.trim()),
           usernameController.text.trim(),
           passwordController.text,
@@ -610,9 +630,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         widget.setServer(server);
         await ServersProvider.instance.add(server);
         widget.controller.nextPage(
-          duration: const Duration(
-            milliseconds: 300,
-          ),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       } else {
@@ -620,34 +638,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           showDialog(
             context: context,
             builder: (context) {
-              final theme = Theme.of(context);
               final loc = AppLocalizations.of(context);
-
-              return AlertDialog(
-                title: Text(loc.serverNotAddedError(server.name)),
-                content: Text(
-                  loc.serverNotAddedErrorDescription,
-                  style: theme.textTheme.headlineMedium,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).maybePop();
-                      if (this.context.mounted) finish(this.context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.retry.toUpperCase()),
-                    ),
-                  ),
-                  MaterialButton(
-                    onPressed: Navigator.of(context).maybePop,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.ok),
-                    ),
-                  ),
-                ],
+              return ServerNotAddedErrorDialog(
+                name: server.name,
+                description: loc.serverNotAddedErrorDescription,
+                onRetry: () {
+                  Navigator.of(context).maybePop();
+                  if (this.context.mounted) finish(this.context);
+                },
               );
             },
           );

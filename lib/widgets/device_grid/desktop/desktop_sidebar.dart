@@ -51,6 +51,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
           child: MouseRegion(
             onEnter: (e) => setState(() => isSidebarHovering = true),
             onExit: (e) => setState(() => isSidebarHovering = false),
+            // Add another material here because its descendants must be clipped.
             child: Material(
               type: MaterialType.transparency,
               child: ListView.builder(
@@ -63,6 +64,11 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                   final devices = server.devices.sorted();
                   final isLoading = servers.isServerLoading(server);
 
+                  /// Whether all the online devices are in the current view.
+                  final isAllInView = devices
+                      .where((d) => d.status)
+                      .every((d) => view.currentLayout.devices.contains(d));
+
                   return Column(children: [
                     SubHeader(
                       server.name,
@@ -72,29 +78,46 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                       subtextStyle: TextStyle(
                         color: !server.online ? theme.colorScheme.error : null,
                       ),
-                      trailing: isLoading
-                          ? const SizedBox(
-                              height: 16.0,
-                              width: 16.0,
-                              child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 1.5,
-                              ),
-                            )
-                          : isSidebarHovering && devices.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.playlist_add),
-                                  tooltip: loc.addAllToView,
-                                  onPressed: () {
-                                    for (final device in devices) {
-                                      if (device.status &&
-                                          !view.currentLayout.devices
-                                              .contains(device)) {
-                                        view.add(device);
-                                      }
-                                    }
-                                  },
-                                )
-                              : null,
+                      trailing: Builder(builder: (context) {
+                        if (isLoading) {
+                          return const SizedBox(
+                            height: 16.0,
+                            width: 16.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 1.5,
+                            ),
+                          );
+                        } else if (isSidebarHovering && devices.isNotEmpty) {
+                          return IconButton(
+                            icon: Icon(
+                              isAllInView
+                                  ? Icons.playlist_remove
+                                  : Icons.playlist_add,
+                            ),
+                            tooltip: isAllInView
+                                ? loc.removeAllFromView
+                                : loc.addAllToView,
+                            onPressed: () {
+                              if (isAllInView) {
+                                view.removeDevices(
+                                  devices.where(
+                                      view.currentLayout.devices.contains),
+                                );
+                              } else {
+                                for (final device in devices) {
+                                  if (device.status &&
+                                      !view.currentLayout.devices
+                                          .contains(device)) {
+                                    view.add(device);
+                                  }
+                                }
+                              }
+                            },
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }),
                     ),
                     if (devices.isNotEmpty)
                       ...List.generate(

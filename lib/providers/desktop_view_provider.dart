@@ -152,7 +152,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Removes all the [devices] provided
   ///
   /// This is usually used when a server is deleted
-  Future<void> removeDevices(List<Device> devices) {
+  Future<void> removeDevices(Iterable<Device> devices) {
     for (final layout in layouts) {
       layout.devices.removeWhere(
         (d1) => devices.any((d2) => d1.uri == d2.uri),

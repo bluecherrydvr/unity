@@ -112,21 +112,24 @@ class LanguageSection extends StatelessWidget {
                 locale.toLanguageTag();
             return DropdownMenuItem<Locale>(
               value: locale,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    name.uppercaseFirst(),
-                    maxLines: 1,
-                    softWrap: false,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  Text(
-                    nativeName.uppercaseFirst(),
-                    style: theme.textTheme.labelSmall,
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name.uppercaseFirst(),
+                      maxLines: 1,
+                      softWrap: false,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    Text(
+                      nativeName.uppercaseFirst(),
+                      style: theme.textTheme.labelSmall,
+                    ),
+                  ],
+                ),
               ),
             );
           }).toList(),

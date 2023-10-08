@@ -461,7 +461,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         Expanded(
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             if (tile != null) ...[
-              // const Spacer(),
+              const Spacer(),
               Container(
                 margin: const EdgeInsetsDirectional.only(start: 8.0),
                 padding: const EdgeInsetsDirectional.symmetric(

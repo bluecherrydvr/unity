@@ -27,9 +27,8 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/edit_server.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/servers/edit_server.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/date_language.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
 import 'package:file_picker/file_picker.dart';
@@ -42,8 +41,8 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-part 'date_time.dart';
 part '../shared/server_tile.dart';
+part 'date_time.dart';
 
 class MobileSettings extends StatefulWidget {
   const MobileSettings({super.key});
@@ -70,9 +69,8 @@ class _MobileSettingsState extends State<MobileSettings> {
     return Material(
       type: MaterialType.transparency,
       child: SafeArea(
-        bottom: false,
         child: Column(children: [
-          if (isMobile)
+          if (Scaffold.of(context).hasDrawer)
             AppBar(
               leading: MaybeUnityDrawerButton(context),
               title: Text(loc.settings),
@@ -285,7 +283,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                   subtitle: '${settings.dateFormat.format(DateTime.now())} '
                       '${settings.timeFormat.format(DateTime.now())}; '
                       '${LocaleNames.of(context)!.nameOf(settings.locale.toLanguageTag())}',
-                  height: 72.0,
+                  height: 80.0,
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
@@ -294,13 +292,11 @@ class _MobileSettingsState extends State<MobileSettings> {
                       builder: (context) {
                         return DraggableScrollableSheet(
                           expand: false,
+                          maxChildSize: 0.8,
                           minChildSize: 0.8,
                           initialChildSize: 0.8,
                           builder: (context, controller) {
-                            return PrimaryScrollController(
-                              controller: controller,
-                              child: const LocalizationSettings(),
-                            );
+                            return LocalizationSettings(controller: controller);
                           },
                         );
                       },

@@ -6,10 +6,13 @@
   "configureDescription": "Configurons une connexion à votre serveur DVR distant",
   "hostname": "Nom d'hôte",
   "port": "Port",
-  "name": "Nom",
+  "rtspPort": "RTSP Port",
+  "serverName": "Server Name",
   "username": "Nom d'utilisateur",
   "password": "Mot de passe",
   "savePassword": "Sauvegarder mot de passe",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "useDefault": "Par défaut",
   "connect": "Connecter",
   "connectAutomaticallyAtStartup": "Connecter automatiquement au démarrage",
@@ -40,6 +43,14 @@
     }
   },
   "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
+  "serverAlreadyAdded": "The {serverName} server is already added",
+  "@serverAlreadyAdded": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "videoError": "An error happened while trying to play the video.",
@@ -59,6 +70,7 @@
   "removeFromView": "Retirer de la vue",
   "addToView": "Ajouter à la vue",
   "addAllToView": "Add all to view",
+  "removeAllFromView": "Remove all from view",
   "eventBrowser": "Historique d'événements",
   "eventsTimeline": "Timeline of Events",
   "server": "Serveur",

@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 
 /// This class manages & saves (caching) the currently added [Server]s by the user.
@@ -141,9 +142,17 @@ class ServersProvider extends ChangeNotifier {
         servers.firstWhere((s) => s.ip == server.ip && s.port == server.port);
     final serverIndex = servers.indexOf(s);
 
+    for (final device in server.devices) {
+      device.server = server;
+      if (UnityPlayers.players.keys.contains(device.uuid)) {
+        UnityPlayers.reloadDevice(device);
+      }
+    }
+
     servers[serverIndex] = server;
 
     await _save();
+    UnityPlayers.reloadAll();
   }
 
   /// If [ids] is provided, only the provided ids will be refreshed

@@ -24,6 +24,9 @@ import 'package:uuid/uuid.dart';
 /// Default port used in Bluecherry DVR server.
 const kDefaultPort = 7001;
 
+/// Default port used in the RTSP connection.
+const kDefaultRTSPPort = 7002;
+
 /// Default username used in Bluecherry DVR server.
 const kDefaultUsername = 'Admin';
 

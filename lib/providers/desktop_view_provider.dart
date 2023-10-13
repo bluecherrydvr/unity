@@ -59,7 +59,7 @@ class DesktopViewProvider extends ChangeNotifier {
       await _restore();
       // Create video player instances for the device tiles already present in the view (restored from cache).
       for (final device in currentLayout.devices) {
-        UnityPlayers.players[device] = UnityPlayers.forDevice(device);
+        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
       }
     }
   }
@@ -118,7 +118,7 @@ class DesktopViewProvider extends ChangeNotifier {
         }
       }
 
-      UnityPlayers.players[device] ??= UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
       currentLayout.devices.add(device);
       debugPrint('Added $device');
 
@@ -133,7 +133,7 @@ class DesktopViewProvider extends ChangeNotifier {
     if (!UnityPlayers.players.containsKey(device)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
-      UnityPlayers.releaseDevice(device);
+      UnityPlayers.releaseDevice(device.uuid);
     }
   }
 
@@ -152,7 +152,7 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Removes all the [devices] provided
   ///
   /// This is usually used when a server is deleted
-  Future<void> removeDevices(List<Device> devices) {
+  Future<void> removeDevices(Iterable<Device> devices) {
     for (final layout in layouts) {
       layout.devices.removeWhere(
         (d1) => devices.any((d2) => d1.uri == d2.uri),
@@ -232,7 +232,7 @@ class DesktopViewProvider extends ChangeNotifier {
     _currentLayout = layoutIndex;
 
     for (final device in currentLayout.devices) {
-      UnityPlayers.players[device] ??= UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
 
     notifyListeners();

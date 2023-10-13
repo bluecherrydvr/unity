@@ -29,13 +29,11 @@ Future<void> showEditServer(BuildContext context, Server server) {
     builder: (context) {
       final loc = AppLocalizations.of(context);
       return AlertDialog(
-        title: Text(
-          loc.editServer(
-            server.name,
-          ),
-        ),
+        title: Text(loc.editServer(server.name)),
         content: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 300.0),
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width * 0.75,
+          ),
           child: EditServer(
             serverIp: server.ip,
             serverPort: server.port,
@@ -64,30 +62,30 @@ class _EditServerState extends State<EditServer> {
   final formKey = GlobalKey<FormState>();
   bool nameTextFieldEverFocused = false;
   bool disableFinishButton = false;
+  bool showPassword = false;
 
-  Server get server => ServersProvider.instance.servers.firstWhere(
-        (server) =>
-            server.ip == widget.serverIp && server.port == widget.serverPort,
-      );
+  Server get server {
+    return ServersProvider.instance.servers.firstWhere(
+      (s) => s.ip == widget.serverIp && s.port == widget.serverPort,
+    );
+  }
 
-  /// [0] -- ip
-  /// [1] -- port
-  /// [2] -- name
-  /// [3] -- login
-  /// [4] -- password
-  late final List<TextEditingController> textEditingControllers = [
-    TextEditingController(text: server.ip),
-    TextEditingController(text: '${server.port}'),
-    TextEditingController(text: server.name),
-    TextEditingController(text: server.login),
-    TextEditingController(text: server.password),
-  ];
+  late final hostnameController = TextEditingController(text: server.ip);
+  late final portController = TextEditingController(text: '${server.port}');
+  late final rtspPortController =
+      TextEditingController(text: '${server.rtspPort}');
+  late final nameController = TextEditingController(text: server.name);
+  late final usernameController = TextEditingController(text: server.login);
+  late final passwordController = TextEditingController(text: server.password);
 
   @override
   void dispose() {
-    for (final controller in textEditingControllers) {
-      controller.dispose();
-    }
+    hostnameController.dispose();
+    portController.dispose();
+    rtspPortController.dispose();
+    nameController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -105,19 +103,19 @@ class _EditServerState extends State<EditServer> {
             Expanded(
               flex: 5,
               child: TextFormField(
+                enabled: !disableFinishButton,
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return loc.errorTextField(
-                      loc.hostname,
-                    );
+                  if (value == null || value.isEmpty) {
+                    return loc.errorTextField(loc.hostname);
                   }
                   return null;
                 },
-                controller: textEditingControllers[0],
+                controller: hostnameController,
                 autofocus: true,
                 autocorrect: false,
                 enableSuggestions: false,
                 keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.next,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.hostname),
@@ -129,17 +127,17 @@ class _EditServerState extends State<EditServer> {
             Expanded(
               flex: 2,
               child: TextFormField(
+                enabled: !disableFinishButton,
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return loc.errorTextField(
-                      loc.port,
-                    );
+                  if (value == null || value.isEmpty) {
+                    return loc.errorTextField(loc.port);
                   }
                   return null;
                 },
-                controller: textEditingControllers[1],
+                controller: portController,
                 autofocus: true,
                 keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.port),
@@ -147,24 +145,46 @@ class _EditServerState extends State<EditServer> {
                 ),
               ),
             ),
+            const SizedBox(width: 16.0),
+            Expanded(
+              flex: 2,
+              child: TextFormField(
+                enabled: !disableFinishButton,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return loc.errorTextField(loc.rtspPort);
+                  }
+                  return null;
+                },
+                controller: rtspPortController,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                style: theme.textTheme.headlineMedium,
+                decoration: InputDecoration(
+                  label: Text(loc.rtspPort),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
           ]),
           const SizedBox(height: 16.0),
           TextFormField(
+            enabled: !disableFinishButton,
             validator: (value) {
-              if (value?.isEmpty ?? true) {
-                return loc.errorTextField(
-                  loc.name,
-                );
+              if (value == null || value.isEmpty) {
+                return loc.errorTextField(loc.serverName);
               }
               return null;
             },
             onTap: () => nameTextFieldEverFocused = true,
-            controller: textEditingControllers[2],
+            controller: nameController,
             textCapitalization: TextCapitalization.words,
             keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
             style: theme.textTheme.headlineMedium,
             decoration: InputDecoration(
-              label: Text(loc.name),
+              label: Text(loc.serverName),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -172,15 +192,15 @@ class _EditServerState extends State<EditServer> {
           Row(children: [
             Expanded(
               child: TextFormField(
+                enabled: !disableFinishButton,
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return loc.errorTextField(
-                      loc.username,
-                    );
+                  if (value == null || value.isEmpty) {
+                    return loc.errorTextField(loc.username);
                   }
                   return null;
                 },
-                controller: textEditingControllers[3],
+                textInputAction: TextInputAction.next,
+                controller: usernameController,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.username),
@@ -193,21 +213,41 @@ class _EditServerState extends State<EditServer> {
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
               child: TextFormField(
+                enabled: !disableFinishButton,
                 validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return loc.errorTextField(
-                      loc.password,
-                    );
+                  if (value == null || value.isEmpty) {
+                    return loc.errorTextField(loc.password);
                   }
                   return null;
                 },
-                controller: textEditingControllers[4],
-                obscureText: true,
+                controller: passwordController,
+                obscureText: !showPassword,
                 style: theme.textTheme.headlineMedium,
+                textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   label: Text(loc.password),
                   border: const OutlineInputBorder(),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8.0),
+                    child: Tooltip(
+                      message:
+                          showPassword ? loc.hidePassword : loc.showPassword,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Icon(
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          size: 22.0,
+                        ),
+                        onTap: () => setState(
+                          () => showPassword = !showPassword,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+                onFieldSubmitted: (_) => update(),
               ),
             ),
           ]),
@@ -216,21 +256,20 @@ class _EditServerState extends State<EditServer> {
             alignment: AlignmentDirectional.bottomEnd,
             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               MaterialButton(
-                onPressed: Navigator.of(context).pop,
-                textColor: theme.colorScheme.secondary,
+                onPressed: !disableFinishButton
+                    ? () => Navigator.of(context).pop(context)
+                    : null,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
                   child: Text(loc.cancel),
                 ),
               ),
-              MaterialButton(
+              const SizedBox(width: 8.0),
+              FilledButton(
                 onPressed: disableFinishButton ? null : update,
-                textColor: theme.colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(
-                    loc.finish.toUpperCase(),
-                  ),
+                  child: Text(loc.finish.toUpperCase()),
                 ),
               ),
             ]),
@@ -244,19 +283,20 @@ class _EditServerState extends State<EditServer> {
     if (formKey.currentState?.validate() ?? false) {
       if (mounted) setState(() => disableFinishButton = true);
 
-      final copyServer = server.copyWith(
-        ip: textEditingControllers[0].text,
-        port: int.parse(textEditingControllers[1].text),
-        name: textEditingControllers[2].text,
-        login: textEditingControllers[3].text,
-        password: textEditingControllers[4].text,
+      final serverCopy = server.copyWith(
+        ip: hostnameController.text,
+        port: int.parse(portController.text),
+        rtspPort: int.parse(rtspPortController.text),
+        name: nameController.text,
+        login: usernameController.text,
+        password: passwordController.text,
       );
 
       final updatedServer = await API.instance.checkServerCredentials(
-        copyServer,
+        serverCopy,
       );
 
-      if (server.serverUUID != null && server.cookie != null) {
+      if (updatedServer.serverUUID != null && updatedServer.cookie != null) {
         await ServersProvider.instance.update(updatedServer);
 
         if (mounted) Navigator.of(context).pop();

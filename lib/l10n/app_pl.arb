@@ -6,10 +6,13 @@
   "configureDescription": "Ustawienia połączenia ze zdalnym serwerem DVR",
   "hostname": "Nazwa hosta",
   "port": "Port",
-  "name": "Nazwa",
+  "rtspPort": "RTSP Port",
+  "serverName": "Server Name",
   "username": "Nazwa użytkownika",
   "password": "Hasło",
   "savePassword": "Zapisz hasło",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "useDefault": "Użyj wartości domyślnych",
   "connect": "Połącz",
   "connectAutomaticallyAtStartup": "Połącz automatycznie przy uruchomieniu",
@@ -44,6 +47,14 @@
     }
   },
   "serverNotAddedErrorDescription": "Sprawdź wprowadzone dane i upewnij się, że serwer jest online.\n\nJeśli łączysz się zdalnie to upewnij się, że porty na serwerzy Blueberry: 7001 i 7002, są otwarte!",
+  "serverAlreadyAdded": "The {serverName} server is already added",
+  "@serverAlreadyAdded": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "noServersAvailable": "Brak dostępnych serwerów",
   "error": "Błąd",
   "videoError": "An error happened while trying to play the video.",
@@ -63,6 +74,7 @@
   "removeFromView": "Usuń z widoku",
   "addToView": "Dodaj do widoku",
   "addAllToView": "Dodaj wszystkie do widoku",
+  "removeAllFromView": "Remove all from view",
   "eventBrowser": "Historia zdarzeń",
   "eventsTimeline": "Oś czasu zdarzeń",
   "server": "Serwer",

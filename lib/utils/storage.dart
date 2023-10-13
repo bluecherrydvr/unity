@@ -39,7 +39,6 @@ Future<void> configureStorage() async {
   updates = SafeLocalStorage(path.join(dir, 'updates.json'));
 
   // Migrate from hive to new storage system
-
   await Hive.initFlutter(dir);
   if (await Hive.boxExists('hive')) {
     final hive = await Hive.openBox('hive');

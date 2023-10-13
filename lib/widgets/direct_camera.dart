@@ -29,6 +29,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 class DirectCameraScreen extends StatelessWidget {
   const DirectCameraScreen({super.key});
@@ -37,42 +38,45 @@ class DirectCameraScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
+    final hasDrawer = Scaffold.hasDrawer(context);
 
-    return Column(children: [
-      if (Scaffold.hasDrawer(context))
-        AppBar(
-          leading: MaybeUnityDrawerButton(context),
-          title: Text(loc.directCamera),
-        )
-      else
-        const SafeArea(child: SizedBox.shrink()),
-      Expanded(
-        child: () {
+    return SafeArea(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        if (hasDrawer)
+          AppBar(
+            leading: MaybeUnityDrawerButton(context),
+            title: Text(loc.directCamera),
+          ),
+        Expanded(child: () {
           if (serversProviders.servers.isEmpty) {
             return const NoServerWarning();
           } else {
-            return RefreshIndicator.adaptive(
-              onRefresh: serversProviders.refreshDevices,
-              child: ListView.builder(
-                padding: MediaQuery.viewPaddingOf(context),
-                itemCount: serversProviders.servers.length,
-                itemBuilder: (context, i) {
-                  final server = serversProviders.servers[i];
-                  return _DevicesForServer(server: server);
-                },
-              ),
-            );
+            return LayoutBuilder(builder: (context, consts) {
+              return RefreshIndicator.adaptive(
+                onRefresh: serversProviders.refreshDevices,
+                child: CustomScrollView(slivers: <Widget>[
+                  ...serversProviders.servers.map((server) {
+                    return _DevicesForServer(
+                      server: server,
+                      isCompact: hasDrawer ||
+                          consts.maxWidth < kMobileBreakpoint.width,
+                    );
+                  }),
+                ]),
+              );
+            });
           }
-        }(),
-      ),
-    ]);
+        }()),
+      ]),
+    );
   }
 }
 
 class _DevicesForServer extends StatelessWidget {
   final Server server;
+  final bool isCompact;
 
-  const _DevicesForServer({required this.server});
+  const _DevicesForServer({required this.server, required this.isCompact});
 
   @override
   Widget build(BuildContext context) {
@@ -80,39 +84,39 @@ class _DevicesForServer extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final servers = context.watch<ServersProvider>();
 
-    final hasDrawer = Scaffold.hasDrawer(context);
     final isLoading = servers.isServerLoading(server);
 
-    final serverIndicator = SubHeader(
-      server.name,
-      subtext:
-          server.online ? loc.nDevices(server.devices.length) : loc.offline,
-      subtextStyle: TextStyle(
-        color: !server.online ? theme.colorScheme.error : null,
+    final serverIndicator = Material(
+      child: SubHeader(
+        server.name,
+        subtext:
+            server.online ? loc.nDevices(server.devices.length) : loc.offline,
+        subtextStyle: TextStyle(
+          color: !server.online ? theme.colorScheme.error : null,
+        ),
+        trailing: isLoading
+            ? const SizedBox(
+                height: 16.0,
+                width: 16.0,
+                child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+              )
+            : null,
       ),
-      trailing: isLoading
-          ? const SizedBox(
-              height: 16.0,
-              width: 16.0,
-              child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
-            )
-          : null,
     );
 
-    if (isLoading || !server.online) return serverIndicator;
+    if (isLoading || !server.online) {
+      return SliverToBoxAdapter(child: serverIndicator);
+    }
 
     if (server.devices.isEmpty) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      return SliverList.list(children: [
         serverIndicator,
         SizedBox(
           height: 72.0,
           child: Center(
             child: Text(
               loc.noDevices,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontSize: 16.0),
+              style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
             ),
           ),
         ),
@@ -120,84 +124,96 @@ class _DevicesForServer extends StatelessWidget {
     }
 
     final devices = server.devices.sorted();
-    return Material(
-      type: MaterialType.transparency,
-      child: LayoutBuilder(builder: (context, consts) {
-        if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
-          return Column(children: [
-            SubHeader(server.name),
-            ...devices.map((device) {
-              return ListTile(
-                enabled: device.status,
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: device.status
-                      ? theme.extension<UnityColors>()!.successColor
-                      : theme.colorScheme.error,
-                  child: Icon(
-                    device.status
-                        ? Icons.videocam_outlined
-                        : Icons.videocam_off_outlined,
+
+    if (isCompact) {
+      return MultiSliver(pushPinnedChildren: true, children: [
+        SliverPinnedHeader(child: serverIndicator),
+        SliverList.builder(
+          itemCount: devices.length,
+          itemBuilder: (context, index) {
+            final device = devices[index];
+            return ListTile(
+              enabled: device.status,
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: device.status
+                    ? theme.extension<UnityColors>()!.successColor
+                    : theme.colorScheme.error,
+                child: Icon(
+                  device.status
+                      ? Icons.videocam_outlined
+                      : Icons.videocam_off_outlined,
+                ),
+              ),
+              title: Text(device.name.uppercaseFirst()),
+              subtitle: Text([
+                device.uri,
+                '${device.resolutionX}x${device.resolutionY}',
+              ].join(' • ')),
+              trailing:
+                  device.hasPTZ ? const Icon(Icons.videogame_asset) : null,
+              onTap: () => onTap(context, device),
+            );
+          },
+        ),
+      ]);
+    }
+
+    return MultiSliver(children: [
+      SliverPinnedHeader(child: serverIndicator),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Wrap(
+            children: devices.map<Widget>((device) {
+              final foregroundColor = device.status
+                  ? theme.extension<UnityColors>()!.successColor
+                  : theme.colorScheme.error;
+
+              return Card(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10.0),
+                  onTap: device.status ? () => onTap(context, device) : null,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8.0),
+                    child: Column(children: [
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: foregroundColor,
+                          child: Icon(
+                            device.status
+                                ? Icons.videocam_outlined
+                                : Icons.videocam_off,
+                          ),
+                        ),
+                        Text(
+                          device.name,
+                          style: TextStyle(color: foregroundColor),
+                        ),
+                        if (device.hasPTZ)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 6),
+                            child: Icon(
+                              Icons.videogame_asset,
+                              color: foregroundColor,
+                            ),
+                          )
+                      ]),
+                    ]),
                   ),
                 ),
-                title: Text(device.name.uppercaseFirst()),
-                subtitle: Text([
-                  device.uri,
-                  '${device.resolutionX}x${device.resolutionY}',
-                ].join(' • ')),
-                onTap: () => onTap(context, device),
               );
-            }),
-          ]);
-        }
-
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          serverIndicator,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Wrap(
-              children: devices.map<Widget>((device) {
-                final foregroundColor = device.status
-                    ? theme.extension<UnityColors>()!.successColor
-                    : theme.colorScheme.error;
-
-                return Card(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10.0),
-                    onTap: device.status ? () => onTap(context, device) : null,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 8.0),
-                      child: Column(children: [
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: foregroundColor,
-                            child: Icon(
-                              device.status
-                                  ? Icons.videocam_outlined
-                                  : Icons.videocam_off,
-                            ),
-                          ),
-                          Text(
-                            device.name,
-                            style: TextStyle(color: foregroundColor),
-                          ),
-                        ]),
-                      ]),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+            }).toList(),
           ),
-        ]);
-      }),
-    );
+        ),
+      ),
+    ]);
   }
 
   Future<void> onTap(BuildContext context, Device device) async {
     final player =
-        UnityPlayers.players[device] ?? UnityPlayers.forDevice(device);
+        UnityPlayers.players[device.uuid] ?? UnityPlayers.forDevice(device);
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',

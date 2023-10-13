@@ -304,7 +304,7 @@ class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
     // watch for changes in the players list. usually happens when reloading
     // or releasing a device
     context.watch<UnityPlayers>();
-    final videoPlayer = UnityPlayers.players[widget.device];
+    final videoPlayer = UnityPlayers.players[widget.device.uuid];
 
     if (videoPlayer == null) {
       return Card(
@@ -564,7 +564,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
-                        var player = UnityPlayers.players[widget.device];
+                        var player = UnityPlayers.players[widget.device.uuid];
                         var isLocalController = false;
                         if (player == null) {
                           player = UnityPlayers.forDevice(widget.device);

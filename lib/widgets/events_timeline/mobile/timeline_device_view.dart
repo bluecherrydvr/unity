@@ -463,9 +463,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             if (tile != null) ...[
               const Spacer(),
               Container(
-                margin: const EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+                margin: const EdgeInsetsDirectional.only(start: 8.0),
                 padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: 8.0,
+                  horizontal: 6.0,
                   vertical: 4.0,
                 ),
                 color: theme.colorScheme.secondaryContainer,

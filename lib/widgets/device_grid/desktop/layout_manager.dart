@@ -499,11 +499,9 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             hintText: loc.layoutNameHint,
             label: Text(loc.layoutNameHint),
           ),
+          textInputAction: TextInputAction.none,
         ),
-        SubHeader(
-          loc.layoutTypeHint,
-          padding: EdgeInsets.zero,
-        ),
+        SubHeader(loc.layoutTypeHint, padding: EdgeInsets.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {
@@ -593,11 +591,9 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
             hintText: loc.layoutNameHint,
             label: Text(loc.layoutNameHint),
           ),
+          textInputAction: TextInputAction.none,
         ),
-        SubHeader(
-          loc.layoutTypeHint,
-          padding: EdgeInsets.zero,
-        ),
+        SubHeader(loc.layoutTypeHint, padding: EdgeInsets.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {

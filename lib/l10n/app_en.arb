@@ -6,10 +6,13 @@
   "configureDescription": "Setup a connection to your remote DVR server",
   "hostname": "Hostname",
   "port": "Port",
-  "name": "Name",
+  "rtspPort": "RTSP Port",
+  "serverName": "Server Name",
   "username": "Username",
   "password": "Password",
   "savePassword": "Save password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "useDefault": "Use Default",
   "connect": "Connect",
   "connectAutomaticallyAtStartup": "Connect automatically at startup",
@@ -26,7 +29,7 @@
   "tip1": "Use the buttons above the live view to create, save and switch layouts - even with cameras from multiple servers.",
   "tip2": "Double-click on a server to open its configuration page in a new window, where you can configure cameras and recordings.",
   "tip3": "Click the events icon to open the history and watch or save recordings.",
-  "errorTextField": "{field} is not entered.",
+  "errorTextField": "{field} must not be empty.",
   "@errorTextField": {
     "placeholders": {
       "field": {
@@ -44,6 +47,14 @@
     }
   },
   "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the 7001 and 7002 ports are open to the Bluecherry server!",
+  "serverAlreadyAdded": "The {serverName} server is already added",
+  "@serverAlreadyAdded": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "noServersAvailable": "No servers available",
   "error": "Error",
   "videoError": "An error happened while trying to play the video.",
@@ -63,6 +74,7 @@
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
   "addAllToView": "Add all to view",
+  "removeAllFromView": "Remove all from view",
   "eventBrowser": "Events History",
   "eventsTimeline": "Timeline of Events",
   "server": "Server",

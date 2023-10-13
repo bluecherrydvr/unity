@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/servers/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -31,10 +32,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
-  const AddServerWizard({
-    super.key,
-    required this.onFinish,
-  });
+
+  const AddServerWizard({super.key, required this.onFinish});
 
   @override
   State<AddServerWizard> createState() => _AddServerWizardState();
@@ -154,7 +153,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
                         const SizedBox(height: 16.0),
                         Column(
                           crossAxisAlignment:
-                              (theme.appBarTheme.centerTitle ?? false)
+                              (AppBarTheme.of(context).centerTitle ?? false)
                                   ? CrossAxisAlignment.center
                                   : CrossAxisAlignment.start,
                           children: [
@@ -243,7 +242,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
 
 class ConfigureDVRServerScreen extends StatefulWidget {
   final PageController controller;
-  final void Function(Server) setServer;
+  final ValueChanged<Server> setServer;
   final Server? Function() getServer;
 
   const ConfigureDVRServerScreen({
@@ -259,32 +258,32 @@ class ConfigureDVRServerScreen extends StatefulWidget {
 }
 
 class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
-  final List<TextEditingController> textEditingControllers = [
-    TextEditingController(),
-    TextEditingController(text: kDefaultPort.toString()),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-  ];
+  final hostnameController = TextEditingController();
+  final portController = TextEditingController(text: '$kDefaultPort');
+  final rtspPortController = TextEditingController(text: '$kDefaultRTSPPort');
+  final nameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool showingPassword = false;
+
   bool savePassword = true;
   bool nameTextFieldEverFocused = false;
   bool connectAutomaticallyAtStartup = true;
   bool disableFinishButton = false;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
-  String getServerHostname(String text) => (text.startsWith('http')
-          ? (text.split('//')..removeAt(0)).join('//')
-          : text)
-      .split('/')
-      .first;
+  String getServerHostname(String text) {
+    if (Uri.parse(text).scheme.isEmpty) text = 'https://$text';
+    return Uri.parse(text).host;
+  }
 
   @override
   void initState() {
     super.initState();
-    textEditingControllers[0].addListener(() {
-      if (!nameTextFieldEverFocused) {
-        textEditingControllers[2].text =
-            getServerHostname(textEditingControllers[0].text);
+    hostnameController.addListener(() {
+      final hostname = getServerHostname(hostnameController.text);
+      if (!nameTextFieldEverFocused && hostname.isNotEmpty) {
+        nameController.text = hostname;
       }
     });
   }
@@ -293,6 +292,140 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+
+    final hostnameField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(
+            loc.hostname,
+          );
+        }
+        return null;
+      },
+      controller: hostnameController,
+      autofocus: true,
+      autocorrect: false,
+      enableSuggestions: false,
+      keyboardType: TextInputType.url,
+      textInputAction: TextInputAction.next,
+      style: theme.textTheme.headlineMedium,
+      decoration: InputDecoration(
+        label: Text(loc.hostname),
+        border: const OutlineInputBorder(),
+      ),
+    );
+
+    final portField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(loc.port);
+        }
+        return null;
+      },
+      controller: portController,
+      autofocus: true,
+      keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.next,
+      style: theme.textTheme.headlineMedium,
+      decoration: InputDecoration(
+        label: Text(loc.port),
+        border: const OutlineInputBorder(),
+      ),
+    );
+
+    final rtspPortField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(loc.rtspPort);
+        }
+        return null;
+      },
+      controller: rtspPortController,
+      autofocus: true,
+      keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.next,
+      style: theme.textTheme.headlineMedium,
+      decoration: InputDecoration(
+        label: Text(loc.rtspPort),
+        border: const OutlineInputBorder(),
+      ),
+    );
+
+    final nameField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(loc.serverName);
+        }
+        return null;
+      },
+      onTap: () => nameTextFieldEverFocused = true,
+      controller: nameController,
+      textCapitalization: TextCapitalization.words,
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      style: theme.textTheme.headlineMedium,
+      decoration: InputDecoration(
+        label: Text(loc.serverName),
+        border: const OutlineInputBorder(),
+      ),
+    );
+
+    final usernameField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(
+            loc.username,
+          );
+        }
+        return null;
+      },
+      controller: usernameController,
+      style: theme.textTheme.headlineMedium,
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        label: Text(loc.username),
+        border: const OutlineInputBorder(),
+      ),
+    );
+
+    final passwordField = TextFormField(
+      enabled: !disableFinishButton,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return loc.errorTextField(loc.password);
+        }
+        return null;
+      },
+      controller: passwordController,
+      obscureText: !showingPassword,
+      style: theme.textTheme.headlineMedium,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        label: Text(loc.password),
+        border: const OutlineInputBorder(),
+        suffix: Tooltip(
+          message: showingPassword ? loc.hidePassword : loc.showPassword,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Icon(
+              showingPassword ? Icons.visibility : Icons.visibility_off,
+              size: 22.0,
+            ),
+            onTap: () => setState(
+              () => showingPassword = !showingPassword,
+            ),
+          ),
+        ),
+      ),
+      onFieldSubmitted: (_) => finish(context),
+    );
 
     return PopScope(
       canPop: false,
@@ -306,9 +439,8 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: NavigatorPopButton(
-            color: Colors.white,
-            onTap: () {
+          leading: BackButton(
+            onPressed: () {
               widget.controller.previousPage(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -352,214 +484,114 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         body: Card(
           elevation: 4.0,
           margin: const EdgeInsetsDirectional.all(16.0),
-          child: Form(
-            key: formKey,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(16.0),
-              child: Column(children: [
-                Row(children: [
-                  Expanded(
-                    flex: 5,
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.hostname,
-                          );
-                        }
-                        return null;
-                      },
-                      controller: textEditingControllers[0],
-                      autofocus: true,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      keyboardType: TextInputType.url,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.hostname),
-                        border: const OutlineInputBorder(),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: Form(
+                key: formKey,
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Expanded(
+                      flex: 5,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(0),
+                        child: hostnameField,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.port,
-                          );
-                        }
-                        return null;
-                      },
-                      controller: textEditingControllers[1],
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.port),
-                        border: const OutlineInputBorder(),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 2,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(1),
+                        child: portField,
                       ),
                     ),
-                  ),
-                ]),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  enabled: !disableFinishButton,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return loc.errorTextField(
-                        loc.name,
-                      );
-                    }
-                    return null;
-                  },
-                  onTap: () => nameTextFieldEverFocused = true,
-                  controller: textEditingControllers[2],
-                  textCapitalization: TextCapitalization.words,
-                  keyboardType: TextInputType.name,
-                  style: theme.textTheme.headlineMedium,
-                  decoration: InputDecoration(
-                    label: Text(loc.name),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                Row(children: [
-                  Expanded(
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.username,
-                          );
-                        }
-                        return null;
-                      },
-                      controller: textEditingControllers[3],
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.username),
-                        border: const OutlineInputBorder(),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 2,
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(2),
+                        child: rtspPortField,
                       ),
                     ),
+                  ]),
+                  const SizedBox(height: 16.0),
+                  FocusTraversalOrder(
+                    order: const NumericFocusOrder(3),
+                    child: nameField,
                   ),
-                  const SizedBox(width: 8.0),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(top: 8.0),
-                    child: MaterialButton(
+                  const SizedBox(height: 16.0),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Expanded(
+                      child: FocusTraversalOrder(
+                        order: const NumericFocusOrder(5),
+                        child: usernameField,
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(top: 8.0),
+                      child: FocusTraversalOrder(
+                        order: NumericFocusOrder(isMobilePlatform ? -1 : 4),
+                        child: MaterialButton(
+                          onPressed: disableFinishButton
+                              ? null
+                              : () {
+                                  usernameController.text = kDefaultUsername;
+                                  passwordController.text = kDefaultPassword;
+                                },
+                          child: Text(loc.useDefault.toUpperCase()),
+                        ),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 16.0),
+                  FocusTraversalOrder(
+                    order: const NumericFocusOrder(6),
+                    child: passwordField,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    if (disableFinishButton)
+                      const SizedBox(
+                        height: 24.0,
+                        width: 24.0,
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 2.0,
+                        ),
+                      ),
+                    MaterialButton(
                       onPressed: disableFinishButton
                           ? null
                           : () {
-                              textEditingControllers[3].text = kDefaultUsername;
-                              textEditingControllers[4].text = kDefaultPassword;
+                              widget.controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
                             },
-                      child: Text(loc.useDefault.toUpperCase()),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 16.0),
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: TextFormField(
-                      enabled: !disableFinishButton,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return loc.errorTextField(
-                            loc.password,
-                          );
-                        }
-                        return null;
-                      },
-                      controller: textEditingControllers[4],
-                      obscureText: true,
-                      style: theme.textTheme.headlineMedium,
-                      decoration: InputDecoration(
-                        label: Text(loc.password),
-                        border: const OutlineInputBorder(),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(8.0),
+                        child: Text(loc.skip.toUpperCase()),
                       ),
                     ),
-                  ),
-                  // Padding(
-                  //   padding: const EdgeInsetsDirectional.only(top: 8.0),
-                  //   child: Row(
-                  //     children: [
-                  //       Checkbox(
-                  //         value: savePassword,
-                  //         onChanged: (value) {
-                  //           setState(() {
-                  //             savePassword = value!;
-                  //           });
-                  //         },
-                  //       ),
-                  //       Text(
-                  //         'save_password'.tr(),
-                  //         maxLines: 2,
-                  //         overflow: TextOverflow.ellipsis,
-                  //         style: theme.textTheme.headline4,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  const SizedBox(width: 16.0),
-                ]),
-                // const SizedBox(height: 16.0),
-                // Row(
-                //   children: [
-                //     Checkbox(
-                //       value: connectAutomaticallyAtStartup,
-                //       onChanged: (value) {
-                //         setState(() {
-                //           connectAutomaticallyAtStartup = value!;
-                //         });
-                //       },
-                //     ),
-                //     Text(
-                //       'connect_automatically_at_startup'.tr(),
-                //       maxLines: 2,
-                //       overflow: TextOverflow.ellipsis,
-                //       style: theme.textTheme.headline4,
-                //     ),
-                //   ],
-                // ),
-                const SizedBox(height: 16.0),
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  if (disableFinishButton)
-                    const SizedBox(
-                      height: 24.0,
-                      width: 24.0,
-                      child: CircularProgressIndicator.adaptive(
-                        strokeWidth: 2.0,
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(7),
+                      child: MaterialButton(
+                        onPressed:
+                            disableFinishButton ? null : () => finish(context),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.all(8.0),
+                          child: Text(loc.finish.toUpperCase()),
+                        ),
                       ),
                     ),
-                  MaterialButton(
-                    onPressed: disableFinishButton
-                        ? null
-                        : () {
-                            widget.controller.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.skip.toUpperCase()),
-                    ),
-                  ),
-                  MaterialButton(
-                    onPressed:
-                        disableFinishButton ? null : () => finish(context),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.finish.toUpperCase()),
-                    ),
-                  ),
+                  ]),
                 ]),
-              ]),
+              ),
             ),
           ),
         ),
@@ -571,15 +603,35 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     if (formKey.currentState?.validate() ?? false) {
       final focusScope = FocusScope.of(context);
 
+      final name = nameController.text.trim();
+      final hostname = getServerHostname(hostnameController.text.trim());
+
+      if (ServersProvider.instance.servers
+          .any((s) => Uri.parse(s.login).host == Uri.parse(hostname).host)) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            final loc = AppLocalizations.of(context);
+
+            return ServerNotAddedErrorDialog(
+              name: name,
+              description: loc.serverAlreadyAdded(name),
+            );
+          },
+        );
+        return;
+      }
+
       if (mounted) setState(() => disableFinishButton = true);
       final server = await API.instance.checkServerCredentials(
         Server(
-          textEditingControllers[2].text.trim(),
-          getServerHostname(textEditingControllers[0].text.trim()),
-          int.parse(textEditingControllers[1].text.trim()),
-          textEditingControllers[3].text.trim(),
-          textEditingControllers[4].text,
+          name,
+          hostname,
+          int.parse(portController.text.trim()),
+          usernameController.text.trim(),
+          passwordController.text,
           [],
+          rtspPort: int.parse(rtspPortController.text.trim()),
           savePassword: savePassword,
           connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),
@@ -590,9 +642,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         widget.setServer(server);
         await ServersProvider.instance.add(server);
         widget.controller.nextPage(
-          duration: const Duration(
-            milliseconds: 300,
-          ),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       } else {
@@ -600,34 +650,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           showDialog(
             context: context,
             builder: (context) {
-              final theme = Theme.of(context);
               final loc = AppLocalizations.of(context);
-
-              return AlertDialog(
-                title: Text(loc.serverNotAddedError(server.name)),
-                content: Text(
-                  loc.serverNotAddedErrorDescription,
-                  style: theme.textTheme.headlineMedium,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).maybePop();
-                      if (this.context.mounted) finish(this.context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.retry.toUpperCase()),
-                    ),
-                  ),
-                  MaterialButton(
-                    onPressed: Navigator.of(context).maybePop,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(8.0),
-                      child: Text(loc.ok),
-                    ),
-                  ),
-                ],
+              return ServerNotAddedErrorDialog(
+                name: server.name,
+                description: loc.serverNotAddedErrorDescription,
+                onRetry: () {
+                  Navigator.of(context).maybePop();
+                  if (this.context.mounted) finish(this.context);
+                },
               );
             },
           );
@@ -670,9 +700,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
           child: AppBar(
             leading: server != null
                 ? null
-                : NavigatorPopButton(
+                : BackButton(
                     color: Colors.white,
-                    onTap: () {
+                    onPressed: () {
                       widget.controller.previousPage(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,

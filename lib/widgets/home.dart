@@ -21,13 +21,13 @@ import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/add_server_wizard.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
+import 'package:bluecherry_client/widgets/servers/add_server.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -64,7 +64,8 @@ class NavigatorData {
         selectedIcon: Icons.subscriptions,
         text: loc.eventsTimeline,
       ),
-      if (screenSize.width <= kMobileBreakpoint.width)
+      if (screenSize.width <= kMobileBreakpoint.width ||
+          Scaffold.hasDrawer(context))
         NavigatorData(
           tab: UnityTab.directCameraScreen,
           icon: Icons.videocam_outlined,
@@ -140,7 +141,9 @@ class _MobileHomeState extends State<Home> {
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        drawer: isDesktop || showNavigationRail ? null : buildDrawer(context),
+        drawer: isDesktop || showNavigationRail
+            ? null
+            : Builder(builder: buildDrawer),
         body: Column(children: [
           const WindowButtons(),
           Expanded(
@@ -148,7 +151,7 @@ class _MobileHomeState extends State<Home> {
               if (showNavigationRail)
                 SafeArea(
                   right: Directionality.of(context) == TextDirection.rtl,
-                  child: buildNavigationRail(context),
+                  child: Builder(builder: buildNavigationRail),
                 ),
               Expanded(
                 child: ClipRect(
@@ -187,7 +190,7 @@ class _MobileHomeState extends State<Home> {
     });
   }
 
-  Drawer buildDrawer(BuildContext context) {
+  Widget buildDrawer(BuildContext context) {
     final theme = NavigationRailDrawerData(theme: Theme.of(context));
 
     final home = context.watch<HomeProvider>();

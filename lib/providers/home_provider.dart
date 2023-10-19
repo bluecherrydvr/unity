@@ -118,6 +118,8 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> refreshDeviceOrientation(BuildContext context) async {
     if (isMobile) {
+      if (Navigator.of(context).canPop()) return;
+
       final home = context.read<HomeProvider>();
       final tab = home.tab;
 

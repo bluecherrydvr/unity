@@ -220,6 +220,6 @@ class _DevicesForServer extends StatelessWidget {
       arguments: {'device': device, 'player': player},
     );
 
-    if (!UnityPlayers.players.containsKey(device)) await player.release();
+    if (!UnityPlayers.players.containsKey(device.uuid)) await player.release();
   }
 }

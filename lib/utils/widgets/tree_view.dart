@@ -149,7 +149,7 @@ List<TreeNode>? _copyNodesRecursively(
 }
 
 class _TreeNodeKey extends ValueKey {
-  const _TreeNodeKey(dynamic value) : super(value);
+  const _TreeNodeKey(super.value);
 }
 
 /// Provides unique keys and verifies duplicates.

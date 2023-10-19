@@ -17,13 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
-import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class LocalizationSettings extends StatelessWidget {
@@ -136,5 +137,98 @@ class LanguageSection extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class DateFormatSection extends StatelessWidget {
+  const DateFormatSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return LayoutBuilder(builder: (context, consts) {
+      final formats = [
+        'dd MMMM yyyy',
+        'EEEE, dd MMMM yyyy',
+        'EE, dd MMMM yyyy',
+        'MM/dd/yyyy',
+        'dd/MM/yyyy',
+        'MM-dd-yyyy',
+        'dd-MM-yyyy',
+        'yyyy-MM-dd'
+      ].map((e) => DateFormat(e, locale));
+
+      if (consts.maxWidth >= 800) {
+        final crossAxisCount = consts.maxWidth >= 870 ? 4 : 3;
+        return Wrap(
+          children: formats.map((format) {
+            return SizedBox(
+              width: consts.maxWidth / crossAxisCount,
+              child: RadioListTile<String?>(
+                value: format.pattern,
+                groupValue: settings.dateFormat.pattern,
+                onChanged: (value) {
+                  settings.dateFormat = format;
+                },
+                controlAffinity: ListTileControlAffinity.trailing,
+                title: AutoSizeText(
+                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+                subtitle: Text(format.pattern ?? ''),
+              ),
+            );
+          }).toList(),
+        );
+      } else {
+        return Column(
+          children: formats.map<Widget>((format) {
+            return RadioListTile<String?>(
+              value: format.pattern,
+              groupValue: settings.dateFormat.pattern,
+              onChanged: (value) {
+                settings.dateFormat = format;
+              },
+              controlAffinity: ListTileControlAffinity.trailing,
+              title: Text(
+                format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
+              ),
+              subtitle: Text(format.pattern ?? ''),
+            );
+          }).toList(),
+        );
+      }
+    });
+  }
+}
+
+class TimeFormatSection extends StatelessWidget {
+  const TimeFormatSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final locale = Localizations.localeOf(context).toLanguageTag();
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
+      final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
+      return Column(
+        children: patterns.map<Widget>((format) {
+          return ListTile(
+            onTap: () => settings.timeFormat = format,
+            trailing: Radio<String?>(
+              value: format.pattern,
+              groupValue: settings.timeFormat.pattern,
+              onChanged: (value) => settings.timeFormat = format,
+            ),
+            title: Text(format.format(date)),
+            subtitle: Text(format.pattern ?? ''),
+          );
+        }).toList(),
+      );
+    });
   }
 }

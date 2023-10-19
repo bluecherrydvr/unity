@@ -35,6 +35,7 @@ dependencies:
   firebase_core: 2.10.0
   firebase_messaging: ^14.4.1
   awesome_notifications: ^0.8.2
+  wakelock_plus: ^1.1.3
   
   system_date_time_format: ^0.7.0
   device_info_plus: ^9.1.0

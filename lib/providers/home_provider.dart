@@ -19,11 +19,13 @@
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 enum UnityTab {
   deviceGrid,
@@ -85,8 +87,9 @@ class HomeProvider extends ChangeNotifier {
       automaticallyGoToAddServersScreen = false;
     }
 
-    notifyListeners();
     refreshDeviceOrientation(context);
+    updateWakelock(context);
+    notifyListeners();
   }
 
   bool automaticallyGoToAddServersScreen = false;
@@ -131,6 +134,24 @@ class HomeProvider extends ChangeNotifier {
           // The empty list causes the application to defer to the operating system default.
           // [SystemChrome.setPreferredOrientations]
           DeviceOrientations.instance.set([]);
+          break;
+      }
+    }
+  }
+
+  void updateWakelock(BuildContext context) {
+    final settings = context.read<SettingsProvider>();
+
+    if (!settings.wakelockEnabled) {
+      WakelockPlus.disable();
+    } else {
+      switch (tab) {
+        case UnityTab.deviceGrid:
+        case UnityTab.eventsPlayback:
+          WakelockPlus.enable();
+          break;
+        default:
+          WakelockPlus.disable();
           break;
       }
     }

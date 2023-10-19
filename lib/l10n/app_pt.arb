@@ -386,6 +386,8 @@
   "@@MISC": {},
   "general": "Geral",
   "miscellaneous": "Outros",
+  "wakelock": "Deixar tela ligada",
+  "wakelockDescription": "Mantenha a tela ligada enquanto estiver assistindo a streams ao vivo ou gravações",
   "@Snoozing": {},
   "snooze15": "15 minutos",
   "snooze30": "30 minutos",

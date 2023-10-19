@@ -362,6 +362,8 @@
   "@@MISC": {},
   "general": "General",
   "miscellaneous": "Divers",
+  "wakelock": "Keep screen on",
+  "wakelockDescription": "Keep screen on while watching live streams or recordings.",
   "@Snoozing": {},
   "snooze15": "15 minutes",
   "snooze30": "30 minutes",

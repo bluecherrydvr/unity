@@ -100,6 +100,7 @@ class _MKVideo extends StatelessWidget {
       fill: color,
       fit: fit,
       controls: NoVideoControls,
+      wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );
   }
 }

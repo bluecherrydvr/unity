@@ -304,6 +304,25 @@ class _MobileSettingsState extends State<MobileSettings> {
                   },
                 ),
               ),
+              SliverToBoxAdapter(
+                child: CorrectedListTile(
+                  iconData: Icons.monitor,
+                  trailingWidget: Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 4.0),
+                    child: IgnorePointer(
+                      child: Checkbox(
+                        value: settings.wakelockEnabled,
+                        onChanged: (v) {},
+                      ),
+                    ),
+                  ),
+                  title: loc.wakelock,
+                  subtitle: loc.wakelockDescription,
+                  height: 72.0,
+                  onTap: () =>
+                      settings.wakelockEnabled = !settings.wakelockEnabled,
+                ),
+              ),
               if (update.isUpdatingSupported) ...[
                 SliverToBoxAdapter(
                   child: SubHeader(

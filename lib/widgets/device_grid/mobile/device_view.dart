@@ -256,7 +256,7 @@ class DeviceTileState extends State<DeviceTile> {
                 const Center(
                   child: CircularProgressIndicator.adaptive(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 4.4,
+                    strokeWidth: 1.5,
                   ),
                 ),
               if (video.lastImageUpdate != null)

@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -105,4 +107,36 @@ extension SafeLocalStorageExtension on SafeLocalStorage {
 
     return Future.value();
   }
+}
+
+enum LogType { video, network }
+
+Future<Directory> errorLogDirectory() async {
+  final documentsDir = await getApplicationDocumentsDirectory();
+  final logsDir = Directory(path.join(documentsDir.path, 'logs'));
+  await logsDir.create(recursive: true);
+  return logsDir;
+}
+
+Future<File> errorLogFile(LogType type) {
+  return errorLogDirectory().then<File>((dir) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final filename = '${today.toIso8601String()}.log';
+    final file = File(path.join(dir.path, type.name, filename));
+    await file.create(recursive: true);
+    return file;
+  });
+}
+
+Future<File> errorLog(LogType type, String message) async {
+  final file = await errorLogFile(type);
+
+  final now = DateTime.now();
+  final timestamp = now.toIso8601String();
+  final log = '$timestamp: $message\n';
+
+  await file.writeAsString(log, mode: FileMode.append);
+
+  return file;
 }

@@ -33,7 +33,6 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.
 class SettingsProvider extends ChangeNotifier {
-  /// `late` initialized [SettingsProvider] instance.
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
@@ -50,6 +49,22 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultStreamingType = StreamingType.rtsp;
   static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
   static const kDefaultVideoQuality = RenderingQuality.automatic;
+  static const kDefaultWakelockEnabled = true;
+
+  late Locale _locale;
+  late ThemeMode _themeMode;
+  late DateFormat _dateFormat;
+  late DateFormat _timeFormat;
+  late DateTime _snoozedUntil;
+  late NotificationClickBehavior _notificationClickBehavior;
+  late UnityVideoFit _cameraViewFit;
+  late String _downloadsDirectory;
+  late bool _layoutCyclingEnabled;
+  late Duration _layoutCyclingTogglePeriod;
+  late StreamingType _streamingType;
+  late RTSPProtocol _rtspProtocol;
+  late RenderingQuality _videoQuality;
+  late bool _wakelockEnabled;
 
   // Getters.
   Locale get locale => _locale;
@@ -66,6 +81,7 @@ class SettingsProvider extends ChangeNotifier {
   StreamingType get streamingType => _streamingType;
   RTSPProtocol get rtspProtocol => _rtspProtocol;
   RenderingQuality get videoQuality => _videoQuality;
+  bool get wakelockEnabled => _wakelockEnabled;
 
   // Setters.
   set locale(Locale value) {
@@ -142,19 +158,11 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
-  late Locale _locale;
-  late ThemeMode _themeMode;
-  late DateFormat _dateFormat;
-  late DateFormat _timeFormat;
-  late DateTime _snoozedUntil;
-  late NotificationClickBehavior _notificationClickBehavior;
-  late UnityVideoFit _cameraViewFit;
-  late String _downloadsDirectory;
-  late bool _layoutCyclingEnabled;
-  late Duration _layoutCyclingTogglePeriod;
-  late StreamingType _streamingType;
-  late RTSPProtocol _rtspProtocol;
-  late RenderingQuality _videoQuality;
+  set wakelockEnabled(bool value) {
+    _wakelockEnabled = value;
+    UnityVideoPlayerInterface.wakelockEnabled = value;
+    _save();
+  }
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -185,6 +193,7 @@ class SettingsProvider extends ChangeNotifier {
       kHiveStreamingType: streamingType.index,
       kHiveStreamingProtocol: rtspProtocol.index,
       kHiveVideoQuality: videoQuality.index,
+      kWakelockEnabled: wakelockEnabled,
     });
 
     if (notify) notifyListeners();
@@ -215,72 +224,36 @@ class SettingsProvider extends ChangeNotifier {
 
     final systemLocale = Intl.getCurrentLocale();
     final timePattern = await format.getTimePattern();
-    if (data.containsKey(kHiveDateFormat)) {
-      _dateFormat = DateFormat(data[kHiveDateFormat]!, systemLocale);
-    } else {
-      _dateFormat = DateFormat(kDefaultDateFormat, systemLocale);
-    }
-    if (data.containsKey(kHiveTimeFormat)) {
-      _timeFormat = DateFormat(data[kHiveTimeFormat]!, systemLocale);
-    } else {
-      _timeFormat = DateFormat(timePattern ?? kDefaultTimeFormat, systemLocale);
-    }
-    if (data.containsKey(kHiveSnoozedUntil)) {
-      _snoozedUntil = DateTime.parse(
-        data[kHiveSnoozedUntil]!,
-      );
-    } else {
-      _snoozedUntil = defaultSnoozedUntil;
-    }
-    if (data.containsKey(kHiveNotificationClickBehavior)) {
-      _notificationClickBehavior = NotificationClickBehavior
-          .values[data[kHiveNotificationClickBehavior]!];
-    } else {
-      _notificationClickBehavior = kDefaultNotificationClickBehavior;
-    }
-    if (data.containsKey(kHiveCameraViewFit)) {
-      _cameraViewFit = UnityVideoFit.values[data[kHiveCameraViewFit]!];
-    } else {
-      _cameraViewFit = kDefaultCameraViewFit;
-    }
-
-    if (data.containsKey(kHiveDownloadsDirectorySetting)) {
-      _downloadsDirectory = data[kHiveDownloadsDirectorySetting];
-    } else {
-      _downloadsDirectory = (await kDefaultDownloadsDirectory).path;
-    }
-
-    if (data.containsKey(kHiveLayoutCycling)) {
-      _layoutCyclingEnabled = data[kHiveLayoutCycling];
-    } else {
-      _layoutCyclingEnabled = kDefaultLayoutCyclingEnabled;
-    }
-
-    if (data.containsKey(kHiveLayoutCyclingPeriod)) {
-      _layoutCyclingTogglePeriod = Duration(
-        milliseconds: data[kHiveLayoutCyclingPeriod],
-      );
-    } else {
-      _layoutCyclingTogglePeriod = kDefaultLayoutCyclingTogglePeriod;
-    }
-
-    if (data.containsKey(kHiveStreamingType)) {
-      _streamingType = StreamingType.values[data[kHiveStreamingType]!];
-    } else {
-      _streamingType = kDefaultStreamingType;
-    }
-
-    if (data.containsKey(kHiveStreamingProtocol)) {
-      _rtspProtocol = RTSPProtocol.values[data[kHiveStreamingProtocol]!];
-    } else {
-      _rtspProtocol = kDefaultRTSPProtocol;
-    }
-
-    if (data.containsKey(kHiveVideoQuality)) {
-      _videoQuality = RenderingQuality.values[data[kHiveVideoQuality]!];
-    } else {
-      _videoQuality = kDefaultVideoQuality;
-    }
+    _dateFormat = DateFormat(
+      data[kHiveDateFormat] ?? kDefaultDateFormat,
+      systemLocale,
+    );
+    _timeFormat = DateFormat(
+      data[kHiveTimeFormat] ?? timePattern ?? kDefaultTimeFormat,
+      systemLocale,
+    );
+    _snoozedUntil =
+        DateTime.tryParse(data[kHiveSnoozedUntil]) ?? defaultSnoozedUntil;
+    _notificationClickBehavior = NotificationClickBehavior.values[
+        data[kHiveNotificationClickBehavior] ??
+            kDefaultNotificationClickBehavior.index];
+    _cameraViewFit = UnityVideoFit
+        .values[data[kHiveCameraViewFit] ?? kDefaultCameraViewFit.index];
+    _downloadsDirectory = data[kHiveDownloadsDirectorySetting] ??
+        ((await kDefaultDownloadsDirectory).path);
+    _layoutCyclingEnabled =
+        data[kHiveLayoutCycling] ?? kDefaultLayoutCyclingEnabled;
+    _layoutCyclingTogglePeriod = Duration(
+      milliseconds: data[kHiveLayoutCyclingPeriod] ??
+          kDefaultLayoutCyclingTogglePeriod.inMilliseconds,
+    );
+    _streamingType = StreamingType
+        .values[data[kHiveStreamingType] ?? kDefaultStreamingType.index];
+    _rtspProtocol = RTSPProtocol
+        .values[data[kHiveStreamingProtocol] ?? kDefaultRTSPProtocol.index];
+    _videoQuality = RenderingQuality
+        .values[data[kHiveVideoQuality] ?? kDefaultVideoQuality.index];
+    _wakelockEnabled = data[kWakelockEnabled] ?? kDefaultWakelockEnabled;
 
     notifyListeners();
   }
@@ -355,5 +328,5 @@ enum RenderingQuality {
 enum StreamingType {
   rtsp,
   hls,
-  mjpeg,
+  mjpeg;
 }

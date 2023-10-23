@@ -83,6 +83,8 @@ Let's say, we're adding French (`fr`) translation.
 3. Add your translations to your new `app_fr.arb` file in correspondence to existing [English translations](https://github.com/bluecherrydvr/unity/tree/main/lib/l10n/app_en.arb).
 4. Send us a new pull-request. 🎉
 
+When adding new strings, run `bin/l10n_organizer.dart`. This script will ensure that the new strings are added to all l10n files and that they are in the same location. It will also remove any unused strings. The base file is `app_en.arb`, so all strings must be added there first.
+
 ## Bug-Reports
 
 Send us details about any issues you discover [in the issues](https://github.com/bluecherrydvr/unity/issues) or [in the forums](https://forums.bluecherrydvr.com/).
@@ -120,7 +122,7 @@ lib
 │   ├───mobile_view_provider.dart                      [stores, provides & caches mobile camera layout etc.]
 │   ├───server_provider.dart                           [stores, provides & caches multiple DVR servers added by the user.]
 │   └───settings_provider.dart                         [stores, provides & caches various in-app configurations & settings.]
-│   └───update_provider.dart                         [manages app updates and app status.]
+│   └───update_provider.dart                           [manages app updates and app status.]
 │
 ├───utils                                              [constant values, helper functions & theme-related stuff.]
 │   ├───constants.dart
@@ -155,7 +157,7 @@ flutter build [linux|windows|android|ios]
 
 The automated build process is done using GitHub Actions. You may find the workflow [here](.github/workflows/main.yml). The workflow builds the app for all supported platforms & uploads the artifacts to the release page. 
 
-On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage`, `deb`, `rpm` or `tar.gz` (Tarball).
+On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage` (AppImage), `deb` (Debian), `rpm` (RedHat) or `tar.gz` (Tarball).
 
 ```bash
 flutter run --dart-define-from-file=linux/env/[DISTRO_ENV].json

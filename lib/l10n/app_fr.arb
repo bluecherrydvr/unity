@@ -97,7 +97,7 @@
     }
   },
   "servers": "Serveurs",
-  "nServers": "{n, plural, =0{No servers} =1{1 server} other{{n} servers}}",
+  "nServers": "{n, plural, =0{Aucun serveur} =1{1 serveur} other{{n} serveurs}}",
   "@nServers": {
     "placeholders": {
       "n": {
@@ -246,7 +246,7 @@
   },
   "allowAlarms": "Permettre les alarmes",
   "nextEvents": "Prochains évènements",
-  "nEvents": "{n, plural, =0{No events} =1{1 event} other{{n} events}}",
+  "nEvents": "{n, plural, =0{Aucun évènement} =1{1 évènement} other{{n} évènements}}",
   "@nEvents": {
     "placeholders": {
       "n": {

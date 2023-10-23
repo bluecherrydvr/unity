@@ -104,6 +104,7 @@ class CorrectedListTile extends StatelessWidget {
   final String? subtitle;
   final double? height;
   final IconData? trailing;
+  final Widget? trailingWidget;
 
   const CorrectedListTile({
     super.key,
@@ -113,6 +114,7 @@ class CorrectedListTile extends StatelessWidget {
     this.onTap,
     this.height,
     this.trailing,
+    this.trailingWidget,
   });
 
   @override
@@ -156,7 +158,12 @@ class CorrectedListTile extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null)
+          if (trailingWidget != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 12.0),
+              child: trailingWidget!,
+            )
+          else if (trailing != null)
             Container(
               margin: const EdgeInsetsDirectional.only(start: 12.0),
               alignment: AlignmentDirectional.center,

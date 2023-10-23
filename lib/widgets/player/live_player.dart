@@ -22,7 +22,6 @@ import 'dart:async';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -66,16 +65,38 @@ class LivePlayer extends StatefulWidget {
 
 class _LivePlayerState extends State<LivePlayer> {
   @override
+  void initState() {
+    super.initState();
+    if (isMobile) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      HomeProvider.setDefaultStatusBarStyle();
+      DeviceOrientations.instance.set([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (isMobile) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      DeviceOrientations.instance.restoreLast();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= kMobileBreakpoint.width) {
-        return _DesktopLivePlayer(
+      if (isMobilePlatform) {
+        return _MobileLivePlayer(
           player: widget.player,
           device: widget.device,
           ptzEnabled: widget.ptzEnabled,
         );
       } else {
-        return _MobileLivePlayer(
+        return _DesktopLivePlayer(
           player: widget.player,
           device: widget.device,
           ptzEnabled: widget.ptzEnabled,
@@ -109,29 +130,10 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   @override
   void initState() {
     super.initState();
-    if (isMobile) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-      HomeProvider.setDefaultStatusBarStyle();
-      DeviceOrientations.instance.set([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    }
-
-    // Hide the title overlay after 750ms
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 750));
       if (mounted) setState(() => overlay = false);
     });
-  }
-
-  @override
-  void dispose() {
-    if (isMobile) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      DeviceOrientations.instance.restoreLast();
-    }
-    super.dispose();
   }
 
   void toggleOverlay([PointerDeviceKind? kind]) {
@@ -143,40 +145,31 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: MouseRegion(
-        onEnter: (_) {
-          if (mounted) setState(() => overlay = true);
-        },
-        onHover: (_) {
-          if (mounted && !overlay) setState(() => overlay = true);
-        },
-        onExit: (_) {
-          if (mounted) setState(() => overlay = false);
-        },
-        child: GestureDetector(
-          onTapUp: (event) => toggleOverlay(event.kind),
-          onLongPressUp: toggleOverlay,
-          onDoubleTapDown: (event) => toggleOverlay(event.kind),
-          child: PTZController(
-            device: widget.device,
-            enabled: !overlay && ptzEnabled,
-            builder: (context, commands, constraints) {
-              return UnityVideoView(
-                heroTag: widget.device.streamURL,
-                player: widget.player,
-                fit: fit,
-                videoBuilder: (context, child) {
-                  return AnimatedOpacity(
-                    duration: const Duration(milliseconds: 320),
-                    curve: Curves.easeInOut,
-                    opacity: overlay ? 0.75 : 1.0,
-                    child: child,
-                  );
-                },
-                paneBuilder: (context, controller) {
-                  final error = UnityVideoView.of(context).error;
+      body: SafeArea(
+        child: PTZController(
+          device: widget.device,
+          enabled: !overlay && ptzEnabled,
+          builder: (context, commands, constraints) {
+            return UnityVideoView(
+              heroTag: widget.device.streamURL,
+              player: widget.player,
+              fit: fit,
+              videoBuilder: (context, child) {
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeInOut,
+                  opacity: overlay ? 0.75 : 1.0,
+                  child: child,
+                );
+              },
+              paneBuilder: (context, controller) {
+                final error = UnityVideoView.of(context).error;
 
-                  return Stack(children: [
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: (event) => toggleOverlay(event.kind),
+                  child: Stack(children: [
+                    const Positioned.fill(child: SizedBox.expand()),
                     if (error != null)
                       ErrorWarning(message: error)
                     else if (!controller.isSeekable ||
@@ -263,11 +256,11 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                         video: UnityVideoView.of(context),
                       ),
                     ),
-                  ]);
-                },
-              );
-            },
-          ),
+                  ]),
+                );
+              },
+            );
+          },
         ),
       ),
     );

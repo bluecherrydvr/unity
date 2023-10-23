@@ -50,6 +50,9 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Whether the app should be kept awake while playing videos.
+  static bool wakelockEnabled = true;
+
   /// Called to initialize any resources before using it
   Future<void> initialize();
 

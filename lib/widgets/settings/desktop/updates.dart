@@ -21,7 +21,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
-import 'package:bluecherry_client/widgets/settings/mobile/update.dart';
+import 'package:bluecherry_client/widgets/settings/shared/update.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

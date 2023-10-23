@@ -130,7 +130,7 @@ class DesktopViewProvider extends ChangeNotifier {
 
   /// Releases a device if no layout is using it
   void _releaseDevice(Device device) {
-    if (!UnityPlayers.players.containsKey(device)) return;
+    if (!UnityPlayers.players.containsKey(device.uuid)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.id == device.id))) {
       UnityPlayers.releaseDevice(device.uuid);

@@ -80,7 +80,12 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
           child: PageTransitionSwitcher(
             child: view.devices.keys
                 .map((key) => _MobileDeviceGridChild(tab: key))
-                .elementAt(view.tab.clamp(0, view.devices.length - 1)),
+                .elementAt(
+                  view.devices.keys
+                      .toList()
+                      .indexOf(view.tab)
+                      .clamp(0, view.devices.length - 1),
+                ),
             transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
               return FadeThroughTransition(
                 animation: primaryAnimation,

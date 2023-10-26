@@ -619,6 +619,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   child: closeButton,
                 ),
               ),
+            Positioned.fill(
+              child: MulticastViewport(),
+            ),
           ],
         ]);
       },

@@ -118,14 +118,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<double> get fpsStream => _fpsStreamController.stream;
 
   UnityVideoPlayerMediaKit({
-    int? width,
-    int? height,
+    super.width,
+    super.height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
   }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
-    if (width != null) width = (width * pixelRatio).toInt();
-    if (height != null) height = (height * pixelRatio).toInt();
+    if (width != null) width = (width! * pixelRatio).toInt();
+    if (height != null) height = (height! * pixelRatio).toInt();
 
     debugPrint('Pixel ratio: $pixelRatio');
 
@@ -155,7 +155,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('insecure', 'yes');
 
       if (rtspProtocol != null) {
-        platform.setProperty('rtsp-transport', rtspProtocol.name);
+        platform.setProperty('rtsp-transport', 'udp_multicast');
       }
 
       if (enableCache) {
@@ -303,6 +303,30 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> reset() async {
     await pause();
     await seekTo(Duration.zero);
+  }
+
+  @override
+  Future<void> crop(int row, int col, int size) async {
+    if (width != null && height != null) {
+      double factor = 2.25;
+      final viewportRect = Rect.fromLTWH(
+        col * width! / size * factor,
+        row * height! / size * factor,
+        width! / size * factor,
+        height! / size * factor,
+      );
+
+      debugPrint('Index | $row | $col | $viewportRect');
+
+      final player = mkPlayer.platform as NativePlayer;
+      player.setProperty(
+        'video-crop',
+        '${viewportRect.width.toInt()}x'
+            '${viewportRect.height.toInt()}+'
+            '${viewportRect.left.toInt()}+'
+            '${viewportRect.top.toInt()}',
+      );
+    }
   }
 
   @override

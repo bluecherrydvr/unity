@@ -352,9 +352,15 @@ abstract class UnityVideoPlayer {
   DateTime? get lastImageUpdate => _lastImageTime;
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
 
+  int? width;
+  int? height;
+
   UnityVideoQuality? quality;
 
-  UnityVideoPlayer() {
+  UnityVideoPlayer({
+    this.width,
+    this.height,
+  }) {
     _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
   }
 
@@ -430,6 +436,8 @@ abstract class UnityVideoPlayer {
   Future<void> pause();
   Future<void> release();
   Future<void> reset();
+
+  Future<void> crop(int row, int col, int size);
 
   @mustCallSuper
   Future<void> dispose() async {

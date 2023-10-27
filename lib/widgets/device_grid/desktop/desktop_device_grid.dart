@@ -203,8 +203,10 @@ class LayoutView extends StatelessWidget {
           if (amountOfItemsOnScreen > foldedDevices.length) {
             // final diff = amountOfItemsOnScreen - foldedDevices.length;
             while (amountOfItemsOnScreen > foldedDevices.length) {
-              final lastFullFold =
-                  foldedDevices.firstWhere((fold) => fold.length > 1);
+              final lastFullFold = foldedDevices.firstWhere(
+                (fold) => fold.length > 1,
+                orElse: () => foldedDevices.first,
+              );
               final foldIndex = foldedDevices.indexOf(lastFullFold);
               foldedDevices.insert(
                 (foldIndex - 1).clamp(0, foldedDevices.length).toInt(),

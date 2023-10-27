@@ -12,9 +12,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  media_kit: ^1.1.8                              # Primary package.
-  media_kit_video: ^1.2.1                        # For video rendering.
-  media_kit_libs_video: ^1.0.3                   # Native video dependencies.
+  media_kit: ^1.1.10                             # Primary package.
+  media_kit_video: ^1.2.4                        # For video rendering.
+  media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
   path_provider:

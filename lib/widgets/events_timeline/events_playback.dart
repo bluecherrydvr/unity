@@ -88,8 +88,13 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
         continue;
       }
 
-      final device =
-          event.server.devices.firstWhere((d) => d.id == event.deviceID);
+      final device = event.server.devices.firstWhere(
+        (d) => d.id == event.deviceID,
+        orElse: () => Device.dump(
+          name: event.deviceName,
+          id: event.deviceID,
+        ),
+      );
       devices[device] ??= [];
 
       if (devices[device]!.any((e) {

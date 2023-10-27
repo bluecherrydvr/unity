@@ -606,8 +606,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       final name = nameController.text.trim();
       final hostname = getServerHostname(hostnameController.text.trim());
 
-      if (ServersProvider.instance.servers
-          .any((s) => Uri.parse(s.login).host == Uri.parse(hostname).host)) {
+      if (ServersProvider.instance.servers.any((s) {
+        final serverHost = Uri.parse(s.login).host;
+        final newServerHost = Uri.parse(hostname).host;
+        return serverHost.isNotEmpty &&
+            newServerHost.isNotEmpty &&
+            serverHost == newServerHost;
+      })) {
         showDialog(
           context: context,
           builder: (context) {

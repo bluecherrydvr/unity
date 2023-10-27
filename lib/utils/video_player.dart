@@ -86,12 +86,13 @@ class UnityPlayers with ChangeNotifier {
   /// [onlyIfTimedOut], if true, the device will only be reloaded if it's timed out
   static void reloadAll({bool onlyIfTimedOut = false}) {
     for (final entry in players.entries) {
-      final device = entry.key;
       final player = entry.value;
       if (onlyIfTimedOut) {
         if (!player.isImageOld) continue;
       }
-      reloadDevice(Device.fromUUID(device));
+      final deviceUUID = entry.key;
+      final device = Device.fromUUID(deviceUUID);
+      if (device != null) reloadDevice(device);
     }
   }
 }

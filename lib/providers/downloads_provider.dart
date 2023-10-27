@@ -174,6 +174,7 @@ class DownloadsManager extends ChangeNotifier {
   }
 
   String getDownloadedPathForEvent(int eventId) {
+    assert(isEventDownloaded(eventId));
     return downloadedEvents
         .firstWhere((de) => de.event.id == eventId)
         .downloadPath;

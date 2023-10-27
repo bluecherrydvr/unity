@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -73,7 +74,7 @@ class Device {
     return '${server.ip}:${server.port}/$id';
   }
 
-  static Device fromUUID(String uuid) {
+  static Device? fromUUID(String uuid) {
     final serverIp = uuid.split(':')[0];
     final serverPort = int.tryParse(uuid.split(':')[1].split('/')[0]) ?? -1;
     final deviceId = int.tryParse(uuid.split(':')[1].split('/')[1]) ?? -1;
@@ -83,7 +84,7 @@ class Device {
       orElse: Server.dump,
     );
 
-    return server.devices.firstWhere((d) => d.id == deviceId);
+    return server.devices.firstWhereOrNull((d) => d.id == deviceId);
   }
 
   factory Device.fromServerJson(Map map, Server server) {

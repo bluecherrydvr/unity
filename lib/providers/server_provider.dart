@@ -138,8 +138,10 @@ class ServersProvider extends ChangeNotifier {
       return add(server);
     }
 
-    final s =
-        servers.firstWhere((s) => s.ip == server.ip && s.port == server.port);
+    final s = servers.firstWhere(
+      (s) => s.ip == server.ip && s.port == server.port,
+      orElse: () => server,
+    );
     final serverIndex = servers.indexOf(s);
 
     for (final device in server.devices) {

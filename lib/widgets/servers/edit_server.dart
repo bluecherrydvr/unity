@@ -67,6 +67,10 @@ class _EditServerState extends State<EditServer> {
   Server get server {
     return ServersProvider.instance.servers.firstWhere(
       (s) => s.ip == widget.serverIp && s.port == widget.serverPort,
+      orElse: () => Server.dump(
+        ip: widget.serverIp,
+        port: widget.serverPort,
+      ),
     );
   }
 

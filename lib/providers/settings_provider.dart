@@ -233,7 +233,8 @@ class SettingsProvider extends ChangeNotifier {
       systemLocale,
     );
     _snoozedUntil =
-        DateTime.tryParse(data[kHiveSnoozedUntil]) ?? defaultSnoozedUntil;
+        DateTime.tryParse((data[kHiveSnoozedUntil] as String?) ?? '') ??
+            defaultSnoozedUntil;
     _notificationClickBehavior = NotificationClickBehavior.values[
         data[kHiveNotificationClickBehavior] ??
             kDefaultNotificationClickBehavior.index];

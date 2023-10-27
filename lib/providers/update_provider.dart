@@ -107,10 +107,10 @@ class UpdateManager extends ChangeNotifier {
     final currentVersion = Version.parse(packageInfo.version);
     final latestVersion = Version.parse(this.latestVersion!.version);
 
-    assert(
-      latestVersion >= currentVersion,
-      'The latest version can not be older than the current version',
-    );
+    // assert(
+    //   latestVersion >= currentVersion,
+    //   'The latest version can not be older than the current version',
+    // );
 
     return currentVersion != latestVersion;
   }

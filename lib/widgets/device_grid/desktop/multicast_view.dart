@@ -21,6 +21,9 @@ class MulticastViewport extends StatelessWidget {
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
+            onDoubleTap: () {
+              view.player.crop(-1, -1, -1);
+            },
             onTap: () {
               view.player.crop(row, col, size);
             },

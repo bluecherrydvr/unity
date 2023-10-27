@@ -140,6 +140,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         ..observeProperty('estimated-vf-fps', (fps) async {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
+        })
+        ..observeProperty('dwidth', (width) async {
+          debugPrint('display width: $width');
+          this.width = int.tryParse(width);
+        })
+        ..observeProperty('dheight', (height) async {
+          debugPrint('display height: $height');
+          this.height = int.tryParse(height);
         });
       platform.setProperty('msg-level', 'all=v');
 
@@ -307,18 +315,22 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> crop(int row, int col, int size) async {
-    if (width != null && height != null) {
-      double factor = 2.25;
+    final player = mkPlayer.platform as NativePlayer;
+    if (row == -1 && col == -1 && size == -1) {
+      player.setProperty('video-crop', '0x0+0+0');
+    } else if (width != null && height != null) {
+      final tileWidth = width! / size;
+      final tileHeight = height! / size;
+
       final viewportRect = Rect.fromLTWH(
-        col * width! / size * factor,
-        row * height! / size * factor,
-        width! / size * factor,
-        height! / size * factor,
+        col * tileWidth,
+        row * tileHeight,
+        tileWidth,
+        tileHeight,
       );
 
-      debugPrint('Index | $row | $col | $viewportRect');
+      debugPrint('Index | row=$row | col=$col | viewport=$viewportRect');
 
-      final player = mkPlayer.platform as NativePlayer;
       player.setProperty(
         'video-crop',
         '${viewportRect.width.toInt()}x'

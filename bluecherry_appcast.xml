@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta13</title>
+            <description>Redesigned Settings, optmized Servers and updated translations.</description>
+            <pubDate>Fri, 27 Oct 2023</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta12</title>
             <description>Possibility to filter events by time. Correctly show video when there is any special characters on the password.</description>
             <pubDate>Thu, 28 Sep 2023</pubDate>

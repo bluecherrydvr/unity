@@ -307,6 +307,7 @@ enum NotificationClickBehavior {
 
 enum RenderingQuality {
   automatic,
+  p4k,
   p1080,
   p720,
   p480,
@@ -316,6 +317,7 @@ enum RenderingQuality {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return switch (this) {
+      RenderingQuality.p4k => loc.p4k,
       RenderingQuality.p1080 => loc.p1080,
       RenderingQuality.p720 => loc.p720,
       RenderingQuality.p480 => loc.p480,

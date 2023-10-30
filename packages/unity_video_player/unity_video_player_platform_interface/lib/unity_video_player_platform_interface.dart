@@ -290,6 +290,9 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 }
 
+/// The size of a view with 4K resolution
+const p4kResolution = Size(3840, 2160);
+
 /// The size of a view with 1080p resolution
 const p1080Resolution = Size(1920, 1080);
 
@@ -306,6 +309,7 @@ const p360Resolution = Size(640, 360);
 const p240Resolution = Size(426, 240);
 
 enum UnityVideoQuality {
+  p4k._(resolution: p4kResolution, isHD: true),
   p1080._(resolution: p1080Resolution, isHD: true),
   p720._(resolution: p720Resolution, isHD: true),
   p480._(resolution: p480Resolution),
@@ -438,6 +442,7 @@ abstract class UnityVideoPlayer {
   Future<void> reset();
 
   Future<void> crop(int row, int col, int size);
+  bool get isCropped;
 
   @mustCallSuper
   Future<void> dispose() async {

@@ -40,6 +40,7 @@ class UnityPlayers with ChangeNotifier {
     final settings = SettingsProvider.instance;
     final controller = UnityVideoPlayer.create(
       quality: switch (settings.videoQuality) {
+        RenderingQuality.p4k => UnityVideoQuality.p4k,
         RenderingQuality.p1080 => UnityVideoQuality.p1080,
         RenderingQuality.p720 => UnityVideoQuality.p720,
         RenderingQuality.p480 => UnityVideoQuality.p480,

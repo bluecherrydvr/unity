@@ -99,6 +99,7 @@ extension UnityVideoQualityExtension on UnityVideoQuality {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return switch (this) {
+      UnityVideoQuality.p4k => loc.p4k,
       UnityVideoQuality.p1080 => loc.p1080,
       UnityVideoQuality.p720 => loc.p720,
       UnityVideoQuality.p480 => loc.p480,

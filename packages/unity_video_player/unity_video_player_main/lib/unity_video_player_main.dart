@@ -117,6 +117,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Stream<double> get fpsStream => _fpsStreamController.stream;
 
+  bool _isCropped = false;
+
   UnityVideoPlayerMediaKit({
     super.width,
     super.height,
@@ -165,6 +167,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       if (rtspProtocol != null) {
         platform.setProperty('rtsp-transport', 'udp_multicast');
       }
+
+      platform.setProperty('force-seekable', 'yes');
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
@@ -318,6 +322,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     final player = mkPlayer.platform as NativePlayer;
     if (row == -1 && col == -1 && size == -1) {
       player.setProperty('video-crop', '0x0+0+0');
+      _isCropped = false;
     } else if (width != null && height != null) {
       final tileWidth = width! / size;
       final tileHeight = height! / size;
@@ -338,8 +343,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
             '${viewportRect.left.toInt()}+'
             '${viewportRect.top.toInt()}',
       );
+      _isCropped = true;
     }
   }
+
+  @override
+  bool get isCropped => _isCropped;
 
   @override
   Future<void> dispose() async {

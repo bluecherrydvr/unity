@@ -396,7 +396,6 @@ class DesktopTileViewport extends StatefulWidget {
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
-
   late double? volume = widget.controller?.volume;
 
   void updateVolume() {
@@ -461,6 +460,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final states = HoverButton.of(context).states;
 
         return Stack(children: [
+          const Positioned.fill(child: MulticastViewport()),
           if (error != null)
             Positioned.fill(child: ErrorWarning(message: error)),
           Padding(
@@ -621,9 +621,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   child: closeButton,
                 ),
               ),
-            Positioned.fill(
-              child: MulticastViewport(),
-            ),
           ],
         ]);
       },

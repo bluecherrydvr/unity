@@ -460,7 +460,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final states = HoverButton.of(context).states;
 
         return Stack(children: [
-          const Positioned.fill(child: MulticastViewport()),
+          const Positioned.fill(
+            child: MulticastViewport(
+              overlayText: 'IMPORTANT: This is a demo',
+            ),
+          ),
           if (error != null)
             Positioned.fill(child: ErrorWarning(message: error)),
           Padding(

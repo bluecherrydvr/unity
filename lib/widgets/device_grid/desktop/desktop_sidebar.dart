@@ -166,9 +166,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 SliverToBoxAdapter(
                   child: ListTile(
                     dense: true,
-                    leading: const Icon(Icons.camera_outdoor, size: 20.0),
-                    title: const Text('Add external stream'),
-                    onTap: () {},
+                    trailing: const Icon(Icons.camera_outdoor, size: 20.0),
+                    title: Text(loc.addExternalStream),
+                    onTap: () => AddExternalStreamDialog.show(context),
                   ),
                 ),
                 SliverPadding(
@@ -403,5 +403,114 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
       ],
     );
+  }
+}
+
+class AddExternalStreamDialog extends StatefulWidget {
+  const AddExternalStreamDialog({super.key});
+
+  static Future<void> show(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) => const AddExternalStreamDialog(),
+    );
+  }
+
+  @override
+  State<AddExternalStreamDialog> createState() =>
+      _AddExternalStreamDialogState();
+}
+
+class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final urlController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    urlController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(loc.addExternalStream),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: MediaQuery.of(context).size.width * 0.35,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(label: Text(loc.streamName)),
+                  textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return loc.streamNameRequired;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                flex: 2,
+                child: TextFormField(
+                  controller: urlController,
+                  decoration: InputDecoration(label: Text(loc.streamURL)),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _finish(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return loc.streamNameRequired;
+                    } else if (Uri.tryParse(value) == null) {
+                      return loc.streamURLNotValid;
+                    }
+
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: _finish,
+          child: Text(loc.finish),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _finish() async {
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final view = context.read<DesktopViewProvider>();
+    final device = Device(
+      nameController.text,
+      const Uuid().v4().hashCode,
+      true,
+      null,
+      null,
+      Server.dump(name: 'External Stream'),
+      url: urlController.text,
+    );
+
+    view.add(device);
+
+    Navigator.of(context).pop();
   }
 }

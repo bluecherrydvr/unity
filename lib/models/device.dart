@@ -48,6 +48,8 @@ class Device {
   /// Reference to the [Server], to which this camera [Device] belongs.
   Server server;
 
+  final String? url;
+
   /// Creates a device.
   Device(
     this.name,
@@ -57,6 +59,7 @@ class Device {
     this.resolutionY,
     this.server, {
     this.hasPTZ = false,
+    this.url,
   });
 
   Device.dump({
@@ -66,6 +69,7 @@ class Device {
     this.resolutionX = 640,
     this.resolutionY = 480,
     this.hasPTZ = false,
+    this.url,
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -111,6 +115,8 @@ class Device {
   }
 
   String get rtspURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'rtsp',
       userInfo: '${Uri.encodeComponent(server.login)}'
@@ -123,6 +129,8 @@ class Device {
   }
 
   String get mjpegURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
@@ -139,6 +147,8 @@ class Device {
   }
 
   String get hlsURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'

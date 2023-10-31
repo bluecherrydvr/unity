@@ -111,7 +111,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                         ? theme.colorScheme.primary
                         : IconTheme.of(context).color,
                   ),
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsetsDirectional.zero,
                   tooltip: loc.cycle,
                   onPressed: settings.toggleCycling,
                 ),
@@ -122,7 +122,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                     color: IconTheme.of(context).color,
                   ),
                   tooltip: loc.newLayout,
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsetsDirectional.zero,
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -501,7 +501,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           ),
           textInputAction: TextInputAction.none,
         ),
-        SubHeader(loc.layoutTypeHint, padding: EdgeInsets.zero),
+        SubHeader(loc.layoutTypeHint, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {
@@ -567,23 +567,21 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
     final view = context.watch<DesktopViewProvider>();
 
     return AlertDialog(
-      title: Row(
-        children: [
-          Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
-          if (view.layouts.length > 1)
-            IconButton(
-              icon: Icon(
-                Icons.delete,
-                color: theme.colorScheme.error,
-              ),
-              iconSize: 18.0,
-              onPressed: () {
-                view.removeLayout(widget.layout);
-                Navigator.of(context).pop();
-              },
+      title: Row(children: [
+        Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
+        if (view.layouts.length > 1)
+          IconButton(
+            icon: Icon(
+              Icons.delete,
+              color: theme.colorScheme.error,
             ),
-        ],
-      ),
+            iconSize: 18.0,
+            onPressed: () {
+              view.removeLayout(widget.layout);
+              Navigator.of(context).pop();
+            },
+          ),
+      ]),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
           controller: controller,
@@ -593,7 +591,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
           ),
           textInputAction: TextInputAction.none,
         ),
-        SubHeader(loc.layoutTypeHint, padding: EdgeInsets.zero),
+        SubHeader(loc.layoutTypeHint, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {

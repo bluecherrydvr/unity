@@ -19,7 +19,9 @@ class MulticastViewport extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final view = UnityVideoView.of(context);
+    final view = UnityVideoView.maybeOf(context);
+
+    if (view == null) return const SizedBox.shrink();
 
     if (view.player.isCropped) {
       return GestureDetector(

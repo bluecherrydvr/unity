@@ -249,7 +249,7 @@ class SubHeader extends StatelessWidget {
 // ignore: non_constant_identifier_names
 Widget? MaybeUnityDrawerButton(
   BuildContext context, {
-  EdgeInsetsGeometry padding = EdgeInsets.zero,
+  EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
   VoidCallback? open,
 }) {
   if (Scaffold.hasDrawer(context)) {

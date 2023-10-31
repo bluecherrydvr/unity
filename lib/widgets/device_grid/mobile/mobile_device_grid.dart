@@ -103,9 +103,9 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
         child: Material(
           child: Container(
             height: kMobileBottomBarHeight + viewPadding.bottom,
-            padding: EdgeInsets.only(
-              left: 16.0 + viewPadding.horizontal,
-              right: 16.0 + viewPadding.horizontal,
+            padding: EdgeInsetsDirectional.only(
+              start: 16.0 + viewPadding.horizontal,
+              end: 16.0 + viewPadding.horizontal,
               bottom: viewPadding.bottom,
             ),
             width: double.infinity,
@@ -123,7 +123,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onBackground,
                 ),
-                padding: EdgeInsets.zero,
+                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
@@ -208,7 +208,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
       return Container(
         height: size.height,
         width: size.width,
-        padding: const EdgeInsets.all(kGridInnerPadding),
+        padding: const EdgeInsetsDirectional.all(kGridInnerPadding),
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Center(
@@ -226,7 +226,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
                 _ => 16 / 9,
               },
               reorderable: view.current.any((device) => device != null),
-              padding: EdgeInsets.zero,
+              padding: EdgeInsetsDirectional.zero,
               onReorder: (initial, end) => view.reorder(tab, initial, end),
               children: children,
             ),

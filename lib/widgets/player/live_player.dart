@@ -248,9 +248,9 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                           onPressed: toggleOverlay,
                         ),
                       ),
-                    Positioned(
+                    PositionedDirectional(
                       bottom: 8.0,
-                      right: 8.0,
+                      end: 8.0,
                       child: VideoStatusLabel(
                         device: widget.device,
                         video: UnityVideoView.of(context),

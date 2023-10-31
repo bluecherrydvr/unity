@@ -304,13 +304,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsetsDirectional.all(8.0),
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: () {
             if (tile == null) {
               return Card(
-                margin: EdgeInsets.zero,
+                margin: EdgeInsetsDirectional.zero,
                 clipBehavior: Clip.hardEdge,
                 child: InkWell(
                   onTap: () => selectDevice(context),
@@ -327,7 +327,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                   ? null
                   : (context, controller) {
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: Stack(children: [
                           RichText(
                             text: TextSpan(
@@ -445,8 +445,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 8.0,
+                PositionedDirectional(
+                  start: 8.0,
                   top: 0,
                   bottom: 0,
                   child: Container(
@@ -566,7 +566,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       ]),
       const Spacer(),
       Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsetsDirectional.all(8.0),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           if (Scaffold.hasDrawer(context))
             _buildIconButton(

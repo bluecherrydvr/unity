@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:animations/animations.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';

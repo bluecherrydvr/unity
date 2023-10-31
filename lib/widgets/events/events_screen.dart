@@ -203,7 +203,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
         SizedBox(
           width: 220,
           child: Card(
-            margin: EdgeInsets.zero,
+            margin: EdgeInsetsDirectional.zero,
             shape: const RoundedRectangleBorder(),
             child: SafeArea(
               child: DropdownButtonHideUnderline(

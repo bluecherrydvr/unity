@@ -40,7 +40,7 @@ class ServersList extends StatelessWidget {
     return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= kMobileBreakpoint.width) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
           child: Wrap(children: [
             ...serversProvider.servers.map((server) {
               return ServerCard(server: server, onRemoveServer: onRemoveServer);
@@ -53,7 +53,7 @@ class ServersList extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.0),
                   onTap: addServersScreen,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsetsDirectional.all(8.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

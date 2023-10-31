@@ -50,6 +50,7 @@ class _AddServerWizardState extends State<AddServerWizard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final textDirection = Directionality.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -76,10 +77,10 @@ class _AddServerWizardState extends State<AddServerWizard> {
                 color: theme.cardColor,
                 elevation: 4.0,
                 clipBehavior: Clip.antiAlias,
-                margin: const EdgeInsets.symmetric(
+                margin: const EdgeInsetsDirectional.symmetric(
                       horizontal: 16.0,
                       vertical: 16.0,
-                    ) +
+                    ).resolve(textDirection) +
                     MediaQuery.paddingOf(context),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -758,7 +759,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                 Colors.green.withOpacity(0.2),
                 theme.cardColor,
               ),
-              margin: const EdgeInsets.symmetric(
+              margin: const EdgeInsetsDirectional.symmetric(
                 horizontal: 16.0,
                 vertical: 8.0,
               ),
@@ -778,14 +779,17 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
             ),
           Card(
             elevation: 4.0,
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            margin: const EdgeInsetsDirectional.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Padding(
               padding: const EdgeInsetsDirectional.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: const EdgeInsetsDirectional.symmetric(
                       vertical: 8.0,
                     ),
                     child: Row(
@@ -800,7 +804,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: const EdgeInsetsDirectional.symmetric(
                       vertical: 8.0,
                     ),
                     child: Row(
@@ -815,7 +819,9 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      vertical: 8.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -828,7 +834,7 @@ class _LetsGoScreenState extends State<LetsGoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: const EdgeInsetsDirectional.symmetric(
                       vertical: 8.0,
                     ),
                     child: Row(

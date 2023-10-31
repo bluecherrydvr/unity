@@ -28,8 +28,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class DesktopSettings extends StatefulWidget {
   const DesktopSettings({super.key});
 
-  static const horizontalPadding = EdgeInsets.symmetric(horizontal: 24.0);
-  static const verticalPadding = EdgeInsets.symmetric(vertical: 16.0);
+  static const horizontalPadding =
+      EdgeInsetsDirectional.symmetric(horizontal: 24.0);
+  static const verticalPadding =
+      EdgeInsetsDirectional.symmetric(vertical: 16.0);
 
   @override
   State<DesktopSettings> createState() => _DesktopSettingsState();

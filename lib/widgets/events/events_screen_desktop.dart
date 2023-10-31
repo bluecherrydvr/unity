@@ -87,7 +87,8 @@ class EventsScreenDesktop extends StatelessWidget {
                         );
                       },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding:
+                      const EdgeInsetsDirectional.symmetric(horizontal: 20.0),
                   child: Row(children: [
                     Container(
                       width: 40.0,
@@ -144,7 +145,7 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
       child: Card(
         child: Container(
           height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 15.0),
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 15.0),
           child: DefaultTextStyle(
             style: theme.textTheme.headlineSmall ?? const TextStyle(),
             child: Row(children: [

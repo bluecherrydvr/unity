@@ -79,7 +79,7 @@ class _TimelineCardState extends State<TimelineCard> {
                 surfaceTintColor: theme.colorScheme.surfaceTint,
                 elevation: 1.0,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsetsDirectional.all(16.0),
                   child: Column(children: [
                     Text(
                       device.name,
@@ -110,7 +110,7 @@ class _TimelineCardState extends State<TimelineCard> {
 
           return HoverButton(
             forceEnabled: true,
-            margin: const EdgeInsets.all(16.0),
+            margin: const EdgeInsetsDirectional.all(16.0),
             builder: (_, states) => Stack(clipBehavior: Clip.none, children: [
               RichText(
                 text: TextSpan(

@@ -73,7 +73,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
-                padding: EdgeInsets.zero,
+                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
@@ -671,7 +671,7 @@ class PresetsDialog extends StatelessWidget {
         ),
         Container(
           height: 30.0,
-          margin: const EdgeInsets.symmetric(horizontal: 12.0),
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
           child: Row(children: [
             Tooltip(
               message: loc.newPreset,

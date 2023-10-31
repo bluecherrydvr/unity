@@ -94,7 +94,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
         final collapsed = collapseController.isCompleted;
         final collapseButton = Padding(
           padding: collapsed
-              ? EdgeInsets.zero
+              ? EdgeInsetsDirectional.zero
               : widget.left
                   ? const EdgeInsetsDirectional.only(start: 5.0)
                   : const EdgeInsetsDirectional.only(end: 5.0),

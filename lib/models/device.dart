@@ -82,8 +82,11 @@ class Device {
     if (uuid.isEmpty) return null;
 
     final serverIp = uuid.split(':')[0];
-    final serverPort = int.tryParse(uuid.split(':')[1].split('/')[0]) ?? -1;
-    final deviceId = int.tryParse(uuid.split(':')[1].split('/')[1]) ?? -1;
+    final split = uuid.split(':')[1].split('/');
+    if (split.length < 2) return null;
+
+    final serverPort = int.tryParse(split[0]) ?? -1;
+    final deviceId = int.tryParse(split[1]) ?? -1;
 
     final server = ServersProvider.instance.servers.firstWhere(
       (s) => s.ip == serverIp && s.port == serverPort,

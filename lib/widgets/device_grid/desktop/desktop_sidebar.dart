@@ -207,8 +207,6 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
 
   @override
   Widget build(BuildContext context) {
-    // subscribe to media query updates
-    MediaQuery.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final loc = AppLocalizations.of(context);
@@ -440,7 +438,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       title: Text(loc.addExternalStream),
       content: ConstrainedBox(
         constraints: BoxConstraints(
-          minWidth: MediaQuery.of(context).size.width * 0.35,
+          minWidth: MediaQuery.sizeOf(context).width * 0.425,
         ),
         child: Form(
           key: _formKey,

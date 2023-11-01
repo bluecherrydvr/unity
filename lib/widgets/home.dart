@@ -49,7 +49,7 @@ class NavigatorData {
 
   static List<NavigatorData> of(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.sizeOf(context);
 
     return [
       NavigatorData(
@@ -118,9 +118,6 @@ class _MobileHomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // subscribe to updates to media query
-    MediaQuery.of(context);
-
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 

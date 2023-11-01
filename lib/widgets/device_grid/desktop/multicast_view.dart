@@ -1,5 +1,7 @@
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class MulticastViewport extends StatelessWidget {
@@ -19,9 +21,12 @@ class MulticastViewport extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     final view = UnityVideoView.maybeOf(context);
 
-    if (view == null) return const SizedBox.shrink();
+    if (view == null || !settings.betaMatrixedZoomEnabled) {
+      return const SizedBox.shrink();
+    }
 
     if (view.player.isCropped) {
       return GestureDetector(

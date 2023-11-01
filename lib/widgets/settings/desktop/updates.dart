@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/shared/update.dart';
@@ -60,8 +61,42 @@ class UpdatesSettings extends StatelessWidget {
       ),
       const AppUpdateCard(),
       const AppUpdateOptions(),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text('Beta Features', style: theme.textTheme.titleMedium),
+      ),
+      const BetaFeatures(),
       const Divider(),
       const About(),
+    ]);
+  }
+}
+
+class BetaFeatures extends StatelessWidget {
+  const BetaFeatures({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      CheckboxListTile(
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.crop),
+        ),
+        title: Text(loc.matrixedViewZoom),
+        subtitle: Text(loc.matrixedViewZoomDescription),
+        value: settings.betaMatrixedZoomEnabled,
+        onChanged: (value) {
+          if (value != null) {
+            settings.betaMatrixedZoomEnabled = value;
+          }
+        },
+      ),
     ]);
   }
 }

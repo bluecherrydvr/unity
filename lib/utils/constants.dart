@@ -58,7 +58,8 @@ const kHiveLastCheck = 'last_update_check';
 const kHiveStreamingType = 'streaming_type';
 const kHiveStreamingProtocol = 'streaming_protocol';
 const kHiveVideoQuality = 'video_quality';
-const kWakelockEnabled = 'wakelock_enabled';
+const kHiveWakelockEnabled = 'wakelock_enabled';
+const kHiveBetaMatrixedZoom = 'matrized_zoom';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

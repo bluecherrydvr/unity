@@ -377,6 +377,10 @@
       }
     }
   },
+  "@BETA FEATURES": {},
+  "betaFeatures": "Beta features",
+  "matrixedViewZoom": "Matrixed view zoom",
+  "matrixedViewZoomDescription": "Zoom in on a 16x16 matrixed view to see more detail.",
   "@CURRENT TASKS": {},
   "currentTasks": "Current tasks",
   "noCurrentTasks": "No tasks",

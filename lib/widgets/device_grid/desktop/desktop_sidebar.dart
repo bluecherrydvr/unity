@@ -499,13 +499,14 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
     }
 
     final view = context.read<DesktopViewProvider>();
+    final loc = AppLocalizations.of(context);
     final device = Device(
       nameController.text,
       const Uuid().v4().hashCode,
       true,
       null,
       null,
-      Server.dump(name: 'External Stream'),
+      Server.dump(name: loc.externalStream),
       url: urlController.text,
     );
 

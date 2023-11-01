@@ -460,35 +460,33 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final states = HoverButton.of(context).states;
 
         return Stack(children: [
-          const Positioned.fill(
-            child: MulticastViewport(
-              overlayText: 'IMPORTANT: This is a demo',
-            ),
-          ),
+          const Positioned.fill(child: MulticastViewport()),
           if (error != null)
             Positioned.fill(child: ErrorWarning(message: error)),
-          Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
-            child: RichText(
-              text: TextSpan(
-                text: widget.device.name,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                  shadows: outlinedText(),
-                ),
-                children: [
-                  if (states.isHovering)
-                    TextSpan(
-                      text: '\n${widget.device.server.name}',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        shadows: outlinedText(),
+          IgnorePointer(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 12.0,
+                vertical: 8.0,
+              ),
+              child: RichText(
+                text: TextSpan(
+                  text: widget.device.name,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    shadows: outlinedText(),
+                  ),
+                  children: [
+                    if (states.isHovering)
+                      TextSpan(
+                        text: '\n${widget.device.server.name}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

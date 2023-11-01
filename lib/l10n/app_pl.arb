@@ -75,6 +75,7 @@
   "addToView": "Dodaj do widoku",
   "addAllToView": "Dodaj wszystkie do widoku",
   "removeAllFromView": "Remove all from view",
+  "externalStream": "External stream",
   "addExternalStream": "Add external stream",
   "streamName": "Stream name",
   "streamNameRequired": "The stream name is required",
@@ -377,6 +378,10 @@
       }
     }
   },
+  "@BETA FEATURES": {},
+  "betaFeatures": "Beta features",
+  "matrixedViewZoom": "Matrixed view zoom",
+  "matrixedViewZoomDescription": "Zoom in on a 16x16 matrixed view to see more detail.",
   "@CURRENT TASKS": {},
   "currentTasks": "Bieżące zadania",
   "noCurrentTasks": "Brak zadań",

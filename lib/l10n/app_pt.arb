@@ -75,7 +75,8 @@
   "addToView": "Adicionar ao layout",
   "addAllToView": "Adicionar tudo ao layout",
   "removeAllFromView": "Remover tudo do layout",
-  "addExternalStream": "Adicionar stream externa",
+  "externalStream": "Transmissão externa",
+  "addExternalStream": "Adicionar transmissão externa",
   "streamName": "Nome da Transmissão",
   "streamNameRequired": "O nome da transmissão é obrigatório",
   "streamURL": "URL da Transmissão",
@@ -377,6 +378,10 @@
       }
     }
   },
+  "@BETA FEATURES": {},
+  "betaFeatures": "Funcionalidades em Beta",
+  "matrixedViewZoom": "Zoom em Visualização Matrixial",
+  "matrixedViewZoomDescription": "Dê zoom em uma visualização matrixial 16x16 para ver mais detalhes.",
   "@CURRENT TASKS": {},
   "currentTasks": "Tarefas",
   "noCurrentTasks": "Nenhuma tarefa",

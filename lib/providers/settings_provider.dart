@@ -169,6 +169,11 @@ class SettingsProvider extends ChangeNotifier {
 
   set betaMatrixedZoomEnabled(bool value) {
     _betaMatrixedZoomEnabled = value;
+    if (!value) {
+      for (var player in UnityPlayers.players.values) {
+        player.resetCrop();
+      }
+    }
     _save();
   }
 

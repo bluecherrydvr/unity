@@ -79,6 +79,8 @@ class Device {
   }
 
   static Device? fromUUID(String uuid) {
+    if (uuid.isEmpty) return null;
+
     final serverIp = uuid.split(':')[0];
     final serverPort = int.tryParse(uuid.split(':')[1].split('/')[0]) ?? -1;
     final deviceId = int.tryParse(uuid.split(':')[1].split('/')[1]) ?? -1;
@@ -214,7 +216,8 @@ class Device {
         uri == other.uri &&
         resolutionX == other.resolutionX &&
         resolutionY == other.resolutionY &&
-        hasPTZ == other.hasPTZ;
+        hasPTZ == other.hasPTZ &&
+        url == other.url;
   }
 
   @override
@@ -224,7 +227,8 @@ class Device {
       status.hashCode ^
       resolutionX.hashCode ^
       resolutionY.hashCode ^
-      hasPTZ.hashCode;
+      hasPTZ.hashCode ^
+      url.hashCode;
 
   Device copyWith({
     String? name,
@@ -234,6 +238,7 @@ class Device {
     int? resolutionY,
     Server? server,
     bool? hasPTZ,
+    String? url,
   }) =>
       Device(
         name ?? this.name,
@@ -243,6 +248,7 @@ class Device {
         resolutionY ?? this.resolutionY,
         server ?? this.server,
         hasPTZ: hasPTZ ?? this.hasPTZ,
+        url: url ?? this.url,
       );
 
   Map<String, dynamic> toJson() {
@@ -254,6 +260,7 @@ class Device {
       'resolutionY': resolutionY,
       'server': server.toJson(devices: false),
       'hasPTZ': hasPTZ,
+      'url': url,
     };
   }
 
@@ -269,6 +276,7 @@ class Device {
       json['resolutionY'],
       Server.fromJson(json['server'] as Map<String, dynamic>),
       hasPTZ: json['hasPTZ'] ?? false,
+      url: json['url'],
     );
   }
 }

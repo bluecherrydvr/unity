@@ -450,6 +450,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
             children: [
               Expanded(
                 child: TextFormField(
+                  autofocus: true,
                   controller: nameController,
                   decoration: InputDecoration(label: Text(loc.streamName)),
                   textInputAction: TextInputAction.next,

@@ -441,6 +441,7 @@ abstract class UnityVideoPlayer {
   Future<void> release();
   Future<void> reset();
 
+  Future<void> resetCrop();
   Future<void> crop(int row, int col, int size);
   bool get isCropped;
 

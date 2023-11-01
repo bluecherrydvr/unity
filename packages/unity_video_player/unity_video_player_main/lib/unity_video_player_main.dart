@@ -318,6 +318,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
+  Future<void> resetCrop() => crop(-1, -1, -1);
+
+  @override
   Future<void> crop(int row, int col, int size) async {
     final player = mkPlayer.platform as NativePlayer;
     if (row == -1 && col == -1 && size == -1) {

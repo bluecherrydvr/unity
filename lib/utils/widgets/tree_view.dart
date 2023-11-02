@@ -235,7 +235,7 @@ class _NodeWidgetState extends State<NodeWidget> {
                   onTap: onIconPressed,
                   borderRadius: BorderRadius.circular(100),
                   child: Padding(
-                    padding: const EdgeInsets.all(4.5),
+                    padding: const EdgeInsetsDirectional.all(4.5),
                     child: Icon(icon, size: widget.iconSize),
                   ),
                 ),

@@ -25,7 +25,7 @@ import 'package:reorderables/reorderables.dart';
 const kGridInnerPadding = 8.0;
 
 /// The default padding for the grid
-const kGridPadding = EdgeInsets.all(10.0);
+const kGridPadding = EdgeInsetsDirectional.all(10.0);
 
 /// A non-scrollable reorderable grid view
 class StaticGrid extends StatefulWidget {

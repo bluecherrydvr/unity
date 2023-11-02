@@ -169,7 +169,7 @@ class _DownloadTileState extends State<DownloadTile> {
       child: ClipPath.shape(
         shape: shape,
         child: Card(
-          margin: EdgeInsets.zero,
+          margin: EdgeInsetsDirectional.zero,
           shape: shape,
           child: ExpansionTile(
             clipBehavior: Clip.hardEdge,
@@ -205,7 +205,7 @@ class _DownloadTileState extends State<DownloadTile> {
                 ),
               ),
             ]),
-            childrenPadding: const EdgeInsets.symmetric(
+            childrenPadding: const EdgeInsetsDirectional.symmetric(
               vertical: 12.0,
               horizontal: 16.0,
             ),
@@ -360,7 +360,7 @@ class DownloadProgressIndicator extends StatelessWidget {
 
     return Stack(children: [
       Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsetsDirectional.all(8.0),
         child: CircularProgressIndicator(
           value: progress,
           strokeWidth: 2.0,
@@ -441,7 +441,7 @@ class DownloadIndicator extends StatelessWidget {
 
         if (event.mediaURL != null) {
           return IconButton(
-            padding: EdgeInsets.zero,
+            padding: EdgeInsetsDirectional.zero,
             tooltip: loc.download,
             onPressed: () => downloads.download(event),
             iconSize: small ? 18.0 : 22.0,

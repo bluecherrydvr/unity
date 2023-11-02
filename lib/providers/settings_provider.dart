@@ -50,6 +50,7 @@ class SettingsProvider extends ChangeNotifier {
   static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
   static const kDefaultVideoQuality = RenderingQuality.automatic;
   static const kDefaultWakelockEnabled = true;
+  static const kDefaultBetaMatrixedZoomEnabled = false;
 
   late Locale _locale;
   late ThemeMode _themeMode;
@@ -65,6 +66,7 @@ class SettingsProvider extends ChangeNotifier {
   late RTSPProtocol _rtspProtocol;
   late RenderingQuality _videoQuality;
   late bool _wakelockEnabled;
+  late bool _betaMatrixedZoomEnabled;
 
   // Getters.
   Locale get locale => _locale;
@@ -82,6 +84,7 @@ class SettingsProvider extends ChangeNotifier {
   RTSPProtocol get rtspProtocol => _rtspProtocol;
   RenderingQuality get videoQuality => _videoQuality;
   bool get wakelockEnabled => _wakelockEnabled;
+  bool get betaMatrixedZoomEnabled => _betaMatrixedZoomEnabled;
 
   // Setters.
   set locale(Locale value) {
@@ -164,6 +167,16 @@ class SettingsProvider extends ChangeNotifier {
     _save();
   }
 
+  set betaMatrixedZoomEnabled(bool value) {
+    _betaMatrixedZoomEnabled = value;
+    if (!value) {
+      for (var player in UnityPlayers.players.values) {
+        player.resetCrop();
+      }
+    }
+    _save();
+  }
+
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
@@ -193,7 +206,8 @@ class SettingsProvider extends ChangeNotifier {
       kHiveStreamingType: streamingType.index,
       kHiveStreamingProtocol: rtspProtocol.index,
       kHiveVideoQuality: videoQuality.index,
-      kWakelockEnabled: wakelockEnabled,
+      kHiveWakelockEnabled: wakelockEnabled,
+      kHiveBetaMatrixedZoom: betaMatrixedZoomEnabled,
     });
 
     if (notify) notifyListeners();
@@ -254,7 +268,9 @@ class SettingsProvider extends ChangeNotifier {
         .values[data[kHiveStreamingProtocol] ?? kDefaultRTSPProtocol.index];
     _videoQuality = RenderingQuality
         .values[data[kHiveVideoQuality] ?? kDefaultVideoQuality.index];
-    _wakelockEnabled = data[kWakelockEnabled] ?? kDefaultWakelockEnabled;
+    _wakelockEnabled = data[kHiveWakelockEnabled] ?? kDefaultWakelockEnabled;
+    _betaMatrixedZoomEnabled =
+        data[kHiveBetaMatrixedZoom] ?? kDefaultBetaMatrixedZoomEnabled;
 
     notifyListeners();
   }
@@ -307,6 +323,7 @@ enum NotificationClickBehavior {
 
 enum RenderingQuality {
   automatic,
+  p4k,
   p1080,
   p720,
   p480,
@@ -316,6 +333,7 @@ enum RenderingQuality {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return switch (this) {
+      RenderingQuality.p4k => loc.p4k,
       RenderingQuality.p1080 => loc.p1080,
       RenderingQuality.p720 => loc.p720,
       RenderingQuality.p480 => loc.p480,

@@ -32,7 +32,7 @@ Future<void> showEditServer(BuildContext context, Server server) {
         title: Text(loc.editServer(server.name)),
         content: ConstrainedBox(
           constraints: BoxConstraints(
-            minWidth: MediaQuery.of(context).size.width * 0.75,
+            minWidth: MediaQuery.sizeOf(context).width * 0.75,
           ),
           child: EditServer(
             serverIp: server.ip,

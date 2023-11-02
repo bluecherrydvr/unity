@@ -205,7 +205,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                 ),
                 if (home.isLoading)
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
                     child: UnityLoadingIndicator(),
                   )
                 else if (home.tab == UnityTab.eventsScreen ||

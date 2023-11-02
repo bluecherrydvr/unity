@@ -176,7 +176,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           if (timeline == null) {
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsetsDirectional.all(8.0),
                 child: Stack(children: [
                   if (hasDrawer) const DrawerButton(),
                   const Center(child: CircularProgressIndicator.adaptive()),

@@ -117,15 +117,17 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Stream<double> get fpsStream => _fpsStreamController.stream;
 
+  bool _isCropped = false;
+
   UnityVideoPlayerMediaKit({
-    int? width,
-    int? height,
+    super.width,
+    super.height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
   }) {
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
-    if (width != null) width = (width * pixelRatio).toInt();
-    if (height != null) height = (height * pixelRatio).toInt();
+    if (width != null) width = (width! * pixelRatio).toInt();
+    if (height != null) height = (height! * pixelRatio).toInt();
 
     debugPrint('Pixel ratio: $pixelRatio');
 
@@ -140,6 +142,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         ..observeProperty('estimated-vf-fps', (fps) async {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
+        })
+        ..observeProperty('dwidth', (width) async {
+          debugPrint('display width: $width');
+          this.width = int.tryParse(width);
+        })
+        ..observeProperty('dheight', (height) async {
+          debugPrint('display height: $height');
+          this.height = int.tryParse(height);
         });
       platform.setProperty('msg-level', 'all=v');
 
@@ -155,8 +165,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('insecure', 'yes');
 
       if (rtspProtocol != null) {
-        platform.setProperty('rtsp-transport', rtspProtocol.name);
+        platform.setProperty('rtsp-transport', 'udp_multicast');
       }
+
+      platform.setProperty('force-seekable', 'yes');
 
       if (enableCache) {
         // https://mpv.io/manual/stable/#options-cache
@@ -304,6 +316,42 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     await pause();
     await seekTo(Duration.zero);
   }
+
+  @override
+  Future<void> resetCrop() => crop(-1, -1, -1);
+
+  @override
+  Future<void> crop(int row, int col, int size) async {
+    final player = mkPlayer.platform as NativePlayer;
+    if (row == -1 && col == -1 && size == -1) {
+      player.setProperty('video-crop', '0x0+0+0');
+      _isCropped = false;
+    } else if (width != null && height != null) {
+      final tileWidth = width! / size;
+      final tileHeight = height! / size;
+
+      final viewportRect = Rect.fromLTWH(
+        col * tileWidth,
+        row * tileHeight,
+        tileWidth,
+        tileHeight,
+      );
+
+      debugPrint('Index | row=$row | col=$col | viewport=$viewportRect');
+
+      player.setProperty(
+        'video-crop',
+        '${viewportRect.width.toInt()}x'
+            '${viewportRect.height.toInt()}+'
+            '${viewportRect.left.toInt()}+'
+            '${viewportRect.top.toInt()}',
+      );
+      _isCropped = true;
+    }
+  }
+
+  @override
+  bool get isCropped => _isCropped;
 
   @override
   Future<void> dispose() async {

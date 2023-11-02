@@ -163,7 +163,7 @@ class _DevicesForServer extends StatelessWidget {
       SliverPinnedHeader(child: serverIndicator),
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 10.0),
           child: Wrap(
             children: devices.map<Widget>((device) {
               final foregroundColor = device.status

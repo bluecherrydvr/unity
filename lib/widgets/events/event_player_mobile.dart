@@ -226,10 +226,10 @@ class _VideoViewportState extends State<VideoViewport> {
             ),
           ),
           if (visible || player.player.isBuffering) ...[
-            Positioned(
+            PositionedDirectional(
               height: kToolbarHeight,
-              left: 8.0,
-              right: 8.0,
+              start: 8.0,
+              end: 8.0,
               top: MediaQuery.paddingOf(context).top,
               child: SafeArea(
                 child: Row(children: [

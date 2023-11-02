@@ -36,7 +36,7 @@ class AppUpdateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-
+    final textDirection = Directionality.of(context);
     final update = context.watch<UpdateManager>();
 
     if (update.hasUpdateAvailable) {
@@ -44,12 +44,12 @@ class AppUpdateCard extends StatelessWidget {
       return Card(
         margin: EdgeInsetsDirectional.only(
           top: 8.0,
-          start: DesktopSettings.horizontalPadding.left,
-          end: DesktopSettings.horizontalPadding.right,
+          start: DesktopSettings.horizontalPadding.resolve(textDirection).left,
+          end: DesktopSettings.horizontalPadding.resolve(textDirection).right,
           bottom: 6.0,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsetsDirectional.all(8.0),
           child: Row(children: [
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 12.0),
@@ -112,21 +112,21 @@ class AppUpdateCard extends StatelessWidget {
         margin: EdgeInsetsDirectional.only(
           top: 8.0,
           bottom: 6.0,
-          start: DesktopSettings.horizontalPadding.left,
-          end: DesktopSettings.horizontalPadding.right,
+          start: DesktopSettings.horizontalPadding.resolve(textDirection).left,
+          end: DesktopSettings.horizontalPadding.resolve(textDirection).right,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsetsDirectional.all(8.0),
           child: Row(children: [
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 12.0),
-              child: Stack(alignment: Alignment.center, children: [
+              child: Stack(alignment: AlignmentDirectional.center, children: [
                 Icon(
                   Icons.update,
                   size: 54.0,
                   color: theme.colorScheme.primary,
                 ),
-                const Positioned(
+                const PositionedDirectional(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -352,7 +352,7 @@ class About extends StatelessWidget {
     final update = context.watch<UpdateManager>();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 24.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SizedBox(height: 8.0),
         Text(update.packageInfo.version),
@@ -369,7 +369,7 @@ class About extends StatelessWidget {
               mode: LaunchMode.externalApplication,
             );
           },
-          padding: EdgeInsets.zero,
+          padding: EdgeInsetsDirectional.zero,
           minWidth: 0.0,
           child: Text(
             loc.website,

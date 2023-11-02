@@ -483,7 +483,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               aspectRatio: 16 / 9,
               child: Center(
                 child: StaticGrid(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsetsDirectional.zero,
                   reorderable: false,
                   crossAxisCount: calculateCrossAxisCount(
                     timeline.tiles.length,
@@ -633,7 +633,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
               return Stack(
                 fit: StackFit.passthrough,
-                alignment: Alignment.bottomCenter,
+                alignment: AlignmentDirectional.bottomCenter,
                 children: [
                   Column(mainAxisSize: MainAxisSize.min, children: [
                     Padding(
@@ -857,7 +857,7 @@ class _TimelineTile extends StatelessWidget {
         child: Container(
           width: _kDeviceNameWidth,
           height: _kTimelineTileHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
           decoration: BoxDecoration(
             color: theme.dialogBackgroundColor,
             border: border,
@@ -905,10 +905,10 @@ class _TimelineTile extends StatelessWidget {
               return Stack(clipBehavior: Clip.none, children: [
                 for (final event in tile.events
                     .where((event) => event.startTime.hour == hour))
-                  Positioned(
+                  PositionedDirectional(
                     // the minute (in seconds) + the start second * the width of
                     // a second
-                    left: ((event.startTime.minute * 60) +
+                    start: ((event.startTime.minute * 60) +
                             event.startTime.second) *
                         secondWidth,
                     width: event.duration.inSeconds * secondWidth,

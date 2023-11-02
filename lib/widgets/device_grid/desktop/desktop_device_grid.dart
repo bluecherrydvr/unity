@@ -73,7 +73,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
-                padding: EdgeInsets.zero,
+                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
@@ -396,7 +396,6 @@ class DesktopTileViewport extends StatefulWidget {
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
-
   late double? volume = widget.controller?.volume;
 
   void updateVolume() {
@@ -461,30 +460,33 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final states = HoverButton.of(context).states;
 
         return Stack(children: [
+          const Positioned.fill(child: MulticastViewport()),
           if (error != null)
             Positioned.fill(child: ErrorWarning(message: error)),
-          Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
-            child: RichText(
-              text: TextSpan(
-                text: widget.device.name,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                  shadows: outlinedText(),
-                ),
-                children: [
-                  if (states.isHovering)
-                    TextSpan(
-                      text: '\n${widget.device.server.name}',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        shadows: outlinedText(),
+          IgnorePointer(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 12.0,
+                vertical: 8.0,
+              ),
+              child: RichText(
+                text: TextSpan(
+                  text: widget.device.name,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    shadows: outlinedText(),
+                  ),
+                  children: [
+                    if (states.isHovering)
+                      TextSpan(
+                        text: '\n${widget.device.server.name}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -667,7 +669,7 @@ class PresetsDialog extends StatelessWidget {
         ),
         Container(
           height: 30.0,
-          margin: const EdgeInsets.symmetric(horizontal: 12.0),
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
           child: Row(children: [
             Tooltip(
               message: loc.newPreset,

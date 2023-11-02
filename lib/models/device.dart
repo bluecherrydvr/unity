@@ -48,6 +48,8 @@ class Device {
   /// Reference to the [Server], to which this camera [Device] belongs.
   Server server;
 
+  final String? url;
+
   /// Creates a device.
   Device(
     this.name,
@@ -57,6 +59,7 @@ class Device {
     this.resolutionY,
     this.server, {
     this.hasPTZ = false,
+    this.url,
   });
 
   Device.dump({
@@ -66,6 +69,7 @@ class Device {
     this.resolutionX = 640,
     this.resolutionY = 480,
     this.hasPTZ = false,
+    this.url,
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -75,9 +79,14 @@ class Device {
   }
 
   static Device? fromUUID(String uuid) {
+    if (uuid.isEmpty) return null;
+
     final serverIp = uuid.split(':')[0];
-    final serverPort = int.tryParse(uuid.split(':')[1].split('/')[0]) ?? -1;
-    final deviceId = int.tryParse(uuid.split(':')[1].split('/')[1]) ?? -1;
+    final split = uuid.split(':')[1].split('/');
+    if (split.length < 2) return null;
+
+    final serverPort = int.tryParse(split[0]) ?? -1;
+    final deviceId = int.tryParse(split[1]) ?? -1;
 
     final server = ServersProvider.instance.servers.firstWhere(
       (s) => s.ip == serverIp && s.port == serverPort,
@@ -111,6 +120,8 @@ class Device {
   }
 
   String get rtspURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'rtsp',
       userInfo: '${Uri.encodeComponent(server.login)}'
@@ -123,6 +134,8 @@ class Device {
   }
 
   String get mjpegURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
@@ -139,6 +152,8 @@ class Device {
   }
 
   String get hlsURL {
+    if (url != null) return url!;
+
     return Uri.encodeFull(Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
@@ -204,7 +219,8 @@ class Device {
         uri == other.uri &&
         resolutionX == other.resolutionX &&
         resolutionY == other.resolutionY &&
-        hasPTZ == other.hasPTZ;
+        hasPTZ == other.hasPTZ &&
+        url == other.url;
   }
 
   @override
@@ -214,7 +230,8 @@ class Device {
       status.hashCode ^
       resolutionX.hashCode ^
       resolutionY.hashCode ^
-      hasPTZ.hashCode;
+      hasPTZ.hashCode ^
+      url.hashCode;
 
   Device copyWith({
     String? name,
@@ -224,6 +241,7 @@ class Device {
     int? resolutionY,
     Server? server,
     bool? hasPTZ,
+    String? url,
   }) =>
       Device(
         name ?? this.name,
@@ -233,6 +251,7 @@ class Device {
         resolutionY ?? this.resolutionY,
         server ?? this.server,
         hasPTZ: hasPTZ ?? this.hasPTZ,
+        url: url ?? this.url,
       );
 
   Map<String, dynamic> toJson() {
@@ -244,6 +263,7 @@ class Device {
       'resolutionY': resolutionY,
       'server': server.toJson(devices: false),
       'hasPTZ': hasPTZ,
+      'url': url,
     };
   }
 
@@ -259,6 +279,7 @@ class Device {
       json['resolutionY'],
       Server.fromJson(json['server'] as Map<String, dynamic>),
       hasPTZ: json['hasPTZ'] ?? false,
+      url: json['url'],
     );
   }
 }

@@ -182,9 +182,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                             return Stack(children: [
                               if (video.error != null)
                                 ErrorWarning(message: video.error!),
-                              Positioned(
+                              PositionedDirectional(
                                 bottom: 8.0,
-                                right: 8.0,
+                                end: 8.0,
                                 child: Row(children: [
                                   CameraViewFitButton(
                                     fit: fit,
@@ -519,7 +519,7 @@ class EventTile extends StatelessWidget {
     return ClipPath.shape(
       shape: shape,
       child: Card(
-        margin: EdgeInsets.zero,
+        margin: EdgeInsetsDirectional.zero,
         shape: shape,
         child: ExpansionTile(
           clipBehavior: Clip.hardEdge,
@@ -534,7 +534,7 @@ class EventTile extends StatelessWidget {
               ),
             ),
           ]),
-          childrenPadding: const EdgeInsets.symmetric(
+          childrenPadding: const EdgeInsetsDirectional.symmetric(
             vertical: 12.0,
             horizontal: 16.0,
           ),

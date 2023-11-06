@@ -414,6 +414,34 @@ class AddExternalStreamDialog extends StatefulWidget {
     );
   }
 
+  static const externalStreamsLayoutName = 'External streams';
+  static void addStream(BuildContext context, String url, [String? name]) {
+    final device = Device.dump(
+      name: name ?? 'External stream',
+      url: url,
+      id: const Uuid().v4().hashCode,
+    )..server = Server.dump(name: url);
+
+    final view = context.read<DesktopViewProvider>();
+    final layout = view.layouts
+        .firstWhereOrNull((layout) => layout.name == externalStreamsLayoutName);
+    if (layout == null) {
+      view.addLayout(Layout(
+        name: externalStreamsLayoutName,
+        devices: [device],
+      ));
+    } else {
+      view.add(device, layout);
+    }
+
+    view.updateCurrentLayout(
+      view.layouts.indexOf(
+        view.layouts
+            .firstWhere((layout) => layout.name == externalStreamsLayoutName),
+      ),
+    );
+  }
+
   @override
   State<AddExternalStreamDialog> createState() =>
       _AddExternalStreamDialogState();
@@ -497,19 +525,11 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       return;
     }
 
-    final view = context.read<DesktopViewProvider>();
-    final loc = AppLocalizations.of(context);
-    final device = Device(
+    AddExternalStreamDialog.addStream(
+      context,
+      urlController.text,
       nameController.text,
-      const Uuid().v4().hashCode,
-      true,
-      null,
-      null,
-      Server.dump(name: loc.externalStream),
-      url: urlController.text,
     );
-
-    view.add(device);
 
     Navigator.of(context).pop();
   }

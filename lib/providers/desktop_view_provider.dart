@@ -99,27 +99,28 @@ class DesktopViewProvider extends ChangeNotifier {
   }
 
   /// Adds [device] to the current layout
-  Future<void> add(Device device) {
+  Future<void> add(Device device, [Layout? layout]) {
     assert(
       !currentLayout.devices.contains(device),
       'The device is already in the layout',
     );
-
     assert(device.status, 'The device must be online');
 
-    if (!currentLayout.devices.contains(device)) {
+    layout ??= currentLayout;
+
+    if (!layout.devices.contains(device)) {
       // If it's a single view layout, ensure the player will be disposed
       // properly before adding one
-      if (currentLayout.type == DesktopLayoutType.singleView) {
-        var previousDevice = currentLayout.devices.firstOrNull;
+      if (layout.type == DesktopLayoutType.singleView) {
+        var previousDevice = layout.devices.firstOrNull;
         if (previousDevice != null) {
-          currentLayout.devices.clear();
+          layout.devices.clear();
           _releaseDevice(device);
         }
       }
 
       UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-      currentLayout.devices.add(device);
+      layout.devices.add(device);
       debugPrint('Added $device');
 
       notifyListeners();
@@ -178,7 +179,7 @@ class DesktopViewProvider extends ChangeNotifier {
   }
 
   /// Adds a new layout
-  Future<void> addLayout(Layout layout) {
+  Future<int> addLayout(Layout layout) async {
     if (!layouts.contains(layout)) {
       debugPrint('Added $layout');
       layouts.add(layout);
@@ -186,7 +187,9 @@ class DesktopViewProvider extends ChangeNotifier {
       debugPrint('$layout already exists');
     }
     notifyListeners();
-    return _save(notifyListeners: false);
+    await _save(notifyListeners: false);
+
+    return layouts.indexOf(layout);
   }
 
   /// Deletes [layout]

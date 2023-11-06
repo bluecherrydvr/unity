@@ -25,6 +25,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
@@ -291,6 +292,25 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
                     player: player,
                     device: device,
                     ptzEnabled: ptzEnabled,
+                  );
+                },
+              );
+            }
+
+            if (settings.name == '/rtsp') {
+              final url = settings.arguments as String;
+              return MaterialPageRoute(
+                settings: RouteSettings(
+                  name: '/rtsp',
+                  arguments: url,
+                ),
+                builder: (context) {
+                  return LivePlayer.fromUrl(
+                    url: url,
+                    device: Device.dump(
+                      name: 'External stream',
+                      url: url,
+                    )..server = Server.dump(name: url),
                   );
                 },
               );

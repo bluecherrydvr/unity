@@ -64,7 +64,7 @@ class Device {
 
   Device.dump({
     this.name = 'device',
-    this.id = 0,
+    this.id = -1,
     this.status = true,
     this.resolutionX = 640,
     this.resolutionY = 480,

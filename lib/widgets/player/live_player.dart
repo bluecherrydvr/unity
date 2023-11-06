@@ -43,21 +43,24 @@ class LivePlayer extends StatefulWidget {
   final Device device;
   final bool ptzEnabled;
 
+  final bool _disposeOnPop;
+
   /// Creates a live player.
   const LivePlayer({
     super.key,
     required this.player,
     required this.device,
     this.ptzEnabled = false,
-  });
+  }) : _disposeOnPop = false;
 
   LivePlayer.fromUrl({
     super.key,
     required String url,
     required this.device,
     this.ptzEnabled = false,
-  }) : player = UnityVideoPlayerInterface.instance.createPlayer()
-          ..setDataSource(url);
+  })  : player = UnityVideoPlayerInterface.instance.createPlayer()
+          ..setDataSource(url),
+        _disposeOnPop = true;
 
   @override
   State<LivePlayer> createState() => _LivePlayerState();
@@ -82,6 +85,9 @@ class _LivePlayerState extends State<LivePlayer> {
     if (isMobile) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       DeviceOrientations.instance.restoreLast();
+    }
+    if (widget._disposeOnPop) {
+      widget.player.dispose();
     }
     super.dispose();
   }

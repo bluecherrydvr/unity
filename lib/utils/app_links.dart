@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:app_links/app_links.dart';
+import 'package:bluecherry_client/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 final instance = AppLinks();
@@ -30,6 +32,7 @@ Future<void> register(String scheme) async {
 
 void listen() {
   instance.allUriLinkStream.listen((uri) {
-    print('Received URI: $uri');
+    debugPrint('Received URI: $uri');
+    navigatorKey.currentState?.pushNamed('/rtsp', arguments: uri.toString());
   });
 }

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:app_links/app_links.dart';
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 final instance = AppLinks();
@@ -48,13 +48,17 @@ Future<void> init() async {
 
 void listen() {
   instance.allUriLinkStream.listen((uri) {
-    final navigator = navigatorKey.currentState;
-    if (navigator == null) return;
-
     debugPrint('Received URI: $uri');
-
     final url = uri.toString();
-    final context = navigatorKey.currentContext!;
-    AddExternalStreamDialog.addStream(context, url);
+    if (isDesktopPlatform) {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        AddExternalStreamDialog.addStream(context, url);
+      }
+    } else {
+      final navigator = navigatorKey.currentState;
+      if (navigator == null) return;
+      navigator.pushNamed('/rtsp', arguments: url);
+    }
   });
 }

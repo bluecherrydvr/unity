@@ -414,30 +414,27 @@ class AddExternalStreamDialog extends StatefulWidget {
     );
   }
 
-  static const externalStreamsLayoutName = 'External streams';
   static void addStream(BuildContext context, String url, [String? name]) {
+    final loc = AppLocalizations.of(context);
+    AppLocalizations.localizationsDelegates;
     final device = Device.dump(
-      name: name ?? 'External stream',
+      name: name ?? loc.externalStream,
       url: url,
       id: const Uuid().v4().hashCode,
     )..server = Server.dump(name: url);
 
     final view = context.read<DesktopViewProvider>();
     final layout = view.layouts
-        .firstWhereOrNull((layout) => layout.name == externalStreamsLayoutName);
+        .firstWhereOrNull((layout) => layout.name == loc.externalStream);
     if (layout == null) {
-      view.addLayout(Layout(
-        name: externalStreamsLayoutName,
-        devices: [device],
-      ));
+      view.addLayout(Layout(name: loc.externalStream, devices: [device]));
     } else {
       view.add(device, layout);
     }
 
     view.updateCurrentLayout(
       view.layouts.indexOf(
-        view.layouts
-            .firstWhere((layout) => layout.name == externalStreamsLayoutName),
+        view.layouts.firstWhere((layout) => layout.name == loc.externalStream),
       ),
     );
   }

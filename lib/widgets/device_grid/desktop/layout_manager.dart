@@ -575,6 +575,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
               Icons.delete,
               color: theme.colorScheme.error,
             ),
+            tooltip: loc.delete,
             iconSize: 18.0,
             onPressed: () {
               view.removeLayout(widget.layout);

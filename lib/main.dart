@@ -63,6 +63,7 @@ Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   app_links.register('rtsp');
+  app_links.init();
   app_links.listen();
 
   // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866

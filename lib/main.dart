@@ -33,6 +33,7 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -59,6 +60,9 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  app_links.register('rtsp');
+  app_links.listen();
 
   // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
   // On windows, the window is hidden until flutter draws its first frame.

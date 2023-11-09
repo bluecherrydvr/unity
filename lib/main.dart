@@ -62,10 +62,6 @@ final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  app_links.register('rtsp');
-  app_links.init();
-  app_links.listen();
-
   // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
   // On windows, the window is hidden until flutter draws its first frame.
   // To create a splash screen effect while the dependencies are loading, we
@@ -168,6 +164,10 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    app_links.register('rtsp');
+    app_links.init();
+    app_links.listen();
   }
 
   @override

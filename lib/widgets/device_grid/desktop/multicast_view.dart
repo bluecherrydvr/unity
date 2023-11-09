@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class MulticastViewport extends StatelessWidget {
   final TextStyle? overlayStyle;
   final Offset? overlayPosition;
 
+  final Device device;
+
   const MulticastViewport({
     super.key,
     this.overlayText,
@@ -36,6 +39,7 @@ class MulticastViewport extends StatelessWidget {
       fontSize: 32,
     ),
     this.overlayPosition = const Offset(250, 250),
+    required this.device,
   });
 
   @override
@@ -55,7 +59,7 @@ class MulticastViewport extends StatelessWidget {
       );
     }
 
-    const size = 4;
+    final size = device.matrixType.size;
     return Stack(children: [
       if (overlayText != null)
         Positioned(
@@ -70,27 +74,28 @@ class MulticastViewport extends StatelessWidget {
             ),
           ),
         ),
-      Positioned.fill(
-        child: GridView.count(
-          crossAxisCount: size,
-          childAspectRatio: 16 / 9,
-          physics: const NeverScrollableScrollPhysics(),
-          children: List.generate(size * size, (index) {
-            final row = index ~/ size;
-            final col = index % size;
+      if (size > 1)
+        Positioned.fill(
+          child: GridView.count(
+            crossAxisCount: size,
+            childAspectRatio: 16 / 9,
+            physics: const NeverScrollableScrollPhysics(),
+            children: List.generate(size * size, (index) {
+              final row = index ~/ size;
+              final col = index % size;
 
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                view.player.crop(row, col, size);
-              },
-              child: const SizedBox.expand(
-                  // child: Placeholder(),
-                  ),
-            );
-          }),
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  view.player.crop(row, col, size);
+                },
+                child: const SizedBox.expand(
+                  child: IgnorePointer(child: Placeholder()),
+                ),
+              );
+            }),
+          ),
         ),
-      ),
     ]);
   }
 }

@@ -30,58 +30,32 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 enum MatrixType {
-  t16(16),
-  t9(9),
-  t4(4),
-  t2(2),
+  t16(4),
+  t9(3),
+  t4(2),
   t1(1);
 
-  final int amount;
-  const MatrixType(this.amount);
+  final int size;
+
+  const MatrixType(this.size);
 
   @override
   String toString() {
-    switch (this) {
-      case MatrixType.t16:
-        return '4x4';
-      case MatrixType.t9:
-        return '3x3';
-      case MatrixType.t4:
-        return '2x2';
-      case MatrixType.t2:
-        return '2x1';
-      case MatrixType.t1:
-        return '1x1';
-    }
+    return switch (this) {
+      MatrixType.t16 => '4x4',
+      MatrixType.t9 => '3x3',
+      MatrixType.t4 => '2x2',
+      MatrixType.t1 => '1x1',
+    };
   }
 
   Widget get icon {
-    switch (this) {
-      case MatrixType.t16:
-        return const Icon(Icons.grid_4x4);
-      case MatrixType.t9:
-        return const Icon(Icons.grid_3x3);
-      case MatrixType.t4:
-        return const Icon(Icons.add);
-      case MatrixType.t2:
-        // return const Icon(Icons.safety_divider);
-        return Builder(builder: (context) {
-          final indent = (IconTheme.of(context).size ?? 24) * 0.7;
-          return SizedBox(
-            width: IconTheme.of(context).size,
-            child: Center(
-              child: VerticalDivider(
-                color: IconTheme.of(context).color,
-                thickness: 2.5,
-                endIndent: indent,
-                indent: indent,
-              ),
-            ),
-          );
-        });
-      case MatrixType.t1:
-        return const Icon(Icons.square_outlined);
-    }
+    return switch (this) {
+      MatrixType.t16 => const Icon(Icons.grid_4x4),
+      MatrixType.t9 => const Icon(Icons.grid_3x3),
+      MatrixType.t4 => const Icon(Icons.add),
+      MatrixType.t1 => const Icon(Icons.square_outlined),
+    };
   }
 }
 
@@ -95,13 +69,19 @@ class AddExternalStreamDialog extends StatefulWidget {
     );
   }
 
-  static void addStream(BuildContext context, String url, [String? name]) {
+  static void addStream(
+    BuildContext context,
+    String url, {
+    String? name,
+    MatrixType matrixType = MatrixType.t16,
+  }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
     final device = Device.dump(
       name: name ?? loc.externalStream,
       url: url,
       id: const Uuid().v4().hashCode,
+      matrixType: matrixType,
     )..server = Server.dump(name: url);
 
     final view = context.read<DesktopViewProvider>();
@@ -252,7 +232,8 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
     AddExternalStreamDialog.addStream(
       context,
       urlController.text,
-      nameController.text,
+      name: nameController.text,
+      matrixType: matrixType,
     );
 
     Navigator.of(context).pop();

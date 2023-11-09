@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -50,6 +51,8 @@ class Device {
 
   final String? url;
 
+  final MatrixType matrixType;
+
   /// Creates a device.
   Device(
     this.name,
@@ -60,6 +63,7 @@ class Device {
     this.server, {
     this.hasPTZ = false,
     this.url,
+    this.matrixType = MatrixType.t16,
   });
 
   Device.dump({
@@ -70,6 +74,7 @@ class Device {
     this.resolutionY = 480,
     this.hasPTZ = false,
     this.url,
+    this.matrixType = MatrixType.t16,
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -220,7 +225,8 @@ class Device {
         resolutionX == other.resolutionX &&
         resolutionY == other.resolutionY &&
         hasPTZ == other.hasPTZ &&
-        url == other.url;
+        url == other.url &&
+        matrixType == other.matrixType;
   }
 
   @override
@@ -231,7 +237,8 @@ class Device {
       resolutionX.hashCode ^
       resolutionY.hashCode ^
       hasPTZ.hashCode ^
-      url.hashCode;
+      url.hashCode ^
+      matrixType.hashCode;
 
   Device copyWith({
     String? name,
@@ -242,6 +249,7 @@ class Device {
     Server? server,
     bool? hasPTZ,
     String? url,
+    MatrixType? matrixType,
   }) =>
       Device(
         name ?? this.name,
@@ -252,6 +260,7 @@ class Device {
         server ?? this.server,
         hasPTZ: hasPTZ ?? this.hasPTZ,
         url: url ?? this.url,
+        matrixType: matrixType ?? this.matrixType,
       );
 
   Map<String, dynamic> toJson() {
@@ -264,6 +273,7 @@ class Device {
       'server': server.toJson(devices: false),
       'hasPTZ': hasPTZ,
       'url': url,
+      'matrixType': matrixType.index,
     };
   }
 
@@ -280,6 +290,7 @@ class Device {
       Server.fromJson(json['server'] as Map<String, dynamic>),
       hasPTZ: json['hasPTZ'] ?? false,
       url: json['url'],
+      matrixType: MatrixType.values[json['matrixType'] ?? 0],
     );
   }
 }

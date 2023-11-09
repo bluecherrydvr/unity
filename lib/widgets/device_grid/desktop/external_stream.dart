@@ -60,12 +60,22 @@ enum MatrixType {
 }
 
 class AddExternalStreamDialog extends StatefulWidget {
-  const AddExternalStreamDialog({super.key});
+  final String? defaultUrl;
 
-  static Future<void> show(BuildContext context) {
+  const AddExternalStreamDialog({
+    super.key,
+    this.defaultUrl,
+  });
+
+  static Future<void> show(
+    BuildContext context, {
+    String? defaultUrl,
+  }) {
     return showDialog(
       context: context,
-      builder: (context) => const AddExternalStreamDialog(),
+      builder: (context) => AddExternalStreamDialog(
+        defaultUrl: defaultUrl,
+      ),
     );
   }
 
@@ -108,7 +118,7 @@ class AddExternalStreamDialog extends StatefulWidget {
 class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final urlController = TextEditingController();
+  late final urlController = TextEditingController(text: widget.defaultUrl);
 
   var matrixType = MatrixType.t16;
 

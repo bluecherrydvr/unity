@@ -35,6 +35,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -53,6 +54,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -77,42 +79,52 @@ Future<void> main(List<String> args) async {
 
   if (isDesktopPlatform && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
-    try {
-      // this is just a mock. HomeProvider depends on this, so we mock the instance
-      ServersProvider.instance = ServersProvider();
-      await SettingsProvider.ensureInitialized();
-      await DesktopViewProvider.ensureInitialized();
 
-      final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
-      final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
-
-      switch (windowType) {
-        case MultiWindowType.device:
-          final device = Device.fromJson(json.decode(args[1]));
-          configureWindowTitle(device.fullName);
-
-          runApp(AlternativeWindow(
-            mode: themeMode,
-            child: CameraView(device: device),
-          ));
-          break;
-        case MultiWindowType.layout:
-          final layout = Layout.fromJson(args[1]);
-          configureWindowTitle(layout.name);
-
-          runApp(AlternativeWindow(
-            mode: themeMode,
-            child: AlternativeLayoutView(layout: layout),
-          ));
-
-          break;
+    if (args.length == 1 &&
+        Uri.tryParse(args.first) != null &&
+        path.extension(args.first) == '.bluecherry') {
+      final configFile = File(args.first);
+      if (await configFile.exists()) {
+        handleConfigurationFile(configFile);
       }
-    } catch (error, stack) {
-      debugPrint('error: $error');
-      debugPrintStack(stackTrace: stack);
-    }
+    } else {
+      try {
+        // this is just a mock. HomeProvider depends on this, so we mock the instance
+        ServersProvider.instance = ServersProvider();
+        await SettingsProvider.ensureInitialized();
+        await DesktopViewProvider.ensureInitialized();
 
-    return;
+        final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
+        final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+
+        switch (windowType) {
+          case MultiWindowType.device:
+            final device = Device.fromJson(json.decode(args[1]));
+            configureWindowTitle(device.fullName);
+
+            runApp(AlternativeWindow(
+              mode: themeMode,
+              child: CameraView(device: device),
+            ));
+            break;
+          case MultiWindowType.layout:
+            final layout = Layout.fromJson(args[1]);
+            configureWindowTitle(layout.name);
+
+            runApp(AlternativeWindow(
+              mode: themeMode,
+              child: AlternativeLayoutView(layout: layout),
+            ));
+
+            break;
+        }
+      } catch (error, stack) {
+        debugPrint('error: $error');
+        debugPrintStack(stackTrace: stack);
+      }
+
+      return;
+    }
   }
 
   // Request notifications permission for iOS, Android 13+ and Windows.

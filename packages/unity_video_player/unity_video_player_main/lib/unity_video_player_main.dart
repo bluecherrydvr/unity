@@ -119,6 +119,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   bool _isCropped = false;
 
+  Size maxSize = Size.zero;
+
   UnityVideoPlayerMediaKit({
     super.width,
     super.height,
@@ -146,10 +148,16 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         ..observeProperty('dwidth', (width) async {
           debugPrint('display width: $width');
           this.width = int.tryParse(width);
+          if (this.width != null && this.width! > maxSize.width) {
+            maxSize = Size(this.width!.toDouble(), maxSize.height);
+          }
         })
         ..observeProperty('dheight', (height) async {
           debugPrint('display height: $height');
           this.height = int.tryParse(height);
+          if (this.height != null && this.height! > maxSize.height) {
+            maxSize = Size(maxSize.width, this.height!.toDouble());
+          }
         });
       platform.setProperty('msg-level', 'all=v');
 
@@ -327,8 +335,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       player.setProperty('video-crop', '0x0+0+0');
       _isCropped = false;
     } else if (width != null && height != null) {
-      final tileWidth = width! / size;
-      final tileHeight = height! / size;
+      final tileWidth = maxSize.width / size;
+      final tileHeight = maxSize.height / size;
 
       final viewportRect = Rect.fromLTWH(
         col * tileWidth,

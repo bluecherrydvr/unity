@@ -25,6 +25,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_playback_provider.dart';
@@ -33,6 +34,7 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -162,6 +164,10 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    app_links.register('rtsp');
+    app_links.init();
+    app_links.listen();
   }
 
   @override
@@ -287,6 +293,25 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
                     player: player,
                     device: device,
                     ptzEnabled: ptzEnabled,
+                  );
+                },
+              );
+            }
+
+            if (settings.name == '/rtsp') {
+              final url = settings.arguments as String;
+              return MaterialPageRoute(
+                settings: RouteSettings(
+                  name: '/rtsp',
+                  arguments: url,
+                ),
+                builder: (context) {
+                  return LivePlayer.fromUrl(
+                    url: url,
+                    device: Device.dump(
+                      name: 'External stream',
+                      url: url,
+                    )..server = Server.dump(name: url),
                   );
                 },
               );

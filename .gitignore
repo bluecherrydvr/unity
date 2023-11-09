@@ -65,3 +65,5 @@ AppDirassets/
 /linux/debian/usr/share/bluecherry_client
 *.tar.gz
 rpmbuild/
+
+bluecherry_config

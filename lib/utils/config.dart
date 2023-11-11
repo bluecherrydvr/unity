@@ -18,10 +18,10 @@
  */
 
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
+import 'package:flutter/rendering.dart';
 
 /// Represents a video overlay.
 class VideoOverlay {
@@ -29,7 +29,7 @@ class VideoOverlay {
   final String text;
 
   /// The text style.
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The position of the overlay.
   final Offset position;
@@ -40,9 +40,9 @@ class VideoOverlay {
   /// Creates a new video overlay.
   const VideoOverlay({
     required this.text,
-    required this.textStyle,
-    required this.position,
-    required this.visible,
+    this.textStyle = const TextStyle(),
+    this.position = Offset.zero,
+    this.visible = true,
   });
 }
 

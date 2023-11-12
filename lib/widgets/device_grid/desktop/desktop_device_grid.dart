@@ -137,8 +137,10 @@ class LayoutView extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return DragTarget<Device>(
-      onAccept: onAccept,
-      onWillAccept: onWillAccept,
+      onWillAcceptWithDetails: onWillAccept == null
+          ? null
+          : (details) => onWillAccept!.call(details.data),
+      onAcceptWithDetails: (details) => onAccept?.call(details.data),
       builder: (context, candidateItems, rejectedItems) {
         late Widget child;
 

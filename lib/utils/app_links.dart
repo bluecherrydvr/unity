@@ -65,13 +65,27 @@ void listen() {
     debugPrint('Received URI: $uri');
     final handleType = await _handleUri(uri);
     _openedFromFile ??= handleType == HandleType.bluecherry;
+    debugPrint('Handled URI: ${handleType.name}');
   });
 }
 
-enum HandleType { bluecherry, streamUrl, none }
+enum HandleType {
+  /// Whether the url comes from a `.bluecherry` file.
+  bluecherry,
+
+  /// Whether the url comes from a `rtsp://` link.
+  streamUrl,
+
+  /// Whether the url comes from a `bluecherry://` link.
+  none,
+}
 
 Future<HandleType> _handleUri(Uri uri) async {
-  if (path.extension(uri.path) == '.bluecherry') {
+  if (uri.isScheme('bluecherry')) {
+    return HandleType.none;
+  }
+
+  if (uri.path.isNotEmpty && path.extension(uri.path) == '.bluecherry') {
     final file = File(uri.path);
     if (await file.exists()) {
       handleConfigurationFile(file);

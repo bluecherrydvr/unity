@@ -80,8 +80,9 @@ Future<void> main(List<String> args) async {
     debugPrint('FOUND ANOTHER WINDOW: $args');
 
     if (args.length == 1 &&
-        Uri.tryParse(args.first) != null &&
-        path.extension(args.first) == '.bluecherry') {
+        (path.extension(args.first) == '.bluecherry' ||
+            Uri.tryParse(args.first)?.scheme == 'bluecherry')) {
+      // this is handled by app links
       // final configFile = File(args.first);
       // if (await configFile.exists()) {
       //   handleConfigurationFile(configFile);

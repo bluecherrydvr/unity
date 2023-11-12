@@ -26,7 +26,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -200,7 +199,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
               ),
               if (settings.betaMatrixedZoomEnabled) ...[
                 const SizedBox(height: 16.0),
-                Text('Matrix type', style: theme.textTheme.headlineSmall),
+                Text(loc.matrixType, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 6.0),
                 Center(
                   child: ToggleButtons(
@@ -290,18 +289,19 @@ class VideoOverlaysEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 16.0),
-        Text('Overlays', style: theme.textTheme.headlineSmall),
+        Text(loc.overlays, style: theme.textTheme.headlineSmall),
         for (final overlay in overlays) ...[
           const SizedBox(height: 6.0),
           Row(children: [
             Tooltip(
-              message: 'Visible',
+              message: loc.visible,
               child: Transform.scale(
                 scale: 0.9,
                 child: Checkbox(
@@ -319,12 +319,12 @@ class VideoOverlaysEditor extends StatelessWidget {
             ),
             const SizedBox(width: 6.0),
             Text(
-              'Overlay ${overlays.indexOf(overlay) + 1}',
+              loc.nOverlay(overlays.indexOf(overlay) + 1),
               style: theme.textTheme.labelLarge,
             ),
             const Spacer(),
             Text(
-              'Position (x: ${overlay.position.dx}, y: ${overlay.position.dy})',
+              loc.overlayPosition(overlay.position.dx, overlay.position.dy),
               style: theme.textTheme.labelSmall!
                   .copyWith(fontWeight: FontWeight.normal),
             ),

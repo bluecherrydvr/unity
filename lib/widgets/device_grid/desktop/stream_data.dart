@@ -118,7 +118,10 @@ class _StreamDataState extends State<StreamData> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Stream settings', style: theme.textTheme.headlineMedium),
+                Text(
+                  loc.streamingSetings,
+                  style: theme.textTheme.headlineMedium,
+                ),
                 Text(
                   loc.volume(
                     (widget.video.player.volume * 100).toInt().toString(),
@@ -145,10 +148,10 @@ class _StreamDataState extends State<StreamData> {
                       Text(fit.locale(context)),
                       if (settings.cameraViewFit == fit) ...[
                         const SizedBox(width: 10.0),
-                        const Tooltip(
-                          message: 'Default',
+                        Tooltip(
+                          message: loc.defaultField,
                           preferBelow: true,
-                          child: Icon(
+                          child: const Icon(
                             Icons.loyalty,
                             size: 18.0,
                             color: Colors.amberAccent,
@@ -164,7 +167,7 @@ class _StreamDataState extends State<StreamData> {
                 ),
                 if (settings.betaMatrixedZoomEnabled) ...[
                   const SizedBox(height: 16.0),
-                  Text('Matrix type', style: theme.textTheme.headlineSmall),
+                  Text(loc.matrixType, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),
                   Center(
                     child: ToggleButtons(
@@ -228,7 +231,7 @@ class _StreamDataState extends State<StreamData> {
           const Spacer(),
           OutlinedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(loc.cancel),
           ),
           const SizedBox(width: 8.0),
           FilledButton(
@@ -242,7 +245,7 @@ class _StreamDataState extends State<StreamData> {
                 ),
               );
             },
-            child: const Text('Finish'),
+            child: Text(loc.finish),
           ),
         ]),
       ],

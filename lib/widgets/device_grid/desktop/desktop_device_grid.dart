@@ -629,7 +629,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     children: [
                       IconButton(
                         icon: Icon(moreIconData),
-                        tooltip: 'More',
+                        tooltip: loc.more,
                         onPressed: () async {
                           final device = await showStreamDataDialog(
                             context,

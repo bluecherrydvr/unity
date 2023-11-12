@@ -630,8 +630,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       IconButton(
                         icon: Icon(moreIconData),
                         tooltip: 'More',
-                        onPressed: () {
-                          showStreamDataDialog(
+                        onPressed: () async {
+                          final device = await showStreamDataDialog(
                             context,
                             device: widget.device,
                             ptzEnabled: ptzEnabled,
@@ -641,6 +641,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                             fit: fit,
                             onFitChanged: widget.onFitChanged,
                           );
+                          if (device != null && mounted) {
+                            view.layouts[view.currentLayoutIndex].devices[view
+                                .currentLayout.devices
+                                .indexOf(widget.device)] = device;
+                            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                            view.notifyListeners();
+                          }
                         },
                       ),
                       closeButton,

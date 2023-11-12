@@ -22,7 +22,6 @@ import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
@@ -32,13 +31,10 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class MulticastViewport extends StatefulWidget {
-  final List<VideoOverlay> overlays;
-
   final Device device;
 
   const MulticastViewport({
     super.key,
-    this.overlays = const [],
     required this.device,
   });
 
@@ -167,21 +163,22 @@ class _MulticastViewportState extends State<MulticastViewport> {
               }),
             ),
           ),
-        for (final overlay in widget.overlays)
-          Positioned(
-            left: constraints.maxWidth * (overlay.position.dx / 100),
-            top: constraints.maxHeight * (overlay.position.dy / 100),
-            right: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              child: Text(
-                overlay.text,
-                style: theme.textTheme.bodyLarge!
-                    .copyWith(shadows: outlinedText())
-                    .merge(overlay.textStyle),
+        for (final overlay in widget.device.overlays)
+          if (overlay.visible)
+            Positioned(
+              left: constraints.maxWidth * (overlay.position.dx / 100),
+              top: constraints.maxHeight * (overlay.position.dy / 100),
+              right: 0,
+              bottom: 0,
+              child: IgnorePointer(
+                child: Text(
+                  overlay.text,
+                  style: theme.textTheme.bodyLarge!
+                      .copyWith(shadows: outlinedText())
+                      .merge(overlay.textStyle),
+                ),
               ),
             ),
-          ),
       ]);
     });
   }

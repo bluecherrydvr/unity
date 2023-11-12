@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
@@ -29,7 +30,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-void showStreamDataDialog(
+Future<Device?> showStreamDataDialog(
   BuildContext context, {
   required Device device,
   required bool ptzEnabled,
@@ -39,7 +40,7 @@ void showStreamDataDialog(
 }) {
   final video = UnityVideoView.maybeOf(context);
 
-  showDialog(
+  return showDialog<Device>(
     context: context,
     builder: (context) => StreamData(
       device: device,
@@ -81,6 +82,7 @@ class _StreamDataState extends State<StreamData> {
 
   late bool ptzEnabled = widget.ptzEnabled;
   late UnityVideoFit fit = widget.fit;
+  late final overlays = List<VideoOverlay>.from(widget.device.overlays);
 
   late final StreamSubscription<double> volumeSubscription;
 
@@ -109,88 +111,107 @@ class _StreamDataState extends State<StreamData> {
     // more options, such as adding/changing overlays.
     return AlertDialog(
       title: Text(widget.device.name),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Stream settings', style: theme.textTheme.headlineMedium),
-          Text(
-            loc.volume(
-              (widget.video.player.volume * 100).toInt().toString(),
-            ),
-            style: theme.textTheme.headlineSmall,
-          ),
-          Slider(
-            value: widget.video.player.volume,
-            onChanged: (v) {
-              widget.video.player.setVolume(v);
-            },
-          ),
-          Text(loc.cameraViewFit, style: theme.textTheme.headlineSmall),
-          const SizedBox(height: 6.0),
-          ToggleButtons(
-            isSelected:
-                UnityVideoFit.values.map((fit) => fit == this.fit).toList(),
-            children: UnityVideoFit.values.map((fit) {
-              return Row(children: [
-                const SizedBox(width: 12.0),
-                Icon(fit.icon),
-                const SizedBox(width: 8.0),
-                Text(fit.locale(context)),
-                if (settings.cameraViewFit == fit) ...[
-                  const SizedBox(width: 10.0),
-                  const Tooltip(
-                    message: 'Default',
-                    preferBelow: true,
-                    child: Icon(
-                      Icons.loyalty,
-                      size: 18.0,
-                      color: Colors.amberAccent,
-                    ),
-                  ),
-                ],
-                const SizedBox(width: 12.0),
-              ]);
-            }).toList(),
-            onPressed: (index) {
-              setState(() => fit = UnityVideoFit.values[index]);
-            },
-          ),
-          if (settings.betaMatrixedZoomEnabled) ...[
-            const SizedBox(height: 16.0),
-            Text('Matrix type', style: theme.textTheme.headlineSmall),
-            const SizedBox(height: 6.0),
-            Center(
-              child: ToggleButtons(
-                isSelected: MatrixType.values.map((type) {
-                  return type.index == matrixType.index;
-                }).toList(),
-                onPressed: (type) => setState(() {
-                  matrixType = MatrixType.values[type];
-                }),
-                // constraints: buttonConstraints,
-                children: MatrixType.values.map<Widget>((type) {
+      content: IntrinsicHeight(
+        child: Row(children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Stream settings', style: theme.textTheme.headlineMedium),
+              Text(
+                loc.volume(
+                  (widget.video.player.volume * 100).toInt().toString(),
+                ),
+                style: theme.textTheme.headlineSmall,
+              ),
+              Slider(
+                value: widget.video.player.volume,
+                onChanged: (v) {
+                  widget.video.player.setVolume(v);
+                },
+              ),
+              Text(loc.cameraViewFit, style: theme.textTheme.headlineSmall),
+              const SizedBox(height: 6.0),
+              ToggleButtons(
+                isSelected:
+                    UnityVideoFit.values.map((fit) => fit == this.fit).toList(),
+                children: UnityVideoFit.values.map((fit) {
                   return Row(children: [
                     const SizedBox(width: 12.0),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 150),
-                      child: KeyedSubtree(
-                        key: ValueKey(type),
-                        child: IconTheme.merge(
-                          data: const IconThemeData(size: 22.0),
-                          child: type.icon,
+                    Icon(fit.icon),
+                    const SizedBox(width: 8.0),
+                    Text(fit.locale(context)),
+                    if (settings.cameraViewFit == fit) ...[
+                      const SizedBox(width: 10.0),
+                      const Tooltip(
+                        message: 'Default',
+                        preferBelow: true,
+                        child: Icon(
+                          Icons.loyalty,
+                          size: 18.0,
+                          color: Colors.amberAccent,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Text(type.toString()),
+                    ],
                     const SizedBox(width: 12.0),
                   ]);
                 }).toList(),
+                onPressed: (index) {
+                  setState(() => fit = UnityVideoFit.values[index]);
+                },
+              ),
+              if (settings.betaMatrixedZoomEnabled) ...[
+                const SizedBox(height: 16.0),
+                Text('Matrix type', style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 6.0),
+                Center(
+                  child: ToggleButtons(
+                    isSelected: MatrixType.values.map((type) {
+                      return type.index == matrixType.index;
+                    }).toList(),
+                    onPressed: (type) => setState(() {
+                      matrixType = MatrixType.values[type];
+                    }),
+                    // constraints: buttonConstraints,
+                    children: MatrixType.values.map<Widget>((type) {
+                      return Row(children: [
+                        const SizedBox(width: 12.0),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 150),
+                          child: KeyedSubtree(
+                            key: ValueKey(type),
+                            child: IconTheme.merge(
+                              data: const IconThemeData(size: 22.0),
+                              child: type.icon,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Text(type.toString()),
+                        const SizedBox(width: 12.0),
+                      ]);
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (widget.device.overlays.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+              child: VerticalDivider(),
+            ),
+            SizedBox(
+              width: 280.0,
+              child: VideoOverlaysEditor(
+                overlays: overlays,
+                onChanged: (index, overlay) {
+                  setState(() => overlays[index] = overlay);
+                },
               ),
             ),
-          ],
-        ],
+          ]
+        ]),
       ),
       actions: [
         Row(children: [
@@ -212,7 +233,11 @@ class _StreamDataState extends State<StreamData> {
               widget.onFitChanged(fit);
               widget.onPTZEnabledChanged(ptzEnabled);
 
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(
+                widget.device.copyWith(
+                  overlays: overlays,
+                ),
+              );
             },
             child: const Text('Finish'),
           ),

@@ -427,6 +427,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
     final closeButton = IconButton(
       icon: const Icon(Icons.close_outlined),
       color: theme.colorScheme.error,
@@ -460,6 +461,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       device: widget.device,
       builder: (context, commands, constraints) {
         final states = HoverButton.of(context).states;
+
+        final fit =
+            context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
+                settings.cameraViewFit;
 
         return Stack(children: [
           Positioned.fill(child: MulticastViewport(device: widget.device)),
@@ -523,9 +528,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           setState(() => ptzEnabled = enabled),
                     ),
                   const Spacer(),
-                  // TODO(bdlukaa): Add the "More button". This, basically, would
-                  // contain all the information about this stream - and provide
-                  // more options, such as adding/changing overlays.
                   () {
                     final isMuted = volume == 0.0;
 
@@ -592,13 +594,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       },
                     ),
                   reloadButton,
-                  CameraViewFitButton(
-                    fit: context
-                            .findAncestorWidgetOfExactType<UnityVideoView>()
-                            ?.fit ??
-                        SettingsProvider.instance.cameraViewFit,
-                    onChanged: widget.onFitChanged,
-                  ),
+                  // CameraViewFitButton(
+                  //   fit: fit,
+                  //   onChanged: widget.onFitChanged,
+                  // ),
                 ] else ...[
                   const Spacer(),
                   if (states.isHovering) reloadButton,
@@ -625,7 +624,28 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   opacity: !states.isHovering ? 0 : 1,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
-                  child: closeButton,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(moreIconData),
+                        tooltip: 'More',
+                        onPressed: () {
+                          showStreamDataDialog(
+                            context,
+                            device: widget.device,
+                            ptzEnabled: ptzEnabled,
+                            onPTZEnabledChanged: (enabled) => setState(() {
+                              ptzEnabled = enabled;
+                            }),
+                            fit: fit,
+                            onFitChanged: widget.onFitChanged,
+                          );
+                        },
+                      ),
+                      closeButton,
+                    ],
+                  ),
                 ),
               ),
           ],

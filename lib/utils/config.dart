@@ -44,6 +44,35 @@ class VideoOverlay {
     this.position = Offset.zero,
     this.visible = true,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'text': text,
+      'textStyle': {
+        'color': textStyle?.color?.value.toRadixString(16),
+        'fontSize': textStyle?.fontSize,
+      },
+      'position_x': position.dx,
+      'position_y': position.dy,
+      'visible': visible,
+    };
+  }
+
+  factory VideoOverlay.fromMap(Map map) {
+    return VideoOverlay(
+      text: map['text'] ?? '',
+      textStyle: TextStyle(
+        color: map['textStyle']['color'] == null
+            ? null
+            : Color(int.parse(
+                '0xFF${(map['textStyle']['color'] as String).replaceAll('#', '')}',
+              )),
+        fontSize: (map['textStyle']['fontSize'] as num?)?.toDouble(),
+      ),
+      position: Offset(map['position_x'] ?? 0.0, map['position_y'] ?? 0.0),
+      visible: map['visible'] ?? false,
+    );
+  }
 }
 
 /// Parses the config file content and returns a map with the config values.

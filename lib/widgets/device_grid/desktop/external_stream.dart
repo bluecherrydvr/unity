@@ -302,62 +302,67 @@ class VideoOverlaysEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SizedBox(height: 16.0),
-      Text('Overlays', style: theme.textTheme.headlineSmall),
-      for (final overlay in overlays) ...[
-        const SizedBox(height: 6.0),
-        Row(children: [
-          Tooltip(
-            message: 'Visible',
-            child: Transform.scale(
-              scale: 0.9,
-              child: Checkbox(
-                value: overlay.visible,
-                onChanged: (visible) {
-                  onChanged(
-                    overlays.indexOf(overlay),
-                    overlay.copyWith(visible: visible!),
-                  );
-                },
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 16.0),
+        Text('Overlays', style: theme.textTheme.headlineSmall),
+        for (final overlay in overlays) ...[
+          const SizedBox(height: 6.0),
+          Row(children: [
+            Tooltip(
+              message: 'Visible',
+              child: Transform.scale(
+                scale: 0.9,
+                child: Checkbox(
+                  value: overlay.visible,
+                  onChanged: (visible) {
+                    onChanged(
+                      overlays.indexOf(overlay),
+                      overlay.copyWith(visible: visible!),
+                    );
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
             ),
+            const SizedBox(width: 6.0),
+            Text(
+              'Overlay ${overlays.indexOf(overlay) + 1}',
+              style: theme.textTheme.labelLarge,
+            ),
+            const Spacer(),
+            Text(
+              'Position (x: ${overlay.position.dx}, y: ${overlay.position.dy})',
+              style: theme.textTheme.labelSmall!
+                  .copyWith(fontWeight: FontWeight.normal),
+            ),
+          ]),
+          const SizedBox(height: 2.0),
+          TextFormField(
+            initialValue: overlay.text,
+            style: theme.textTheme.bodyLarge!
+                .copyWith(shadows: outlinedText())
+                .merge(overlay.textStyle),
+            onChanged: (text) {
+              onChanged(
+                overlays.indexOf(overlay).clamp(0, overlays.length),
+                overlay.copyWith(text: text),
+              );
+            },
+            scrollPadding: EdgeInsets.zero,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
           ),
-          const SizedBox(width: 6.0),
-          Text(
-            'Overlay ${overlays.indexOf(overlay) + 1}',
-            style: theme.textTheme.labelLarge,
-          ),
-          const Spacer(),
-          Text(
-            'Position (x: ${overlay.position.dx}, y: ${overlay.position.dy})',
-            style: theme.textTheme.labelSmall!
-                .copyWith(fontWeight: FontWeight.normal),
-          ),
-        ]),
-        const SizedBox(height: 2.0),
-        TextFormField(
-          initialValue: overlay.text,
-          style: theme.textTheme.bodyLarge!
-              .copyWith(shadows: outlinedText())
-              .merge(overlay.textStyle),
-          onChanged: (text) {
-            onChanged(
-              overlays.indexOf(overlay).clamp(0, overlays.length),
-              overlay.copyWith(text: text),
-            );
-          },
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-          ),
-        ),
-        const SizedBox(height: 4.0),
+          const SizedBox(height: 4.0),
+        ],
       ],
-    ]);
+    );
   }
 }

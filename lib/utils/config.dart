@@ -237,6 +237,11 @@ Future<void> handleConfigurationFile(File file) async {
       final text = overlayData['text'] as String?;
       if (text == null) throw Exception('Missing "text" key in [overlay]');
 
+      final opacityData = overlayData['opacity'];
+      final opacity = opacityData == null
+          ? 1.0
+          : ((opacityData as num?)?.toDouble() ?? 100.0) / 100;
+
       final textStyle = TextStyle(
         color: overlayData['color'] == null
             ? null
@@ -244,7 +249,7 @@ Future<void> handleConfigurationFile(File file) async {
                 int.parse(
                   '0xFF${(overlayData['color'] as String).replaceAll('#', '')}',
                 ),
-              ),
+              ).withOpacity(opacity),
         fontSize: (overlayData['size'] as num?)?.toDouble(),
       );
       final position = Offset(

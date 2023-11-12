@@ -112,89 +112,92 @@ class _StreamDataState extends State<StreamData> {
     return AlertDialog(
       title: Text(widget.device.name),
       content: IntrinsicHeight(
-        child: Row(children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Stream settings', style: theme.textTheme.headlineMedium),
-              Text(
-                loc.volume(
-                  (widget.video.player.volume * 100).toInt().toString(),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Stream settings', style: theme.textTheme.headlineMedium),
+                Text(
+                  loc.volume(
+                    (widget.video.player.volume * 100).toInt().toString(),
+                  ),
+                  style: theme.textTheme.headlineSmall,
                 ),
-                style: theme.textTheme.headlineSmall,
-              ),
-              Slider(
-                value: widget.video.player.volume,
-                onChanged: (v) {
-                  widget.video.player.setVolume(v);
-                },
-              ),
-              Text(loc.cameraViewFit, style: theme.textTheme.headlineSmall),
-              const SizedBox(height: 6.0),
-              ToggleButtons(
-                isSelected:
-                    UnityVideoFit.values.map((fit) => fit == this.fit).toList(),
-                children: UnityVideoFit.values.map((fit) {
-                  return Row(children: [
-                    const SizedBox(width: 12.0),
-                    Icon(fit.icon),
-                    const SizedBox(width: 8.0),
-                    Text(fit.locale(context)),
-                    if (settings.cameraViewFit == fit) ...[
-                      const SizedBox(width: 10.0),
-                      const Tooltip(
-                        message: 'Default',
-                        preferBelow: true,
-                        child: Icon(
-                          Icons.loyalty,
-                          size: 18.0,
-                          color: Colors.amberAccent,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(width: 12.0),
-                  ]);
-                }).toList(),
-                onPressed: (index) {
-                  setState(() => fit = UnityVideoFit.values[index]);
-                },
-              ),
-              if (settings.betaMatrixedZoomEnabled) ...[
-                const SizedBox(height: 16.0),
-                Text('Matrix type', style: theme.textTheme.headlineSmall),
+                Slider(
+                  value: widget.video.player.volume,
+                  onChanged: (v) {
+                    widget.video.player.setVolume(v);
+                  },
+                ),
+                Text(loc.cameraViewFit, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 6.0),
-                Center(
-                  child: ToggleButtons(
-                    isSelected: MatrixType.values.map((type) {
-                      return type.index == matrixType.index;
-                    }).toList(),
-                    onPressed: (type) => setState(() {
-                      matrixType = MatrixType.values[type];
-                    }),
-                    // constraints: buttonConstraints,
-                    children: MatrixType.values.map<Widget>((type) {
-                      return Row(children: [
-                        const SizedBox(width: 12.0),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: KeyedSubtree(
-                            key: ValueKey(type),
-                            child: IconTheme.merge(
-                              data: const IconThemeData(size: 22.0),
-                              child: type.icon,
-                            ),
+                ToggleButtons(
+                  isSelected: UnityVideoFit.values
+                      .map((fit) => fit == this.fit)
+                      .toList(),
+                  children: UnityVideoFit.values.map((fit) {
+                    return Row(children: [
+                      const SizedBox(width: 12.0),
+                      Icon(fit.icon),
+                      const SizedBox(width: 8.0),
+                      Text(fit.locale(context)),
+                      if (settings.cameraViewFit == fit) ...[
+                        const SizedBox(width: 10.0),
+                        const Tooltip(
+                          message: 'Default',
+                          preferBelow: true,
+                          child: Icon(
+                            Icons.loyalty,
+                            size: 18.0,
+                            color: Colors.amberAccent,
                           ),
                         ),
-                        const SizedBox(width: 8.0),
-                        Text(type.toString()),
-                        const SizedBox(width: 12.0),
-                      ]);
-                    }).toList(),
-                  ),
+                      ],
+                      const SizedBox(width: 12.0),
+                    ]);
+                  }).toList(),
+                  onPressed: (index) {
+                    setState(() => fit = UnityVideoFit.values[index]);
+                  },
                 ),
+                if (settings.betaMatrixedZoomEnabled) ...[
+                  const SizedBox(height: 16.0),
+                  Text('Matrix type', style: theme.textTheme.headlineSmall),
+                  const SizedBox(height: 6.0),
+                  Center(
+                    child: ToggleButtons(
+                      isSelected: MatrixType.values.map((type) {
+                        return type.index == matrixType.index;
+                      }).toList(),
+                      onPressed: (type) => setState(() {
+                        matrixType = MatrixType.values[type];
+                      }),
+                      // constraints: buttonConstraints,
+                      children: MatrixType.values.map<Widget>((type) {
+                        return Row(children: [
+                          const SizedBox(width: 12.0),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 150),
+                            child: KeyedSubtree(
+                              key: ValueKey(type),
+                              child: IconTheme.merge(
+                                data: const IconThemeData(size: 22.0),
+                                child: type.icon,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Text(type.toString()),
+                          const SizedBox(width: 12.0),
+                        ]);
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           if (widget.device.overlays.isNotEmpty) ...[
             const Padding(

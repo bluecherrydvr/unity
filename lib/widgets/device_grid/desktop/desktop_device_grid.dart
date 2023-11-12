@@ -59,6 +59,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
     final children = [
       CollapsableSidebar(
+        initiallyClosed: app_links.openedFromFile,
         left: !isReversed,
         builder: (context, collapsed, collapseButton) {
           if (collapsed) {

@@ -160,6 +160,9 @@ Future<void> main(List<String> args) async {
 
   HomeProvider.setDefaultStatusBarStyle();
 
+  app_links.register('rtsp');
+  app_links.register('bluecherry');
+  app_links.listen();
   runApp(const UnityApp());
 }
 
@@ -175,10 +178,6 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    app_links.register('rtsp');
-    app_links.register('bluecherry');
-    app_links.listen();
   }
 
   @override

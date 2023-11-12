@@ -54,20 +54,28 @@ Future<void> register(String scheme) async {
   }
 }
 
+bool? _openedFromFile;
+
+/// Whether the app was opened from a `.bluecherry` file.
+bool get openedFromFile => _openedFromFile ?? false;
+
 /// Listens to any links received while the app is running.
 void listen() {
-  instance.allUriLinkStream.listen((uri) {
+  instance.allUriLinkStream.listen((uri) async {
     debugPrint('Received URI: $uri');
-    _handleUri(uri);
+    final handleType = await _handleUri(uri);
+    _openedFromFile ??= handleType == HandleType.bluecherry;
   });
 }
 
-Future<void> _handleUri(Uri uri) async {
+enum HandleType { bluecherry, streamUrl, none }
+
+Future<HandleType> _handleUri(Uri uri) async {
   if (path.extension(uri.path) == '.bluecherry') {
     final file = File(uri.path);
     if (await file.exists()) {
-      await handleConfigurationFile(file);
-      return;
+      handleConfigurationFile(file);
+      return HandleType.bluecherry;
     }
   }
 
@@ -79,7 +87,9 @@ Future<void> _handleUri(Uri uri) async {
     }
   } else {
     final navigator = navigatorKey.currentState;
-    if (navigator == null) return;
+    if (navigator == null) return HandleType.none;
     navigator.pushNamed('/rtsp', arguments: url);
   }
+
+  return HandleType.streamUrl;
 }

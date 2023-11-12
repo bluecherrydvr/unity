@@ -37,11 +37,14 @@ class CollapsableSidebar extends StatefulWidget {
 
   final ValueChanged<bool>? onCollapseStateChange;
 
+  final bool initiallyClosed;
+
   const CollapsableSidebar({
     super.key,
     required this.builder,
     this.left = true,
     this.onCollapseStateChange,
+    this.initiallyClosed = false,
   });
 
   @override
@@ -53,6 +56,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
   late final AnimationController collapseController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 150),
+    value: widget.initiallyClosed ? 1.0 : 0.0,
   );
 
   Animation<double> get collapseAnimation {

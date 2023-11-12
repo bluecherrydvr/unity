@@ -613,39 +613,38 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   opacity: !states.isHovering ? 0 : 1,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          moreIconData,
-                          shadows: outlinedText(),
-                          color: Colors.white,
-                        ),
-                        tooltip: loc.more,
-                        onPressed: () async {
-                          final device = await showStreamDataDialog(
-                            context,
-                            device: widget.device,
-                            ptzEnabled: ptzEnabled,
-                            onPTZEnabledChanged: (enabled) => setState(() {
-                              ptzEnabled = enabled;
-                            }),
-                            fit: fit,
-                            onFitChanged: widget.onFitChanged,
-                          );
-                          if (device != null && mounted) {
-                            view.layouts[view.currentLayoutIndex].devices[view
-                                .currentLayout.devices
-                                .indexOf(widget.device)] = device;
-                            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                            view.notifyListeners();
-                          }
-                        },
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    IconButton(
+                      icon: Icon(
+                        moreIconData,
+                        shadows: outlinedText(),
+                        color: Colors.white,
                       ),
-                      closeButton,
-                    ],
-                  ),
+                      tooltip: loc.more,
+                      onPressed: () async {
+                        final device = await showStreamDataDialog(
+                          context,
+                          device: widget.device,
+                          ptzEnabled: ptzEnabled,
+                          onPTZEnabledChanged: (enabled) => setState(() {
+                            ptzEnabled = enabled;
+                          }),
+                          fit: fit,
+                          onFitChanged: widget.onFitChanged,
+                        );
+                        if (device != null && mounted) {
+                          view.layouts[view.currentLayoutIndex].devices[view
+                              .currentLayout.devices
+                              .indexOf(widget.device)] = device;
+                          // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                          view.notifyListeners();
+                          updateVolume();
+                        }
+                      },
+                    ),
+                    closeButton,
+                  ]),
                 ),
               ),
           ],

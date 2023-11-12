@@ -78,10 +78,10 @@ class StreamData extends StatefulWidget {
 }
 
 class _StreamDataState extends State<StreamData> {
-  MatrixType matrixType = MatrixType.t16;
+  late var matrixType = widget.device.matrixType;
 
-  late bool ptzEnabled = widget.ptzEnabled;
-  late UnityVideoFit fit = widget.fit;
+  late var ptzEnabled = widget.ptzEnabled;
+  late var fit = widget.fit;
   late final overlays = List<VideoOverlay>.from(widget.device.overlays);
 
   late final StreamSubscription<double> volumeSubscription;
@@ -246,6 +246,7 @@ class _StreamDataState extends State<StreamData> {
               Navigator.of(context).pop(
                 widget.device.copyWith(
                   overlays: overlays,
+                  matrixType: matrixType,
                 ),
               );
             },

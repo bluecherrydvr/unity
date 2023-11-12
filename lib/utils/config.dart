@@ -279,7 +279,17 @@ Future<void> handleConfigurationFile(File file) async {
       defaultUrl: videoUrl,
       overlays: overlays,
     );
-    if (configData['fullscreen'] == true && device != null && context.mounted) {
+
+    if (configData['audio']['sound'] != null && device != null) {
+      final soundDisabled = configData['audio']['sound'] == false;
+      await UnityPlayers.players[device.uuid]?.setVolume(
+        soundDisabled ? 0.0 : 1.0,
+      );
+    }
+
+    if (configData['videoscreen']['fullscreen'] == true &&
+        device != null &&
+        context.mounted) {
       await UnityPlayers.openFullscreen(context, device);
     }
   }

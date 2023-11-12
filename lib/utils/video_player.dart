@@ -69,10 +69,10 @@ class UnityPlayers with ChangeNotifier {
   }
 
   /// Release the video player for the given [Device].
-  static Future<void> releaseDevice(String device) async {
-    await players[device]?.release();
-    await players[device]?.dispose();
-    players.remove(device);
+  static Future<void> releaseDevice(String deviceUUID) async {
+    await players[deviceUUID]?.release();
+    await players[deviceUUID]?.dispose();
+    players.remove(deviceUUID);
   }
 
   /// Reload the video player for the given [Device].

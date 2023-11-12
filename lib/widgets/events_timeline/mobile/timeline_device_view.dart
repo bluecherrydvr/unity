@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
@@ -306,7 +307,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       Padding(
         padding: const EdgeInsetsDirectional.all(8.0),
         child: AspectRatio(
-          aspectRatio: 16 / 9,
+          aspectRatio: kHorizontalAspectRatio,
           child: () {
             if (tile == null) {
               return Card(

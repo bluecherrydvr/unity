@@ -177,7 +177,7 @@ class LayoutView extends StatelessWidget {
             key: ValueKey(layout.hashCode),
             padding: kGridPadding,
             child: AspectRatio(
-              aspectRatio: 16 / 9,
+              aspectRatio: kHorizontalAspectRatio,
               child: DesktopDeviceTile(device: device),
             ),
           );
@@ -230,7 +230,7 @@ class LayoutView extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: kGridInnerPadding,
                 crossAxisSpacing: kGridInnerPadding,
-                childAspectRatio: 16 / 9,
+                childAspectRatio: kHorizontalAspectRatio,
               ),
               padding: kGridPadding,
               itemCount: foldedDevices.length,
@@ -261,7 +261,7 @@ class LayoutView extends StatelessWidget {
               child: StaticGrid(
                 key: ValueKey(layout.hashCode),
                 crossAxisCount: crossAxisCount.clamp(1, 50),
-                childAspectRatio: 16 / 9,
+                childAspectRatio: kHorizontalAspectRatio,
                 reorderable: onReorder != null,
                 onReorder: onReorder ?? (a, b) {},
                 children: devices.map((device) {
@@ -523,6 +523,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           setState(() => ptzEnabled = enabled),
                     ),
                   const Spacer(),
+                  // TODO(bdlukaa): Add the "More button". This, basically, would
+                  // contain all the information about this stream - and provide
+                  // more options, such as adding/changing overlays.
                   () {
                     final isMuted = volume == 0.0;
 

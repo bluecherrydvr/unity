@@ -178,6 +178,7 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     app_links.register('rtsp');
+    app_links.register('bluecherry');
     app_links.init();
     app_links.listen();
   }

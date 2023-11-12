@@ -309,6 +309,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
+  double get aspectRatio => maxSize.aspectRatio;
+
+  @override
   Future<void> start() {
     return ensureVideoControllerInitialized((controller) async {
       mkPlayer.play();

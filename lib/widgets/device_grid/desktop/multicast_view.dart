@@ -23,6 +23,7 @@ import 'dart:math';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -145,7 +146,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
           Positioned.fill(
             child: GridView.count(
               crossAxisCount: size,
-              childAspectRatio: 16 / 9,
+              childAspectRatio: kHorizontalAspectRatio,
               physics: const NeverScrollableScrollPhysics(),
               children: List.generate(size * size, (index) {
                 final row = index ~/ size;

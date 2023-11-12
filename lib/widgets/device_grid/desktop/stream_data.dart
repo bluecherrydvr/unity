@@ -207,13 +207,15 @@ class _StreamDataState extends State<StreamData> {
               padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
               child: VerticalDivider(),
             ),
-            SizedBox(
-              width: 280.0,
-              child: VideoOverlaysEditor(
-                overlays: overlays,
-                onChanged: (index, overlay) {
-                  setState(() => overlays[index] = overlay);
-                },
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 280.0),
+              child: IntrinsicWidth(
+                child: VideoOverlaysEditor(
+                  overlays: overlays,
+                  onChanged: (index, overlay) {
+                    setState(() => overlays[index] = overlay);
+                  },
+                ),
               ),
             ),
           ]
@@ -223,6 +225,8 @@ class _StreamDataState extends State<StreamData> {
         Row(children: [
           if (widget.device.hasPTZ)
             PTZToggleButton(
+              enabledColor: theme.colorScheme.inversePrimary,
+              disabledColor: theme.colorScheme.inversePrimary.withOpacity(0.5),
               ptzEnabled: ptzEnabled,
               onChanged: (v) {
                 setState(() => ptzEnabled = v);

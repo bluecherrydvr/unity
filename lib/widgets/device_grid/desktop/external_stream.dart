@@ -25,7 +25,6 @@ import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -332,18 +331,18 @@ class VideoOverlaysEditor extends StatelessWidget {
           const SizedBox(height: 2.0),
           TextFormField(
             initialValue: overlay.text,
-            style: theme.textTheme.bodyLarge!
-                .copyWith(
-                  shadows: outlinedText(
-                    strokeColor: (overlay.textStyle?.color ?? Colors.black)
-                                .computeLuminance() >
-                            0.5
-                        ? Colors.black
-                        : Colors.white,
-                    strokeWidth: 0.5,
-                  ),
-                )
-                .merge(overlay.textStyle),
+            style: theme.textTheme.bodyLarge!,
+            // .copyWith(
+            //   shadows: outlinedText(
+            //     strokeColor: (overlay.textStyle?.color ?? Colors.black)
+            //                 .computeLuminance() >
+            //             0.5
+            //         ? Colors.black
+            //         : Colors.white,
+            //     strokeWidth: 0.5,
+            //   ),
+            // )
+            // .merge(overlay.textStyle),
             onChanged: (text) {
               onChanged(
                 overlays.indexOf(overlay).clamp(0, overlays.length),

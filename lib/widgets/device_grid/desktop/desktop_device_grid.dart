@@ -628,7 +628,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        icon: Icon(moreIconData),
+                        icon: Icon(
+                          moreIconData,
+                          shadows: outlinedText(),
+                          color: Colors.white,
+                        ),
                         tooltip: loc.more,
                         onPressed: () async {
                           final device = await showStreamDataDialog(

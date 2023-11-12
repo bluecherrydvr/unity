@@ -174,7 +174,17 @@ class _MulticastViewportState extends State<MulticastViewport> {
                 child: Text(
                   overlay.text,
                   style: theme.textTheme.bodyLarge!
-                      .copyWith(shadows: outlinedText())
+                      .copyWith(
+                        shadows: outlinedText(
+                          strokeColor:
+                              (overlay.textStyle?.color ?? Colors.black)
+                                          .computeLuminance() >
+                                      0.5
+                                  ? Colors.black
+                                  : Colors.white,
+                          strokeWidth: 0.5,
+                        ),
+                      )
                       .merge(overlay.textStyle),
                 ),
               ),

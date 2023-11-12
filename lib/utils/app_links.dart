@@ -21,9 +21,11 @@ import 'dart:io';
 
 import 'package:app_links/app_links.dart';
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path/path.dart' as path;
 import 'package:win32_registry/win32_registry.dart';
 
 final instance = AppLinks();
@@ -76,12 +78,21 @@ Future<void> init() async {
 
 /// Listens to any links received while the app is running.
 void listen() {
-  instance.allUriLinkStream.listen((uri) {
+  instance.allUriLinkStream.listen((uri) async {
     debugPrint('Received URI: $uri');
+
+    if (path.extension(uri.path) == '.bluecherry') {
+      final file = File(uri.path);
+      if (await file.exists()) {
+        await handleConfigurationFile(file);
+        return;
+      }
+    }
+
     final url = uri.toString();
     if (isDesktopPlatform) {
       final context = navigatorKey.currentContext;
-      if (context != null) {
+      if (context != null && context.mounted) {
         AddExternalStreamDialog.addStream(context, url);
       }
     } else {

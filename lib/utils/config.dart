@@ -163,7 +163,12 @@ Map<String, dynamic> parseConfig(String configFileContent) {
 
     if (line.startsWith('[') && line.endsWith(']')) {
       currentSection = line.substring(1, line.length - 1).toLowerCase();
-      config[currentSection] = currentSection == 'overlay' ? [{}] : {};
+      if (currentSection == 'overlay') {
+        config[currentSection] ??= [];
+        config[currentSection].add({});
+      } else {
+        config[currentSection] = {};
+      }
     } else if (currentSection != null) {
       var parts = line.split('=');
       var key = parts[0].trim().toLowerCase();

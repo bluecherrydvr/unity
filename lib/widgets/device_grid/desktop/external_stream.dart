@@ -70,12 +70,21 @@ class AddExternalStreamDialog extends StatefulWidget {
     this.overlays = const [],
   });
 
-  static Future<void> show(
+  /// Shows the dialog.
+  ///
+  /// [defaultUrl] is the default URL to show in the URL field.
+  ///
+  /// [overlays] is a list of [VideoOverlay]s to show in the dialog.
+  ///
+  /// [fullscreen] is whether the stream should be turned into fullscreen after
+  /// added to the view.
+  static Future<Device?> show(
     BuildContext context, {
     String? defaultUrl,
     List<VideoOverlay> overlays = const [],
+    bool fullscreen = false,
   }) {
-    return showDialog(
+    return showDialog<Device>(
       context: context,
       builder: (context) => AddExternalStreamDialog(
         defaultUrl: defaultUrl,
@@ -84,12 +93,13 @@ class AddExternalStreamDialog extends StatefulWidget {
     );
   }
 
-  static void addStream(
+  static Device addStream(
     BuildContext context,
     String url, {
     String? name,
     MatrixType matrixType = MatrixType.t16,
     List<VideoOverlay> overlays = const [],
+    bool fullscreen = false,
   }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
@@ -115,6 +125,8 @@ class AddExternalStreamDialog extends StatefulWidget {
         view.layouts.firstWhere((layout) => layout.name == loc.externalStream),
       ),
     );
+
+    return device;
   }
 
   @override
@@ -263,7 +275,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       return;
     }
 
-    AddExternalStreamDialog.addStream(
+    final device = AddExternalStreamDialog.addStream(
       context,
       urlController.text,
       name: nameController.text,
@@ -271,7 +283,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       overlays: overlays,
     );
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop<Device>(device);
   }
 }
 

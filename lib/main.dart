@@ -35,7 +35,6 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/app_links.dart' as app_links;
-import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -83,10 +82,10 @@ Future<void> main(List<String> args) async {
     if (args.length == 1 &&
         Uri.tryParse(args.first) != null &&
         path.extension(args.first) == '.bluecherry') {
-      final configFile = File(args.first);
-      if (await configFile.exists()) {
-        handleConfigurationFile(configFile);
-      }
+      // final configFile = File(args.first);
+      // if (await configFile.exists()) {
+      //   handleConfigurationFile(configFile);
+      // }
     } else {
       try {
         // this is just a mock. HomeProvider depends on this, so we mock the instance
@@ -179,7 +178,6 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
 
     app_links.register('rtsp');
     app_links.register('bluecherry');
-    app_links.init();
     app_links.listen();
   }
 

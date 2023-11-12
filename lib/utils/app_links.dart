@@ -54,51 +54,32 @@ Future<void> register(String scheme) async {
   }
 }
 
-/// Initialize the app links.
-///
-/// When the app is opened from a link, it will open the [AddExternalStreamDialog]
-/// as soon as the application is ready.
-Future<void> init() async {
-  try {
-    var initialUri = await instance.getInitialAppLinkString();
-    debugPrint('Initial URI: $initialUri');
-    if (initialUri != null) {
-      final url = initialUri;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final context = navigatorKey.currentContext;
-        if (context != null && context.mounted) {
-          AddExternalStreamDialog.addStream(context, url);
-        }
-      });
-    }
-  } catch (e) {
-    debugPrint('Error initializing app links: $e');
-  }
-}
-
 /// Listens to any links received while the app is running.
 void listen() {
-  instance.allUriLinkStream.listen((uri) async {
+  instance.allUriLinkStream.listen((uri) {
     debugPrint('Received URI: $uri');
-
-    if (path.extension(uri.path) == '.bluecherry') {
-      final file = File(uri.path);
-      if (await file.exists()) {
-        await handleConfigurationFile(file);
-        return;
-      }
-    }
-
-    final url = uri.toString();
-    if (isDesktopPlatform) {
-      final context = navigatorKey.currentContext;
-      if (context != null && context.mounted) {
-        AddExternalStreamDialog.addStream(context, url);
-      }
-    } else {
-      final navigator = navigatorKey.currentState;
-      if (navigator == null) return;
-      navigator.pushNamed('/rtsp', arguments: url);
-    }
+    _handleUri(uri);
   });
+}
+
+Future<void> _handleUri(Uri uri) async {
+  if (path.extension(uri.path) == '.bluecherry') {
+    final file = File(uri.path);
+    if (await file.exists()) {
+      await handleConfigurationFile(file);
+      return;
+    }
+  }
+
+  final url = uri.toString();
+  if (isDesktopPlatform) {
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      AddExternalStreamDialog.addStream(context, url);
+    }
+  } else {
+    final navigator = navigatorKey.currentState;
+    if (navigator == null) return;
+    navigator.pushNamed('/rtsp', arguments: url);
+  }
 }

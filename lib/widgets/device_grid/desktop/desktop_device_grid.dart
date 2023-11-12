@@ -575,22 +575,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
-                        var player = UnityPlayers.players[widget.device.uuid];
-                        var isLocalController = false;
-                        if (player == null) {
-                          player = UnityPlayers.forDevice(widget.device);
-                          isLocalController = true;
-                        }
-
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': player,
-                            'ptzEnabled': ptzEnabled,
-                          },
+                        UnityPlayers.openFullscreen(
+                          context,
+                          widget.device,
+                          ptzEnabled: ptzEnabled,
                         );
-                        if (isLocalController) await player.release();
                       },
                     ),
                   reloadButton,

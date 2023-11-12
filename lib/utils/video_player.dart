@@ -19,7 +19,7 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class UnityPlayers with ChangeNotifier {
@@ -95,5 +95,32 @@ class UnityPlayers with ChangeNotifier {
       final device = Device.fromUUID(deviceUUID);
       if (device != null) reloadDevice(device);
     }
+  }
+
+  /// Opens a fullscreen video player for the given [Device].
+  ///
+  /// If there is not a video player instance for the given [Device], it will
+  /// be created and released when the fullscreen player is closed.
+  static Future<void> openFullscreen(
+    BuildContext context,
+    Device device, {
+    bool ptzEnabled = false,
+  }) async {
+    var player = UnityPlayers.players[device.uuid];
+    var isLocalController = false;
+    if (player == null) {
+      player = UnityPlayers.forDevice(device);
+      isLocalController = true;
+    }
+
+    await Navigator.of(context).pushNamed(
+      '/fullscreen',
+      arguments: {
+        'device': device,
+        'player': player,
+        'ptzEnabled': ptzEnabled,
+      },
+    );
+    if (isLocalController) await player.release();
   }
 }

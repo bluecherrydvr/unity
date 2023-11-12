@@ -20,6 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/rendering.dart';
 
@@ -273,10 +274,13 @@ Future<void> handleConfigurationFile(File file) async {
   }
 
   if (context.mounted) {
-    await AddExternalStreamDialog.show(
+    final device = await AddExternalStreamDialog.show(
       context,
       defaultUrl: videoUrl,
       overlays: overlays,
     );
+    if (configData['fullscreen'] == true && device != null && context.mounted) {
+      await UnityPlayers.openFullscreen(context, device);
+    }
   }
 }

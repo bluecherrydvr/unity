@@ -210,7 +210,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
         width: size.width,
         padding: const EdgeInsetsDirectional.all(kGridInnerPadding),
         child: AspectRatio(
-          aspectRatio: 16 / 9,
+          aspectRatio: kHorizontalAspectRatio,
           child: Center(
             child: StaticGrid(
               crossAxisCount: switch (tab) {
@@ -223,7 +223,7 @@ class _MobileDeviceGridChild extends StatelessWidget {
               childAspectRatio: switch (tab) {
                 2 => width * 0.5 / height,
                 4 => width / height,
-                _ => 16 / 9,
+                _ => kHorizontalAspectRatio,
               },
               reorderable: view.current.any((device) => device != null),
               padding: EdgeInsetsDirectional.zero,

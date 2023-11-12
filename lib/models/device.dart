@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/foundation.dart';
@@ -53,6 +54,8 @@ class Device {
 
   final MatrixType matrixType;
 
+  final List<VideoOverlay> overlays;
+
   /// Creates a device.
   Device(
     this.name,
@@ -64,6 +67,7 @@ class Device {
     this.hasPTZ = false,
     this.url,
     this.matrixType = MatrixType.t16,
+    this.overlays = const [],
   });
 
   Device.dump({
@@ -75,6 +79,7 @@ class Device {
     this.hasPTZ = false,
     this.url,
     this.matrixType = MatrixType.t16,
+    this.overlays = const [],
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -226,7 +231,8 @@ class Device {
         resolutionY == other.resolutionY &&
         hasPTZ == other.hasPTZ &&
         url == other.url &&
-        matrixType == other.matrixType;
+        matrixType == other.matrixType &&
+        overlays == other.overlays;
   }
 
   @override
@@ -238,7 +244,8 @@ class Device {
       resolutionY.hashCode ^
       hasPTZ.hashCode ^
       url.hashCode ^
-      matrixType.hashCode;
+      matrixType.hashCode ^
+      overlays.hashCode;
 
   Device copyWith({
     String? name,
@@ -250,6 +257,7 @@ class Device {
     bool? hasPTZ,
     String? url,
     MatrixType? matrixType,
+    List<VideoOverlay>? overlays,
   }) =>
       Device(
         name ?? this.name,
@@ -261,6 +269,7 @@ class Device {
         hasPTZ: hasPTZ ?? this.hasPTZ,
         url: url ?? this.url,
         matrixType: matrixType ?? this.matrixType,
+        overlays: overlays ?? this.overlays,
       );
 
   Map<String, dynamic> toJson() {
@@ -274,6 +283,7 @@ class Device {
       'hasPTZ': hasPTZ,
       'url': url,
       'matrixType': matrixType.index,
+      'overlays': overlays.map((e) => e.toMap()).toList(),
     };
   }
 
@@ -291,6 +301,10 @@ class Device {
       hasPTZ: json['hasPTZ'] ?? false,
       url: json['url'],
       matrixType: MatrixType.values[json['matrixType'] ?? 0],
+      overlays: json['overlays'] != null
+          ? List<VideoOverlay>.from(
+              (json['overlays'] as List).cast<Map>().map(VideoOverlay.fromMap))
+          : [],
     );
   }
 }

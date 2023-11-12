@@ -53,6 +53,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -77,42 +78,53 @@ Future<void> main(List<String> args) async {
 
   if (isDesktopPlatform && args.isNotEmpty) {
     debugPrint('FOUND ANOTHER WINDOW: $args');
-    try {
-      // this is just a mock. HomeProvider depends on this, so we mock the instance
-      ServersProvider.instance = ServersProvider();
-      await SettingsProvider.ensureInitialized();
-      await DesktopViewProvider.ensureInitialized();
 
-      final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
-      final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+    if (args.length == 1 &&
+        (path.extension(args.first) == '.bluecherry' ||
+            Uri.tryParse(args.first)?.scheme == 'bluecherry')) {
+      // this is handled by app links
+      // final configFile = File(args.first);
+      // if (await configFile.exists()) {
+      //   handleConfigurationFile(configFile);
+      // }
+    } else {
+      try {
+        // this is just a mock. HomeProvider depends on this, so we mock the instance
+        ServersProvider.instance = ServersProvider();
+        await SettingsProvider.ensureInitialized();
+        await DesktopViewProvider.ensureInitialized();
 
-      switch (windowType) {
-        case MultiWindowType.device:
-          final device = Device.fromJson(json.decode(args[1]));
-          configureWindowTitle(device.fullName);
+        final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
+        final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
 
-          runApp(AlternativeWindow(
-            mode: themeMode,
-            child: CameraView(device: device),
-          ));
-          break;
-        case MultiWindowType.layout:
-          final layout = Layout.fromJson(args[1]);
-          configureWindowTitle(layout.name);
+        switch (windowType) {
+          case MultiWindowType.device:
+            final device = Device.fromJson(json.decode(args[1]));
+            configureWindowTitle(device.fullName);
 
-          runApp(AlternativeWindow(
-            mode: themeMode,
-            child: AlternativeLayoutView(layout: layout),
-          ));
+            runApp(AlternativeWindow(
+              mode: themeMode,
+              child: CameraView(device: device),
+            ));
+            break;
+          case MultiWindowType.layout:
+            final layout = Layout.fromJson(args[1]);
+            configureWindowTitle(layout.name);
 
-          break;
+            runApp(AlternativeWindow(
+              mode: themeMode,
+              child: AlternativeLayoutView(layout: layout),
+            ));
+
+            break;
+        }
+      } catch (error, stack) {
+        debugPrint('error: $error');
+        debugPrintStack(stackTrace: stack);
       }
-    } catch (error, stack) {
-      debugPrint('error: $error');
-      debugPrintStack(stackTrace: stack);
-    }
 
-    return;
+      return;
+    }
   }
 
   // Request notifications permission for iOS, Android 13+ and Windows.
@@ -149,6 +161,9 @@ Future<void> main(List<String> args) async {
 
   HomeProvider.setDefaultStatusBarStyle();
 
+  app_links.register('rtsp');
+  app_links.register('bluecherry');
+  app_links.listen();
   runApp(const UnityApp());
 }
 
@@ -164,10 +179,6 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    app_links.register('rtsp');
-    app_links.init();
-    app_links.listen();
   }
 
   @override

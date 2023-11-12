@@ -430,6 +430,7 @@ abstract class UnityVideoPlayer {
   Future<void> seekTo(Duration position);
 
   Future<void> setSize(Size size);
+  double get aspectRatio;
 
   Future<void> setResolution(UnityVideoQuality quality) {
     this.quality = quality;

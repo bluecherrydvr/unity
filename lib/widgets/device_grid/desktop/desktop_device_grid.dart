@@ -59,6 +59,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
 
     final children = [
       CollapsableSidebar(
+        initiallyClosed: app_links.openedFromFile,
         left: !isReversed,
         builder: (context, collapsed, collapseButton) {
           if (collapsed) {
@@ -137,8 +138,10 @@ class LayoutView extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return DragTarget<Device>(
-      onAccept: onAccept,
-      onWillAccept: onWillAccept,
+      onWillAcceptWithDetails: onWillAccept == null
+          ? null
+          : (details) => onWillAccept!.call(details.data),
+      onAcceptWithDetails: (details) => onAccept?.call(details.data),
       builder: (context, candidateItems, rejectedItems) {
         late Widget child;
 
@@ -175,7 +178,7 @@ class LayoutView extends StatelessWidget {
             key: ValueKey(layout.hashCode),
             padding: kGridPadding,
             child: AspectRatio(
-              aspectRatio: 16 / 9,
+              aspectRatio: kHorizontalAspectRatio,
               child: DesktopDeviceTile(device: device),
             ),
           );
@@ -228,7 +231,7 @@ class LayoutView extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: kGridInnerPadding,
                 crossAxisSpacing: kGridInnerPadding,
-                childAspectRatio: 16 / 9,
+                childAspectRatio: kHorizontalAspectRatio,
               ),
               padding: kGridPadding,
               itemCount: foldedDevices.length,
@@ -259,7 +262,7 @@ class LayoutView extends StatelessWidget {
               child: StaticGrid(
                 key: ValueKey(layout.hashCode),
                 crossAxisCount: crossAxisCount.clamp(1, 50),
-                childAspectRatio: 16 / 9,
+                childAspectRatio: kHorizontalAspectRatio,
                 reorderable: onReorder != null,
                 onReorder: onReorder ?? (a, b) {},
                 children: devices.map((device) {
@@ -425,6 +428,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
     final closeButton = IconButton(
       icon: const Icon(Icons.close_outlined),
       color: theme.colorScheme.error,
@@ -458,6 +462,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       device: widget.device,
       builder: (context, commands, constraints) {
         final states = HoverButton.of(context).states;
+
+        final fit =
+            context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
+                settings.cameraViewFit;
 
         return Stack(children: [
           Positioned.fill(child: MulticastViewport(device: widget.device)),
@@ -568,32 +576,18 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       color: Colors.white,
                       iconSize: 18.0,
                       onPressed: () async {
-                        var player = UnityPlayers.players[widget.device.uuid];
-                        var isLocalController = false;
-                        if (player == null) {
-                          player = UnityPlayers.forDevice(widget.device);
-                          isLocalController = true;
-                        }
-
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': player,
-                            'ptzEnabled': ptzEnabled,
-                          },
+                        UnityPlayers.openFullscreen(
+                          context,
+                          widget.device,
+                          ptzEnabled: ptzEnabled,
                         );
-                        if (isLocalController) await player.release();
                       },
                     ),
                   reloadButton,
-                  CameraViewFitButton(
-                    fit: context
-                            .findAncestorWidgetOfExactType<UnityVideoView>()
-                            ?.fit ??
-                        SettingsProvider.instance.cameraViewFit,
-                    onChanged: widget.onFitChanged,
-                  ),
+                  // CameraViewFitButton(
+                  //   fit: fit,
+                  //   onChanged: widget.onFitChanged,
+                  // ),
                 ] else ...[
                   const Spacer(),
                   if (states.isHovering) reloadButton,
@@ -620,7 +614,38 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   opacity: !states.isHovering ? 0 : 1,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
-                  child: closeButton,
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    IconButton(
+                      icon: Icon(
+                        moreIconData,
+                        shadows: outlinedText(),
+                        color: Colors.white,
+                      ),
+                      tooltip: loc.more,
+                      onPressed: () async {
+                        final device = await showStreamDataDialog(
+                          context,
+                          device: widget.device,
+                          ptzEnabled: ptzEnabled,
+                          onPTZEnabledChanged: (enabled) => setState(() {
+                            ptzEnabled = enabled;
+                          }),
+                          fit: fit,
+                          onFitChanged: widget.onFitChanged,
+                        );
+                        if (device != null && mounted) {
+                          view.layouts[view.currentLayoutIndex].devices[view
+                              .currentLayout.devices
+                              .indexOf(widget.device)] = device;
+                          // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                          view.notifyListeners();
+                          updateVolume();
+                        }
+                      },
+                    ),
+                    closeButton,
+                  ]),
                 ),
               ),
           ],

@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -60,20 +61,45 @@ enum MatrixType {
 }
 
 class AddExternalStreamDialog extends StatefulWidget {
-  const AddExternalStreamDialog({super.key});
+  final String? defaultUrl;
+  final List<VideoOverlay> overlays;
 
-  static Future<void> show(BuildContext context) {
-    return showDialog(
+  const AddExternalStreamDialog({
+    super.key,
+    this.defaultUrl,
+    this.overlays = const [],
+  });
+
+  /// Shows the dialog.
+  ///
+  /// [defaultUrl] is the default URL to show in the URL field.
+  ///
+  /// [overlays] is a list of [VideoOverlay]s to show in the dialog.
+  ///
+  /// [fullscreen] is whether the stream should be turned into fullscreen after
+  /// added to the view.
+  static Future<Device?> show(
+    BuildContext context, {
+    String? defaultUrl,
+    List<VideoOverlay> overlays = const [],
+    bool fullscreen = false,
+  }) {
+    return showDialog<Device>(
       context: context,
-      builder: (context) => const AddExternalStreamDialog(),
+      builder: (context) => AddExternalStreamDialog(
+        defaultUrl: defaultUrl,
+        overlays: overlays,
+      ),
     );
   }
 
-  static void addStream(
+  static Device addStream(
     BuildContext context,
     String url, {
     String? name,
     MatrixType matrixType = MatrixType.t16,
+    List<VideoOverlay> overlays = const [],
+    bool fullscreen = false,
   }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
@@ -82,6 +108,7 @@ class AddExternalStreamDialog extends StatefulWidget {
       url: url,
       id: const Uuid().v4().hashCode,
       matrixType: matrixType,
+      overlays: overlays,
     )..server = Server.dump(name: url);
 
     final view = context.read<DesktopViewProvider>();
@@ -98,6 +125,8 @@ class AddExternalStreamDialog extends StatefulWidget {
         view.layouts.firstWhere((layout) => layout.name == loc.externalStream),
       ),
     );
+
+    return device;
   }
 
   @override
@@ -108,9 +137,11 @@ class AddExternalStreamDialog extends StatefulWidget {
 class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final urlController = TextEditingController();
+  late final urlController = TextEditingController(text: widget.defaultUrl);
 
   var matrixType = MatrixType.t16;
+
+  late final overlays = List<VideoOverlay>.from(widget.overlays);
 
   @override
   void dispose() {
@@ -131,83 +162,98 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
           constraints: BoxConstraints(
             minWidth: MediaQuery.sizeOf(context).width * 0.425,
           ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: TextFormField(
-                      autofocus: true,
-                      controller: nameController,
-                      decoration: InputDecoration(label: Text(loc.streamName)),
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.streamNameRequired;
-                        }
-                        return null;
-                      },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Form(
+                key: _formKey,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        autofocus: true,
+                        controller: nameController,
+                        decoration:
+                            InputDecoration(label: Text(loc.streamName)),
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return loc.streamNameRequired;
+                          }
+                          return null;
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: urlController,
-                      decoration: InputDecoration(label: Text(loc.streamURL)),
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _finish(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.streamNameRequired;
-                        } else if (Uri.tryParse(value) == null) {
-                          return loc.streamURLNotValid;
-                        }
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: urlController,
+                        decoration: InputDecoration(label: Text(loc.streamURL)),
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _finish(),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return loc.streamNameRequired;
+                          } else if (Uri.tryParse(value) == null) {
+                            return loc.streamURLNotValid;
+                          }
 
-                        return null;
-                      },
+                          return null;
+                        },
+                      ),
                     ),
-                  ),
-                ]),
-                if (settings.betaMatrixedZoomEnabled) ...[
-                  const SizedBox(height: 16.0),
-                  Text('Matrix type', style: theme.textTheme.labelMedium),
-                  const SizedBox(height: 6.0),
-                  Center(
-                    child: ToggleButtons(
-                      isSelected: MatrixType.values.map((type) {
-                        return type.index == matrixType.index;
-                      }).toList(),
-                      onPressed: (type) => setState(() {
-                        matrixType = MatrixType.values[type];
-                      }),
-                      // constraints: buttonConstraints,
-                      children: MatrixType.values.map<Widget>((type) {
-                        return Row(children: [
-                          const SizedBox(width: 12.0),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 150),
-                            child: KeyedSubtree(
-                              key: ValueKey(type),
-                              child: IconTheme.merge(
-                                data: const IconThemeData(size: 22.0),
-                                child: type.icon,
-                              ),
+                  ],
+                ),
+              ),
+              if (settings.betaMatrixedZoomEnabled) ...[
+                const SizedBox(height: 16.0),
+                Text(loc.matrixType, style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 6.0),
+                Center(
+                  child: ToggleButtons(
+                    isSelected: MatrixType.values.map((type) {
+                      return type.index == matrixType.index;
+                    }).toList(),
+                    onPressed: (type) => setState(() {
+                      matrixType = MatrixType.values[type];
+                    }),
+                    // constraints: buttonConstraints,
+                    children: MatrixType.values.map<Widget>((type) {
+                      return Row(children: [
+                        const SizedBox(width: 12.0),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 150),
+                          child: KeyedSubtree(
+                            key: ValueKey(type),
+                            child: IconTheme.merge(
+                              data: const IconThemeData(size: 22.0),
+                              child: type.icon,
                             ),
                           ),
-                          const SizedBox(width: 8.0),
-                          Text(type.toString()),
-                          const SizedBox(width: 16.0),
-                        ]);
-                      }).toList(),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Text(type.toString()),
+                        const SizedBox(width: 16.0),
+                      ]);
+                    }).toList(),
+                  ),
+                ),
+              ],
+              if (overlays.isNotEmpty)
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: VideoOverlaysEditor(
+                      overlays: overlays,
+                      onChanged: (index, overlay) {
+                        setState(() => overlays[index] = overlay);
+                      },
                     ),
                   ),
-                ],
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),
@@ -229,13 +275,103 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       return;
     }
 
-    AddExternalStreamDialog.addStream(
+    final device = AddExternalStreamDialog.addStream(
       context,
       urlController.text,
       name: nameController.text,
       matrixType: matrixType,
+      overlays: overlays,
     );
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop<Device>(device);
+  }
+}
+
+class VideoOverlaysEditor extends StatelessWidget {
+  final List<VideoOverlay> overlays;
+  final void Function(int index, VideoOverlay newOverlay) onChanged;
+
+  const VideoOverlaysEditor({
+    super.key,
+    required this.overlays,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 16.0),
+        Text(loc.overlays, style: theme.textTheme.headlineSmall),
+        for (final overlay in overlays) ...[
+          const SizedBox(height: 6.0),
+          Row(children: [
+            Tooltip(
+              message: loc.visible,
+              child: Transform.scale(
+                scale: 0.9,
+                child: Checkbox(
+                  value: overlay.visible,
+                  onChanged: (visible) {
+                    onChanged(
+                      overlays.indexOf(overlay),
+                      overlay.copyWith(visible: visible!),
+                    );
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6.0),
+            Text(
+              loc.nOverlay(overlays.indexOf(overlay) + 1),
+              style: theme.textTheme.labelLarge,
+            ),
+            const Spacer(),
+            Text(
+              loc.overlayPosition(overlay.position.dx, overlay.position.dy),
+              style: theme.textTheme.labelSmall!
+                  .copyWith(fontWeight: FontWeight.normal),
+            ),
+          ]),
+          const SizedBox(height: 2.0),
+          TextFormField(
+            initialValue: overlay.text,
+            style: theme.textTheme.bodyLarge!,
+            // .copyWith(
+            //   shadows: outlinedText(
+            //     strokeColor: (overlay.textStyle?.color ?? Colors.black)
+            //                 .computeLuminance() >
+            //             0.5
+            //         ? Colors.black
+            //         : Colors.white,
+            //     strokeWidth: 0.5,
+            //   ),
+            // )
+            // .merge(overlay.textStyle),
+            onChanged: (text) {
+              onChanged(
+                overlays.indexOf(overlay).clamp(0, overlays.length),
+                overlay.copyWith(text: text),
+              );
+            },
+            scrollPadding: EdgeInsets.zero,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
+          ),
+          const SizedBox(height: 4.0),
+        ],
+      ],
+    );
   }
 }

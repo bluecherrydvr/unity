@@ -214,10 +214,15 @@ class PTZToggleButton extends StatelessWidget {
   final bool ptzEnabled;
   final ValueChanged<bool> onChanged;
 
+  final Color? enabledColor;
+  final Color? disabledColor;
+
   const PTZToggleButton({
     super.key,
     required this.ptzEnabled,
     required this.onChanged,
+    this.enabledColor,
+    this.disabledColor,
   });
 
   @override
@@ -229,8 +234,9 @@ class PTZToggleButton extends StatelessWidget {
         icon: Icon(
           Icons.videogame_asset,
           color: ptzEnabled
-              ? Colors.white
-              : theme.colorScheme.onInverseSurface.withOpacity(0.86),
+              ? enabledColor ?? Colors.white
+              : disabledColor ??
+                  theme.colorScheme.onInverseSurface.withOpacity(0.86),
         ),
         tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
         onPressed: () => onChanged(!ptzEnabled),

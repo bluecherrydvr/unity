@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
@@ -480,7 +481,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
         child: Row(children: [
           Expanded(
             child: AspectRatio(
-              aspectRatio: 16 / 9,
+              aspectRatio: kHorizontalAspectRatio,
               child: Center(
                 child: StaticGrid(
                   padding: EdgeInsetsDirectional.zero,
@@ -489,7 +490,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     timeline.tiles.length,
                   ),
                   onReorder: (a, b) {},
-                  childAspectRatio: 16 / 9,
+                  childAspectRatio: kHorizontalAspectRatio,
                   emptyChild: NoEventsLoaded(
                     isLoading: context.watch<HomeProvider>().isLoadingFor(
                           UnityLoadingReason.fetchingEventsHistory,

@@ -283,6 +283,7 @@
   "open": "Fermé",
   "collapse": "Réduire",
   "expand": "Développer",
+  "more": "More",
   "@PTZ": {},
   "ptzSupported": "Support PTZ",
   "enabledPTZ": "PTZ est activé",
@@ -358,6 +359,7 @@
   "betaFeatures": "Beta features",
   "matrixedViewZoom": "Matrixed view zoom",
   "matrixedViewZoomDescription": "Zoom in on a 16x16 matrixed view to see more detail.",
+  "matrixType": "Matrix type",
   "@CURRENT TASKS": {},
   "currentTasks": "Tâche courante",
   "noCurrentTasks": "Aucune tâche",
@@ -365,6 +367,7 @@
   "taskFetchingEventsPlayback": "Récupération de la lecture des évènements",
   "taskDownloadingEvent": "Téléchargement de l'évènement",
   "@@@SETTINGS": {},
+  "defaultField": "Default",
   "@@APPEARANCE": {},
   "theme": "Thème",
   "themeDescription": "Modifier l'apparence de l'application",
@@ -406,5 +409,30 @@
   "cover": "Couvrir",
   "@@LOCALIZATION": {},
   "dateLanguage": "Date et Langue",
-  "language": "Langue"
+  "language": "Langue",
+  "@Overlays": {},
+  "overlays": "Overlays",
+  "visible": "Visible",
+  "nOverlay": "Overlay {n}",
+  "@nOverlay": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "overlayPosition": "Position (x: {x}, y: {y})",
+  "@overlayPosition": {
+    "placeholders": {
+      "x": {
+        "type": "double",
+        "example": "0.0"
+      },
+      "y": {
+        "type": "double",
+        "example": "0.0"
+      }
+    }
+  }
 }

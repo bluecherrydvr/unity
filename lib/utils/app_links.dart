@@ -21,9 +21,11 @@ import 'dart:io';
 
 import 'package:app_links/app_links.dart';
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path/path.dart' as path;
 import 'package:win32_registry/win32_registry.dart';
 
 final instance = AppLinks();
@@ -52,42 +54,56 @@ Future<void> register(String scheme) async {
   }
 }
 
-/// Initialize the app links.
-///
-/// When the app is opened from a link, it will open the [AddExternalStreamDialog]
-/// as soon as the application is ready.
-Future<void> init() async {
-  try {
-    var initialUri = await instance.getInitialAppLinkString();
-    debugPrint('Initial URI: $initialUri');
-    if (initialUri != null) {
-      final url = initialUri;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final context = navigatorKey.currentContext;
-        if (context != null && context.mounted) {
-          AddExternalStreamDialog.addStream(context, url);
-        }
-      });
-    }
-  } catch (e) {
-    debugPrint('Error initializing app links: $e');
-  }
-}
+bool? _openedFromFile;
+
+/// Whether the app was opened from a `.bluecherry` file.
+bool get openedFromFile => _openedFromFile ?? false;
 
 /// Listens to any links received while the app is running.
 void listen() {
-  instance.allUriLinkStream.listen((uri) {
+  instance.allUriLinkStream.listen((uri) async {
     debugPrint('Received URI: $uri');
-    final url = uri.toString();
-    if (isDesktopPlatform) {
-      final context = navigatorKey.currentContext;
-      if (context != null) {
-        AddExternalStreamDialog.addStream(context, url);
-      }
-    } else {
-      final navigator = navigatorKey.currentState;
-      if (navigator == null) return;
-      navigator.pushNamed('/rtsp', arguments: url);
-    }
+    final handleType = await _handleUri(uri);
+    _openedFromFile ??= handleType == HandleType.bluecherry;
+    debugPrint('Handled URI: ${handleType.name}');
   });
+}
+
+enum HandleType {
+  /// Whether the url comes from a `.bluecherry` file.
+  bluecherry,
+
+  /// Whether the url comes from a `rtsp://` link.
+  streamUrl,
+
+  /// Whether the url comes from a `bluecherry://` link.
+  none,
+}
+
+Future<HandleType> _handleUri(Uri uri) async {
+  if (uri.isScheme('bluecherry')) {
+    return HandleType.none;
+  }
+
+  if (uri.path.isNotEmpty && path.extension(uri.path) == '.bluecherry') {
+    final file = File(uri.path);
+    if (await file.exists()) {
+      handleConfigurationFile(file);
+      return HandleType.bluecherry;
+    }
+  }
+
+  final url = uri.toString();
+  if (isDesktopPlatform) {
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      AddExternalStreamDialog.addStream(context, url);
+    }
+  } else {
+    final navigator = navigatorKey.currentState;
+    if (navigator == null) return HandleType.none;
+    navigator.pushNamed('/rtsp', arguments: url);
+  }
+
+  return HandleType.streamUrl;
 }

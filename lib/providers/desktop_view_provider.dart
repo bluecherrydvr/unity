@@ -38,6 +38,11 @@ class DesktopViewProvider extends ChangeNotifier {
     return instance;
   }
 
+  // TODO(bdlukaa): to work better with multiple layouts, an unique list of
+  // [Device]s must be created - and each [Layout] will contain only the id
+  // of each device. This ensures that the [Device] state is properly updated
+  // across all layouts.
+
   List<Layout> layouts = [
     Layout(name: 'Default', devices: List.empty(growable: true)),
   ];

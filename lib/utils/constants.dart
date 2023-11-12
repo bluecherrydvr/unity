@@ -75,3 +75,6 @@ const uuid = Uuid();
 
 /// If the screen size is smaller or equal to this, a mobile view shall be used
 const kMobileBreakpoint = Size(800, 500);
+
+/// Aspect ratio of a single camera tile
+const kHorizontalAspectRatio = 16 / 9;

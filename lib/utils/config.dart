@@ -73,6 +73,39 @@ class VideoOverlay {
       visible: map['visible'] ?? false,
     );
   }
+
+  VideoOverlay copyWith({
+    String? text,
+    TextStyle? textStyle,
+    Offset? position,
+    bool? visible,
+  }) {
+    return VideoOverlay(
+      text: text ?? this.text,
+      textStyle: textStyle ?? this.textStyle,
+      position: position ?? this.position,
+      visible: visible ?? this.visible,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is VideoOverlay &&
+        other.text == text &&
+        other.textStyle == textStyle &&
+        other.position == position &&
+        other.visible == visible;
+  }
+
+  @override
+  int get hashCode {
+    return text.hashCode ^
+        textStyle.hashCode ^
+        position.hashCode ^
+        visible.hashCode;
+  }
 }
 
 /// Parses the config file content and returns a map with the config values.
@@ -182,8 +215,8 @@ void ensureFileFormat(Map<String, dynamic> configData) {
   }
 }
 
-void handleConfigurationFile(File file) {
-  var configData = parseConfig(file.readAsStringSync());
+Future<void> handleConfigurationFile(File file) async {
+  var configData = parseConfig(await file.readAsString());
   ensureFileFormat(configData);
 
   final context = navigatorKey.currentContext;
@@ -229,5 +262,11 @@ void handleConfigurationFile(File file) {
     }
   }
 
-  AddExternalStreamDialog.show(context, defaultUrl: videoUrl);
+  if (context.mounted) {
+    await AddExternalStreamDialog.show(
+      context,
+      defaultUrl: videoUrl,
+      overlays: overlays,
+    );
+  }
 }

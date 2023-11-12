@@ -175,7 +175,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
             child: IgnorePointer(
               child: Text(
                 overlay.text,
-                style: theme.textTheme.labelLarge!
+                style: theme.textTheme.bodyLarge!
                     .copyWith(shadows: outlinedText())
                     .merge(overlay.textStyle),
               ),

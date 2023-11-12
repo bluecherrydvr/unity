@@ -23,7 +23,9 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -61,20 +63,24 @@ enum MatrixType {
 
 class AddExternalStreamDialog extends StatefulWidget {
   final String? defaultUrl;
+  final List<VideoOverlay> overlays;
 
   const AddExternalStreamDialog({
     super.key,
     this.defaultUrl,
+    this.overlays = const [],
   });
 
   static Future<void> show(
     BuildContext context, {
     String? defaultUrl,
+    List<VideoOverlay> overlays = const [],
   }) {
     return showDialog(
       context: context,
       builder: (context) => AddExternalStreamDialog(
         defaultUrl: defaultUrl,
+        overlays: overlays,
       ),
     );
   }
@@ -84,6 +90,7 @@ class AddExternalStreamDialog extends StatefulWidget {
     String url, {
     String? name,
     MatrixType matrixType = MatrixType.t16,
+    List<VideoOverlay> overlays = const [],
   }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
@@ -92,6 +99,7 @@ class AddExternalStreamDialog extends StatefulWidget {
       url: url,
       id: const Uuid().v4().hashCode,
       matrixType: matrixType,
+      overlays: overlays,
     )..server = Server.dump(name: url);
 
     final view = context.read<DesktopViewProvider>();
@@ -122,6 +130,8 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
 
   var matrixType = MatrixType.t16;
 
+  late final overlays = List<VideoOverlay>.from(widget.overlays);
+
   @override
   void dispose() {
     nameController.dispose();
@@ -141,50 +151,57 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
           constraints: BoxConstraints(
             minWidth: MediaQuery.sizeOf(context).width * 0.425,
           ),
-          child: Form(
-            key: _formKey,
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: TextFormField(
-                      autofocus: true,
-                      controller: nameController,
-                      decoration: InputDecoration(label: Text(loc.streamName)),
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.streamNameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: urlController,
-                      decoration: InputDecoration(label: Text(loc.streamURL)),
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _finish(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.streamNameRequired;
-                        } else if (Uri.tryParse(value) == null) {
-                          return loc.streamURLNotValid;
-                        }
+                Form(
+                  key: _formKey,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          autofocus: true,
+                          controller: nameController,
+                          decoration:
+                              InputDecoration(label: Text(loc.streamName)),
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return loc.streamNameRequired;
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: urlController,
+                          decoration:
+                              InputDecoration(label: Text(loc.streamURL)),
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _finish(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return loc.streamNameRequired;
+                            } else if (Uri.tryParse(value) == null) {
+                              return loc.streamURLNotValid;
+                            }
 
-                        return null;
-                      },
-                    ),
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
+                ),
                 if (settings.betaMatrixedZoomEnabled) ...[
                   const SizedBox(height: 16.0),
-                  Text('Matrix type', style: theme.textTheme.labelMedium),
+                  Text('Matrix type', style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),
                   Center(
                     child: ToggleButtons(
@@ -216,6 +233,64 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                     ),
                   ),
                 ],
+                if (overlays.isNotEmpty) ...[
+                  const SizedBox(height: 16.0),
+                  Text('Overlays', style: theme.textTheme.headlineSmall),
+                  for (final overlay in overlays) ...[
+                    const SizedBox(height: 6.0),
+                    Row(children: [
+                      Tooltip(
+                        message: 'Visible',
+                        child: Transform.scale(
+                          scale: 0.9,
+                          child: Checkbox(
+                            value: overlay.visible,
+                            onChanged: (v) {
+                              setState(() {
+                                overlays[overlays.indexOf(overlay)] =
+                                    overlay.copyWith(visible: v!);
+                              });
+                            },
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6.0),
+                      Text(
+                        'Overlay ${overlays.indexOf(overlay) + 1}',
+                        style: theme.textTheme.labelLarge,
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Position (x: ${overlay.position.dx}, y: ${overlay.position.dy})',
+                        style: theme.textTheme.labelSmall!
+                            .copyWith(fontWeight: FontWeight.normal),
+                      ),
+                    ]),
+                    const SizedBox(height: 2.0),
+                    TextField(
+                      controller: TextEditingController(text: overlay.text),
+                      style: theme.textTheme.bodyLarge!
+                          .copyWith(shadows: outlinedText())
+                          .merge(overlay.textStyle),
+                      onChanged: (text) {
+                        setState(() {
+                          overlays[overlays.indexOf(overlay)] =
+                              overlay.copyWith(text: text);
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),
+                    ),
+                    const SizedBox(height: 4.0),
+                  ],
+                ],
               ],
             ),
           ),
@@ -244,6 +319,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       urlController.text,
       name: nameController.text,
       matrixType: matrixType,
+      overlays: overlays,
     );
 
     Navigator.of(context).pop();

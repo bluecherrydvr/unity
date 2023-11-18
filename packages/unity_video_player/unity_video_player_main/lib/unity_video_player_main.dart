@@ -1,6 +1,7 @@
 library unity_video_player_main;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -331,11 +332,22 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> resetCrop() => crop(-1, -1, -1);
 
+  /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col, int size) async {
     final player = mkPlayer.platform as NativePlayer;
-    if (row == -1 && col == -1 && size == -1) {
-      player.setProperty('video-crop', '0x0+0+0');
+    // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
+    // As of now (18 nov 2023), the "video-crop" parameter is not supported on
+    // most distros. In this case, there is the "vf=crop" parameter that does
+    // the same thing. "video-crop" is preferred on the other platforms because
+    // of its performance.
+
+    if (row == -1 || col == -1 || size == -1) {
+      if (Platform.isLinux) {
+        player.setProperty('vf', 'crop=0:0:0:0');
+      } else {
+        player.setProperty('video-crop', '0x0+0+0');
+      }
       _isCropped = false;
     } else if (width != null && height != null) {
       final tileWidth = maxSize.width / size;
@@ -348,15 +360,28 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         tileHeight,
       );
 
-      debugPrint('Index | row=$row | col=$col | viewport=$viewportRect');
-
-      player.setProperty(
-        'video-crop',
-        '${viewportRect.width.toInt()}x'
-            '${viewportRect.height.toInt()}+'
-            '${viewportRect.left.toInt()}+'
-            '${viewportRect.top.toInt()}',
+      debugPrint(
+        'Cropping | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
       );
+
+      if (Platform.isLinux) {
+        player.setProperty(
+          'vf',
+          'crop='
+              '${viewportRect.width.toInt()}:'
+              '${viewportRect.height.toInt()}:'
+              '${viewportRect.left.toInt()}:'
+              '${viewportRect.top.toInt()}',
+        );
+      } else {
+        player.setProperty(
+          'video-crop',
+          '${viewportRect.width.toInt()}x'
+              '${viewportRect.height.toInt()}+'
+              '${viewportRect.left.toInt()}+'
+              '${viewportRect.top.toInt()}',
+        );
+      }
       _isCropped = true;
     }
   }

@@ -64,11 +64,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
   late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
 
-  late final videoController = widget.player ??
-      UnityVideoPlayer.create(
-        quality: UnityVideoQuality.p480,
-        enableCache: true,
-      );
+  late final UnityVideoPlayer videoController;
   late final StreamSubscription playingSubscription;
   late final StreamSubscription bufferSubscription;
 
@@ -91,6 +87,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   @override
   void initState() {
     super.initState();
+    videoController = widget.player ??
+        UnityVideoPlayer.create(
+          quality: UnityVideoQuality.p480,
+          enableCache: true,
+        );
     currentEvent = widget.event;
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
@@ -107,9 +108,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
   @override
   void dispose() {
-    videoController
-      ..release()
-      ..dispose();
     playingSubscription.cancel();
     bufferSubscription.cancel();
     focusNode.dispose();
@@ -165,6 +163,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
             WindowButtons(
               title: '${currentEvent.deviceName} (${currentEvent.server.name})',
               showNavigator: false,
+              onBack: () async {
+                await videoController.pause();
+                await videoController.release();
+                await videoController.dispose();
+                await Future.delayed(const Duration(milliseconds: 100));
+              },
             ),
             Expanded(
               child: Row(children: [

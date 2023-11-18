@@ -108,10 +108,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
   @override
   void dispose() {
-    videoController
-      ..pause()
-      ..release()
-      ..dispose();
     playingSubscription.cancel();
     bufferSubscription.cancel();
     focusNode.dispose();
@@ -167,6 +163,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
             WindowButtons(
               title: '${currentEvent.deviceName} (${currentEvent.server.name})',
               showNavigator: false,
+              onBack: () async {
+                await videoController.pause();
+                await videoController.release();
+                await videoController.dispose();
+                await Future.delayed(const Duration(milliseconds: 100));
+              },
             ),
             Expanded(
               child: Row(children: [

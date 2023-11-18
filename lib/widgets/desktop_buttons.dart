@@ -77,6 +77,7 @@ class WindowButtons extends StatefulWidget {
     super.key,
     this.title,
     this.showNavigator = true,
+    this.onBack,
   });
 
   /// The current window title.
@@ -91,6 +92,9 @@ class WindowButtons extends StatefulWidget {
   ///
   /// Defaults to true.
   final bool showNavigator;
+
+  /// Called when the back button is pressed.
+  final Future<void> Function()? onBack;
 
   @override
   State<WindowButtons> createState() => _WindowButtonsState();
@@ -143,6 +147,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                 if (canPop)
                   InkWell(
                     onTap: () async {
+                      await widget.onBack?.call();
                       await navigatorKey.currentState?.maybePop();
                       if (mounted) setState(() {});
                     },

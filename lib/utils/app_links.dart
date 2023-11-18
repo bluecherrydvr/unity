@@ -61,12 +61,16 @@ bool get openedFromFile => _openedFromFile ?? false;
 
 /// Listens to any links received while the app is running.
 void listen() {
-  instance.allUriLinkStream.listen((uri) async {
-    debugPrint('Received URI: $uri');
-    final handleType = await _handleUri(uri);
-    _openedFromFile ??= handleType == HandleType.bluecherry;
-    debugPrint('Handled URI: ${handleType.name}');
-  });
+  // Deep linking is not supported on Linux.
+  // See https://github.com/llfbandit/app_links/issues/20 for more info.
+  if (!Platform.isLinux) {
+    instance.allUriLinkStream.listen((uri) async {
+      debugPrint('Received URI: $uri');
+      final handleType = await _handleUri(uri);
+      _openedFromFile ??= handleType == HandleType.bluecherry;
+      debugPrint('Handled URI: ${handleType.name}');
+    });
+  }
 }
 
 enum HandleType {

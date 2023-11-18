@@ -64,11 +64,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
   late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
 
-  late final videoController = widget.player ??
-      UnityVideoPlayer.create(
-        quality: UnityVideoQuality.p480,
-        enableCache: true,
-      );
+  late final UnityVideoPlayer videoController;
   late final StreamSubscription playingSubscription;
   late final StreamSubscription bufferSubscription;
 
@@ -91,6 +87,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   @override
   void initState() {
     super.initState();
+    videoController = widget.player ??
+        UnityVideoPlayer.create(
+          quality: UnityVideoQuality.p480,
+          enableCache: true,
+        );
     currentEvent = widget.event;
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
@@ -108,6 +109,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   @override
   void dispose() {
     videoController
+      ..pause()
       ..release()
       ..dispose();
     playingSubscription.cancel();

@@ -205,11 +205,14 @@ class MobileViewProvider extends ChangeNotifier {
         value.map((e) => e?.toJson()).toList().cast<Map<String, dynamic>?>(),
       ),
     );
-    debugPrint(data.toString());
-    await mobileView.write({
-      kHiveMobileView: jsonEncode(data),
-      kHiveMobileViewTab: tab,
-    });
+    try {
+      await mobileView.write({
+        kHiveMobileView: jsonEncode(data),
+        kHiveMobileViewTab: tab,
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notifyListeners) {
       this.notifyListeners();

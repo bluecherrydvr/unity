@@ -138,10 +138,14 @@ class DownloadsManager extends ChangeNotifier {
   }
 
   Future<void> _save({bool notify = true}) async {
-    await downloads.write({
-      kHiveDownloads:
-          jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
-    });
+    try {
+      await downloads.write({
+        kHiveDownloads:
+            jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notify) notifyListeners();
   }

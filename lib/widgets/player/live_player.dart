@@ -53,6 +53,7 @@ class LivePlayer extends StatefulWidget {
     this.ptzEnabled = false,
   }) : _disposeOnPop = false;
 
+  /// Creates a live player from an url.
   LivePlayer.fromUrl({
     super.key,
     required String url,
@@ -94,21 +95,19 @@ class _LivePlayerState extends State<LivePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, consts) {
-      if (isMobilePlatform) {
-        return _MobileLivePlayer(
-          player: widget.player,
-          device: widget.device,
-          ptzEnabled: widget.ptzEnabled,
-        );
-      } else {
-        return _DesktopLivePlayer(
-          player: widget.player,
-          device: widget.device,
-          ptzEnabled: widget.ptzEnabled,
-        );
-      }
-    });
+    if (isMobilePlatform) {
+      return _MobileLivePlayer(
+        player: widget.player,
+        device: widget.device,
+        ptzEnabled: widget.ptzEnabled,
+      );
+    } else {
+      return _DesktopLivePlayer(
+        player: widget.player,
+        device: widget.device,
+        ptzEnabled: widget.ptzEnabled,
+      );
+    }
   }
 }
 

@@ -189,9 +189,13 @@ class ServersProvider extends ChangeNotifier {
 
   /// Save currently added [Server]s to `package:hive` cache.
   Future<void> _save() async {
-    await serversStorage.write({
-      kHiveServers: servers.map((e) => e.toJson()).toList(),
-    });
+    try {
+      await serversStorage.write({
+        kHiveServers: servers.map((e) => e.toJson()).toList(),
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
     notifyListeners();
   }
 

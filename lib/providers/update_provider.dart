@@ -143,10 +143,14 @@ class UpdateManager extends ChangeNotifier {
   }
 
   Future<void> _save({bool notify = true}) async {
-    await downloads.write({
-      kHiveAutomaticUpdates: automaticDownloads,
-      kHiveLastCheck: lastCheck?.toIso8601String(),
-    });
+    try {
+      await downloads.write({
+        kHiveAutomaticUpdates: automaticDownloads,
+        kHiveLastCheck: lastCheck?.toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notify) notifyListeners();
   }

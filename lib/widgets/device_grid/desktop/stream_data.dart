@@ -83,7 +83,7 @@ class _StreamDataState extends State<StreamData> {
   late var ptzEnabled = widget.ptzEnabled;
   late var fit = widget.fit;
   late final overlays = List<VideoOverlay>.from(widget.device.overlays);
-  StreamingType? streamingType;
+  late var streamingType = widget.device.preferredStreamingType;
 
   late final StreamSubscription<double> volumeSubscription;
 

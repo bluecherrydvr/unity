@@ -54,7 +54,8 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     Future<void> setSource() async {
-      final source = switch (settings.streamingType) {
+      final source =
+          switch (device.preferredStreamingType ?? settings.streamingType) {
         StreamingType.rtsp => device.rtspURL,
         StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
         StreamingType.mjpeg => device.mjpegURL,

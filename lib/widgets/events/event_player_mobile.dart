@@ -91,11 +91,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
 
   @override
   void dispose() {
-    if (widget.player == null) {
-      videoController
-        ..release()
-        ..dispose();
-    }
+    if (widget.player == null) videoController.dispose();
 
     DeviceOrientations.instance.set(DeviceOrientation.values);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

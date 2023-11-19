@@ -373,10 +373,9 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               var player = UnityPlayers.players[widget.device.uuid];
-              var isLocalController = false;
-              if (player == null) {
+              var isLocalController = player == null;
+              if (isLocalController) {
                 player = UnityPlayers.forDevice(widget.device);
-                isLocalController = true;
               }
 
               await Navigator.of(context).pushNamed(
@@ -386,7 +385,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   'player': player,
                 },
               );
-              if (isLocalController) await player.release();
+              if (isLocalController) await player.dispose();
             });
           },
         ),

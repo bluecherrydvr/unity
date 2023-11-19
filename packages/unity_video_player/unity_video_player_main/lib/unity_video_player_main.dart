@@ -264,7 +264,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
     if (url == dataSource) return Future.value();
     return ensureVideoControllerInitialized((controller) async {
-      mkPlayer.setPlaylistMode(PlaylistMode.loop);
+      await mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play
       await mkPlayer.open(Playlist([Media(url)]), play: autoPlay);
     });
@@ -285,8 +285,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   // Volume in media kit goes from 0 to 100
   @override
-  Future<void> setVolume(double volume) async =>
-      mkPlayer.setVolume(volume * 100);
+  Future<void> setVolume(double volume) => mkPlayer.setVolume(volume * 100);
 
   @override
   double get volume => mkPlayer.state.volume / 100;
@@ -295,9 +294,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<double> get volumeStream => mkPlayer.stream.volume;
 
   @override
-  Future<void> setSpeed(double speed) async => mkPlayer.setRate(speed);
+  Future<void> setSpeed(double speed) => mkPlayer.setRate(speed);
   @override
-  Future<void> seekTo(Duration position) async => mkPlayer.seek(position);
+  Future<void> seekTo(Duration position) => mkPlayer.seek(position);
 
   @override
   Future<void> setSize(Size size) {
@@ -315,14 +314,21 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> start() {
     return ensureVideoControllerInitialized((controller) async {
-      mkPlayer.play();
+      await mkPlayer.play();
     });
   }
 
   @override
-  Future<void> pause() async => mkPlayer.pause();
+  Future<void> pause() => mkPlayer.pause();
+
   @override
-  Future<void> release() async {}
+  Future<void> release() async {
+    if (!kIsWeb && Platform.isLinux) {
+      await pause();
+      await Future.delayed(const Duration(milliseconds: 150));
+    }
+  }
+
   @override
   Future<void> reset() async {
     await pause();
@@ -344,9 +350,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     if (row == -1 || col == -1 || size == -1) {
       if (Platform.isLinux) {
-        player.setProperty('vf', 'crop=0:0:0:0');
+        await player.setProperty('vf', 'crop=');
       } else {
-        player.setProperty('video-crop', '0x0+0+0');
+        await player.setProperty('video-crop', '0x0+0+0');
       }
       _isCropped = false;
     } else if (width != null && height != null) {
@@ -365,7 +371,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
 
       if (Platform.isLinux) {
-        player.setProperty(
+        await player.setProperty(
           'vf',
           'crop='
               '${viewportRect.width.toInt()}:'
@@ -374,7 +380,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
               '${viewportRect.top.toInt()}',
         );
       } else {
-        player.setProperty(
+        await player.setProperty(
           'video-crop',
           '${viewportRect.width.toInt()}x'
               '${viewportRect.height.toInt()}+'
@@ -391,15 +397,18 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Future<void> dispose() async {
+    await release();
     await super.dispose();
     if (mkPlayer.platform is NativePlayer) {
       final platform = mkPlayer.platform as NativePlayer;
 
       await platform.unobserveProperty('estimated-vf-fps');
+      await platform.unobserveProperty('dwidth');
+      await platform.unobserveProperty('dheight');
     }
+    await _fpsStreamController.close();
     await errorStream.cancel();
     await mkPlayer.dispose();
-    _fpsStreamController.close();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

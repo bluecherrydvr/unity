@@ -163,12 +163,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
             WindowButtons(
               title: '${currentEvent.deviceName} (${currentEvent.server.name})',
               showNavigator: false,
-              onBack: () async {
-                await videoController.pause();
-                await videoController.release();
-                await videoController.dispose();
-                await Future.delayed(const Duration(milliseconds: 100));
-              },
+              onBack: videoController.dispose,
             ),
             Expanded(
               child: Row(children: [

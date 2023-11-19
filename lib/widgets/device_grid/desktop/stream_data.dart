@@ -83,6 +83,7 @@ class _StreamDataState extends State<StreamData> {
   late var ptzEnabled = widget.ptzEnabled;
   late var fit = widget.fit;
   late final overlays = List<VideoOverlay>.from(widget.device.overlays);
+  StreamingType? streamingType;
 
   late final StreamSubscription<double> volumeSubscription;
 
@@ -148,15 +149,7 @@ class _StreamDataState extends State<StreamData> {
                       Text(fit.locale(context)),
                       if (settings.cameraViewFit == fit) ...[
                         const SizedBox(width: 10.0),
-                        Tooltip(
-                          message: loc.defaultField,
-                          preferBelow: true,
-                          child: const Icon(
-                            Icons.loyalty,
-                            size: 18.0,
-                            color: Colors.amberAccent,
-                          ),
-                        ),
+                        const DefaultValueIcon(),
                       ],
                       const SizedBox(width: 12.0),
                     ]);
@@ -165,6 +158,37 @@ class _StreamDataState extends State<StreamData> {
                     setState(() => fit = UnityVideoFit.values[index]);
                   },
                 ),
+                if (widget.device.url == null) ...[
+                  Text(loc.streamingType, style: theme.textTheme.headlineSmall),
+                  const SizedBox(height: 6.0),
+                  ToggleButtons(
+                    isSelected: StreamingType.values
+                        .map(
+                          (type) => streamingType == null
+                              ? type == settings.streamingType
+                              : type == streamingType,
+                        )
+                        .toList(),
+                    children: StreamingType.values.map((type) {
+                      return Row(children: [
+                        const SizedBox(width: 12.0),
+                        // Icon(type.icon),
+                        // const SizedBox(width: 8.0),
+                        Text(type.name.toUpperCase()),
+                        if (settings.streamingType == type) ...[
+                          const SizedBox(width: 10.0),
+                          const DefaultValueIcon(),
+                        ],
+                        const SizedBox(width: 12.0),
+                      ]);
+                    }).toList(),
+                    onPressed: (index) {
+                      setState(
+                        () => streamingType = StreamingType.values[index],
+                      );
+                    },
+                  ),
+                ],
                 if (settings.betaMatrixedZoomEnabled) ...[
                   const SizedBox(height: 16.0),
                   Text(loc.matrixType, style: theme.textTheme.headlineSmall),
@@ -247,6 +271,7 @@ class _StreamDataState extends State<StreamData> {
                 widget.device.copyWith(
                   overlays: overlays,
                   matrixType: matrixType,
+                  preferredStreamingType: streamingType,
                 ),
               );
             },
@@ -254,6 +279,24 @@ class _StreamDataState extends State<StreamData> {
           ),
         ]),
       ],
+    );
+  }
+}
+
+class DefaultValueIcon extends StatelessWidget {
+  const DefaultValueIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Tooltip(
+      message: loc.defaultField,
+      preferBelow: true,
+      child: const Icon(
+        Icons.loyalty,
+        size: 18.0,
+        color: Colors.amberAccent,
+      ),
     );
   }
 }

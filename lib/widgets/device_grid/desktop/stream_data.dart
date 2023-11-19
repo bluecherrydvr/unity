@@ -107,15 +107,18 @@ class _StreamDataState extends State<StreamData> {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
 
+    const borderSize = 4.0;
+
     //This, basically, would
     // contain all the information about this stream - and provide
     // more options, such as adding/changing overlays.
     return AlertDialog(
       title: Text(widget.device.name),
-      content: IntrinsicHeight(
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          IntrinsicWidth(
-            child: Column(
+      content: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+          width: 400.0,
+          child: LayoutBuilder(
+            builder: (context, constraints) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -141,24 +144,37 @@ class _StreamDataState extends State<StreamData> {
                   isSelected: UnityVideoFit.values
                       .map((fit) => fit == this.fit)
                       .toList(),
+                  constraints: BoxConstraints(
+                    minWidth:
+                        constraints.maxWidth / UnityVideoFit.values.length -
+                            borderSize,
+                    maxWidth:
+                        constraints.maxWidth / UnityVideoFit.values.length -
+                            borderSize,
+                    minHeight: 48.0,
+                  ),
                   children: UnityVideoFit.values.map((fit) {
-                    return Row(children: [
-                      const SizedBox(width: 12.0),
-                      Icon(fit.icon),
-                      const SizedBox(width: 8.0),
-                      Text(fit.locale(context)),
-                      if (settings.cameraViewFit == fit) ...[
-                        const SizedBox(width: 10.0),
-                        const DefaultValueIcon(),
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 12.0),
+                        Icon(fit.icon),
+                        const SizedBox(width: 8.0),
+                        Flexible(child: Text(fit.locale(context), maxLines: 1)),
+                        if (settings.cameraViewFit == fit) ...[
+                          const SizedBox(width: 2.5),
+                          const DefaultValueIcon(),
+                        ],
+                        const SizedBox(width: 12.0),
                       ],
-                      const SizedBox(width: 12.0),
-                    ]);
+                    );
                   }).toList(),
                   onPressed: (index) {
                     setState(() => fit = UnityVideoFit.values[index]);
                   },
                 ),
                 if (widget.device.url == null) ...[
+                  const SizedBox(height: 16.0),
                   Text(loc.streamingType, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),
                   ToggleButtons(
@@ -169,18 +185,28 @@ class _StreamDataState extends State<StreamData> {
                               : type == streamingType,
                         )
                         .toList(),
+                    constraints: BoxConstraints(
+                      minWidth:
+                          constraints.maxWidth / StreamingType.values.length -
+                              borderSize,
+                      maxWidth:
+                          constraints.maxWidth / StreamingType.values.length -
+                              borderSize,
+                      minHeight: 48.0,
+                    ),
                     children: StreamingType.values.map((type) {
-                      return Row(children: [
-                        const SizedBox(width: 12.0),
-                        // Icon(type.icon),
-                        // const SizedBox(width: 8.0),
-                        Text(type.name.toUpperCase()),
-                        if (settings.streamingType == type) ...[
-                          const SizedBox(width: 10.0),
-                          const DefaultValueIcon(),
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(width: 12.0),
+                          Text(type.name.toUpperCase()),
+                          if (settings.streamingType == type) ...[
+                            const SizedBox(width: 10.0),
+                            const DefaultValueIcon(),
+                          ],
+                          const SizedBox(width: 12.0),
                         ],
-                        const SizedBox(width: 12.0),
-                      ]);
+                      );
                     }).toList(),
                     onPressed: (index) {
                       setState(
@@ -201,24 +227,36 @@ class _StreamDataState extends State<StreamData> {
                       onPressed: (type) => setState(() {
                         matrixType = MatrixType.values[type];
                       }),
+                      constraints: BoxConstraints(
+                        minWidth:
+                            constraints.maxWidth / MatrixType.values.length -
+                                borderSize,
+                        maxWidth:
+                            constraints.maxWidth / MatrixType.values.length -
+                                borderSize,
+                        minHeight: 48.0,
+                      ),
                       // constraints: buttonConstraints,
                       children: MatrixType.values.map<Widget>((type) {
-                        return Row(children: [
-                          const SizedBox(width: 12.0),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 150),
-                            child: KeyedSubtree(
-                              key: ValueKey(type),
-                              child: IconTheme.merge(
-                                data: const IconThemeData(size: 22.0),
-                                child: type.icon,
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 12.0),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 150),
+                              child: KeyedSubtree(
+                                key: ValueKey(type),
+                                child: IconTheme.merge(
+                                  data: const IconThemeData(size: 22.0),
+                                  child: type.icon,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(type.toString()),
-                          const SizedBox(width: 12.0),
-                        ]);
+                            const SizedBox(width: 8.0),
+                            Text(type.toString()),
+                            const SizedBox(width: 12.0),
+                          ],
+                        );
                       }).toList(),
                     ),
                   ),
@@ -226,25 +264,25 @@ class _StreamDataState extends State<StreamData> {
               ],
             ),
           ),
-          if (widget.device.overlays.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
-              child: VerticalDivider(),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 280.0),
-              child: IntrinsicWidth(
-                child: VideoOverlaysEditor(
-                  overlays: overlays,
-                  onChanged: (index, overlay) {
-                    setState(() => overlays[index] = overlay);
-                  },
-                ),
+        ),
+        if (widget.device.overlays.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+            child: VerticalDivider(),
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 280.0),
+            child: IntrinsicWidth(
+              child: VideoOverlaysEditor(
+                overlays: overlays,
+                onChanged: (index, overlay) {
+                  setState(() => overlays[index] = overlay);
+                },
               ),
             ),
-          ]
-        ]),
-      ),
+          ),
+        ]
+      ]),
       actions: [
         Row(children: [
           if (widget.device.hasPTZ)

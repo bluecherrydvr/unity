@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +58,7 @@ class AlternativeWindowState extends State<AlternativeWindow> {
       providers: [
         ChangeNotifierProvider(create: (context) => HomeProvider()),
         ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
+        ChangeNotifierProvider.value(value: SettingsProvider.instance),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

@@ -45,6 +45,7 @@ dependencies:
   connectivity_plus: ^5.0.1
   version: ^3.0.2
   url_launcher: ^6.1.10
+  logging: ^1.2.0
 
   path_provider: ^2.0.14
   file_picker: ^6.0.0

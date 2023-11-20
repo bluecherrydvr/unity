@@ -54,7 +54,13 @@ class EventsProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    await eventsPlayback.write({kHiveEventsPlayback: jsonEncode(selectedIds)});
+    try {
+      await eventsPlayback.write({
+        kHiveEventsPlayback: jsonEncode(selectedIds),
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notifyListeners) {
       this.notifyListeners();

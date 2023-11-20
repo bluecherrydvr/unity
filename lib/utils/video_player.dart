@@ -54,7 +54,8 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     Future<void> setSource() async {
-      final source = switch (settings.streamingType) {
+      final source =
+          switch (device.preferredStreamingType ?? settings.streamingType) {
         StreamingType.rtsp => device.rtspURL,
         StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
         StreamingType.mjpeg => device.mjpegURL,
@@ -70,7 +71,6 @@ class UnityPlayers with ChangeNotifier {
 
   /// Release the video player for the given [Device].
   static Future<void> releaseDevice(String deviceUUID) async {
-    await players[deviceUUID]?.release();
     await players[deviceUUID]?.dispose();
     players.remove(deviceUUID);
   }
@@ -107,11 +107,8 @@ class UnityPlayers with ChangeNotifier {
     bool ptzEnabled = false,
   }) async {
     var player = UnityPlayers.players[device.uuid];
-    var isLocalController = false;
-    if (player == null) {
-      player = UnityPlayers.forDevice(device);
-      isLocalController = true;
-    }
+    var isLocalController = player == null;
+    if (isLocalController) player = UnityPlayers.forDevice(device);
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',
@@ -121,6 +118,6 @@ class UnityPlayers with ChangeNotifier {
         'ptzEnabled': ptzEnabled,
       },
     );
-    if (isLocalController) await player.release();
+    if (isLocalController) await player.dispose();
   }
 }

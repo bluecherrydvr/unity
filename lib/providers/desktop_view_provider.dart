@@ -72,11 +72,15 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   Future<void> _save({bool notifyListeners = true}) async {
-    await desktopView.write({
-      kHiveDesktopLayouts:
-          jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
-      kHiveDesktopCurrentLayout: _currentLayout,
-    });
+    try {
+      await desktopView.write({
+        kHiveDesktopLayouts:
+            jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
+        kHiveDesktopCurrentLayout: _currentLayout,
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notifyListeners) {
       this.notifyListeners();

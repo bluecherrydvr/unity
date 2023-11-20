@@ -192,23 +192,27 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> _save({bool notify = true}) async {
-    await settings.write({
-      kHiveLocale: locale.toLanguageTag(),
-      kHiveThemeMode: themeMode.index,
-      kHiveDateFormat: dateFormat.pattern!,
-      kHiveTimeFormat: timeFormat.pattern!,
-      kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
-      kHiveNotificationClickBehavior: notificationClickBehavior.index,
-      kHiveCameraViewFit: cameraViewFit.index,
-      kHiveDownloadsDirectorySetting: downloadsDirectory,
-      kHiveLayoutCycling: layoutCyclingEnabled,
-      kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
-      kHiveStreamingType: streamingType.index,
-      kHiveStreamingProtocol: rtspProtocol.index,
-      kHiveVideoQuality: videoQuality.index,
-      kHiveWakelockEnabled: wakelockEnabled,
-      kHiveBetaMatrixedZoom: betaMatrixedZoomEnabled,
-    });
+    try {
+      await settings.write({
+        kHiveLocale: locale.toLanguageTag(),
+        kHiveThemeMode: themeMode.index,
+        kHiveDateFormat: dateFormat.pattern!,
+        kHiveTimeFormat: timeFormat.pattern!,
+        kHiveSnoozedUntil: snoozedUntil.toIso8601String(),
+        kHiveNotificationClickBehavior: notificationClickBehavior.index,
+        kHiveCameraViewFit: cameraViewFit.index,
+        kHiveDownloadsDirectorySetting: downloadsDirectory,
+        kHiveLayoutCycling: layoutCyclingEnabled,
+        kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
+        kHiveStreamingType: streamingType.index,
+        kHiveStreamingProtocol: rtspProtocol.index,
+        kHiveVideoQuality: videoQuality.index,
+        kHiveWakelockEnabled: wakelockEnabled,
+        kHiveBetaMatrixedZoom: betaMatrixedZoomEnabled,
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notify) notifyListeners();
   }

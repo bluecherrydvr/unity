@@ -238,7 +238,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         _mutex = null;
       }
       try {
-        await player.release();
+        await player.dispose();
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());

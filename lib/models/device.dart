@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
@@ -48,13 +49,27 @@ class Device {
   final bool hasPTZ;
 
   /// Reference to the [Server], to which this camera [Device] belongs.
+  ///
+  /// May be [Server.dump] if this does not belong to any server.
   Server server;
 
+  /// An alternative url.
+  ///
+  /// If provided, this url will be used instead of the default [streamURL].
   final String? url;
 
+  /// The type of zoom matrix of this device.
+  ///
+  /// Defaults to a 4x4 matrix.
   final MatrixType matrixType;
 
+  /// A list of text overlays that will be rendered over the video.
   final List<VideoOverlay> overlays;
+
+  /// The preferred streaming type.
+  ///
+  /// If not provided, defaults to the type declared in the app settings.
+  final StreamingType? preferredStreamingType;
 
   /// Creates a device.
   Device(
@@ -68,6 +83,7 @@ class Device {
     this.url,
     this.matrixType = MatrixType.t16,
     this.overlays = const [],
+    this.preferredStreamingType,
   });
 
   Device.dump({
@@ -80,6 +96,7 @@ class Device {
     this.url,
     this.matrixType = MatrixType.t16,
     this.overlays = const [],
+    this.preferredStreamingType,
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -122,7 +139,13 @@ class Device {
   ///
   /// If the app is running on the web, then HLS is used, otherwise RTSP is used.
   String get streamURL {
-    if (kIsWeb) {
+    if (preferredStreamingType != null) {
+      return switch (preferredStreamingType!) {
+        StreamingType.rtsp => rtspURL,
+        StreamingType.mjpeg => mjpegURL,
+        StreamingType.hls => hlsURL,
+      };
+    } else if (kIsWeb) {
       return hlsURL;
     } else {
       return rtspURL;
@@ -232,7 +255,8 @@ class Device {
         hasPTZ == other.hasPTZ &&
         url == other.url &&
         matrixType == other.matrixType &&
-        overlays == other.overlays;
+        overlays == other.overlays &&
+        preferredStreamingType == other.preferredStreamingType;
   }
 
   @override
@@ -245,7 +269,8 @@ class Device {
       hasPTZ.hashCode ^
       url.hashCode ^
       matrixType.hashCode ^
-      overlays.hashCode;
+      overlays.hashCode ^
+      preferredStreamingType.hashCode;
 
   Device copyWith({
     String? name,
@@ -258,6 +283,7 @@ class Device {
     String? url,
     MatrixType? matrixType,
     List<VideoOverlay>? overlays,
+    StreamingType? preferredStreamingType,
   }) =>
       Device(
         name ?? this.name,
@@ -270,6 +296,8 @@ class Device {
         url: url ?? this.url,
         matrixType: matrixType ?? this.matrixType,
         overlays: overlays ?? this.overlays,
+        preferredStreamingType:
+            preferredStreamingType ?? this.preferredStreamingType,
       );
 
   Map<String, dynamic> toJson() {
@@ -284,6 +312,7 @@ class Device {
       'url': url,
       'matrixType': matrixType.index,
       'overlays': overlays.map((e) => e.toMap()).toList(),
+      'preferredStreamingType': preferredStreamingType?.name,
     };
   }
 
@@ -305,6 +334,9 @@ class Device {
           ? List<VideoOverlay>.from(
               (json['overlays'] as List).cast<Map>().map(VideoOverlay.fromMap))
           : [],
+      preferredStreamingType: StreamingType.values.firstWhereOrNull(
+        (type) => type.name == json['preferredStreamingType'],
+      ),
     );
   }
 }

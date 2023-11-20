@@ -123,9 +123,7 @@ class MobileViewProvider extends ChangeNotifier {
     UnityPlayers.players.removeWhere((deviceUUID, player) {
       final result = items.contains(Device.fromUUID(deviceUUID));
       if (!result) {
-        player
-          ..release()
-          ..dispose();
+        player.dispose();
       }
       return !result;
     });
@@ -146,7 +144,6 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      UnityPlayers.players[device?.uuid]?.release();
       UnityPlayers.players[device?.uuid]?.dispose();
       UnityPlayers.players.remove(device?.uuid);
     }
@@ -178,7 +175,6 @@ class MobileViewProvider extends ChangeNotifier {
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
-      await UnityPlayers.players[current?.uuid]?.release();
       UnityPlayers.players[current?.uuid]?.dispose();
       UnityPlayers.players.remove(current?.uuid);
     }
@@ -209,11 +205,14 @@ class MobileViewProvider extends ChangeNotifier {
         value.map((e) => e?.toJson()).toList().cast<Map<String, dynamic>?>(),
       ),
     );
-    debugPrint(data.toString());
-    await mobileView.write({
-      kHiveMobileView: jsonEncode(data),
-      kHiveMobileViewTab: tab,
-    });
+    try {
+      await mobileView.write({
+        kHiveMobileView: jsonEncode(data),
+        kHiveMobileViewTab: tab,
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     if (notifyListeners) {
       this.notifyListeners();

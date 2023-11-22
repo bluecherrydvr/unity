@@ -42,7 +42,7 @@ class ServerSettings extends StatelessWidget {
       const SizedBox(height: 8.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.streamingSetings, style: theme.textTheme.titleMedium),
+        child: Text(loc.streamingSettings, style: theme.textTheme.titleMedium),
       ),
       const SizedBox(height: 8.0),
       const Padding(

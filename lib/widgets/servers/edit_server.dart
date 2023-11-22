@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -123,6 +124,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.hostname),
+                  hintText: loc.serverHostnameExample,
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -145,6 +147,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.port),
+                  hintText: '$kDefaultPort',
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -167,6 +170,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.rtspPort),
+                  hintText: '$kDefaultRTSPPort',
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -208,6 +212,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.username),
+                  hintText: loc.usernameHint,
                   border: const OutlineInputBorder(),
                 ),
               ),

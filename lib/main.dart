@@ -80,17 +80,17 @@ Future<void> main(List<String> args) async {
     await UnityVideoPlayerInterface.instance.initialize();
     await configureStorage();
 
+    logging.writeLogToFile('Opening app with $args');
+
     if (isDesktopPlatform && args.isNotEmpty) {
       debugPrint('FOUND ANOTHER WINDOW: $args');
 
       if (args.length == 1 &&
           (path.extension(args.first) == '.bluecherry' ||
-              Uri.tryParse(args.first)?.scheme == 'bluecherry')) {
-        // this is handled by app links
-        // final configFile = File(args.first);
-        // if (await configFile.exists()) {
-        //   handleConfigurationFile(configFile);
-        // }
+              Uri.tryParse(args.first)?.scheme == 'bluecherry' ||
+              Uri.tryParse(args.first)?.scheme == 'rtsp')) {
+        // this is handled by app_links. this clause is kept because we do not
+        // want to open the [AlternativeWindow] screen.
       } else {
         try {
           // this is just a mock. HomeProvider depends on this, so we mock the instance
@@ -165,10 +165,11 @@ Future<void> main(List<String> args) async {
 
     HomeProvider.setDefaultStatusBarStyle();
 
+    runApp(const UnityApp());
+
     app_links.register('rtsp');
     app_links.register('bluecherry');
     app_links.listen();
-    runApp(const UnityApp());
   }, logging.handleError);
 }
 

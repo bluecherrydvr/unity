@@ -168,7 +168,7 @@ class ServersProvider extends ChangeNotifier {
       }
 
       API.instance.checkServerCredentials(server).then((server) {
-        API.instance.getDevices(server).then((devices) {
+        return API.instance.getDevices(server).then((devices) {
           if (devices != null) {
             server.devices
               ..clear()

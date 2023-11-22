@@ -9,6 +9,7 @@
   "rtspPort": "RTSP Port",
   "serverName": "Server Name",
   "username": "Nazwa użytkownika",
+  "usernameHint": "Admin",
   "password": "Hasło",
   "savePassword": "Zapisz hasło",
   "showPassword": "Show password",
@@ -75,8 +76,6 @@
   "addToView": "Dodaj do widoku",
   "addAllToView": "Dodaj wszystkie do widoku",
   "removeAllFromView": "Remove all from view",
-  "externalStream": "External stream",
-  "addExternalStream": "Add external stream",
   "streamName": "Stream name",
   "streamNameRequired": "The stream name is required",
   "streamURL": "Stream URL",
@@ -205,8 +204,9 @@
   "multipleView": "Widok wielokrotny",
   "compactView": "Widok kompaktowy",
   "createNewLayout": "Utwórz nowy układ",
-  "layoutNameHint": "Nazwa układu",
-  "layoutTypeHint": "Typ układu",
+  "layoutName": "Nazwa układu",
+  "layoutNameHint": "First floor",
+  "layoutTypeLabel": "Typ układu",
   "@Downloads": {},
   "downloads": "Pobrania",
   "download": "Pobierz",
@@ -422,7 +422,7 @@
   "notificationClickBehavior": "Zachowanie po kliknięciu na powiadomienie",
   "showEventsScreen": "Pokaż historię zdarzeń",
   "@@STREAMING": {},
-  "streamingSetings": "Streaming settings",
+  "streamingSettings": "Streaming settings",
   "streamingType": "Streaming type",
   "rtspProtocol": "RTSP Protocol",
   "camerasSettings": "Cameras settings",
@@ -460,5 +460,15 @@
         "example": "0.0"
       }
     }
-  }
+  },
+  "@EXTERNAL STREAM": {},
+  "externalStream": "External stream",
+  "addExternalStream": "Add external stream",
+  "showMore": "More options",
+  "showLess": "Less options",
+  "serverHostname": "Server hostname",
+  "serverHostnameExample": "https://my-server.bluecherry.app:7001",
+  "rackName": "Rack name",
+  "rackNameExample": "Lab 1",
+  "openServer": "Open server"
 }

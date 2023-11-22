@@ -487,7 +487,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   children: [
                     if (states.isHovering)
                       TextSpan(
-                        text: '\n${widget.device.server.name}',
+                        text: '\n'
+                            '${widget.device.externalData?.rackName ?? widget.device.server.name}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           shadows: outlinedText(),

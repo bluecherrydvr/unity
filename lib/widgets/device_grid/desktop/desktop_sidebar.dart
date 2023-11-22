@@ -79,12 +79,23 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                         ),
                         trailing: Builder(builder: (context) {
                           if (isLoading) {
-                            return const SizedBox(
-                              height: 16.0,
-                              width: 16.0,
-                              child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 1.5,
+                            // wrap in an icon button to ensure ui consistency
+                            return const IconButton(
+                              onPressed: null,
+                              icon: SizedBox(
+                                height: 16.0,
+                                width: 16.0,
+                                child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 1.5,
+                                ),
                               ),
+                            );
+                          } else if (!server.online && isSidebarHovering) {
+                            return IconButton(
+                              icon: const Icon(Icons.refresh),
+                              tooltip: loc.refreshServer,
+                              onPressed: () =>
+                                  servers.refreshDevices([server.id]),
                             );
                           } else if (isSidebarHovering && devices.isNotEmpty) {
                             return IconButton(

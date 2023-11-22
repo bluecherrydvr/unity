@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:app_links/app_links.dart';
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/utils/config.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:flutter/widgets.dart';
@@ -64,11 +65,15 @@ void listen() {
   // Deep linking is not supported on Linux.
   // See https://github.com/llfbandit/app_links/issues/20 for more info.
   if (!Platform.isLinux) {
-    instance.allUriLinkStream.listen((uri) async {
-      debugPrint('Received URI: $uri');
-      final handleType = await _handleUri(uri);
-      _openedFromFile ??= handleType == HandleType.bluecherry;
-      debugPrint('Handled URI: ${handleType.name}');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      instance.allUriLinkStream.listen((uri) async {
+        debugPrint('Received URI: $uri');
+        await writeLogToFile('Received URI $uri');
+        final handleType = await _handleUri(uri);
+        await writeLogToFile('Handled URI $uri as $handleType');
+        _openedFromFile ??= handleType == HandleType.bluecherry;
+        debugPrint('Handled URI: ${handleType.name}');
+      });
     });
   }
 }
@@ -98,10 +103,16 @@ Future<HandleType> _handleUri(Uri uri) async {
   }
 
   final url = uri.toString();
+  await writeLogToFile(
+    'Opening uri $uri with context ${navigatorKey.currentContext}',
+  );
   if (isDesktopPlatform) {
     final context = navigatorKey.currentContext;
     if (context != null && context.mounted) {
-      AddExternalStreamDialog.addStream(context, url);
+      await AddExternalStreamDialog.show(
+        context,
+        defaultUrl: url,
+      );
     }
   } else {
     final navigator = navigatorKey.currentState;

@@ -75,8 +75,6 @@
   "addToView": "Adicionar ao layout",
   "addAllToView": "Adicionar tudo ao layout",
   "removeAllFromView": "Remover tudo do layout",
-  "externalStream": "Transmissão externa",
-  "addExternalStream": "Adicionar transmissão externa",
   "streamName": "Nome da Transmissão",
   "streamNameRequired": "O nome da transmissão é obrigatório",
   "streamURL": "URL da Transmissão",
@@ -422,7 +420,7 @@
   "notificationClickBehavior": "Ação ao clicar na notificação",
   "showEventsScreen": "Mostar histórico de eventos",
   "@@STREAMING": {},
-  "streamingSetings": "Configurações de streaming",
+  "streamingSettings": "Configurações de streaming",
   "streamingType": "Tipo de streaming",
   "rtspProtocol": "Protocolo RTSP",
   "camerasSettings": "Configurações das câmeras",
@@ -460,5 +458,15 @@
         "example": "0.0"
       }
     }
-  }
+  },
+  "@EXTERNAL STREAM": {},
+  "externalStream": "Transmissão externa",
+  "addExternalStream": "Adicionar transmissão externa",
+  "showMore": "Mostrar mais",
+  "showLess": "Mostrar menos",
+  "serverHostname": "Hostname do servidor",
+  "serverHostnameExample": "https://servidor.bluecherry.app:7001",
+  "rackName": "Nome do rack",
+  "rackNameExample": "Lab 1",
+  "openServer": "Abrir servidor"
 }

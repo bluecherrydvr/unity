@@ -86,6 +86,7 @@ Future<void> main(List<String> args) async {
       if (args.length == 1 &&
           (path.extension(args.first) == '.bluecherry' ||
               Uri.tryParse(args.first)?.scheme == 'bluecherry')) {
+        // TODO: handle rtsp stream as well
         // this is handled by app links
         // final configFile = File(args.first);
         // if (await configFile.exists()) {

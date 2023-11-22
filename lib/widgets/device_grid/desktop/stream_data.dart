@@ -25,10 +25,12 @@ import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<Device?> showStreamDataDialog(
   BuildContext context, {
@@ -113,7 +115,32 @@ class _StreamDataState extends State<StreamData> {
     // contain all the information about this stream - and provide
     // more options, such as adding/changing overlays.
     return AlertDialog(
-      title: Text(widget.device.name),
+      title: RichText(
+        text: TextSpan(
+          text: widget.device.name +
+              (widget.device.externalData?.rackName == null
+                  ? ''
+                  : ' (${widget.device.externalData?.rackName})'),
+          children: [
+            if (widget.device.externalData?.serverIp != null) ...[
+              const TextSpan(text: '\n'),
+              TextSpan(
+                text: widget.device.externalData!.serverIp.toString(),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launchUrl(widget.device.externalData!.serverIp!);
+                  },
+                style: theme.textTheme.headlineSmall,
+              ),
+            ],
+          ],
+          style: theme.textTheme.headlineMedium,
+        ),
+      ),
+      // title: Text(
+      //   widget.device.name +
+      //       ('\n${widget.device.externalData?.serverIp ?? ''}'),
+      // ),
       content: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(
           width: 400.0,
@@ -123,7 +150,7 @@ class _StreamDataState extends State<StreamData> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  loc.streamingSetings,
+                  loc.streamingSettings,
                   style: theme.textTheme.headlineMedium,
                 ),
                 Text(
@@ -229,14 +256,13 @@ class _StreamDataState extends State<StreamData> {
                       }),
                       constraints: BoxConstraints(
                         minWidth:
-                            constraints.maxWidth / MatrixType.values.length -
+                            (constraints.maxWidth / MatrixType.values.length) -
                                 borderSize,
                         maxWidth:
-                            constraints.maxWidth / MatrixType.values.length -
+                            (constraints.maxWidth / MatrixType.values.length) -
                                 borderSize,
                         minHeight: 48.0,
                       ),
-                      // constraints: buttonConstraints,
                       children: MatrixType.values.map<Widget>((type) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -286,13 +312,26 @@ class _StreamDataState extends State<StreamData> {
       actions: [
         Row(children: [
           if (widget.device.hasPTZ)
-            PTZToggleButton(
-              enabledColor: theme.colorScheme.inversePrimary,
-              disabledColor: theme.colorScheme.inversePrimary.withOpacity(0.5),
-              ptzEnabled: ptzEnabled,
-              onChanged: (v) {
-                setState(() => ptzEnabled = v);
-              },
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8.0),
+              child: PTZToggleButton(
+                enabledColor: theme.colorScheme.primary,
+                disabledColor: theme.colorScheme.primary.withOpacity(0.5),
+                ptzEnabled: ptzEnabled,
+                onChanged: (v) {
+                  setState(() => ptzEnabled = v);
+                },
+              ),
+            ),
+          if (widget.device.externalData?.serverIp != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8.0),
+              child: TextButton(
+                onPressed: () {
+                  launchUrl(widget.device.externalData!.serverIp!);
+                },
+                child: const Text('Open server'),
+              ),
             ),
           const Spacer(),
           OutlinedButton(

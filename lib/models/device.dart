@@ -28,6 +28,46 @@ import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.da
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+class ExternalDeviceData {
+  final String? rackName;
+  final Uri? serverIp;
+
+  const ExternalDeviceData({
+    required this.rackName,
+    required this.serverIp,
+  });
+
+  @override
+  String toString() =>
+      'ExternalDeviceData(rackName: $rackName, serverIp: $serverIp)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ExternalDeviceData &&
+        other.rackName == rackName &&
+        other.serverIp == serverIp;
+  }
+
+  @override
+  int get hashCode => rackName.hashCode ^ serverIp.hashCode;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'rackName': rackName,
+      'serverIp': serverIp,
+    };
+  }
+
+  factory ExternalDeviceData.fromMap(Map<String, dynamic> map) {
+    return ExternalDeviceData(
+      rackName: map['rackName'] ?? '',
+      serverIp: map['serverIp'] ?? '',
+    );
+  }
+}
+
 /// A [Device] present on a server.
 class Device {
   /// Name of the device.
@@ -71,6 +111,9 @@ class Device {
   /// If not provided, defaults to the type declared in the app settings.
   final StreamingType? preferredStreamingType;
 
+  /// The external device data.
+  final ExternalDeviceData? externalData;
+
   /// Creates a device.
   Device(
     this.name,
@@ -84,6 +127,7 @@ class Device {
     this.matrixType = MatrixType.t16,
     this.overlays = const [],
     this.preferredStreamingType,
+    this.externalData,
   });
 
   Device.dump({
@@ -97,6 +141,7 @@ class Device {
     this.matrixType = MatrixType.t16,
     this.overlays = const [],
     this.preferredStreamingType,
+    this.externalData,
   }) : server = Server.dump();
 
   String get uri => 'live/$id';
@@ -246,31 +291,39 @@ class Device {
       'Device($name, $uri, online: $status, ${resolutionX}x$resolutionY, ptz: $hasPTZ)';
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
     return other is Device &&
-        name == other.name &&
-        uri == other.uri &&
-        resolutionX == other.resolutionX &&
-        resolutionY == other.resolutionY &&
-        hasPTZ == other.hasPTZ &&
-        url == other.url &&
-        matrixType == other.matrixType &&
-        overlays == other.overlays &&
-        preferredStreamingType == other.preferredStreamingType;
+        other.name == name &&
+        other.id == id &&
+        other.status == status &&
+        other.resolutionX == resolutionX &&
+        other.resolutionY == resolutionY &&
+        other.hasPTZ == hasPTZ &&
+        other.server == server &&
+        other.url == url &&
+        other.matrixType == matrixType &&
+        listEquals(other.overlays, overlays) &&
+        other.preferredStreamingType == preferredStreamingType &&
+        other.externalData == externalData;
   }
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      uri.hashCode ^
-      status.hashCode ^
-      resolutionX.hashCode ^
-      resolutionY.hashCode ^
-      hasPTZ.hashCode ^
-      url.hashCode ^
-      matrixType.hashCode ^
-      overlays.hashCode ^
-      preferredStreamingType.hashCode;
+  int get hashCode {
+    return name.hashCode ^
+        id.hashCode ^
+        status.hashCode ^
+        resolutionX.hashCode ^
+        resolutionY.hashCode ^
+        hasPTZ.hashCode ^
+        server.hashCode ^
+        url.hashCode ^
+        matrixType.hashCode ^
+        overlays.hashCode ^
+        preferredStreamingType.hashCode ^
+        externalData.hashCode;
+  }
 
   Device copyWith({
     String? name,
@@ -284,6 +337,7 @@ class Device {
     MatrixType? matrixType,
     List<VideoOverlay>? overlays,
     StreamingType? preferredStreamingType,
+    ExternalDeviceData? externalData,
   }) =>
       Device(
         name ?? this.name,
@@ -298,6 +352,7 @@ class Device {
         overlays: overlays ?? this.overlays,
         preferredStreamingType:
             preferredStreamingType ?? this.preferredStreamingType,
+        externalData: externalData ?? this.externalData,
       );
 
   Map<String, dynamic> toJson() {
@@ -313,6 +368,7 @@ class Device {
       'matrixType': matrixType.index,
       'overlays': overlays.map((e) => e.toMap()).toList(),
       'preferredStreamingType': preferredStreamingType?.name,
+      'externalData': externalData?.toMap(),
     };
   }
 
@@ -337,6 +393,9 @@ class Device {
       preferredStreamingType: StreamingType.values.firstWhereOrNull(
         (type) => type.name == json['preferredStreamingType'],
       ),
+      externalData: json['externalData'] != null
+          ? ExternalDeviceData.fromMap(json['externalData'])
+          : null,
     );
   }
 }

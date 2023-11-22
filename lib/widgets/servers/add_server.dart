@@ -313,6 +313,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.hostname),
+        hintText: loc.serverHostnameExample,
         border: const OutlineInputBorder(),
       ),
     );
@@ -332,6 +333,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.port),
+        hintText: '$kDefaultPort',
         border: const OutlineInputBorder(),
       ),
     );
@@ -351,6 +353,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.rtspPort),
+        hintText: '$kDefaultRTSPPort',
         border: const OutlineInputBorder(),
       ),
     );

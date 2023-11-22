@@ -394,6 +394,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         label: Text(loc.username),
+        hintText: loc.usernameHint,
         border: const OutlineInputBorder(),
       ),
     );

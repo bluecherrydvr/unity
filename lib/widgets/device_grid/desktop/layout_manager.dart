@@ -497,11 +497,11 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           controller: controller,
           decoration: InputDecoration(
             hintText: loc.layoutNameHint,
-            label: Text(loc.layoutNameHint),
+            label: Text(loc.layoutName),
           ),
           textInputAction: TextInputAction.none,
         ),
-        SubHeader(loc.layoutTypeHint, padding: EdgeInsetsDirectional.zero),
+        SubHeader(loc.layoutTypeLabel, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {
@@ -588,11 +588,11 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
           controller: controller,
           decoration: InputDecoration(
             hintText: loc.layoutNameHint,
-            label: Text(loc.layoutNameHint),
+            label: Text(loc.layoutName),
           ),
           textInputAction: TextInputAction.none,
         ),
-        SubHeader(loc.layoutTypeHint, padding: EdgeInsetsDirectional.zero),
+        SubHeader(loc.layoutName, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
           selected: selected,
           onSelect: (index) {

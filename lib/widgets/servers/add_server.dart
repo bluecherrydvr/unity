@@ -340,12 +340,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 
     final rtspPortField = TextFormField(
       enabled: !disableFinishButton,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return loc.errorTextField(loc.rtspPort);
-        }
-        return null;
-      },
+      // https://github.com/bluecherrydvr/unity/issues/182
+      // validator: (value) {
+      //   if (value == null || value.isEmpty) {
+      //     return loc.errorTextField(loc.rtspPort);
+      //   }
+      //   return null;
+      // },
       controller: rtspPortController,
       autofocus: true,
       keyboardType: TextInputType.number,
@@ -633,15 +634,16 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       }
 
       if (mounted) setState(() => disableFinishButton = true);
+      final port = int.parse(portController.text.trim());
       final server = await API.instance.checkServerCredentials(
         Server(
           name,
           hostname,
-          int.parse(portController.text.trim()),
+          port,
           usernameController.text.trim(),
           passwordController.text,
           [],
-          rtspPort: int.parse(rtspPortController.text.trim()),
+          rtspPort: int.tryParse(rtspPortController.text.trim()) ?? port,
           savePassword: savePassword,
           connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),

@@ -374,9 +374,11 @@ class UpdateManager extends ChangeNotifier {
 
   /// Check for new updates.
   Future<void> checkForUpdates() async {
+    
     loading = true;
     notifyListeners();
 
+try {
     final response = await http.get(Uri.parse(appCastUrl));
 
     if (response.statusCode != 200) {
@@ -420,6 +422,10 @@ class UpdateManager extends ChangeNotifier {
     versions = versions.reversed.toList();
 
     if (versions != this.versions) this.versions = versions;
+
+    } catch (e) {
+      debugPrint(e.toString());
+    }
 
     loading = false;
     lastCheck = DateTime.now(); // this updates the screen already

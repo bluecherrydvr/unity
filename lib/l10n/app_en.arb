@@ -5,6 +5,7 @@
   "configure": "Configure a DVR Server",
   "configureDescription": "Setup a connection to your remote DVR server",
   "hostname": "Hostname",
+  "hostnameExample": "demo.bluecherry.app",
   "port": "Port",
   "rtspPort": "RTSP Port",
   "serverName": "Server Name",

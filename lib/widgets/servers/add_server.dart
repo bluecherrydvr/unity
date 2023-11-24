@@ -313,7 +313,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       style: theme.textTheme.headlineMedium,
       decoration: InputDecoration(
         label: Text(loc.hostname),
-        hintText: loc.serverHostnameExample,
+        hintText: loc.hostnameExample,
         border: const OutlineInputBorder(),
       ),
     );

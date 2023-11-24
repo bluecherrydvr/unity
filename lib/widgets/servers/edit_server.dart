@@ -124,7 +124,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.hostname),
-                  hintText: loc.serverHostnameExample,
+                  hintText: loc.hostnameExample,
                   border: const OutlineInputBorder(),
                 ),
               ),

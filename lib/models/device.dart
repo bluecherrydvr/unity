@@ -243,7 +243,7 @@ class Device {
     ).toString());
   }
 
-  Future<String?> getHLSUrl([Device? device]) async {
+  Future<String> getHLSUrl([Device? device]) async {
     // return hlsURL;
     device ??= this;
     var data = {
@@ -276,7 +276,7 @@ class Device {
       debugPrint('Request failed with status: ${response.statusCode}');
     }
 
-    return null;
+    return hlsURL;
   }
 
   /// Returns the full name of this device, including the server name.

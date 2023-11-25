@@ -23,7 +23,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-/// An [Event] received from the [Server] logs.
+/// An [Event] received from the [Server].
 class Event {
   final Server server;
   final int id;
@@ -35,19 +35,7 @@ class Event {
   final int? mediaID;
   final Uri? mediaURL;
 
-  const Event(
-    this.server,
-    this.id,
-    this.deviceID,
-    this.title,
-    this.published,
-    this.updated,
-    this.category,
-    this.mediaID,
-    this.mediaURL,
-  );
-
-  const Event.factory({
+  const Event({
     required this.server,
     required this.id,
     required this.deviceID,
@@ -90,28 +78,33 @@ class Event {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
     return other is Event &&
-        id == other.id &&
-        deviceID == other.deviceID &&
-        title == other.title &&
-        published == other.published &&
-        updated == other.updated &&
-        category == other.category &&
-        mediaID == other.mediaID &&
-        mediaURL == other.mediaURL;
+        other.server == server &&
+        other.id == id &&
+        other.deviceID == deviceID &&
+        other.title == title &&
+        other.published == published &&
+        other.updated == updated &&
+        other.category == category &&
+        other.mediaID == mediaID &&
+        other.mediaURL == mediaURL;
   }
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      deviceID.hashCode ^
-      title.hashCode ^
-      published.hashCode ^
-      updated.hashCode ^
-      category.hashCode ^
-      mediaID.hashCode ^
-      mediaURL.hashCode;
+  int get hashCode {
+    return server.hashCode ^
+        id.hashCode ^
+        deviceID.hashCode ^
+        title.hashCode ^
+        published.hashCode ^
+        updated.hashCode ^
+        category.hashCode ^
+        mediaID.hashCode ^
+        mediaURL.hashCode;
+  }
 
   @override
   String toString() =>
@@ -127,18 +120,19 @@ class Event {
     String? category,
     int? mediaID,
     Uri? mediaURL,
-  ) =>
-      Event(
-        server ?? this.server,
-        deviceID ?? this.deviceID,
-        id ?? this.id,
-        title ?? this.title,
-        published ?? this.published,
-        updated ?? this.updated,
-        category ?? this.category,
-        mediaID ?? this.mediaID,
-        mediaURL ?? this.mediaURL,
-      );
+  ) {
+    return Event(
+      server: server ?? this.server,
+      deviceID: deviceID ?? this.deviceID,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      published: published ?? this.published,
+      updated: updated ?? this.updated,
+      category: category ?? this.category,
+      mediaID: mediaID ?? this.mediaID,
+      mediaURL: mediaURL ?? this.mediaURL,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'server': server.toJson(devices: false),
@@ -154,15 +148,15 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      Server.fromJson(json['server']),
-      json['deviceID'],
-      json['id'],
-      json['title'],
-      DateTime.parse(json['published']),
-      DateTime.parse(json['updated']),
-      json['category'],
-      json['mediaID'],
-      Uri.parse(json['mediaURL']),
+      server: Server.fromJson(json['server']),
+      deviceID: json['deviceID'],
+      id: json['id'],
+      title: json['title'],
+      published: DateTime.parse(json['published']),
+      updated: DateTime.parse(json['updated']),
+      category: json['category'],
+      mediaID: json['mediaID'],
+      mediaURL: Uri.parse(json['mediaURL']),
     );
   }
 

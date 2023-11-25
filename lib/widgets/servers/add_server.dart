@@ -267,7 +267,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final passwordController = TextEditingController();
   bool showingPassword = false;
 
-  bool savePassword = true;
   bool nameTextFieldEverFocused = false;
   bool connectAutomaticallyAtStartup = true;
   bool disableFinishButton = false;
@@ -637,14 +636,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       final port = int.parse(portController.text.trim());
       final server = await API.instance.checkServerCredentials(
         Server(
-          name,
-          hostname,
-          port,
-          usernameController.text.trim(),
-          passwordController.text,
-          [],
+          name: name,
+          ip: hostname,
+          port: port,
+          login: usernameController.text.trim(),
+          password: passwordController.text,
+          devices: [],
           rtspPort: int.tryParse(rtspPortController.text.trim()) ?? port,
-          savePassword: savePassword,
           connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),
       );

@@ -636,16 +636,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           onFitChanged: widget.onFitChanged,
                         );
                         if (device != null && mounted) {
-                          view.layouts[view.currentLayoutIndex].devices[view
-                              .currentLayout.devices
-                              .indexOf(widget.device)] = device;
-                          if (device.url != widget.device.url ||
-                              device.preferredStreamingType !=
-                                  widget.device.preferredStreamingType) {
-                            UnityPlayers.reloadDevice(device);
-                          }
-                          // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                          view.notifyListeners();
+                          view.updateDevice(
+                            widget.device,
+                            device,
+                            reload: device.url != widget.device.url ||
+                                device.preferredStreamingType !=
+                                    widget.device.preferredStreamingType,
+                          );
                           updateVolume();
                         }
                       },

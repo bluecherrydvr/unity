@@ -58,6 +58,16 @@ enum MatrixType {
       MatrixType.t1 => const Icon(Icons.square_outlined),
     };
   }
+
+  MatrixType get next {
+    return switch (this) {
+      MatrixType.t16 => MatrixType.t9,
+      MatrixType.t9 => MatrixType.t4,
+      MatrixType.t4 => MatrixType.t16,
+      // ideally, t1 is never reached
+      MatrixType.t1 => MatrixType.t16,
+    };
+  }
 }
 
 class AddExternalStreamDialog extends StatefulWidget {

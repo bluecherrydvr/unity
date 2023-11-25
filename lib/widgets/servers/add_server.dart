@@ -41,16 +41,21 @@ class AddServerWizard extends StatefulWidget {
 
 class _AddServerWizardState extends State<AddServerWizard> {
   Server? server;
-  final PageController controller = PageController(
+  final controller = PageController(
     initialPage:
         HomeProvider.instance.automaticallyGoToAddServersScreen ? 1 : 0,
   );
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final textDirection = Directionality.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -58,199 +63,202 @@ class _AddServerWizardState extends State<AddServerWizard> {
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: PageView(
-        controller: controller,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          Stack(children: [
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/background.webp',
-                fit: BoxFit.cover,
-                width: MediaQuery.sizeOf(context).width,
-                height: MediaQuery.sizeOf(context).height,
-              ),
-            ),
-            Container(
-              alignment: AlignmentDirectional.center,
-              child: Card(
-                color: theme.cardColor,
-                elevation: 4.0,
-                clipBehavior: Clip.antiAlias,
-                margin: const EdgeInsetsDirectional.symmetric(
-                      horizontal: 16.0,
-                      vertical: 16.0,
-                    ).resolve(textDirection) +
-                    MediaQuery.paddingOf(context),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsetsDirectional.all(16.0),
-                      child: Column(children: [
-                        Image.asset(
-                          'assets/images/icon.png',
-                          height: 124.0,
-                          width: 124.0,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(height: 24.0),
-                        Text(
-                          loc.projectName,
-                          style: theme.textTheme.displayLarge?.copyWith(
-                            fontSize: 36.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text(
-                          loc.projectDescription,
-                          style: theme.textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 16.0),
-                        Container(
-                          alignment: AlignmentDirectional.centerEnd,
-                          padding: const EdgeInsetsDirectional.all(8.0),
-                          child: Row(children: [
-                            const Spacer(),
-                            MaterialButton(
-                              onPressed: () {
-                                launchUrl(
-                                  Uri.https(
-                                    'www.bluecherrydvr.com',
-                                    '/',
-                                  ),
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              },
-                              child: Text(
-                                loc.website,
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.webp'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: PageView(
+          controller: controller,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            Stack(alignment: Alignment.center, children: [
+              IntrinsicWidth(
+                child: Container(
+                  constraints: BoxConstraints(
+                    minWidth: MediaQuery.sizeOf(context).width / 2.5,
+                  ),
+                  alignment: AlignmentDirectional.center,
+                  child: Card(
+                    color: theme.cardColor,
+                    elevation: 4.0,
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.all(16) +
+                        MediaQuery.paddingOf(context),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.all(16.0),
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                            Image.asset(
+                              'assets/images/icon.png',
+                              height: 124.0,
+                              width: 124.0,
+                              fit: BoxFit.contain,
                             ),
-                            MaterialButton(
-                              onPressed: () {
-                                launchUrl(
-                                  Uri.https(
-                                    'www.bluecherrydvr.com',
-                                    '/product/v3license/',
-                                  ),
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              },
-                              child: Text(
-                                loc.purchase,
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ]),
-                        ),
-                        const Divider(thickness: 1.0),
-                        const SizedBox(height: 16.0),
-                        Column(
-                          crossAxisAlignment:
-                              (AppBarTheme.of(context).centerTitle ?? false)
-                                  ? CrossAxisAlignment.center
-                                  : CrossAxisAlignment.start,
-                          children: [
+                            const SizedBox(height: 24.0),
                             Text(
-                              loc.welcome,
+                              loc.projectName,
                               style: theme.textTheme.displayLarge?.copyWith(
-                                fontSize: 20.0,
+                                fontSize: 36.0,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 8.0),
+                            const SizedBox(height: 4.0),
                             Text(
-                              loc.welcomeDescription,
+                              loc.projectDescription,
                               style: theme.textTheme.headlineSmall,
                             ),
-                          ],
+                            const SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    launchUrl(
+                                      Uri.https(
+                                        'www.bluecherrydvr.com',
+                                        '/',
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  child: Text(loc.website),
+                                ),
+                                const SizedBox(width: 8.0),
+                                TextButton(
+                                  onPressed: () {
+                                    launchUrl(
+                                      Uri.https(
+                                        'www.bluecherrydvr.com',
+                                        '/product/v3license/',
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  child: Text(loc.purchase),
+                                ),
+                              ],
+                            ),
+                            const Divider(thickness: 1.0),
+                            const SizedBox(height: 16.0),
+                            Column(
+                              crossAxisAlignment: isCupertino
+                                  ? CrossAxisAlignment.center
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  loc.welcome,
+                                  style: theme.textTheme.displayLarge?.copyWith(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  loc.welcomeDescription,
+                                  style: theme.textTheme.headlineSmall,
+                                ),
+                              ],
+                            ),
+                          ]),
                         ),
-                      ]),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Material(
-                      // color: theme.colorScheme.primaryContainer,
-                      child: InkWell(
-                        onTap: () {
-                          controller.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        child: Container(
-                          alignment: AlignmentDirectional.center,
-                          width: double.infinity,
-                          height: 56.0,
-                          child: Text(
-                            loc.letsGo.toUpperCase(),
-                            style: TextStyle(
-                              color: theme.colorScheme.onPrimaryContainer,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
+                        const SizedBox(height: 16.0),
+                        Material(
+                          child: InkWell(
+                            onTap: () {
+                              controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Container(
+                              alignment: AlignmentDirectional.center,
+                              width: double.infinity,
+                              height: 56.0,
+                              child: Text(
+                                loc.letsGo.toUpperCase(),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            ),
-            if (Scaffold.hasDrawer(context))
-              PositionedDirectional(
-                top: MediaQuery.paddingOf(context).top,
-                start: 0,
-                child: const Material(
-                  type: MaterialType.transparency,
-                  child: SizedBox(
-                    height: kToolbarHeight,
-                    width: kToolbarHeight,
-                    child: UnityDrawerButton(iconColor: Colors.white),
                   ),
                 ),
               ),
-          ]),
-          ConfigureDVRServerScreen(
-            controller: controller,
-            setServer: setServer,
-            getServer: getServer,
-          ),
-          LetsGoScreen(
-            controller: controller,
-            getServer: getServer,
-            onFinish: widget.onFinish,
-          ),
-        ],
+              if (Scaffold.hasDrawer(context))
+                PositionedDirectional(
+                  top: MediaQuery.paddingOf(context).top,
+                  start: 0,
+                  child: const Material(
+                    type: MaterialType.transparency,
+                    child: SizedBox(
+                      height: kToolbarHeight,
+                      width: kToolbarHeight,
+                      child: UnityDrawerButton(iconColor: Colors.white),
+                    ),
+                  ),
+                ),
+            ]),
+            Center(
+              child: ConfigureDVRServerScreen(
+                onBack: () {
+                  controller.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                onNext: () {
+                  controller.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                onServerChange: (server) =>
+                    setState(() => this.server = server),
+                server: server,
+              ),
+            ),
+            LetsGoScreen(
+              server: server,
+              onFinish: widget.onFinish,
+              onBack: () {
+                controller.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  void setServer(Server server) {
-    setState(() {
-      this.server = server;
-    });
-  }
-
-  Server? getServer() => server;
 }
 
 class ConfigureDVRServerScreen extends StatefulWidget {
-  final PageController controller;
-  final ValueChanged<Server> setServer;
-  final Server? Function() getServer;
+  final VoidCallback onBack;
+  final VoidCallback onNext;
+  final ValueChanged<Server> onServerChange;
+  final Server? server;
 
   const ConfigureDVRServerScreen({
     super.key,
-    required this.controller,
-    required this.setServer,
-    required this.getServer,
+    required this.onBack,
+    required this.onNext,
+    required this.onServerChange,
+    required this.server,
   });
 
   @override
@@ -265,12 +273,14 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final nameController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  bool showingPassword = false;
 
-  bool nameTextFieldEverFocused = false;
+  bool _nameTextFieldEverFocused = false;
   bool connectAutomaticallyAtStartup = true;
   bool disableFinishButton = false;
+  bool showingPassword = false;
+
   final formKey = GlobalKey<FormState>();
+  final finishFocusNode = FocusNode();
 
   String getServerHostname(String text) {
     if (Uri.parse(text).scheme.isEmpty) text = 'https://$text';
@@ -278,12 +288,24 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   }
 
   @override
+  void dispose() {
+    hostnameController.dispose();
+    portController.dispose();
+    rtspPortController.dispose();
+    nameController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+    finishFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     hostnameController.addListener(() {
       final hostname = getServerHostname(hostnameController.text);
-      if (!nameTextFieldEverFocused && hostname.isNotEmpty) {
-        nameController.text = hostname;
+      if (!_nameTextFieldEverFocused && hostname.isNotEmpty) {
+        nameController.text = hostname.split('.').first;
       }
     });
   }
@@ -366,7 +388,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         }
         return null;
       },
-      onTap: () => nameTextFieldEverFocused = true,
+      onTap: () => _nameTextFieldEverFocused = true,
       controller: nameController,
       textCapitalization: TextCapitalization.words,
       keyboardType: TextInputType.name,
@@ -435,167 +457,186 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
-        if (widget.getServer() == null) {
-          widget.controller.previousPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
+        if (widget.server == null) {
+          widget.onBack();
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: BackButton(
-            onPressed: () {
-              widget.controller.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-              FocusScope.of(context).unfocus();
-            },
+      child: IntrinsicWidth(
+        child: Container(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.sizeOf(context).width / 2.5,
           ),
-          backgroundColor: theme.brightness == Brightness.light
-              ? theme.colorScheme.primary
-              : theme.cardColor,
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarColor: Colors.white12,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-          ),
-          title: Text(
-            loc.configure,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(32.0),
-            child: Container(
-              height: 32.0,
-              padding: const EdgeInsetsDirectional.only(start: 16.0),
-              alignment: theme.appBarTheme.centerTitle ?? false
-                  ? AlignmentDirectional.topCenter
-                  : AlignmentDirectional.topStart,
-              child: Text(
-                loc.configureDescription,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.headlineMedium
-                    ?.copyWith(color: Colors.white.withOpacity(0.87)),
-              ),
-            ),
-          ),
-        ),
-        body: Card(
-          elevation: 4.0,
           margin: const EdgeInsetsDirectional.all(16.0),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 16.0,
-              vertical: 24.0,
-            ),
-            child: FocusTraversalGroup(
-              policy: OrderedTraversalPolicy(),
-              child: Form(
-                key: formKey,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Expanded(
-                      flex: 5,
-                      child: FocusTraversalOrder(
-                        order: const NumericFocusOrder(0),
-                        child: hostnameField,
+          child: Card(
+            elevation: 4.0,
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
+              child: FocusTraversalGroup(
+                policy: OrderedTraversalPolicy(),
+                child: Form(
+                  key: formKey,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Row(children: [
+                      IconButton(
+                        icon: const BackButtonIcon(),
+                        tooltip:
+                            MaterialLocalizations.of(context).backButtonTooltip,
+                        onPressed: () {
+                          widget.onBack();
+                          FocusScope.of(context).unfocus();
+                        },
+                      ),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        loc.configure,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 12.0),
+                    Text(
+                      loc.configureDescription,
+                      style: theme.textTheme.headlineMedium
+                          ?.copyWith(color: Colors.white.withOpacity(0.87)),
+                    ),
+                    const SizedBox(height: 20.0),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(0),
+                            child: hostnameField,
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          flex: 2,
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(1),
+                            child: portField,
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          flex: 2,
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(2),
+                            child: rtspPortField,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(3),
+                      child: nameField,
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(5),
+                            child: usernameField,
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(top: 8.0),
+                          child: FocusTraversalOrder(
+                            order: NumericFocusOrder(isMobilePlatform ? -1 : 4),
+                            child: MaterialButton(
+                              onPressed: disableFinishButton
+                                  ? null
+                                  : () {
+                                      usernameController.text =
+                                          kDefaultUsername;
+                                      passwordController.text =
+                                          kDefaultPassword;
+                                      finishFocusNode.requestFocus();
+                                    },
+                              child: Text(loc.useDefault.toUpperCase()),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(6),
+                      child: passwordField,
+                    ),
+                    const SizedBox(height: 8.0),
+                    FocusTraversalOrder(
+                      order: const NumericFocusOrder(7),
+                      child: CheckboxListTile.adaptive(
+                        value: connectAutomaticallyAtStartup,
+                        onChanged: (value) => setState(
+                          () => connectAutomaticallyAtStartup = value ?? true,
+                        ),
+                        title: Text(loc.connectAutomaticallyAtStartup),
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        secondary: Tooltip(
+                          message: loc.connectAutomaticallyAtStartupDescription,
+                          child: Icon(
+                            Icons.info_outline,
+                            color: theme.colorScheme.secondary,
+                            size: 20.0,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      flex: 2,
-                      child: FocusTraversalOrder(
-                        order: const NumericFocusOrder(1),
-                        child: portField,
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      flex: 2,
-                      child: FocusTraversalOrder(
-                        order: const NumericFocusOrder(2),
-                        child: rtspPortField,
-                      ),
-                    ),
-                  ]),
-                  const SizedBox(height: 16.0),
-                  FocusTraversalOrder(
-                    order: const NumericFocusOrder(3),
-                    child: nameField,
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Expanded(
-                      child: FocusTraversalOrder(
-                        order: const NumericFocusOrder(5),
-                        child: usernameField,
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(top: 8.0),
-                      child: FocusTraversalOrder(
-                        order: NumericFocusOrder(isMobilePlatform ? -1 : 4),
+                    const SizedBox(height: 16.0),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      if (disableFinishButton)
+                        const SizedBox(
+                          height: 24.0,
+                          width: 24.0,
+                          child: CircularProgressIndicator.adaptive(
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      FocusTraversalOrder(
+                        order: const NumericFocusOrder(9),
                         child: MaterialButton(
                           onPressed: disableFinishButton
                               ? null
                               : () {
-                                  usernameController.text = kDefaultUsername;
-                                  passwordController.text = kDefaultPassword;
+                                  widget.onNext();
                                 },
-                          child: Text(loc.useDefault.toUpperCase()),
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Text(loc.skip.toUpperCase()),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 6.0),
+                      FocusTraversalOrder(
+                        order: const NumericFocusOrder(8),
+                        child: FilledButton(
+                          onPressed: disableFinishButton
+                              ? null
+                              : () => finish(context),
+                          focusNode: finishFocusNode,
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Text(loc.finish.toUpperCase()),
+                          ),
+                        ),
+                      ),
+                    ]),
                   ]),
-                  const SizedBox(height: 16.0),
-                  FocusTraversalOrder(
-                    order: const NumericFocusOrder(6),
-                    child: passwordField,
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    if (disableFinishButton)
-                      const SizedBox(
-                        height: 24.0,
-                        width: 24.0,
-                        child: CircularProgressIndicator.adaptive(
-                          strokeWidth: 2.0,
-                        ),
-                      ),
-                    MaterialButton(
-                      onPressed: disableFinishButton
-                          ? null
-                          : () {
-                              widget.controller.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(8.0),
-                        child: Text(loc.skip.toUpperCase()),
-                      ),
-                    ),
-                    FocusTraversalOrder(
-                      order: const NumericFocusOrder(7),
-                      child: MaterialButton(
-                        onPressed:
-                            disableFinishButton ? null : () => finish(context),
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.all(8.0),
-                          child: Text(loc.finish.toUpperCase()),
-                        ),
-                      ),
-                    ),
-                  ]),
-                ]),
+                ),
               ),
             ),
           ),
@@ -649,12 +690,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       focusScope.unfocus();
 
       if (server.serverUUID != null && server.cookie != null) {
-        widget.setServer(server);
+        widget.onServerChange(server);
         await ServersProvider.instance.add(server);
-        widget.controller.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+        widget.onNext();
       } else {
         if (mounted) {
           showDialog(
@@ -679,193 +717,105 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   }
 }
 
-class LetsGoScreen extends StatefulWidget {
-  final PageController controller;
-  final Server? Function() getServer;
+class LetsGoScreen extends StatelessWidget {
+  final VoidCallback onBack;
+  final Server? server;
   final VoidCallback onFinish;
 
   const LetsGoScreen({
     super.key,
-    required this.controller,
-    required this.getServer,
+    required this.onBack,
+    required this.server,
     required this.onFinish,
   });
 
   @override
-  State<LetsGoScreen> createState() => _LetsGoScreenState();
-}
-
-class _LetsGoScreenState extends State<LetsGoScreen> {
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final server = widget.getServer();
 
     return PopScope(
       canPop: false,
-      child: Scaffold(
-        appBar: showIf<AppBar>(
-          isMobile,
-          child: AppBar(
-            leading: server != null
-                ? null
-                : BackButton(
-                    color: Colors.white,
-                    onPressed: () {
-                      widget.controller.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                      FocusScope.of(context).unfocus();
-                    },
+      child: Center(
+        child: IntrinsicWidth(
+          child: Container(
+            margin: const EdgeInsetsDirectional.all(16.0),
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.sizeOf(context).width / 2.5,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (server != null)
+                  Card(
+                    elevation: 4.0,
+                    margin: const EdgeInsetsDirectional.only(bottom: 8.0),
+                    color: Color.alphaBlend(
+                      Colors.green.withOpacity(0.2),
+                      theme.cardColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(16.0),
+                      child: Row(children: [
+                        Icon(
+                          Icons.check,
+                          color: Colors.green.shade400,
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: Text(loc.serverAdded),
+                        ),
+                      ]),
+                    ),
                   ),
-            systemOverlayStyle: const SystemUiOverlayStyle(
-              statusBarColor: Colors.white12,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.dark,
-            ),
-            backgroundColor: theme.brightness == Brightness.light
-                ? theme.colorScheme.primary
-                : theme.cardColor,
-            title: Text(
-              loc.letsGo,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(32.0),
-              child: Container(
-                height: 32.0,
-                padding: const EdgeInsetsDirectional.only(start: 16.0),
-                alignment: theme.appBarTheme.centerTitle ?? false
-                    ? AlignmentDirectional.topCenter
-                    : AlignmentDirectional.topStart,
-                child: Text(
-                  loc.letsGoDescription,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white.withOpacity(0.87)),
+                Card(
+                  elevation: 4.0,
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.all(16.0),
+                    child: SelectionArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.letsGoDescription,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                                color: Colors.white.withOpacity(0.87)),
+                          ),
+                          ...[loc.tip0, loc.tip1, loc.tip2, loc.tip3]
+                              .map((tip) {
+                            return Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                top: 8.0,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(' • '),
+                                  const SizedBox(width: 4.0),
+                                  Expanded(
+                                    child: Text(tip),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8.0),
+                FloatingActionButton.extended(
+                  onPressed: onFinish,
+                  label: Text(loc.finish.toUpperCase()),
+                  icon: const Icon(Icons.check),
+                ),
+              ],
             ),
           ),
         ),
-        body: ListView(children: [
-          const SizedBox(height: 8.0),
-          if (server != null)
-            Card(
-              elevation: 4.0,
-              color: Color.alphaBlend(
-                Colors.green.withOpacity(0.2),
-                theme.cardColor,
-              ),
-              margin: const EdgeInsetsDirectional.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(16.0),
-                child: Row(children: [
-                  Icon(
-                    Icons.check,
-                    color: Colors.green.shade400,
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: Text(loc.serverAdded),
-                  ),
-                ]),
-              ),
-            ),
-          Card(
-            elevation: 4.0,
-            margin: const EdgeInsetsDirectional.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(' • '),
-                        const SizedBox(width: 4.0),
-                        Expanded(
-                          child: Text(loc.tip0),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(' • '),
-                        const SizedBox(width: 4.0),
-                        Expanded(
-                          child: Text(loc.tip1),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(' • '),
-                        const SizedBox(width: 4.0),
-                        Expanded(
-                          child: Text(loc.tip2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(' • '),
-                        const SizedBox(width: 4.0),
-                        Expanded(
-                          child: Text(loc.tip3),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8.0),
-        ]),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            widget.onFinish.call();
-          },
-          label: Text(loc.finish.toUpperCase()),
-          icon: const Icon(Icons.check),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

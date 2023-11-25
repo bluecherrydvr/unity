@@ -95,7 +95,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                               icon: const Icon(Icons.refresh),
                               tooltip: loc.refreshServer,
                               onPressed: () =>
-                                  servers.refreshDevices([server.id]),
+                                  servers.refreshDevices(ids: [server.id]),
                             );
                           } else if (isSidebarHovering && devices.isNotEmpty) {
                             return IconButton(

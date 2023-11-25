@@ -67,7 +67,7 @@ class ServersProvider extends ChangeNotifier {
       await _restore();
     }
 
-    refreshDevices();
+    refreshDevices(startup: true);
   }
 
   /// Adds a new [Server] to the cache.
@@ -158,9 +158,13 @@ class ServersProvider extends ChangeNotifier {
   }
 
   /// If [ids] is provided, only the provided ids will be refreshed
-  Future<List<Server>> refreshDevices([List<String>? ids]) async {
+  Future<List<Server>> refreshDevices({
+    bool startup = false,
+    List<String>? ids,
+  }) async {
     await Future.wait(servers.map((server) async {
       if (ids != null && !ids.contains(server.id)) return;
+      if (startup && !server.connectAutomaticallyAtStartup) return;
 
       if (!loadingServer.contains(server.id)) {
         loadingServer.add(server.id);

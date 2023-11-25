@@ -164,6 +164,8 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
   void dispose() {
     nameController.dispose();
     urlController.dispose();
+    rackNameController.dispose();
+    serverIpController.dispose();
     super.dispose();
   }
 

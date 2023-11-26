@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/servers/edit_server.dart';
+import 'package:bluecherry_client/widgets/servers/edit_server_settings.dart';
 import 'package:bluecherry_client/widgets/settings/shared/date_language.dart';
 import 'package:bluecherry_client/widgets/settings/shared/tiles.dart';
 import 'package:bluecherry_client/widgets/settings/shared/update.dart';

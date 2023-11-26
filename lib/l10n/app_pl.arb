@@ -64,8 +64,17 @@
   "ok": "OK",
   "retry": "Spróbuj ponownie",
   "clear": "Clear",
-  "additionalSettings": "Additional settings",
-  "additionalSettingsDescription": "Settings that will only be applied to this server. If they are not provided, the app will use the General Settings. You can change these values later.",
+  "serverSettings": "Server settings",
+  "serverSettingsDescription": "Settings that will only be applied to this server. If they are not provided, the values from General Settings will be used. You can change these values later.",
+  "editServerSettingsInfo": "Edit server settings",
+  "editServerSettings": "Edit server settings",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "removeCamera": "Usuń kamerę",
   "replaceCamera": "Zastąp kamerę",
   "reloadCamera": "Odśwież kamerę",

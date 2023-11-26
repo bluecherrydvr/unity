@@ -150,8 +150,8 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     child: AdditionalServerSettings(
                       onBack: _onBack,
                       onNext: _onNext,
-                      server: server ?? Server.dump(),
-                      onServerChanged: (server) {
+                      server: server,
+                      onServerChanged: (server) async {
                         if (this.server != null) {
                           setState(() => this.server = server);
                         }
@@ -735,8 +735,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 class AdditionalServerSettings extends StatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onNext;
-  final Server server;
-  final ValueChanged<Server> onServerChanged;
+  final Server? server;
+  final Future<void> Function(Server server) onServerChanged;
+
+  /// Whether this isn't adding the server for the first time
+  final bool isEditing;
 
   const AdditionalServerSettings({
     super.key,
@@ -744,6 +747,7 @@ class AdditionalServerSettings extends StatefulWidget {
     required this.onNext,
     required this.server,
     required this.onServerChanged,
+    this.isEditing = false,
   });
 
   @override
@@ -753,21 +757,26 @@ class AdditionalServerSettings extends StatefulWidget {
 
 class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
   bool connectAutomaticallyAtStartup = true;
-  StreamingType? streamingType;
-  RTSPProtocol? rtspProtocol;
-  RenderingQuality? renderingQuality;
-  UnityVideoFit? videoFit;
+  late StreamingType? streamingType =
+      widget.server?.additionalSettings.preferredStreamingType;
+  late RTSPProtocol? rtspProtocol =
+      widget.server?.additionalSettings.rtspProtocol;
+  late RenderingQuality? renderingQuality =
+      widget.server?.additionalSettings.renderingQuality;
+  late UnityVideoFit? videoFit = widget.server?.additionalSettings.videoFit;
 
-  void updateServer() {
-    widget.onServerChanged(widget.server.copyWith(
-      additionalSettings: AdditionalServerOptions(
-        connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
-        preferredStreamingType: streamingType,
-        rtspProtocol: rtspProtocol,
-        renderingQuality: renderingQuality,
-        videoFit: videoFit,
-      ),
-    ));
+  Future<void> updateServer() async {
+    if (widget.server != null) {
+      await widget.onServerChanged(widget.server!.copyWith(
+        additionalSettings: AdditionalServerOptions(
+          connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
+          preferredStreamingType: streamingType,
+          rtspProtocol: rtspProtocol,
+          renderingQuality: renderingQuality,
+          videoFit: videoFit,
+        ),
+      ));
+    }
   }
 
   @override
@@ -775,8 +784,9 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+
     return PopScope(
-      canPop: false,
+      canPop: widget.isEditing,
       onPopInvoked: (didPop) => widget.onBack(),
       child: IntrinsicWidth(
         child: Container(
@@ -789,121 +799,116 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
             child: Padding(
               padding: const EdgeInsetsDirectional.all(16.0),
               child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.sizeOf(context).width / 2.5,
-                      child: _buildCardAppBar(
-                        title: loc.additionalSettings,
-                        description: loc.additionalSettingsDescription,
-                        onBack: widget.onBack,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width / 2.5,
+                    child: _buildCardAppBar(
+                      title: loc.serverSettings,
+                      description: loc.serverSettingsDescription,
+                      onBack: widget.server == null ? widget.onBack : null,
+                    ),
+                  ),
+                  _buildSelectable<StreamingType>(
+                    title: loc.streamingType,
+                    values: StreamingType.values,
+                    value: streamingType,
+                    defaultValue: settings.streamingType,
+                    onChanged: (value) {
+                      setState(() {
+                        streamingType = value;
+                      });
+                    },
+                  ),
+                  _buildSelectable<RTSPProtocol>(
+                    title: loc.rtspProtocol,
+                    values: RTSPProtocol.values,
+                    value: rtspProtocol,
+                    defaultValue: settings.rtspProtocol,
+                    onChanged: (value) {
+                      setState(() {
+                        rtspProtocol = value;
+                      });
+                    },
+                  ),
+                  _buildSelectable<UnityVideoFit>(
+                    title: loc.cameraViewFit,
+                    description: loc.cameraViewFitDescription,
+                    values: UnityVideoFit.values,
+                    value: videoFit,
+                    defaultValue: settings.cameraViewFit,
+                    onChanged: (value) {
+                      setState(() {
+                        videoFit = value;
+                      });
+                    },
+                  ),
+                  _buildSelectable<RenderingQuality>(
+                    title: loc.renderingQuality,
+                    description: loc.renderingQualityDescription,
+                    values: RenderingQuality.values,
+                    value: renderingQuality,
+                    defaultValue: settings.videoQuality,
+                    onChanged: (value) {
+                      setState(() {
+                        renderingQuality = value;
+                      });
+                    },
+                  ),
+                  const Divider(),
+                  CheckboxListTile.adaptive(
+                    value: connectAutomaticallyAtStartup,
+                    onChanged: (value) {
+                      setState(
+                        () => connectAutomaticallyAtStartup = value ?? true,
+                      );
+                    },
+                    title: Text(loc.connectAutomaticallyAtStartup),
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    secondary: Tooltip(
+                      message: loc.connectAutomaticallyAtStartupDescription,
+                      child: Icon(
+                        Icons.info_outline,
+                        color: theme.colorScheme.secondary,
+                        size: 20.0,
                       ),
                     ),
-                    _buildSelectable<StreamingType>(
-                      title: loc.streamingType,
-                      values: StreamingType.values,
-                      value: streamingType,
-                      defaultValue: settings.streamingType,
-                      onChanged: (value) {
-                        setState(() {
-                          streamingType = value;
-                        });
-                        updateServer();
-                      },
-                    ),
-                    _buildSelectable<RTSPProtocol>(
-                      title: loc.rtspProtocol,
-                      values: RTSPProtocol.values,
-                      value: rtspProtocol,
-                      defaultValue: settings.rtspProtocol,
-                      onChanged: (value) {
-                        setState(() {
-                          rtspProtocol = value;
-                        });
-                        updateServer();
-                      },
-                    ),
-                    _buildSelectable<UnityVideoFit>(
-                      title: loc.cameraViewFit,
-                      description: loc.cameraViewFitDescription,
-                      values: UnityVideoFit.values,
-                      value: videoFit,
-                      defaultValue: settings.cameraViewFit,
-                      onChanged: (value) {
-                        setState(() {
-                          videoFit = value;
-                        });
-                        updateServer();
-                      },
-                    ),
-                    _buildSelectable<RenderingQuality>(
-                      title: loc.renderingQuality,
-                      description: loc.renderingQualityDescription,
-                      values: RenderingQuality.values,
-                      value: renderingQuality,
-                      defaultValue: settings.videoQuality,
-                      onChanged: (value) {
-                        setState(() {
-                          renderingQuality = value;
-                        });
-                        updateServer();
-                      },
-                    ),
-                    const Divider(),
-                    CheckboxListTile.adaptive(
-                      value: connectAutomaticallyAtStartup,
-                      onChanged: (value) {
-                        setState(
-                          () => connectAutomaticallyAtStartup = value ?? true,
-                        );
-                        updateServer();
-                      },
-                      title: Text(loc.connectAutomaticallyAtStartup),
-                      dense: true,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      secondary: Tooltip(
-                        message: loc.connectAutomaticallyAtStartupDescription,
-                        child: Icon(
-                          Icons.info_outline,
-                          color: theme.colorScheme.secondary,
-                          size: 20.0,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(top: 12.0),
-                      child: Row(children: [
-                        if (streamingType != null ||
-                            rtspProtocol != null ||
-                            renderingQuality != null ||
-                            videoFit != null)
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                streamingType = null;
-                                rtspProtocol = null;
-                                renderingQuality = null;
-                                videoFit = null;
-                              });
-                              updateServer();
-                            },
-                            child: Text(loc.clear),
-                          ),
-                        const Spacer(),
-                        FilledButton(
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(top: 12.0),
+                    child: Row(children: [
+                      if (streamingType != null ||
+                          rtspProtocol != null ||
+                          renderingQuality != null ||
+                          videoFit != null)
+                        TextButton(
                           onPressed: () {
-                            widget.onNext();
-                            updateServer();
+                            setState(() {
+                              streamingType = null;
+                              rtspProtocol = null;
+                              renderingQuality = null;
+                              videoFit = null;
+                            });
                           },
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.all(8.0),
-                            child: Text(loc.finish.toUpperCase()),
-                          ),
+                          child: Text(loc.clear),
                         ),
-                      ]),
-                    ),
-                  ]),
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: () async {
+                          await updateServer();
+                          widget.onNext();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.all(8.0),
+                          child: Text(loc.finish.toUpperCase()),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

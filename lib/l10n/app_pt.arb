@@ -64,8 +64,17 @@
   "ok": "OK",
   "retry": "Tentar novamente",
   "clear": "Limpar",
-  "additionalSettings": "Configurações adicionais",
-  "additionalSettingsDescription": "Configurações que serão aplicadas apenas a este servidor. Se não forem selectionados, os valores de Configurações serão usados. Você pode alterar esses valores posteriormente.",
+  "serverSettings": "Configurações do servidor",
+  "serverSettingsDescription": "Configurações que serão aplicadas apenas a este servidor. Se não forem selectionados, os valores de Configurações serão usados. Você pode alterar esses valores posteriormente.",
+  "editServerSettingsInfo": "Editar Configurações do servidor",
+  "editServerSettings": "Editar configurações do servidor {serverName}",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "removeCamera": "Remover Câmera",
   "replaceCamera": "Substituir Câmera",
   "reloadCamera": "Recarregar Câmera",

@@ -218,8 +218,8 @@
   "downloadPath": "Diretório de Download",
   "delete": "Deletar",
   "showInFiles": "Ver no Explorador de Arquivos",
-  "noDownloads": "Você ainda não fez o download de nenhum evento :/",
-  "howToDownload": "Và ao \"Histórico de Eventos\" para fazer o download de eventos.",
+  "noDownloads": "Você ainda não baixou nenhum evento :/",
+  "howToDownload": "Vá ao \"Histórico de Eventos\" para baixar eventos.",
   "downloadTitle": "{event} de {device} do servidor {server} em {date}",
   "@downloadTitle": {
     "placeholders": {

@@ -80,7 +80,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   }
 }
 
-class _MKVideo extends StatelessWidget {
+class _MKVideo extends StatefulWidget {
   const _MKVideo({
     super.key,
     required this.player,
@@ -95,11 +95,28 @@ class _MKVideo extends StatelessWidget {
   final Color color;
 
   @override
+  State<_MKVideo> createState() => _MKVideoState();
+}
+
+class _MKVideoState extends State<_MKVideo> {
+  final videoKey = GlobalKey<VideoState>();
+
+  @override
+  void didUpdateWidget(covariant _MKVideo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    videoKey.currentState?.update(
+      fit: widget.fit,
+      fill: widget.color,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Video(
-      controller: videoController,
-      fill: color,
-      fit: fit,
+      key: videoKey,
+      controller: widget.videoController,
+      fill: widget.color,
+      fit: widget.fit,
       controls: NoVideoControls,
       wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );

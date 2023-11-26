@@ -173,11 +173,11 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
 
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTapDown: (event) => toggleOverlay(event.kind),
+                  onTapUp: (event) => toggleOverlay(event.kind),
                   child: Stack(children: [
                     const Positioned.fill(child: SizedBox.expand()),
                     if (error != null)
-                      ErrorWarning(message: error)
+                      Positioned.fill(child: ErrorWarning(message: error))
                     else if (!controller.isSeekable ||
                         controller.dataSource == null)
                       const Center(
@@ -193,12 +193,16 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                       start: 0.0,
                       end: 0.0,
                       child: AnimatedSlide(
-                        offset: Offset(0, overlay ? 0.0 : -1.0),
+                        offset: Offset(
+                          0,
+                          overlay || error != null ? 0.0 : -1.0,
+                        ),
                         duration: const Duration(milliseconds: 320),
                         curve: Curves.easeInOut,
                         child: ColoredBox(
                           color: Colors.black38,
                           child: ListTile(
+                            dense: true,
                             title: Text(
                               widget.device.name,
                               style: const TextStyle(color: Colors.white),
@@ -209,11 +213,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                             ),
                             leading: IconButton(
                               onPressed: () => Navigator.of(context).maybePop(),
-                              icon: Icon(
-                                isCupertino
-                                    ? Icons.arrow_back_ios
-                                    : Icons.arrow_back,
-                              ),
+                              icon: const BackButtonIcon(),
                               tooltip: MaterialLocalizations.of(context)
                                   .backButtonTooltip,
                               color: Colors.white,

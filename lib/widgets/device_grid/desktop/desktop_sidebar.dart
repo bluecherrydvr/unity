@@ -109,10 +109,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                   : loc.addAllToView,
                               onPressed: () {
                                 if (isAllInView) {
-                                  view.removeDevices(
-                                    devices.where(
-                                        view.currentLayout.devices.contains),
-                                  );
+                                  view.removeDevicesFromCurrentLayout(devices);
                                 } else {
                                   for (final device in devices) {
                                     if (device.status &&

@@ -439,8 +439,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       },
     );
 
-    final error = UnityVideoView.maybeOf(context)?.error;
     final video = UnityVideoView.maybeOf(context);
+    final error = video?.error;
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     final reloadButton = IconButton(
@@ -489,6 +489,15 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       TextSpan(
                         text: '\n'
                             '${widget.device.externalData?.rackName ?? widget.device.server.name}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
+                      ),
+                    if (states.isHovering && kDebugMode)
+                      TextSpan(
+                        text: '\n'
+                            '${video?.player.dataSource}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           shadows: outlinedText(),

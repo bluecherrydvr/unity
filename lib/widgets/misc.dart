@@ -186,6 +186,7 @@ class SubHeader extends StatelessWidget {
   final double? height;
   final MaterialType materialType;
   final Widget? trailing;
+  final TextAlign? textAlign;
 
   const SubHeader(
     this.text, {
@@ -196,6 +197,7 @@ class SubHeader extends StatelessWidget {
     this.padding = const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
     this.height = 56.0,
     this.materialType = MaterialType.transparency,
+    this.textAlign,
   });
 
   @override
@@ -221,6 +223,7 @@ class SubHeader extends StatelessWidget {
                     fontSize: 12.0,
                     fontWeight: FontWeight.w600,
                   ),
+                  textAlign: textAlign,
                 ),
                 if (subtext != null)
                   Text(

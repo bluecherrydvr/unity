@@ -164,7 +164,9 @@ class ServersProvider extends ChangeNotifier {
   }) async {
     await Future.wait(servers.map((server) async {
       if (ids != null && !ids.contains(server.id)) return;
-      if (startup && !server.connectAutomaticallyAtStartup) return;
+      if (startup && !server.additionalSettings.connectAutomaticallyAtStartup) {
+        return;
+      }
 
       if (!loadingServer.contains(server.id)) {
         loadingServer.add(server.id);

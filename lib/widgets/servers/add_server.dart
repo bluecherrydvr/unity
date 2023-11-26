@@ -21,14 +21,61 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/widgets/device_grid/desktop/stream_data.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/servers/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/link.dart';
+
+Widget _buildCardAppBar({
+  required String title,
+  required String description,
+  VoidCallback? onBack,
+}) {
+  return Builder(builder: (context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          if (onBack != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8.0),
+              child: IconButton(
+                icon: const BackButtonIcon(),
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: () {
+                  onBack();
+                  FocusScope.of(context).unfocus();
+                },
+              ),
+            ),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          ),
+        ]),
+        const SizedBox(height: 12.0),
+        Text(
+          description,
+          style: theme.textTheme.headlineMedium
+              ?.copyWith(color: Colors.white.withOpacity(0.87)),
+        ),
+        const SizedBox(height: 20.0),
+      ],
+    );
+  });
+}
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
@@ -94,15 +141,29 @@ class _AddServerWizardState extends State<AddServerWizard> {
                     child: ConfigureDVRServerScreen(
                       onBack: _onBack,
                       onNext: _onNext,
+                      server: server,
                       onServerChange: (server) =>
                           setState(() => this.server = server),
-                      server: server,
                     ),
                   ),
-                  LetsGoScreen(
-                    server: server,
-                    onFinish: widget.onFinish,
-                    onBack: _onBack,
+                  Center(
+                    child: AdditionalServerSettings(
+                      onBack: _onBack,
+                      onNext: _onNext,
+                      server: server ?? Server.dump(),
+                      onServerChanged: (server) {
+                        if (this.server != null) {
+                          setState(() => this.server = server);
+                        }
+                      },
+                    ),
+                  ),
+                  Center(
+                    child: LetsGoScreen(
+                      server: server,
+                      onFinish: widget.onFinish,
+                      onBack: _onBack,
+                    ),
                   ),
                 ],
               ),
@@ -273,7 +334,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final passwordController = TextEditingController();
 
   bool _nameTextFieldEverFocused = false;
-  bool connectAutomaticallyAtStartup = true;
   bool disableFinishButton = false;
   bool showingPassword = false;
 
@@ -478,32 +538,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     vertical: 24.0,
                   ),
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Row(children: [
-                      IconButton(
-                        icon: const BackButtonIcon(),
-                        tooltip:
-                            MaterialLocalizations.of(context).backButtonTooltip,
-                        onPressed: () {
-                          widget.onBack();
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        loc.configure,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ]),
-                    const SizedBox(height: 12.0),
-                    Text(
-                      loc.configureDescription,
-                      style: theme.textTheme.headlineMedium
-                          ?.copyWith(color: Colors.white.withOpacity(0.87)),
+                    _buildCardAppBar(
+                      title: loc.configure,
+                      description: loc.configureDescription,
+                      onBack: widget.onBack,
                     ),
-                    const SizedBox(height: 20.0),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -573,27 +612,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       order: const NumericFocusOrder(6),
                       child: passwordField,
                     ),
-                    const SizedBox(height: 8.0),
-                    FocusTraversalOrder(
-                      order: const NumericFocusOrder(7),
-                      child: CheckboxListTile.adaptive(
-                        value: connectAutomaticallyAtStartup,
-                        onChanged: (value) => setState(
-                          () => connectAutomaticallyAtStartup = value ?? true,
-                        ),
-                        title: Text(loc.connectAutomaticallyAtStartup),
-                        dense: true,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        secondary: Tooltip(
-                          message: loc.connectAutomaticallyAtStartupDescription,
-                          child: Icon(
-                            Icons.info_outline,
-                            color: theme.colorScheme.secondary,
-                            size: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 16.0),
                     Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                       if (disableFinishButton)
@@ -605,7 +623,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                         ),
                       FocusTraversalOrder(
-                        order: const NumericFocusOrder(9),
+                        order: const NumericFocusOrder(8),
                         child: MaterialButton(
                           onPressed: disableFinishButton
                               ? null
@@ -620,7 +638,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       ),
                       const SizedBox(width: 6.0),
                       FocusTraversalOrder(
-                        order: const NumericFocusOrder(8),
+                        order: const NumericFocusOrder(7),
                         child: FilledButton(
                           onPressed: disableFinishButton
                               ? null
@@ -628,7 +646,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           focusNode: finishFocusNode,
                           child: Padding(
                             padding: const EdgeInsetsDirectional.all(8.0),
-                            child: Text(loc.finish.toUpperCase()),
+                            child: Text(loc.next.toUpperCase()),
                           ),
                         ),
                       ),
@@ -682,7 +700,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           password: passwordController.text,
           devices: [],
           rtspPort: int.tryParse(rtspPortController.text.trim()) ?? port,
-          connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
         ),
       );
       focusScope.unfocus();
@@ -715,6 +732,240 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   }
 }
 
+class AdditionalServerSettings extends StatefulWidget {
+  final VoidCallback onBack;
+  final VoidCallback onNext;
+  final Server server;
+  final ValueChanged<Server> onServerChanged;
+
+  const AdditionalServerSettings({
+    super.key,
+    required this.onBack,
+    required this.onNext,
+    required this.server,
+    required this.onServerChanged,
+  });
+
+  @override
+  State<AdditionalServerSettings> createState() =>
+      _AdditionalServerSettingsState();
+}
+
+class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
+  bool connectAutomaticallyAtStartup = true;
+  StreamingType? streamingType;
+  RTSPProtocol? rtspProtocol;
+  RenderingQuality? renderingQuality;
+  UnityVideoFit? videoFit;
+
+  void updateServer() {
+    widget.onServerChanged(widget.server.copyWith(
+      additionalSettings: AdditionalServerOptions(
+        connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
+        preferredStreamingType: streamingType,
+        rtspProtocol: rtspProtocol,
+        renderingQuality: renderingQuality,
+        videoFit: videoFit,
+      ),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) => widget.onBack(),
+      child: IntrinsicWidth(
+        child: Container(
+          margin: const EdgeInsetsDirectional.all(16.0),
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.sizeOf(context).width / 2.5,
+          ),
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(16.0),
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width / 2.5,
+                      child: _buildCardAppBar(
+                        title: loc.additionalSettings,
+                        description: loc.additionalSettingsDescription,
+                        onBack: widget.onBack,
+                      ),
+                    ),
+                    _buildSelectable<StreamingType>(
+                      title: loc.streamingType,
+                      values: StreamingType.values,
+                      value: streamingType,
+                      defaultValue: settings.streamingType,
+                      onChanged: (value) {
+                        setState(() {
+                          streamingType = value;
+                        });
+                        updateServer();
+                      },
+                    ),
+                    _buildSelectable<RTSPProtocol>(
+                      title: loc.rtspProtocol,
+                      values: RTSPProtocol.values,
+                      value: rtspProtocol,
+                      defaultValue: settings.rtspProtocol,
+                      onChanged: (value) {
+                        setState(() {
+                          rtspProtocol = value;
+                        });
+                        updateServer();
+                      },
+                    ),
+                    _buildSelectable<UnityVideoFit>(
+                      title: loc.cameraViewFit,
+                      description: loc.cameraViewFitDescription,
+                      values: UnityVideoFit.values,
+                      value: videoFit,
+                      defaultValue: settings.cameraViewFit,
+                      onChanged: (value) {
+                        setState(() {
+                          videoFit = value;
+                        });
+                        updateServer();
+                      },
+                    ),
+                    _buildSelectable<RenderingQuality>(
+                      title: loc.renderingQuality,
+                      description: loc.renderingQualityDescription,
+                      values: RenderingQuality.values,
+                      value: renderingQuality,
+                      defaultValue: settings.videoQuality,
+                      onChanged: (value) {
+                        setState(() {
+                          renderingQuality = value;
+                        });
+                        updateServer();
+                      },
+                    ),
+                    const Divider(),
+                    CheckboxListTile.adaptive(
+                      value: connectAutomaticallyAtStartup,
+                      onChanged: (value) {
+                        setState(
+                          () => connectAutomaticallyAtStartup = value ?? true,
+                        );
+                        updateServer();
+                      },
+                      title: Text(loc.connectAutomaticallyAtStartup),
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      secondary: Tooltip(
+                        message: loc.connectAutomaticallyAtStartupDescription,
+                        child: Icon(
+                          Icons.info_outline,
+                          color: theme.colorScheme.secondary,
+                          size: 20.0,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(top: 12.0),
+                      child: Row(children: [
+                        if (streamingType != null ||
+                            rtspProtocol != null ||
+                            renderingQuality != null ||
+                            videoFit != null)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                streamingType = null;
+                                rtspProtocol = null;
+                                renderingQuality = null;
+                                videoFit = null;
+                              });
+                              updateServer();
+                            },
+                            child: Text(loc.clear),
+                          ),
+                        const Spacer(),
+                        FilledButton(
+                          onPressed: () {
+                            widget.onNext();
+                            updateServer();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Text(loc.finish.toUpperCase()),
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectable<T extends Enum>({
+    required String title,
+    String? description,
+    required Iterable<T> values,
+    required T? value,
+    required T defaultValue,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Builder(builder: (context) {
+      return ListTile(
+        title: Row(children: [
+          Flexible(child: Text(title)),
+          if (description != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 6.0),
+              child: Tooltip(
+                message: description,
+                child: Icon(
+                  Icons.info_outline,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 16.0,
+                ),
+              ),
+            ),
+        ]),
+        trailing: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 175.0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              // isExpanded: true,
+              value: value,
+              onChanged: (v) {
+                onChanged(v);
+              },
+              hint: Text(defaultValue.name.toUpperCase()),
+              items: values.map((v) {
+                return DropdownMenuItem<T>(
+                  value: v,
+                  child: Row(children: [
+                    Text(v.name.toUpperCase()),
+                    if (defaultValue == v) ...[
+                      const SizedBox(width: 10.0),
+                      const DefaultValueIcon(),
+                    ],
+                  ]),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
 class LetsGoScreen extends StatelessWidget {
   final VoidCallback onBack;
   final Server? server;
@@ -734,84 +985,81 @@ class LetsGoScreen extends StatelessWidget {
 
     return PopScope(
       canPop: false,
-      child: Center(
-        child: IntrinsicWidth(
-          child: Container(
-            margin: const EdgeInsetsDirectional.all(16.0),
-            constraints: BoxConstraints(
-              minWidth: MediaQuery.sizeOf(context).width / 2.5,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (server != null)
-                  Card(
-                    elevation: 4.0,
-                    margin: const EdgeInsetsDirectional.only(bottom: 8.0),
-                    color: Color.alphaBlend(
-                      Colors.green.withOpacity(0.2),
-                      theme.cardColor,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.all(16.0),
-                      child: Row(children: [
-                        Icon(
-                          Icons.check,
-                          color: Colors.green.shade400,
-                        ),
-                        const SizedBox(width: 16.0),
-                        Expanded(
-                          child: Text(loc.serverAdded),
-                        ),
-                      ]),
-                    ),
-                  ),
+      child: IntrinsicWidth(
+        child: Container(
+          margin: const EdgeInsetsDirectional.all(16.0),
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.sizeOf(context).width / 2.5,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (server != null)
                 Card(
                   elevation: 4.0,
-                  margin: EdgeInsets.zero,
+                  margin: const EdgeInsetsDirectional.only(bottom: 8.0),
+                  color: Color.alphaBlend(
+                    Colors.green.withOpacity(0.2),
+                    theme.cardColor,
+                  ),
                   child: Padding(
                     padding: const EdgeInsetsDirectional.all(16.0),
-                    child: SelectionArea(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            loc.letsGoDescription,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                                color: Colors.white.withOpacity(0.87)),
-                          ),
-                          ...[loc.tip0, loc.tip1, loc.tip2, loc.tip3]
-                              .map((tip) {
-                            return Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                top: 8.0,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(' • '),
-                                  const SizedBox(width: 4.0),
-                                  Expanded(
-                                    child: Text(tip),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ],
+                    child: Row(children: [
+                      Icon(
+                        Icons.check,
+                        color: Colors.green.shade400,
                       ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: Text(loc.serverAdded),
+                      ),
+                    ]),
+                  ),
+                ),
+              Card(
+                elevation: 4.0,
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(16.0),
+                  child: SelectionArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          loc.letsGoDescription,
+                          style: theme.textTheme.headlineMedium
+                              ?.copyWith(color: Colors.white.withOpacity(0.87)),
+                        ),
+                        ...[loc.tip0, loc.tip1, loc.tip2, loc.tip3].map((tip) {
+                          return Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              top: 8.0,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(' • '),
+                                const SizedBox(width: 4.0),
+                                Expanded(
+                                  child: Text(tip),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                FloatingActionButton.extended(
-                  onPressed: onFinish,
-                  label: Text(loc.finish.toUpperCase()),
-                  icon: const Icon(Icons.check),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8.0),
+              FloatingActionButton.extended(
+                onPressed: onFinish,
+                label: Text(loc.finish.toUpperCase()),
+                icon: const Icon(Icons.check),
+              ),
+            ],
           ),
         ),
       ),

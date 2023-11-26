@@ -52,11 +52,22 @@ class _AddServerWizardState extends State<AddServerWizard> {
     super.dispose();
   }
 
+  void _onNext() {
+    controller.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _onBack() {
+    controller.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.white12,
@@ -70,177 +81,164 @@ class _AddServerWizardState extends State<AddServerWizard> {
             fit: BoxFit.cover,
           ),
         ),
-        child: PageView(
-          controller: controller,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            Stack(alignment: Alignment.center, children: [
-              IntrinsicWidth(
-                child: Container(
-                  constraints: BoxConstraints(
-                    minWidth: MediaQuery.sizeOf(context).width / 2.5,
+        child: SafeArea(
+          child: Stack(children: [
+            PageView(
+              controller: controller,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                Center(child: AddServerInfoScreen(onNext: _onNext)),
+                Center(
+                  child: ConfigureDVRServerScreen(
+                    onBack: _onBack,
+                    onNext: _onNext,
+                    onServerChange: (server) =>
+                        setState(() => this.server = server),
+                    server: server,
                   ),
-                  alignment: AlignmentDirectional.center,
-                  child: Card(
-                    color: theme.cardColor,
-                    elevation: 4.0,
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.all(16) +
-                        MediaQuery.paddingOf(context),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.all(16.0),
-                          child:
-                              Column(mainAxisSize: MainAxisSize.min, children: [
-                            Image.asset(
-                              'assets/images/icon.png',
-                              height: 124.0,
-                              width: 124.0,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 24.0),
-                            Text(
-                              loc.projectName,
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                fontSize: 36.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              loc.projectDescription,
-                              style: theme.textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    launchUrl(
-                                      Uri.https(
-                                        'www.bluecherrydvr.com',
-                                        '/',
-                                      ),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                  child: Text(loc.website),
-                                ),
-                                const SizedBox(width: 8.0),
-                                TextButton(
-                                  onPressed: () {
-                                    launchUrl(
-                                      Uri.https(
-                                        'www.bluecherrydvr.com',
-                                        '/product/v3license/',
-                                      ),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                  child: Text(loc.purchase),
-                                ),
-                              ],
-                            ),
-                            const Divider(thickness: 1.0),
-                            const SizedBox(height: 16.0),
-                            Column(
-                              crossAxisAlignment: isCupertino
-                                  ? CrossAxisAlignment.center
-                                  : CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  loc.welcome,
-                                  style: theme.textTheme.displayLarge?.copyWith(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8.0),
-                                Text(
-                                  loc.welcomeDescription,
-                                  style: theme.textTheme.headlineSmall,
-                                ),
-                              ],
-                            ),
-                          ]),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Material(
-                          child: InkWell(
-                            onTap: () {
-                              controller.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            child: Container(
-                              alignment: AlignmentDirectional.center,
-                              width: double.infinity,
-                              height: 56.0,
-                              child: Text(
-                                loc.letsGo.toUpperCase(),
-                                style: TextStyle(
-                                  color: theme.colorScheme.onPrimaryContainer,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                ),
+                LetsGoScreen(
+                  server: server,
+                  onFinish: widget.onFinish,
+                  onBack: _onBack,
+                ),
+              ],
+            ),
+            if (Scaffold.hasDrawer(context))
+              PositionedDirectional(
+                top: MediaQuery.paddingOf(context).top,
+                start: 0,
+                child: const Material(
+                  type: MaterialType.transparency,
+                  color: Colors.amber,
+                  child: SizedBox(
+                    height: kToolbarHeight,
+                    width: kToolbarHeight,
+                    child: UnityDrawerButton(iconColor: Colors.white),
+                  ),
+                ),
+              ),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class AddServerInfoScreen extends StatelessWidget {
+  final VoidCallback onNext;
+
+  const AddServerInfoScreen({super.key, required this.onNext});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
+    return IntrinsicWidth(
+      child: Container(
+        constraints: BoxConstraints(
+          minWidth: MediaQuery.sizeOf(context).width / 2.5,
+        ),
+        alignment: AlignmentDirectional.center,
+        child: Card(
+          color: theme.cardColor,
+          elevation: 4.0,
+          clipBehavior: Clip.antiAlias,
+          margin: const EdgeInsets.all(16) + MediaQuery.paddingOf(context),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.all(16.0),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Image.asset(
+                    'assets/images/icon.png',
+                    height: 124.0,
+                    width: 124.0,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 24.0),
+                  Text(
+                    loc.projectName,
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      fontSize: 36.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text(
+                    loc.projectDescription,
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    TextButton(
+                      onPressed: () {
+                        launchUrl(
+                          Uri.https(
+                            'www.bluecherrydvr.com',
+                            '/',
                           ),
-                        ),
-                      ],
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      child: Text(loc.website),
+                    ),
+                    const SizedBox(width: 8.0),
+                    TextButton(
+                      onPressed: () {
+                        launchUrl(
+                          Uri.https(
+                            'www.bluecherrydvr.com',
+                            '/product/v3license/',
+                          ),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      child: Text(loc.purchase),
+                    ),
+                  ]),
+                  const Divider(thickness: 1.0),
+                  const SizedBox(height: 16.0),
+                  Text(
+                    loc.welcome,
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    loc.welcomeDescription,
+                    style: theme.textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ]),
+              ),
+              const SizedBox(height: 16.0),
+              Material(
+                child: InkWell(
+                  onTap: onNext,
+                  child: Container(
+                    alignment: AlignmentDirectional.center,
+                    width: double.infinity,
+                    height: 56.0,
+                    child: Text(
+                      loc.letsGo.toUpperCase(),
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
-              if (Scaffold.hasDrawer(context))
-                PositionedDirectional(
-                  top: MediaQuery.paddingOf(context).top,
-                  start: 0,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: SizedBox(
-                      height: kToolbarHeight,
-                      width: kToolbarHeight,
-                      child: UnityDrawerButton(iconColor: Colors.white),
-                    ),
-                  ),
-                ),
-            ]),
-            Center(
-              child: ConfigureDVRServerScreen(
-                onBack: () {
-                  controller.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                onNext: () {
-                  controller.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                onServerChange: (server) =>
-                    setState(() => this.server = server),
-                server: server,
-              ),
-            ),
-            LetsGoScreen(
-              server: server,
-              onFinish: widget.onFinish,
-              onBack: () {
-                controller.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

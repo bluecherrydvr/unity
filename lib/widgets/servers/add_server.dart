@@ -83,26 +83,29 @@ class _AddServerWizardState extends State<AddServerWizard> {
         ),
         child: SafeArea(
           child: Stack(children: [
-            PageView(
-              controller: controller,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                Center(child: AddServerInfoScreen(onNext: _onNext)),
-                Center(
-                  child: ConfigureDVRServerScreen(
-                    onBack: _onBack,
-                    onNext: _onNext,
-                    onServerChange: (server) =>
-                        setState(() => this.server = server),
-                    server: server,
+            Padding(
+              padding: MediaQuery.viewInsetsOf(context),
+              child: PageView(
+                controller: controller,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  Center(child: AddServerInfoScreen(onNext: _onNext)),
+                  Center(
+                    child: ConfigureDVRServerScreen(
+                      onBack: _onBack,
+                      onNext: _onNext,
+                      onServerChange: (server) =>
+                          setState(() => this.server = server),
+                      server: server,
+                    ),
                   ),
-                ),
-                LetsGoScreen(
-                  server: server,
-                  onFinish: widget.onFinish,
-                  onBack: _onBack,
-                ),
-              ],
+                  LetsGoScreen(
+                    server: server,
+                    onFinish: widget.onFinish,
+                    onBack: _onBack,
+                  ),
+                ],
+              ),
             ),
             if (Scaffold.hasDrawer(context))
               PositionedDirectional(
@@ -465,15 +468,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           child: Card(
             elevation: 4.0,
             margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: 16.0,
-                vertical: 24.0,
-              ),
-              child: FocusTraversalGroup(
-                policy: OrderedTraversalPolicy(),
-                child: Form(
-                  key: formKey,
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 16.0,
+                    vertical: 24.0,
+                  ),
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Row(children: [
                       IconButton(

@@ -26,7 +26,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// The card that displays the update information.
 class AppUpdateCard extends StatelessWidget {
@@ -362,22 +361,22 @@ class About extends StatelessWidget {
           style: theme.textTheme.displayMedium,
         ),
         const SizedBox(height: 8.0),
-        MaterialButton(
-          onPressed: () {
-            launchUrl(
-              Uri.https('www.bluecherrydvr.com', '/'),
-              mode: LaunchMode.externalApplication,
+        Link(
+          uri: Uri.https('www.bluecherrydvr.com', '/'),
+          builder: (context, open) {
+            return MaterialButton(
+              onPressed: open,
+              padding: EdgeInsetsDirectional.zero,
+              minWidth: 0.0,
+              child: Text(
+                loc.website,
+                semanticsLabel: 'www.bluecherrydvr.com',
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
             );
           },
-          padding: EdgeInsetsDirectional.zero,
-          minWidth: 0.0,
-          child: Text(
-            loc.website,
-            semanticsLabel: 'www.bluecherrydvr.com',
-            style: TextStyle(
-              color: theme.colorScheme.primary,
-            ),
-          ),
         ),
       ]),
     );

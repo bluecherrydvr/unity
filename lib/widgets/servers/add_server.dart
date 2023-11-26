@@ -28,7 +28,7 @@ import 'package:bluecherry_client/widgets/servers/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/link.dart';
 
 class AddServerWizard extends StatefulWidget {
   final VoidCallback onFinish;
@@ -174,30 +174,27 @@ class AddServerInfoScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16.0),
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    TextButton(
-                      onPressed: () {
-                        launchUrl(
-                          Uri.https(
-                            'www.bluecherrydvr.com',
-                            '/',
-                          ),
-                          mode: LaunchMode.externalApplication,
+                    Link(
+                      uri: Uri.https('www.bluecherrydvr.com', '/'),
+                      builder: (context, open) {
+                        return TextButton(
+                          onPressed: open,
+                          child: Text(loc.website),
                         );
                       },
-                      child: Text(loc.website),
                     ),
                     const SizedBox(width: 8.0),
-                    TextButton(
-                      onPressed: () {
-                        launchUrl(
-                          Uri.https(
-                            'www.bluecherrydvr.com',
-                            '/product/v3license/',
-                          ),
-                          mode: LaunchMode.externalApplication,
+                    Link(
+                      uri: Uri.https(
+                        'www.bluecherrydvr.com',
+                        '/product/v3license/',
+                      ),
+                      builder: (context, open) {
+                        return TextButton(
+                          onPressed: open,
+                          child: Text(loc.purchase),
                         );
                       },
-                      child: Text(loc.purchase),
                     ),
                   ]),
                   const Divider(thickness: 1.0),

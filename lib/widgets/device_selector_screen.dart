@@ -105,25 +105,24 @@ class DeviceSelectorScreen extends StatelessWidget {
             for (final server in servers.servers)
               MultiSliver(pushPinnedChildren: true, children: [
                 SliverPinnedHeader(
-                  child: Material(
-                    child: SubHeader(
-                      server.name,
-                      subtext: server.online
-                          ? loc.nDevices(server.devices.length)
-                          : loc.offline,
-                      subtextStyle: TextStyle(
-                        color: !server.online ? theme.colorScheme.error : null,
-                      ),
-                      trailing: servers.isServerLoading(server)
-                          ? const SizedBox(
-                              height: 16.0,
-                              width: 16.0,
-                              child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 1.5,
-                              ),
-                            )
-                          : null,
+                  child: SubHeader(
+                    server.name,
+                    materialType: MaterialType.canvas,
+                    subtext: server.online
+                        ? loc.nDevices(server.devices.length)
+                        : loc.offline,
+                    subtextStyle: TextStyle(
+                      color: !server.online ? theme.colorScheme.error : null,
                     ),
+                    trailing: servers.isServerLoading(server)
+                        ? const SizedBox(
+                            height: 16.0,
+                            width: 16.0,
+                            child: CircularProgressIndicator.adaptive(
+                              strokeWidth: 1.5,
+                            ),
+                          )
+                        : null,
                   ),
                 ),
                 SliverList.builder(

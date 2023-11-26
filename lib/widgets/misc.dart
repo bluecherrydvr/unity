@@ -184,7 +184,7 @@ class SubHeader extends StatelessWidget {
   final TextStyle? subtextStyle;
   final EdgeInsetsGeometry padding;
   final double? height;
-
+  final MaterialType materialType;
   final Widget? trailing;
 
   const SubHeader(
@@ -195,6 +195,7 @@ class SubHeader extends StatelessWidget {
     super.key,
     this.padding = const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
     this.height = 56.0,
+    this.materialType = MaterialType.transparency,
   });
 
   @override
@@ -202,7 +203,7 @@ class SubHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Material(
-      type: MaterialType.transparency,
+      type: materialType,
       child: Container(
         height: height,
         alignment: AlignmentDirectional.centerStart,

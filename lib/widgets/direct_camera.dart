@@ -86,22 +86,21 @@ class _DevicesForServer extends StatelessWidget {
 
     final isLoading = servers.isServerLoading(server);
 
-    final serverIndicator = Material(
-      child: SubHeader(
-        server.name,
-        subtext:
-            server.online ? loc.nDevices(server.devices.length) : loc.offline,
-        subtextStyle: TextStyle(
-          color: !server.online ? theme.colorScheme.error : null,
-        ),
-        trailing: isLoading
-            ? const SizedBox(
-                height: 16.0,
-                width: 16.0,
-                child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
-              )
-            : null,
+    final serverIndicator = SubHeader(
+      server.name,
+      materialType: MaterialType.canvas,
+      subtext:
+          server.online ? loc.nDevices(server.devices.length) : loc.offline,
+      subtextStyle: TextStyle(
+        color: !server.online ? theme.colorScheme.error : null,
       ),
+      trailing: isLoading
+          ? const SizedBox(
+              height: 16.0,
+              width: 16.0,
+              child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+            )
+          : null,
     );
 
     if (isLoading || !server.online) {

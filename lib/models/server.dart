@@ -18,7 +18,9 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 
 /// A [Server] added by a user.
@@ -64,6 +66,11 @@ class Server {
   ///   * [Device.hlsURL]
   bool passedCertificates = true;
 
+  /// The preferred streaming type.
+  ///
+  /// If not provided, defaults to the type declared in the app settings.
+  final StreamingType? preferredStreamingType;
+
   /// Creates a new [Server].
   Server({
     required this.name,
@@ -78,6 +85,7 @@ class Server {
     this.connectAutomaticallyAtStartup = true,
     this.online = true,
     this.passedCertificates = true,
+    this.preferredStreamingType,
   });
 
   /// Creates a server with fake values.
@@ -98,6 +106,7 @@ class Server {
     this.connectAutomaticallyAtStartup = true,
     this.online = true,
     this.passedCertificates = true,
+    this.preferredStreamingType,
   });
 
   String get id {
@@ -124,7 +133,8 @@ class Server {
         other.serverUUID == serverUUID &&
         other.cookie == cookie &&
         other.online == online &&
-        other.passedCertificates == passedCertificates;
+        other.passedCertificates == passedCertificates &&
+        other.preferredStreamingType == preferredStreamingType;
   }
 
   @override
@@ -140,7 +150,8 @@ class Server {
         serverUUID.hashCode ^
         cookie.hashCode ^
         online.hashCode ^
-        passedCertificates.hashCode;
+        passedCertificates.hashCode ^
+        preferredStreamingType.hashCode;
   }
 
   Server copyWith({
@@ -154,6 +165,7 @@ class Server {
     String? serverUUID,
     String? cookie,
     bool? online,
+    StreamingType? preferredStreamingType,
   }) {
     return Server(
       name: name ?? this.name,
@@ -165,6 +177,8 @@ class Server {
       rtspPort: rtspPort ?? this.rtspPort,
       serverUUID: serverUUID ?? this.serverUUID,
       cookie: cookie ?? this.cookie,
+      preferredStreamingType:
+          preferredStreamingType ?? this.preferredStreamingType,
     );
   }
 
@@ -181,6 +195,7 @@ class Server {
         'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
         'serverUUID': serverUUID,
         'cookie': cookie,
+        'preferredStreamingType': preferredStreamingType?.name,
       };
 
   factory Server.fromJson(Map<String, dynamic> json) => Server(
@@ -197,5 +212,8 @@ class Server {
         rtspPort: json['rtspPort'],
         serverUUID: json['serverUUID'],
         cookie: json['cookie'],
+        preferredStreamingType: StreamingType.values.firstWhereOrNull(
+          (type) => type.name == json['preferredStreamingType'],
+        ),
       );
 }

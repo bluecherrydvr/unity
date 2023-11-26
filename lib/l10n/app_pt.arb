@@ -1,7 +1,7 @@
 {
   "@@locale": "pt",
   "welcome": "Bem vindo!",
-  "welcomeDescription": "Sea bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!",
+  "welcomeDescription": "Seja bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!",
   "configure": "Configure um Servidor DVR",
   "configureDescription": "Configure uma conexão com seu servidor DVR remoto. Você pode se conectar a quantos servidores quiser de qualquer lugar do mundo.",
   "hostname": "Hostname",

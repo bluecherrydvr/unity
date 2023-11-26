@@ -115,13 +115,13 @@ class Device {
   final ExternalDeviceData? externalData;
 
   /// Creates a device.
-  Device(
-    this.name,
-    this.id,
-    this.status,
+  Device({
+    required this.name,
+    required this.id,
+    this.status = true,
     this.resolutionX,
     this.resolutionY,
-    this.server, {
+    required this.server,
     this.hasPTZ = false,
     this.url,
     this.matrixType = MatrixType.t16,
@@ -130,6 +130,7 @@ class Device {
     this.externalData,
   });
 
+  /// Creates a device with fake values.
   Device.dump({
     this.name = 'device',
     this.id = -1,
@@ -170,12 +171,12 @@ class Device {
 
   factory Device.fromServerJson(Map map, Server server) {
     return Device(
-      map['device_name'],
-      int.tryParse(map['id']) ?? 0,
-      map['status'] == 'OK',
-      int.tryParse(map['resolutionX']),
-      int.tryParse(map['resolutionY']),
-      server,
+      name: map['device_name'],
+      id: int.tryParse(map['id']) ?? 0,
+      status: map['status'] == 'OK',
+      resolutionX: int.tryParse(map['resolutionX']),
+      resolutionY: int.tryParse(map['resolutionY']),
+      server: server,
       hasPTZ: map['ptz_control_protocol'] != null,
     );
   }
@@ -243,7 +244,7 @@ class Device {
     ).toString());
   }
 
-  Future<String?> getHLSUrl([Device? device]) async {
+  Future<String> getHLSUrl([Device? device]) async {
     // return hlsURL;
     device ??= this;
     var data = {
@@ -276,7 +277,7 @@ class Device {
       debugPrint('Request failed with status: ${response.statusCode}');
     }
 
-    return null;
+    return hlsURL;
   }
 
   /// Returns the full name of this device, including the server name.
@@ -340,12 +341,12 @@ class Device {
     ExternalDeviceData? externalData,
   }) =>
       Device(
-        name ?? this.name,
-        id ?? this.id,
-        status ?? this.status,
-        resolutionX ?? this.resolutionX,
-        resolutionY ?? this.resolutionY,
-        server ?? this.server,
+        name: name ?? this.name,
+        id: id ?? this.id,
+        status: status ?? this.status,
+        resolutionX: resolutionX ?? this.resolutionX,
+        resolutionY: resolutionY ?? this.resolutionY,
+        server: server ?? this.server,
         hasPTZ: hasPTZ ?? this.hasPTZ,
         url: url ?? this.url,
         matrixType: matrixType ?? this.matrixType,
@@ -374,15 +375,15 @@ class Device {
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
-      json['name'],
-      int.tryParse(json['id']?.toString() ??
+      name: json['name'],
+      id: int.tryParse(json['id']?.toString() ??
               json['uri']?.toString().replaceAll('live/', '') ??
               '') ??
           0,
-      json['status'],
-      json['resolutionX'],
-      json['resolutionY'],
-      Server.fromJson(json['server'] as Map<String, dynamic>),
+      status: json['status'] ?? false,
+      resolutionX: json['resolutionX'],
+      resolutionY: json['resolutionY'],
+      server: Server.fromJson(json['server'] as Map<String, dynamic>),
       hasPTZ: json['hasPTZ'] ?? false,
       url: json['url'],
       matrixType: MatrixType.values[json['matrixType'] ?? 0],

@@ -209,18 +209,17 @@ class Layout {
         }
 
         yield Device(
-          name ?? '',
-          int.parse(id),
-          true,
-          640,
-          480,
-          Server(
-            server,
-            server,
-            int.parse(serverPort),
-            '',
-            '',
-            [],
+          name: name ?? '',
+          id: int.parse(id),
+          resolutionX: 640,
+          resolutionY: 480,
+          server: Server(
+            name: server,
+            ip: server,
+            port: int.parse(serverPort),
+            login: '',
+            password: '',
+            devices: [],
           ),
         );
       }

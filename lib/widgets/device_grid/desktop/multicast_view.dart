@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -92,8 +93,11 @@ class _MulticastViewportState extends State<MulticastViewport> {
     final settings = context.watch<SettingsProvider>();
     final view = UnityVideoView.maybeOf(context);
     final theme = Theme.of(context);
+    final views = context.watch<DesktopViewProvider>();
 
-    if (view == null || !settings.betaMatrixedZoomEnabled) {
+    if (view == null ||
+        view.lastImageUpdate == null ||
+        !settings.betaMatrixedZoomEnabled) {
       return const SizedBox.shrink();
     }
 
@@ -113,7 +117,6 @@ class _MulticastViewportState extends State<MulticastViewport> {
             });
 
             (int row, int column) next;
-
             if (scaleChange == 1.0) {
               next = nextZoom(currentZoom!, size);
             } else {
@@ -150,6 +153,14 @@ class _MulticastViewportState extends State<MulticastViewport> {
 
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
+                  onDoubleTap: () {
+                    views.updateDevice(
+                      widget.device,
+                      widget.device.copyWith(
+                        matrixType: widget.device.matrixType.next,
+                      ),
+                    );
+                  },
                   onTap: () {
                     view.player.crop(row, col, size);
                     currentZoom = (row, col);

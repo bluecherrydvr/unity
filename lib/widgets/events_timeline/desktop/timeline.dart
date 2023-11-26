@@ -684,46 +684,19 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               Expanded(
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.opaque,
+                                  onTapUp: (details) {
+                                    _onMove(
+                                      details.localPosition,
+                                      constraints,
+                                      tileWidth,
+                                    );
+                                  },
                                   onHorizontalDragUpdate: (details) {
-                                    if (!timeline.zoomController.hasClients ||
-                                        details.localPosition.dx >=
-                                            (constraints.maxWidth -
-                                                _kDeviceNameWidth)) {
-                                      return;
-                                    }
-                                    final pointerPosition = (details
-                                                .localPosition.dx +
-                                            timeline.zoomController.offset) /
-                                        tileWidth;
-                                    if (pointerPosition < 0 ||
-                                        pointerPosition > 1) {
-                                      return;
-                                    }
-
-                                    final seconds =
-                                        (_secondsInADay * pointerPosition)
-                                            .round();
-                                    final position = Duration(seconds: seconds);
-                                    timeline.seekTo(position);
-
-                                    if (timeline.zoom > 1.0) {
-                                      // the position that the seeker will start moving
-                                      // 100. removes it from the border
-                                      final endPosition = constraints.maxWidth -
-                                          _kDeviceNameWidth -
-                                          100.0;
-                                      if (details.localPosition.dx >=
-                                          endPosition) {
-                                        timeline.scrollTo(
-                                          timeline.zoomController.offset + 25.0,
-                                        );
-                                      } else if (details.localPosition.dx <=
-                                          100.0) {
-                                        timeline.scrollTo(
-                                          timeline.zoomController.offset - 25.0,
-                                        );
-                                      }
-                                    }
+                                    _onMove(
+                                      details.localPosition,
+                                      constraints,
+                                      tileWidth,
+                                    );
                                   },
                                   child: Builder(builder: (context) {
                                     return ScrollConfiguration(
@@ -830,6 +803,41 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
       timeline.zoom -= 0.8;
     } else {
       timeline.zoom += 0.6;
+    }
+  }
+
+  void _onMove(
+    Offset localPosition,
+    BoxConstraints constraints,
+    double tileWidth,
+  ) {
+    if (!timeline.zoomController.hasClients ||
+        localPosition.dx >= (constraints.maxWidth - _kDeviceNameWidth)) {
+      return;
+    }
+    final pointerPosition =
+        (localPosition.dx + timeline.zoomController.offset) / tileWidth;
+    if (pointerPosition < 0 || pointerPosition > 1) {
+      return;
+    }
+
+    final seconds = (_secondsInADay * pointerPosition).round();
+    final position = Duration(seconds: seconds);
+    timeline.seekTo(position);
+
+    if (timeline.zoom > 1.0) {
+      // the position that the seeker will start moving
+      // 100. removes it from the border
+      final endPosition = constraints.maxWidth - _kDeviceNameWidth - 100.0;
+      if (localPosition.dx >= endPosition) {
+        timeline.scrollTo(
+          timeline.zoomController.offset + 25.0,
+        );
+      } else if (localPosition.dx <= 100.0) {
+        timeline.scrollTo(
+          timeline.zoomController.offset - 25.0,
+        );
+      }
     }
   }
 }

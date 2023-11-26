@@ -202,9 +202,16 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       }
     }
 
-    errorStream = mkPlayer.stream.error.listen((event) {
+    errorStream = mkPlayer.stream.error.listen((event) async {
       debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
       debugPrint('==== $event');
+
+      // If the video is not supported, try to play the fallback url
+      if (event == 'Failed to recognize file format.' &&
+          fallbackUrl != null &&
+          lastImageUpdate != null) {
+        setDataSource(await fallbackUrl!);
+      }
     });
   }
 
@@ -263,6 +270,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {
     if (url == dataSource) return Future.value();
+    debugPrint('Playing $url');
     return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.setPlaylistMode(PlaylistMode.loop);
       // do not use mkPlayer.add because it doesn't support auto play

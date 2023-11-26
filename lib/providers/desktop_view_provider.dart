@@ -266,4 +266,27 @@ class DesktopViewProvider extends ChangeNotifier {
     notifyListeners();
     return _save(notifyListeners: false);
   }
+
+  /// Updates a device in all the layouts.
+  ///
+  /// If [reload] is `true`, the device player will be reloaded.
+  Future<void> updateDevice(
+    Device previousDevice,
+    Device device, {
+    bool reload = false,
+  }) {
+    for (final layout in layouts) {
+      final index = layout.devices.indexOf(previousDevice);
+      if (!index.isNegative) {
+        layout.devices[index] = device;
+      }
+    }
+
+    if (reload) {
+      UnityPlayers.reloadDevice(device);
+    }
+
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
 }

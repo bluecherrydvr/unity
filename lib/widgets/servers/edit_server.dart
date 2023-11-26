@@ -124,7 +124,7 @@ class _EditServerState extends State<EditServer> {
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
                   label: Text(loc.hostname),
-                  hintText: loc.serverHostnameExample,
+                  hintText: loc.hostnameExample,
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -157,12 +157,13 @@ class _EditServerState extends State<EditServer> {
               flex: 2,
               child: TextFormField(
                 enabled: !disableFinishButton,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return loc.errorTextField(loc.rtspPort);
-                  }
-                  return null;
-                },
+                // https://github.com/bluecherrydvr/unity/issues/182
+                // validator: (value) {
+                //   if (value == null || value.isEmpty) {
+                //     return loc.errorTextField(loc.rtspPort);
+                //   }
+                //   return null;
+                // },
                 controller: rtspPortController,
                 autofocus: true,
                 keyboardType: TextInputType.number,

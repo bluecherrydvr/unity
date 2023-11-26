@@ -55,6 +55,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   @override
   void dispose() {
     timeline?.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 

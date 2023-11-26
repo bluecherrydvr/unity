@@ -95,7 +95,7 @@ extension EventsExtension on API {
             .cast<Map>()
             .map((eventObject) {
           final published = DateTime.parse(eventObject['published']).toLocal();
-          final event = Event.factory(
+          final event = Event(
             server: server,
             id: () {
               final idObject = eventObject['id'].toString();
@@ -143,21 +143,22 @@ extension EventsExtension on API {
             .map((e) {
           if (!e.containsKey('content')) debugPrint(e.toString());
           return Event(
-            server,
-            int.parse(e['id']['raw']),
-            int.parse((e['category']['term'] as String).split('/').first),
-            e['title']['\$t'],
-            e['published'] == null || e['published']['\$t'] == null
+            server: server,
+            id: int.parse(e['id']['raw']),
+            deviceID:
+                int.parse((e['category']['term'] as String).split('/').first),
+            title: e['title']['\$t'],
+            published: e['published'] == null || e['published']['\$t'] == null
                 ? DateTime.now().toLocal()
                 : DateTime.parse(e['published']['\$t']).toLocal(),
-            e['updated'] == null || e['updated']['\$t'] == null
+            updated: e['updated'] == null || e['updated']['\$t'] == null
                 ? DateTime.now().toLocal()
                 : DateTime.parse(e['updated']['\$t']).toLocal(),
-            e['category']['term'],
-            !e.containsKey('content')
+            category: e['category']['term'],
+            mediaID: !e.containsKey('content')
                 ? null
                 : int.parse(e['content']['media_id']),
-            !e.containsKey('content')
+            mediaURL: !e.containsKey('content')
                 ? null
                 : Uri.parse(
                     e['content'][r'$t'].replaceAll(

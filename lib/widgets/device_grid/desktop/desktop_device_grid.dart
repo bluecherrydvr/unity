@@ -302,7 +302,8 @@ class DesktopDeviceTile extends StatefulWidget {
 }
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+      SettingsProvider.instance.cameraViewFit;
 
   @override
   Widget build(BuildContext context) {
@@ -465,6 +466,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
         final fit =
             context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
+                widget.device.server.additionalSettings.videoFit ??
                 settings.cameraViewFit;
 
         return Stack(children: [

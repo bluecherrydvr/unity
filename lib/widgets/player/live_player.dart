@@ -129,7 +129,8 @@ class _MobileLivePlayer extends StatefulWidget {
 
 class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   bool overlay = true;
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+      SettingsProvider.instance.cameraViewFit;
 
   late bool ptzEnabled = widget.ptzEnabled;
 
@@ -289,7 +290,8 @@ class _DesktopLivePlayer extends StatefulWidget {
 }
 
 class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+      SettingsProvider.instance.cameraViewFit;
   late bool ptzEnabled = widget.ptzEnabled;
 
   late StreamSubscription<double> _volumeStreamSubscription;

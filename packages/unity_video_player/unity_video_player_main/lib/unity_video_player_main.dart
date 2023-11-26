@@ -191,6 +191,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('insecure', 'yes');
 
       if (rtspProtocol != null) {
+        // TODO(bdlukaa): correctly apply rtsp protocol
         platform.setProperty('rtsp-transport', 'udp_multicast');
       }
 

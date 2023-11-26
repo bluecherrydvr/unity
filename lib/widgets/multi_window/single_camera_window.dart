@@ -38,7 +38,8 @@ class CameraView extends StatefulWidget {
 class _CameraViewState extends State<CameraView> {
   late final UnityVideoPlayer controller;
   late final StreamSubscription _durationSubscription;
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+      SettingsProvider.instance.cameraViewFit;
 
   @override
   void initState() {

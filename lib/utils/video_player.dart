@@ -40,7 +40,8 @@ class UnityPlayers with ChangeNotifier {
   static UnityVideoPlayer forDevice(Device device) {
     final settings = SettingsProvider.instance;
     final controller = UnityVideoPlayer.create(
-      quality: switch (settings.videoQuality) {
+      quality: switch (device.server.additionalSettings.renderingQuality ??
+          settings.videoQuality) {
         RenderingQuality.p4k => UnityVideoQuality.p4k,
         RenderingQuality.p1080 => UnityVideoQuality.p1080,
         RenderingQuality.p720 => UnityVideoQuality.p720,
@@ -55,8 +56,10 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     Future<void> setSource() async {
-      final (String source, Future<String> fallback) =
-          switch (device.preferredStreamingType ?? settings.streamingType) {
+      final (String source, Future<String> fallback) = switch (
+          device.preferredStreamingType ??
+              device.server.additionalSettings.preferredStreamingType ??
+              settings.streamingType) {
         StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
         StreamingType.hls => (
             await device.getHLSUrl(),

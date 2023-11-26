@@ -401,7 +401,7 @@ Future showServerMenu({
           server.online ? loc.refreshDevices : loc.refreshServer,
         ),
         onTap: () async {
-          servers.refreshDevices([server.id]);
+          servers.refreshDevices(ids: [server.id]);
         },
       ),
     ],

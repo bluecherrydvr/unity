@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -54,17 +55,28 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     Future<void> setSource() async {
-      final source =
+      final (String source, Future<String> fallback) =
           switch (device.preferredStreamingType ?? settings.streamingType) {
-        StreamingType.rtsp => device.rtspURL,
-        StreamingType.hls => (await device.getHLSUrl()) ?? device.hlsURL,
-        StreamingType.mjpeg => device.mjpegURL,
+        StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
+        StreamingType.hls => (
+            await device.getHLSUrl(),
+            Future.value(device.rtspURL)
+          ),
+        StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
       };
       debugPrint(source);
-      controller.setDataSource(source);
+      controller
+        ..fallbackUrl = fallback
+        ..setDataSource(source);
     }
 
     setSource();
+
+    controller.onError.listen((event) {
+      writeLogToFile(
+        'An error ocurred when playing a video (${controller.dataSource}): $event\n',
+      );
+    });
 
     return controller;
   }

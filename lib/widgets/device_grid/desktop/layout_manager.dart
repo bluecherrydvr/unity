@@ -561,6 +561,12 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
   late int selected = widget.layout.type.index;
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);

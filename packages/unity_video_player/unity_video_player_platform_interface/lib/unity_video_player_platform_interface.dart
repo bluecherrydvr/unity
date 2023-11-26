@@ -335,17 +335,22 @@ enum UnityVideoQuality {
 }
 
 abstract class UnityVideoPlayer {
+  Future<String>? fallbackUrl;
+
   static UnityVideoPlayer create({
     UnityVideoQuality quality = UnityVideoQuality.p360,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
+    Future<String>? fallbackUrl,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
       height: quality.resolution.height.toInt(),
       enableCache: enableCache,
       rtspProtocol: rtspProtocol,
-    )..quality = quality;
+    )
+      ..quality = quality
+      ..fallbackUrl = fallbackUrl;
   }
 
   static const timerInterval = Duration(seconds: 6);
@@ -361,10 +366,7 @@ abstract class UnityVideoPlayer {
 
   UnityVideoQuality? quality;
 
-  UnityVideoPlayer({
-    this.width,
-    this.height,
-  }) {
+  UnityVideoPlayer({this.width, this.height}) {
     _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
   }
 

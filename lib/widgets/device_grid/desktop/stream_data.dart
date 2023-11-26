@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<Device?> showStreamDataDialog(
@@ -326,11 +327,14 @@ class _StreamDataState extends State<StreamData> {
           if (widget.device.externalData?.serverIp != null)
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 8.0),
-              child: TextButton(
-                onPressed: () {
-                  launchUrl(widget.device.externalData!.serverIp!);
+              child: Link(
+                uri: widget.device.externalData!.serverIp!,
+                builder: (context, open) {
+                  return TextButton(
+                    onPressed: open,
+                    child: const Text('Open server'),
+                  );
                 },
-                child: const Text('Open server'),
               ),
             ),
           const Spacer(),

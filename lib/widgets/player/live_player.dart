@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/device_grid/desktop/multicast_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -330,6 +331,16 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
               paneBuilder: (context, player) {
                 return Stack(children: [
                   if (commands.isNotEmpty) PTZData(commands: commands),
+                  Positioned.fill(
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: player.aspectRatio,
+                        child: MulticastViewport(
+                          device: widget.device,
+                        ),
+                      ),
+                    ),
+                  ),
                   PositionedDirectional(
                     bottom: 8.0,
                     end: 8.0,

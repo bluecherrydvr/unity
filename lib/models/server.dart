@@ -18,8 +18,121 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
+import 'package:unity_video_player/unity_video_player.dart';
+
+class AdditionalServerOptions {
+  /// Whether to connect to this server automatically at startup.
+  ///
+  /// If false, the server will have to be connected to manually.
+  final bool connectAutomaticallyAtStartup;
+
+  /// The preferred streaming type.
+  ///
+  /// If not provided, defaults to the type declared in the app settings.
+  final StreamingType? preferredStreamingType;
+
+  /// The preferred RTSP protocol when the streaming type is RTSP.
+  final RTSPProtocol? rtspProtocol;
+
+  /// The quality of the video rendering.
+  final RenderingQuality? renderingQuality;
+
+  /// The preferred video fit.
+  final UnityVideoFit? videoFit;
+
+  const AdditionalServerOptions({
+    this.connectAutomaticallyAtStartup = true,
+    this.preferredStreamingType,
+    this.rtspProtocol,
+    this.renderingQuality,
+    this.videoFit,
+  });
+
+  AdditionalServerOptions copyWith({
+    bool? connectAutomaticallyAtStartup,
+    StreamingType? preferredStreamingType,
+    RTSPProtocol? rtspProtocol,
+    RenderingQuality? renderingQuality,
+    UnityVideoFit? videoFit,
+  }) {
+    return AdditionalServerOptions(
+      connectAutomaticallyAtStartup:
+          connectAutomaticallyAtStartup ?? this.connectAutomaticallyAtStartup,
+      preferredStreamingType:
+          preferredStreamingType ?? this.preferredStreamingType,
+      rtspProtocol: rtspProtocol ?? this.rtspProtocol,
+      renderingQuality: renderingQuality ?? this.renderingQuality,
+      videoFit: videoFit ?? this.videoFit,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'connectAutomaticallyAtStartup': connectAutomaticallyAtStartup,
+      'preferredStreamingType': preferredStreamingType?.name,
+      'rtspProtocol': rtspProtocol?.name,
+      'renderingQuality': renderingQuality?.name,
+      'videoFit': videoFit?.name,
+    };
+  }
+
+  factory AdditionalServerOptions.fromMap(Map<String, dynamic> map) {
+    return AdditionalServerOptions(
+      connectAutomaticallyAtStartup:
+          map['connectAutomaticallyAtStartup'] ?? false,
+      preferredStreamingType: map['preferredStreamingType'] != null
+          ? StreamingType.values.firstWhereOrNull(
+              (type) => type.name == map['preferredStreamingType'],
+            )
+          : null,
+      rtspProtocol: map['rtspProtocol'] != null
+          ? RTSPProtocol.values.firstWhereOrNull(
+              (type) => type.name == map['rtspProtocol'],
+            )
+          : null,
+      renderingQuality: map['renderingQuality'] != null
+          ? RenderingQuality.values.firstWhereOrNull(
+              (type) => type.name == map['renderingQuality'],
+            )
+          : null,
+      videoFit: map['videoFit'] != null
+          ? UnityVideoFit.values.firstWhereOrNull(
+              (type) => type.name == map['videoFit'],
+            )
+          : null,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'AdditionalServerOptions(connectAutomaticallyAtStartup: $connectAutomaticallyAtStartup, preferredStreamingType: $preferredStreamingType, rtspProtocol: $rtspProtocol, renderingQuality: $renderingQuality, videoFit: $videoFit)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AdditionalServerOptions &&
+        other.connectAutomaticallyAtStartup == connectAutomaticallyAtStartup &&
+        other.preferredStreamingType == preferredStreamingType &&
+        other.rtspProtocol == rtspProtocol &&
+        other.renderingQuality == renderingQuality &&
+        other.videoFit == videoFit;
+  }
+
+  @override
+  int get hashCode {
+    return connectAutomaticallyAtStartup.hashCode ^
+        preferredStreamingType.hashCode ^
+        rtspProtocol.hashCode ^
+        renderingQuality.hashCode ^
+        videoFit.hashCode;
+  }
+}
 
 /// A [Server] added by a user.
 class Server {
@@ -43,11 +156,6 @@ class Server {
   /// The password to connect to the server.
   final String password;
 
-  /// Whether to connect to this server automatically at startup.
-  ///
-  /// If false, the server will have to be connected to manually.
-  final bool connectAutomaticallyAtStartup;
-
   /// The list of devices that are available on this server.
   List<Device> devices = [];
   final String? serverUUID;
@@ -64,6 +172,9 @@ class Server {
   ///   * [Device.hlsURL]
   bool passedCertificates = true;
 
+  /// Additional settings for this server.
+  final AdditionalServerOptions additionalSettings;
+
   /// Creates a new [Server].
   Server({
     required this.name,
@@ -75,9 +186,9 @@ class Server {
     this.rtspPort = kDefaultRTSPPort,
     this.serverUUID,
     this.cookie,
-    this.connectAutomaticallyAtStartup = true,
     this.online = true,
     this.passedCertificates = true,
+    this.additionalSettings = const AdditionalServerOptions(),
   });
 
   /// Creates a server with fake values.
@@ -95,9 +206,9 @@ class Server {
     this.rtspPort = kDefaultRTSPPort,
     this.serverUUID,
     this.cookie,
-    this.connectAutomaticallyAtStartup = true,
     this.online = true,
     this.passedCertificates = true,
+    this.additionalSettings = const AdditionalServerOptions(),
   });
 
   String get id {
@@ -119,7 +230,7 @@ class Server {
         other.rtspPort == rtspPort &&
         other.login == login &&
         other.password == password &&
-        other.connectAutomaticallyAtStartup == connectAutomaticallyAtStartup &&
+        other.additionalSettings == additionalSettings &&
         listEquals(other.devices, devices) &&
         other.serverUUID == serverUUID &&
         other.cookie == cookie &&
@@ -135,7 +246,7 @@ class Server {
         rtspPort.hashCode ^
         login.hashCode ^
         password.hashCode ^
-        connectAutomaticallyAtStartup.hashCode ^
+        additionalSettings.hashCode ^
         devices.hashCode ^
         serverUUID.hashCode ^
         cookie.hashCode ^
@@ -154,6 +265,7 @@ class Server {
     String? serverUUID,
     String? cookie,
     bool? online,
+    AdditionalServerOptions? additionalSettings,
   }) {
     return Server(
       name: name ?? this.name,
@@ -165,6 +277,7 @@ class Server {
       rtspPort: rtspPort ?? this.rtspPort,
       serverUUID: serverUUID ?? this.serverUUID,
       cookie: cookie ?? this.cookie,
+      additionalSettings: additionalSettings ?? this.additionalSettings,
     );
   }
 
@@ -181,6 +294,7 @@ class Server {
         'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
         'serverUUID': serverUUID,
         'cookie': cookie,
+        'additionalSettings': additionalSettings.toMap(),
       };
 
   factory Server.fromJson(Map<String, dynamic> json) => Server(
@@ -197,5 +311,8 @@ class Server {
         rtspPort: json['rtspPort'],
         serverUUID: json['serverUUID'],
         cookie: json['cookie'],
+        additionalSettings: json['additionalSettings'] != null
+            ? AdditionalServerOptions.fromMap(json['additionalSettings'])
+            : const AdditionalServerOptions(),
       );
 }

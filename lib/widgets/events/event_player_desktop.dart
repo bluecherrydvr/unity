@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -62,7 +63,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   late Event currentEvent;
   final focusNode = FocusNode();
 
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit;
 
   late final UnityVideoPlayer videoController;
   late final StreamSubscription playingSubscription;
@@ -84,6 +85,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     return videoController.duration;
   }
 
+  Device? get device => currentEvent.server.devices.firstWhereOrNull(
+        (d) => d.id == currentEvent.deviceID,
+      );
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +98,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
           enableCache: true,
         );
     currentEvent = widget.event;
+    fit = device?.server.additionalSettings.videoFit ??
+        SettingsProvider.instance.cameraViewFit;
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
       if (!mounted) return;
@@ -141,10 +148,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     final loc = AppLocalizations.of(context);
 
     const padd = SizedBox(width: 16.0);
-
-    final device = currentEvent.server.devices.firstWhereOrNull(
-      (d) => d.id == currentEvent.deviceID,
-    );
 
     return KeyboardListener(
       focusNode: focusNode,
@@ -196,7 +199,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                         start: 8.0,
                                       ),
                                       child: VideoStatusLabel(
-                                        device: device,
+                                        device: device!,
                                         video: video,
                                         event: currentEvent,
                                       ),

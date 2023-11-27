@@ -55,10 +55,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
             child: Material(
               type: MaterialType.transparency,
               child: CustomScrollView(slivers: [
-                SliverList.builder(
-                  itemCount: ServersProvider.instance.servers.length,
-                  itemBuilder: (context, i) {
-                    final server = ServersProvider.instance.servers[i];
+                for (final server in servers.servers)
+                  () {
                     final devices = server.devices.sorted();
                     final isLoading = servers.isServerLoading(server);
 
@@ -67,72 +65,74 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                         .where((d) => d.status)
                         .every((d) => view.currentLayout.devices.contains(d));
 
-                    return Column(children: [
-                      SubHeader(
-                        server.name,
-                        subtext: server.online
-                            ? loc.nDevices(devices.length)
-                            : loc.offline,
-                        subtextStyle: TextStyle(
-                          color:
-                              !server.online ? theme.colorScheme.error : null,
-                        ),
-                        trailing: Builder(builder: (context) {
-                          if (isLoading) {
-                            // wrap in an icon button to ensure ui consistency
-                            return const IconButton(
-                              onPressed: null,
-                              icon: SizedBox(
-                                height: 16.0,
-                                width: 16.0,
-                                child: CircularProgressIndicator.adaptive(
-                                  strokeWidth: 1.5,
+                    return MultiSliver(pushPinnedChildren: true, children: [
+                      SliverPinnedHeader(
+                        child: SubHeader(
+                          server.name,
+                          materialType: MaterialType.canvas,
+                          subtext: server.online
+                              ? loc.nDevices(devices.length)
+                              : loc.offline,
+                          subtextStyle: TextStyle(
+                            color:
+                                !server.online ? theme.colorScheme.error : null,
+                          ),
+                          trailing: Builder(builder: (context) {
+                            if (isLoading) {
+                              // wrap in an icon button to ensure ui consistency
+                              return const IconButton(
+                                onPressed: null,
+                                icon: SizedBox(
+                                  height: 16.0,
+                                  width: 16.0,
+                                  child: CircularProgressIndicator.adaptive(
+                                    strokeWidth: 1.5,
+                                  ),
                                 ),
-                              ),
-                            );
-                          } else if (!server.online && isSidebarHovering) {
-                            return IconButton(
-                              icon: const Icon(Icons.refresh),
-                              tooltip: loc.refreshServer,
-                              onPressed: () =>
-                                  servers.refreshDevices(ids: [server.id]),
-                            );
-                          } else if (isSidebarHovering && devices.isNotEmpty) {
-                            return IconButton(
-                              icon: Icon(
-                                isAllInView
-                                    ? Icons.playlist_remove
-                                    : Icons.playlist_add,
-                              ),
-                              tooltip: isAllInView
-                                  ? loc.removeAllFromView
-                                  : loc.addAllToView,
-                              onPressed: () {
-                                if (isAllInView) {
-                                  view.removeDevices(
-                                    devices.where(
-                                        view.currentLayout.devices.contains),
-                                  );
-                                } else {
-                                  for (final device in devices) {
-                                    if (device.status &&
-                                        !view.currentLayout.devices
-                                            .contains(device)) {
-                                      view.add(device);
+                              );
+                            } else if (!server.online && isSidebarHovering) {
+                              return IconButton(
+                                icon: const Icon(Icons.refresh),
+                                tooltip: loc.refreshServer,
+                                onPressed: () =>
+                                    servers.refreshDevices(ids: [server.id]),
+                              );
+                            } else if (isSidebarHovering &&
+                                devices.isNotEmpty) {
+                              return IconButton(
+                                icon: Icon(
+                                  isAllInView
+                                      ? Icons.playlist_remove
+                                      : Icons.playlist_add,
+                                ),
+                                tooltip: isAllInView
+                                    ? loc.removeAllFromView
+                                    : loc.addAllToView,
+                                onPressed: () {
+                                  if (isAllInView) {
+                                    view.removeDevicesFromCurrentLayout(
+                                        devices);
+                                  } else {
+                                    for (final device in devices) {
+                                      if (device.status &&
+                                          !view.currentLayout.devices
+                                              .contains(device)) {
+                                        view.add(device);
+                                      }
                                     }
                                   }
-                                }
-                              },
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        }),
+                                },
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          }),
+                        ),
                       ),
-                      if (devices.isNotEmpty)
-                        ...List.generate(
-                          !server.online || isLoading ? 1 : devices.length,
-                          (index) {
+                      if (server.online && !isLoading)
+                        SliverList.builder(
+                          itemCount: devices.length,
+                          itemBuilder: (context, index) {
                             final device = devices[index];
                             final selected =
                                 view.currentLayout.devices.contains(device);
@@ -171,8 +171,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                           },
                         ),
                     ]);
-                  },
-                ),
+                  }(),
                 const SliverToBoxAdapter(child: Divider()),
                 SliverToBoxAdapter(
                   child: ListTile(

@@ -85,19 +85,25 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
         if (widget.events.isEmpty) {
           final isLoading = HomeProvider.instance
               .isLoadingFor(UnityLoadingReason.fetchingEventsHistory);
-          return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            NoEventsLoaded(
-              isLoading: isLoading,
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                NoEventsLoaded(
+                  isLoading: isLoading,
+                ),
+                if (!isLoading) ...[
+                  const SizedBox(height: 12.0),
+                  ElevatedButton.icon(
+                    onPressed: widget.showFilter,
+                    icon: const Icon(Icons.filter_list),
+                    label: Text(loc.filter),
+                  ),
+                ],
+              ],
             ),
-            if (!isLoading) ...[
-              const SizedBox(height: 12.0),
-              ElevatedButton.icon(
-                onPressed: widget.showFilter,
-                icon: const Icon(Icons.filter_list),
-                label: Text(loc.filter),
-              ),
-            ],
-          ]);
+          );
         }
 
         return Material(

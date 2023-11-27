@@ -59,6 +59,18 @@
   "videoError": "Une erreur est survenue lors de la lecture de la vidé.",
   "ok": "OK",
   "retry": "Réessayer",
+  "clear": "Clear",
+  "serverSettings": "Server settings",
+  "serverSettingsDescription": "Settings that will only be applied to this server. If they are not provided, the values from General Settings will be used. You can change these values later.",
+  "editServerSettingsInfo": "Edit server settings",
+  "editServerSettings": "Edit server settings",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "removeCamera": "Enlever caméra",
   "replaceCamera": "Remplacer caméra",
   "reloadCamera": "Recharger caméra",

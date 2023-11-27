@@ -45,6 +45,46 @@ Future<void> showEditServer(BuildContext context, Server server) {
   );
 }
 
+Future<void> updateServer(BuildContext context, Server serverCopy) async {
+  final updatedServer = await API.instance.checkServerCredentials(
+    serverCopy,
+  );
+
+  if (updatedServer.serverUUID != null && updatedServer.cookie != null) {
+    await ServersProvider.instance.update(updatedServer);
+
+    if (context.mounted) Navigator.of(context).pop();
+  } else if (context.mounted) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final loc = AppLocalizations.of(context);
+
+        return AlertDialog(
+          title: Text(loc.error),
+          content: Text(
+            loc.serverNotAddedError(serverCopy.name),
+            style: theme.textTheme.headlineMedium,
+          ),
+          actions: [
+            MaterialButton(
+              onPressed: Navigator.of(context).maybePop,
+              textColor: theme.colorScheme.secondary,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.all(8.0),
+                child: Text(
+                  loc.ok,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class EditServer extends StatefulWidget {
   final String serverIp;
   final int serverPort;
@@ -302,43 +342,7 @@ class _EditServerState extends State<EditServer> {
         password: passwordController.text,
       );
 
-      final updatedServer = await API.instance.checkServerCredentials(
-        serverCopy,
-      );
-
-      if (updatedServer.serverUUID != null && updatedServer.cookie != null) {
-        await ServersProvider.instance.update(updatedServer);
-
-        if (mounted) Navigator.of(context).pop();
-      } else if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            final theme = Theme.of(context);
-            final loc = AppLocalizations.of(context);
-
-            return AlertDialog(
-              title: Text(loc.error),
-              content: Text(
-                loc.serverNotAddedError(server.name),
-                style: theme.textTheme.headlineMedium,
-              ),
-              actions: [
-                MaterialButton(
-                  onPressed: Navigator.of(context).maybePop,
-                  textColor: theme.colorScheme.secondary,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.all(8.0),
-                    child: Text(
-                      loc.ok,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      }
+      await updateServer(context, serverCopy);
 
       if (mounted) setState(() => disableFinishButton = false);
     }

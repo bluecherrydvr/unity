@@ -108,7 +108,7 @@ class Device {
 
   /// The preferred streaming type.
   ///
-  /// If not provided, defaults to the type declared in the app settings.
+  /// If not provided, defaults to [Server.preferredStreamingType]
   final StreamingType? preferredStreamingType;
 
   /// The external device data.

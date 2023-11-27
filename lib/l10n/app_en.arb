@@ -63,6 +63,18 @@
   "videoError": "An error happened while trying to play the video.",
   "ok": "OK",
   "retry": "Retry",
+  "clear": "Clear",
+  "serverSettings": "Server settings",
+  "serverSettingsDescription": "Settings that will only be applied to this server. If they are not provided, the values from General Settings will be used. You can change these values later.",
+  "editServerSettingsInfo": "Edit server settings",
+  "editServerSettings": "Edit server settings {serverName}",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "removeCamera": "Remove Camera",
   "replaceCamera": "Replace Camera",
   "reloadCamera": "Reload Camera",

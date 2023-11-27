@@ -375,6 +375,14 @@ Future showServerMenu({
         },
       ),
       PopupMenuItem(
+        child: Text(loc.editServerSettingsInfo),
+        onTap: () {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            if (context.mounted) showEditServerSettings(context, server);
+          });
+        },
+      ),
+      PopupMenuItem(
         child: Text(loc.disconnectServer),
         onTap: () {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

@@ -142,7 +142,7 @@ class DesktopViewProvider extends ChangeNotifier {
   void _releaseDevice(Device device) {
     if (!UnityPlayers.players.containsKey(device.uuid)) return;
     if (!layouts
-        .any((layout) => layout.devices.any((d) => d.id == device.id))) {
+        .any((layout) => layout.devices.any((d) => d.uuid == device.uuid))) {
       UnityPlayers.releaseDevice(device.uuid);
     }
   }
@@ -173,7 +173,21 @@ class DesktopViewProvider extends ChangeNotifier {
       _releaseDevice(device);
     }
 
-    return _save();
+    notifyListeners();
+    return _save(notifyListeners: false);
+  }
+
+  Future<void> removeDevicesFromCurrentLayout(Iterable<Device> devices) {
+    currentLayout.devices.removeWhere(
+      (d1) => devices.any((d2) => d1.uri == d2.uri),
+    );
+
+    for (final device in devices) {
+      _releaseDevice(device);
+    }
+
+    notifyListeners();
+    return _save(notifyListeners: false);
   }
 
   /// Moves a device tile from [initial] position to [end] position inside a [tab].

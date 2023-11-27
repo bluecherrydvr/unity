@@ -302,7 +302,8 @@ class DesktopDeviceTile extends StatefulWidget {
 }
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
-  late UnityVideoFit fit = SettingsProvider.instance.cameraViewFit;
+  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+      SettingsProvider.instance.cameraViewFit;
 
   @override
   Widget build(BuildContext context) {
@@ -439,8 +440,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
       },
     );
 
-    final error = UnityVideoView.maybeOf(context)?.error;
     final video = UnityVideoView.maybeOf(context);
+    final error = video?.error;
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     final reloadButton = IconButton(
@@ -465,6 +466,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
 
         final fit =
             context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
+                widget.device.server.additionalSettings.videoFit ??
                 settings.cameraViewFit;
 
         return Stack(children: [
@@ -489,6 +491,15 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       TextSpan(
                         text: '\n'
                             '${widget.device.externalData?.rackName ?? widget.device.server.name}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
+                      ),
+                    if (states.isHovering && kDebugMode)
+                      TextSpan(
+                        text: '\n'
+                            '${video?.player.dataSource}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           shadows: outlinedText(),

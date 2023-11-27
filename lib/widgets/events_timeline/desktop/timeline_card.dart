@@ -69,7 +69,9 @@ class _TimelineCardState extends State<TimelineCard> {
         heroTag: device.streamURL,
         player: widget.tile.videoController,
         color: Colors.transparent,
-        fit: _fit ?? settings.cameraViewFit,
+        fit: _fit ??
+            device.server.additionalSettings.videoFit ??
+            settings.cameraViewFit,
         paneBuilder: (context, controller) {
           if (currentEvent == null) {
             return RepaintBoundary(
@@ -209,7 +211,9 @@ class _TimelineCardState extends State<TimelineCard> {
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     if (states.isHovering) ...[
                       CameraViewFitButton(
-                        fit: _fit ?? settings.cameraViewFit,
+                        fit: _fit ??
+                            device.server.additionalSettings.videoFit ??
+                            settings.cameraViewFit,
                         onChanged: (fit) => setState(() => _fit = fit),
                       ),
                       IconButton(

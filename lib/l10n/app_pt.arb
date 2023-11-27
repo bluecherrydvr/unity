@@ -1,7 +1,7 @@
 {
   "@@locale": "pt",
   "welcome": "Bem vindo!",
-  "welcomeDescription": "Sea bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!",
+  "welcomeDescription": "Seja bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!",
   "configure": "Configure um Servidor DVR",
   "configureDescription": "Configure uma conexão com seu servidor DVR remoto. Você pode se conectar a quantos servidores quiser de qualquer lugar do mundo.",
   "hostname": "Hostname",
@@ -63,6 +63,18 @@
   "videoError": "Ocorreu um erro ao tentar reproduzir o vídeo.",
   "ok": "OK",
   "retry": "Tentar novamente",
+  "clear": "Limpar",
+  "serverSettings": "Configurações do servidor",
+  "serverSettingsDescription": "Configurações que serão aplicadas apenas a este servidor. Se não forem selectionados, os valores de Configurações serão usados. Você pode alterar esses valores posteriormente.",
+  "editServerSettingsInfo": "Editar Configurações do servidor",
+  "editServerSettings": "Editar configurações do servidor {serverName}",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
   "removeCamera": "Remover Câmera",
   "replaceCamera": "Substituir Câmera",
   "reloadCamera": "Recarregar Câmera",
@@ -218,8 +230,8 @@
   "downloadPath": "Diretório de Download",
   "delete": "Deletar",
   "showInFiles": "Ver no Explorador de Arquivos",
-  "noDownloads": "Você ainda não fez o download de nenhum evento :/",
-  "howToDownload": "Và ao \"Histórico de Eventos\" para fazer o download de eventos.",
+  "noDownloads": "Você ainda não baixou nenhum evento :/",
+  "howToDownload": "Vá ao \"Histórico de Eventos\" para baixar eventos.",
   "downloadTitle": "{event} de {device} do servidor {server} em {date}",
   "@downloadTitle": {
     "placeholders": {
@@ -403,8 +415,8 @@
   "@@MISC": {},
   "general": "Geral",
   "miscellaneous": "Outros",
-  "wakelock": "Deixar tela ligada",
-  "wakelockDescription": "Mantenha a tela ligada enquanto estiver assistindo a streams ao vivo ou gravações",
+  "wakelock": "Manter tela ativa",
+  "wakelockDescription": "Mantenha a tela ativa enquanto estiver assistindo a transmissões ao vivo ou gravações",
   "@Snoozing": {},
   "snooze15": "15 minutos",
   "snooze30": "30 minutos",

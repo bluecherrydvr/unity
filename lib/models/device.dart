@@ -201,7 +201,7 @@ class Device {
   String get rtspURL {
     if (url != null) return url!;
 
-    return Uri.encodeFull(Uri(
+    return Uri(
       scheme: 'rtsp',
       userInfo: '${Uri.encodeComponent(server.login)}'
           ':'
@@ -209,13 +209,13 @@ class Device {
       host: server.ip,
       port: server.rtspPort,
       path: uri,
-    ).toString());
+    ).toString();
   }
 
   String get mjpegURL {
     if (url != null) return url!;
 
-    return Uri.encodeFull(Uri(
+    return Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
           ':'
@@ -227,13 +227,13 @@ class Device {
         'multipart': 'true',
         'id': '$id',
       },
-    ).toString());
+    ).toString();
   }
 
   String get hlsURL {
     if (url != null) return url!;
 
-    return Uri.encodeFull(Uri(
+    return Uri(
       scheme: 'https',
       userInfo: '${Uri.encodeComponent(server.login)}'
           ':'
@@ -241,7 +241,7 @@ class Device {
       host: server.ip,
       port: server.port,
       pathSegments: ['hls', '$id', 'index.m3u8'],
-    ).toString());
+    ).toString();
   }
 
   Future<String> getHLSUrl([Device? device]) async {

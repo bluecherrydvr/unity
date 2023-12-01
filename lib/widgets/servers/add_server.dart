@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/stream_data.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/servers/error.dart';
@@ -48,7 +49,7 @@ Widget _buildCardAppBar({
           if (onBack != null)
             Padding(
               padding: const EdgeInsetsDirectional.only(end: 8.0),
-              child: IconButton(
+              child: SquaredIconButton(
                 icon: const BackButtonIcon(),
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 onPressed: () {

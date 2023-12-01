@@ -65,15 +65,14 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
         title: Text(loc.eventBrowser),
         actions: [
           if (!isLoading)
-            IconButton(
+            SquaredIconButton(
               onPressed: () => eventsScreenKey.currentState?.fetch(),
-              icon: const Icon(Icons.refresh),
-              iconSize: 20.0,
+              icon: const Icon(Icons.refresh, size: 20.0),
               tooltip: loc.refresh,
             ),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 15.0),
-            child: IconButton(
+            child: SquaredIconButton(
               icon: const Icon(Icons.filter_list),
               tooltip: loc.filter,
               onPressed: widget.showFilter,

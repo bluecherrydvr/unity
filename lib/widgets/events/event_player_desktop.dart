@@ -26,6 +26,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
@@ -279,7 +280,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                     ]),
                     Row(children: [
                       padd,
-                      IconButton(
+                      SquaredIconButton(
                         onPressed: _playPause,
                         tooltip:
                             videoController.isPlaying ? loc.pause : loc.play,

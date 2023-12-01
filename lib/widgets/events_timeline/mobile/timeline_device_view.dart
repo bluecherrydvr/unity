@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
@@ -478,7 +479,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               ),
               const Spacer(),
             ],
-            IconButton(
+            SquaredIconButton(
               icon: const Icon(Icons.fullscreen),
               tooltip: currentEvent == null ? null : loc.showFullscreenCamera,
               onPressed:
@@ -486,7 +487,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
             ),
           ]),
         ),
-        IconButton(
+        SquaredIconButton(
           icon: const Icon(Icons.skip_previous),
           tooltip: isFirstEvent ? null : loc.previous,
           onPressed: isFirstEvent
@@ -519,7 +520,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                 },
         ),
         const SizedBox(width: 6.0),
-        IconButton(
+        SquaredIconButton(
           icon: const Icon(Icons.skip_next),
           tooltip: isLastEvent ? null : loc.next,
           onPressed: isLastEvent
@@ -532,7 +533,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           child: Padding(
             padding: const EdgeInsetsDirectional.only(end: 12.0),
             child: Row(children: [
-              IconButton(
+              SquaredIconButton(
                 icon: const Icon(Icons.event),
                 tooltip: loc.timeFilter,
                 onPressed: () async {

@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
@@ -24,7 +26,12 @@ import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class UnityPlayers with ChangeNotifier {
-  UnityPlayers._();
+  UnityPlayers._() {
+    UnityPlayers._reloadTimer = Timer.periodic(
+      reloadTime,
+      (_) => reloadDevices(),
+    );
+  }
 
   static final instance = UnityPlayers._();
 
@@ -33,13 +40,62 @@ class UnityPlayers with ChangeNotifier {
   /// This avoids redundantly creating new video player instance if a [Device]
   /// is already present in the camera grid on the screen or allows to use
   /// existing instance when switching tab (if common camera [Device] tile exists).
-  ///
   static final players = <String, UnityVideoPlayer>{};
+
+  /// Devices that should be reloaded at every [reloadTime] interval.
+  static final _reloadable = <String>[];
+  static const reloadTime = Duration(minutes: 5);
+
+  static late final Timer _reloadTimer;
+
+  /// Reloads all devices that are marked as reloadable.
+  static Future<void> reloadDevices() async {
+    debugPrint('Reloading devices $_reloadable');
+    for (final player
+        in players.entries.where((entry) => _reloadable.contains(entry.key))) {
+      // reload each device at once
+      await reloadDevice(Device.fromUUID(player.key)!);
+    }
+  }
+
+  /// Whether the given [Device] is reloadable.
+  static bool isReloadable(String deviceUUID) =>
+      _reloadable.contains(deviceUUID);
 
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(Device device) {
     final settings = SettingsProvider.instance;
-    final controller = UnityVideoPlayer.create(
+    late UnityVideoPlayer controller;
+
+    Future<void> setSource() async {
+      if (device.url != null) {
+        debugPrint(device.url);
+        controller.setDataSource(device.url!);
+      } else {
+        final (String source, Future<String> fallback) = switch (
+            device.preferredStreamingType ??
+                device.server.additionalSettings.preferredStreamingType ??
+                settings.streamingType) {
+          StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
+          StreamingType.hls => (
+              await device.getHLSUrl(),
+              Future.value(device.rtspURL)
+            ),
+          StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
+        };
+        debugPrint(source);
+        controller
+          ..fallbackUrl = fallback
+          ..setDataSource(source);
+
+        // TODO(bdlukaa): reevaluate if this system is still necessary.
+        //                on the player, we now reload the device if the image
+        //                is timed out. See [UnityVideoPlayer.create.onReload]
+        // _reloadable.add(source);
+      }
+    }
+
+    controller = UnityVideoPlayer.create(
       quality: switch (device.server.additionalSettings.renderingQuality ??
           settings.videoQuality) {
         RenderingQuality.p4k => UnityVideoQuality.p4k,
@@ -51,27 +107,10 @@ class UnityPlayers with ChangeNotifier {
         RenderingQuality.automatic =>
           UnityVideoQuality.qualityForResolutionY(device.resolutionY),
       },
+      onReload: setSource,
     )
       ..setVolume(0.0)
       ..setSpeed(1.0);
-
-    Future<void> setSource() async {
-      final (String source, Future<String> fallback) = switch (
-          device.preferredStreamingType ??
-              device.server.additionalSettings.preferredStreamingType ??
-              settings.streamingType) {
-        StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
-        StreamingType.hls => (
-            await device.getHLSUrl(),
-            Future.value(device.rtspURL)
-          ),
-        StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
-      };
-      debugPrint(source);
-      controller
-        ..fallbackUrl = fallback
-        ..setDataSource(source);
-    }
 
     setSource();
 
@@ -87,6 +126,7 @@ class UnityPlayers with ChangeNotifier {
   /// Release the video player for the given [Device].
   static Future<void> releaseDevice(String deviceUUID) async {
     debugPrint('Releasing device $deviceUUID. ${players[deviceUUID]}');
+    _reloadable.remove(deviceUUID);
     await players[deviceUUID]?.dispose();
     players.remove(deviceUUID);
   }
@@ -135,5 +175,11 @@ class UnityPlayers with ChangeNotifier {
       },
     );
     if (isLocalController) await player.dispose();
+  }
+
+  @override
+  void dispose() {
+    _reloadTimer.cancel();
+    super.dispose();
   }
 }

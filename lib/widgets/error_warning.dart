@@ -40,6 +40,7 @@ class ErrorWarning extends StatelessWidget {
               loc.videoError,
               style: const TextStyle(color: Colors.white),
               maxLines: 1,
+              minFontSize: 6.0,
             ),
             if (message.isNotEmpty) ...[
               const FractionallySizedBox(

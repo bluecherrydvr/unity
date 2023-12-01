@@ -347,6 +347,11 @@ List<Shadow> outlinedText({
   return result.toList();
 }
 
+List<Shadow> outlinedIcon() => outlinedText(
+      strokeWidth: 0.75,
+      strokeColor: Colors.black.withOpacity(0.75),
+    );
+
 class PopupLabel extends PopupMenuEntry<Never> {
   const PopupLabel({
     super.key,

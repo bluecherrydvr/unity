@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -230,7 +231,7 @@ class PTZToggleButton extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Row(children: [
-      IconButton(
+      SquaredIconButton(
         icon: Icon(
           Icons.videogame_asset,
           color: ptzEnabled
@@ -242,7 +243,7 @@ class PTZToggleButton extends StatelessWidget {
         onPressed: () => onChanged(!ptzEnabled),
       ),
       // TODO(bdlukaa): enable presets when the API is ready
-      // IconButton(
+      // SquaredIconButton(
       //   icon: Icon(
       //     Icons.dataset,
       //     color: ptzEnabled ? Colors.white : theme.disabledColor,

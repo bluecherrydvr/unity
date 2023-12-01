@@ -27,6 +27,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     int? height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
+    VoidCallback? onReload,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
@@ -126,7 +127,6 @@ class _MKVideoState extends State<_MKVideo> {
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Player mkPlayer = Player();
   late VideoController mkVideoController;
-  late StreamSubscription errorStream;
 
   double _fps = 0;
   @override
@@ -191,8 +191,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('insecure', 'yes');
 
       if (rtspProtocol != null) {
-        // TODO(bdlukaa): correctly apply rtsp protocol
-        platform.setProperty('rtsp-transport', 'udp_multicast');
+        platform.setProperty(
+          'rtsp-transport',
+          switch (rtspProtocol) {
+            RTSPProtocol.tcp => 'tcp',
+            RTSPProtocol.udp => 'udp',
+            // _ => 'udp_multicast'
+          },
+        );
       }
 
       platform.setProperty('force-seekable', 'yes');
@@ -219,18 +225,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         // platform.setProperty("untimed", "");
       }
     }
-
-    errorStream = mkPlayer.stream.error.listen((event) async {
-      debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
-      debugPrint('==== $event');
-
-      // If the video is not supported, try to play the fallback url
-      if (event == 'Failed to recognize file format.' &&
-          fallbackUrl != null &&
-          lastImageUpdate != null) {
-        setDataSource(await fallbackUrl!);
-      }
-    });
   }
 
   Future<void> ensureVideoControllerInitialized(
@@ -433,7 +427,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       await platform.unobserveProperty('dheight');
     }
     await _fpsStreamController.close();
-    await errorStream.cancel();
     await mkPlayer.dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }

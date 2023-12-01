@@ -80,7 +80,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                           trailing: Builder(builder: (context) {
                             if (isLoading) {
                               // wrap in an icon button to ensure ui consistency
-                              return const IconButton(
+                              return const SquaredIconButton(
                                 onPressed: null,
                                 icon: SizedBox(
                                   height: 16.0,
@@ -91,7 +91,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                 ),
                               );
                             } else if (!server.online && isSidebarHovering) {
-                              return IconButton(
+                              return SquaredIconButton(
                                 icon: const Icon(Icons.refresh),
                                 tooltip: loc.refreshServer,
                                 onPressed: () =>
@@ -99,7 +99,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                               );
                             } else if (isSidebarHovering &&
                                 devices.isNotEmpty) {
-                              return IconButton(
+                              return SquaredIconButton(
                                 icon: Icon(
                                   isAllInView
                                       ? Icons.playlist_remove

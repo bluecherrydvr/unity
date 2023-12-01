@@ -180,13 +180,28 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
             color: color,
             borderRadius: BorderRadius.circular(4.0),
           ),
-          child: Text(
-            text,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color:
-                  color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (status == _VideoLabel.loading)
+              const Padding(
+                padding: EdgeInsetsDirectional.only(end: 8.0),
+                child: SizedBox(
+                  height: 12.0,
+                  width: 12.0,
+                  child: CircularProgressIndicator.adaptive(
+                    strokeWidth: 1.5,
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                  ),
+                ),
+              ),
+            Text(
+              text,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: color.computeLuminance() > 0.5
+                    ? Colors.black
+                    : Colors.white,
+              ),
             ),
-          ),
+          ]),
         ),
       ),
     );

@@ -66,7 +66,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
             return Column(children: [
               collapseButton,
               const Spacer(),
-              IconButton(
+              SquaredIconButton(
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
@@ -74,7 +74,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
-                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
@@ -430,11 +429,13 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final settings = context.watch<SettingsProvider>();
-    final closeButton = IconButton(
-      icon: const Icon(Icons.close_outlined),
-      color: theme.colorScheme.error,
+    final closeButton = SquaredIconButton(
+      icon: Icon(
+        Icons.close_outlined,
+        color: theme.colorScheme.error,
+        size: 18.0,
+      ),
       tooltip: loc.removeCamera,
-      iconSize: 18.0,
       onPressed: () {
         view.remove(widget.device);
       },
@@ -444,14 +445,14 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final error = video?.error;
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
-    final reloadButton = IconButton(
+    final reloadButton = SquaredIconButton(
       icon: Icon(
         Icons.replay_outlined,
-        shadows: outlinedText(),
+        shadows: outlinedIcon(),
+        color: Colors.white,
+        size: 16.0,
       ),
       tooltip: loc.reloadCamera,
-      color: Colors.white,
-      iconSize: 18.0,
       onPressed: () async {
         await UnityPlayers.reloadDevice(widget.device);
         setState(() {});
@@ -498,7 +499,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     if (states.isHovering && kDebugMode)
                       TextSpan(
-                        text: '\n'
+                        text: '\ndebug: '
                             '${video?.player.dataSource}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
@@ -516,23 +517,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             child: PTZData(commands: commands),
           ),
           if (video != null) ...[
-            if (!widget.controller!.isSeekable && error == null)
-              const Center(
-                child: SizedBox(
-                  height: 20.0,
-                  width: 20.0,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  ),
-                ),
-              ),
             PositionedDirectional(
               end: 0,
               start: 0,
               bottom: 4.0,
               child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                if (states.isHovering && error == null) ...[
+                if (states.isHovering && error == null && !video.isLoading) ...[
                   const SizedBox(width: 12.0),
                   if (widget.device.hasPTZ)
                     PTZToggleButton(
@@ -541,52 +531,52 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           setState(() => ptzEnabled = enabled),
                     ),
                   const Spacer(),
-                  () {
-                    final isMuted = volume == 0.0;
+                  if (!video.isLoading)
+                    () {
+                      final isMuted = volume == 0.0;
+                      return SquaredIconButton(
+                        icon: Icon(
+                          isMuted
+                              ? Icons.volume_mute_rounded
+                              : Icons.volume_up_rounded,
+                          shadows: outlinedIcon(),
+                          color: Colors.white,
+                          size: 16.0,
+                        ),
+                        tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
+                        onPressed: () async {
+                          if (isMuted) {
+                            await widget.controller!.setVolume(1.0);
+                          } else {
+                            await widget.controller!.setVolume(0.0);
+                          }
 
-                    return IconButton(
-                      icon: Icon(
-                        isMuted
-                            ? Icons.volume_mute_rounded
-                            : Icons.volume_up_rounded,
-                        shadows: outlinedText(),
-                      ),
-                      tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                      color: Colors.white,
-                      iconSize: 18.0,
-                      onPressed: () async {
-                        if (isMuted) {
-                          await widget.controller!.setVolume(1.0);
-                        } else {
-                          await widget.controller!.setVolume(0.0);
-                        }
-
-                        updateVolume();
-                      },
-                    );
-                  }(),
-                  if (isDesktopPlatform && !isSubView)
-                    IconButton(
+                          updateVolume();
+                        },
+                      );
+                    }(),
+                  if (isDesktopPlatform && !isSubView && !video.isLoading)
+                    SquaredIconButton(
                       icon: Icon(
                         Icons.open_in_new_sharp,
-                        shadows: outlinedText(),
+                        shadows: outlinedIcon(),
+                        color: Colors.white,
+                        size: 16.0,
                       ),
                       tooltip: loc.openInANewWindow,
-                      color: Colors.white,
-                      iconSize: 18.0,
                       onPressed: () {
                         widget.device.openInANewWindow();
                       },
                     ),
-                  if (!isSubView)
-                    IconButton(
+                  if (!isSubView && !video.isLoading)
+                    SquaredIconButton(
                       icon: Icon(
                         Icons.fullscreen_rounded,
-                        shadows: outlinedText(),
+                        shadows: outlinedIcon(),
+                        color: Colors.white,
+                        size: 16.0,
                       ),
                       tooltip: loc.showFullscreenCamera,
-                      color: Colors.white,
-                      iconSize: 18.0,
                       onPressed: () async {
                         UnityPlayers.openFullscreen(
                           context,
@@ -604,9 +594,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   const Spacer(),
                   if (states.isHovering) reloadButton,
                 ],
-                const SizedBox(width: 12.0),
                 Padding(
                   padding: const EdgeInsetsDirectional.only(
+                    start: 6.0,
                     end: 6.0,
                     bottom: 6.0,
                   ),
@@ -628,10 +618,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   curve: Curves.easeInOut,
                   child:
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    IconButton(
+                    SquaredIconButton(
                       icon: Icon(
                         moreIconData,
-                        shadows: outlinedText(),
+                        shadows: outlinedIcon(),
                         color: Colors.white,
                       ),
                       tooltip: loc.more,

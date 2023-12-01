@@ -21,7 +21,6 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:flutter/foundation.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class AdditionalServerOptions {
@@ -231,7 +230,7 @@ class Server {
         other.login == login &&
         other.password == password &&
         other.additionalSettings == additionalSettings &&
-        listEquals(other.devices, devices) &&
+        other.devices == devices &&
         other.serverUUID == serverUUID &&
         other.cookie == cookie &&
         other.online == online &&

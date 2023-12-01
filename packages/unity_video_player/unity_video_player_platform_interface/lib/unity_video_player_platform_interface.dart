@@ -137,6 +137,8 @@ class VideoViewInheritance extends InheritedWidget {
   /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
 
+  bool get isLoading => !player.isSeekable && error == null;
+
   static VideoViewInheritance? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<VideoViewInheritance>();
   }
@@ -199,67 +201,28 @@ class UnityVideoView extends StatefulWidget {
 }
 
 class UnityVideoViewState extends State<UnityVideoView> {
-  String? error;
-  late StreamSubscription<String> _onErrorSubscription;
-  late StreamSubscription<Duration> _onDurationUpdateSubscription;
-  late StreamSubscription<Duration> _onPositionUpdateSubscription;
-  late StreamSubscription<double> _fpsSubscription;
-
   @override
   void initState() {
     super.initState();
-    _onErrorSubscription = widget.player.onError.listen(_onError);
-    _onDurationUpdateSubscription =
-        widget.player.onDurationUpdate.listen(_onDurationUpdate);
-    _onPositionUpdateSubscription =
-        widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
-    _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
+    widget.player.addListener(_onPlayerUpdate);
   }
 
   @override
   void didUpdateWidget(covariant UnityVideoView oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (widget.player != oldWidget.player) {
-      _onErrorSubscription.cancel();
-      _onDurationUpdateSubscription.cancel();
-      _fpsSubscription.cancel();
-
-      _onErrorSubscription = widget.player.onError.listen(_onError);
-      _onDurationUpdateSubscription =
-          widget.player.onDurationUpdate.listen(_onDurationUpdate);
-      _onPositionUpdateSubscription =
-          widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
-      _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
+    if (oldWidget.player != widget.player) {
+      oldWidget.player.removeListener(_onPlayerUpdate);
+      widget.player.addListener(_onPlayerUpdate);
     }
   }
 
-  void _onError(String error) {
-    if (mounted) setState(() => this.error = error);
-  }
-
-  void _onDurationUpdate(Duration duration) {
-    if (mounted) {
-      setState(() {
-        error = null;
-      });
-    }
-  }
-
-  void _onPositionUpdate(Duration duration) {
-    if (mounted) setState(() => error = null);
-  }
-
-  void _onFpsUpdate(double fps) {
-    if (mounted) setState(() {});
+  void _onPlayerUpdate() {
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _onErrorSubscription.cancel();
-    _onDurationUpdateSubscription.cancel();
-    _onPositionUpdateSubscription.cancel();
-    _fpsSubscription.cancel();
+    widget.player.removeListener(_onPlayerUpdate);
     super.dispose();
   }
 
@@ -267,7 +230,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   Widget build(BuildContext context) {
     final videoView = VideoViewInheritance(
       player: widget.player,
-      error: error,
+      error: widget.player.error,
       position: widget.player.currentPos,
       duration: widget.player.duration,
       isImageOld: widget.player.isImageOld,
@@ -334,14 +297,33 @@ enum UnityVideoQuality {
   }
 }
 
-abstract class UnityVideoPlayer {
+abstract class UnityVideoPlayer with ChangeNotifier {
   Future<String>? fallbackUrl;
+  VoidCallback? onReload;
 
+  /// Creates a new [UnityVideoPlayer] instance.
+  ///
+  /// The [quality] parameter is used to set the rendering resolution of the
+  /// video. It defaults to [UnityVideoQuality.p360].
+  ///
+  /// The [enableCache] parameter is used to enable or disable the cache for the
+  /// video. It defaults to `false`. It is usually true when vieweing recorded
+  /// videos, not streams.
+  ///
+  /// The [rtspProtocol] parameter is used to set the rtsp protocol for the
+  /// video. It is only applied on rtsp streams.
+  ///
+  /// The [fallbackUrl] parameter is used to set the fallback url for the
+  /// video. It is only used if the initial source fails to load.
+  ///
+  /// The [onReload] parameter is called when the video needs to be reloaded.
+  /// It is usually used when the image has been old for a while.
   static UnityVideoPlayer create({
     UnityVideoQuality quality = UnityVideoQuality.p360,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     Future<String>? fallbackUrl,
+    VoidCallback? onReload,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
@@ -350,7 +332,8 @@ abstract class UnityVideoPlayer {
       rtspProtocol: rtspProtocol,
     )
       ..quality = quality
-      ..fallbackUrl = fallbackUrl;
+      ..fallbackUrl = fallbackUrl
+      ..onReload = onReload;
   }
 
   static const timerInterval = Duration(seconds: 6);
@@ -359,29 +342,71 @@ abstract class UnityVideoPlayer {
   bool get isImageOld => _isImageOld;
   DateTime? _lastImageTime;
   DateTime? get lastImageUpdate => _lastImageTime;
+
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
+  late StreamSubscription<String> _onErrorSubscription;
+  late StreamSubscription<Duration> _onPositionUpdateSubscription;
+  late StreamSubscription<double> _fpsSubscription;
 
   int? width;
   int? height;
+  String? error;
 
   UnityVideoQuality? quality;
 
   UnityVideoPlayer({this.width, this.height}) {
+    _onErrorSubscription = onError.listen(_onError);
     _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
+    _onPositionUpdateSubscription =
+        onCurrentPosUpdate.listen(_onPositionUpdate);
+    _fpsSubscription = fpsStream.listen(_onFpsUpdate);
   }
 
   void _onDurationUpdate(Duration duration) {
     if (duration > Duration.zero) {
       _lastImageTime = DateTime.now();
       _isImageOld = false;
+      error = null;
       _oldImageTimer?.cancel();
       _oldImageTimer = Timer(timerInterval, () {
         // If the image is still the same after the interval, then it's old.
-        if (duration <= duration) {
-          _isImageOld = true;
+        _isImageOld = true;
+
+        if (lastImageUpdate != null) {
+          final difference = lastImageUpdate!.difference(DateTime.now());
+          if (difference > timerInterval * 2) {
+            // If the image is still the same after twice the interval, then
+            // it's probably stuck and we should reload the video.
+            onReload?.call();
+          }
         }
       });
+      notifyListeners();
     }
+  }
+
+  void _onError(String error) async {
+    this.error = error;
+    notifyListeners();
+
+    debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
+    debugPrint('==== $error');
+
+    // If the video is not supported, try to play the fallback url
+    if (error == 'Failed to recognize file format.' &&
+        fallbackUrl != null &&
+        lastImageUpdate != null) {
+      setDataSource(await fallbackUrl!);
+    }
+  }
+
+  void _onPositionUpdate(Duration duration) {
+    error = null;
+    notifyListeners();
+  }
+
+  void _onFpsUpdate(double fps) {
+    notifyListeners();
   }
 
   /// The current data source url
@@ -392,7 +417,7 @@ abstract class UnityVideoPlayer {
 
   /// The duration of the current media.
   ///
-  /// May be 0
+  /// May be [Duration.zero]
   Duration get duration;
   Stream<Duration> get onDurationUpdate;
 
@@ -449,10 +474,16 @@ abstract class UnityVideoPlayer {
   bool get isCropped;
 
   @mustCallSuper
+  @override
   Future<void> dispose() async {
     _onDurationUpdateSubscription.cancel();
+    _onErrorSubscription.cancel();
+    _onPositionUpdateSubscription.cancel();
+    _fpsSubscription.cancel();
     _oldImageTimer?.cancel();
     _lastImageTime = null;
     _isImageOld = false;
+
+    super.dispose();
   }
 }

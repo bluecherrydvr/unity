@@ -21,6 +21,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
@@ -216,7 +217,7 @@ class _TimelineCardState extends State<TimelineCard> {
                             settings.cameraViewFit,
                         onChanged: (fit) => setState(() => _fit = fit),
                       ),
-                      IconButton(
+                      SquaredIconButton(
                         tooltip: loc.showFullscreenCamera,
                         onPressed: () {
                           Navigator.of(context).pushNamed(
@@ -224,11 +225,11 @@ class _TimelineCardState extends State<TimelineCard> {
                             arguments: {'event': currentEvent.event},
                           );
                         },
-                        iconSize: 18.0,
                         icon: Icon(
                           Icons.fullscreen,
                           color: Colors.white,
                           shadows: outlinedText(),
+                          size: 18.0,
                         ),
                       )
                     ],

@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -138,7 +139,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                     ],
                   );
                 },
-                child: IconButton(
+                child: SquaredIconButton(
                   onPressed: null,
                   icon: Icon(moreIconData, color: Colors.white),
                 ),
@@ -274,8 +275,8 @@ class DeviceTileState extends State<DeviceTile> {
                         child: child,
                       );
                     },
-                    child: IconButton(
-                      splashRadius: 20.0,
+                    child: SquaredIconButton(
+                      // splashRadius: 20.0,
                       onPressed: () async {
                         await Navigator.of(context).pushNamed(
                           '/fullscreen',

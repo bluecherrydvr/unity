@@ -25,6 +25,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/home.dart';
@@ -215,13 +216,12 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                   )
                 else if (home.tab == UnityTab.eventsScreen ||
                     home.tab == UnityTab.eventsPlayback && !canPop)
-                  IconButton(
+                  SquaredIconButton(
                     onPressed: () {
                       eventsScreenKey.currentState?.fetch();
                       eventsPlaybackScreenKey.currentState?.fetch();
                     },
-                    icon: const Icon(Icons.refresh),
-                    iconSize: 20.0,
+                    icon: const Icon(Icons.refresh, size: 20.0),
                     tooltip: loc.refresh,
                   ),
                 SizedBox(
@@ -244,7 +244,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     final icon = isSelected ? data.selectedIcon : data.icon;
                     final text = data.text;
 
-                    return IconButton(
+                    return SquaredIconButton(
                       icon: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
@@ -254,9 +254,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                               ? theme.colorScheme.primary
                               : theme.hintColor,
                           fill: isSelected ? 1.0 : 0.0,
+                          size: 22.0,
                         ),
                       ),
-                      iconSize: 22.0,
                       tooltip: text,
                       onPressed: () => home.setTab(data.tab, context),
                     );

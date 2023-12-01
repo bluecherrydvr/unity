@@ -211,13 +211,13 @@ class ServerTile extends StatelessWidget {
               : loc.gettingDevices,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: IconButton(
+        trailing: SquaredIconButton(
           icon: Icon(
             Icons.delete,
             color: theme.colorScheme.error,
           ),
           tooltip: loc.disconnectServer,
-          splashRadius: 24.0,
+          // splashRadius: 24.0,
           onPressed: () => onRemoveServer(context, server),
         ),
         onTap: () {
@@ -320,11 +320,11 @@ class ServerCard extends StatelessWidget {
             PositionedDirectional(
               top: 4,
               end: 2,
-              child: IconButton(
-                iconSize: 20.0,
-                splashRadius: 16.0,
+              child: SquaredIconButton(
+                // iconSize: 20.0,
+                // splashRadius: 16.0,
                 tooltip: loc.serverOptions,
-                icon: Icon(moreIconData),
+                icon: Icon(moreIconData, size: 20.0),
                 onPressed: showMenu,
               ),
             ),

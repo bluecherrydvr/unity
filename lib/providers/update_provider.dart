@@ -20,6 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
@@ -377,51 +378,57 @@ class UpdateManager extends ChangeNotifier {
     loading = true;
     notifyListeners();
 
-    final response = await http.get(Uri.parse(appCastUrl));
+    try {
+      final response = await http.get(Uri.parse(appCastUrl));
 
-    if (response.statusCode != 200) {
-      debugPrint(
-        'Failed to check for updates (${response.statusCode}): ${response.body}',
-      );
-      loading = false;
-      notifyListeners();
-      return;
-    }
-
-    var versions = <UpdateVersion>[];
-    final doc = XmlDocument.parse(response.body);
-    for (final item in doc.findAllElements('item')) {
-      late String version;
-      late String description;
-      late String publishedAt;
-      for (var child in item.children.whereType<XmlElement>()) {
-        switch (child.name.toString()) {
-          case UpdateVersion.titleField:
-            version = child.innerText.replaceAll('Version', '').trim();
-            break;
-          case UpdateVersion.descriptionField:
-            description = child.innerText.trim();
-            break;
-          case UpdateVersion.publishedAtField:
-            publishedAt = child.innerText.trim();
-            break;
-          default:
-        }
+      if (response.statusCode != 200) {
+        debugPrint(
+          'Failed to check for updates (${response.statusCode}): ${response.body}',
+        );
+        loading = false;
+        notifyListeners();
+        return;
       }
-      versions.add(UpdateVersion(
-        version: version,
-        description: description,
-        publishedAt: publishedAt,
-      ));
+
+      var versions = <UpdateVersion>[];
+      final doc = XmlDocument.parse(response.body);
+      for (final item in doc.findAllElements('item')) {
+        late String version;
+        late String description;
+        late String publishedAt;
+        for (var child in item.children.whereType<XmlElement>()) {
+          switch (child.name.toString()) {
+            case UpdateVersion.titleField:
+              version = child.innerText.replaceAll('Version', '').trim();
+              break;
+            case UpdateVersion.descriptionField:
+              description = child.innerText.trim();
+              break;
+            case UpdateVersion.publishedAtField:
+              publishedAt = child.innerText.trim();
+              break;
+            default:
+          }
+        }
+        versions.add(UpdateVersion(
+          version: version,
+          description: description,
+          publishedAt: publishedAt,
+        ));
+      }
+      // versions.sort(
+      //   (a, b) => a.publishedAt.compareTo(b.publishedAt),
+      // );
+      versions = versions.reversed.toList();
+
+      if (versions != this.versions) this.versions = versions;
+
+      loading = false;
+      lastCheck = DateTime.now(); // this updates the screen already
+    } catch (error, stackTrace) {
+      debugPrint(error.toString());
+      debugPrint(stackTrace.toString());
+      writeErrorToFile(error, stackTrace);
     }
-    // versions.sort(
-    //   (a, b) => a.publishedAt.compareTo(b.publishedAt),
-    // );
-    versions = versions.reversed.toList();
-
-    if (versions != this.versions) this.versions = versions;
-
-    loading = false;
-    lastCheck = DateTime.now(); // this updates the screen already
   }
 }

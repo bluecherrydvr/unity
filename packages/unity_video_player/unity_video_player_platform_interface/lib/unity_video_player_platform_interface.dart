@@ -137,6 +137,8 @@ class VideoViewInheritance extends InheritedWidget {
   /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
 
+  bool get isLoading => !player.isSeekable && error == null;
+
   static VideoViewInheritance? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<VideoViewInheritance>();
   }

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -103,7 +104,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                     maxLines: 1,
                   ),
                 ),
-                IconButton(
+                SquaredIconButton(
                   icon: Icon(
                     Icons.cyclone,
                     size: 18.0,
@@ -111,18 +112,16 @@ class _LayoutManagerState extends State<LayoutManager> {
                         ? theme.colorScheme.primary
                         : IconTheme.of(context).color,
                   ),
-                  padding: EdgeInsetsDirectional.zero,
                   tooltip: loc.cycle,
                   onPressed: settings.toggleCycling,
                 ),
-                IconButton(
+                SquaredIconButton(
                   icon: Icon(
                     Icons.add,
                     size: 18.0,
                     color: IconTheme.of(context).color,
                   ),
                   tooltip: loc.newLayout,
-                  padding: EdgeInsetsDirectional.zero,
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -576,13 +575,14 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       title: Row(children: [
         Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
         if (view.layouts.length > 1)
-          IconButton(
+          SquaredIconButton(
             icon: Icon(
               Icons.delete,
               color: theme.colorScheme.error,
+              size: 18.0,
             ),
             tooltip: loc.delete,
-            iconSize: 18.0,
+            // iconSize: 18.0,
             onPressed: () {
               view.removeLayout(widget.layout);
               Navigator.of(context).pop();

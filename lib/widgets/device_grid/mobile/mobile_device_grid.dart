@@ -123,7 +123,6 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onBackground,
                 ),
-                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),

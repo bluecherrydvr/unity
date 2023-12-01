@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -34,12 +35,15 @@ class CameraViewFitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
+    return SquaredIconButton(
       tooltip: fit.locale(context),
       onPressed: () => onChanged(fit.next),
-      iconSize: 18.0,
-      icon: Icon(fit.icon, shadows: outlinedText()),
-      color: Colors.white,
+      icon: Icon(
+        fit.icon,
+        size: 18.0,
+        shadows: outlinedText(),
+        color: Colors.white,
+      ),
     );
   }
 }

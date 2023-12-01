@@ -66,7 +66,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
             return Column(children: [
               collapseButton,
               const Spacer(),
-              IconButton(
+              SquaredIconButton(
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
@@ -74,7 +74,6 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
-                padding: EdgeInsetsDirectional.zero,
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),

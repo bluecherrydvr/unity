@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
@@ -561,7 +562,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 ]),
               ),
               const SizedBox(width: 20.0),
-              IconButton(
+              SquaredIconButton(
                 tooltip: timeline.isPlaying ? loc.pause : loc.play,
                 icon: PlayPauseIcon(isPlaying: timeline.isPlaying),
                 onPressed: () {

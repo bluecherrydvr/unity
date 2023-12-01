@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
@@ -418,14 +419,14 @@ class DownloadIndicator extends StatelessWidget {
         final downloads = context.watch<DownloadsManager>();
 
         if (downloads.isEventDownloaded(event.id)) {
-          return IconButton(
+          return SquaredIconButton(
             onPressed: () {
               context.read<HomeProvider>().toDownloads(event.id, context);
             },
             tooltip: loc.seeInDownloads,
-            iconSize: small ? 18.0 : null,
             icon: Icon(
               Icons.download_done,
+              size: small ? 18.0 : null,
               color: theme.extension<UnityColors>()!.successColor,
             ),
           );
@@ -440,13 +441,12 @@ class DownloadIndicator extends StatelessWidget {
         }
 
         if (event.mediaURL != null) {
-          return IconButton(
-            padding: EdgeInsetsDirectional.zero,
+          return SquaredIconButton(
             tooltip: loc.download,
             onPressed: () => downloads.download(event),
-            iconSize: small ? 18.0 : 22.0,
             icon: Icon(
               Icons.download,
+              size: small ? 18.0 : 22.0,
               color: highlight ? Colors.white : null,
               shadows: highlight ? outlinedText() : null,
             ),

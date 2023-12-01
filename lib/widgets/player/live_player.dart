@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/multicast_view.dart';
@@ -212,12 +213,13 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                               widget.device.server.name,
                               style: const TextStyle(color: Colors.white70),
                             ),
-                            leading: IconButton(
+                            leading: SquaredIconButton(
                               onPressed: () => Navigator.of(context).maybePop(),
                               icon: const BackButtonIcon(),
                               tooltip: MaterialLocalizations.of(context)
                                   .backButtonTooltip,
-                              color: Colors.white,
+                              // todo:
+                              // color: Colors.white,
                             ),
                             trailing:
                                 Row(mainAxisSize: MainAxisSize.min, children: [
@@ -244,7 +246,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                         key: const ValueKey('restorer'),
                         start: 14.0,
                         top: 14.0,
-                        child: IconButton(
+                        child: SquaredIconButton(
                           icon: const Icon(
                             Icons.keyboard_arrow_down_rounded,
                             color: Colors.white,
@@ -349,7 +351,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                     start: 8.0,
                     child: Row(children: [
                       if (widget.device.hasPTZ)
-                        IconButton(
+                        SquaredIconButton(
                           icon: Icon(
                             Icons.videogame_asset,
                             color: ptzEnabled ? Colors.white : null,
@@ -364,16 +366,16 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                       () {
                         final isMuted = widget.player.volume == 0.0;
 
-                        return IconButton(
+                        return SquaredIconButton(
                           icon: Icon(
                             isMuted
                                 ? Icons.volume_mute_rounded
                                 : Icons.volume_up_rounded,
                             shadows: outlinedText(),
+                            color: Colors.white,
+                            size: 18.0,
                           ),
                           tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                          color: Colors.white,
-                          iconSize: 18.0,
                           onPressed: () async {
                             if (isMuted) {
                               await widget.player.setVolume(1.0);
@@ -384,14 +386,14 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                         );
                       }(),
                       if (isDesktopPlatform && !isSubView)
-                        IconButton(
+                        SquaredIconButton(
                           icon: Icon(
                             Icons.open_in_new,
                             shadows: outlinedText(),
+                            color: Colors.white,
+                            size: 18.0,
                           ),
                           tooltip: loc.openInANewWindow,
-                          color: Colors.white,
-                          iconSize: 18.0,
                           onPressed: () {
                             widget.device.openInANewWindow();
                           },

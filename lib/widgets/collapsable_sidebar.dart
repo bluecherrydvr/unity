@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -102,7 +103,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
               : widget.left
                   ? const EdgeInsetsDirectional.only(start: 5.0)
                   : const EdgeInsetsDirectional.only(end: 5.0),
-          child: IconButton(
+          child: SquaredIconButton(
             key: collapseButtonKey,
             tooltip: collapsed ? loc.expand : loc.collapse,
             icon: RotationTransition(

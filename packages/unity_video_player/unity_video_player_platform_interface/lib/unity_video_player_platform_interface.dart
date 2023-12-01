@@ -199,67 +199,28 @@ class UnityVideoView extends StatefulWidget {
 }
 
 class UnityVideoViewState extends State<UnityVideoView> {
-  String? error;
-  late StreamSubscription<String> _onErrorSubscription;
-  late StreamSubscription<Duration> _onDurationUpdateSubscription;
-  late StreamSubscription<Duration> _onPositionUpdateSubscription;
-  late StreamSubscription<double> _fpsSubscription;
-
   @override
   void initState() {
     super.initState();
-    _onErrorSubscription = widget.player.onError.listen(_onError);
-    _onDurationUpdateSubscription =
-        widget.player.onDurationUpdate.listen(_onDurationUpdate);
-    _onPositionUpdateSubscription =
-        widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
-    _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
+    widget.player.addListener(_onPlayerUpdate);
   }
 
   @override
   void didUpdateWidget(covariant UnityVideoView oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (widget.player != oldWidget.player) {
-      _onErrorSubscription.cancel();
-      _onDurationUpdateSubscription.cancel();
-      _fpsSubscription.cancel();
-
-      _onErrorSubscription = widget.player.onError.listen(_onError);
-      _onDurationUpdateSubscription =
-          widget.player.onDurationUpdate.listen(_onDurationUpdate);
-      _onPositionUpdateSubscription =
-          widget.player.onCurrentPosUpdate.listen(_onPositionUpdate);
-      _fpsSubscription = widget.player.fpsStream.listen(_onFpsUpdate);
+    if (oldWidget.player != widget.player) {
+      oldWidget.player.removeListener(_onPlayerUpdate);
+      widget.player.addListener(_onPlayerUpdate);
     }
   }
 
-  void _onError(String error) {
-    if (mounted) setState(() => this.error = error);
-  }
-
-  void _onDurationUpdate(Duration duration) {
-    if (mounted) {
-      setState(() {
-        error = null;
-      });
-    }
-  }
-
-  void _onPositionUpdate(Duration duration) {
-    if (mounted) setState(() => error = null);
-  }
-
-  void _onFpsUpdate(double fps) {
-    if (mounted) setState(() {});
+  void _onPlayerUpdate() {
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _onErrorSubscription.cancel();
-    _onDurationUpdateSubscription.cancel();
-    _onPositionUpdateSubscription.cancel();
-    _fpsSubscription.cancel();
+    widget.player.removeListener(_onPlayerUpdate);
     super.dispose();
   }
 
@@ -267,7 +228,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   Widget build(BuildContext context) {
     final videoView = VideoViewInheritance(
       player: widget.player,
-      error: error,
+      error: widget.player.error,
       position: widget.player.currentPos,
       duration: widget.player.duration,
       isImageOld: widget.player.isImageOld,
@@ -334,7 +295,7 @@ enum UnityVideoQuality {
   }
 }
 
-abstract class UnityVideoPlayer {
+abstract class UnityVideoPlayer with ChangeNotifier {
   Future<String>? fallbackUrl;
   VoidCallback? onReload;
 
@@ -379,21 +340,31 @@ abstract class UnityVideoPlayer {
   bool get isImageOld => _isImageOld;
   DateTime? _lastImageTime;
   DateTime? get lastImageUpdate => _lastImageTime;
+
   late StreamSubscription<Duration> _onDurationUpdateSubscription;
+  late StreamSubscription<String> _onErrorSubscription;
+  late StreamSubscription<Duration> _onPositionUpdateSubscription;
+  late StreamSubscription<double> _fpsSubscription;
 
   int? width;
   int? height;
+  String? error;
 
   UnityVideoQuality? quality;
 
   UnityVideoPlayer({this.width, this.height}) {
+    _onErrorSubscription = onError.listen(_onError);
     _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
+    _onPositionUpdateSubscription =
+        onCurrentPosUpdate.listen(_onPositionUpdate);
+    _fpsSubscription = fpsStream.listen(_onFpsUpdate);
   }
 
   void _onDurationUpdate(Duration duration) {
     if (duration > Duration.zero) {
       _lastImageTime = DateTime.now();
       _isImageOld = false;
+      error = null;
       _oldImageTimer?.cancel();
       _oldImageTimer = Timer(timerInterval, () {
         // If the image is still the same after the interval, then it's old.
@@ -408,7 +379,32 @@ abstract class UnityVideoPlayer {
           }
         }
       });
+      notifyListeners();
     }
+  }
+
+  void _onError(String error) async {
+    this.error = error;
+    notifyListeners();
+
+    debugPrint('==== VIDEO ERROR HAPPENED with $dataSource');
+    debugPrint('==== $error');
+
+    // If the video is not supported, try to play the fallback url
+    if (error == 'Failed to recognize file format.' &&
+        fallbackUrl != null &&
+        lastImageUpdate != null) {
+      setDataSource(await fallbackUrl!);
+    }
+  }
+
+  void _onPositionUpdate(Duration duration) {
+    error = null;
+    notifyListeners();
+  }
+
+  void _onFpsUpdate(double fps) {
+    notifyListeners();
   }
 
   /// The current data source url
@@ -476,10 +472,16 @@ abstract class UnityVideoPlayer {
   bool get isCropped;
 
   @mustCallSuper
+  @override
   Future<void> dispose() async {
     _onDurationUpdateSubscription.cancel();
+    _onErrorSubscription.cancel();
+    _onPositionUpdateSubscription.cancel();
+    _fpsSubscription.cancel();
     _oldImageTimer?.cancel();
     _lastImageTime = null;
     _isImageOld = false;
+
+    super.dispose();
   }
 }

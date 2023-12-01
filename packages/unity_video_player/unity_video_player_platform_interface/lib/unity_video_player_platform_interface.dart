@@ -336,12 +336,31 @@ enum UnityVideoQuality {
 
 abstract class UnityVideoPlayer {
   Future<String>? fallbackUrl;
+  VoidCallback? onReload;
 
+  /// Creates a new [UnityVideoPlayer] instance.
+  ///
+  /// The [quality] parameter is used to set the rendering resolution of the
+  /// video. It defaults to [UnityVideoQuality.p360].
+  ///
+  /// The [enableCache] parameter is used to enable or disable the cache for the
+  /// video. It defaults to `false`. It is usually true when vieweing recorded
+  /// videos, not streams.
+  ///
+  /// The [rtspProtocol] parameter is used to set the rtsp protocol for the
+  /// video. It is only applied on rtsp streams.
+  ///
+  /// The [fallbackUrl] parameter is used to set the fallback url for the
+  /// video. It is only used if the initial source fails to load.
+  ///
+  /// The [onReload] parameter is called when the video needs to be reloaded.
+  /// It is usually used when the image has been old for a while.
   static UnityVideoPlayer create({
     UnityVideoQuality quality = UnityVideoQuality.p360,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     Future<String>? fallbackUrl,
+    VoidCallback? onReload,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
@@ -350,7 +369,8 @@ abstract class UnityVideoPlayer {
       rtspProtocol: rtspProtocol,
     )
       ..quality = quality
-      ..fallbackUrl = fallbackUrl;
+      ..fallbackUrl = fallbackUrl
+      ..onReload = onReload;
   }
 
   static const timerInterval = Duration(seconds: 6);
@@ -377,8 +397,15 @@ abstract class UnityVideoPlayer {
       _oldImageTimer?.cancel();
       _oldImageTimer = Timer(timerInterval, () {
         // If the image is still the same after the interval, then it's old.
-        if (duration <= duration) {
-          _isImageOld = true;
+        _isImageOld = true;
+
+        if (lastImageUpdate != null) {
+          final difference = lastImageUpdate!.difference(DateTime.now());
+          if (difference > timerInterval * 2) {
+            // If the image is still the same after twice the interval, then
+            // it's probably stuck and we should reload the video.
+            onReload?.call();
+          }
         }
       });
     }
@@ -392,7 +419,7 @@ abstract class UnityVideoPlayer {
 
   /// The duration of the current media.
   ///
-  /// May be 0
+  /// May be [Duration.zero]
   Duration get duration;
   Stream<Duration> get onDurationUpdate;
 

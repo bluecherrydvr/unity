@@ -65,21 +65,7 @@ class UnityPlayers with ChangeNotifier {
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(Device device) {
     final settings = SettingsProvider.instance;
-    final controller = UnityVideoPlayer.create(
-      quality: switch (device.server.additionalSettings.renderingQuality ??
-          settings.videoQuality) {
-        RenderingQuality.p4k => UnityVideoQuality.p4k,
-        RenderingQuality.p1080 => UnityVideoQuality.p1080,
-        RenderingQuality.p720 => UnityVideoQuality.p720,
-        RenderingQuality.p480 => UnityVideoQuality.p480,
-        RenderingQuality.p360 => UnityVideoQuality.p360,
-        RenderingQuality.p240 => UnityVideoQuality.p240,
-        RenderingQuality.automatic =>
-          UnityVideoQuality.qualityForResolutionY(device.resolutionY),
-      },
-    )
-      ..setVolume(0.0)
-      ..setSpeed(1.0);
+    late UnityVideoPlayer controller;
 
     Future<void> setSource() async {
       if (device.url != null) {
@@ -101,9 +87,30 @@ class UnityPlayers with ChangeNotifier {
         controller
           ..fallbackUrl = fallback
           ..setDataSource(source);
-        _reloadable.add(source);
+
+        // TODO(bdlukaa): reevaluate if this system is still necessary.
+        //                on the player, we now reload the device if the image
+        //                is timed out. See [UnityVideoPlayer.create.onReload]
+        // _reloadable.add(source);
       }
     }
+
+    controller = UnityVideoPlayer.create(
+      quality: switch (device.server.additionalSettings.renderingQuality ??
+          settings.videoQuality) {
+        RenderingQuality.p4k => UnityVideoQuality.p4k,
+        RenderingQuality.p1080 => UnityVideoQuality.p1080,
+        RenderingQuality.p720 => UnityVideoQuality.p720,
+        RenderingQuality.p480 => UnityVideoQuality.p480,
+        RenderingQuality.p360 => UnityVideoQuality.p360,
+        RenderingQuality.p240 => UnityVideoQuality.p240,
+        RenderingQuality.automatic =>
+          UnityVideoQuality.qualityForResolutionY(device.resolutionY),
+      },
+      onReload: setSource,
+    )
+      ..setVolume(0.0)
+      ..setSpeed(1.0);
 
     setSource();
 

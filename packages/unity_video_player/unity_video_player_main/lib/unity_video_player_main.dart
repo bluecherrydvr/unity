@@ -27,6 +27,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     int? height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
+    VoidCallback? onReload,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,

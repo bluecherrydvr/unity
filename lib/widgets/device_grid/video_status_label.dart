@@ -188,7 +188,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
                   height: 12.0,
                   width: 12.0,
                   child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 2.0,
+                    strokeWidth: 1.5,
                     valueColor: AlwaysStoppedAnimation(Colors.white),
                   ),
                 ),

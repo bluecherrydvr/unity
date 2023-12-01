@@ -29,6 +29,7 @@ class HoverButton extends StatefulWidget {
     this.onLongPressStart,
     this.onLongPressCancel,
     this.onLongPressUp,
+    this.onDoubleTap,
     this.onHorizontalDragStart,
     this.onHorizontalDragUpdate,
     this.onHorizontalDragEnd,
@@ -70,6 +71,8 @@ class HoverButton extends StatefulWidget {
   final GestureLongPressDownCallback? onLongPressDown;
   final GestureLongPressCancelCallback? onLongPressCancel;
   final VoidCallback? onLongPressUp;
+
+  final VoidCallback? onDoubleTap;
 
   final VoidCallback? onPressed;
   final VoidCallback? onTapUp;
@@ -250,7 +253,8 @@ class HoverButtonState extends State<HoverButton> {
       widget.onVerticalDragStart != null ||
       widget.onVerticalDragEnd != null ||
       widget.onVerticalDragUpdate != null ||
-      widget.onSecondaryTap != null;
+      widget.onSecondaryTap != null ||
+      widget.onDoubleTap != null;
 
   Set<ButtonStates> get states {
     if (!enabled) return {ButtonStates.disabled};
@@ -324,6 +328,7 @@ class HoverButtonState extends State<HoverButton> {
       // onScaleStart: widget.onScaleStart,
       // onScaleUpdate: widget.onScaleUpdate,
       // onScaleEnd: widget.onScaleEnd,
+      onDoubleTap: widget.onDoubleTap,
       child: Builder(builder: (context) => widget.builder(context, states)),
     );
     if (widget.focusEnabled) {

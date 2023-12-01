@@ -24,8 +24,8 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -151,8 +151,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
                 final row = index ~/ size;
                 final col = index % size;
 
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                return HoverButton(
                   onDoubleTap: () {
                     views.updateDevice(
                       widget.device,
@@ -161,13 +160,22 @@ class _MulticastViewportState extends State<MulticastViewport> {
                       ),
                     );
                   },
-                  onTap: () {
+                  onPressed: () {
                     view.player.crop(row, col, size);
                     currentZoom = (row, col);
                   },
-                  child: const SizedBox.expand(
+                  builder: (context, states) => SizedBox.expand(
                     child: IgnorePointer(
-                      child: kDebugMode ? Placeholder() : null,
+                      child: states.isHovering
+                          ? Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: theme.colorScheme.secondary,
+                                  width: 2.25,
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                 );

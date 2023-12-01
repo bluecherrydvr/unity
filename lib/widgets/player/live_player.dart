@@ -218,7 +218,6 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                               icon: const BackButtonIcon(),
                               tooltip: MaterialLocalizations.of(context)
                                   .backButtonTooltip,
-                              // todo:
                               // color: Colors.white,
                             ),
                             trailing:

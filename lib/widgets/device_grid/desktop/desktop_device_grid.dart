@@ -498,7 +498,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     if (states.isHovering && kDebugMode)
                       TextSpan(
-                        text: '\n'
+                        text: '\ndebug: '
                             '${video?.player.dataSource}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,

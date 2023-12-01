@@ -56,21 +56,26 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     Future<void> setSource() async {
-      final (String source, Future<String> fallback) = switch (
-          device.preferredStreamingType ??
-              device.server.additionalSettings.preferredStreamingType ??
-              settings.streamingType) {
-        StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
-        StreamingType.hls => (
-            await device.getHLSUrl(),
-            Future.value(device.rtspURL)
-          ),
-        StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
-      };
-      debugPrint(source);
-      controller
-        ..fallbackUrl = fallback
-        ..setDataSource(source);
+      if (device.url != null) {
+        debugPrint(device.url);
+        controller.setDataSource(device.url!);
+      } else {
+        final (String source, Future<String> fallback) = switch (
+            device.preferredStreamingType ??
+                device.server.additionalSettings.preferredStreamingType ??
+                settings.streamingType) {
+          StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
+          StreamingType.hls => (
+              await device.getHLSUrl(),
+              Future.value(device.rtspURL)
+            ),
+          StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
+        };
+        debugPrint(source);
+        controller
+          ..fallbackUrl = fallback
+          ..setDataSource(source);
+      }
     }
 
     setSource();

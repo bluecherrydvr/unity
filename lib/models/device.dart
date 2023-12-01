@@ -245,7 +245,8 @@ class Device {
   }
 
   Future<String> getHLSUrl([Device? device]) async {
-    // return hlsURL;
+    if (url != null) return url!;
+
     device ??= this;
     var data = {
       'id': device.id.toString(),

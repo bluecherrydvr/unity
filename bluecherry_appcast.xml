@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta14</title>
+            <description>Multicast support, external streams and Linux stability.</description>
+            <pubDate>Sat, 02 Dec 2023</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta13</title>
             <description>Redesigned Settings, optmized Servers and updated translations.</description>
             <pubDate>Fri, 27 Oct 2023</pubDate>

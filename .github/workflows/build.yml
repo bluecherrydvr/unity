@@ -87,8 +87,8 @@ jobs:
           
       - run: flutter gen-l10n
       - run: flutter pub get
-      - run: flutter build ios --verbose --release --no-codesign
-      - run: flutter build ipa --verbose --release --no-codesign
+      - run: flutter build ios --verbose --no-codesign
+      - run: flutter build ipa --verbose --no-codesign
 
       # App should be published with TestFlight
       # - name: Release
@@ -111,6 +111,26 @@ jobs:
       #   files: |
       #     .exe
       #   token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_macOS:
+    name: Bluecherry Client macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "master"
+          architecture: x64
+          # cache: true
+          
+      - run: flutter gen-l10n
+      - run: flutter pub get
+      - run: flutter build macos --verbose
+      - run: 7z a bluecherry-macos.7z build/macos/Build/Products/Release/unity.app
 
   build_windows:
     name: Bluecherry Client Windows

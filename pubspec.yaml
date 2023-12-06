@@ -93,9 +93,9 @@ flutter_icons:
     generate: true
     image_path: "assets/images/icon.png"
     icon_size: 48 # min:48, max:256, default: 48
-  # macos:
-  #   generate: true
-  #   image_path: "path/to/image.png"
+  macos:
+    generate: true
+    image_path: "assets/images/icon.png"
 
 msix_config:
   display_name: Bluecherry Client

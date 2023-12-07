@@ -29,6 +29,7 @@ import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/home.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -136,6 +137,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
     final navData = NavigatorData.of(context);
 
+    final isMacOSPlatform =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
@@ -145,6 +149,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
           child: Stack(children: [
             DragToMoveArea(
               child: Row(children: [
+                if (isMacOSPlatform) const SizedBox(width: 70.0, height: 40.0),
                 if (canPop)
                   InkWell(
                     onTap: () async {
@@ -163,7 +168,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                       ),
                     ),
                   )
-                else
+                else if (!isMacOSPlatform)
                   Padding(
                     padding: const EdgeInsetsDirectional.only(start: 8.0),
                     child: Image.asset(
@@ -196,7 +201,11 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                           return widget.title ?? 'Bluecherry';
                         }
 
-                        return navData.firstWhere((d) => d.tab == tab).text;
+                        if (!isMacOSPlatform) {
+                          return navData.firstWhere((d) => d.tab == tab).text;
+                        }
+
+                        return '';
                       }(),
                       style: TextStyle(
                         color: theme.brightness == Brightness.light
@@ -224,14 +233,16 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     icon: const Icon(Icons.refresh, size: 20.0),
                     tooltip: loc.refresh,
                   ),
-                SizedBox(
-                  width: 138,
-                  height: 40,
-                  child: WindowCaption(
-                    brightness: theme.brightness,
-                    backgroundColor: Colors.transparent,
+                // Do not render the Window Buttons on web nor macOS. macOS render the buttons natively.
+                if (!kIsWeb && !isMacOSPlatform)
+                  SizedBox(
+                    width: 138,
+                    height: 40,
+                    child: WindowCaption(
+                      brightness: theme.brightness,
+                      backgroundColor: Colors.transparent,
+                    ),
                   ),
-                ),
               ]),
             ),
             if (!canPop && widget.showNavigator)

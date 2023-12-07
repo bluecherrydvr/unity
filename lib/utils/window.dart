@@ -38,7 +38,7 @@ Future<void> configureWindow() async {
   windowManager.waitUntilReadyToShow().then((_) async {
     await windowManager.setTitleBarStyle(
       TitleBarStyle.hidden,
-      windowButtonVisibility: false,
+      windowButtonVisibility: true,
     );
     // await windowManager.setMinimumSize(kInitialWindowSize);
     if (kDebugMode) {

@@ -112,7 +112,8 @@
   "directCamera": "Direct Camera",
   "addServer": "Add Server",
   "settings": "Settings",
-  "noServersAdded": "No servers added",
+  "noServersAdded": "You haven't added any servers yet :/",
+  "howToAddServer": "Go to the \"Add Server\" screen to add a server.",
   "editServerInfo": "Edit server info",
   "editServer": "Edit server {serverName}",
   "@editServer": {

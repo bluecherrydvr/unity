@@ -227,13 +227,14 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                               ),
                               padd,
                               Expanded(
-                                child: Slider(
+                                child: Slider.adaptive(
                                   value: (_position ?? pos.inMilliseconds)
                                       .clamp(0.0, duration.inMilliseconds)
                                       .toDouble(),
                                   max: duration.inMilliseconds.toDouble(),
                                   secondaryTrackValue: videoController
                                       .currentBuffer.inMilliseconds
+                                      .clamp(0.0, duration.inMilliseconds)
                                       .toDouble(),
                                   onChangeStart: (v) {
                                     shouldAutoplay = videoController.isPlaying;
@@ -298,7 +299,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       const SizedBox(width: 6.0),
                       SizedBox(
                         width: kSliderControlerWidth,
-                        child: Slider(
+                        child: Slider.adaptive(
                           value: volume,
                           onChanged: (v) {
                             setState(() => volume = v);
@@ -315,7 +316,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       Text(loc.speed(speed.toStringAsFixed(2))),
                       SizedBox(
                         width: kSliderControlerWidth,
-                        child: Slider(
+                        child: Slider.adaptive(
                           value: speed,
                           min: 0.25,
                           max: 2,

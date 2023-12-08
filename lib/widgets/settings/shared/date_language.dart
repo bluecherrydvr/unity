@@ -165,7 +165,7 @@ class DateFormatSection extends StatelessWidget {
           children: formats.map((format) {
             return SizedBox(
               width: consts.maxWidth / crossAxisCount,
-              child: RadioListTile<String?>(
+              child: RadioListTile<String?>.adaptive(
                 value: format.pattern,
                 groupValue: settings.dateFormat.pattern,
                 onChanged: (value) {
@@ -185,7 +185,7 @@ class DateFormatSection extends StatelessWidget {
       } else {
         return Column(
           children: formats.map<Widget>((format) {
-            return RadioListTile<String?>(
+            return RadioListTile<String?>.adaptive(
               value: format.pattern,
               groupValue: settings.dateFormat.pattern,
               onChanged: (value) {

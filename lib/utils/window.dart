@@ -35,21 +35,17 @@ const kInitialWindowSize = Size(1066, 645);
 /// Configures the current window
 Future<void> configureWindow() async {
   await WindowManager.instance.ensureInitialized();
-  windowManager.waitUntilReadyToShow().then((_) async {
-    await windowManager.setTitleBarStyle(
-      TitleBarStyle.hidden,
-      windowButtonVisibility: false,
-    );
-    // await windowManager.setMinimumSize(kInitialWindowSize);
-    if (kDebugMode) {
-      await windowManager.setMinimumSize(const Size(100, 100));
-    } else {
-      await windowManager.setSize(kInitialWindowSize);
-    }
-    // await windowManager.center();
-    await windowManager.setSkipTaskbar(false);
-    await windowManager.show();
-  });
+  windowManager.waitUntilReadyToShow(
+    const WindowOptions(
+      minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+      windowButtonVisibility: true,
+    ),
+    () async {
+      await windowManager.show();
+    },
+  );
 }
 
 /// Configures the camera sub window

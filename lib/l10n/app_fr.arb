@@ -109,6 +109,7 @@
   "addServer": "Ajouter serveur",
   "settings": "Paramètres",
   "noServersAdded": "Aucun serveur ajouté",
+  "howToAddServer": "Go to the \"Add Server\" screen to add a server.",
   "editServerInfo": "Modifier les info serveur",
   "editServer": "Modifier le serveur {serverName}",
   "@editServer": {

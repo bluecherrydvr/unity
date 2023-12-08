@@ -110,7 +110,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                     ),
                   ),
                   children: UnityVideoFit.values.map((e) {
-                    return RadioListTile(
+                    return RadioListTile<UnityVideoFit>.adaptive(
                       contentPadding: const EdgeInsetsDirectional.only(
                         start: 68.0,
                         end: 16.0,

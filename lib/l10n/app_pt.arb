@@ -112,7 +112,8 @@
   "directCamera": "Câmera específica",
   "addServer": "Adicionar servidor",
   "settings": "Configurações",
-  "noServersAdded": "Nenhum servidor adicionado",
+  "noServersAdded": "Você ainda não adicionou nenhum servidor :/",
+  "howToAddServer": "Vá à \"Adicionar Servidor\" para adicionar um servidor.",
   "editServerInfo": "Editar informações do servidor",
   "editServer": "Editar servidor {serverName}",
   "@editServer": {

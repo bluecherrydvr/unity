@@ -42,6 +42,7 @@ Widget _buildCardAppBar({
 }) {
   return Builder(builder: (context) {
     final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -60,17 +61,13 @@ Widget _buildCardAppBar({
             ),
           Text(
             title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
+            style: theme.textTheme.displayMedium,
           ),
         ]),
         const SizedBox(height: 12.0),
         Text(
           description,
-          style: theme.textTheme.headlineMedium
-              ?.copyWith(color: Colors.white.withOpacity(0.87)),
+          style: theme.textTheme.headlineMedium,
         ),
         const SizedBox(height: 20.0),
       ],
@@ -1034,8 +1031,7 @@ class LetsGoScreen extends StatelessWidget {
                       children: [
                         Text(
                           loc.letsGoDescription,
-                          style: theme.textTheme.headlineMedium
-                              ?.copyWith(color: Colors.white.withOpacity(0.87)),
+                          style: theme.textTheme.headlineMedium,
                         ),
                         ...[loc.tip0, loc.tip1, loc.tip2, loc.tip3].map((tip) {
                           return Padding(

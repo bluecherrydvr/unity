@@ -18,55 +18,75 @@ Widget buildCheckbox({
   double checkboxScale = 0.8,
   FlexFit textFit = FlexFit.loose,
 }) {
-  final checkbox = Transform.scale(
-    scale: checkboxScale,
-    child: Checkbox(
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-      splashRadius: 0.0,
-      tristate: true,
-      value: value,
-      isError: isError,
-      onChanged: onChanged,
-    ),
-  );
-
   return Builder(builder: (context) {
     final theme = Theme.of(context);
-    return Row(children: [
-      checkbox,
-      Expanded(
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              onChanged(value == null ? true : !value);
-            },
-            child: Row(children: [
-              SizedBox(width: gapCheckboxText),
-              Flexible(
-                fit: textFit,
-                child: Text(
-                  text,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: TextStyle(
-                    decoration: isError ? TextDecoration.lineThrough : null,
+    final loc = AppLocalizations.of(context);
+    final checkbox = SizedBox.fromSize(
+      size: const Size(24.0, 24.0),
+      child: isError
+          ? Tooltip(
+              message: loc.offline,
+              child: Icon(
+                Icons.videocam_off_outlined,
+                size: 16.0,
+                color: theme.colorScheme.error,
+              ),
+            )
+          : Transform.scale(
+              scale: checkboxScale,
+              child: Checkbox.adaptive(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity:
+                    const VisualDensity(horizontal: -4, vertical: -4),
+                splashRadius: 0.0,
+                tristate: true,
+                value: value,
+                isError: isError,
+                onChanged: onChanged,
+                side:
+                    isError ? BorderSide(color: theme.colorScheme.error) : null,
+              ),
+            ),
+    );
+
+    return SizedBox(
+      height: isError ? 18.0 : 24.0,
+      child: Row(children: [
+        checkbox,
+        Expanded(
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                onChanged(value == null ? true : !value);
+              },
+              child: Row(children: [
+                SizedBox(width: gapCheckboxText),
+                Flexible(
+                  fit: textFit,
+                  child: Text(
+                    text,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(
+                      color: isError ? theme.colorScheme.error : null,
+                      // decoration: isError ? TextDecoration.lineThrough : null,
+                    ),
                   ),
                 ),
-              ),
-              if (secondaryText != null)
-                Text(
-                  secondaryText,
-                  style: theme.textTheme.labelSmall,
-                ),
-              const SizedBox(width: 10.0),
-            ]),
+                if (secondaryText != null)
+                  Text(
+                    secondaryText,
+                    style: theme.textTheme.labelSmall,
+                  ),
+                const SizedBox(width: 10.0),
+              ]),
+            ),
           ),
-        ),
-      )
-    ]);
+        )
+      ]),
+    );
   });
 }
 
@@ -228,12 +248,12 @@ class _NodeWidgetState extends State<NodeWidget> {
         Row(children: [
           if (!_isLeaf && _isEnabled)
             Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8.0),
+              padding: const EdgeInsetsDirectional.only(start: 8.0, end: 4.0),
               child: Tooltip(
                 message: _isExpanded ? loc.collapse : loc.expand,
                 child: InkWell(
                   onTap: onIconPressed,
-                  borderRadius: BorderRadius.circular(100),
+                  borderRadius: BorderRadius.circular(6.0),
                   child: Padding(
                     padding: const EdgeInsetsDirectional.all(4.5),
                     child: Icon(icon, size: widget.iconSize),
@@ -243,7 +263,7 @@ class _NodeWidgetState extends State<NodeWidget> {
             )
           // If it is not leaf nor enabled, mimic the space of the icon button
           else if (!_isLeaf && !_isEnabled)
-            const SizedBox(width: 35.0),
+            const SizedBox(width: 39.0),
           Expanded(child: widget.treeNode.content),
         ]),
         if (_isExpanded && !_isLeaf)

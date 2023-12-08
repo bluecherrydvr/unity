@@ -151,20 +151,24 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
               child: Row(children: [
                 if (isMacOSPlatform) const SizedBox(width: 70.0, height: 40.0),
                 if (canPop)
-                  InkWell(
-                    onTap: () async {
-                      await widget.onBack?.call();
-                      await navigatorKey.currentState?.maybePop();
-                      if (mounted) setState(() {});
-                    },
-                    child: Container(
-                      height: 40.0,
-                      width: 40.0,
-                      alignment: AlignmentDirectional.center,
-                      child: Icon(
-                        Icons.arrow_back,
-                        size: 20.0,
-                        color: theme.hintColor,
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: SquaredIconButton(
+                      onPressed: () async {
+                        await widget.onBack?.call();
+                        await navigatorKey.currentState?.maybePop();
+                        if (mounted) setState(() {});
+                      },
+                      icon: Container(
+                        padding: const EdgeInsetsDirectional.all(4.0),
+                        // height: 40.0,
+                        // width: 40.0,
+                        alignment: AlignmentDirectional.center,
+                        child: Icon(
+                          Icons.adaptive.arrow_back,
+                          size: 20.0,
+                          color: theme.hintColor,
+                        ),
                       ),
                     ),
                   )
@@ -318,6 +322,7 @@ class _UnityLoadingIndicatorState extends State<UnityLoadingIndicator> {
       return LayoutBuilder(builder: (context, constraints) {
         final willFitY = constraints.maxHeight - (pos.dy + box.size.height) >
             CurrentTasks.width;
+        const margin = 12.0;
 
         return Stack(children: [
           Positioned(
@@ -325,8 +330,8 @@ class _UnityLoadingIndicatorState extends State<UnityLoadingIndicator> {
             bottom: willFitY ? null : constraints.maxHeight - pos.dy + 1.0,
             left: clampDouble(
               pos.dx - (CurrentTasks.width / 2),
-              0,
-              constraints.maxWidth,
+              margin,
+              constraints.maxWidth - CurrentTasks.width - margin,
             ),
             child: const CurrentTasks(),
           ),

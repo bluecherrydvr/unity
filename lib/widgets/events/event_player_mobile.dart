@@ -229,7 +229,21 @@ class _VideoViewportState extends State<VideoViewport> {
               top: MediaQuery.paddingOf(context).top,
               child: SafeArea(
                 child: Row(children: [
-                  const BackButton(),
+                  // const BackButton(),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8.0),
+                    child: SquaredIconButton(
+                      onPressed: Navigator.of(context).pop,
+                      icon: Container(
+                        padding: const EdgeInsetsDirectional.all(4.0),
+                        child: Icon(
+                          Icons.adaptive.arrow_back,
+                          size: 20.0,
+                          color: theme.hintColor,
+                        ),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: Text(
                       '${widget.event.deviceName} (${widget.event.server.name})',
@@ -300,7 +314,7 @@ class _VideoViewportState extends State<VideoViewport> {
                           enabledThumbRadius: 6.0,
                         ),
                       ),
-                      child: Slider(
+                      child: Slider.adaptive(
                         label: player.position.humanReadableCompact(context),
                         value: player.position.inMilliseconds.toDouble(),
                         max: player.duration.inMilliseconds.toDouble(),
@@ -382,7 +396,7 @@ class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
             style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
           ),
           Expanded(
-            child: Slider(
+            child: Slider.adaptive(
               value: widget.player.currentPos.inMilliseconds.toDouble(),
               max: widget.player.duration.inMilliseconds.toDouble(),
               secondaryTrackValue:

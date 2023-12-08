@@ -19,7 +19,9 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -82,10 +84,14 @@ class AppUpdateCard extends StatelessWidget {
                   SizedBox(
                     height: 32.0,
                     width: 32.0,
-                    child: CircularProgressIndicator(
-                      value: update.downloadProgress,
-                      strokeWidth: 2.0,
-                    ),
+                    child: isCupertino
+                        ? CupertinoActivityIndicator.partiallyRevealed(
+                            progress: update.downloadProgress,
+                          )
+                        : CircularProgressIndicator(
+                            value: update.downloadProgress,
+                            strokeWidth: 2.0,
+                          ),
                   )
                 else if (executable != null)
                   FilledButton(
@@ -229,7 +235,7 @@ class AppUpdateOptions extends StatelessWidget {
     final theme = Theme.of(context);
     final update = context.watch<UpdateManager>();
     return Column(children: [
-      CheckboxListTile(
+      CheckboxListTile.adaptive(
         onChanged: (v) {
           if (v != null) {
             update.automaticDownloads = v;

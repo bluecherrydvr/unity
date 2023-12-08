@@ -30,7 +30,7 @@ class ThemeTile extends StatelessWidget {
         }),
       ),
       onTap: () => settings.themeMode = themeMode,
-      trailing: Radio(
+      trailing: Radio.adaptive(
         value: themeMode,
         groupValue: settings.themeMode,
         onChanged: (value) {
@@ -152,7 +152,7 @@ class NavigationClickBehaviorTile extends StatelessWidget {
         ),
       ),
       children: NotificationClickBehavior.values.map((behavior) {
-        return RadioListTile(
+        return RadioListTile<NotificationClickBehavior>.adaptive(
           contentPadding: const EdgeInsetsDirectional.only(
             start: 68.0,
             end: 16.0,
@@ -199,7 +199,7 @@ class CyclePeriodTile extends StatelessWidget {
       ),
       children: [5, 10, 30, 60, 60 * 5].map((e) {
         final dur = Duration(seconds: e);
-        return RadioListTile(
+        return RadioListTile<Duration>.adaptive(
           value: dur,
           groupValue: settings.layoutCyclingTogglePeriod,
           onChanged: (value) {

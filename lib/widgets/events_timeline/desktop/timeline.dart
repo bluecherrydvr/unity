@@ -547,7 +547,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 120.0),
-                    child: Slider(
+                    child: Slider.adaptive(
                       value: _speed ?? timeline.speed,
                       min: 0.5,
                       max: 2.0,
@@ -580,7 +580,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                 child: Row(children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 120.0),
-                    child: Slider(
+                    child: Slider.adaptive(
                       value:
                           _volume ?? (timeline.isMuted ? 0.0 : timeline.volume),
                       onChanged: (v) => setState(() => _volume = v),

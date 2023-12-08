@@ -160,7 +160,7 @@ class _StreamDataState extends State<StreamData> {
                   ),
                   style: theme.textTheme.headlineSmall,
                 ),
-                Slider(
+                Slider.adaptive(
                   value: widget.video.player.volume,
                   onChanged: (v) {
                     widget.video.player.setVolume(v);

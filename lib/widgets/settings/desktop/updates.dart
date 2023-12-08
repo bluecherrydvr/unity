@@ -82,7 +82,7 @@ class BetaFeatures extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CheckboxListTile(
+      CheckboxListTile.adaptive(
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,

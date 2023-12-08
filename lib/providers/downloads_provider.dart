@@ -213,6 +213,7 @@ class DownloadsManager extends ChangeNotifier {
         headers: {HttpHeaders.acceptEncodingHeader: '*'}, // disable gzip
       ),
       onReceiveProgress: (received, total) {
+        // TODO(bdlukaa): update window progress bar
         if (total != -1) {
           downloading[event] = received / total;
           notifyListeners();

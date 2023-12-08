@@ -133,6 +133,19 @@ jobs:
       - run: 7z a bluecherry-macos.7z build/macos/Build/Products/Release/unity.app
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          body: ""
+          tag_name: "bleeding_edge"
+          files: |
+            bluecherry-macos.7z
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:

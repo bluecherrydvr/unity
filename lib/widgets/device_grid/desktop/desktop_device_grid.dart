@@ -77,6 +77,11 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
               ),
+              SquaredIconButton(
+                icon: const Icon(Icons.camera_outdoor, size: 18.0),
+                tooltip: loc.addExternalStream,
+                onPressed: () => AddExternalStreamDialog.show(context),
+              ),
               Container(
                 padding: const EdgeInsetsDirectional.all(8.0),
                 margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),

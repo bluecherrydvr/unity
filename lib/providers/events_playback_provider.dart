@@ -20,32 +20,24 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/material.dart';
 
-class EventsProvider extends ChangeNotifier {
+class EventsProvider extends UnityProvider {
   EventsProvider._();
 
-  /// `late` initialized [EventsProvider] instance.
   static late final EventsProvider instance;
-
-  /// Initializes the [EventsProvider] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
   static Future<EventsProvider> ensureInitialized() async {
     instance = EventsProvider._();
     await instance.initialize();
     return instance;
   }
 
-  /// Called by [ensureInitialized].
-  Future<void> initialize() async {
-    final data = await eventsPlayback.read() as Map;
-    if (!data.containsKey(kHiveEventsPlayback)) {
-      await _save();
-    } else {
-      await _restore();
-    }
+  @override
+  Future<void> initialize() {
+    return super.initializeStorage(eventsPlayback, kHiveEventsPlayback);
   }
 
   /// The list of the device ids that are currently selected
@@ -53,7 +45,8 @@ class EventsProvider extends ChangeNotifier {
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
-  Future<void> _save({bool notifyListeners = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
       await eventsPlayback.write({
         kHiveEventsPlayback: jsonEncode(selectedIds),
@@ -62,26 +55,23 @@ class EventsProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.save(notifyListeners: notifyListeners);
   }
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
-  Future<void> _restore({bool notifyListeners = true}) async {
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
     final data = await eventsPlayback.read() as Map;
 
     selectedIds =
         (jsonDecode(data[kHiveEventsPlayback]) as List).cast<String>();
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.restore(notifyListeners: notifyListeners);
   }
 
   Future<void> clear() {
     selectedIds.clear();
-    return _save();
+    return save();
   }
 
   bool contains(Device device) {
@@ -91,13 +81,13 @@ class EventsProvider extends ChangeNotifier {
   Future<void> add(Device device) {
     selectedIds.add(device.uuid);
 
-    return _save();
+    return save();
   }
 
   Future<void> remove(Device device) {
     selectedIds.remove(device.uuid);
 
-    return _save();
+    return save();
   }
 
   void onReorder(int a, int b) {
@@ -107,6 +97,6 @@ class EventsProvider extends ChangeNotifier {
     selectedIds[a] = bItem;
     selectedIds[b] = aItem;
 
-    _save();
+    save();
   }
 }

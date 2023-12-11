@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -32,7 +33,8 @@ import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// This class manages & saves the settings inside the application.
-class SettingsProvider extends ChangeNotifier {
+class SettingsProvider extends UnityProvider {
+  SettingsProvider._();
   static late final SettingsProvider instance;
 
   static const kDefaultThemeMode = ThemeMode.system;
@@ -89,12 +91,12 @@ class SettingsProvider extends ChangeNotifier {
   // Setters.
   set locale(Locale value) {
     _locale = value;
-    _save();
+    save();
   }
 
   set themeMode(ThemeMode value) {
     _themeMode = value;
-    _save().then((_) {
+    save().then((_) {
       HomeProvider.setDefaultStatusBarStyle(
         // we can not do [isLight: value == ThemeMode.light] because theme
         // mode also accepts [ThemeMode.system]. When null is provided, the
@@ -106,65 +108,65 @@ class SettingsProvider extends ChangeNotifier {
 
   set dateFormat(DateFormat value) {
     _dateFormat = value;
-    _save();
+    save();
   }
 
   set timeFormat(DateFormat value) {
     _timeFormat = value;
-    _save();
+    save();
   }
 
   set snoozedUntil(DateTime value) {
     _snoozedUntil = value;
-    _save();
+    save();
   }
 
   set notificationClickBehavior(NotificationClickBehavior value) {
     _notificationClickBehavior = value;
-    _save();
+    save();
   }
 
   set cameraViewFit(UnityVideoFit value) {
     _cameraViewFit = value;
-    _save();
+    save();
   }
 
   set downloadsDirectory(String value) {
     _downloadsDirectory = value;
-    _save();
+    save();
   }
 
   set layoutCyclingEnabled(bool value) {
     _layoutCyclingEnabled = value;
-    _save();
+    save();
   }
 
   set layoutCyclingTogglePeriod(Duration value) {
     _layoutCyclingTogglePeriod = value;
-    _save();
+    save();
   }
 
   set streamingType(StreamingType value) {
     _streamingType = value;
-    _save();
+    save();
     UnityPlayers.reloadAll();
   }
 
   set rtspProtocol(RTSPProtocol value) {
     _rtspProtocol = value;
-    _save();
+    save();
     UnityPlayers.reloadAll();
   }
 
   set videoQuality(RenderingQuality value) {
     _videoQuality = value;
-    _save();
+    save();
   }
 
   set wakelockEnabled(bool value) {
     _wakelockEnabled = value;
     UnityVideoPlayerInterface.wakelockEnabled = value;
-    _save();
+    save();
   }
 
   set betaMatrixedZoomEnabled(bool value) {
@@ -174,24 +176,19 @@ class SettingsProvider extends ChangeNotifier {
         player.resetCrop();
       }
     }
-    _save();
+    save();
   }
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
-    try {
-      instance = SettingsProvider();
-      await instance.initialize();
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
-    await instance.reload();
+    instance = SettingsProvider._();
+    await instance.initialize();
     return instance;
   }
 
-  Future<void> _save({bool notify = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
       await settings.write({
         kHiveLocale: locale.toLanguageTag(),
@@ -214,18 +211,18 @@ class SettingsProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
 
-    if (notify) notifyListeners();
+    super.save(notifyListeners: notifyListeners);
   }
 
-  Future<void> reload() => initialize();
-
-  /// Called by [ensureInitialized].
+  @override
   Future<void> initialize() async {
-    // NOTE: The notification action button click calls are from another isolate.
-    // i.e. the state of [Hive] [Box] is not reloaded/reflected immediately in the UI after changing the snooze time from that isolate.
-    // To circumvent this, we are closing all the existing opened [Hive] [Box]es and re-opening them again. This fetches the latest data.
-    // Though, changes are still not instant.
-    final data = await settings.read() as Map;
+    Map data;
+    try {
+      data = await settings.read() as Map;
+    } catch (_) {
+      data = {};
+    }
+
     if (data.containsKey(kHiveLocale)) {
       _locale = Locale(data[kHiveLocale]!);
     } else {

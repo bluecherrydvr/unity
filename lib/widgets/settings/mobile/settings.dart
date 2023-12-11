@@ -54,7 +54,7 @@ class _MobileSettingsState extends State<MobileSettings> {
   @override
   void initState() {
     super.initState();
-    SettingsProvider.instance.reload();
+    SettingsProvider.instance.reloadInterface();
   }
 
   @override

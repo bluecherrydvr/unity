@@ -233,6 +233,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       } else {
         platform
           ..setProperty('cache', 'no')
+          ..setProperty('cache-on-disk', 'no')
           ..setProperty('video-sync', 'audio');
         // these two properties reduce latency, but it causes problems with FPS
         // platform.setProperty("profile", "low-latency");

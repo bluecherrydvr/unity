@@ -28,11 +28,13 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
+    String? title,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
       height: height,
       enableCache: enableCache,
+      title: title,
     );
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
@@ -125,7 +127,7 @@ class _MKVideoState extends State<_MKVideo> {
 }
 
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
-  Player mkPlayer = Player();
+  late final Player mkPlayer;
   late VideoController mkVideoController;
 
   double _fps = 0;
@@ -144,7 +146,16 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     super.height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
+    String? title,
   }) {
+    mkPlayer = Player(
+      configuration: PlayerConfiguration(
+        bufferSize: 5 * 1024,
+        logLevel: MPVLogLevel.warn,
+        title: title ?? 'Bluecherry',
+        ready: onReady,
+      ),
+    );
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width! * pixelRatio).toInt();
     if (height != null) height = (height! * pixelRatio).toInt();
@@ -153,7 +164,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     mkVideoController = VideoController(
       mkPlayer,
-      configuration: VideoControllerConfiguration(width: width, height: height),
+      configuration: VideoControllerConfiguration(
+        width: width,
+        height: height,
+      ),
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.

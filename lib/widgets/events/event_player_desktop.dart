@@ -89,6 +89,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   Device? get device => currentEvent.server.devices.firstWhereOrNull(
         (d) => d.id == currentEvent.deviceID,
       );
+  String get title =>
+      '${currentEvent.deviceName} (${currentEvent.server.name})';
 
   @override
   void initState() {
@@ -97,6 +99,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
         UnityVideoPlayer.create(
           quality: UnityVideoQuality.p480,
           enableCache: true,
+          title: title,
         );
     currentEvent = widget.event;
     fit = device?.server.additionalSettings.videoFit ??
@@ -165,7 +168,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
         child: Material(
           child: Column(children: [
             WindowButtons(
-              title: '${currentEvent.deviceName} (${currentEvent.server.name})',
+              title: title,
               showNavigator: false,
               onBack: videoController.dispose,
             ),

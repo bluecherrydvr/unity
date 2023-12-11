@@ -84,8 +84,8 @@ class DesktopViewProvider extends UnityProvider {
             jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
         kHiveDesktopCurrentLayout: _currentLayout,
       });
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (error, stackTrace) {
+      debugPrint('Failed to save desktop view:\n $error\n$stackTrace');
     }
 
     super.save(notifyListeners: notifyListeners);

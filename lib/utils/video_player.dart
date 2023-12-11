@@ -111,6 +111,7 @@ class UnityPlayers with ChangeNotifier {
           UnityVideoQuality.qualityForResolutionY(device.resolutionY),
       },
       onReload: setSource,
+      title: device.fullName,
     )
       ..setVolume(0.0)
       ..setSpeed(1.0);

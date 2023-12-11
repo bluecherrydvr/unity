@@ -62,6 +62,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     int? height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
+    String? title,
   });
 
   /// Creates a video view
@@ -324,12 +325,14 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     RTSPProtocol? rtspProtocol,
     Future<String>? fallbackUrl,
     VoidCallback? onReload,
+    String? title,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
       height: quality.resolution.height.toInt(),
       enableCache: enableCache,
       rtspProtocol: rtspProtocol,
+      title: title,
     )
       ..quality = quality
       ..fallbackUrl = fallbackUrl
@@ -354,12 +357,17 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   UnityVideoQuality? quality;
 
+  late final VoidCallback onReady;
+
   UnityVideoPlayer({this.width, this.height}) {
-    _onErrorSubscription = onError.listen(_onError);
-    _onDurationUpdateSubscription = onDurationUpdate.listen(_onDurationUpdate);
-    _onPositionUpdateSubscription =
-        onCurrentPosUpdate.listen(_onPositionUpdate);
-    _fpsSubscription = fpsStream.listen(_onFpsUpdate);
+    onReady = () {
+      _onErrorSubscription = onError.listen(_onError);
+      _onDurationUpdateSubscription =
+          onDurationUpdate.listen(_onDurationUpdate);
+      _onPositionUpdateSubscription =
+          onCurrentPosUpdate.listen(_onPositionUpdate);
+      _fpsSubscription = fpsStream.listen(_onFpsUpdate);
+    };
   }
 
   void _onDurationUpdate(Duration duration) {

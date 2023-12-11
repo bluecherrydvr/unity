@@ -57,6 +57,7 @@ class TimelineTile {
     videoController = UnityVideoPlayer.create(
       quality: UnityVideoQuality.p480,
       enableCache: true,
+      title: device.fullName,
     );
   }
 }

@@ -17,7 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
@@ -57,9 +59,18 @@ class DesktopViewProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(desktopView, kHiveDesktopLayouts);
-    // Create video player instances for the device tiles already present in the view (restored from cache).
     for (final device in currentLayout.devices) {
-      UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
+      final completer = Completer();
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
+        device,
+        () async {
+          if (Platform.isLinux) {
+            await Future.delayed(const Duration(milliseconds: 250));
+          }
+          completer.complete();
+        },
+      );
+      await completer.future;
     }
   }
 
@@ -100,7 +111,7 @@ class DesktopViewProvider extends UnityProvider {
   }
 
   /// Adds [device] to the current layout
-  Future<void> add(Device device, [Layout? layout]) {
+  Future<void> add(Device device, [Layout? layout]) async {
     assert(
       !currentLayout.devices.contains(device),
       'The device is already in the layout',
@@ -116,7 +127,7 @@ class DesktopViewProvider extends UnityProvider {
         var previousDevice = layout.devices.firstOrNull;
         if (previousDevice != null) {
           layout.devices.clear();
-          _releaseDevice(device);
+          await _releaseDevice(device);
         }
       }
 
@@ -131,11 +142,11 @@ class DesktopViewProvider extends UnityProvider {
   }
 
   /// Releases a device if no layout is using it
-  void _releaseDevice(Device device) {
+  Future<void> _releaseDevice(Device device) async {
     if (!UnityPlayers.players.containsKey(device.uuid)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.uuid == device.uuid))) {
-      UnityPlayers.releaseDevice(device.uuid);
+      await UnityPlayers.releaseDevice(device.uuid);
     }
   }
 
@@ -250,6 +261,7 @@ class DesktopViewProvider extends UnityProvider {
     _currentLayout = layoutIndex;
 
     for (final device in currentLayout.devices) {
+      // creates the device that don't exist
       UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
 

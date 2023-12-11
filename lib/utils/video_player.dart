@@ -63,14 +63,17 @@ class UnityPlayers with ChangeNotifier {
       _reloadable.contains(deviceUUID);
 
   /// Helper method to create a video player with required configuration for a [Device].
-  static UnityVideoPlayer forDevice(Device device) {
+  static UnityVideoPlayer forDevice(
+    Device device, [
+    VoidCallback? onSetSource,
+  ]) {
     final settings = SettingsProvider.instance;
     late UnityVideoPlayer controller;
 
     Future<void> setSource() async {
       if (device.url != null) {
         debugPrint(device.url);
-        controller.setDataSource(device.url!);
+        await controller.setDataSource(device.url!);
       } else {
         final (String source, Future<String> fallback) = switch (
             device.preferredStreamingType ??
@@ -84,15 +87,15 @@ class UnityPlayers with ChangeNotifier {
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };
         debugPrint(source);
-        controller
-          ..fallbackUrl = fallback
-          ..setDataSource(source);
+        controller.fallbackUrl = fallback;
+        await controller.setDataSource(source);
 
         // TODO(bdlukaa): reevaluate if this system is still necessary.
         //                on the player, we now reload the device if the image
         //                is timed out. See [UnityVideoPlayer.create.onReload]
         // _reloadable.add(source);
       }
+      onSetSource?.call();
     }
 
     controller = UnityVideoPlayer.create(

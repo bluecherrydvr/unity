@@ -1,0 +1,25 @@
+name: unity_video_player_flutter
+description: "unity_video_player implementation with video_player"
+version: 0.0.1
+homepage:
+
+publish_to: "none"
+
+environment:
+  sdk: '>=3.3.0-149.0.dev <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  unity_video_player_platform_interface:
+    path: ../unity_video_player_platform_interface/
+  video_player: ^2.8.1
+  flutterpi_gstreamer_video_player: ^0.1.1+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:

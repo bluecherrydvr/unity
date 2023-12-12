@@ -60,6 +60,7 @@ dependencies:
 
   # Desktop
   window_manager: ^0.3.7
+  titlebar_buttons: ^1.0.0
   unity_multi_window:
     path: packages/unity_multi_window/
 

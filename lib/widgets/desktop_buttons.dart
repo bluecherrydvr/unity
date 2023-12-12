@@ -33,6 +33,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:titlebar_buttons/titlebar_buttons.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -143,6 +144,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
         !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
     final isWindowsPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+    final isLinuxPlatform =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
     final centerTitle =
         (AppBarTheme.of(context).centerTitle ?? false) && !showNavigator;
 
@@ -188,7 +191,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
         );
 
         return Material(
-          child: IntrinsicHeight(
+          child: SizedBox(
+            height: 40.0,
             child: Stack(children: [
               if (centerTitle) Center(child: title),
               DragToMoveArea(
@@ -252,15 +256,44 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                       icon: const Icon(Icons.refresh, size: 20.0),
                       tooltip: loc.refresh,
                     ),
-                  // Do not render the Window Buttons on web nor macOS. macOS render the buttons natively.
+                  // Do not render the Window Buttons on web nor macOS. macOS
+                  // render the buttons natively.
                   if (!kIsWeb && !isMacOSPlatform)
                     SizedBox(
                       width: 138,
-                      height: 40,
-                      child: WindowCaption(
-                        brightness: theme.brightness,
-                        backgroundColor: Colors.transparent,
-                      ),
+                      child: Builder(builder: (context) {
+                        if (isLinuxPlatform) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              DecoratedMinimizeButton(
+                                onPressed: windowManager.minimize,
+                              ),
+                              DecoratedMaximizeButton(
+                                onPressed: () async {
+                                  if (await windowManager.isMaximized()) {
+                                    windowManager.unmaximize();
+                                  } else {
+                                    windowManager.maximize();
+                                  }
+                                },
+                              ),
+                              DecoratedCloseButton(
+                                onPressed: windowManager.close,
+                              ),
+                            ].map((button) {
+                              return Padding(
+                                padding: const EdgeInsetsDirectional.all(2.0),
+                                child: button,
+                              );
+                            }).toList(),
+                          );
+                        }
+                        return WindowCaption(
+                          brightness: theme.brightness,
+                          backgroundColor: Colors.transparent,
+                        );
+                      }),
                     ),
                 ]),
               ),

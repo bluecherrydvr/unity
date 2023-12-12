@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -29,22 +30,14 @@ import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 
-/// This class manages & saves (caching) the currently added [Server]s by the user.
-///
-class ServersProvider extends ChangeNotifier {
-  /// `late` initialized [ServersProvider] instance.
-  static late ServersProvider instance;
+class ServersProvider extends UnityProvider {
+  ServersProvider._();
+  ServersProvider.dump();
 
-  /// Initializes the [ServersProvider] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
+  static late ServersProvider instance;
   static Future<ServersProvider> ensureInitialized() async {
-    try {
-      instance = ServersProvider();
-      await instance.initialize();
-    } catch (exception, stacktrace) {
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
-    }
+    instance = ServersProvider._();
+    await instance.initialize();
     return instance;
   }
 
@@ -59,26 +52,19 @@ class ServersProvider extends ChangeNotifier {
   bool isServerLoading(Server server) => loadingServer.contains(server.id);
 
   /// Called by [ensureInitialized].
+  @override
   Future<void> initialize() async {
-    final data = await serversStorage.read() as Map;
-    if (!data.containsKey(kHiveServers)) {
-      await _save();
-    } else {
-      await _restore();
-    }
-
-    refreshDevices(startup: true);
+    await super.initializeStorage(serversStorage, kHiveServers);
+    await refreshDevices(startup: true);
   }
 
   /// Adds a new [Server] to the cache.
   /// Also registers the Firebase Messaging token for the server, to receive the notifications.
   Future<void> add(Server server) async {
-    // Prevent duplicates.
-    if (servers.contains(server)) {
-      return;
-    }
+    if (servers.contains(server)) return;
+
     servers.add(server);
-    await _save();
+    await save();
     refreshDevices();
 
     if (isMobilePlatform) {
@@ -100,7 +86,7 @@ class ServersProvider extends ChangeNotifier {
   /// Also un-registers the Firebase Messaging token for the server, to stop receiving the notifications.
   Future<void> remove(Server server) async {
     servers.remove(server);
-    await _save();
+    await save();
 
     // Remove the device camera tiles showing devices from this server.
     try {
@@ -153,7 +139,7 @@ class ServersProvider extends ChangeNotifier {
 
     servers[serverIndex] = server;
 
-    await _save();
+    await save();
     UnityPlayers.reloadAll();
   }
 
@@ -173,7 +159,7 @@ class ServersProvider extends ChangeNotifier {
         notifyListeners();
       }
 
-      API.instance.checkServerCredentials(server).then((server) {
+      await API.instance.checkServerCredentials(server).then((server) {
         return API.instance.getDevices(server).then((devices) {
           if (devices != null) {
             server.devices
@@ -188,13 +174,14 @@ class ServersProvider extends ChangeNotifier {
         });
       });
     }));
-    await _save();
+    await save();
 
     return servers;
   }
 
   /// Save currently added [Server]s to `package:hive` cache.
-  Future<void> _save() async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
       await serversStorage.write({
         kHiveServers: servers.map((e) => e.toJson()).toList(),
@@ -202,11 +189,12 @@ class ServersProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
-    notifyListeners();
+    super.save(notifyListeners: notifyListeners);
   }
 
   /// Restore currently added [Server]s from `package:hive` cache.
-  Future<void> _restore() async {
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
     final data = await serversStorage.read() as Map;
 
     final serversData = data[kHiveServers] is String
@@ -217,7 +205,7 @@ class ServersProvider extends ChangeNotifier {
         .map(Server.fromJson)
         .toList()
         .cast<Server>();
-    notifyListeners();
+    super.restore(notifyListeners: notifyListeners);
   }
 
   @override

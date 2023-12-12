@@ -17,23 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 
-class DesktopViewProvider extends ChangeNotifier {
-  /// `late` initialized [DesktopViewProvider] instance.
-  static late final DesktopViewProvider instance;
+class DesktopViewProvider extends UnityProvider {
+  DesktopViewProvider._();
 
-  /// Initializes the [DesktopViewProvider] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
+  static late final DesktopViewProvider instance;
   static Future<DesktopViewProvider> ensureInitialized() async {
-    instance = DesktopViewProvider();
+    instance = DesktopViewProvider._();
     await instance.initialize();
     return instance;
   }
@@ -55,40 +56,44 @@ class DesktopViewProvider extends ChangeNotifier {
   /// Gets the current selected layout
   Layout get currentLayout => layouts[currentLayoutIndex];
 
-  /// Called by [ensureInitialized].
+  @override
   Future<void> initialize() async {
-    final hive = await desktopView.read() as Map;
-    if (!hive.containsKey(kHiveDesktopLayouts)) {
-      await _save();
-    } else {
-      await _restore();
-      // Create video player instances for the device tiles already present in the view (restored from cache).
-      for (final device in currentLayout.devices) {
-        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
-      }
+    await initializeStorage(desktopView, kHiveDesktopLayouts);
+    for (final device in currentLayout.devices) {
+      final completer = Completer();
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
+        device,
+        () async {
+          if (Platform.isLinux) {
+            await Future.delayed(const Duration(milliseconds: 250));
+          }
+          completer.complete();
+        },
+      );
+      await completer.future;
     }
   }
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
-  Future<void> _save({bool notifyListeners = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
       await desktopView.write({
         kHiveDesktopLayouts:
             jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
         kHiveDesktopCurrentLayout: _currentLayout,
       });
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (error, stackTrace) {
+      debugPrint('Failed to save desktop view:\n $error\n$stackTrace');
     }
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.save(notifyListeners: notifyListeners);
   }
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
-  Future<void> _restore({bool notifyListeners = true}) async {
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
     final data = await desktopView.read() as Map;
 
     layouts = ((await compute(
@@ -102,13 +107,11 @@ class DesktopViewProvider extends ChangeNotifier {
     }).toList();
     _currentLayout = data[kHiveDesktopCurrentLayout] ?? 0;
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.restore(notifyListeners: notifyListeners);
   }
 
   /// Adds [device] to the current layout
-  Future<void> add(Device device, [Layout? layout]) {
+  Future<void> add(Device device, [Layout? layout]) async {
     assert(
       !currentLayout.devices.contains(device),
       'The device is already in the layout',
@@ -124,7 +127,7 @@ class DesktopViewProvider extends ChangeNotifier {
         var previousDevice = layout.devices.firstOrNull;
         if (previousDevice != null) {
           layout.devices.clear();
-          _releaseDevice(device);
+          await _releaseDevice(device);
         }
       }
 
@@ -133,17 +136,17 @@ class DesktopViewProvider extends ChangeNotifier {
       debugPrint('Added $device');
 
       notifyListeners();
-      return _save(notifyListeners: false);
+      return save(notifyListeners: false);
     }
     return Future.value();
   }
 
   /// Releases a device if no layout is using it
-  void _releaseDevice(Device device) {
+  Future<void> _releaseDevice(Device device) async {
     if (!UnityPlayers.players.containsKey(device.uuid)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.uuid == device.uuid))) {
-      UnityPlayers.releaseDevice(device.uuid);
+      await UnityPlayers.releaseDevice(device.uuid);
     }
   }
 
@@ -156,7 +159,7 @@ class DesktopViewProvider extends ChangeNotifier {
       _releaseDevice(device);
     }
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Removes all the [devices] provided
@@ -174,7 +177,7 @@ class DesktopViewProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   Future<void> removeDevicesFromCurrentLayout(Iterable<Device> devices) {
@@ -187,7 +190,7 @@ class DesktopViewProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Moves a device tile from [initial] position to [end] position inside a [tab].
@@ -198,7 +201,7 @@ class DesktopViewProvider extends ChangeNotifier {
     currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Adds a new layout
@@ -210,7 +213,7 @@ class DesktopViewProvider extends ChangeNotifier {
       debugPrint('$layout already exists');
     }
     notifyListeners();
-    await _save(notifyListeners: false);
+    await save(notifyListeners: false);
 
     return layouts.indexOf(layout);
   }
@@ -233,7 +236,7 @@ class DesktopViewProvider extends ChangeNotifier {
       }
     }
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Replaces [oldLayout] with [newLayout]
@@ -250,7 +253,7 @@ class DesktopViewProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Updates the current layout index
@@ -258,11 +261,12 @@ class DesktopViewProvider extends ChangeNotifier {
     _currentLayout = layoutIndex;
 
     for (final device in currentLayout.devices) {
+      // creates the device that don't exist
       UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
 
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Reorders the layouts
@@ -278,7 +282,7 @@ class DesktopViewProvider extends ChangeNotifier {
 
     layouts.insert(newIndex, layouts.removeAt(oldIndex));
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Updates a device in all the layouts.
@@ -301,6 +305,6 @@ class DesktopViewProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 }

@@ -94,7 +94,7 @@ Future<void> main(List<String> args) async {
       } else {
         try {
           // this is just a mock. HomeProvider depends on this, so we mock the instance
-          ServersProvider.instance = ServersProvider();
+          ServersProvider.instance = ServersProvider.dump();
           await SettingsProvider.ensureInitialized();
           await DesktopViewProvider.ensureInitialized();
 
@@ -149,8 +149,8 @@ Future<void> main(List<String> args) async {
     // wait time at the splash screen
     // settings provider needs to be initalized alone
     await SettingsProvider.ensureInitialized();
-    await DownloadsManager.ensureInitialized();
     await Future.wait([
+      DownloadsManager.ensureInitialized(),
       MobileViewProvider.ensureInitialized(),
       DesktopViewProvider.ensureInitialized(),
       ServersProvider.ensureInitialized(),
@@ -265,8 +265,8 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           themeMode: settings.themeMode,
-          theme: createTheme(themeMode: ThemeMode.light),
-          darkTheme: createTheme(themeMode: ThemeMode.dark),
+          theme: createTheme(brightness: Brightness.light),
+          darkTheme: createTheme(brightness: Brightness.dark),
           initialRoute: '/',
           routes: {
             '/': (context) => const Home(),

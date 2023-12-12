@@ -20,6 +20,7 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -33,14 +34,12 @@ import 'package:flutter/foundation.dart';
 /// - Effectively manage the layout of the [DeviceGrid] on mobile. See [devices].
 /// - Prevent redundant re-initialization of video players when switching tabs (if common a [Device] is present across tabs or same camera is added twice).
 ///
-class MobileViewProvider extends ChangeNotifier {
-  /// `late` initialized [MobileViewProvider] instance.
-  static late final MobileViewProvider instance;
+class MobileViewProvider extends UnityProvider {
+  MobileViewProvider._();
 
-  /// Initializes the [MobileViewProvider] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
+  static late final MobileViewProvider instance;
   static Future<MobileViewProvider> ensureInitialized() async {
-    instance = MobileViewProvider();
+    instance = MobileViewProvider._();
     await instance.initialize();
     return instance;
   }
@@ -79,18 +78,12 @@ class MobileViewProvider extends ChangeNotifier {
   /// Layout for [current] [tab].
   List<Device?> get current => devices[tab]!;
 
-  /// Called by [ensureInitialized].
+  @override
   Future<void> initialize() async {
-    final data = await mobileView.read() as Map;
-    if (!data.containsKey(kHiveMobileView)) {
-      await _save();
-    } else {
-      await _restore();
-      // Create video player instances for the device tiles already present in the view (restored from cache).
-      for (final device in current) {
-        if (device != null) {
-          UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
-        }
+    await super.initializeStorage(mobileView, kHiveMobileView);
+    for (final device in current) {
+      if (device != null) {
+        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
       }
     }
   }
@@ -102,7 +95,7 @@ class MobileViewProvider extends ChangeNotifier {
     hoverStates[tab]!.insert(end, hoverStates[tab]!.removeAt(initial));
     // Prevent redundant latency.
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Sets [current] mobile view tab.
@@ -129,7 +122,7 @@ class MobileViewProvider extends ChangeNotifier {
     });
     tab = value;
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Removes a [Device] tile from the camera grid, at specified [tab] [index].
@@ -150,7 +143,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Remove.
     devices[tab]![index] = null;
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Adds a new camera [device] tile in a [tab], at specified index.
@@ -162,7 +155,7 @@ class MobileViewProvider extends ChangeNotifier {
     }
     devices[tab]![index] = device;
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Replaces a [Device] tile from the camera grid, at specified [tab] [index] with passed [device].
@@ -185,7 +178,7 @@ class MobileViewProvider extends ChangeNotifier {
     // Save the new [device] at the position.
     devices[tab]![index] = device;
     notifyListeners();
-    return _save(notifyListeners: false);
+    return save(notifyListeners: false);
   }
 
   /// Reloads a camera [Device] tile from the camera grid, at specified [tab] [index].
@@ -198,7 +191,8 @@ class MobileViewProvider extends ChangeNotifier {
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
-  Future<void> _save({bool notifyListeners = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     final data = devices.map(
       (key, value) => MapEntry(
         key.toString(),
@@ -214,13 +208,12 @@ class MobileViewProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.save(notifyListeners: notifyListeners);
   }
 
   /// Restores current layout/order of [Device]s from `package:hive` cache.
-  Future<void> _restore({bool notifyListeners = true}) async {
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
     final data = await mobileView.read() as Map;
     devices =
         ((await compute(jsonDecode, data[kHiveMobileView] as String)) as Map)
@@ -244,12 +237,6 @@ class MobileViewProvider extends ChangeNotifier {
     }
 
     tab = data[kHiveMobileViewTab]!;
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.restore(notifyListeners: notifyListeners);
   }
-
-  @override
-  // ignore: must_call_super
-  void dispose() {}
 }

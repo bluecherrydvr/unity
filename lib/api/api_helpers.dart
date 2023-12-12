@@ -148,7 +148,7 @@ class DevHttpOverrides extends HttpOverrides {
   ///   * <https://github.com/bluecherrydvr/unity/discussions/42>
   ///   * [compute], used to compute data in another thread
   static void configureCertificates() {
-    ServersProvider.instance = ServersProvider();
+    ServersProvider.instance = ServersProvider.dump();
     HttpOverrides.global = DevHttpOverrides();
   }
 

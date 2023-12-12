@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -89,14 +90,10 @@ class DownloadedEvent {
 /// The progress of an event download
 typedef DownloadProgress = double;
 
-class DownloadsManager extends ChangeNotifier {
+class DownloadsManager extends UnityProvider {
   DownloadsManager._();
 
-  /// `late` initialized [DownloadsManager] instance.
   static late final DownloadsManager instance;
-
-  /// Initializes the [DownloadsManager] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
   static Future<DownloadsManager> ensureInitialized() async {
     instance = DownloadsManager._();
     await instance.initialize();
@@ -128,16 +125,13 @@ class DownloadsManager extends ChangeNotifier {
   Map<Event, DownloadProgress> downloading = {};
 
   /// Called by [ensureInitialized].
-  Future<void> initialize() async {
-    final data = await downloads.read() as Map;
-    if (!data.containsKey(kHiveDownloads)) {
-      await _save();
-    } else {
-      await _restore();
-    }
+  @override
+  Future<void> initialize() {
+    return super.initializeStorage(downloads, kHiveDownloads);
   }
 
-  Future<void> _save({bool notify = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
       await downloads.write({
         kHiveDownloads:
@@ -147,10 +141,11 @@ class DownloadsManager extends ChangeNotifier {
       debugPrint(e.toString());
     }
 
-    if (notify) notifyListeners();
+    super.save(notifyListeners: notifyListeners);
   }
 
-  Future<void> _restore({bool notifyListeners = true}) async {
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
     final data = await downloads.read() as Map;
 
     downloadedEvents = data[kHiveDownloads] == null
@@ -162,9 +157,7 @@ class DownloadsManager extends ChangeNotifier {
             return DownloadedEvent.fromJson(item.cast<String, dynamic>());
           }).toList();
 
-    if (notifyListeners) {
-      this.notifyListeners();
-    }
+    super.restore(notifyListeners: notifyListeners);
   }
 
   /// Whether there are no events downloaded, nor downloading events
@@ -228,8 +221,7 @@ class DownloadsManager extends ChangeNotifier {
     ));
 
     home.notLoading(UnityLoadingReason.downloadEvent);
-
-    await _save();
+    await save();
   }
 
   /// Deletes any downloaded events at the given [downloadPath]
@@ -237,7 +229,7 @@ class DownloadsManager extends ChangeNotifier {
     final file = File(downloadPath);
 
     downloadedEvents.removeWhere((de) => de.downloadPath == downloadPath);
-    await _save();
+    await save();
 
     if (await file.exists()) await file.delete();
   }

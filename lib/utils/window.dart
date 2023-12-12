@@ -101,6 +101,8 @@ extension LayoutWindowExtension on Layout {
 void launchFileExplorer(String path) {
   assert(isDesktopPlatform);
 
+  // TODO(bdlukaa): use url_launcher for this
+
   if (Platform.isWindows) {
     Process.run('explorer', [path]);
   } else if (Platform.isLinux) {

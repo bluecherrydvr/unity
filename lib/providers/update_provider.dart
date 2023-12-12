@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -79,7 +80,7 @@ class UpdateVersion {
   static const windowsDownloadFileName = 'bluecherry-windows-setup';
 }
 
-class UpdateManager extends ChangeNotifier {
+class UpdateManager extends UnityProvider {
   UpdateManager._();
 
   /// `late` initialized [UpdateManager] instance.
@@ -121,13 +122,9 @@ class UpdateManager extends ChangeNotifier {
     return versions.isEmpty ? null : versions.last;
   }
 
+  @override
   Future<void> initialize() async {
-    final data = await downloads.read() as Map;
-    if (!data.containsKey(kHiveAutomaticUpdates)) {
-      await _save();
-    } else {
-      await _restore();
-    }
+    await super.initializeStorage(updates, kHiveAutomaticUpdates);
 
     tempDir = (await getTemporaryDirectory()).path;
 
@@ -143,9 +140,10 @@ class UpdateManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _save({bool notify = true}) async {
+  @override
+  Future<void> save({bool notifyListeners = true}) async {
     try {
-      await downloads.write({
+      await updates.write({
         kHiveAutomaticUpdates: automaticDownloads,
         kHiveLastCheck: lastCheck?.toIso8601String(),
       });
@@ -153,18 +151,19 @@ class UpdateManager extends ChangeNotifier {
       debugPrint(e.toString());
     }
 
-    if (notify) notifyListeners();
+    super.save(notifyListeners: notifyListeners);
   }
 
-  Future<void> _restore({bool notifyListeners = true}) async {
-    final data = await downloads.read() as Map;
+  @override
+  Future<void> restore({bool notifyListeners = true}) async {
+    final data = await updates.read() as Map;
 
     _automaticDownloads = data[kHiveAutomaticUpdates];
     _lastCheck = data[kHiveLastCheck] == null
         ? null
         : DateTime.tryParse(data[kHiveLastCheck]!);
 
-    if (notifyListeners) this.notifyListeners();
+    super.restore(notifyListeners: notifyListeners);
   }
 
   /// If there is anything loading at the time
@@ -175,7 +174,7 @@ class UpdateManager extends ChangeNotifier {
   bool get automaticDownloads => _automaticDownloads;
   set automaticDownloads(bool value) {
     _automaticDownloads = value;
-    _save();
+    save();
   }
 
   /// The last time the user checked for updates
@@ -183,7 +182,7 @@ class UpdateManager extends ChangeNotifier {
   DateTime? get lastCheck => _lastCheck;
   set lastCheck(DateTime? date) {
     _lastCheck = date;
-    _save();
+    save();
   }
 
   /// Checks how the Linux executable was installed.

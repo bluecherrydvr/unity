@@ -33,6 +33,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:titlebar_buttons/titlebar_buttons.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -136,149 +137,199 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     final tab = home.tab;
 
     final navData = NavigatorData.of(context);
+    final canPop = navigatorKey.currentState?.canPop() ?? false;
+    final showNavigator = !canPop && widget.showNavigator;
 
     final isMacOSPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+    final isWindowsPlatform =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+    final isLinuxPlatform =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+    final centerTitle =
+        (AppBarTheme.of(context).centerTitle ?? false) && !showNavigator;
 
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
-        final canPop = navigatorKey.currentState?.canPop() ?? false;
+        final title = Text(
+          () {
+            if (widget.title != null) return widget.title!;
+
+            if (arguments.data != null) {
+              if (arguments.data is Event) {
+                final event = arguments.data as Event;
+                return event.deviceName;
+              }
+
+              if (arguments.data is Device) {
+                final device = arguments.data as Device;
+                return device.fullName;
+              }
+            }
+
+            // If it is in another screen, show the title or fallback to "Bluecherry"
+            if (tab.index >= UnityTab.values.length) {
+              return widget.title ?? 'Bluecherry';
+            }
+
+            if (!isMacOSPlatform) {
+              return navData.firstWhere((d) => d.tab == tab).text;
+            }
+
+            return '';
+          }(),
+          style: TextStyle(
+            color: theme.brightness == Brightness.light
+                ? Colors.black
+                : Colors.white,
+            fontSize: 12.0,
+          ),
+          textAlign: centerTitle ? TextAlign.center : null,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
 
         return Material(
-          child: Stack(children: [
-            DragToMoveArea(
-              child: Row(children: [
-                if (isMacOSPlatform) const SizedBox(width: 70.0, height: 40.0),
-                if (canPop)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8.0),
-                    child: SquaredIconButton(
-                      onPressed: () async {
-                        await widget.onBack?.call();
-                        await navigatorKey.currentState?.maybePop();
-                        if (mounted) setState(() {});
+          child: SizedBox(
+            height: 40.0,
+            child: Stack(children: [
+              if (centerTitle) Center(child: title),
+              DragToMoveArea(
+                child: Row(children: [
+                  if (isMacOSPlatform)
+                    const SizedBox(width: 70.0, height: 40.0),
+                  if (canPop)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 8.0),
+                      child: SquaredIconButton(
+                        onPressed: () async {
+                          await widget.onBack?.call();
+                          await navigatorKey.currentState?.maybePop();
+                          if (mounted) setState(() {});
+                        },
+                        tooltip:
+                            MaterialLocalizations.of(context).backButtonTooltip,
+                        icon: Container(
+                          padding: const EdgeInsetsDirectional.all(4.0),
+                          // height: 40.0,
+                          // width: 40.0,
+                          alignment: AlignmentDirectional.center,
+                          child: Icon(
+                            Icons.adaptive.arrow_back,
+                            size: 20.0,
+                            color: theme.hintColor,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (isWindowsPlatform)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 8.0),
+                      child: Image.asset(
+                        'assets/images/icon.png',
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                    ),
+                  if (centerTitle)
+                    const Spacer()
+                  else
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 10.0),
+                        child: title,
+                      ),
+                    ),
+                  if (home.isLoading)
+                    const Padding(
+                      padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
+                      child: UnityLoadingIndicator(),
+                    )
+                  else if (home.tab == UnityTab.eventsScreen ||
+                      home.tab == UnityTab.eventsPlayback && !canPop)
+                    SquaredIconButton(
+                      onPressed: () {
+                        eventsScreenKey.currentState?.fetch();
+                        eventsPlaybackScreenKey.currentState?.fetch();
                       },
-                      icon: Container(
-                        padding: const EdgeInsetsDirectional.all(4.0),
-                        // height: 40.0,
-                        // width: 40.0,
-                        alignment: AlignmentDirectional.center,
-                        child: Icon(
-                          Icons.adaptive.arrow_back,
-                          size: 20.0,
-                          color: theme.hintColor,
-                        ),
-                      ),
+                      icon: const Icon(Icons.refresh, size: 20.0),
+                      tooltip: loc.refresh,
                     ),
-                  )
-                else if (!isMacOSPlatform)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8.0),
-                    child: Image.asset(
-                      'assets/images/icon.png',
-                      height: 16.0,
-                      width: 16.0,
-                    ),
-                  ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 10.0),
-                    child: Text(
-                      () {
-                        if (widget.title != null) return widget.title!;
-
-                        if (arguments.data != null) {
-                          if (arguments.data is Event) {
-                            final event = arguments.data as Event;
-                            return event.deviceName;
-                          }
-
-                          if (arguments.data is Device) {
-                            final device = arguments.data as Device;
-                            return device.fullName;
-                          }
+                  // Do not render the Window Buttons on web nor macOS. macOS
+                  // render the buttons natively.
+                  if (!kIsWeb && !isMacOSPlatform)
+                    SizedBox(
+                      width: 138,
+                      child: Builder(builder: (context) {
+                        if (isLinuxPlatform) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              DecoratedMinimizeButton(
+                                onPressed: windowManager.minimize,
+                              ),
+                              DecoratedMaximizeButton(
+                                onPressed: () async {
+                                  if (await windowManager.isMaximized()) {
+                                    windowManager.unmaximize();
+                                  } else {
+                                    windowManager.maximize();
+                                  }
+                                },
+                              ),
+                              DecoratedCloseButton(
+                                onPressed: windowManager.close,
+                              ),
+                            ].map((button) {
+                              return Padding(
+                                padding: const EdgeInsetsDirectional.all(2.0),
+                                child: button,
+                              );
+                            }).toList(),
+                          );
                         }
-
-                        // If it is in another screen, show the title or fallback to "Bluecherry"
-                        if (tab.index >= UnityTab.values.length) {
-                          return widget.title ?? 'Bluecherry';
-                        }
-
-                        if (!isMacOSPlatform) {
-                          return navData.firstWhere((d) => d.tab == tab).text;
-                        }
-
-                        return '';
-                      }(),
-                      style: TextStyle(
-                        color: theme.brightness == Brightness.light
-                            ? Colors.black
-                            : Colors.white,
-                        fontSize: 12.0,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                        return WindowCaption(
+                          brightness: theme.brightness,
+                          backgroundColor: Colors.transparent,
+                        );
+                      }),
                     ),
-                  ),
-                ),
-                if (home.isLoading)
-                  const Padding(
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
-                    child: UnityLoadingIndicator(),
-                  )
-                else if (home.tab == UnityTab.eventsScreen ||
-                    home.tab == UnityTab.eventsPlayback && !canPop)
-                  SquaredIconButton(
-                    onPressed: () {
-                      eventsScreenKey.currentState?.fetch();
-                      eventsPlaybackScreenKey.currentState?.fetch();
-                    },
-                    icon: const Icon(Icons.refresh, size: 20.0),
-                    tooltip: loc.refresh,
-                  ),
-                // Do not render the Window Buttons on web nor macOS. macOS render the buttons natively.
-                if (!kIsWeb && !isMacOSPlatform)
-                  SizedBox(
-                    width: 138,
-                    height: 40,
-                    child: WindowCaption(
-                      brightness: theme.brightness,
-                      backgroundColor: Colors.transparent,
-                    ),
-                  ),
-              ]),
-            ),
-            if (!canPop && widget.showNavigator)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(top: 4.0),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  ...navData.map((data) {
-                    final isSelected = tab == data.tab;
-                    final icon = isSelected ? data.selectedIcon : data.icon;
-                    final text = data.text;
-
-                    return SquaredIconButton(
-                      icon: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: Icon(
-                          icon,
-                          key: ValueKey(isSelected),
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : theme.hintColor,
-                          fill: isSelected ? 1.0 : 0.0,
-                          size: 22.0,
-                        ),
-                      ),
-                      tooltip: text,
-                      onPressed: () => home.setTab(data.tab, context),
-                    );
-                  }),
                 ]),
               ),
-          ]),
+              if (showNavigator)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(top: 4.0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ...navData.map((data) {
+                          final isSelected = tab == data.tab;
+                          final icon =
+                              isSelected ? data.selectedIcon : data.icon;
+                          final text = data.text;
+
+                          return SquaredIconButton(
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                icon,
+                                key: ValueKey(isSelected),
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : theme.hintColor,
+                                fill: isSelected ? 1.0 : 0.0,
+                                size: 22.0,
+                              ),
+                            ),
+                            tooltip: text,
+                            onPressed: () => home.setTab(data.tab, context),
+                          );
+                        }),
+                      ]),
+                ),
+            ]),
+          ),
         );
       },
     );
@@ -289,6 +340,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     final isPreventClose = await windowManager.isPreventClose();
     // We ensure all the players are disposed in order to not keep the app alive
     // in background, wasting unecessary resources!
+
+    // TODO(bdlukaa): warn the user if there is any ongoing downloads.
+
     if (isPreventClose) {
       windowManager.hide();
       await Future.microtask(() async {

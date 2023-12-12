@@ -124,7 +124,7 @@ class UpdateManager extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await super.initializeStorage(downloads, kHiveAutomaticUpdates);
+    await super.initializeStorage(updates, kHiveAutomaticUpdates);
 
     tempDir = (await getTemporaryDirectory()).path;
 
@@ -143,7 +143,7 @@ class UpdateManager extends UnityProvider {
   @override
   Future<void> save({bool notifyListeners = true}) async {
     try {
-      await downloads.write({
+      await updates.write({
         kHiveAutomaticUpdates: automaticDownloads,
         kHiveLastCheck: lastCheck?.toIso8601String(),
       });
@@ -156,7 +156,7 @@ class UpdateManager extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await downloads.read() as Map;
+    final data = await updates.read() as Map;
 
     _automaticDownloads = data[kHiveAutomaticUpdates];
     _lastCheck = data[kHiveLastCheck] == null

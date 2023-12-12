@@ -307,6 +307,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     final isPreventClose = await windowManager.isPreventClose();
     // We ensure all the players are disposed in order to not keep the app alive
     // in background, wasting unecessary resources!
+
+    // TODO(bdlukaa): warn the user if there is any ongoing downloads.
+
     if (isPreventClose) {
       windowManager.hide();
       await Future.microtask(() async {

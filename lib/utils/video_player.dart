@@ -167,7 +167,7 @@ class UnityPlayers with ChangeNotifier {
     bool ptzEnabled = false,
   }) async {
     var player = UnityPlayers.players[device.uuid];
-    var isLocalController = player == null;
+    final isLocalController = player == null;
     if (isLocalController) player = UnityPlayers.forDevice(device);
 
     await Navigator.of(context).pushNamed(

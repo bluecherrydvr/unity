@@ -415,13 +415,11 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           },
         ),
         PopupMenuItem(
-          child: Text(
-            loc.showFullscreenCamera,
-          ),
+          child: Text(loc.showFullscreenCamera),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               var player = UnityPlayers.players[widget.device.uuid];
-              var isLocalController = player == null;
+              final isLocalController = player == null;
               if (isLocalController) {
                 player = UnityPlayers.forDevice(widget.device);
               }

@@ -95,13 +95,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   @override
   void initState() {
     super.initState();
+    currentEvent = widget.event;
     videoController = widget.player ??
         UnityVideoPlayer.create(
           quality: UnityVideoQuality.p480,
           enableCache: true,
           title: title,
         );
-    currentEvent = widget.event;
     fit = device?.server.additionalSettings.videoFit ??
         SettingsProvider.instance.cameraViewFit;
     playingSubscription =
@@ -122,6 +122,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     playingSubscription.cancel();
     bufferSubscription.cancel();
     focusNode.dispose();
+    videoController.dispose();
     super.dispose();
   }
 
@@ -170,7 +171,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
             WindowButtons(
               title: title,
               showNavigator: false,
-              onBack: videoController.dispose,
             ),
             Expanded(
               child: Row(children: [

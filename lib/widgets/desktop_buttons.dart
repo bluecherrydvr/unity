@@ -159,6 +159,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                         await navigatorKey.currentState?.maybePop();
                         if (mounted) setState(() {});
                       },
+                      tooltip:
+                          MaterialLocalizations.of(context).backButtonTooltip,
                       icon: Container(
                         padding: const EdgeInsetsDirectional.all(4.0),
                         // height: 40.0,

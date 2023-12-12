@@ -265,8 +265,8 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           themeMode: settings.themeMode,
-          theme: createTheme(themeMode: ThemeMode.light),
-          darkTheme: createTheme(themeMode: ThemeMode.dark),
+          theme: createTheme(brightness: Brightness.light),
+          darkTheme: createTheme(brightness: Brightness.dark),
           initialRoute: '/',
           routes: {
             '/': (context) => const Home(),

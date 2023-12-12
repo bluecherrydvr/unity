@@ -27,25 +27,24 @@ const kPrimaryColorDark = Color(0xFF8C9EFF);
 const kAccentColorLight = Color(0xffff4081);
 const kAccentColorDark = Color(0xffff4081);
 
-/// Creates a new [ThemeData] to theme applications's various UI elements & [Widget]s based on the passed [ThemeMode].
+/// Creates a new [ThemeData] to theme applications's various UI elements &
+/// [Widget]s based on the passed [ThemeMode].
 ///
 /// This follows the Material Design guidelines. See: https://material.io/
 ///
-/// In Material Design, we have a prominent primary color, which is used to color various parts e.g. buttons, app-bars, tabs etc.
-/// And, there is a secondary color called accent color, which is used less frequently and is used to color various parts e.g. floating action buttons, switches etc.
+/// In Material Design, we have a prominent primary color, which is used to
+/// color various parts e.g. buttons, app-bars, tabs etc. And, there is a
+/// secondary color called accent color, which is used less frequently and is
+/// used to color various parts e.g. floating action buttons, switches etc.
 ///
-/// These colors are different for light and dark themes. So, we have two sets of primary and accent colors.
-/// See [kPrimaryColorLight], [kPrimaryColorDark], [kAccentColorLight], [kAccentColorDark].
+/// These colors are different for light and dark themes. So, we have two sets
+/// of primary and accent colors.
 ///
-/// In general, there are two modes: [ThemeMode.light] and [ThemeMode.dark].
-/// There's also [ThemeMode.system] which makes the app pick the theme based on the system settings.
+/// See [kPrimaryColorLight], [kPrimaryColorDark], [kAccentColorLight] and
+/// [kAccentColorDark].
 ///
-/// **NOTE:** [TextTheme]s are significantly tweaked & different for both desktop & mobile platforms.
-///
-ThemeData createTheme({
-  required ThemeMode themeMode,
-}) {
-  final light = themeMode == ThemeMode.light;
+ThemeData createTheme({required Brightness brightness}) {
+  final light = brightness == Brightness.light;
   final primary = light ? kPrimaryColorLight : kPrimaryColorDark;
   final accent = light ? kAccentColorLight : kAccentColorDark;
   late TextTheme textTheme;
@@ -58,7 +57,6 @@ ThemeData createTheme({
         fontWeight: FontWeight.w600,
       ),
 
-      /// [AlbumTile] text theme.
       displayMedium: TextStyle(
         color: light ? Colors.black : Colors.white,
         fontSize: 14.0,
@@ -141,14 +139,7 @@ ThemeData createTheme({
   );
 
   return ThemeData(
-    useMaterial3: true,
     colorScheme: colorScheme,
-    visualDensity: VisualDensity.compact,
-    iconButtonTheme: const IconButtonThemeData(
-      style: ButtonStyle(
-        visualDensity: VisualDensity.compact,
-      ),
-    ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
       selectionColor: primary.withOpacity(0.2),
@@ -156,27 +147,9 @@ ThemeData createTheme({
     scrollbarTheme: ScrollbarThemeData(
       thumbVisibility: MaterialStateProperty.all(true),
       thickness: MaterialStateProperty.all(8.0),
-      trackBorderColor:
-          MaterialStateProperty.all(light ? Colors.black12 : Colors.white24),
-      trackColor:
-          MaterialStateProperty.all(light ? Colors.black12 : Colors.white24),
       crossAxisMargin: 0.0,
       radius: Radius.zero,
       minThumbLength: 96.0,
-      thumbColor: MaterialStateProperty.resolveWith(
-        (states) {
-          if ([
-            MaterialState.hovered,
-            MaterialState.dragged,
-            MaterialState.focused,
-            MaterialState.pressed,
-          ].fold(false, (val, el) => val || states.contains(el))) {
-            return light ? Colors.black54 : Colors.white54;
-          } else {
-            return light ? Colors.black26 : Colors.white24;
-          }
-        },
-      ),
     ),
     buttonTheme: ButtonThemeData(
       disabledColor: light ? Colors.black12 : Colors.white24,
@@ -186,13 +159,6 @@ ThemeData createTheme({
     highlightColor: defaultTargetPlatform == TargetPlatform.android
         ? Colors.transparent
         : null,
-    snackBarTheme: SnackBarThemeData(
-      backgroundColor: light ? const Color(0xFF202020) : Colors.white,
-      actionTextColor: primary,
-      contentTextStyle: textTheme.headlineMedium?.copyWith(
-        color: light ? Colors.white : Colors.black,
-      ),
-    ),
     inputDecorationTheme: InputDecorationTheme(
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: light ? Colors.black26 : Colors.white24),
@@ -236,33 +202,25 @@ ThemeData createTheme({
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     tooltipTheme: TooltipThemeData(
-      textStyle: isDesktop
-          ? TextStyle(
-              fontSize: 12.0,
-              color: light ? Colors.white : Colors.black,
-            )
-          : null,
-      decoration: BoxDecoration(
-        color: light ? Colors.grey.shade900 : Colors.white,
-        borderRadius:
-            isMobile ? BorderRadius.circular(16.0) : BorderRadius.circular(6.0),
-      ),
       height: isMobile ? 32.0 : null,
       verticalOffset: isDesktop ? 28.0 : null,
       preferBelow: isDesktop ? true : null,
     ),
-    fontFamily: defaultTargetPlatform == TargetPlatform.linux ? 'Inter' : null,
+    fontFamily: switch (defaultTargetPlatform) {
+      TargetPlatform.linux => 'Inter',
+      TargetPlatform.windows => 'Segoe UI',
+      _ => null,
+    },
     expansionTileTheme: const ExpansionTileThemeData(
       shape: RoundedRectangleBorder(),
       collapsedShape: RoundedRectangleBorder(),
     ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder(),
+      },
+    ),
     extensions: [
-      TimelineTheme(
-        gapColor: light ? Colors.grey.shade200 : Colors.grey.shade400,
-        alarmColor: Colors.amber,
-        eventColor: light ? Colors.green.shade300 : Colors.green,
-        seekPopupColor: light ? Colors.grey.shade400 : Colors.grey,
-      ),
       UnityColors(
         successColor: light ? Colors.green.shade300 : Colors.green.shade100,
         warningColor: Colors.amber,
@@ -283,50 +241,6 @@ Color colorFromBrightness(
       return dark;
     case Brightness.light:
       return light;
-  }
-}
-
-class TimelineTheme extends ThemeExtension<TimelineTheme> {
-  final Color gapColor;
-  final Color alarmColor;
-  final Color eventColor;
-  final Color seekPopupColor;
-
-  const TimelineTheme({
-    required this.gapColor,
-    required this.alarmColor,
-    required this.eventColor,
-    required this.seekPopupColor,
-  });
-
-  @override
-  ThemeExtension<TimelineTheme> copyWith({
-    Color? gapColor,
-    Color? alarmColor,
-    Color? eventColor,
-    Color? seekPopupColor,
-  }) {
-    return TimelineTheme(
-      gapColor: gapColor ?? this.gapColor,
-      alarmColor: alarmColor ?? this.alarmColor,
-      eventColor: eventColor ?? this.eventColor,
-      seekPopupColor: seekPopupColor ?? this.seekPopupColor,
-    );
-  }
-
-  @override
-  ThemeExtension<TimelineTheme> lerp(
-      covariant ThemeExtension<TimelineTheme>? other, double t) {
-    if (other is! TimelineTheme) {
-      return this;
-    }
-
-    return TimelineTheme(
-      gapColor: Color.lerp(gapColor, other.gapColor, t)!,
-      alarmColor: Color.lerp(alarmColor, other.alarmColor, t)!,
-      eventColor: Color.lerp(eventColor, other.eventColor, t)!,
-      seekPopupColor: Color.lerp(seekPopupColor, other.seekPopupColor, t)!,
-    );
   }
 }
 

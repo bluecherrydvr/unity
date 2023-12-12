@@ -232,7 +232,7 @@ class WakelockTile extends StatelessWidget {
       trailingWidget: Padding(
         padding: const EdgeInsetsDirectional.only(end: 4.0),
         child: IgnorePointer(
-          child: Checkbox(
+          child: Checkbox.adaptive(
             value: settings.wakelockEnabled,
             onChanged: (v) {},
           ),

@@ -393,7 +393,7 @@ class VideoOverlaysEditor extends StatelessWidget {
               message: loc.visible,
               child: Transform.scale(
                 scale: 0.9,
-                child: Checkbox(
+                child: Checkbox.adaptive(
                   value: overlay.visible,
                   onChanged: (visible) {
                     onChanged(

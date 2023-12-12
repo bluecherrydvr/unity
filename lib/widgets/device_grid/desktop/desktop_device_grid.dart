@@ -278,7 +278,7 @@ class LayoutView extends StatelessWidget {
         }
 
         final isReversed =
-            context.findAncestorWidgetOfExactType<DesktopDeviceGrid>()!.width <
+            context.findAncestorWidgetOfExactType<DesktopDeviceGrid>()!.width <=
                 _kReverseBreakpoint;
 
         return Material(

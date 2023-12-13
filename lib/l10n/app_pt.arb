@@ -232,6 +232,14 @@
   "delete": "Deletar",
   "showInFiles": "Ver no Explorador de Arquivos",
   "noDownloads": "Você ainda não baixou nenhum evento :/",
+  "nDownloadsProgress": "Você tem {n} downloads em progresso!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Vá ao \"Histórico de Eventos\" para baixar eventos.",
   "downloadTitle": "{event} de {device} do servidor {server} em {date}",
   "@downloadTitle": {
@@ -317,6 +325,8 @@
   "systemPowerOutage": "Perda de energia",
   "unknown": "Desconhecido",
   "close": "Fechar",
+  "closeAnyway": "Fechar mesmo assim",
+  "closeWhenDone": "Fechar quando terminar",
   "open": "Abrir",
   "collapse": "Fechar",
   "expand": "Expandir",

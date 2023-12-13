@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -124,6 +125,8 @@ class DownloadsManager extends UnityProvider {
   /// The events that are downloading
   Map<Event, DownloadProgress> downloading = {};
 
+  Completer? downloadsCompleter;
+
   /// Called by [ensureInitialized].
   @override
   Future<void> initialize() {
@@ -192,6 +195,10 @@ class DownloadsManager extends UnityProvider {
     final home = HomeProvider.instance
       ..loading(UnityLoadingReason.downloadEvent);
 
+    if (downloadsCompleter == null || downloadsCompleter!.isCompleted) {
+      downloadsCompleter = Completer();
+    }
+
     downloading[event] = 0.0;
     notifyListeners();
 
@@ -219,6 +226,10 @@ class DownloadsManager extends UnityProvider {
       event: event,
       downloadPath: downloadPath,
     ));
+
+    if (downloading.isEmpty) {
+      downloadsCompleter?.complete();
+    }
 
     home.notLoading(UnityLoadingReason.downloadEvent);
     await save();

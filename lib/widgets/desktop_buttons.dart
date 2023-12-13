@@ -34,7 +34,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:titlebar_buttons/titlebar_buttons.dart';
-import 'package:unity_video_player/unity_video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigationStream = StreamController.broadcast();
@@ -75,7 +74,7 @@ class NObserver extends NavigatorObserver {
   }
 }
 
-class WindowButtons extends StatefulWidget {
+class WindowButtons extends StatelessWidget {
   const WindowButtons({
     super.key,
     this.title,
@@ -100,33 +99,6 @@ class WindowButtons extends StatefulWidget {
   final Future<void> Function()? onBack;
 
   @override
-  State<WindowButtons> createState() => _WindowButtonsState();
-}
-
-class _WindowButtonsState extends State<WindowButtons> with WindowListener {
-  @override
-  void initState() {
-    super.initState();
-
-    windowManager.addListener(this);
-    _init();
-  }
-
-  @override
-  void dispose() {
-    windowManager.removeListener(this);
-    super.dispose();
-  }
-
-  Future<void> _init() async {
-    if (isDesktopPlatform) {
-      // Add this line to override the default close handler
-      await windowManager.setPreventClose(true);
-      if (mounted) setState(() {});
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (!isDesktop || isMobile) return const SizedBox.shrink();
 
@@ -138,7 +110,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
     final navData = NavigatorData.of(context);
     final canPop = navigatorKey.currentState?.canPop() ?? false;
-    final showNavigator = !canPop && widget.showNavigator;
+    final showNavigator = !canPop && this.showNavigator;
 
     final isMacOSPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
@@ -152,9 +124,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
-        final title = Text(
+        final titleWidget = Text(
           () {
-            if (widget.title != null) return widget.title!;
+            if (title != null) return title!;
 
             if (arguments.data != null) {
               if (arguments.data is Event) {
@@ -170,7 +142,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
             // If it is in another screen, show the title or fallback to "Bluecherry"
             if (tab.index >= UnityTab.values.length) {
-              return widget.title ?? 'Bluecherry';
+              return title ?? 'Bluecherry';
             }
 
             if (!isMacOSPlatform) {
@@ -194,7 +166,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
           child: SizedBox(
             height: 40.0,
             child: Stack(children: [
-              if (centerTitle) Center(child: title),
+              if (centerTitle) Center(child: titleWidget),
               DragToMoveArea(
                 child: Row(children: [
                   if (isMacOSPlatform)
@@ -204,9 +176,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                       padding: const EdgeInsetsDirectional.only(start: 8.0),
                       child: SquaredIconButton(
                         onPressed: () async {
-                          await widget.onBack?.call();
+                          await onBack?.call();
                           await navigatorKey.currentState?.maybePop();
-                          if (mounted) setState(() {});
                         },
                         tooltip:
                             MaterialLocalizations.of(context).backButtonTooltip,
@@ -238,7 +209,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 10.0),
-                        child: title,
+                        child: titleWidget,
                       ),
                     ),
                   if (home.isLoading)
@@ -333,26 +304,6 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
         );
       },
     );
-  }
-
-  @override
-  Future<void> onWindowClose() async {
-    final isPreventClose = await windowManager.isPreventClose();
-    // We ensure all the players are disposed in order to not keep the app alive
-    // in background, wasting unecessary resources!
-
-    // TODO(bdlukaa): warn the user if there is any ongoing downloads.
-
-    if (isPreventClose) {
-      windowManager.hide();
-      await Future.microtask(() async {
-        for (final player in UnityVideoPlayerInterface.players.toList()) {
-          debugPrint('Disposing player ${player.hashCode}');
-          await player.dispose();
-        }
-      });
-      windowManager.destroy();
-    }
   }
 }
 

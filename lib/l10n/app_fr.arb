@@ -222,6 +222,14 @@
   "delete": "Supprimer",
   "showInFiles": "Afficher dans le dossier",
   "noDownloads": "Vous n'avez aucun téléchargements",
+  "nDownloadsProgress": "You have {n} downloads in progress!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Allez à la vue \"Navigateur d'évènements\" pour télécharger des évènements.",
   "downloadTitle": "{event} sur {device} du serveur {server} à {date}",
   "@downloadTitle": {
@@ -295,6 +303,8 @@
   "systemPowerOutage": "Perte de courant",
   "unknown": "Inconnu",
   "close": "Ouvert",
+  "closeAnyway": "Close anyway",
+  "closeWhenDone": "Close when done",
   "open": "Fermé",
   "collapse": "Réduire",
   "expand": "Développer",

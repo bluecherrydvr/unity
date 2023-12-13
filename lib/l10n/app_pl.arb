@@ -232,6 +232,14 @@
   "delete": "Usuń",
   "showInFiles": "Pokaż w Plikach",
   "noDownloads": "Jeszcze niczego nie pobrano :/",
+  "nDownloadsProgress": "You have {n} downloads in progress!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Przejdź do ekranu \"Historii zdarzeń\" by pobrać zdarzenia.",
   "downloadTitle": "{event} na {device} serwer {server} o {date}",
   "@downloadTitle": {
@@ -317,6 +325,8 @@
   "systemPowerOutage": "Utrata zasilania",
   "unknown": "Nieznany",
   "close": "Zamknij",
+  "closeAnyway": "Close anyway",
+  "closeWhenDone": "Close when done",
   "open": "Otwórz",
   "collapse": "Zwiń",
   "expand": "Rozwiń",

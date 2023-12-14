@@ -423,6 +423,7 @@
   },
   "@Notification click": {},
   "notificationClickBehavior": "Action de clic sur les notifications",
+  "notificationClickBehaviorDescription": "Choose what happens when you click on a notification.",
   "showEventsScreen": "Montrer le navigateur d'événements",
   "@@STREAMING": {},
   "streamingSettings": "Paramètre de diffusion",

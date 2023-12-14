@@ -449,6 +449,7 @@
   },
   "@Notification click": {},
   "notificationClickBehavior": "Ação ao clicar na notificação",
+  "notificationClickBehaviorDescription": "Escolha o que acontece quando você clica em uma notificação.",
   "showEventsScreen": "Mostar histórico de eventos",
   "@@STREAMING": {},
   "streamingSettings": "Configurações de streaming",

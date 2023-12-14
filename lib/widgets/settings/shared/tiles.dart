@@ -147,11 +147,12 @@ class NavigationClickBehaviorTile extends StatelessWidget {
       title: Text(loc.notificationClickBehavior),
       textColor: theme.textTheme.bodyLarge?.color,
       subtitle: Text(
-        settings.notificationClickBehavior.locale(context),
+        loc.notificationClickBehaviorDescription,
         style: theme.textTheme.bodyMedium?.copyWith(
           color: theme.textTheme.bodySmall?.color,
         ),
       ),
+      trailing: Text(settings.notificationClickBehavior.locale(context)),
       children: NotificationClickBehavior.values.map((behavior) {
         return RadioListTile<NotificationClickBehavior>.adaptive(
           contentPadding: const EdgeInsetsDirectional.only(
@@ -196,7 +197,6 @@ class CyclePeriodTile extends StatelessWidget {
         title: Text(loc.cycleTogglePeriod),
         textColor: theme.textTheme.bodyLarge?.color,
         subtitle: Text(
-          // settings.layoutCyclingTogglePeriod.humanReadable(context),
           loc.cycleTogglePeriodDescription,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.textTheme.bodySmall?.color,
@@ -204,9 +204,6 @@ class CyclePeriodTile extends StatelessWidget {
         ),
         trailing: Text(
           settings.layoutCyclingTogglePeriod.humanReadableCompact(context),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.textTheme.bodySmall?.color,
-          ),
         ),
         childrenPadding: const EdgeInsetsDirectional.all(12.0),
         children: [
@@ -270,9 +267,6 @@ class CameraReloadPeriodTile extends StatelessWidget {
         ),
         trailing: Text(
           settings.cameraRefreshPeriod.humanReadableCompact(context),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.textTheme.bodySmall?.color,
-          ),
         ),
         childrenPadding: const EdgeInsetsDirectional.all(12.0),
         children: [

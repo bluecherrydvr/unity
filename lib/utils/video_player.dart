@@ -42,7 +42,7 @@ class UnityPlayers with ChangeNotifier {
   /// Devices that should be reloaded at every [reloadTime] interval.
   static final _reloadable = <String>[];
 
-  static late final Timer? _reloadTimer;
+  static Timer? _reloadTimer;
   static void createTimer() {
     UnityPlayers._reloadTimer?.cancel();
     UnityPlayers._reloadTimer = null;

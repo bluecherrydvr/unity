@@ -247,7 +247,7 @@ class CameraReloadPeriodTile extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     final periodList =
-        [0, 5, 10, 30, 60, 60 * 5].map((e) => Duration(seconds: e));
+        <int>[0, 30, 60 * 2, 60 * 5].map((e) => Duration(seconds: e));
 
     return LayoutBuilder(builder: (context, constraints) {
       final isSmall = constraints.maxWidth < 600.0;
@@ -265,9 +265,9 @@ class CameraReloadPeriodTile extends StatelessWidget {
             color: theme.textTheme.bodySmall?.color,
           ),
         ),
-        trailing: Text(
-          settings.cameraRefreshPeriod.humanReadableCompact(context),
-        ),
+        trailing: settings.cameraRefreshPeriod > Duration.zero
+            ? Text(settings.cameraRefreshPeriod.humanReadableCompact(context))
+            : null,
         childrenPadding: const EdgeInsetsDirectional.all(12.0),
         children: [
           ToggleButtons(

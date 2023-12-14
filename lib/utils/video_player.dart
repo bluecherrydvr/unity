@@ -46,10 +46,12 @@ class UnityPlayers with ChangeNotifier {
   static void createTimer() {
     UnityPlayers._reloadTimer?.cancel();
     UnityPlayers._reloadTimer = null;
-    UnityPlayers._reloadTimer = Timer.periodic(
-      SettingsProvider.instance.cameraRefreshPeriod,
-      (_) => reloadDevices(),
-    );
+    if (SettingsProvider.instance.cameraRefreshPeriod > Duration.zero) {
+      UnityPlayers._reloadTimer = Timer.periodic(
+        SettingsProvider.instance.cameraRefreshPeriod,
+        (_) => reloadDevices(),
+      );
+    }
   }
 
   /// Reloads all devices that are marked as reloadable.

@@ -26,7 +26,6 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -38,7 +37,6 @@ import 'package:path_provider_windows/path_provider_windows.dart'
     hide WindowsKnownFolder;
 // ignore: implementation_imports
 import 'package:path_provider_windows/src/folders.dart' show WindowsKnownFolder;
-import 'package:window_manager/window_manager.dart';
 
 class DownloadedEvent {
   final Event event;
@@ -128,7 +126,7 @@ class DownloadsManager extends UnityProvider {
   Map<Event, DownloadProgress> downloading = {};
 
   Completer? downloadsCompleter;
-  bool _isProgressBarSet = false;
+  // bool _isProgressBarSet = false;
 
   @override
   Future<void> initialize() async {
@@ -137,20 +135,20 @@ class DownloadsManager extends UnityProvider {
         downloadsCompleter = null;
       }
 
-      // setProgressBar is only available on Windows and macOS
-      if (isDesktopPlatform && !Platform.isLinux) {
-        if (downloading.isEmpty) {
-          if (_isProgressBarSet) {
-            windowManager.setProgressBar(-1);
-            _isProgressBarSet = false;
-          }
-        } else {
-          final progress =
-              downloading.values.reduce((a, b) => a + b) / downloading.length;
-          windowManager.setProgressBar(progress);
-          _isProgressBarSet = true;
-        }
-      }
+      // // setProgressBar is only available on Windows and macOS
+      // if (isDesktopPlatform && !Platform.isLinux) {
+      //   if (downloading.isEmpty) {
+      //     if (_isProgressBarSet) {
+      //       windowManager.setProgressBar(-1);
+      //       _isProgressBarSet = false;
+      //     }
+      //   } else {
+      //     final progress =
+      //         downloading.values.reduce((a, b) => a + b) / downloading.length;
+      //     windowManager.setProgressBar(progress);
+      //     _isProgressBarSet = true;
+      //   }
+      // }
     });
 
     return super.initializeStorage(downloads, kHiveDownloads);

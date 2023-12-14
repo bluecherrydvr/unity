@@ -53,6 +53,7 @@ const kHiveDownloads = 'downloads';
 const kHiveEventsPlayback = 'events_playback';
 const kHiveLayoutCycling = 'layout_cycling';
 const kHiveLayoutCyclingPeriod = 'layout_cycling_period';
+const kHiveCameraRefreshPeriod = 'camera_refresh_period';
 const kHiveAutomaticUpdates = 'automatic_download_updates';
 const kHiveLastCheck = 'last_update_check';
 const kHiveStreamingType = 'streaming_type';

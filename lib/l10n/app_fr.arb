@@ -21,6 +21,7 @@
   "connectAutomaticallyAtStartupDescription": "If enabled, the app will automatically connect to the server when it starts.",
   "skip": "Sauter",
   "cancel": "Annuler",
+  "disabled": "Disabled",
   "letsGo": "C'EST PARTI!",
   "finish": "Terminé",
   "letsGoDescription": "Voici quelques astuces pour bien commencer:",
@@ -166,9 +167,12 @@
   "refreshServer": "Actualiser le serveur",
   "refresh": "Actualiser",
   "view": "Vue",
+  "cameraRefreshPeriod": "Camera refresh period",
+  "cameraRefreshPeriodDescription": "The interval between camera refreshes. It ensures the camera video is still valid from time to time.",
   "@Layouts": {},
   "cycle": "Cycle",
   "cycleTogglePeriod": "Durée du cycle de basculement",
+  "cycleTogglePeriodDescription": "The interval between layout changes when the cycle mode is enabled.",
   "fallbackLayoutName": "Disposition {layout}",
   "@fallbackLayoutName": {
     "placeholders": {

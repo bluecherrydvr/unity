@@ -46,6 +46,7 @@ class SettingsProvider extends UnityProvider {
   static const kDefaultCameraViewFit = UnityVideoFit.contain;
   static const kDefaultLayoutCyclingEnabled = false;
   static const kDefaultLayoutCyclingTogglePeriod = Duration(seconds: 30);
+  static const kDefaultCameraRefreshPeriod = Duration(minutes: 5);
   static Future<Directory> get kDefaultDownloadsDirectory =>
       DownloadsManager.kDefaultDownloadsDirectory;
   static const kDefaultStreamingType = StreamingType.rtsp;
@@ -64,6 +65,7 @@ class SettingsProvider extends UnityProvider {
   late String _downloadsDirectory;
   late bool _layoutCyclingEnabled;
   late Duration _layoutCyclingTogglePeriod;
+  late Duration _cameraRefreshPeriod;
   late StreamingType _streamingType;
   late RTSPProtocol _rtspProtocol;
   late RenderingQuality _videoQuality;
@@ -82,6 +84,7 @@ class SettingsProvider extends UnityProvider {
   String get downloadsDirectory => _downloadsDirectory;
   bool get layoutCyclingEnabled => _layoutCyclingEnabled;
   Duration get layoutCyclingTogglePeriod => _layoutCyclingTogglePeriod;
+  Duration get cameraRefreshPeriod => _cameraRefreshPeriod;
   StreamingType get streamingType => _streamingType;
   RTSPProtocol get rtspProtocol => _rtspProtocol;
   RenderingQuality get videoQuality => _videoQuality;
@@ -146,6 +149,12 @@ class SettingsProvider extends UnityProvider {
     save();
   }
 
+  set cameraRefreshPeriod(Duration value) {
+    _cameraRefreshPeriod = value;
+    UnityPlayers.createTimer();
+    save();
+  }
+
   set streamingType(StreamingType value) {
     _streamingType = value;
     save();
@@ -201,6 +210,7 @@ class SettingsProvider extends UnityProvider {
         kHiveDownloadsDirectorySetting: downloadsDirectory,
         kHiveLayoutCycling: layoutCyclingEnabled,
         kHiveLayoutCyclingPeriod: layoutCyclingTogglePeriod.inMilliseconds,
+        kHiveCameraRefreshPeriod: cameraRefreshPeriod.inMilliseconds,
         kHiveStreamingType: streamingType.index,
         kHiveStreamingProtocol: rtspProtocol.index,
         kHiveVideoQuality: videoQuality.index,
@@ -262,6 +272,10 @@ class SettingsProvider extends UnityProvider {
     _layoutCyclingTogglePeriod = Duration(
       milliseconds: data[kHiveLayoutCyclingPeriod] ??
           kDefaultLayoutCyclingTogglePeriod.inMilliseconds,
+    );
+    _cameraRefreshPeriod = Duration(
+      milliseconds: data[kHiveCameraRefreshPeriod] ??
+          kDefaultCameraRefreshPeriod.inMilliseconds,
     );
     _streamingType = StreamingType
         .values[data[kHiveStreamingType] ?? kDefaultStreamingType.index];

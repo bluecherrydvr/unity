@@ -21,6 +21,7 @@
   "connectAutomaticallyAtStartupDescription": "Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado.",
   "skip": "Pular",
   "cancel": "Cancelar",
+  "disabled": "Desativado",
   "letsGo": "Vamos lá!",
   "finish": "Concluir",
   "letsGoDescription": "Aqui algumas dicas de como começar:",
@@ -176,9 +177,12 @@
   "refreshServer": "Recarregar servidor",
   "refresh": "Recarregar",
   "view": "Layouts",
+  "cameraRefreshPeriod": "Intervalo para recarregar cameras",
+  "cameraRefreshPeriodDescription": "O intervalo entre as atualizações da câmera. Isso garante que o vídeo da câmera ainda seja válido de tempos em tempos.",
   "@Layouts": {},
   "cycle": "Ciclo",
   "cycleTogglePeriod": "Duração da alternância de layouts",
+  "cycleTogglePeriodDescription": "O intervalo entre alterações de layout quando a alternância está ativada.",
   "fallbackLayoutName": "Layout {layout}",
   "@fallbackLayoutName": {
     "placeholders": {

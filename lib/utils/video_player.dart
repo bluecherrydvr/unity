@@ -27,10 +27,7 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 class UnityPlayers with ChangeNotifier {
   UnityPlayers._() {
-    UnityPlayers._reloadTimer = Timer.periodic(
-      reloadTime,
-      (_) => reloadDevices(),
-    );
+    createTimer();
   }
 
   static final instance = UnityPlayers._();
@@ -44,9 +41,16 @@ class UnityPlayers with ChangeNotifier {
 
   /// Devices that should be reloaded at every [reloadTime] interval.
   static final _reloadable = <String>[];
-  static const reloadTime = Duration(minutes: 5);
 
-  static late final Timer _reloadTimer;
+  static late final Timer? _reloadTimer;
+  static void createTimer() {
+    UnityPlayers._reloadTimer?.cancel();
+    UnityPlayers._reloadTimer = null;
+    UnityPlayers._reloadTimer = Timer.periodic(
+      SettingsProvider.instance.cameraRefreshPeriod,
+      (_) => reloadDevices(),
+    );
+  }
 
   /// Reloads all devices that are marked as reloadable.
   static Future<void> reloadDevices() async {
@@ -90,10 +94,7 @@ class UnityPlayers with ChangeNotifier {
         controller.fallbackUrl = fallback;
         await controller.setDataSource(source);
 
-        // TODO(bdlukaa): reevaluate if this system is still necessary.
-        //                on the player, we now reload the device if the image
-        //                is timed out. See [UnityVideoPlayer.create.onReload]
-        // _reloadable.add(source);
+        _reloadable.add(source);
       }
       onSetSource?.call();
     }
@@ -183,7 +184,7 @@ class UnityPlayers with ChangeNotifier {
 
   @override
   void dispose() {
-    _reloadTimer.cancel();
+    _reloadTimer?.cancel();
     super.dispose();
   }
 }

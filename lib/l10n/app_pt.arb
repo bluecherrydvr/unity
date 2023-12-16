@@ -62,6 +62,14 @@
   "noServersAvailable": "Nenhum servidor disponível.",
   "error": "Erro",
   "videoError": "Ocorreu um erro ao tentar reproduzir o vídeo.",
+  "copiedToClipboard": "{message} foi copiado para a área de transferência.",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "ok": "OK",
   "retry": "Tentar novamente",
   "clear": "Limpar",

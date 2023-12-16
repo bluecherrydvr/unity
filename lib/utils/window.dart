@@ -37,8 +37,8 @@ Future<void> configureWindow() async {
   await WindowManager.instance.ensureInitialized();
   await windowManager.waitUntilReadyToShow(
     const WindowOptions(
-      // minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
-      minimumSize: kInitialWindowSize,
+      minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
+      // minimumSize: kInitialWindowSize,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
       windowButtonVisibility: true,

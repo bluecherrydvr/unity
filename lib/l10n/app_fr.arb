@@ -58,6 +58,14 @@
   "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "videoError": "Une erreur est survenue lors de la lecture de la vidé.",
+  "copiedToClipboard": "Copied {message} to clipboard",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "ok": "OK",
   "retry": "Réessayer",
   "clear": "Clear",

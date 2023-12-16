@@ -518,7 +518,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
                   view.addLayout(layout);
                 }
               }
-              if (mounted) Navigator.of(context).pop();
+              if (context.mounted) Navigator.of(context).pop();
             },
             child: Text(loc.importLayout),
           ),

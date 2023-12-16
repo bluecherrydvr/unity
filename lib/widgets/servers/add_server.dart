@@ -707,7 +707,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         await ServersProvider.instance.add(server);
         widget.onNext();
       } else {
-        if (mounted) {
+        if (context.mounted) {
           showDialog(
             context: context,
             builder: (context) {

@@ -233,8 +233,8 @@ class _UnityAppState extends State<UnityApp>
   @override
   Future<void> onWindowClose() async {
     final isPreventClose = await windowManager.isPreventClose();
-    if (isPreventClose && mounted) {
-      final context = navigatorKey.currentContext!;
+    final context = navigatorKey.currentContext!;
+    if (isPreventClose && mounted && context.mounted) {
       final downloadsManager = context.read<DownloadsManager>();
       if (downloadsManager.downloading.isNotEmpty || true) {
         final result = await showDialog<bool>(

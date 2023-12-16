@@ -420,7 +420,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         try {
           layout = Layout.fromXML(xml, fallbackName: fallbackName);
         } on ArgumentError catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             showImportFailedMessage(
               context,
               loc.layoutImportFileCorruptedWithMessage(e.message),
@@ -428,7 +428,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           }
           return;
         } on DeviceServerNotFound catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             showImportFailedMessage(
               context,
               loc.failedToImportMessage(
@@ -440,7 +440,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           }
           return;
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             showImportFailedMessage(
               context,
               loc.layoutImportFileCorrupted,

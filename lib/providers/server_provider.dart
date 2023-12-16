@@ -55,7 +55,7 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await super.initializeStorage(serversStorage, kHiveServers);
-    await refreshDevices(startup: true);
+    refreshDevices(startup: true);
   }
 
   /// Adds a new [Server] to the cache.
@@ -146,7 +146,7 @@ class ServersProvider extends UnityProvider {
   /// If [ids] is provided, only the provided ids will be refreshed
   Future<List<Server>> refreshDevices({
     bool startup = false,
-    List<String>? ids,
+    Iterable<String>? ids,
   }) async {
     await Future.wait(servers.map((server) async {
       if (ids != null && !ids.contains(server.id)) return;

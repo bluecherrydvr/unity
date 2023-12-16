@@ -72,8 +72,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                         /// Whether all the online devices are in the current view.
                         final isAllInView = devices
                             .where((d) => d.status)
-                            .every((d) => view.currentLayout.devices
-                                .any((d1) => d.uuid == d1.uuid));
+                            .every(
+                                (d) => view.currentLayout.devices.contains(d));
 
                         return MultiSliver(pushPinnedChildren: true, children: [
                           SliverPinnedHeader(
@@ -146,8 +146,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                               itemCount: devices.length,
                               itemBuilder: (context, index) {
                                 final device = devices[index];
-                                final selected = view.currentLayout.devices
-                                    .any((d) => d.uuid == device.uuid);
+                                final selected =
+                                    view.currentLayout.devices.contains(device);
 
                                 final tile = DesktopDeviceSelectorTile(
                                   device: device,

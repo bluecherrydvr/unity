@@ -495,3 +495,64 @@ class NoDownloads extends StatelessWidget {
     );
   }
 }
+
+/// The dialog that appears when the user tries to close the app when there are
+/// downloads in progress.
+class CloseDownloadsDialog extends StatefulWidget {
+  const CloseDownloadsDialog({super.key});
+
+  @override
+  State<CloseDownloadsDialog> createState() => _CloseDownloadsDialogState();
+}
+
+class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
+  bool _closeWhenDone = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final downloadsManager = context.watch<DownloadsManager>();
+    final loc = AppLocalizations.of(context);
+    final navigator = Navigator.of(context);
+
+    return AlertDialog(
+      title: Text(loc.nDownloadsProgress(downloadsManager.downloading.length)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final entry in downloadsManager.downloading.entries)
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              trailing: SizedBox.fromSize(
+                size: const Size(40.0, 40.0),
+                child: DownloadProgressIndicator(progress: entry.value),
+              ),
+              title: Text(entry.key.deviceName),
+              subtitle: Text(entry.key.server.name),
+            )
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => navigator.pop<bool>(false),
+          child: Text(loc.cancel),
+        ),
+        OutlinedButton(
+          onPressed: _closeWhenDone ? null : () => navigator.pop<bool>(true),
+          child: Text(loc.closeAnyway),
+        ),
+        FilledButton(
+          onPressed: _closeWhenDone
+              ? null
+              : () async {
+                  setState(() => _closeWhenDone = true);
+                  await downloadsManager.downloadsCompleter?.future;
+                  navigator.pop<bool>(true);
+                },
+          child: Text(loc.closeWhenDone),
+        ),
+      ],
+    );
+  }
+}

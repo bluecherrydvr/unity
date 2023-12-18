@@ -41,6 +41,7 @@ class GeneralSettings extends StatelessWidget {
       const NavigationClickBehaviorTile(),
       const DirectoryChooseTile(),
       const CyclePeriodTile(),
+      const CameraReloadPeriodTile(),
       const WakelockTile(),
     ]);
   }

@@ -19,6 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ErrorWarning extends StatelessWidget {
@@ -29,8 +30,18 @@ class ErrorWarning extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return IgnorePointer(
-      child: ColoredBox(
+    return GestureDetector(
+      onLongPress: () {
+        Clipboard.setData(ClipboardData(text: message));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loc.copiedToClipboard(message)),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsetsDirectional.all(6.0),
         color: Colors.black38,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -48,10 +59,13 @@ class ErrorWarning extends StatelessWidget {
                 child: Divider(color: Colors.white),
               ),
               const SizedBox(height: 8.0),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 12.0),
+              Flexible(
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 12.0),
+                  overflow: TextOverflow.fade,
+                ),
               ),
             ],
           ],

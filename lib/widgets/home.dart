@@ -235,7 +235,7 @@ class _MobileHomeState extends State<Home> {
 
                     await Future.delayed(const Duration(milliseconds: 200));
                     navigator.pop();
-                    if (tab != data.tab && mounted) {
+                    if (tab != data.tab && context.mounted) {
                       home.setTab(data.tab, context);
                     }
                   },

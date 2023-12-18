@@ -61,7 +61,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final server in servers.servers)
+                    for (final server in (servers.servers)
+                      // online servers are rendered first
+                      ..sort((a, b) =>
+                          b.online.toString().compareTo(a.online.toString())))
                       () {
                         final devices = server.devices.sorted();
                         final isLoading = servers.isServerLoading(server);

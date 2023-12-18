@@ -26,14 +26,6 @@ import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 
-/// This class manages & saves (caching) the current camera [Device] layout/order for the [DeviceGrid] on mobile.
-///
-/// **The idea is to:**
-///
-/// - Have same video player instance (and multiple viewports) for a same device. See [players].
-/// - Effectively manage the layout of the [DeviceGrid] on mobile. See [devices].
-/// - Prevent redundant re-initialization of video players when switching tabs (if common a [Device] is present across tabs or same camera is added twice).
-///
 class MobileViewProvider extends UnityProvider {
   MobileViewProvider._();
 
@@ -55,20 +47,20 @@ class MobileViewProvider extends UnityProvider {
   /// }
   /// ```
   Map<int, List<Device?>> devices = {
-    1: <Device?>[null],
-    2: <Device?>[null, null],
-    4: <Device?>[null, null, null, null],
-    6: <Device?>[null, null, null, null, null, null],
+    1: List<Device?>.generate(1, (index) => null, growable: false),
+    2: List<Device?>.generate(2, (index) => null, growable: false),
+    4: List<Device?>.generate(4, (index) => null, growable: false),
+    6: List<Device?>.generate(6, (index) => null, growable: false),
   };
 
   /// This map keeps the `bool`s to indicate whether the hover details of a [Device] is shown or not.
   /// The positioning corresponds to the [devices].
   /// This is important because camera [Device] tiles lose state upon reorder.
   Map<int, List<bool>> hoverStates = {
-    1: <bool>[false],
-    2: <bool>[false, false],
-    4: <bool>[false, false, false, false],
-    6: <bool>[false, false, false, false, false, false],
+    1: List<bool>.generate(1, (index) => false, growable: false),
+    2: List<bool>.generate(2, (index) => false, growable: false),
+    4: List<bool>.generate(4, (index) => false, growable: false),
+    6: List<bool>.generate(6, (index) => false, growable: false),
   };
 
   /// Current [tab].

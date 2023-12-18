@@ -35,14 +35,18 @@ const kInitialWindowSize = Size(1066, 645);
 /// Configures the current window
 Future<void> configureWindow() async {
   await WindowManager.instance.ensureInitialized();
-  windowManager.waitUntilReadyToShow(
+  await windowManager.waitUntilReadyToShow(
     const WindowOptions(
       minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
+      // minimumSize: kInitialWindowSize,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
       windowButtonVisibility: true,
     ),
     () async {
+      if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
+        await windowManager.setSize(kInitialWindowSize);
+      }
       await windowManager.show();
     },
   );
@@ -100,8 +104,6 @@ extension LayoutWindowExtension on Layout {
 /// Launches the file explorer at the given path
 void launchFileExplorer(String path) {
   assert(isDesktopPlatform);
-
-  // TODO(bdlukaa): use url_launcher for this
 
   if (Platform.isWindows) {
     Process.run('explorer', [path]);

@@ -21,6 +21,7 @@
   "connectAutomaticallyAtStartupDescription": "If enabled, the app will automatically connect to the server when it starts.",
   "skip": "Sauter",
   "cancel": "Annuler",
+  "disabled": "Disabled",
   "letsGo": "C'EST PARTI!",
   "finish": "Terminé",
   "letsGoDescription": "Voici quelques astuces pour bien commencer:",
@@ -57,6 +58,14 @@
   "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "videoError": "Une erreur est survenue lors de la lecture de la vidé.",
+  "copiedToClipboard": "Copied {message} to clipboard",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "ok": "OK",
   "retry": "Réessayer",
   "clear": "Clear",
@@ -166,9 +175,12 @@
   "refreshServer": "Actualiser le serveur",
   "refresh": "Actualiser",
   "view": "Vue",
+  "cameraRefreshPeriod": "Camera refresh period",
+  "cameraRefreshPeriodDescription": "The interval between camera refreshes. It ensures the camera video is still valid from time to time.",
   "@Layouts": {},
   "cycle": "Cycle",
   "cycleTogglePeriod": "Durée du cycle de basculement",
+  "cycleTogglePeriodDescription": "The interval between layout changes when the cycle mode is enabled.",
   "fallbackLayoutName": "Disposition {layout}",
   "@fallbackLayoutName": {
     "placeholders": {
@@ -222,6 +234,14 @@
   "delete": "Supprimer",
   "showInFiles": "Afficher dans le dossier",
   "noDownloads": "Vous n'avez aucun téléchargements",
+  "nDownloadsProgress": "You have {n} downloads in progress!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Allez à la vue \"Navigateur d'évènements\" pour télécharger des évènements.",
   "downloadTitle": "{event} sur {device} du serveur {server} à {date}",
   "@downloadTitle": {
@@ -295,6 +315,8 @@
   "systemPowerOutage": "Perte de courant",
   "unknown": "Inconnu",
   "close": "Ouvert",
+  "closeAnyway": "Close anyway",
+  "closeWhenDone": "Close when done",
   "open": "Fermé",
   "collapse": "Réduire",
   "expand": "Développer",
@@ -409,6 +431,7 @@
   },
   "@Notification click": {},
   "notificationClickBehavior": "Action de clic sur les notifications",
+  "notificationClickBehaviorDescription": "Choose what happens when you click on a notification.",
   "showEventsScreen": "Montrer le navigateur d'événements",
   "@@STREAMING": {},
   "streamingSettings": "Paramètre de diffusion",

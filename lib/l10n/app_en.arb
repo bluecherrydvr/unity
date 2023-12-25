@@ -21,6 +21,7 @@
   "connectAutomaticallyAtStartupDescription": "If enabled, the server will be automatically connected when the app starts.",
   "skip": "Skip",
   "cancel": "Cancel",
+  "disabled": "Disabled",
   "letsGo": "Let's Go!",
   "finish": "Finish",
   "letsGoDescription": "Here's some tips on how to get started:",
@@ -61,6 +62,14 @@
   "noServersAvailable": "No servers available",
   "error": "Error",
   "videoError": "An error happened while trying to play the video.",
+  "copiedToClipboard": "Copied {message} to clipboard",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "ok": "OK",
   "retry": "Retry",
   "clear": "Clear",
@@ -176,9 +185,12 @@
   "refreshServer": "Refresh server",
   "refresh": "Refresh",
   "view": "View",
+  "cameraRefreshPeriod": "Camera refresh period",
+  "cameraRefreshPeriodDescription": "The interval between camera refreshes. It ensures the camera video is still valid from time to time.",
   "@Layouts": {},
   "cycle": "Cycle",
   "cycleTogglePeriod": "Layout cycle toggle period",
+  "cycleTogglePeriodDescription": "The interval between layout changes when the cycle mode is enabled.",
   "fallbackLayoutName": "Layout {layout}",
   "@fallbackLayoutName": {
     "placeholders": {
@@ -232,6 +244,14 @@
   "delete": "Delete",
   "showInFiles": "Show in Files",
   "noDownloads": "You haven't downloaded anything yet :/",
+  "nDownloadsProgress": "You have {n} downloads in progress!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Go to the \"Events History\" screen to download events.",
   "downloadTitle": "{event} on {device} under server {server} at {date}",
   "@downloadTitle": {
@@ -317,6 +337,8 @@
   "systemPowerOutage": "Power Lost",
   "unknown": "Unknown",
   "close": "Close",
+  "closeAnyway": "Close anyway",
+  "closeWhenDone": "Close when done",
   "open": "Open",
   "collapse": "Collapse",
   "expand": "Expand",
@@ -416,8 +438,8 @@
   "@@MISC": {},
   "general": "General",
   "miscellaneous": "Miscellaneous",
-  "wakelock": "Keep screen on",
-  "wakelockDescription": "Keep screen on while watching live streams or recordings.",
+  "wakelock": "Keep screen awake",
+  "wakelockDescription": "Keep screen awake while watching live streams or recordings.",
   "@Snoozing": {},
   "snooze15": "15 minutes",
   "snooze30": "30 minutes",
@@ -435,6 +457,7 @@
   },
   "@Notification click": {},
   "notificationClickBehavior": "Notification Click Behavior",
+  "notificationClickBehaviorDescription": "Choose what happens when you click on a notification.",
   "showEventsScreen": "Show events history",
   "@@STREAMING": {},
   "streamingSettings": "Streaming settings",

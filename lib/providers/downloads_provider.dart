@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -124,9 +125,32 @@ class DownloadsManager extends UnityProvider {
   /// The events that are downloading
   Map<Event, DownloadProgress> downloading = {};
 
-  /// Called by [ensureInitialized].
+  Completer? downloadsCompleter;
+  // bool _isProgressBarSet = false;
+
   @override
-  Future<void> initialize() {
+  Future<void> initialize() async {
+    addListener(() {
+      if (downloadsCompleter != null && downloadsCompleter!.isCompleted) {
+        downloadsCompleter = null;
+      }
+
+      // // setProgressBar is only available on Windows and macOS
+      // if (isDesktopPlatform && !Platform.isLinux) {
+      //   if (downloading.isEmpty) {
+      //     if (_isProgressBarSet) {
+      //       windowManager.setProgressBar(-1);
+      //       _isProgressBarSet = false;
+      //     }
+      //   } else {
+      //     final progress =
+      //         downloading.values.reduce((a, b) => a + b) / downloading.length;
+      //     windowManager.setProgressBar(progress);
+      //     _isProgressBarSet = true;
+      //   }
+      // }
+    });
+
     return super.initializeStorage(downloads, kHiveDownloads);
   }
 
@@ -192,6 +216,10 @@ class DownloadsManager extends UnityProvider {
     final home = HomeProvider.instance
       ..loading(UnityLoadingReason.downloadEvent);
 
+    if (downloadsCompleter == null || downloadsCompleter!.isCompleted) {
+      downloadsCompleter = Completer();
+    }
+
     downloading[event] = 0.0;
     notifyListeners();
 
@@ -206,7 +234,6 @@ class DownloadsManager extends UnityProvider {
         headers: {HttpHeaders.acceptEncodingHeader: '*'}, // disable gzip
       ),
       onReceiveProgress: (received, total) {
-        // TODO(bdlukaa): update window progress bar
         if (total != -1) {
           downloading[event] = received / total;
           notifyListeners();
@@ -219,6 +246,10 @@ class DownloadsManager extends UnityProvider {
       event: event,
       downloadPath: downloadPath,
     ));
+
+    if (downloading.isEmpty) {
+      downloadsCompleter?.complete();
+    }
 
     home.notLoading(UnityLoadingReason.downloadEvent);
     await save();

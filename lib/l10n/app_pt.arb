@@ -21,6 +21,7 @@
   "connectAutomaticallyAtStartupDescription": "Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado.",
   "skip": "Pular",
   "cancel": "Cancelar",
+  "disabled": "Desativado",
   "letsGo": "Vamos lá!",
   "finish": "Concluir",
   "letsGoDescription": "Aqui algumas dicas de como começar:",
@@ -61,6 +62,14 @@
   "noServersAvailable": "Nenhum servidor disponível.",
   "error": "Erro",
   "videoError": "Ocorreu um erro ao tentar reproduzir o vídeo.",
+  "copiedToClipboard": "{message} foi copiado para a área de transferência.",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "ok": "OK",
   "retry": "Tentar novamente",
   "clear": "Limpar",
@@ -176,9 +185,12 @@
   "refreshServer": "Recarregar servidor",
   "refresh": "Recarregar",
   "view": "Layouts",
+  "cameraRefreshPeriod": "Intervalo para recarregar cameras",
+  "cameraRefreshPeriodDescription": "O intervalo entre as atualizações da câmera. Isso garante que o vídeo da câmera ainda seja válido de tempos em tempos.",
   "@Layouts": {},
   "cycle": "Ciclo",
   "cycleTogglePeriod": "Duração da alternância de layouts",
+  "cycleTogglePeriodDescription": "O intervalo entre alterações de layout quando a alternância está ativada.",
   "fallbackLayoutName": "Layout {layout}",
   "@fallbackLayoutName": {
     "placeholders": {
@@ -232,6 +244,14 @@
   "delete": "Deletar",
   "showInFiles": "Ver no Explorador de Arquivos",
   "noDownloads": "Você ainda não baixou nenhum evento :/",
+  "nDownloadsProgress": "Você tem {n} downloads em progresso!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "howToDownload": "Vá ao \"Histórico de Eventos\" para baixar eventos.",
   "downloadTitle": "{event} de {device} do servidor {server} em {date}",
   "@downloadTitle": {
@@ -317,6 +337,8 @@
   "systemPowerOutage": "Perda de energia",
   "unknown": "Desconhecido",
   "close": "Fechar",
+  "closeAnyway": "Fechar mesmo assim",
+  "closeWhenDone": "Fechar quando terminar",
   "open": "Abrir",
   "collapse": "Fechar",
   "expand": "Expandir",
@@ -435,6 +457,7 @@
   },
   "@Notification click": {},
   "notificationClickBehavior": "Ação ao clicar na notificação",
+  "notificationClickBehaviorDescription": "Escolha o que acontece quando você clica em uma notificação.",
   "showEventsScreen": "Mostar histórico de eventos",
   "@@STREAMING": {},
   "streamingSettings": "Configurações de streaming",

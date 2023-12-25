@@ -293,22 +293,23 @@ class Device {
       'Device($name, $uri, online: $status, ${resolutionX}x$resolutionY, ptz: $hasPTZ)';
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(covariant Device other) {
     if (identical(this, other)) return true;
+    return uuid == other.uuid;
 
-    return other is Device &&
-        other.name == name &&
-        other.id == id &&
-        other.status == status &&
-        other.resolutionX == resolutionX &&
-        other.resolutionY == resolutionY &&
-        other.hasPTZ == hasPTZ &&
-        other.server == server &&
-        other.url == url &&
-        other.matrixType == matrixType &&
-        listEquals(other.overlays, overlays) &&
-        other.preferredStreamingType == preferredStreamingType &&
-        other.externalData == externalData;
+    // return other is Device &&
+    //     other.name == name &&
+    //     other.id == id &&
+    //     other.status == status &&
+    //     other.resolutionX == resolutionX &&
+    //     other.resolutionY == resolutionY &&
+    //     other.hasPTZ == hasPTZ &&
+    //     other.server == server &&
+    //     other.url == url &&
+    //     other.matrixType == matrixType &&
+    //     listEquals(other.overlays, overlays) &&
+    //     other.preferredStreamingType == preferredStreamingType &&
+    //     other.externalData == externalData;
   }
 
   @override

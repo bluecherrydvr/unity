@@ -129,6 +129,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                 ),
                 const DirectoryChooseTile(),
                 const CyclePeriodTile(),
+                const CameraReloadPeriodTile(),
               ]),
               SliverToBoxAdapter(
                 child: CorrectedListTile(

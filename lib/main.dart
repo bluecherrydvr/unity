@@ -43,6 +43,7 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:bluecherry_client/widgets/multi_window/single_camera_window.dart';
@@ -59,6 +60,7 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -180,16 +182,24 @@ class UnityApp extends StatefulWidget {
   State<UnityApp> createState() => _UnityAppState();
 }
 
-class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
+class _UnityAppState extends State<UnityApp>
+    with WidgetsBindingObserver, WindowListener {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    windowManager.addListener(this);
+    if (isDesktopPlatform) {
+      windowManager.setPreventClose(true).then((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    windowManager.removeListener(this);
     super.dispose();
   }
 
@@ -217,6 +227,37 @@ class _UnityAppState extends State<UnityApp> with WidgetsBindingObserver {
         debugPrint('in background');
         isInBackground = true;
         break;
+    }
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    final isPreventClose = await windowManager.isPreventClose();
+    final context = navigatorKey.currentContext!;
+    if (isPreventClose && mounted && context.mounted) {
+      final downloadsManager = context.read<DownloadsManager>();
+      if (downloadsManager.downloading.isNotEmpty || true) {
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const CloseDownloadsDialog(),
+        );
+        if (result == null || !result) {
+          return;
+        }
+      }
+
+      // We ensure all the players are disposed in order to not keep the app alive
+      // in background, wasting unecessary resources!
+
+      windowManager.hide();
+      await Future.microtask(() async {
+        for (final player in UnityVideoPlayerInterface.players.toList()) {
+          debugPrint('Disposing player ${player.hashCode}');
+          await player.dispose();
+        }
+      });
+      windowManager.destroy();
     }
   }
 

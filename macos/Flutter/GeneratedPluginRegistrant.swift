@@ -19,6 +19,7 @@ import screen_brightness_macos
 import screen_retriever
 import system_date_time_format
 import url_launcher_macos
+import video_player_avfoundation
 import wakelock_plus
 import window_manager
 
@@ -37,6 +38,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   ScreenRetrieverPlugin.register(with: registry.registrar(forPlugin: "ScreenRetrieverPlugin"))
   SystemDateTimeFormatPlugin.register(with: registry.registrar(forPlugin: "SystemDateTimeFormatPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
+  FVPVideoPlayerPlugin.register(with: registry.registrar(forPlugin: "FVPVideoPlayerPlugin"))
   WakelockPlusMacosPlugin.register(with: registry.registrar(forPlugin: "WakelockPlusMacosPlugin"))
   WindowManagerPlugin.register(with: registry.registrar(forPlugin: "WindowManagerPlugin"))
 }

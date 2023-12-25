@@ -6,13 +6,18 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterpi_gstreamer_video_player/flutterpi_gstreamer_video_player.dart';
+import 'package:unity_video_player_main/unity_video_player_main.dart';
 import 'package:video_player/video_player.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
   static void registerWith() {
-    UnityVideoPlayerInterface.instance = UnityVideoPlayerFlutterInterface();
+    if ('pi' case const String.fromEnvironment('linux_environment')) {
+      UnityVideoPlayerInterface.instance = UnityVideoPlayerFlutterInterface();
+      return;
+    }
+    UnityVideoPlayerInterface.instance = UnityVideoPlayerMediaKitInterface();
   }
 
   @override

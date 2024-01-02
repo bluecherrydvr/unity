@@ -162,7 +162,7 @@ flutter build [linux|windows|macos|android|ios]
 
 The automated build process is done using GitHub Actions. You may find the workflow [here](.github/workflows/main.yml). The workflow builds the app for all supported platforms & uploads the artifacts to the release page. 
 
-On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage` (AppImage), `deb` (Debian), `rpm` (RedHat) or `tar.gz` (Tarball).
+On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage` (AppImage), `deb` (Debian), `rpm` (RedHat), `tar.gz` (Tarball) or `pi` (Raspberry Pi).
 
 ```bash
 flutter run --dart-define-from-file=linux/env/[DISTRO_ENV].json

@@ -129,7 +129,7 @@ class Layout {
       ..processing('xml', 'version="1.0"')
       ..processing(
         'client-version',
-        UpdateManager.instance.packageInfo.version,
+        UpdateManager.instance.packageInfo?.version ?? 'beta',
       );
     builder.element('layout', nest: () {
       builder

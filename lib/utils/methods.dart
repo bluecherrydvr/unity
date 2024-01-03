@@ -19,6 +19,7 @@
 
 import 'dart:io';
 import 'package:bluecherry_client/main.dart' show navigatorKey;
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +139,9 @@ bool get isCupertino {
 /// is connected to a WiFi network, then it returns 400, otherwise it returns
 /// 200.
 Future<int> get eventsLimit async {
-  final connectivityResult = await Connectivity().checkConnectivity();
+  final connectivityResult = UpdateManager.isEmbedded
+      ? ConnectivityResult.wifi
+      : await Connectivity().checkConnectivity();
 
   switch (connectivityResult) {
     case ConnectivityResult.wifi:

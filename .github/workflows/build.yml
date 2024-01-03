@@ -322,3 +322,30 @@ jobs:
             bluecherry-linux-x86_64.tar.gz
             bluecherry-linux-x86_64.rpm
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  build_pi:
+    name: Bluecherry Raspberry Pi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: "master"
+          # cache: true
+      
+      - name: Initiate Flutter
+        run: |
+          flutter gen-l10n
+          flutter pub get
+          flutter pub global activate flutterpi_tool
+
+      - name: Build
+        run: |
+          flutterpi_tool build --release --cpu=pi4
+

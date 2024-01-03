@@ -167,7 +167,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                     loc.updates,
                     subtext: loc.runningOn(() {
                       if (Platform.isLinux) {
-                        return loc.linux(update.linuxEnvironment ?? '');
+                        return loc.linux(UpdateManager.linuxEnvironment.name);
                       } else if (Platform.isWindows) {
                         return loc.windows;
                       }

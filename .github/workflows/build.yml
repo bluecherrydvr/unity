@@ -336,8 +336,8 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
         with:
-          channel: "master"
-          # cache: true
+          channel: "stable"
+          cache: false
       
       - name: Initiate Flutter
         run: |

@@ -35,7 +35,6 @@ class UpdatesSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final update = context.watch<UpdateManager>();
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       Padding(
@@ -48,7 +47,7 @@ class UpdatesSettings extends StatelessWidget {
           Text(
             loc.runningOn(() {
               if (Platform.isLinux) {
-                return loc.linux(update.linuxEnvironment ?? '');
+                return loc.linux(UpdateManager.linuxEnvironment.name);
               } else if (Platform.isWindows) {
                 return loc.windows;
               }

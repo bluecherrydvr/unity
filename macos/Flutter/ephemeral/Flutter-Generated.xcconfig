@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/home/bruno/flutter
-FLUTTER_APPLICATION_PATH=/home/bruno/Documents/paid_projects/fork/unity
+FLUTTER_ROOT=C:\Users\bruno\Documents\flutter\flutter
+FLUTTER_APPLICATION_PATH=C:\Users\bruno\Documents\flutter\paid_projects\unity
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=3.0.014

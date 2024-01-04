@@ -14,6 +14,7 @@ Widget buildCheckbox({
   required bool isError,
   required String text,
   required double gapCheckboxText,
+  IconData offlineIcon = Icons.videocam_off_outlined,
   String? secondaryText,
   double checkboxScale = 0.8,
   FlexFit textFit = FlexFit.loose,
@@ -27,7 +28,7 @@ Widget buildCheckbox({
           ? Tooltip(
               message: loc.offline,
               child: Icon(
-                Icons.videocam_off_outlined,
+                offlineIcon,
                 size: 16.0,
                 color: theme.colorScheme.error,
               ),

@@ -427,6 +427,7 @@ class EventsDevicesPicker extends StatelessWidget {
               secondaryText: isOffline ? null : '${server.devices.length}',
               gapCheckboxText: gapCheckboxText,
               textFit: FlexFit.tight,
+              offlineIcon: Icons.domain_disabled_outlined,
             ),
             children: () {
               if (isOffline) {

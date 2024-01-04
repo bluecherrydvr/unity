@@ -78,12 +78,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
       ...server.devices.map((d) => d.streamURL)
   };
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
-  }
-
   /// Fetches the events from the servers.
   Future<void> fetch() async {
     events.clear();

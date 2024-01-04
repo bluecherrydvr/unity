@@ -54,75 +54,71 @@ class EventsScreenDesktop extends StatelessWidget {
       );
     }
 
-    return Material(
-      child: SafeArea(
-        child: CustomScrollView(slivers: [
-          SliverPersistentHeader(
-            delegate: _TableHeader(eventsAmount: events.length),
-            pinned: true,
-          ),
-          SliverFixedExtentList.builder(
-            itemCount: events.length,
-            itemExtent: 48.0,
-            addAutomaticKeepAlives: false,
-            addRepaintBoundaries: false,
-            findChildIndexCallback: (key) {
-              final k = key as ValueKey<Event>;
-              return events.indexed
-                  .firstWhereOrNull((e) => e.$2 == k.value)
-                  ?.$1;
-            },
-            itemBuilder: (context, index) {
-              final event = events.elementAt(index);
+    return SafeArea(
+      child: CustomScrollView(slivers: [
+        SliverPersistentHeader(
+          delegate: _TableHeader(eventsAmount: events.length),
+          pinned: true,
+        ),
+        SliverFixedExtentList.builder(
+          itemCount: events.length,
+          itemExtent: 48.0,
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: false,
+          findChildIndexCallback: (key) {
+            final k = key as ValueKey<Event>;
+            return events.indexed.firstWhereOrNull((e) => e.$2 == k.value)?.$1;
+          },
+          itemBuilder: (context, index) {
+            final event = events.elementAt(index);
 
-              return InkWell(
-                key: ValueKey(event),
-                onTap: event.mediaURL == null
-                    ? null
-                    : () {
-                        debugPrint('Displaying event $event');
-                        Navigator.of(context).pushNamed(
-                          '/events',
-                          arguments: {'event': event, 'upcoming': events},
-                        );
-                      },
-                child: Padding(
-                  padding:
-                      const EdgeInsetsDirectional.symmetric(horizontal: 20.0),
-                  child: Row(children: [
-                    Container(
-                      width: 40.0,
-                      height: 40.0,
-                      alignment: AlignmentDirectional.center,
-                      child: DownloadIndicator(event: event),
+            return InkWell(
+              key: ValueKey(event),
+              onTap: event.mediaURL == null
+                  ? null
+                  : () {
+                      debugPrint('Displaying event $event');
+                      Navigator.of(context).pushNamed(
+                        '/events',
+                        arguments: {'event': event, 'upcoming': events},
+                      );
+                    },
+              child: Padding(
+                padding:
+                    const EdgeInsetsDirectional.symmetric(horizontal: 20.0),
+                child: Row(children: [
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    alignment: AlignmentDirectional.center,
+                    child: DownloadIndicator(event: event),
+                  ),
+                  _buildTilePart(child: Text(event.server.name), flex: 2),
+                  _buildTilePart(child: Text(event.deviceName)),
+                  _buildTilePart(
+                    child: Text(event.type.locale(context).uppercaseFirst()),
+                  ),
+                  _buildTilePart(
+                    child: Text(event.duration
+                        .humanReadableCompact(context)
+                        .uppercaseFirst()),
+                  ),
+                  _buildTilePart(
+                    child:
+                        Text(event.priority.locale(context).uppercaseFirst()),
+                  ),
+                  _buildTilePart(
+                    child: Text(
+                      '${settings.formatDate(event.updated)} ${settings.formatTime(event.updated).toUpperCase()}',
                     ),
-                    _buildTilePart(child: Text(event.server.name), flex: 2),
-                    _buildTilePart(child: Text(event.deviceName)),
-                    _buildTilePart(
-                      child: Text(event.type.locale(context).uppercaseFirst()),
-                    ),
-                    _buildTilePart(
-                      child: Text(event.duration
-                          .humanReadableCompact(context)
-                          .uppercaseFirst()),
-                    ),
-                    _buildTilePart(
-                      child:
-                          Text(event.priority.locale(context).uppercaseFirst()),
-                    ),
-                    _buildTilePart(
-                      child: Text(
-                        '${settings.formatDate(event.updated)} ${settings.formatTime(event.updated).toUpperCase()}',
-                      ),
-                      flex: 2,
-                    ),
-                  ]),
-                ),
-              );
-            },
-          ),
-        ]),
-      ),
+                    flex: 2,
+                  ),
+                ]),
+              ),
+            );
+          },
+        ),
+      ]),
     );
   }
 }

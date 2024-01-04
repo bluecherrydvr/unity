@@ -292,10 +292,15 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
             firstDate: DateTime(1970),
             lastDate: DateTime.now(),
             initialEntryMode: DatePickerEntryMode.calendarOnly,
+            initialDateRange: startTime == null || endTime == null
+                ? null
+                : DateTimeRange(start: startTime!, end: endTime!),
           );
           if (range != null) {
-            startTime = range.start;
-            endTime = range.end;
+            setState(() {
+              startTime = range.start;
+              endTime = range.end;
+            });
             onSelect?.call();
           }
         },

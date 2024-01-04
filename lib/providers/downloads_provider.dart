@@ -209,9 +209,7 @@ class DownloadsManager extends UnityProvider {
   /// Downloads the given [event]
   Future<void> download(Event event) async {
     assert(event.mediaURL != null, 'There must be an url to be downloaded');
-
-    // safe for release
-    if (event.mediaURL == null) return;
+    if (event.mediaURL == null) return; // safe for release
 
     final home = HomeProvider.instance
       ..loading(UnityLoadingReason.downloadEvent);
@@ -224,7 +222,8 @@ class DownloadsManager extends UnityProvider {
     notifyListeners();
 
     final dir = SettingsProvider.instance.downloadsDirectory;
-    final fileName = 'event_${event.id}${event.deviceID}${event.server.ip}.mp4';
+    final fileName =
+        'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);
 
     await Dio().downloadUri(

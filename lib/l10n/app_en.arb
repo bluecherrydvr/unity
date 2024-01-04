@@ -253,7 +253,7 @@
     }
   },
   "howToDownload": "Go to the \"Events History\" screen to download events.",
-  "downloadTitle": "{event} on {device} under server {server} at {date}",
+  "downloadTitle": "{event} on {device} ({server}) at {date}",
   "@downloadTitle": {
     "placeholders": {
       "event": {

@@ -38,15 +38,14 @@ Future<void> configureWindow() async {
   await windowManager.waitUntilReadyToShow(
     const WindowOptions(
       minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
-      // minimumSize: kInitialWindowSize,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
       windowButtonVisibility: true,
     ),
     () async {
-      if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
-        await windowManager.setSize(kInitialWindowSize);
-      }
+      // if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
+      //   await windowManager.setSize(kInitialWindowSize);
+      // }
       await windowManager.show();
     },
   );

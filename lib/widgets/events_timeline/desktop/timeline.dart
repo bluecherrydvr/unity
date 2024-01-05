@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/device_grid/device_grid.dart'
     show calculateCrossAxisCount;
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
@@ -605,14 +606,20 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                   }()),
                   const Spacer(),
                   Expanded(
-                    child: Center(
-                      child: FilledButton(
-                        onPressed: home.isLoadingFor(
-                          UnityLoadingReason.fetchingEventsHistory,
-                        )
-                            ? null
-                            : widget.onFetch,
-                        child: Text(loc.filter),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: SizedBox(
+                        width: kSidebarConstraints.maxWidth,
+                        child: Center(
+                          child: FilledButton(
+                            onPressed: home.isLoadingFor(
+                              UnityLoadingReason.fetchingEventsHistory,
+                            )
+                                ? null
+                                : widget.onFetch,
+                            child: Text(loc.filter),
+                          ),
+                        ),
                       ),
                     ),
                   ),

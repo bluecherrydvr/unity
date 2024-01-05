@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
@@ -225,7 +226,7 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
         final mediaUrl = downloads.isEventDownloaded(event.id)
             ? Uri.file(
                 downloads.getDownloadedPathForEvent(event.id),
-                windows: Platform.isWindows,
+                windows: isDesktopPlatform && Platform.isWindows,
               ).toString()
             : event.mediaURL!.toString();
 

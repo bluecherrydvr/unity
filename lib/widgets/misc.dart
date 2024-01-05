@@ -96,7 +96,6 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   }
 }
 
-// I'm tired of buggy implementation in
 class CorrectedListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final IconData iconData;
@@ -250,6 +249,11 @@ class SubHeader extends StatelessWidget {
   }
 }
 
+/// A helper function that returns a [UnityDrawerButton] if the parent
+/// [Scaffold] has a drawer.
+///
+/// This is useful for when you want to display a drawer button in the appbar
+/// but only if the parent [Scaffold] has a drawer.
 // ignore: non_constant_identifier_names
 Widget? MaybeUnityDrawerButton(
   BuildContext context, {
@@ -347,17 +351,15 @@ List<Shadow> outlinedText({
   return result.toList();
 }
 
-List<Shadow> outlinedIcon() => outlinedText(
-      strokeWidth: 0.75,
-      strokeColor: Colors.black.withOpacity(0.75),
-    );
+List<Shadow> outlinedIcon() {
+  return outlinedText(
+    strokeWidth: 0.75,
+    strokeColor: Colors.black.withOpacity(0.75),
+  );
+}
 
-class PopupLabel extends PopupMenuEntry<Never> {
-  const PopupLabel({
-    super.key,
-    required this.label,
-    this.height = 42.0,
-  });
+class PopupMenuLabel extends PopupMenuEntry<Never> {
+  const PopupMenuLabel({super.key, required this.label, this.height = 42.0});
 
   @override
   final double height;
@@ -368,10 +370,10 @@ class PopupLabel extends PopupMenuEntry<Never> {
   bool represents(void value) => false;
 
   @override
-  State<PopupLabel> createState() => _PopupLabelState();
+  State<PopupMenuLabel> createState() => _PopupMenuLabelState();
 }
 
-class _PopupLabelState extends State<PopupLabel> {
+class _PopupMenuLabelState extends State<PopupMenuLabel> {
   @override
   Widget build(BuildContext context) => widget.label;
 }

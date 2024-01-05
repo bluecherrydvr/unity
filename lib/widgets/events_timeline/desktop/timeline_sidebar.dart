@@ -50,18 +50,15 @@ class TimelineSidebar extends StatelessWidget {
           top: Radius.circular(12.0),
         ),
       ),
-      margin: const EdgeInsetsDirectional.only(end: 4.0),
+      margin: const EdgeInsetsDirectional.only(end: 4.0, top: 4.0, start: 4.0),
       child: CollapsableSidebar(
+        left: false,
         builder: (context, collapsed, collapseButton) {
-          if (collapsed) {
-            return Padding(
-              padding: const EdgeInsetsDirectional.only(top: 4.0),
-              child: Align(
-                alignment: AlignmentDirectional.topEnd,
-                child: collapseButton,
-              ),
-            );
-          }
+          collapseButton = Padding(
+            padding: const EdgeInsetsDirectional.only(top: 4.0),
+            child: collapseButton,
+          );
+          if (collapsed) return collapseButton;
 
           return Column(children: [
             SubHeader(

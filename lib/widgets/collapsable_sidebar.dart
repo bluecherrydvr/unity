@@ -106,7 +106,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
               ? (widget.left
                   ? AlignmentDirectional.topStart
                   : AlignmentDirectional.topEnd)
-              : AlignmentDirectional.center,
+              : AlignmentDirectional.topCenter,
           padding: collapsed
               ? EdgeInsetsDirectional.zero
               : widget.left
@@ -145,9 +145,10 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
           ).evaluate(collapseAnimation),
           child: () {
             if (collapseAnimation.value > 0.35) {
-              return Container(
+              return Padding(
                 padding: const EdgeInsetsDirectional.symmetric(horizontal: 6.0),
-                child: Center(
+                child: Align(
+                  alignment: AlignmentDirectional.topCenter,
                   child: widget.builder(context, true, collapseButton),
                 ),
               );

@@ -20,12 +20,18 @@ void handleError(dynamic error, dynamic stackTrace) {
   writeErrorToFile(error, stackTrace);
 }
 
+Future<File> getLogFile() async {
+  final dir = await getApplicationSupportDirectory();
+  final file = File(path.join(dir.path, 'logs.txt'));
+
+  return file;
+}
+
 Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
   final time = DateTime.now().toIso8601String();
   final errorLog = '\n[$time]Error: $error\n[$time]Stack trace: $stackTrace';
 
-  final dir = await getApplicationSupportDirectory();
-  final file = File(path.join(dir.path, 'logs.txt'));
+  final file = await getLogFile();
 
   await file.writeAsString(errorLog, mode: FileMode.append);
   Logger.root.log(Level.INFO, 'Wrote log file to ${file.path}');
@@ -33,8 +39,7 @@ Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
 
 Future<void> writeLogToFile(String text) async {
   final time = DateTime.now().toIso8601String();
-  final dir = await getApplicationSupportDirectory();
-  final file = File(path.join(dir.path, 'logs.txt'));
+  final file = await getLogFile();
 
   await file.writeAsString('\n[$time] $text', mode: FileMode.append);
   Logger.root.log(Level.INFO, 'Wrote log file to ${file.path}');

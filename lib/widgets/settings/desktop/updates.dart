@@ -21,6 +21,8 @@ import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/shared/update.dart';
 import 'package:flutter/foundation.dart';
@@ -96,6 +98,38 @@ class BetaFeatures extends StatelessWidget {
             settings.betaMatrixedZoomEnabled = value;
           }
         },
+      ),
+      ExpansionTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.developer_mode),
+        ),
+        title: const Text('Developer options'),
+        subtitle:
+            const Text('Most of these options are for debugging purposes'),
+        children: [
+          FutureBuilder(
+            future: getLogFile(),
+            builder: (context, snapshot) {
+              return ListTile(
+                contentPadding: const EdgeInsetsDirectional.only(
+                  start: 68.0,
+                  end: 26.0,
+                ),
+                leading: const Icon(Icons.bug_report),
+                title: const Text('Open log file'),
+                subtitle:
+                    snapshot.data != null ? Text(snapshot.data!.path) : null,
+                trailing: const Icon(Icons.navigate_next),
+                dense: false,
+                onTap: () {
+                  launchFileExplorer(snapshot.data!.path);
+                },
+              );
+            },
+          ),
+        ],
       ),
     ]);
   }

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
@@ -229,7 +230,7 @@ class WindowButtons extends StatelessWidget {
                     ),
                   // Do not render the Window Buttons on web nor macOS. macOS
                   // render the buttons natively.
-                  if (!kIsWeb && !isMacOSPlatform)
+                  if (!kIsWeb && !isMacOSPlatform && !UpdateManager.isEmbedded)
                     SizedBox(
                       width: 138,
                       child: Builder(builder: (context) {

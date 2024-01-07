@@ -62,7 +62,6 @@ class _MobileSettingsState extends State<MobileSettings> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-    final update = context.watch<UpdateManager>();
     final servers = context.watch<ServersProvider>();
 
     return Material(
@@ -161,13 +160,13 @@ class _MobileSettingsState extends State<MobileSettings> {
                 ),
               ),
               const SliverToBoxAdapter(child: WakelockTile()),
-              if (update.isUpdatingSupported) ...[
+              if (UpdateManager.isUpdatingSupported) ...[
                 SliverToBoxAdapter(
                   child: SubHeader(
                     loc.updates,
                     subtext: loc.runningOn(() {
                       if (Platform.isLinux) {
-                        return loc.linux(update.linuxEnvironment ?? '');
+                        return loc.linux(UpdateManager.linuxEnvironment.name);
                       } else if (Platform.isWindows) {
                         return loc.windows;
                       }

@@ -360,12 +360,14 @@ class About extends StatelessWidget {
       padding: const EdgeInsetsDirectional.symmetric(horizontal: 24.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SizedBox(height: 8.0),
-        Text(update.packageInfo.version),
-        const SizedBox(height: 8.0),
-        Text(
-          loc.versionText,
-          style: theme.textTheme.displayMedium,
-        ),
+        if (update.packageInfo != null) ...[
+          Text(update.packageInfo!.version),
+          const SizedBox(height: 8.0),
+          Text(
+            loc.versionText,
+            style: theme.textTheme.displayMedium,
+          ),
+        ],
         const SizedBox(height: 8.0),
         Link(
           uri: Uri.https('www.bluecherrydvr.com', '/'),

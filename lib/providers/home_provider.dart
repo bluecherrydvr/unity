@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -142,6 +143,10 @@ class HomeProvider extends ChangeNotifier {
   }
 
   void updateWakelock(BuildContext context) {
+    if (UpdateManager.isEmbedded) {
+      // we can not access wakelock from the pi
+      return;
+    }
     final settings = context.read<SettingsProvider>();
 
     if (!settings.wakelockEnabled) {

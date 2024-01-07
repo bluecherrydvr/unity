@@ -72,12 +72,30 @@ class UpdateVersion {
   static const descriptionField = 'description';
   static const publishedAtField = 'pubDate';
 
-  static const rpm = 'rpm';
-  static const deb = 'deb';
-  static const tarball = 'tar.gz';
-  static const appImage = 'appimage';
   static const linuxDownloadFileName = 'bluecherry-linux-x86_64';
   static const windowsDownloadFileName = 'bluecherry-windows-setup';
+}
+
+enum LinuxPlatform {
+  rpm('rpm'),
+  deb('deb'),
+  appImage('AppImage'),
+  tarball('tar.gz'),
+  embedded(null);
+
+  final String? value;
+
+  const LinuxPlatform(this.value);
+
+  String get name {
+    return switch (this) {
+      LinuxPlatform.deb => 'Debian',
+      LinuxPlatform.rpm => 'Rpm',
+      LinuxPlatform.appImage => 'AppImage',
+      LinuxPlatform.tarball => 'Tarball',
+      LinuxPlatform.embedded || _ => 'Embedded'
+    };
+  }
 }
 
 class UpdateManager extends UnityProvider {
@@ -85,15 +103,13 @@ class UpdateManager extends UnityProvider {
 
   /// `late` initialized [UpdateManager] instance.
   static late final UpdateManager instance;
-  late final PackageInfo packageInfo;
+  late final PackageInfo? packageInfo;
   late String tempDir;
 
   /// The URL to the appcast file.
   static const appCastUrl =
       'https://raw.githubusercontent.com/bluecherrydvr/unity/main/bluecherry_appcast.xml';
 
-  /// Initializes the [UpdateManager] instance & fetches state from `async`
-  /// `package:hive` method-calls. Called before [runApp].
   static Future<UpdateManager> ensureInitialized() async {
     instance = UpdateManager._();
     await instance.initialize();
@@ -104,9 +120,9 @@ class UpdateManager extends UnityProvider {
   ///
   /// If false, the user is up to date with the latest version.
   bool get hasUpdateAvailable {
-    if (this.latestVersion == null) return false;
+    if (this.latestVersion == null || packageInfo == null) return false;
 
-    final currentVersion = Version.parse(packageInfo.version);
+    final currentVersion = Version.parse(packageInfo!.version);
     final latestVersion = Version.parse(this.latestVersion!.version);
 
     // assert(
@@ -130,9 +146,14 @@ class UpdateManager extends UnityProvider {
 
     await Future.wait([
       checkForUpdates(),
-      PackageInfo.fromPlatform().then((result) {
-        packageInfo = result;
-      })
+      if (isEmbedded)
+        () async {
+          packageInfo = null;
+        }()
+      else
+        PackageInfo.fromPlatform().then((result) {
+          packageInfo = result;
+        }),
     ]);
 
     if (hasUpdateAvailable && automaticDownloads) {
@@ -196,6 +217,8 @@ class UpdateManager extends UnityProvider {
   ///   * `AppImage`
   ///   * `tar.gz` (tarball)
   ///
+  /// Null defaults to Raspberry Pi
+  ///
   /// This means the value represent the file extension of the executable.
   ///
   /// Each Flutter executable is built with a different `linux_environment`
@@ -205,15 +228,28 @@ class UpdateManager extends UnityProvider {
   /// See also:
   ///
   ///  * [install], which uses this method to install the correct executable.
-  String? get linuxEnvironment {
+  static LinuxPlatform get linuxEnvironment {
     assert(
       Platform.isLinux,
       'This should never be reached on non-Linux platforms.',
     );
 
-    if (!const bool.hasEnvironment('linux_environment')) return null;
+    if (!const bool.hasEnvironment('linux_environment')) {
+      return LinuxPlatform.embedded;
+    }
 
-    return const String.fromEnvironment('linux_environment');
+    return LinuxPlatform.values.firstWhere(
+      (linux) =>
+          linux.value == const String.fromEnvironment('linux_environment'),
+      orElse: () => LinuxPlatform.embedded,
+    );
+  }
+
+  /// Whether the current platform is embedded
+  static bool get isEmbedded {
+    return isDesktopPlatform &&
+        Platform.isLinux &&
+        UpdateManager.linuxEnvironment == LinuxPlatform.embedded;
   }
 
   /// Check if updates are supported on the current platform.
@@ -222,11 +258,11 @@ class UpdateManager extends UnityProvider {
   ///
   /// On Linux, updates are supported if the `linux_environment` is set and it
   /// is not an `AppImage`.
-  bool get isUpdatingSupported {
+  static bool get isUpdatingSupported {
     if (Platform.isWindows) return true;
     if (Platform.isLinux) {
-      return linuxEnvironment != null &&
-          linuxEnvironment != UpdateVersion.appImage;
+      return linuxEnvironment != LinuxPlatform.appImage &&
+          linuxEnvironment != LinuxPlatform.embedded;
     }
 
     return false;
@@ -285,7 +321,6 @@ class UpdateManager extends UnityProvider {
       fileName = UpdateVersion.windowsDownloadFileName;
       extension = '.exe';
     } else if (Platform.isLinux) {
-      assert(linuxEnvironment != null);
       fileName = UpdateVersion.linuxDownloadFileName;
       extension = '.$linuxEnvironment';
     } else {
@@ -351,16 +386,17 @@ class UpdateManager extends UnityProvider {
       ]);
     } else if (Platform.isLinux) {
       switch (linuxEnvironment) {
-        case UpdateVersion.rpm:
+        case LinuxPlatform.rpm:
           Process.run('tar', ['-U', executable.path]);
           break;
-        case UpdateVersion.deb:
+        case LinuxPlatform.deb:
           Process.run('sudo', ['dpkg', '-i', executable.path]);
           break;
-        case UpdateVersion.tarball: // tarball
+        case LinuxPlatform.tarball: // tarball
           Process.run('tar', ['-i', executable.path]);
           break;
-        case UpdateVersion.appImage:
+        case LinuxPlatform.embedded:
+        case LinuxPlatform.appImage:
           throw UnsupportedError('AppImages do not support updating from app');
         default:
           throw UnsupportedError(

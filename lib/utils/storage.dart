@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -40,47 +41,53 @@ Future<void> configureStorage() async {
   desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
   updates = SafeLocalStorage(path.join(dir, 'updates.json'));
 
-  // Migrate from hive to new storage system
-  await Hive.initFlutter(dir);
-  if (await Hive.boxExists('hive')) {
-    final hive = await Hive.openBox('hive');
-    if (hive.isEmpty) {
-      hive.close();
-    } else {
-      await Future.wait([
-        storage._replaceIfNotNull(
-            kHiveNotificationToken, hive.get(kHiveNotificationToken)),
-        desktopView._replaceIfNotNull(
-            kHiveDesktopLayouts, hive.get(kHiveDesktopLayouts)),
-        desktopView._replaceIfNotNull(
-            kHiveDesktopCurrentLayout, hive.get(kHiveDesktopCurrentLayout)),
-        downloads._replaceIfNotNull(kHiveDownloads, hive.get(kHiveDownloads)),
-        eventsPlayback._replaceIfNotNull(
-            kHiveEventsPlayback, hive.get(kHiveEventsPlayback)),
-        mobileView._replaceIfNotNull(
-            kHiveMobileView, hive.get(kHiveMobileView)),
-        mobileView._replaceIfNotNull(
-            kHiveMobileViewTab, hive.get(kHiveMobileViewTab)),
-        serversStorage._replaceIfNotNull(kHiveServers, hive.get(kHiveServers)),
-        settings._replaceIfNotNull(kHiveThemeMode, hive.get(kHiveThemeMode)),
-        settings._replaceIfNotNull(kHiveDateFormat, hive.get(kHiveDateFormat)),
-        settings._replaceIfNotNull(kHiveTimeFormat, hive.get(kHiveTimeFormat)),
-        settings._replaceIfNotNull(
-            kHiveSnoozedUntil, hive.get(kHiveSnoozedUntil)),
-        settings._replaceIfNotNull(
-          kHiveNotificationClickBehavior,
-          hive.get(kHiveNotificationClickBehavior),
-        ),
-        settings._replaceIfNotNull(
-          kHiveCameraViewFit,
-          hive.get(kHiveCameraViewFit),
-        ),
-        settings._replaceIfNotNull(
-          kHiveDownloadsDirectorySetting,
-          hive.get(kHiveDownloadsDirectorySetting),
-        ),
-      ]);
-      await Hive.deleteBoxFromDisk('hive');
+  if (!UpdateManager.isEmbedded) {
+    // Migrate from hive to new storage system
+    // TODO(bdlukaa): remove this legacy code when stable is released
+    await Hive.initFlutter(dir);
+    if (await Hive.boxExists('hive')) {
+      final hive = await Hive.openBox('hive');
+      if (hive.isEmpty) {
+        hive.close();
+      } else {
+        await Future.wait([
+          storage._replaceIfNotNull(
+              kHiveNotificationToken, hive.get(kHiveNotificationToken)),
+          desktopView._replaceIfNotNull(
+              kHiveDesktopLayouts, hive.get(kHiveDesktopLayouts)),
+          desktopView._replaceIfNotNull(
+              kHiveDesktopCurrentLayout, hive.get(kHiveDesktopCurrentLayout)),
+          downloads._replaceIfNotNull(kHiveDownloads, hive.get(kHiveDownloads)),
+          eventsPlayback._replaceIfNotNull(
+              kHiveEventsPlayback, hive.get(kHiveEventsPlayback)),
+          mobileView._replaceIfNotNull(
+              kHiveMobileView, hive.get(kHiveMobileView)),
+          mobileView._replaceIfNotNull(
+              kHiveMobileViewTab, hive.get(kHiveMobileViewTab)),
+          serversStorage._replaceIfNotNull(
+              kHiveServers, hive.get(kHiveServers)),
+          settings._replaceIfNotNull(kHiveThemeMode, hive.get(kHiveThemeMode)),
+          settings._replaceIfNotNull(
+              kHiveDateFormat, hive.get(kHiveDateFormat)),
+          settings._replaceIfNotNull(
+              kHiveTimeFormat, hive.get(kHiveTimeFormat)),
+          settings._replaceIfNotNull(
+              kHiveSnoozedUntil, hive.get(kHiveSnoozedUntil)),
+          settings._replaceIfNotNull(
+            kHiveNotificationClickBehavior,
+            hive.get(kHiveNotificationClickBehavior),
+          ),
+          settings._replaceIfNotNull(
+            kHiveCameraViewFit,
+            hive.get(kHiveCameraViewFit),
+          ),
+          settings._replaceIfNotNull(
+            kHiveDownloadsDirectorySetting,
+            hive.get(kHiveDownloadsDirectorySetting),
+          ),
+        ]);
+        await Hive.deleteBoxFromDisk('hive');
+      }
     }
   }
 }

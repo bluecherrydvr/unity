@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -243,12 +244,17 @@ class SettingsProvider extends UnityProvider {
     } else {
       _themeMode = kDefaultThemeMode;
     }
-    final format = SystemDateTimeFormat();
+
     initializeDateFormatting(_locale.languageCode);
     Intl.defaultLocale = _locale.toLanguageTag();
-
     final systemLocale = Intl.getCurrentLocale();
-    final timePattern = await format.getTimePattern();
+    String? timePattern;
+    if (!UpdateManager.isEmbedded) {
+      // can not access system_date_time_format from embedded
+      final format = SystemDateTimeFormat();
+      timePattern = await format.getTimePattern();
+    }
+
     _dateFormat = DateFormat(
       data[kHiveDateFormat] ?? kDefaultDateFormat,
       systemLocale,

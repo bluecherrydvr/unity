@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,23 +33,37 @@ import 'package:window_manager/window_manager.dart';
 /// The initial size of the window
 const kInitialWindowSize = Size(1066, 645);
 
+bool get canConfigureWindow {
+  if (isDesktopPlatform) {
+    if (Platform.isLinux &&
+        UpdateManager.linuxEnvironment == LinuxPlatform.embedded) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
 /// Configures the current window
 Future<void> configureWindow() async {
-  await WindowManager.instance.ensureInitialized();
-  await windowManager.waitUntilReadyToShow(
-    const WindowOptions(
-      minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-      windowButtonVisibility: true,
-    ),
-    () async {
-      // if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
-      //   await windowManager.setSize(kInitialWindowSize);
-      // }
-      await windowManager.show();
-    },
-  );
+  if (canConfigureWindow) {
+    await WindowManager.instance.ensureInitialized();
+    await windowManager.waitUntilReadyToShow(
+      const WindowOptions(
+        minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
+        // minimumSize: kInitialWindowSize,
+        skipTaskbar: false,
+        titleBarStyle: TitleBarStyle.hidden,
+        windowButtonVisibility: true,
+      ),
+      () async {
+        // if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
+        //  await windowManager.setSize(kInitialWindowSize);
+        // }
+        await windowManager.show();
+      },
+    );
+  }
 }
 
 /// Configures the camera sub window
@@ -57,8 +72,10 @@ Future<void> configureWindow() async {
 ///
 ///  * [SingleCameraWindow]
 Future<void> configureWindowTitle(String title) async {
-  await WindowManager.instance.ensureInitialized();
-  await windowManager.setTitle(title);
+  if (canConfigureWindow) {
+    await WindowManager.instance.ensureInitialized();
+    await windowManager.setTitle(title);
+  }
 }
 
 enum MultiWindowType { device, layout }

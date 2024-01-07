@@ -60,6 +60,8 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:unity_video_player_flutter/unity_video_player_flutter.dart';
+import 'package:unity_video_player_main/unity_video_player_main.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -80,6 +82,14 @@ Future<void> main(List<String> args) async {
 
     DevHttpOverrides.configureCertificates();
     await UnityVideoPlayerInterface.instance.initialize();
+    if (isDesktopPlatform && Platform.isLinux) {
+      if (UpdateManager.linuxEnvironment == LinuxPlatform.embedded) {
+        UnityVideoPlayerFlutterInterface.registerWith();
+      } else {
+        UnityVideoPlayerMediaKitInterface.registerWith();
+      }
+    }
+    debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
     await configureStorage();
 
     logging.writeLogToFile('Opening app with $args');
@@ -189,7 +199,7 @@ class _UnityAppState extends State<UnityApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     windowManager.addListener(this);
-    if (isDesktopPlatform) {
+    if (isDesktopPlatform && canConfigureWindow) {
       windowManager.setPreventClose(true).then((_) {
         if (mounted) setState(() {});
       });

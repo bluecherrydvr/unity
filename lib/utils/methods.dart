@@ -33,9 +33,11 @@ class DeviceOrientations {
   /// Private constructor.
   DeviceOrientations._();
 
-  Future<void> set(
-    List<DeviceOrientation> orientations,
-  ) {
+  /// Maintain a stack of the last set of orientations, to switch back to the
+  /// most recent one.
+  final List<List<DeviceOrientation>> _stack = [];
+
+  Future<void> set(List<DeviceOrientation> orientations) {
     _stack.add(orientations);
     debugPrint(orientations.toString());
     return SystemChrome.setPreferredOrientations(orientations);
@@ -46,9 +48,6 @@ class DeviceOrientations {
     debugPrint(_stack.toString());
     await SystemChrome.setPreferredOrientations(_stack.last);
   }
-
-  /// Maintain a stack of the last set of orientations, to switch back to the most recent one.
-  final List<List<DeviceOrientation>> _stack = [];
 }
 
 /// Wraps [child] in a [Tooltip] if the app meets [condition]
@@ -69,7 +68,7 @@ Widget wrapTooltipIf(
   return child;
 }
 
-/// Wraps [child] in an [Expanded] if the app meets [condition]
+/// Wraps [child] in an [Expanded] if [condition] is true.
 Widget wrapExpandedIf(
   bool condition, {
   required Widget child,
@@ -81,14 +80,11 @@ Widget wrapExpandedIf(
   return child;
 }
 
-T? showIf<T extends Widget>(bool condition, {required T child}) {
-  if (condition) return child;
-
-  return null;
-}
-
 /// Returns true if the app is running on a desktop platform. This is useful
 /// for determining whether to show desktop-specific UI elements.
+///
+/// This does not check if the runtime is native or web. Use [isDesktopPlatform]
+/// for that instead.
 bool get isDesktop {
   return [
     TargetPlatform.windows,
@@ -106,6 +102,9 @@ bool get isDesktopPlatform {
 
 /// Returns true if the app is running on a mobile platform. This is useful
 /// for determining whether to show mobile-specific UI elements.
+///
+/// This does not check if the runtime is native or web. Use [isMobilePlatform]
+/// for that instead.
 bool get isMobile {
   return [
     TargetPlatform.android,
@@ -121,7 +120,7 @@ bool get isMobilePlatform {
   return Platform.isAndroid || Platform.isIOS;
 }
 
-/// Whether the current platform is iOS or macOS
+/// Whether the current platform is iOS or macOS.
 bool get isCupertino {
   final cupertinoPlatforms = [TargetPlatform.iOS, TargetPlatform.macOS];
   final navigatorContext = navigatorKey.currentContext;

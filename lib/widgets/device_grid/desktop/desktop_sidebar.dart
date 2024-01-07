@@ -393,7 +393,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         minWidth: size.width,
       ),
       items: <PopupMenuEntry>[
-        PopupLabel(
+        PopupMenuLabel(
           label: Padding(
             padding: padding
                 .add(const EdgeInsetsDirectional.symmetric(vertical: 6.0)),

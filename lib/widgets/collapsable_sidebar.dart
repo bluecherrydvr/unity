@@ -21,8 +21,8 @@ import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-const kSidebarConstraints = BoxConstraints(maxWidth: 220.0);
-const kCompactSidebarConstraints = BoxConstraints(maxWidth: 46.0);
+const kSidebarConstraints = BoxConstraints(maxWidth: 256.0);
+const kCompactSidebarConstraints = BoxConstraints(maxWidth: 48.0);
 
 typedef SidebarBuilder = Widget Function(
   BuildContext context,
@@ -96,12 +96,21 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
     return AnimatedBuilder(
       animation: collapseAnimation,
       builder: (context, child) {
+        final isTransitioning = collapseAnimation.value > 0.0 &&
+            collapseAnimation.value < 1.0 &&
+            collapseController.status != AnimationStatus.completed &&
+            collapseController.status != AnimationStatus.dismissed;
         final collapsed = collapseController.isCompleted;
-        final collapseButton = Padding(
+        final collapseButton = Container(
+          alignment: isTransitioning
+              ? (widget.left
+                  ? AlignmentDirectional.topStart
+                  : AlignmentDirectional.topEnd)
+              : AlignmentDirectional.topCenter,
           padding: collapsed
               ? EdgeInsetsDirectional.zero
               : widget.left
-                  ? const EdgeInsetsDirectional.only(start: 5.0)
+                  ? const EdgeInsetsDirectional.symmetric(horizontal: 5.0)
                   : const EdgeInsetsDirectional.only(end: 5.0),
           child: SquaredIconButton(
             key: collapseButtonKey,
@@ -117,9 +126,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
                           end: 0.5,
                         ))
                   .animate(collapseAnimation),
-              child: const Icon(
-                Icons.keyboard_arrow_right,
-              ),
+              child: const Icon(Icons.keyboard_arrow_right),
             ),
             onPressed: () {
               if (collapseController.isCompleted) {
@@ -138,12 +145,12 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
           ).evaluate(collapseAnimation),
           child: () {
             if (collapseAnimation.value > 0.35) {
-              return Container(
-                alignment: widget.left
-                    ? AlignmentDirectional.topStart
-                    : AlignmentDirectional.topEnd,
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
-                child: widget.builder(context, true, collapseButton),
+              return Padding(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 6.0),
+                child: Align(
+                  alignment: AlignmentDirectional.topCenter,
+                  child: widget.builder(context, true, collapseButton),
+                ),
               );
             }
 

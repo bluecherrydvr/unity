@@ -32,7 +32,7 @@ extension EventsExtension on API {
 
     return compute(_getEvents, {
       'server': server,
-      'limit': await eventsLimit,
+      'limit': (startTime != null && endTime != null) ? -1 : await eventsLimit,
       'startTime': startTime,
       'endTime': endTime,
       'device_id': device?.id,
@@ -46,10 +46,10 @@ extension EventsExtension on API {
       return [];
     }
 
-    final limit = (data['limit'] as int?) ?? -1;
     var startTime = data['startTime'] as DateTime?;
     final endTime = data['endTime'] as DateTime?;
     final deviceId = data['device_id'] as int?;
+    final limit = (data['limit'] as int?) ?? -1;
 
     if (startTime != null && endTime != null) {
       if (startTime == endTime) {

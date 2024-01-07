@@ -299,7 +299,7 @@ class _DownloadTileState extends State<DownloadTile> {
                               ]),
                             ),
                           ),
-                          TextButton(
+                          TextButton.icon(
                             onPressed: isDownloaded
                                 ? () {
                                     context
@@ -307,14 +307,11 @@ class _DownloadTileState extends State<DownloadTile> {
                                         .delete(widget.downloadPath!);
                                   }
                                 : null,
-                            child: Row(children: [
-                              const Icon(Icons.delete, size: 20.0),
-                              const SizedBox(width: 8.0),
-                              Text(loc.delete),
-                            ]),
+                            icon: const Icon(Icons.delete, size: 20.0),
+                            label: Text(loc.delete),
                           ),
                           if (isDesktop)
-                            TextButton(
+                            TextButton.icon(
                               onPressed: isDownloaded
                                   ? () {
                                       launchFileExplorer(
@@ -322,11 +319,8 @@ class _DownloadTileState extends State<DownloadTile> {
                                       );
                                     }
                                   : null,
-                              child: Row(children: [
-                                const Icon(Icons.folder, size: 20.0),
-                                const SizedBox(width: 8.0),
-                                Text(loc.showInFiles), // show in explorer
-                              ]),
+                              icon: const Icon(Icons.folder, size: 20.0),
+                              label: Text(loc.showInFiles),
                             ),
                         ],
                       ),

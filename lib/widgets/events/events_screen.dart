@@ -32,6 +32,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/widgets/tree_view.dart';
+import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -76,12 +77,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     for (final server in ServersProvider.instance.servers)
       ...server.devices.map((d) => d.streamURL)
   };
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
-  }
 
   /// Fetches the events from the servers.
   Future<void> fetch() async {
@@ -200,12 +195,10 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
         );
       }
 
-      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SizedBox(
-          width: 220,
-          child: Card(
-            margin: EdgeInsetsDirectional.zero,
-            shape: const RoundedRectangleBorder(),
+      return Material(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          ConstrainedBox(
+            constraints: kSidebarConstraints,
             child: SafeArea(
               child: DropdownButtonHideUnderline(
                 child: Column(children: [
@@ -254,10 +247,19 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
               ),
             ),
           ),
-        ),
-        const VerticalDivider(width: 1),
-        Expanded(child: EventsScreenDesktop(events: filteredEvents)),
-      ]);
+          Expanded(
+            child: Card(
+              margin: EdgeInsets.zero,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadiusDirectional.only(
+                  topStart: Radius.circular(12.0),
+                ),
+              ),
+              child: EventsScreenDesktop(events: filteredEvents),
+            ),
+          ),
+        ]),
+      );
     });
   }
 
@@ -284,10 +286,15 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
             firstDate: DateTime(1970),
             lastDate: DateTime.now(),
             initialEntryMode: DatePickerEntryMode.calendarOnly,
+            initialDateRange: startTime == null || endTime == null
+                ? null
+                : DateTimeRange(start: startTime!, end: endTime!),
           );
           if (range != null) {
-            startTime = range.start;
-            endTime = range.end;
+            setState(() {
+              startTime = range.start;
+              endTime = range.end;
+            });
             onSelect?.call();
           }
         },
@@ -427,6 +434,7 @@ class EventsDevicesPicker extends StatelessWidget {
               secondaryText: isOffline ? null : '${server.devices.length}',
               gapCheckboxText: gapCheckboxText,
               textFit: FlexFit.tight,
+              offlineIcon: Icons.domain_disabled_outlined,
             ),
             children: () {
               if (isOffline) {

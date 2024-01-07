@@ -69,7 +69,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
               SquaredIconButton(
                 icon: Icon(
                   Icons.cyclone,
-                  size: 18.0,
+                  size: 20.0,
                   color: settings.layoutCyclingEnabled
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
@@ -78,7 +78,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 onPressed: settings.toggleCycling,
               ),
               SquaredIconButton(
-                icon: const Icon(Icons.camera_outdoor, size: 18.0),
+                icon: const Icon(Icons.camera_outdoor, size: 20.0),
                 tooltip: loc.addExternalStream,
                 onPressed: () => AddExternalStreamDialog.show(context),
               ),

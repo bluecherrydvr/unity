@@ -37,10 +37,7 @@ import 'package:provider/provider.dart';
 class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
-  const LayoutManager({
-    super.key,
-    required this.collapseButton,
-  });
+  const LayoutManager({super.key, required this.collapseButton});
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
@@ -273,7 +270,7 @@ class _LayoutTileState extends State<LayoutTile> {
         minWidth: size.width,
       ),
       items: <PopupMenuEntry>[
-        PopupLabel(
+        PopupMenuLabel(
           label: Padding(
             padding: padding.add(const EdgeInsets.symmetric(vertical: 6.0)),
             child: Text(

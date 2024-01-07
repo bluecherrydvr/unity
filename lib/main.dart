@@ -246,7 +246,7 @@ class _UnityAppState extends State<UnityApp>
     final context = navigatorKey.currentContext!;
     if (isPreventClose && mounted && context.mounted) {
       final downloadsManager = context.read<DownloadsManager>();
-      if (downloadsManager.downloading.isNotEmpty || true) {
+      if (downloadsManager.downloading.isNotEmpty) {
         final result = await showDialog<bool>(
           context: context,
           barrierDismissible: false,

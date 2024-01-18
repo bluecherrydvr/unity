@@ -146,7 +146,7 @@ Future<void> main(List<String> args) async {
     // Request notifications permission for iOS, Android 13+ and Windows.
     //
     // permission_handler only supports these platforms
-    if (isMobilePlatform || Platform.isWindows) {
+    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
       () async {
         if (await Permission.notification.isDenied) {
           final state = await Permission.notification.request();
@@ -198,8 +198,8 @@ class _UnityAppState extends State<UnityApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    windowManager.addListener(this);
     if (isDesktopPlatform && canConfigureWindow) {
+      windowManager.addListener(this);
       windowManager.setPreventClose(true).then((_) {
         if (mounted) setState(() {});
       });
@@ -209,7 +209,9 @@ class _UnityAppState extends State<UnityApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    windowManager.removeListener(this);
+    if (isDesktopPlatform && canConfigureWindow) {
+      windowManager.removeListener(this);
+    }
     super.dispose();
   }
 

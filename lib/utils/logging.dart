@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
@@ -28,6 +29,8 @@ Future<File> getLogFile() async {
 }
 
 Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
+  if (kIsWeb) return;
+
   final time = DateTime.now().toIso8601String();
   final errorLog = '\n[$time]Error: $error\n[$time]Stack trace: $stackTrace';
 
@@ -38,6 +41,8 @@ Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
 }
 
 Future<void> writeLogToFile(String text) async {
+  if (kIsWeb) return;
+
   final time = DateTime.now().toIso8601String();
   final file = await getLogFile();
 

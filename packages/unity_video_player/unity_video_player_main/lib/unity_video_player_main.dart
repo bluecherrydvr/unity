@@ -376,6 +376,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col, int size) async {
+    if (kIsWeb) return;
     final player = mkPlayer.platform as NativePlayer;
     // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
     // As of now (18 nov 2023), the "video-crop" parameter is not supported on

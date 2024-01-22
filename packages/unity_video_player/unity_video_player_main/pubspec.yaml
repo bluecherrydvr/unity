@@ -104,3 +104,6 @@ flutter:
         dartPluginClass: UnityVideoPlayerMediaKitInterface
       android:
         dartPluginClass: UnityVideoPlayerMediaKitInterface
+      web:
+        pluginClass: UnityVideoPlayerMediaKitInterface
+        fileName: unity_video_player_main.dart

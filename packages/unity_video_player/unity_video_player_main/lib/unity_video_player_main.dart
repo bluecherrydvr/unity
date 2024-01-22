@@ -12,7 +12,7 @@ import 'package:unity_video_player_platform_interface/unity_video_player_platfor
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
-  static void registerWith() {
+  static void registerWith([registrar]) {
     UnityVideoPlayerInterface.instance = UnityVideoPlayerMediaKitInterface();
   }
 

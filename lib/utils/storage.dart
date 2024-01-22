@@ -28,6 +28,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:safe_local_storage/safe_local_storage.dart';
 
 Future<void> configureStorage() async {
+  if (kIsWeb) return;
   final dir = (await getApplicationSupportDirectory()).path;
 
   debugPrint('App working directory: $dir');

@@ -171,7 +171,7 @@ Future<void> main(List<String> args) async {
     ]);
 
     /// Firebase messaging isn't available on windows nor linux
-    if (kIsWeb || isMobilePlatform || Platform.isMacOS) {
+    if (!kIsWeb && (isMobilePlatform || Platform.isMacOS)) {
       FirebaseConfiguration.ensureInitialized();
     }
 

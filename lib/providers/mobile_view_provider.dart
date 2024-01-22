@@ -72,7 +72,8 @@ class MobileViewProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await super.initializeStorage(mobileView, kHiveMobileView);
+    await tryReadStorage(
+        () => super.initializeStorage(mobileView, kHiveMobileView));
     for (final device in current) {
       if (device != null) {
         UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
@@ -206,7 +207,7 @@ class MobileViewProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await mobileView.read() as Map;
+    final data = await tryReadStorage(() => mobileView.read());
     devices =
         ((await compute(jsonDecode, data[kHiveMobileView] as String)) as Map)
             .map(

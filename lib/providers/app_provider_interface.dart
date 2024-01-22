@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/widgets.dart';
 import 'package:safe_local_storage/safe_local_storage.dart';
 
@@ -27,7 +28,7 @@ abstract class UnityProvider extends ChangeNotifier {
   @protected
   Future<void> initializeStorage(SafeLocalStorage storage, String key) async {
     try {
-      final hive = await storage.read() as Map;
+      final hive = await tryReadStorage(() => storage.read());
       if (!hive.containsKey(key)) {
         await save();
       } else {

@@ -29,6 +29,7 @@ import 'package:safe_local_storage/safe_local_storage.dart';
 
 Future<void> configureStorage() async {
   if (kIsWeb) return;
+
   final dir = (await getApplicationSupportDirectory()).path;
 
   debugPrint('App working directory: $dir');
@@ -147,4 +148,15 @@ Future<File> errorLog(LogType type, String message) async {
   await file.writeAsString(log, mode: FileMode.append);
 
   return file;
+}
+
+// TODO(bdlukaa): support for web. Maybe by no longer using safe_local_storage
+//                and using other storage methods instead, like shared_preferences.
+Future<Map> tryReadStorage(Future Function() callback) async {
+  try {
+    return (await callback()) as Map;
+  } catch (e) {
+    // debugPrint(e.toString());
+    return Future.value({});
+  }
 }

@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -227,12 +228,7 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    Map data;
-    try {
-      data = await settings.read() as Map;
-    } catch (_) {
-      data = {};
-    }
+    final data = await tryReadStorage(() => settings.read());
 
     if (data.containsKey(kHiveLocale)) {
       _locale = Locale(data[kHiveLocale]!);
@@ -249,7 +245,7 @@ class SettingsProvider extends UnityProvider {
     Intl.defaultLocale = _locale.toLanguageTag();
     final systemLocale = Intl.getCurrentLocale();
     String? timePattern;
-    if (!UpdateManager.isEmbedded) {
+    if (!UpdateManager.isEmbedded && !kIsWeb) {
       // can not access system_date_time_format from embedded
       final format = SystemDateTimeFormat();
       timePattern = await format.getTimePattern();
@@ -271,8 +267,10 @@ class SettingsProvider extends UnityProvider {
             kDefaultNotificationClickBehavior.index];
     _cameraViewFit = UnityVideoFit
         .values[data[kHiveCameraViewFit] ?? kDefaultCameraViewFit.index];
-    _downloadsDirectory = data[kHiveDownloadsDirectorySetting] ??
-        ((await kDefaultDownloadsDirectory).path);
+    if (!kIsWeb) {
+      _downloadsDirectory = data[kHiveDownloadsDirectorySetting] ??
+          ((await kDefaultDownloadsDirectory).path);
+    }
     _layoutCyclingEnabled =
         data[kHiveLayoutCycling] ?? kDefaultLayoutCyclingEnabled;
     _layoutCyclingTogglePeriod = Duration(

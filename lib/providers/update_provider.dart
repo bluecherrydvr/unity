@@ -138,22 +138,29 @@ class UpdateManager extends UnityProvider {
     return versions.isEmpty ? null : versions.last;
   }
 
+  Future<void> _setPackageInfo() async {
+    if (isEmbedded) {
+      packageInfo = null;
+    } else {
+      await PackageInfo.fromPlatform().then((result) {
+        packageInfo = result;
+      });
+    }
+  }
+
   @override
   Future<void> initialize() async {
-    await super.initializeStorage(updates, kHiveAutomaticUpdates);
+    if (kIsWeb) {
+      return _setPackageInfo();
+    }
+    await tryReadStorage(
+        () => super.initializeStorage(updates, kHiveAutomaticUpdates));
 
     tempDir = (await getTemporaryDirectory()).path;
 
     await Future.wait([
       checkForUpdates(),
-      if (isEmbedded)
-        () async {
-          packageInfo = null;
-        }()
-      else
-        PackageInfo.fromPlatform().then((result) {
-          packageInfo = result;
-        }),
+      _setPackageInfo(),
     ]);
 
     if (hasUpdateAvailable && automaticDownloads) {

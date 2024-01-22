@@ -154,7 +154,8 @@ class DownloadsManager extends UnityProvider {
       // }
     });
 
-    return super.initializeStorage(downloads, kHiveDownloads);
+    await tryReadStorage(
+        () => super.initializeStorage(downloads, kHiveDownloads));
   }
 
   @override
@@ -173,7 +174,7 @@ class DownloadsManager extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await downloads.read() as Map;
+    final data = await tryReadStorage(() => downloads.read());
 
     downloadedEvents = data[kHiveDownloads] == null
         ? []

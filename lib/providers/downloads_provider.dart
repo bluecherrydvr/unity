@@ -36,7 +36,9 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:path_provider_windows/path_provider_windows.dart'
     hide WindowsKnownFolder;
 // ignore: implementation_imports
-import 'package:path_provider_windows/src/folders.dart' show WindowsKnownFolder;
+import 'package:path_provider_windows/src/folders_stub.dart'
+    if (dart.library.ffi) 'package:path_provider_windows/src/folders.dart'
+    show WindowsKnownFolder;
 
 class DownloadedEvent {
   final Event event;
@@ -107,7 +109,8 @@ class DownloadsManager extends UnityProvider {
       final instance = PathProviderPlatform.instance as PathProviderWindows;
       final videosPath =
           // ignore: unnecessary_cast
-          await instance.getPath(WindowsKnownFolder.Videos) as String;
+          await instance.getPath((WindowsKnownFolder as dynamic).Videos)
+              as String;
       dir = Directory(path.join(videosPath, 'Bluecherry Client', 'Downloads'));
     }
 

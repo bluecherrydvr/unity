@@ -210,7 +210,10 @@ class WindowButtons extends StatelessWidget {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 10.0),
-                        child: titleWidget,
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: titleWidget,
+                        ),
                       ),
                     ),
                   if (home.isLoading)

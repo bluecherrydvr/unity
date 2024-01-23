@@ -45,7 +45,7 @@ class API {
         {
           'login': server.login,
           'password': server.password,
-          'from_client': 'true',
+          'from_client': '${true}',
         },
       );
       final request = MultipartRequest('POST', uri)
@@ -59,8 +59,11 @@ class API {
         });
       final response = await request.send();
       final body = await response.stream.bytesToString();
-      debugPrint('checkServerCredentials ${response.statusCode}');
-      // debugPrint(response.headers.toString());
+      debugPrint(
+        'checkServerCredentials ${response.statusCode}'
+        '\n:....${response.headers}'
+        '\n:....$body',
+      );
 
       if (response.statusCode == 200) {
         final json = await compute(jsonDecode, body);

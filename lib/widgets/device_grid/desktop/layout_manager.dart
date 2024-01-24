@@ -37,7 +37,13 @@ import 'package:provider/provider.dart';
 class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
-  const LayoutManager({super.key, required this.collapseButton});
+  final ValueChanged<String> onSearchChanged;
+
+  const LayoutManager({
+    super.key,
+    required this.collapseButton,
+    required this.onSearchChanged,
+  });
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
@@ -45,6 +51,10 @@ class LayoutManager extends StatefulWidget {
 
 class _LayoutManagerState extends State<LayoutManager> {
   Timer? timer;
+
+  bool searchVisible = false;
+  final searchController = TextEditingController();
+  final searchFocusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
@@ -70,6 +80,8 @@ class _LayoutManagerState extends State<LayoutManager> {
   @override
   void dispose() {
     timer?.cancel();
+    searchController.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -95,11 +107,22 @@ class _LayoutManagerState extends State<LayoutManager> {
               child: Row(children: [
                 widget.collapseButton,
                 const SizedBox(width: 5.0),
-                Expanded(
-                  child: Text(
-                    loc.view,
-                    maxLines: 1,
+                Expanded(child: Text(loc.view, maxLines: 1)),
+                SquaredIconButton(
+                  icon: Icon(
+                    !searchVisible ? Icons.search : Icons.search_off,
+                    size: 18.0,
+                    color: IconTheme.of(context).color,
                   ),
+                  tooltip: searchVisible
+                      ? 'Disable Search'
+                      : MaterialLocalizations.of(context).searchFieldLabel,
+                  onPressed: () {
+                    setState(() => searchVisible = !searchVisible);
+                    if (searchVisible) {
+                      searchFocusNode.requestFocus();
+                    }
+                  },
                 ),
                 SquaredIconButton(
                   icon: Icon(
@@ -145,6 +168,33 @@ class _LayoutManagerState extends State<LayoutManager> {
               );
             },
           ),
+        ),
+        AnimatedSlide(
+          offset: searchVisible ? Offset.zero : const Offset(0, 1),
+          duration: kThemeChangeDuration,
+          curve: Curves.easeInOut,
+          child: Column(children: [
+            const Divider(height: 1.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  isDense: true,
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsetsDirectional.symmetric(
+                    horizontal: 8.0,
+                    vertical: 4.0,
+                  ),
+                ),
+                onChanged: widget.onSearchChanged,
+              ),
+            )
+          ]),
         ),
         const Divider(height: 1.0),
       ]),

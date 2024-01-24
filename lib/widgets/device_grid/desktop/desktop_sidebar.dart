@@ -34,6 +34,7 @@ class DesktopSidebar extends StatefulWidget {
 
 class _DesktopSidebarState extends State<DesktopSidebar> {
   bool isSidebarHovering = false;
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,12 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       child: Material(
         color: theme.canvasColor,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          LayoutManager(collapseButton: widget.collapseButton),
+          LayoutManager(
+            collapseButton: widget.collapseButton,
+            onSearchChanged: (text) {
+              setState(() => searchQuery = text);
+            },
+          ),
           if (servers.servers.isEmpty)
             const Expanded(child: NoServers())
           else
@@ -66,8 +72,21 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                       ..sort((a, b) =>
                           b.online.toString().compareTo(a.online.toString())))
                       () {
-                        final devices = server.devices.sorted();
+                        final devices = server.devices
+                            .where(
+                              (device) => device.name.toLowerCase().contains(
+                                    searchQuery.toLowerCase(),
+                                  ),
+                            )
+                            .sorted();
                         final isLoading = servers.isServerLoading(server);
+                        if (!isLoading &&
+                            devices.isEmpty &&
+                            searchQuery.isNotEmpty) {
+                          return const SliverToBoxAdapter(
+                            child: SizedBox.shrink(),
+                          );
+                        }
 
                         /// Whether all the online devices are in the current view.
                         final isAllInView = devices

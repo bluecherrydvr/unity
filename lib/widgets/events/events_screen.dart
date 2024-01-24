@@ -37,6 +37,7 @@ import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -172,6 +173,11 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     });
   }
 
+  bool searchVisible = false;
+  final searchController = TextEditingController();
+  final searchFocusNode = FocusNode();
+  String searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
     if (ServersProvider.instance.servers.isEmpty) {
@@ -205,9 +211,41 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   SubHeader(
                     loc.servers,
                     height: 38.0,
-                    trailing: Text(
-                      '${ServersProvider.instance.servers.length}',
+                    trailing: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 6.0),
+                          child: SquaredIconButton(
+                            icon: Icon(
+                              searchVisible ? Icons.search_off : Icons.search,
+                              size: 20.0,
+                            ),
+                            tooltip: searchVisible
+                                ? 'Disable search'
+                                : MaterialLocalizations.of(context)
+                                    .searchFieldLabel,
+                            onPressed: () {
+                              setState(() => searchVisible = !searchVisible);
+                              if (searchVisible) {
+                                searchFocusNode.requestFocus();
+                              }
+                            },
+                          ),
+                        ),
+                        Text(
+                          '${ServersProvider.instance.servers.length}',
+                        ),
+                      ],
                     ),
+                  ),
+                  EventsSearchBar(
+                    searchVisible: searchVisible,
+                    searchController: searchController,
+                    searchFocusNode: searchFocusNode,
+                    onSearchChanged: (query) {
+                      super.setState(() => searchQuery = query);
+                    },
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -218,7 +256,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                             setState(() => disabledDevices.add(device)),
                         onDisabledDeviceRemoved: (device) =>
                             setState(() => disabledDevices.remove(device)),
-                        searchQuery: '', // TODO(bdlukaa):
+                        searchQuery: searchQuery,
                       ),
                     ),
                   ),

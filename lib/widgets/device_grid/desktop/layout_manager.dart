@@ -115,7 +115,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                     color: IconTheme.of(context).color,
                   ),
                   tooltip: searchVisible
-                      ? 'Disable Search'
+                      ? 'Disable search'
                       : MaterialLocalizations.of(context).searchFieldLabel,
                   onPressed: () {
                     setState(() => searchVisible = !searchVisible);

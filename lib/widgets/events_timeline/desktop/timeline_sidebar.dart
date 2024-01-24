@@ -91,6 +91,9 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                       searchVisible ? Icons.search_off : Icons.search,
                       size: 22.0,
                     ),
+                    tooltip: searchVisible
+                        ? 'Disable search'
+                        : MaterialLocalizations.of(context).searchFieldLabel,
                     onPressed: () {
                       setState(() => searchVisible = !searchVisible);
                       if (searchVisible) {
@@ -103,38 +106,11 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
               ),
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
-            AnimatedSize(
-              duration: kThemeChangeDuration,
-              curve: Curves.easeInOut,
-              child: Builder(builder: (context) {
-                if (!searchVisible) return const SizedBox.shrink();
-                return Column(children: [
-                  const Divider(height: 1.0),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: searchController,
-                      focusNode: searchFocusNode,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        isDense: true,
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsetsDirectional.symmetric(
-                          horizontal: 8.0,
-                          vertical: 4.0,
-                        ),
-                      ),
-                      onChanged: (value) {
-                        setState(() => searchQuery = value);
-                      },
-                    ),
-                  ),
-                  const Divider(height: 1.0),
-                  const SizedBox(height: 8.0),
-                ]);
-              }),
+            EventsSearchBar(
+              searchVisible: searchVisible,
+              searchController: searchController,
+              searchFocusNode: searchFocusNode,
+              onSearchChanged: (query) => setState(() => searchQuery = query),
             ),
             Expanded(
               child: StatefulBuilder(builder: (context, setState) {
@@ -181,6 +157,56 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           ]);
         },
       ),
+    );
+  }
+}
+
+class EventsSearchBar extends StatelessWidget {
+  final bool searchVisible;
+  final TextEditingController searchController;
+  final FocusNode searchFocusNode;
+  final ValueChanged<String> onSearchChanged;
+
+  const EventsSearchBar({
+    super.key,
+    required this.searchVisible,
+    required this.searchController,
+    required this.searchFocusNode,
+    required this.onSearchChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      duration: kThemeChangeDuration,
+      curve: Curves.easeInOut,
+      child: Builder(builder: (context) {
+        if (!searchVisible) return const SizedBox.shrink();
+        return Column(children: [
+          const Divider(height: 1.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              focusNode: searchFocusNode,
+              decoration: const InputDecoration(
+                hintText: 'Search',
+                isDense: true,
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                contentPadding: EdgeInsetsDirectional.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+              ),
+              onChanged: onSearchChanged,
+            ),
+          ),
+          const Divider(height: 1.0),
+          const SizedBox(height: 8.0),
+        ]);
+      }),
     );
   }
 }

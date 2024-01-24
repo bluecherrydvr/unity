@@ -218,6 +218,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                             setState(() => disabledDevices.add(device)),
                         onDisabledDeviceRemoved: (device) =>
                             setState(() => disabledDevices.remove(device)),
+                        searchQuery: '', // TODO(bdlukaa):
                       ),
                     ),
                   ),
@@ -354,6 +355,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                       setState(() => disabledDevices.add(device)),
                   onDisabledDeviceRemoved: (device) =>
                       setState(() => disabledDevices.remove(device)),
+                  searchQuery: '', // TODO(bldukaa): search for mobile
                 );
               }),
             ]);
@@ -383,12 +385,15 @@ class EventsDevicesPicker extends StatelessWidget {
   final ValueChanged<String> onDisabledDeviceAdded;
   final ValueChanged<String> onDisabledDeviceRemoved;
 
+  final String searchQuery;
+
   const EventsDevicesPicker({
     super.key,
     required this.events,
     required this.disabledDevices,
     required this.onDisabledDeviceAdded,
     required this.onDisabledDeviceRemoved,
+    required this.searchQuery,
     this.checkboxScale = 0.8,
     this.gapCheckboxText = 0.0,
   });
@@ -440,7 +445,9 @@ class EventsDevicesPicker extends StatelessWidget {
               if (isOffline) {
                 return <TreeNode>[];
               } else {
-                return server.devices.sorted().map((device) {
+                return server.devices
+                    .sorted(searchQuery: searchQuery)
+                    .map((device) {
                   final enabled = isOffline
                       ? false
                       : !disabledDevices.contains(device.streamURL);

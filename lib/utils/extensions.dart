@@ -150,8 +150,13 @@ extension DateTimeExtension on DateTime {
 
 extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
-  List<Device> sorted([Iterable? available]) {
-    final list = [...this]..sort((a, b) => a.name.compareTo(b.name));
+  List<Device> sorted({
+    Iterable? available,
+    String searchQuery = '',
+  }) {
+    final list = where((device) =>
+        device.name.toLowerCase().contains(searchQuery.toLowerCase())).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
 
     if (available != null) list.sort((a, b) => available.contains(a) ? 0 : 1);
     list.sort((a, b) => a.status ? 0 : 1);

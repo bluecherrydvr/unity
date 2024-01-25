@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
+import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
@@ -108,15 +109,9 @@ class _LayoutManagerState extends State<LayoutManager> {
                 widget.collapseButton,
                 const SizedBox(width: 5.0),
                 Expanded(child: Text(loc.view, maxLines: 1)),
-                SquaredIconButton(
-                  icon: Icon(
-                    !searchVisible ? Icons.search : Icons.search_off,
-                    size: 18.0,
-                    color: IconTheme.of(context).color,
-                  ),
-                  tooltip: searchVisible
-                      ? 'Disable search'
-                      : MaterialLocalizations.of(context).searchFieldLabel,
+                EventsSearchButton(
+                  searchVisible: searchVisible,
+                  iconSize: 18.0,
                   onPressed: () {
                     setState(() => searchVisible = !searchVisible);
                     if (searchVisible) {

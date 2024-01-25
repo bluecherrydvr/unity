@@ -20,7 +20,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/events/filter.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -86,14 +86,9 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SquaredIconButton(
-                    icon: Icon(
-                      searchVisible ? Icons.search_off : Icons.search,
-                      size: 22.0,
-                    ),
-                    tooltip: searchVisible
-                        ? 'Disable search'
-                        : MaterialLocalizations.of(context).searchFieldLabel,
+                  EventsSearchButton(
+                    searchVisible: searchVisible,
+                    iconSize: 22.0,
                     onPressed: () {
                       setState(() => searchVisible = !searchVisible);
                       if (searchVisible) {
@@ -157,6 +152,34 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           ]);
         },
       ),
+    );
+  }
+}
+
+class EventsSearchButton extends StatelessWidget {
+  final bool searchVisible;
+  final VoidCallback onPressed;
+
+  final double iconSize;
+
+  const EventsSearchButton({
+    super.key,
+    required this.searchVisible,
+    required this.onPressed,
+    this.iconSize = 20.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SquaredIconButton(
+      icon: Icon(
+        searchVisible ? Icons.search_off : Icons.search,
+        size: iconSize,
+      ),
+      tooltip: searchVisible
+          ? 'Disable search'
+          : MaterialLocalizations.of(context).searchFieldLabel,
+      onPressed: onPressed,
     );
   }
 }

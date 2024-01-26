@@ -118,16 +118,33 @@ class BetaFeatures extends StatelessWidget {
                 ),
                 leading: const Icon(Icons.bug_report),
                 title: const Text('Open log file'),
-                subtitle:
-                    snapshot.data != null ? Text(snapshot.data!.path) : null,
+                subtitle: Text(snapshot.data?.path ?? loc.loading),
                 trailing: const Icon(Icons.navigate_next),
                 dense: false,
-                onTap: () {
-                  launchFileExplorer(snapshot.data!.path);
-                },
+                onTap: snapshot.data == null
+                    ? null
+                    : () {
+                        launchFileExplorer(snapshot.data!.path);
+                      },
               );
             },
           ),
+          CheckboxListTile(
+            contentPadding: const EdgeInsetsDirectional.only(
+              start: 68.0,
+              end: 26.0,
+            ),
+            secondary: const Icon(Icons.adb),
+            title: const Text('Show debug info'),
+            subtitle: const Text('Display useful information for debugging'),
+            value: settings.showDebugInfo,
+            onChanged: (v) {
+              if (v != null) {
+                settings.showDebugInfo = v;
+              }
+            },
+            dense: false,
+          )
         ],
       ),
     ]);

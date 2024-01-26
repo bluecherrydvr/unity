@@ -55,6 +55,8 @@ class SettingsProvider extends UnityProvider {
   static const kDefaultVideoQuality = RenderingQuality.automatic;
   static const kDefaultWakelockEnabled = true;
   static const kDefaultBetaMatrixedZoomEnabled = false;
+  static const kDefaultShowDebugInfo = false;
+  static const kDefaultLateVideoBehavior = LateVideoBehavior.automatic;
 
   late Locale _locale;
   late ThemeMode _themeMode;
@@ -72,6 +74,8 @@ class SettingsProvider extends UnityProvider {
   late RenderingQuality _videoQuality;
   late bool _wakelockEnabled;
   late bool _betaMatrixedZoomEnabled;
+  late bool _showDebugInfo;
+  late LateVideoBehavior _lateVideoBehavior;
 
   // Getters.
   Locale get locale => _locale;
@@ -91,6 +95,8 @@ class SettingsProvider extends UnityProvider {
   RenderingQuality get videoQuality => _videoQuality;
   bool get wakelockEnabled => _wakelockEnabled;
   bool get betaMatrixedZoomEnabled => _betaMatrixedZoomEnabled;
+  bool get showDebugInfo => _showDebugInfo;
+  LateVideoBehavior get lateVideoBehavior => _lateVideoBehavior;
 
   // Setters.
   set locale(Locale value) {
@@ -189,6 +195,16 @@ class SettingsProvider extends UnityProvider {
     save();
   }
 
+  set showDebugInfo(bool value) {
+    _showDebugInfo = value;
+    save();
+  }
+
+  set lateVideoBehavior(LateVideoBehavior value) {
+    _lateVideoBehavior = value;
+    save();
+  }
+
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {
@@ -217,9 +233,11 @@ class SettingsProvider extends UnityProvider {
         kHiveVideoQuality: videoQuality.index,
         kHiveWakelockEnabled: wakelockEnabled,
         kHiveBetaMatrixedZoom: betaMatrixedZoomEnabled,
+        kHiveShowDebugInfo: showDebugInfo,
+        kHiveLateVideoBehavior: lateVideoBehavior.index,
       });
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (error, stack) {
+      debugPrint('Failed to save settings: $error\n$stack');
     }
 
     super.save(notifyListeners: notifyListeners);
@@ -292,6 +310,9 @@ class SettingsProvider extends UnityProvider {
     _wakelockEnabled = data[kHiveWakelockEnabled] ?? kDefaultWakelockEnabled;
     _betaMatrixedZoomEnabled =
         data[kHiveBetaMatrixedZoom] ?? kDefaultBetaMatrixedZoomEnabled;
+    _showDebugInfo = data[kHiveShowDebugInfo] ?? kDefaultShowDebugInfo;
+    _lateVideoBehavior = LateVideoBehavior.values[
+        data[kHiveLateVideoBehavior] ?? kDefaultLateVideoBehavior.index];
 
     notifyListeners();
   }
@@ -369,4 +390,33 @@ enum StreamingType {
   rtsp,
   hls,
   mjpeg;
+}
+
+/// How to handle late video streams.
+enum LateVideoBehavior {
+  /// Automatically jump to the current time.
+  automatic,
+
+  /// Show an option to jump to the current time.
+  manual,
+
+  /// Do nothing.
+  never;
+
+  IconData get icon {
+    return switch (this) {
+      LateVideoBehavior.automatic => Icons.auto_awesome,
+      LateVideoBehavior.manual => Icons.badge,
+      LateVideoBehavior.never => Icons.close,
+    };
+  }
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      LateVideoBehavior.automatic => 'Automatic',
+      LateVideoBehavior.manual => 'Manual',
+      LateVideoBehavior.never => loc.never,
+    };
+  }
 }

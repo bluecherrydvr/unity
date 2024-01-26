@@ -175,6 +175,32 @@ class CamerasSettings extends StatelessWidget {
           ),
         ),
       ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: ListTile(
+          title: const Text('Late Stream Behavior'),
+          subtitle: const Text('What to do when a stream is late'),
+          trailing: DropdownButton<LateVideoBehavior>(
+            value: settings.lateVideoBehavior,
+            onChanged: (v) {
+              if (v != null) {
+                settings.lateVideoBehavior = v;
+              }
+            },
+            items: LateVideoBehavior.values.map((q) {
+              return DropdownMenuItem(
+                value: q,
+                child: Row(children: [
+                  Icon(q.icon),
+                  const SizedBox(width: 8.0),
+                  Text(q.locale(context)),
+                ]),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     ]);
   }
 }

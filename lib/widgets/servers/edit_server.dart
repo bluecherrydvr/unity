@@ -50,7 +50,7 @@ Future<void> updateServer(BuildContext context, Server serverCopy) async {
     serverCopy,
   );
 
-  if (updatedServer.serverUUID != null && updatedServer.cookie != null) {
+  if (updatedServer.serverUUID != null && updatedServer.hasCookies) {
     await ServersProvider.instance.update(updatedServer);
 
     if (context.mounted) Navigator.of(context).pop();

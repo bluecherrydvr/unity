@@ -70,7 +70,7 @@ extension EventsExtension on API {
       '${deviceId != null ? 'for device $deviceId' : ''}',
     );
 
-    assert(server.serverUUID != null && server.cookie != null);
+    assert(server.serverUUID != null && server.hasCookies);
     final response = await http.get(
       Uri.https(
         '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',

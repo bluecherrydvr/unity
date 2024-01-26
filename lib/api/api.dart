@@ -110,7 +110,7 @@ class API {
     }
 
     try {
-      assert(server.serverUUID != null /* && server.cookie != null */);
+      assert(server.serverUUID != null && server.hasCookies);
       final response = await client.get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
@@ -161,7 +161,7 @@ class API {
   ///
   Future<String?> getNotificationAPIEndpoint(Server server) async {
     try {
-      assert(server.serverUUID != null && server.cookie != null);
+      assert(server.serverUUID != null && server.hasCookies);
       final response = await client.get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',

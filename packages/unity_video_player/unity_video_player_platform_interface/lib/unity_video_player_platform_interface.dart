@@ -31,7 +31,7 @@ enum UnityVideoFit {
 
 enum RTSPProtocol {
   tcp,
-  udp,
+  udp;
 }
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {

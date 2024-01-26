@@ -326,7 +326,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               player: tile.videoController,
               fit: device?.server.additionalSettings.videoFit ??
                   settings.cameraViewFit,
-              paneBuilder: !kDebugMode
+              paneBuilder: !settings.showDebugInfo
                   ? null
                   : (context, controller) {
                       return Padding(

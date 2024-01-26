@@ -137,8 +137,8 @@ class _TimelineCardState extends State<TimelineCard> {
                             .position(widget.timeline.currentDate)
                             .humanReadableCompact(context),
                       ),
-                    if (kDebugMode) ...[
-                      const TextSpan(text: '\ndebug: '),
+                    if (settings.showDebugInfo) ...[
+                      const TextSpan(text: '\nposition: '),
                       TextSpan(
                         text:
                             controller.currentPos.humanReadableCompact(context),
@@ -147,7 +147,7 @@ class _TimelineCardState extends State<TimelineCard> {
                   ],
                 ),
               ),
-              if (kDebugMode)
+              if (settings.showDebugInfo)
                 Align(
                   alignment: AlignmentDirectional.topEnd,
                   child: Text(

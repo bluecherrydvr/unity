@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/logging.dart';
@@ -26,7 +27,6 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -36,7 +36,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:xml/xml.dart';
 
 enum FailType {
-  executableNotFound,
+  executableNotFound;
 }
 
 class UpdateVersion {
@@ -421,7 +421,7 @@ class UpdateManager extends UnityProvider {
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse(appCastUrl));
+      final response = await API.client.get(Uri.parse(appCastUrl));
 
       if (response.statusCode != 200) {
         debugPrint(

@@ -91,6 +91,7 @@
   "timedOut": "EXPIRÉ",
   "loading": "CHARGEMENT",
   "recorded": "ENREGISTREMENT",
+  "late": "LATE",
   "removeFromView": "Retirer de la vue",
   "addToView": "Ajouter à la vue",
   "addAllToView": "Tout ajouter à la vue",

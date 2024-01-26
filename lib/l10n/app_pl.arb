@@ -95,6 +95,7 @@
   "timedOut": "PRZEKROCZONY CZAS",
   "loading": "ŁADOWANIE",
   "recorded": "NAGRANE",
+  "late": "LATE",
   "removeFromView": "Usuń z widoku",
   "addToView": "Dodaj do widoku",
   "addAllToView": "Dodaj wszystkie do widoku",

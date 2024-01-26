@@ -43,11 +43,25 @@ class VideoStatusLabel extends StatefulWidget {
 }
 
 enum _VideoLabel {
+  /// When the video hasn't loaded any frame yet.
   loading,
+
+  /// When the video is live and playing
   live,
+
+  /// When the video has loaded but isn't receiving any new frames in a specified
+  /// amount of time.
   timedOut,
+
+  /// When the video is a recording, such as events.
   recorded,
+
+  /// When an error happened while loading the video.
   error,
+
+  /// When the video is live, receiving frames, but the current position does
+  /// not match the current time - with an offset of 1.5 seconds.
+  late;
 }
 
 class _VideoStatusLabelState extends State<VideoStatusLabel> {
@@ -62,6 +76,14 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           _source.contains('media/mjpeg') ||
           _source.contains('.m3u8') /* hls */);
 
+  bool get isLate {
+    if (!isLive) return false;
+    if (widget.video.lastImageUpdate == null) return false;
+    final now = DateTime.now();
+    final diff = now.difference(widget.video.lastImageUpdate!);
+    return diff.inMilliseconds > 1500;
+  }
+
   _VideoLabel get status => widget.video.error != null
       ? _VideoLabel.error
       : isLoading
@@ -70,7 +92,9 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
               ? _VideoLabel.recorded
               : widget.video.isImageOld
                   ? _VideoLabel.timedOut
-                  : _VideoLabel.live;
+                  : isLate
+                      ? _VideoLabel.late
+                      : _VideoLabel.live;
 
   bool _openWithTap = false;
   OverlayEntry? entry;
@@ -139,6 +163,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       _VideoLabel.recorded => loc.recorded,
       _VideoLabel.timedOut => loc.timedOut,
       _VideoLabel.error => loc.error,
+      _VideoLabel.late => loc.late,
     };
 
     final color = switch (status) {
@@ -147,6 +172,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       _VideoLabel.recorded => Colors.green,
       _VideoLabel.timedOut => Colors.amber.shade600,
       _VideoLabel.error => Colors.grey,
+      _VideoLabel.late => Colors.purple,
     };
 
     // This opens the overlay when a property is updated. This is a frame late

@@ -95,6 +95,7 @@
   "timedOut": "TIMED OUT",
   "loading": "LOADING",
   "recorded": "RECORDED",
+  "late": "LATE",
   "removeFromView": "Remove from view",
   "addToView": "Add to view",
   "addAllToView": "Add all to view",

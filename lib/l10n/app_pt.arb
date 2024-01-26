@@ -95,6 +95,7 @@
   "timedOut": "EXPIRADO",
   "loading": "CARREGANDO",
   "recorded": "GRAVADO",
+  "late": "ATRASADO",
   "removeFromView": "Remover do layout",
   "addToView": "Adicionar ao layout",
   "addAllToView": "Adicionar tudo ao layout",

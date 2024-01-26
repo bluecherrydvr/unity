@@ -23,7 +23,7 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
 
 export 'events.dart';
@@ -31,6 +31,19 @@ export 'ptz.dart';
 
 class API {
   static final API instance = API();
+
+  static final client = http.Client();
+
+  static void initialize() {
+    if (kIsWeb) {
+      // On Web, a [BrowserClient] is used under the hood, which has the
+      // "withCredentials" property. This is cast as dynamic because the
+      // [BrowserClient] is not available on the other platforms.
+      //
+      // This is used to enable the cookies on the requests.
+      (client as dynamic).withCredentials = true;
+    }
+  }
 
   /// Checks details of a [server] entered by the user.
   /// If the attributes present in [Server] are correct, then the
@@ -48,7 +61,7 @@ class API {
           'from_client': '${true}',
         },
       );
-      final request = MultipartRequest('POST', uri)
+      final request = http.MultipartRequest('POST', uri)
         ..fields.addAll({
           'login': server.login,
           'password': server.password,
@@ -69,7 +82,8 @@ class API {
         final json = await compute(jsonDecode, body);
         return server.copyWith(
           serverUUID: json['server_uuid'],
-          cookie: response.headers['set-cookie'],
+          cookie:
+              response.headers['set-cookie'] ?? response.headers['Set-Cookie'],
           online: true,
         );
       } else {
@@ -96,8 +110,8 @@ class API {
     }
 
     try {
-      assert(server.serverUUID != null && server.cookie != null);
-      final response = await get(
+      assert(server.serverUUID != null /* && server.cookie != null */);
+      final response = await client.get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/devices.php',
@@ -148,7 +162,7 @@ class API {
   Future<String?> getNotificationAPIEndpoint(Server server) async {
     try {
       assert(server.serverUUID != null && server.cookie != null);
-      final response = await get(
+      final response = await client.get(
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/mobile-app-config.json',
@@ -177,7 +191,7 @@ class API {
       assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
-      final response = await post(
+      final response = await client.post(
         Uri.parse('${uri!}store-token'),
         headers: {
           'Cookie': server.cookie!,
@@ -219,7 +233,7 @@ class API {
       assert(uri != null, '[getNotificationAPIEndpoint] returned null.');
       assert(clientID != null, '[clientUUID] returned null.');
       assert(server.serverUUID != null, '[server.serverUUID] is null.');
-      final response = await post(
+      final response = await client.post(
         Uri.parse('${uri!}remove-token'),
         headers: {
           'Cookie': server.cookie!,

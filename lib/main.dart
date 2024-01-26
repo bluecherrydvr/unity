@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -81,6 +82,7 @@ Future<void> main(List<String> args) async {
     }
 
     DevHttpOverrides.configureCertificates();
+    API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
     if (isDesktopPlatform && Platform.isLinux) {
       if (UpdateManager.linuxEnvironment == LinuxPlatform.embedded) {

@@ -424,6 +424,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         hintText: '$kDefaultPort',
         border: const OutlineInputBorder(),
       ),
+      onChanged: (value) {
+        portController.text = value.replaceAll(RegExp(r'[^0-9]'), '');
+      },
     );
 
     final rtspPortField = TextFormField(
@@ -445,6 +448,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         hintText: '$kDefaultRTSPPort',
         border: const OutlineInputBorder(),
       ),
+      onChanged: (value) {
+        rtspPortController.text = value.replaceAll(RegExp(r'[^0-9]'), '');
+      },
     );
 
     final nameField = TextFormField(
@@ -625,10 +631,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                       if (disableFinishButton) ...[
                         const SizedBox(
-                          height: 18.0,
-                          width: 18.0,
+                          height: 16.0,
+                          width: 16.0,
                           child: CircularProgressIndicator.adaptive(
-                            strokeWidth: 2.0,
+                            strokeWidth: 1.5,
                           ),
                         ),
                         Padding(
@@ -716,7 +722,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           state = _ServerAddState.checkingServerCredentials;
         });
       }
-      // TODO(bdlukaa): only allow numbers in the port fields
       final port = int.parse(portController.text.trim());
       final server = await API.instance.checkServerCredentials(
         Server(

@@ -260,10 +260,12 @@ class DesktopDeviceSelectorTile extends StatefulWidget {
     super.key,
     required this.device,
     required this.selected,
+    this.selectable = true,
   });
 
   final Device device;
   final bool selected;
+  final bool selectable;
 
   @override
   State<DesktopDeviceSelectorTile> createState() =>
@@ -298,7 +300,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
       },
       onLongPressDown: (details) => currentLongPressDeviceKind = details.kind,
       child: InkWell(
-        onTap: !widget.device.status
+        onTap: !widget.device.status || !widget.selectable
             ? null
             : () {
                 if (widget.selected) {
@@ -309,12 +311,15 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               },
         child: MouseRegion(
           onEnter: (_) {
+            if (!widget.selectable) return;
             if (mounted) setState(() => hovering = true);
           },
           onHover: (_) {
+            if (!widget.selectable) return;
             if (mounted && !hovering) setState(() => hovering = true);
           },
           onExit: (_) {
+            if (!widget.selectable) return;
             if (mounted) setState(() => hovering = false);
           },
           child: SizedBox(

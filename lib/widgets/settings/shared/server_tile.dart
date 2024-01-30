@@ -405,13 +405,53 @@ Future showServerMenu({
       ),
       const PopupMenuDivider(height: 1.0),
       PopupMenuItem(
-        child: Text(
-          server.online ? loc.refreshDevices : loc.refreshServer,
-        ),
+        child: Text(server.online ? loc.refreshDevices : loc.refreshServer),
         onTap: () async {
           servers.refreshDevices(ids: [server.id]);
         },
       ),
+      if (server.online)
+        PopupMenuItem(
+          child: const Text('View devices'),
+          onTap: () async {
+            showDialog(
+              context: context,
+              builder: (context) => DevicesListDialog(server: server),
+            );
+          },
+        ),
     ],
   );
+}
+
+class DevicesListDialog extends StatelessWidget {
+  final Server server;
+
+  const DevicesListDialog({super.key, required this.server});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('${server.name} devices'),
+      contentPadding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 16.0,
+        vertical: 12.0,
+      ),
+      content: SizedBox(
+        width: kSidebarConstraints.maxWidth,
+        child: ListView.builder(
+          itemCount: server.devices.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            final device = server.devices[index];
+            return DesktopDeviceSelectorTile(
+              device: device,
+              selected: false,
+              selectable: false,
+            );
+          },
+        ),
+      ),
+    );
+  }
 }

@@ -65,7 +65,7 @@ class ServersProvider extends UnityProvider {
 
     servers.add(server);
     await save();
-    refreshDevices();
+    await refreshDevices(ids: [server.id]);
 
     if (isMobilePlatform) {
       // Register notification token.

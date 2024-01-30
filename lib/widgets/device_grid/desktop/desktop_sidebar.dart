@@ -34,6 +34,7 @@ class DesktopSidebar extends StatefulWidget {
 
 class _DesktopSidebarState extends State<DesktopSidebar> {
   bool isSidebarHovering = false;
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,12 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       child: Material(
         color: theme.canvasColor,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          LayoutManager(collapseButton: widget.collapseButton),
+          LayoutManager(
+            collapseButton: widget.collapseButton,
+            onSearchChanged: (text) {
+              setState(() => searchQuery = text);
+            },
+          ),
           if (servers.servers.isEmpty)
             const Expanded(child: NoServers())
           else
@@ -66,8 +72,21 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                       ..sort((a, b) =>
                           b.online.toString().compareTo(a.online.toString())))
                       () {
-                        final devices = server.devices.sorted();
+                        final devices = server.devices
+                            .where(
+                              (device) => device.name.toLowerCase().contains(
+                                    searchQuery.toLowerCase(),
+                                  ),
+                            )
+                            .sorted();
                         final isLoading = servers.isServerLoading(server);
+                        if (!isLoading &&
+                            devices.isEmpty &&
+                            searchQuery.isNotEmpty) {
+                          return const SliverToBoxAdapter(
+                            child: SizedBox.shrink(),
+                          );
+                        }
 
                         /// Whether all the online devices are in the current view.
                         final isAllInView = devices
@@ -241,10 +260,12 @@ class DesktopDeviceSelectorTile extends StatefulWidget {
     super.key,
     required this.device,
     required this.selected,
+    this.selectable = true,
   });
 
   final Device device;
   final bool selected;
+  final bool selectable;
 
   @override
   State<DesktopDeviceSelectorTile> createState() =>
@@ -279,7 +300,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
       },
       onLongPressDown: (details) => currentLongPressDeviceKind = details.kind,
       child: InkWell(
-        onTap: !widget.device.status
+        onTap: !widget.device.status || !widget.selectable
             ? null
             : () {
                 if (widget.selected) {
@@ -337,7 +358,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   ),
                 ),
               ),
-              if ((isMobile || hovering) && widget.device.status)
+              if (isMobile || hovering)
                 Tooltip(
                   message: loc.cameraOptions,
                   preferBelow: false,
@@ -345,7 +366,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                     borderRadius: BorderRadius.circular(4.0),
                     onTap: widget.device.status
                         ? () => _displayOptions(context)
-                        : null,
+                        : () => showDeviceInfoDialog(context, widget.device),
                     child: Icon(moreIconData, size: 20.0),
                   ),
                 ),
@@ -388,10 +409,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         offset.dx + size.width,
         offset.dy + size.height,
       ),
-      constraints: BoxConstraints(
-        maxWidth: size.width,
-        minWidth: size.width,
-      ),
+      constraints: BoxConstraints(maxWidth: size.width, minWidth: size.width),
       items: <PopupMenuEntry>[
         PopupMenuLabel(
           label: Padding(
@@ -405,40 +423,42 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
         ),
         const PopupMenuDivider(),
-        PopupMenuItem(
-          child: Text(
-            widget.selected ? loc.removeFromView : loc.addToView,
-          ),
-          onTap: () {
-            if (widget.selected) {
-              view.remove(widget.device);
-            } else {
-              view.add(widget.device);
-            }
-          },
-        ),
-        PopupMenuItem(
-          child: Text(loc.showFullscreenCamera),
-          onTap: () async {
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              var player = UnityPlayers.players[widget.device.uuid];
-              final isLocalController = player == null;
-              if (isLocalController) {
-                player = UnityPlayers.forDevice(widget.device);
+        if (widget.selectable)
+          PopupMenuItem(
+            child: Text(
+              widget.selected ? loc.removeFromView : loc.addToView,
+            ),
+            onTap: () {
+              if (widget.selected) {
+                view.remove(widget.device);
+              } else {
+                view.add(widget.device);
               }
+            },
+          ),
+        if (widget.device.status)
+          PopupMenuItem(
+            child: Text(loc.showFullscreenCamera),
+            onTap: () async {
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                var player = UnityPlayers.players[widget.device.uuid];
+                final isLocalController = player == null;
+                if (isLocalController) {
+                  player = UnityPlayers.forDevice(widget.device);
+                }
 
-              await Navigator.of(context).pushNamed(
-                '/fullscreen',
-                arguments: {
-                  'device': widget.device,
-                  'player': player,
-                },
-              );
-              if (isLocalController) await player.dispose();
-            });
-          },
-        ),
-        if (isDesktop)
+                await Navigator.of(context).pushNamed(
+                  '/fullscreen',
+                  arguments: {
+                    'device': widget.device,
+                    'player': player,
+                  },
+                );
+                if (isLocalController) await player.dispose();
+              });
+            },
+          ),
+        if (isDesktop && widget.device.status)
           PopupMenuItem(
             child: Text(loc.openInANewWindow),
             onTap: () async {
@@ -447,6 +467,15 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               });
             },
           ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          child: Text(loc.deviceInfo),
+          onTap: () async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await showDeviceInfoDialog(context, widget.device);
+            });
+          },
+        ),
       ],
     );
   }

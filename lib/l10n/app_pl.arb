@@ -15,10 +15,13 @@
   "savePassword": "Zapisz hasło",
   "showPassword": "Show password",
   "hidePassword": "Hide password",
+  "hide": "Hide",
+  "show": "Show",
   "useDefault": "Użyj wartości domyślnych",
   "connect": "Połącz",
   "connectAutomaticallyAtStartup": "Połącz automatycznie przy uruchomieniu",
   "connectAutomaticallyAtStartupDescription": "If enabled, the app will automatically connect to the server when it starts.",
+  "checkingServerCredentials": "Checking server credentials",
   "skip": "Pomiń",
   "cancel": "Anuluj",
   "disabled": "Disabled",
@@ -89,6 +92,7 @@
   "reloadCamera": "Odśwież kamerę",
   "selectACamera": "Wybierz kamerę",
   "switchCamera": "Przełącz kamerę",
+  "status": "Status",
   "online": "Online",
   "offline": "Offline",
   "live": "NA ŻYWO",
@@ -104,10 +108,12 @@
   "streamURL": "Stream URL",
   "streamURLRequired": "The stream URL is required",
   "streamURLNotValid": "The stream URL is not valid",
+  "uri": "URI",
   "eventBrowser": "Historia zdarzeń",
   "eventsTimeline": "Oś czasu zdarzeń",
   "server": "Serwer",
   "device": "Urządzenie",
+  "deviceInfo": "Device info",
   "event": "Zdarzenie",
   "duration": "Czas trwania",
   "priority": "Priorytet",
@@ -183,6 +189,15 @@
   "configureServer": "Konfiguracja serwera",
   "refreshDevices": "Odśwież urządzenia",
   "refreshServer": "Odśwież serwer",
+  "viewDevices": "View devices",
+  "serverDevices": "{server} devices",
+  "@serverDevices": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
   "refresh": "Odśwież",
   "view": "Widok",
   "cameraRefreshPeriod": "Camera refresh period",
@@ -344,6 +359,7 @@
   "expand": "Rozwiń",
   "more": "More",
   "@PTZ": {},
+  "isPtzSupported": "Supports PTZ?",
   "ptzSupported": "PTZ jest wspierane",
   "enabledPTZ": "PTZ jest włączone",
   "disabledPTZ": "PTZ jest wyłączone",
@@ -508,5 +524,7 @@
   "serverHostnameExample": "https://my-server.bluecherry.app:7001",
   "rackName": "Rack name",
   "rackNameExample": "Lab 1",
-  "openServer": "Open server"
+  "openServer": "Open server",
+  "@SEARCH": {},
+  "disableSearch": "Disable search"
 }

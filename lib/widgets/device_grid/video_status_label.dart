@@ -241,7 +241,7 @@ class _DeviceVideoInfo extends StatelessWidget {
         server,
         _buildTextSpan(
           context,
-          title: loc.ptzSupported,
+          title: loc.isPtzSupported,
           data: device.hasPTZ ? loc.yes : loc.no,
         ),
         _buildTextSpan(

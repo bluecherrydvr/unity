@@ -21,8 +21,8 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/widgets/tree_view.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -207,12 +207,12 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
       SubHeader(
         loc.servers,
         height: 38.0,
-        trailing: EventsSearchButton(
+        trailing: SearchToggleButton(
           searchVisible: searchVisible,
           onPressed: () => setState(() => searchVisible = !searchVisible),
         ),
       ),
-      EventsSearchBar(
+      ToggleSearchBar(
         searchVisible: searchVisible,
         searchController: searchController,
         searchFocusNode: searchFocusNode,

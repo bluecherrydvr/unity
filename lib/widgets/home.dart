@@ -26,8 +26,8 @@ import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
 import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:bluecherry_client/widgets/servers/add_server.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/material.dart';
@@ -339,7 +339,7 @@ class _MobileHomeState extends State<Home> {
           ),
         ),
         if (directCameraKey.currentState != null)
-          EventsSearchButton(
+          SearchToggleButton(
             searchVisible: directCameraKey.currentState!.searchVisible,
             onPressed: () {
               directCameraKey.currentState!.toggleSearch();

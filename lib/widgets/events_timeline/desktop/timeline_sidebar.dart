@@ -18,11 +18,11 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/events/filter.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -86,7 +86,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  EventsSearchButton(
+                  SearchToggleButton(
                     searchVisible: searchVisible,
                     iconSize: 22.0,
                     onPressed: () {
@@ -101,7 +101,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
               ),
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
-            EventsSearchBar(
+            ToggleSearchBar(
               searchVisible: searchVisible,
               searchController: searchController,
               searchFocusNode: searchFocusNode,
@@ -152,85 +152,6 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
           ]);
         },
       ),
-    );
-  }
-}
-
-class EventsSearchButton extends StatelessWidget {
-  final bool searchVisible;
-  final VoidCallback onPressed;
-
-  final double iconSize;
-
-  const EventsSearchButton({
-    super.key,
-    required this.searchVisible,
-    required this.onPressed,
-    this.iconSize = 20.0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return SquaredIconButton(
-      icon: Icon(
-        searchVisible ? Icons.search_off : Icons.search,
-        size: iconSize,
-      ),
-      tooltip: searchVisible
-          ? loc.disableSearch
-          : MaterialLocalizations.of(context).searchFieldLabel,
-      onPressed: onPressed,
-    );
-  }
-}
-
-class EventsSearchBar extends StatelessWidget {
-  final bool searchVisible;
-  final TextEditingController searchController;
-  final FocusNode searchFocusNode;
-  final ValueChanged<String> onSearchChanged;
-
-  const EventsSearchBar({
-    super.key,
-    required this.searchVisible,
-    required this.searchController,
-    required this.searchFocusNode,
-    required this.onSearchChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: kThemeChangeDuration,
-      curve: Curves.easeInOut,
-      child: Builder(builder: (context) {
-        if (!searchVisible) return const SizedBox.shrink();
-        return Column(children: [
-          const Divider(height: 1.0),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              focusNode: searchFocusNode,
-              decoration: InputDecoration(
-                hintText: MaterialLocalizations.of(context).searchFieldLabel,
-                isDense: true,
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
-              ),
-              onChanged: onSearchChanged,
-            ),
-          ),
-          const Divider(height: 1.0),
-          const SizedBox(height: 8.0),
-        ]);
-      }),
     );
   }
 }

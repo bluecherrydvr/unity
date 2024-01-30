@@ -37,8 +37,8 @@ import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/events/filter.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -216,7 +216,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                       children: [
                         Padding(
                           padding: const EdgeInsetsDirectional.only(end: 6.0),
-                          child: EventsSearchButton(
+                          child: SearchToggleButton(
                             searchVisible: searchVisible,
                             onPressed: () {
                               setState(() => searchVisible = !searchVisible);
@@ -232,7 +232,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                       ],
                     ),
                   ),
-                  EventsSearchBar(
+                  ToggleSearchBar(
                     searchVisible: searchVisible,
                     searchController: searchController,
                     searchFocusNode: searchFocusNode,

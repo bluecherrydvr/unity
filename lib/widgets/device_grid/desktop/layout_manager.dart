@@ -26,9 +26,9 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +109,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                 widget.collapseButton,
                 const SizedBox(width: 5.0),
                 Expanded(child: Text(loc.view, maxLines: 1)),
-                EventsSearchButton(
+                SearchToggleButton(
                   searchVisible: searchVisible,
                   iconSize: 18.0,
                   onPressed: () {
@@ -164,32 +164,12 @@ class _LayoutManagerState extends State<LayoutManager> {
             },
           ),
         ),
-        AnimatedSlide(
-          offset: searchVisible ? Offset.zero : const Offset(0, 1),
-          duration: kThemeChangeDuration,
-          curve: Curves.easeInOut,
-          child: Column(children: [
-            const Divider(height: 1.0),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: searchController,
-                focusNode: searchFocusNode,
-                decoration: InputDecoration(
-                  hintText: MaterialLocalizations.of(context).searchFieldLabel,
-                  isDense: true,
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  contentPadding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: 8.0,
-                    vertical: 4.0,
-                  ),
-                ),
-                onChanged: widget.onSearchChanged,
-              ),
-            )
-          ]),
+        ToggleSearchBar(
+          searchVisible: searchVisible,
+          searchController: searchController,
+          searchFocusNode: searchFocusNode,
+          onSearchChanged: widget.onSearchChanged,
+          showBottomDivider: false,
         ),
         const Divider(height: 1.0),
       ]),

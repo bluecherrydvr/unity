@@ -25,8 +25,8 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -70,7 +70,7 @@ class DirectCameraScreenState extends State<DirectCameraScreen> {
     final loc = AppLocalizations.of(context);
     final hasDrawer = Scaffold.hasDrawer(context);
 
-    final searchBar = EventsSearchBar(
+    final searchBar = ToggleSearchBar(
       searchController: _searchController,
       searchFocusNode: _searchFocusNode,
       searchVisible: _searchVisible,
@@ -88,7 +88,7 @@ class DirectCameraScreenState extends State<DirectCameraScreen> {
             actions: [
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 12.0),
-                child: EventsSearchButton(
+                child: SearchToggleButton(
                   searchVisible: _searchVisible,
                   onPressed: toggleSearch,
                 ),

@@ -311,15 +311,12 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               },
         child: MouseRegion(
           onEnter: (_) {
-            if (!widget.selectable) return;
             if (mounted) setState(() => hovering = true);
           },
           onHover: (_) {
-            if (!widget.selectable) return;
             if (mounted && !hovering) setState(() => hovering = true);
           },
           onExit: (_) {
-            if (!widget.selectable) return;
             if (mounted) setState(() => hovering = false);
           },
           child: SizedBox(
@@ -361,7 +358,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                   ),
                 ),
               ),
-              if ((isMobile || hovering) && widget.device.status)
+              if (isMobile || hovering)
                 Tooltip(
                   message: loc.cameraOptions,
                   preferBelow: false,
@@ -369,7 +366,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
                     borderRadius: BorderRadius.circular(4.0),
                     onTap: widget.device.status
                         ? () => _displayOptions(context)
-                        : null,
+                        : () => showDeviceInfoDialog(context, widget.device),
                     child: Icon(moreIconData, size: 20.0),
                   ),
                 ),
@@ -426,40 +423,42 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
         ),
         const PopupMenuDivider(),
-        PopupMenuItem(
-          child: Text(
-            widget.selected ? loc.removeFromView : loc.addToView,
-          ),
-          onTap: () {
-            if (widget.selected) {
-              view.remove(widget.device);
-            } else {
-              view.add(widget.device);
-            }
-          },
-        ),
-        PopupMenuItem(
-          child: Text(loc.showFullscreenCamera),
-          onTap: () async {
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              var player = UnityPlayers.players[widget.device.uuid];
-              final isLocalController = player == null;
-              if (isLocalController) {
-                player = UnityPlayers.forDevice(widget.device);
+        if (widget.selectable)
+          PopupMenuItem(
+            child: Text(
+              widget.selected ? loc.removeFromView : loc.addToView,
+            ),
+            onTap: () {
+              if (widget.selected) {
+                view.remove(widget.device);
+              } else {
+                view.add(widget.device);
               }
+            },
+          ),
+        if (widget.device.status)
+          PopupMenuItem(
+            child: Text(loc.showFullscreenCamera),
+            onTap: () async {
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                var player = UnityPlayers.players[widget.device.uuid];
+                final isLocalController = player == null;
+                if (isLocalController) {
+                  player = UnityPlayers.forDevice(widget.device);
+                }
 
-              await Navigator.of(context).pushNamed(
-                '/fullscreen',
-                arguments: {
-                  'device': widget.device,
-                  'player': player,
-                },
-              );
-              if (isLocalController) await player.dispose();
-            });
-          },
-        ),
-        if (isDesktop)
+                await Navigator.of(context).pushNamed(
+                  '/fullscreen',
+                  arguments: {
+                    'device': widget.device,
+                    'player': player,
+                  },
+                );
+                if (isLocalController) await player.dispose();
+              });
+            },
+          ),
+        if (isDesktop && widget.device.status)
           PopupMenuItem(
             child: Text(loc.openInANewWindow),
             onTap: () async {

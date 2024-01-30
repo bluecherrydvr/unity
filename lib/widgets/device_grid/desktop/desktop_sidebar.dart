@@ -412,10 +412,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
         offset.dx + size.width,
         offset.dy + size.height,
       ),
-      constraints: BoxConstraints(
-        maxWidth: size.width,
-        minWidth: size.width,
-      ),
+      constraints: BoxConstraints(maxWidth: size.width, minWidth: size.width),
       items: <PopupMenuEntry>[
         PopupMenuLabel(
           label: Padding(
@@ -471,6 +468,15 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               });
             },
           ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          child: const Text('Device info'),
+          onTap: () async {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await showDeviceInfoDialog(context, widget.device);
+            });
+          },
+        ),
       ],
     );
   }

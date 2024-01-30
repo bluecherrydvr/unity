@@ -171,13 +171,14 @@ class EventsSearchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return SquaredIconButton(
       icon: Icon(
         searchVisible ? Icons.search_off : Icons.search,
         size: iconSize,
       ),
       tooltip: searchVisible
-          ? 'Disable search'
+          ? loc.disableSearch
           : MaterialLocalizations.of(context).searchFieldLabel,
       onPressed: onPressed,
     );
@@ -212,13 +213,13 @@ class EventsSearchBar extends StatelessWidget {
             child: TextField(
               controller: searchController,
               focusNode: searchFocusNode,
-              decoration: const InputDecoration(
-                hintText: 'Search',
+              decoration: InputDecoration(
+                hintText: MaterialLocalizations.of(context).searchFieldLabel,
                 isDense: true,
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
-                contentPadding: EdgeInsetsDirectional.symmetric(
+                contentPadding: const EdgeInsetsDirectional.symmetric(
                   horizontal: 8.0,
                   vertical: 4.0,
                 ),

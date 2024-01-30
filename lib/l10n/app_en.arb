@@ -15,10 +15,13 @@
   "savePassword": "Save password",
   "showPassword": "Show password",
   "hidePassword": "Hide password",
+  "hide": "Hide",
+  "show": "Show",
   "useDefault": "Use Default",
   "connect": "Connect",
   "connectAutomaticallyAtStartup": "Connect automatically at startup",
   "connectAutomaticallyAtStartupDescription": "If enabled, the server will be automatically connected when the app starts.",
+  "checkingServerCredentials": "Checking server credentials",
   "skip": "Skip",
   "cancel": "Cancel",
   "disabled": "Disabled",
@@ -89,6 +92,7 @@
   "reloadCamera": "Reload Camera",
   "selectACamera": "Select a camera",
   "switchCamera": "Switch camera",
+  "status": "Status",
   "online": "Online",
   "offline": "Offline",
   "live": "LIVE",
@@ -104,10 +108,12 @@
   "streamURL": "Stream URL",
   "streamURLRequired": "The stream URL is required",
   "streamURLNotValid": "The stream URL is not valid",
+  "uri": "URI",
   "eventBrowser": "Events History",
   "eventsTimeline": "Timeline of Events",
   "server": "Server",
   "device": "Device",
+  "deviceInfo": "Device info",
   "event": "Event",
   "duration": "Duration",
   "priority": "Priority",
@@ -165,7 +171,7 @@
   "no": "No",
   "about": "About",
   "versionText": "Copyright © 2022, Bluecherry LLC.\nAll rights reserved.",
-  "gettingDevices": "Getting devices...",
+  "gettingDevices": "Getting devices",
   "noDevices": "No devices",
   "noEventsLoaded": "NO EVENTS LOADED",
   "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
@@ -183,6 +189,15 @@
   "configureServer": "Configure server",
   "refreshDevices": "Refresh devices",
   "refreshServer": "Refresh server",
+  "viewDevices": "View devices",
+  "serverDevices": "{server} devices",
+  "@serverDevices": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
   "refresh": "Refresh",
   "view": "View",
   "cameraRefreshPeriod": "Camera refresh period",
@@ -344,6 +359,7 @@
   "expand": "Expand",
   "more": "More",
   "@PTZ": {},
+  "isPtzSupported": "Supports PTZ?",
   "ptzSupported": "PTZ is supported",
   "enabledPTZ": "PTZ is enabled",
   "disabledPTZ": "PTZ is disabled",
@@ -508,5 +524,7 @@
   "serverHostnameExample": "https://my-server.bluecherry.app:7001",
   "rackName": "Rack name",
   "rackNameExample": "Lab 1",
-  "openServer": "Open server"
+  "openServer": "Open server",
+  "@SEARCH": {},
+  "disableSearch": "Disable search"
 }

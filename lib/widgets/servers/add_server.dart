@@ -643,8 +643,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                           ),
                           child: Text(switch (state) {
                             _ServerAddState.checkingServerCredentials =>
-                              'Checking server credentials',
-                            _ServerAddState.gettingDevices => 'Getting devices',
+                              loc.checkingServerCredentials,
+                            _ServerAddState.gettingDevices =>
+                              loc.gettingDevices,
                             _ServerAddState.none => '',
                           }),
                         ),

@@ -175,13 +175,13 @@ class _LayoutManagerState extends State<LayoutManager> {
               child: TextField(
                 controller: searchController,
                 focusNode: searchFocusNode,
-                decoration: const InputDecoration(
-                  hintText: 'Search',
+                decoration: InputDecoration(
+                  hintText: MaterialLocalizations.of(context).searchFieldLabel,
                   isDense: true,
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   enabledBorder: InputBorder.none,
-                  contentPadding: EdgeInsetsDirectional.symmetric(
+                  contentPadding: const EdgeInsetsDirectional.symmetric(
                     horizontal: 8.0,
                     vertical: 4.0,
                   ),

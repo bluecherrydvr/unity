@@ -412,7 +412,7 @@ Future showServerMenu({
       ),
       if (server.online)
         PopupMenuItem(
-          child: const Text('View devices'),
+          child: Text(loc.viewDevices),
           onTap: () async {
             showDialog(
               context: context,
@@ -431,8 +431,9 @@ class DevicesListDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text('${server.name} devices'),
+      title: Text(loc.serverDevices(server.name)),
       contentPadding: const EdgeInsetsDirectional.symmetric(
         horizontal: 16.0,
         vertical: 12.0,

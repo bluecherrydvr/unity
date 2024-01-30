@@ -54,7 +54,7 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
         children: [
           _buildInfoTile(loc.serverName, widget.device.server.ip),
           _buildInfoTile(
-            'Status',
+            loc.status,
             widget.device.status ? loc.online : loc.offline,
             TextStyle(
               color: widget.device.status
@@ -62,10 +62,11 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
                   : theme.colorScheme.error,
             ),
           ),
-          _buildInfoTile('Uri', widget.device.uri),
+          _buildInfoTile(loc.uri, widget.device.uri),
           _buildInfoTile(loc.resolution,
               '${widget.device.resolutionX}x${widget.device.resolutionY}'),
-          _buildInfoTile('Has PTZ?', widget.device.hasPTZ ? loc.yes : loc.no),
+          _buildInfoTile(
+              loc.isPtzSupported, widget.device.hasPTZ ? loc.yes : loc.no),
           _buildInfoTileWidget(
             loc.streamURL,
             Row(children: [
@@ -80,7 +81,7 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
               SquaredIconButton(
                 onPressed: () =>
                     setState(() => _showStreamUrl = !_showStreamUrl),
-                tooltip: _showStreamUrl ? 'Hide' : 'Show',
+                tooltip: _showStreamUrl ? loc.hide : loc.show,
                 icon: Icon(
                   _showStreamUrl ? Icons.visibility_off : Icons.visibility,
                   size: 18.0,

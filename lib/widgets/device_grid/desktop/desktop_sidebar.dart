@@ -470,7 +470,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
           ),
         const PopupMenuDivider(),
         PopupMenuItem(
-          child: const Text('Device info'),
+          child: Text(loc.deviceInfo),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               await showDeviceInfoDialog(context, widget.device);

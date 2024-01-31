@@ -453,9 +453,10 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   Future<void> setDataSource(String url, {bool autoPlay = true});
   Future<void> setMultipleDataSource(
-    List<String> url, {
+    Iterable<String> url, {
     bool autoPlay = true,
   });
+  Future<void> jumpToIndex(int index);
 
   Future<void> setVolume(double volume);
   double get volume;

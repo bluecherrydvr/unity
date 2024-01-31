@@ -57,7 +57,12 @@ class _EventPlayerMobile extends StatefulWidget {
 }
 
 class __EventPlayerMobileState extends State<_EventPlayerMobile> {
-  late final videoController = widget.player ?? UnityVideoPlayer.create();
+  late final videoController = widget.player ??
+      UnityVideoPlayer.create(
+        enableCache: true,
+        // TODO(bdlukaa): determine quality based on settings
+        quality: UnityVideoQuality.p480,
+      );
 
   @override
   void initState() {

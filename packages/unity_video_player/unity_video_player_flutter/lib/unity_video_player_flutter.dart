@@ -160,9 +160,17 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   }
 
   @override
-  Future<void> setMultipleDataSource(List<String> url, {bool autoPlay = true}) {
+  Future<void> setMultipleDataSource(Iterable<String> url,
+      {bool autoPlay = true}) {
     throw UnsupportedError(
       'setMultipleDataSource is not supported on this platform',
+    );
+  }
+
+  @override
+  Future<void> jumpToIndex(int index) {
+    throw UnsupportedError(
+      'jumpToIndex is not supported on this platform',
     );
   }
 

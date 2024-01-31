@@ -133,15 +133,23 @@ class _TimelineCardState extends State<TimelineCard> {
                     const TextSpan(text: '\n'),
                     if (states.isHovering)
                       TextSpan(
-                        text: currentEvent
-                            .position(widget.timeline.currentDate)
-                            .humanReadableCompact(context),
+                        text: kDebugMode
+                            ? currentEvent
+                                .position(widget.timeline.currentDate)
+                                .toString()
+                            : currentEvent
+                                .position(widget.timeline.currentDate)
+                                .humanReadableCompact(context),
                       ),
                     if (kDebugMode) ...[
                       const TextSpan(text: '\ndebug: '),
+                      TextSpan(text: controller.currentPos.toString()),
                       TextSpan(
                         text:
-                            controller.currentPos.humanReadableCompact(context),
+                            '\ndiff: ${currentEvent.position(widget.timeline.currentDate) - controller.currentPos}',
+                      ),
+                      TextSpan(
+                        text: '\nindex: ${events.indexOf(currentEvent)}',
                       ),
                     ],
                   ],

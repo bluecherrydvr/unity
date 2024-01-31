@@ -392,7 +392,16 @@ class Timeline extends ChangeNotifier {
       }
 
       forEachEvent((tile, e) {
-        if (tile.videoController.isPlaying) return;
+        if (tile.videoController.isPlaying) {
+          // if the video is late by a lot of seconds, seek to the current position
+
+          if (e.position(currentDate) - tile.videoController.currentPos >
+              const Duration(seconds: 5)) {
+            debugPrint('Seeking ${tile.device} to ${e.position(currentDate)}');
+            tile.videoController.seekTo(e.position(currentDate));
+          }
+          return;
+        }
 
         if ((event != null && event == e) || e.isPlaying(currentDate)) {
           if (event == null) {
@@ -474,7 +483,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final home = context.watch<HomeProvider>();
@@ -768,13 +776,15 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               child: Container(
                                 width: 8,
                                 height: 4,
-                                color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onBackground,
+                                color: Colors.black,
                               ),
                             ),
                             Expanded(
                               child: Container(
-                                color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onBackground,
                                 width: 1.8,
+                                color: Colors.black,
                               ),
                             ),
                           ]),
@@ -941,6 +951,7 @@ class _TimelineTile extends StatelessWidget {
                       //             1)]
                       //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
+                      // color: theme.extension<UnityColors>()!.successColor,
                     ),
                   ),
               ]);

@@ -148,8 +148,9 @@ class _TimelineCardState extends State<TimelineCard> {
                 ),
               ),
               if (kDebugMode)
-                Align(
-                  alignment: AlignmentDirectional.topEnd,
+                Positioned(
+                  top: 36.0,
+                  right: 0.0,
                   child: Text(
                     'debug buffering: '
                     '${(widget.tile.videoController.currentBuffer.inMilliseconds / widget.tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
@@ -168,7 +169,7 @@ class _TimelineCardState extends State<TimelineCard> {
                 child: () {
                   if (controller.isBuffering) {
                     return const CircularProgressIndicator.adaptive(
-                      strokeWidth: 2.0,
+                      strokeWidth: 1.5,
                     );
                   }
                   if (isDownloaded || isDownloading || states.isHovering) {

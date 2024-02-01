@@ -675,7 +675,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(
-              maxHeight: _kTimelineTileHeight * 4.5,
+              maxHeight: _kTimelineTileHeight * 5.0,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               final tileWidth =

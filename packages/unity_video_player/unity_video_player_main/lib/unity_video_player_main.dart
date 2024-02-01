@@ -218,6 +218,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('force-seekable', 'yes');
 
       if (enableCache) {
+        debugPrint('Cache is enabled');
         // https://mpv.io/manual/stable/#options-cache
         platform
           ..setProperty('cache', 'yes')
@@ -234,8 +235,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
             ..setProperty('cache-dir', value.path);
         });
 
-        // https://mpv.io/manual/master/#options-gapless-audio
-        platform.setProperty('gapless-audio', 'yes');
+        platform
+          // https://mpv.io/manual/master/#options-gapless-audio
+          ..setProperty('gapless-audio', 'yes')
+          // https://mpv.io/manual/master/#options-prefetch-playlist
+          ..setProperty('prefetch-playlist', 'yes');
       } else {
         platform
           ..setProperty('cache', 'no')

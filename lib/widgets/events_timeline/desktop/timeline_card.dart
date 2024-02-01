@@ -160,13 +160,14 @@ class _TimelineCardState extends State<TimelineCard> {
                   top: 36.0,
                   right: 0.0,
                   child: Text(
-                    'debug buffering: '
+                    'buffer: '
                     '${(widget.tile.videoController.currentBuffer.inMilliseconds / widget.tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
                     '\n${widget.tile.videoController.currentBuffer.humanReadableCompact(context)}',
                     style: theme.textTheme.labelLarge!.copyWith(
                       color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),
                     ),
+                    textAlign: TextAlign.end,
                   ),
                 ),
               PositionedDirectional(
@@ -228,11 +229,19 @@ class _TimelineCardState extends State<TimelineCard> {
                       ),
                       SquaredIconButton(
                         tooltip: loc.showFullscreenCamera,
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(
+                        onPressed: () async {
+                          final isPlaying = widget.timeline.isPlaying;
+                          if (isPlaying) widget.timeline.stop();
+
+                          await Navigator.of(context).pushNamed(
                             '/events',
-                            arguments: {'event': currentEvent.event},
+                            arguments: {
+                              'event': currentEvent.event,
+                              'videoPlayer': widget.tile.videoController,
+                            },
                           );
+
+                          if (isPlaying) widget.timeline.play();
                         },
                         icon: Icon(
                           Icons.fullscreen,

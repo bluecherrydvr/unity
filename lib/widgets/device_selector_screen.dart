@@ -131,7 +131,7 @@ class DeviceSelectorScreen extends StatelessWidget {
                   addAutomaticKeepAlives: false,
                   addRepaintBoundaries: false,
                   itemBuilder: (context, index) {
-                    final devices = server.devices.sorted(available);
+                    final devices = server.devices.sorted(available: available);
                     final device = devices[index];
 
                     final isSelected = selected.contains(device);

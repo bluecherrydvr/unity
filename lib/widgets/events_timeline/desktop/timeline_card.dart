@@ -132,31 +132,41 @@ class _TimelineCardState extends State<TimelineCard> {
                     const TextSpan(text: '\n'),
                     if (states.isHovering)
                       TextSpan(
-                        text: currentEvent
-                            .position(widget.timeline.currentDate)
-                            .humanReadableCompact(context),
+                        text: settings.showDebugInfo
+                            ? currentEvent
+                                .position(widget.timeline.currentDate)
+                                .toString()
+                            : currentEvent
+                                .position(widget.timeline.currentDate)
+                                .humanReadableCompact(context),
                       ),
                     if (settings.showDebugInfo) ...[
-                      const TextSpan(text: '\nposition: '),
+                      const TextSpan(text: '\ndebug: '),
+                      TextSpan(text: controller.currentPos.toString()),
                       TextSpan(
                         text:
-                            controller.currentPos.humanReadableCompact(context),
+                            '\ndiff: ${currentEvent.position(widget.timeline.currentDate) - controller.currentPos}',
+                      ),
+                      TextSpan(
+                        text: '\nindex: ${events.indexOf(currentEvent)}',
                       ),
                     ],
                   ],
                 ),
               ),
               if (settings.showDebugInfo)
-                Align(
-                  alignment: AlignmentDirectional.topEnd,
+                Positioned(
+                  top: 36.0,
+                  right: 0.0,
                   child: Text(
-                    'debug buffering: '
+                    'buffer: '
                     '${(widget.tile.videoController.currentBuffer.inMilliseconds / widget.tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
                     '\n${widget.tile.videoController.currentBuffer.humanReadableCompact(context)}',
                     style: theme.textTheme.labelLarge!.copyWith(
                       color: Colors.white,
                       shadows: outlinedText(strokeWidth: 0.75),
                     ),
+                    textAlign: TextAlign.end,
                   ),
                 ),
               PositionedDirectional(
@@ -167,7 +177,7 @@ class _TimelineCardState extends State<TimelineCard> {
                 child: () {
                   if (controller.isBuffering) {
                     return const CircularProgressIndicator.adaptive(
-                      strokeWidth: 2.0,
+                      strokeWidth: 1.5,
                     );
                   }
                   if (isDownloaded || isDownloading || states.isHovering) {
@@ -218,11 +228,19 @@ class _TimelineCardState extends State<TimelineCard> {
                       ),
                       SquaredIconButton(
                         tooltip: loc.showFullscreenCamera,
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(
+                        onPressed: () async {
+                          final isPlaying = widget.timeline.isPlaying;
+                          if (isPlaying) widget.timeline.stop();
+
+                          await Navigator.of(context).pushNamed(
                             '/events',
-                            arguments: {'event': currentEvent.event},
+                            arguments: {
+                              'event': currentEvent.event,
+                              'videoPlayer': widget.tile.videoController,
+                            },
                           );
+
+                          if (isPlaying) widget.timeline.play();
                         },
                         icon: Icon(
                           Icons.fullscreen,

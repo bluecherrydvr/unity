@@ -19,14 +19,15 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/widgets/events/filter.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
-class TimelineSidebar extends StatelessWidget {
+class TimelineSidebar extends StatefulWidget {
   const TimelineSidebar({
     super.key,
     required this.date,
@@ -38,6 +39,23 @@ class TimelineSidebar extends StatelessWidget {
   final ValueChanged<DateTime> onDateChanged;
 
   final VoidCallback onFetch;
+
+  @override
+  State<TimelineSidebar> createState() => _TimelineSidebarState();
+}
+
+class _TimelineSidebarState extends State<TimelineSidebar> {
+  bool searchVisible = false;
+  String searchQuery = '';
+  final searchFocusNode = FocusNode();
+  final searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchFocusNode.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +82,30 @@ class TimelineSidebar extends StatelessWidget {
             SubHeader(
               loc.servers,
               height: 40.0,
-              trailing: collapseButton,
+              trailing: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SearchToggleButton(
+                    searchVisible: searchVisible,
+                    iconSize: 22.0,
+                    onPressed: () {
+                      setState(() => searchVisible = !searchVisible);
+                      if (searchVisible) {
+                        searchFocusNode.requestFocus();
+                      }
+                    },
+                  ),
+                  collapseButton,
+                ],
+              ),
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
+            ),
+            ToggleSearchBar(
+              searchVisible: searchVisible,
+              searchController: searchController,
+              searchFocusNode: searchFocusNode,
+              onSearchChanged: (query) => setState(() => searchQuery = query),
             ),
             Expanded(
               child: StatefulBuilder(builder: (context, setState) {
@@ -76,18 +116,20 @@ class TimelineSidebar extends StatelessWidget {
                       setState(() => state.disabledDevices.add(device)),
                   onDisabledDeviceRemoved: (device) =>
                       setState(() => state.disabledDevices.remove(device)),
+                  searchQuery: searchQuery,
                 );
               }),
             ),
+            const Divider(),
             SubHeader(loc.timeFilter, height: 24.0),
             ListTile(
               title: AutoSizeText(
                 () {
                   final formatter = DateFormat.MEd();
-                  if (DateUtils.isSameDay(date, DateTime.now())) {
+                  if (DateUtils.isSameDay(widget.date, DateTime.now())) {
                     return loc.today;
                   } else {
-                    return formatter.format(date);
+                    return formatter.format(widget.date);
                   }
                 }(),
                 maxLines: 1,
@@ -95,15 +137,15 @@ class TimelineSidebar extends StatelessWidget {
               onTap: () async {
                 final result = await showDatePicker(
                   context: context,
-                  initialDate: date,
+                  initialDate: widget.date,
                   firstDate: DateTime.utc(1970),
                   lastDate: DateTime.now(),
                   initialEntryMode: DatePickerEntryMode.calendarOnly,
-                  currentDate: date,
+                  currentDate: widget.date,
                 );
                 if (result != null) {
-                  debugPrint('date picked: from $date to $result');
-                  onDateChanged(result);
+                  debugPrint('date picked: from ${widget.date} to $result');
+                  widget.onDateChanged(result);
                 }
               },
             ),

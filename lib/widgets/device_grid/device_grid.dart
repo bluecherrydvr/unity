@@ -38,6 +38,7 @@ import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
+import 'package:bluecherry_client/widgets/device_grid/desktop/device_info_dialog.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/layout_manager.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/multicast_view.dart';

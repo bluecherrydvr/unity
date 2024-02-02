@@ -218,18 +218,28 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       platform.setProperty('force-seekable', 'yes');
 
       if (enableCache) {
+        debugPrint('Cache is enabled');
         // https://mpv.io/manual/stable/#options-cache
         platform
           ..setProperty('cache', 'yes')
           // https://mpv.io/manual/stable/#options-cache-pause-initial
           ..setProperty('cache-pause-initial', 'yes')
           // https://mpv.io/manual/stable/#options-cache-pause-wait
-          ..setProperty('cache-pause-wait', '1');
+          ..setProperty('cache-pause-wait', '1')
+          ..setProperty('cache-pause', 'no')
+          // https://mpv.io/manual/stable/#options-cache-secs
+          ..setProperty('cache-secs', '13');
         getTemporaryDirectory().then((value) {
           platform
             ..setProperty('cache-on-disk', 'yes')
             ..setProperty('cache-dir', value.path);
         });
+
+        platform
+          // https://mpv.io/manual/master/#options-gapless-audio
+          ..setProperty('gapless-audio', 'yes')
+          // https://mpv.io/manual/master/#options-prefetch-playlist
+          ..setProperty('prefetch-playlist', 'yes');
       } else {
         platform
           ..setProperty('cache', 'no')
@@ -306,12 +316,22 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  Future<void> setMultipleDataSource(List<String> url, {bool autoPlay = true}) {
+  Future<void> setMultipleDataSource(
+    Iterable<String> url, {
+    bool autoPlay = true,
+  }) {
     return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
         Playlist(url.map(Media.new).toList()),
         play: autoPlay,
       );
+    });
+  }
+
+  @override
+  Future<void> jumpToIndex(int index) {
+    return ensureVideoControllerInitialized((controller) async {
+      await mkPlayer.jump(index);
     });
   }
 

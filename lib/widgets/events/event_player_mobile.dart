@@ -57,7 +57,12 @@ class _EventPlayerMobile extends StatefulWidget {
 }
 
 class __EventPlayerMobileState extends State<_EventPlayerMobile> {
-  late final videoController = widget.player ?? UnityVideoPlayer.create();
+  late final videoController = widget.player ??
+      UnityVideoPlayer.create(
+        enableCache: true,
+        // TODO(bdlukaa): determine quality based on settings
+        quality: UnityVideoQuality.p480,
+      );
 
   @override
   void initState() {
@@ -82,9 +87,16 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         : widget.event.mediaURL.toString();
 
     debugPrint(mediaUrl);
-    videoController
-      ..setDataSource(mediaUrl)
-      ..setSpeed(1.0);
+    if (videoController.dataSource != mediaUrl) {
+      debugPrint(
+        'Setting data source from ${videoController.dataSource} to $mediaUrl',
+      );
+      videoController
+        ..setDataSource(mediaUrl)
+        ..setSpeed(1.0);
+    } else {
+      videoController.setSpeed(1.0);
+    }
 
     super.didChangeDependencies();
   }

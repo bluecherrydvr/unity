@@ -122,7 +122,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     playingSubscription.cancel();
     bufferSubscription.cancel();
     focusNode.dispose();
-    videoController.dispose();
+    if (widget.player == null) videoController.dispose();
     super.dispose();
   }
 
@@ -140,11 +140,14 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     debugPrint(mediaUrl);
 
     if (mediaUrl != videoController.dataSource) {
-      videoController
-        ..setDataSource(mediaUrl)
-        ..setVolume(volume)
-        ..setSpeed(speed);
+      debugPrint(
+        'Setting data source from ${videoController.dataSource} to $mediaUrl',
+      );
+      videoController.setDataSource(mediaUrl);
     }
+    videoController
+      ..setVolume(volume)
+      ..setSpeed(speed);
   }
 
   @override

@@ -60,6 +60,16 @@ class TimelineTile {
       enableCache: true,
       title: device.fullName,
     );
+    videoController.setMultipleDataSource(
+      events.map((event) => event.videoUrl),
+      autoPlay: false,
+    );
+  }
+
+  Event? currentEvent(DateTime currentDate) {
+    return events
+        .firstWhereOrNull((event) => event.isPlaying(currentDate))
+        ?.event;
   }
 }
 
@@ -174,30 +184,30 @@ class Timeline extends ChangeNotifier {
   void _eventCallback(TimelineTile tile, {bool notify = true}) {
     if (tile.videoController.duration <= Duration.zero) return;
 
-    final index = tiles.indexOf(tile);
+    // final index = tiles.indexOf(tile);
 
-    final bufferFactor = tile.videoController.currentBuffer.inMilliseconds /
-        tile.videoController.duration.inMilliseconds;
+    // final bufferFactor = tile.videoController.currentBuffer.inMilliseconds /
+    //     tile.videoController.duration.inMilliseconds;
 
-    // This only applies if the video is not buffered
-    if (bufferFactor < 1.0) {
-      if (tile.videoController.currentBuffer <
-          tile.videoController.currentPos) {
-        debugPrint('should pause for buffering');
-        pausedToBuffer.add(index);
-        stop();
-      } else if (pausedToBuffer.contains(index)) {
-        debugPrint('should play from buffering');
-        pausedToBuffer.remove(index);
+    // // This only applies if the video is not buffered
+    // if (bufferFactor < 1.0) {
+    //   if (tile.videoController.currentBuffer <
+    //       tile.videoController.currentPos) {
+    //     debugPrint('should pause $index for buffering');
+    //     pausedToBuffer.add(index);
+    //     stop();
+    //   } else if (pausedToBuffer.contains(index)) {
+    //     debugPrint('should play $index from buffering');
+    //     pausedToBuffer.remove(index);
 
-        if (pausedToBuffer.isEmpty) play();
-      }
-    } else if (pausedToBuffer.contains(index)) {
-      debugPrint('should play from buffering');
-      pausedToBuffer.remove(index);
+    //     if (pausedToBuffer.isEmpty) play();
+    //   }
+    // } else if (pausedToBuffer.contains(index)) {
+    //   debugPrint('should play $index from buffering');
+    //   pausedToBuffer.remove(index);
 
-      if (pausedToBuffer.isEmpty) play();
-    }
+    //   if (pausedToBuffer.isEmpty) play();
+    // }
     if (notify) notifyListeners();
   }
 
@@ -274,9 +284,10 @@ class Timeline extends ChangeNotifier {
     currentPosition = position;
     notifyListeners();
 
-    forEachEvent((tile, event) {
+    forEachEvent((tile, event) async {
       if (!event.isPlaying(currentDate)) return;
-      tile.videoController.setDataSource(event.videoUrl);
+      final eventIndex = tile.events.indexOf(event);
+      await tile.videoController.jumpToIndex(eventIndex);
 
       final position = event.position(currentDate);
       tile.videoController.seekTo(position);
@@ -319,6 +330,8 @@ class Timeline extends ChangeNotifier {
 
     play();
   }
+
+  Duration get period => Duration(milliseconds: 1000 ~/ _speed);
 
   final indicatorKey = GlobalKey(debugLabel: 'Indicator key');
   final zoomController = ScrollController(
@@ -377,6 +390,14 @@ class Timeline extends ChangeNotifier {
     timer?.cancel();
     timer = null;
 
+    forEachEvent((tile, event) {
+      tile.videoController.pause();
+
+      if (event.isPlaying(currentDate)) {
+        tile.videoController.seekTo(event.position(currentDate));
+      }
+    });
+
     for (final tile in tiles) {
       tile.videoController.pause();
     }
@@ -384,23 +405,45 @@ class Timeline extends ChangeNotifier {
   }
 
   void play([TimelineEvent? event]) {
+    debugPrint('Playing timeline with $period');
     timer?.cancel();
-    timer ??= Timer.periodic(Duration(milliseconds: 1000 ~/ _speed), (timer) {
+    timer ??= Timer.periodic(period, (timer) {
       if (event == null) {
-        currentPosition += const Duration(seconds: 1);
+        currentPosition += period;
         notifyListeners();
       }
 
       forEachEvent((tile, e) {
-        if (tile.videoController.isPlaying) return;
+        if (!tile.events.any((e) => e.isPlaying(currentDate))) {
+          tile.videoController.pause();
+          return;
+        }
+        if (!e.isPlaying(currentDate)) return;
+
+        final position = e.position(currentDate);
+        if (tile.videoController.isPlaying) {
+          // if the video is late by a lot of seconds, seek to the current position
+          final isLate = position - tile.videoController.currentPos >
+              const Duration(milliseconds: 3000);
+          if (isLate) {
+            tile.videoController.seekTo(position);
+            debugPrint('Device is late. Seeking ${tile.device} to $position');
+          }
+          return;
+        }
 
         if ((event != null && event == e) || e.isPlaying(currentDate)) {
           if (event == null) {
-            tile.videoController.seekTo(e.position(currentDate));
+            tile.videoController.seekTo(position);
+            debugPrint('-- Seeking ${tile.device} to $position');
           }
-          if (!tile.videoController.isPlaying) tile.videoController.start();
+          if (!tile.videoController.isPlaying) {
+            tile.videoController.start();
+            debugPrint('Playing ${tile.device}');
+          }
         } else {
           tile.videoController.pause();
+          debugPrint('Pausing ${tile.device}');
         }
       });
     });
@@ -474,7 +517,6 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final home = context.watch<HomeProvider>();
@@ -633,7 +675,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(
-              maxHeight: _kTimelineTileHeight * 4.5,
+              maxHeight: _kTimelineTileHeight * 5.0,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
               final tileWidth =
@@ -768,13 +810,15 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               child: Container(
                                 width: 8,
                                 height: 4,
-                                color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onBackground,
+                                color: Colors.black,
                               ),
                             ),
                             Expanded(
                               child: Container(
-                                color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onBackground,
                                 width: 1.8,
+                                color: Colors.black,
                               ),
                             ),
                           ]),
@@ -941,6 +985,13 @@ class _TimelineTile extends StatelessWidget {
                       //             1)]
                       //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
+                      // color: theme.extension<UnityColors>()!.successColor,
+                      child: kDebugMode
+                          ? Text(
+                              '${tile.events.indexOf(event)}',
+                              style: const TextStyle(color: Colors.black),
+                            )
+                          : null,
                     ),
                   ),
               ]);

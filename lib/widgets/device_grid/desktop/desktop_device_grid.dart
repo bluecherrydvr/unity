@@ -91,9 +91,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 ),
                 child: Text(
                   '${view.currentLayout.devices.length}',
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimaryContainer,
-                  ),
+                  style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
                 ),
               ),
             ]);

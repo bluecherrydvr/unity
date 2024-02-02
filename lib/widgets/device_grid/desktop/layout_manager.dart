@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,13 @@ import 'package:provider/provider.dart';
 class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
-  const LayoutManager({super.key, required this.collapseButton});
+  final ValueChanged<String> onSearchChanged;
+
+  const LayoutManager({
+    super.key,
+    required this.collapseButton,
+    required this.onSearchChanged,
+  });
 
   @override
   State<LayoutManager> createState() => _LayoutManagerState();
@@ -45,6 +52,10 @@ class LayoutManager extends StatefulWidget {
 
 class _LayoutManagerState extends State<LayoutManager> {
   Timer? timer;
+
+  bool searchVisible = false;
+  final searchController = TextEditingController();
+  final searchFocusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
@@ -70,6 +81,8 @@ class _LayoutManagerState extends State<LayoutManager> {
   @override
   void dispose() {
     timer?.cancel();
+    searchController.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -95,11 +108,16 @@ class _LayoutManagerState extends State<LayoutManager> {
               child: Row(children: [
                 widget.collapseButton,
                 const SizedBox(width: 5.0),
-                Expanded(
-                  child: Text(
-                    loc.view,
-                    maxLines: 1,
-                  ),
+                Expanded(child: Text(loc.view, maxLines: 1)),
+                SearchToggleButton(
+                  searchVisible: searchVisible,
+                  iconSize: 18.0,
+                  onPressed: () {
+                    setState(() => searchVisible = !searchVisible);
+                    if (searchVisible) {
+                      searchFocusNode.requestFocus();
+                    }
+                  },
                 ),
                 SquaredIconButton(
                   icon: Icon(
@@ -145,6 +163,13 @@ class _LayoutManagerState extends State<LayoutManager> {
               );
             },
           ),
+        ),
+        ToggleSearchBar(
+          searchVisible: searchVisible,
+          searchController: searchController,
+          searchFocusNode: searchFocusNode,
+          onSearchChanged: widget.onSearchChanged,
+          showBottomDivider: false,
         ),
         const Divider(height: 1.0),
       ]),

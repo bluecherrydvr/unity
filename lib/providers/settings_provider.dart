@@ -393,16 +393,7 @@ enum StreamingType {
 }
 
 /// How to handle late video streams.
-enum LateVideoBehavior {
-  /// Automatically jump to the current time.
-  automatic,
-
-  /// Show an option to jump to the current time.
-  manual,
-
-  /// Do nothing.
-  never;
-
+extension LateVideoBehaviorExtension on LateVideoBehavior {
   IconData get icon {
     return switch (this) {
       LateVideoBehavior.automatic => Icons.auto_awesome,

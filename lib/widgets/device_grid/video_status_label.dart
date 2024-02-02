@@ -82,7 +82,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           ? _VideoLabel.loading
           : !isLive
               ? _VideoLabel.recorded
-              : widget.video.isImageOld
+              : widget.video.player.isImageOld
                   ? _VideoLabel.timedOut
                   : widget.video.player.isLate
                       ? _VideoLabel.late

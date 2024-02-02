@@ -405,8 +405,8 @@ extension LateVideoBehaviorExtension on LateVideoBehavior {
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return switch (this) {
-      LateVideoBehavior.automatic => 'Automatic',
-      LateVideoBehavior.manual => 'Manual',
+      LateVideoBehavior.automatic => loc.automatic,
+      LateVideoBehavior.manual => loc.manual,
       LateVideoBehavior.never => loc.never,
     };
   }

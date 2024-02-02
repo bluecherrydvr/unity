@@ -179,8 +179,8 @@ class CamerasSettings extends StatelessWidget {
       Material(
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
-          title: const Text('Late Stream Behavior'),
-          subtitle: const Text('What to do when a stream is late'),
+          title: Text(loc.lateStreamBehavior),
+          subtitle: Text(loc.lateStreamBehaviorDescription),
           trailing: DropdownButton<LateVideoBehavior>(
             value: settings.lateVideoBehavior,
             onChanged: (v) {

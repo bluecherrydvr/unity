@@ -306,10 +306,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }
 
   @override
-  Future<void> setMultipleDataSource(
-    List<String> url, {
-    bool autoPlay = true,
-  }) {
+  Future<void> setMultipleDataSource(List<String> url, {bool autoPlay = true}) {
     return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
         Playlist(url.map(Media.new).toList()),

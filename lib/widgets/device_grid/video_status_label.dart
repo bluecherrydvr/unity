@@ -76,14 +76,6 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           _source.contains('media/mjpeg') ||
           _source.contains('.m3u8') /* hls */);
 
-  bool get isLate {
-    if (!isLive) return false;
-    if (widget.video.lastImageUpdate == null) return false;
-    final now = DateTime.now();
-    final diff = now.difference(widget.video.lastImageUpdate!);
-    return diff.inMilliseconds > 1500;
-  }
-
   _VideoLabel get status => widget.video.error != null
       ? _VideoLabel.error
       : isLoading
@@ -92,7 +84,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
               ? _VideoLabel.recorded
               : widget.video.isImageOld
                   ? _VideoLabel.timedOut
-                  : isLate
+                  : widget.video.player.isLate
                       ? _VideoLabel.late
                       : _VideoLabel.live;
 

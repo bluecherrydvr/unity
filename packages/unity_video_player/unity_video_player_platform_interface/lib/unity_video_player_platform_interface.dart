@@ -29,10 +29,7 @@ enum UnityVideoFit {
   }
 }
 
-enum RTSPProtocol {
-  tcp,
-  udp;
-}
+enum RTSPProtocol { tcp, udp }
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
   UnityVideoPlayerInterface() : super(token: _token);
@@ -415,6 +412,18 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   void _onFpsUpdate(double fps) {
     notifyListeners();
+  }
+
+  /// Whether the current position of the video is not the same or near the
+  /// last image update.
+  ///
+  /// The video is considered late if the current position is more than 1.5
+  /// seconds after the last image update.
+  bool get isLate {
+    if (lastImageUpdate == null) return false;
+    final now = DateTime.now();
+    final diff = now.difference(lastImageUpdate!);
+    return diff.inMilliseconds > 1500;
   }
 
   /// The current data source url

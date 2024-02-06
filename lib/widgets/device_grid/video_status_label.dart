@@ -24,6 +24,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class VideoStatusLabel extends StatefulWidget {
@@ -148,6 +149,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     final text = switch (status) {
       _VideoLabel.live => loc.live,
@@ -175,11 +177,18 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       });
     }
 
+    final isLateDismissal = status == _VideoLabel.late &&
+        settings.lateVideoBehavior == LateVideoBehavior.manual;
+
     return MouseRegion(
-      onEnter: _openWithTap ? null : (_) => showOverlay(),
-      onExit: _openWithTap ? null : (_) => dismissOverlay(),
+      onEnter: _openWithTap || isLateDismissal ? null : (_) => showOverlay(),
+      onExit: _openWithTap || isLateDismissal ? null : (_) => dismissOverlay(),
       child: GestureDetector(
         onTap: () {
+          if (isLateDismissal) {
+            widget.video.player.dismissLateVideo();
+            return;
+          }
           if (_openWithTap) {
             dismissOverlay();
             _openWithTap = false;

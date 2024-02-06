@@ -488,10 +488,21 @@
   "contain": "Zawartość",
   "fill": "Wypełnienie",
   "cover": "Pokrycie",
+  "@@Late stream behavior": {},
   "lateStreamBehavior": "Late stream behavior",
   "lateStreamBehaviorDescription": "What to do when a stream is late",
-  "automatic": "Automatic",
-  "manual": "Manual",
+  "automaticBehavior": "Automatic",
+  "automaticBehaviorDescription": "The app will try to reposition the stream automatically",
+  "manualBehavior": "Manual",
+  "manualBehaviorDescription": "Press {label} to reposition the stream",
+  "@manualBehaviorDescription": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverBehaviorDescription": "The app will not try to reposition the stream",
   "@@LOCALIZATION": {},
   "dateLanguage": "Date and Language",
   "language": "Language",

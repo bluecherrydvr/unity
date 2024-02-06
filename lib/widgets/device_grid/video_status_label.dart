@@ -43,7 +43,7 @@ class VideoStatusLabel extends StatefulWidget {
   State<VideoStatusLabel> createState() => _VideoStatusLabelState();
 }
 
-enum _VideoLabel {
+enum VideoLabel {
   /// When the video hasn't loaded any frame yet.
   loading,
 
@@ -77,17 +77,17 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           _source.contains('media/mjpeg') ||
           _source.contains('.m3u8') /* hls */);
 
-  _VideoLabel get status => widget.video.error != null
-      ? _VideoLabel.error
+  VideoLabel get status => widget.video.error != null
+      ? VideoLabel.error
       : isLoading
-          ? _VideoLabel.loading
+          ? VideoLabel.loading
           : !isLive
-              ? _VideoLabel.recorded
+              ? VideoLabel.recorded
               : widget.video.player.isImageOld
-                  ? _VideoLabel.timedOut
+                  ? VideoLabel.timedOut
                   : widget.video.player.isLate
-                      ? _VideoLabel.late
-                      : _VideoLabel.live;
+                      ? VideoLabel.late
+                      : VideoLabel.live;
 
   bool _openWithTap = false;
   OverlayEntry? entry;
@@ -147,27 +147,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-
-    final text = switch (status) {
-      _VideoLabel.live => loc.live,
-      _VideoLabel.loading => loc.loading,
-      _VideoLabel.recorded => loc.recorded,
-      _VideoLabel.timedOut => loc.timedOut,
-      _VideoLabel.error => loc.error,
-      _VideoLabel.late => loc.late,
-    };
-
-    final color = switch (status) {
-      _VideoLabel.live => Colors.red.shade600,
-      _VideoLabel.loading => Colors.blue,
-      _VideoLabel.recorded => Colors.green,
-      _VideoLabel.timedOut => Colors.amber.shade600,
-      _VideoLabel.error => Colors.grey,
-      _VideoLabel.late => Colors.purple,
-    };
 
     // This opens the overlay when a property is updated. This is a frame late
     if (isOverlayOpen) {
@@ -177,7 +157,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       });
     }
 
-    final isLateDismissal = status == _VideoLabel.late &&
+    final isLateDismissal = status == VideoLabel.late &&
         settings.lateVideoBehavior == LateVideoBehavior.manual;
 
     return MouseRegion(
@@ -197,40 +177,69 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
             showOverlay();
           }
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: 4.0,
-            vertical: 2.0,
-          ),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4.0),
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (status == _VideoLabel.loading)
-              const Padding(
-                padding: EdgeInsetsDirectional.only(end: 8.0),
-                child: SizedBox(
-                  height: 12.0,
-                  width: 12.0,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 1.5,
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  ),
-                ),
-              ),
-            Text(
-              text,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: color.computeLuminance() > 0.5
-                    ? Colors.black
-                    : Colors.white,
+        child: VideoStatusLabelIndicator(status: status),
+      ),
+    );
+  }
+}
+
+class VideoStatusLabelIndicator extends StatelessWidget {
+  final VideoLabel status;
+
+  const VideoStatusLabelIndicator({super.key, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final text = switch (status) {
+      VideoLabel.live => loc.live,
+      VideoLabel.loading => loc.loading,
+      VideoLabel.recorded => loc.recorded,
+      VideoLabel.timedOut => loc.timedOut,
+      VideoLabel.error => loc.error,
+      VideoLabel.late => loc.late,
+    };
+
+    final color = switch (status) {
+      VideoLabel.live => Colors.red.shade600,
+      VideoLabel.loading => Colors.blue,
+      VideoLabel.recorded => Colors.green,
+      VideoLabel.timedOut => Colors.amber.shade600,
+      VideoLabel.error => Colors.grey,
+      VideoLabel.late => Colors.purple,
+    };
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 4.0,
+        vertical: 2.0,
+      ),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (status == VideoLabel.loading)
+          const Padding(
+            padding: EdgeInsetsDirectional.only(end: 8.0),
+            child: SizedBox(
+              height: 12.0,
+              width: 12.0,
+              child: CircularProgressIndicator.adaptive(
+                strokeWidth: 1.5,
+                valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             ),
-          ]),
+          ),
+        Text(
+          text,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+          ),
         ),
-      ),
+      ]),
     );
   }
 }
@@ -238,7 +247,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
 class _DeviceVideoInfo extends StatelessWidget {
   final Device device;
   final VideoViewInheritance video;
-  final _VideoLabel label;
+  final VideoLabel label;
   final bool isLive;
 
   final Event? event;

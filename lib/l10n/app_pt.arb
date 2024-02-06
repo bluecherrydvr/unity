@@ -488,10 +488,21 @@
   "contain": "Limitar",
   "fill": "Preencher",
   "cover": "Cobrir",
+  "@@Late stream behavior": {},
   "lateStreamBehavior": "Transmissão atrasada",
   "lateStreamBehaviorDescription": "O que fazer quando a transmissão está atrasada.",
-  "automatic": "Automático",
-  "manual": "Manual",
+  "automaticBehavior": "Automático",
+  "automaticBehaviorDescription": "A transmissão será reajustada automaticamente",
+  "manualBehavior": "Manual",
+  "manualBehaviorDescription": "Pressione {label} para reposicionar a transmissão",
+  "@manualBehaviorDescription": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverBehaviorDescription": "A transmissão não será reajustada",
   "@@LOCALIZATION": {},
   "dateLanguage": "Data e Idioma",
   "language": "Idioma",

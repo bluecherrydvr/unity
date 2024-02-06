@@ -73,10 +73,10 @@ class API {
         debugPrint(body);
         server.online = false;
       }
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to checkServerCredentials on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (exception, stack) {
+      debugPrint(
+        'Failed to checkServerCredentials on server $server : $exception\n$stack',
+      );
 
       server.online = false;
     }

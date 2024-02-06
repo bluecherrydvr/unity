@@ -28,6 +28,7 @@ import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 class DesktopViewProvider extends UnityProvider {
   DesktopViewProvider._();
@@ -59,19 +60,21 @@ class DesktopViewProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(desktopView, kHiveDesktopLayouts);
-    for (final device in currentLayout.devices) {
-      final completer = Completer();
-      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
-        device,
-        () async {
-          if (Platform.isLinux) {
-            await Future.delayed(const Duration(milliseconds: 250));
-          }
-          completer.complete();
-        },
-      );
-      await completer.future;
-    }
+    await Future.wait(
+      currentLayout.devices.map<Future>((device) {
+        final completer = Completer<UnityVideoPlayer>();
+        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
+          device,
+          () async {
+            if (Platform.isLinux) {
+              await Future.delayed(const Duration(milliseconds: 250));
+            }
+            completer.complete(UnityPlayers.players[device.uuid]);
+          },
+        );
+        return completer.future;
+      }),
+    );
   }
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.

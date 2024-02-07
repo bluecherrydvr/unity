@@ -29,14 +29,17 @@ import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/device_grid/desktop/multicast_view.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/multi_window/window.dart';
 import 'package:bluecherry_client/widgets/player/widgets.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 /// The player that plays the streams in full-screen.
@@ -145,12 +148,14 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   }
 
   void toggleOverlay([PointerDeviceKind? kind]) {
-    if (kind != null && kind != PointerDeviceKind.touch) return;
+    if (!kDebugMode && kind != null && kind != PointerDeviceKind.touch) return;
     if (mounted) setState(() => overlay = !overlay);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -256,6 +261,23 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                           onPressed: toggleOverlay,
                         ),
                       ),
+                    if (overlay && settings.showDebugInfo)
+                      PositionedDirectional(
+                        bottom: 8.0,
+                        start: 8.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'source: ${controller.dataSource}'
+                            '\nposition: ${controller.currentPos}'
+                            '\nduration ${controller.duration}',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              shadows: outlinedText(),
+                            ),
+                          ),
+                        ),
+                      ),
                     PositionedDirectional(
                       bottom: 8.0,
                       end: 8.0,
@@ -314,7 +336,9 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
     final isSubView = AlternativeWindow.maybeOf(context) != null;
 
     return Column(children: [
@@ -327,6 +351,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
           device: widget.device,
           enabled: ptzEnabled,
           builder: (context, commands, constraints) {
+            final states = HoverButton.of(context).states;
             return UnityVideoView(
               heroTag: widget.device.streamURL,
               player: widget.player,
@@ -344,6 +369,19 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                       ),
                     ),
                   ),
+                  if (states.isHovering && settings.showDebugInfo)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'source: ${player.dataSource}'
+                        '\nposition: ${player.currentPos}'
+                        '\nduration ${player.duration}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
+                      ),
+                    ),
                   PositionedDirectional(
                     bottom: 8.0,
                     end: 8.0,

@@ -99,6 +99,7 @@
   "timedOut": "EXPIRADO",
   "loading": "CARREGANDO",
   "recorded": "GRAVADO",
+  "late": "ATRASADO",
   "removeFromView": "Remover do layout",
   "addToView": "Adicionar ao layout",
   "addAllToView": "Adicionar tudo ao layout",
@@ -487,6 +488,21 @@
   "contain": "Limitar",
   "fill": "Preencher",
   "cover": "Cobrir",
+  "@@Late stream behavior": {},
+  "lateStreamBehavior": "Transmissão atrasada",
+  "lateStreamBehaviorDescription": "O que fazer quando a transmissão está atrasada.",
+  "automaticBehavior": "Automático",
+  "automaticBehaviorDescription": "A transmissão será reajustada automaticamente",
+  "manualBehavior": "Manual",
+  "manualBehaviorDescription": "Pressione {label} para reposicionar a transmissão",
+  "@manualBehaviorDescription": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverBehaviorDescription": "A transmissão não será reajustada",
   "@@LOCALIZATION": {},
   "dateLanguage": "Data e Idioma",
   "language": "Idioma",

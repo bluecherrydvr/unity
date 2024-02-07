@@ -943,6 +943,7 @@ class _TimelineTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     final border = Border(
       right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
@@ -985,11 +986,17 @@ class _TimelineTile extends StatelessWidget {
                       //             1)]
                       //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
-                      // color: theme.extension<UnityColors>()!.successColor,
-                      child: kDebugMode
-                          ? Text(
-                              '${tile.events.indexOf(event)}',
-                              style: const TextStyle(color: Colors.black),
+                      child: settings.showDebugInfo
+                          ? Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Text(
+                                '${tile.events.indexOf(event)}',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontSize: 10.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             )
                           : null,
                     ),

@@ -51,7 +51,6 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/multi_window/window.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

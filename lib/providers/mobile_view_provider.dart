@@ -75,7 +75,7 @@ class MobileViewProvider extends UnityProvider {
     await super.initializeStorage(mobileView, kHiveMobileView);
     for (final device in current) {
       if (device != null) {
-        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
+        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
       }
     }
   }
@@ -99,10 +99,9 @@ class MobileViewProvider extends UnityProvider {
     // [Device]s present in the new tab.
     final items = devices[value]!;
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
-    for (final device in items) {
-      if (device != null && !UnityPlayers.players.keys.contains(device.uuid)) {
-        UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
-      }
+    for (final device
+        in items.where((device) => device != null).cast<Device>()) {
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
     UnityPlayers.players.removeWhere((deviceUUID, player) {
@@ -143,7 +142,7 @@ class MobileViewProvider extends UnityProvider {
     // Only create new video player instance, if no other camera tile in the same tab is showing the same camera device.
     if (!devices[tab]!.contains(device)) {
       debugPrint('Added $device');
-      UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
     devices[tab]![index] = device;
     notifyListeners();
@@ -153,10 +152,7 @@ class MobileViewProvider extends UnityProvider {
   /// Replaces a [Device] tile from the camera grid, at specified [tab] [index] with passed [device].
   Future<void> replace(int tab, int index, Device device) async {
     final current = devices[tab]![index];
-    var count = 0;
-    for (final element in devices[tab]!) {
-      if (element == current) count++;
-    }
+    final count = devices[tab]!.where((element) => element == current).length;
     // Only dispose if it was the only instance available.
     // If some other tile exists showing same camera device, then don't dispose the video player controller.
     if (count == 1) {
@@ -165,7 +161,7 @@ class MobileViewProvider extends UnityProvider {
     }
     if (!devices[tab]!.contains(device)) {
       debugPrint('Replaced $device');
-      UnityPlayers.players[device.uuid] = UnityPlayers.forDevice(device);
+      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
     // Save the new [device] at the position.
     devices[tab]![index] = device;

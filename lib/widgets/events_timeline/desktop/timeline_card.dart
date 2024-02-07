@@ -28,7 +28,6 @@ import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart'
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/player/widgets.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -133,7 +132,7 @@ class _TimelineCardState extends State<TimelineCard> {
                     const TextSpan(text: '\n'),
                     if (states.isHovering)
                       TextSpan(
-                        text: kDebugMode
+                        text: settings.showDebugInfo
                             ? currentEvent
                                 .position(widget.timeline.currentDate)
                                 .toString()
@@ -141,7 +140,7 @@ class _TimelineCardState extends State<TimelineCard> {
                                 .position(widget.timeline.currentDate)
                                 .humanReadableCompact(context),
                       ),
-                    if (kDebugMode) ...[
+                    if (settings.showDebugInfo) ...[
                       const TextSpan(text: '\ndebug: '),
                       TextSpan(text: controller.currentPos.toString()),
                       TextSpan(
@@ -155,7 +154,7 @@ class _TimelineCardState extends State<TimelineCard> {
                   ],
                 ),
               ),
-              if (kDebugMode)
+              if (settings.showDebugInfo)
                 Positioned(
                   top: 36.0,
                   right: 0.0,

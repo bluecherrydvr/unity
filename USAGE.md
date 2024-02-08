@@ -33,3 +33,59 @@ You can optionally leave these as they are. Click `Finish` to add the server.
 ![Server successfully added](./screenshots/add_server/server_added.png)
 
 Click `Finish` to close the process.
+
+## Viewing cameras
+
+After your server is added, you will be redirected to the camera list. You can view the live video from the cameras by clicking on them or by dragging them to the layout.
+
+![Drag and drop cameras](./screenshots/cameras/drag-to-add.gif)
+
+You can repeat this process or any camera or DVR that you have listed on the left side. Note: It’s possible to connect as many devices together as you need, and mix and match the videos in different layouts.
+
+## Open app from configuration file
+
+You can open the app from a configuration file. This is useful for opening the app from a web browser or from a file manager. The configuration file is a `.bluecherry` file that contains the devices data.
+
+Here is an example of a configuration file:
+
+```
+[stream]
+video = rtsp://demo.bluecherry.app:7002/live/1
+
+[videoscreen]
+fullscreen = false
+
+[audio]
+sound = true
+```
+
+`*` The `stream` section contains the video URL. The app will try to connect to this URL when it is opened.
+
+`*` The `videoscreen` section contains the fullscreen setting, which determines if the app should open in fullscreen mode or add the video to the layout.
+
+`*` The `audio` section contains the sound setting, which determines if the stream should have sound or not.
+
+You can open the app from the configuration file by double-clicking it and opening it with the Bluecherry Client.
+
+Additionally, you can add overlays to the video by adding the following sections to the configuration file:
+
+```
+[overlay]
+text = "This is overlay number threee"
+size = 24
+color = #000000
+opacity = 80
+show = true
+position_x = 10
+position_y = 30
+```
+
+`*` The `overlay` section contains the text, size, color, opacity, show, position_x, and position_y settings. The overlay is persistent and will be shown on top of the video.
+
+The `position_x` and `position_y` determines the position of the overlay on the video, being `0` the top-left corner of the video.
+
+The overlay can be edited from within the app:
+
+![Edit overlay](./screenshots/cameras/stream_configuration_file.png)
+
+Press "Finish" to add the stream to the layout.

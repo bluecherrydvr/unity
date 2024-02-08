@@ -88,4 +88,12 @@ The overlay can be edited from within the app:
 
 ![Edit overlay](./screenshots/cameras/stream_configuration_file.png)
 
-Press "Finish" to add the stream to the layout.
+Press `Finish` to add the stream to the layout.
+
+## [beta] Matrix zoom
+
+The matrix view is a feature that allows you to zoom into a camera. This is useful for multicast streams. This works better with cameras with larger resolutions.
+
+To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view zoom`.
+
+![Matrix view](./screenshots/cameras/matrix-zoom.gif)

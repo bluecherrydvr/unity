@@ -69,19 +69,12 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   final overlayKey = GlobalKey(debugLabel: 'Label Overlay');
 
   bool get isLoading => widget.video.lastImageUpdate == null;
-  String get _source => widget.video.player.dataSource!;
-  bool get isLive =>
-      widget.video.player.dataSource != null &&
-      // It is only LIVE if it starts with rtsp or is hls
-      (_source.startsWith('rtsp') ||
-          _source.contains('media/mjpeg') ||
-          _source.contains('.m3u8') /* hls */);
 
   VideoLabel get status => widget.video.error != null
       ? VideoLabel.error
       : isLoading
           ? VideoLabel.loading
-          : !isLive
+          : !widget.video.player.isLive
               ? VideoLabel.recorded
               : widget.video.player.isImageOld
                   ? VideoLabel.timedOut
@@ -105,7 +98,6 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           device: widget.device,
           video: widget.video,
           label: status,
-          isLive: isLive,
           event: widget.event,
         );
         final minHeight = label.buildTextSpans(context).length * 15;
@@ -248,7 +240,6 @@ class _DeviceVideoInfo extends StatelessWidget {
   final Device device;
   final VideoViewInheritance video;
   final VideoLabel label;
-  final bool isLive;
 
   final Event? event;
 
@@ -256,7 +247,6 @@ class _DeviceVideoInfo extends StatelessWidget {
     required this.device,
     required this.video,
     required this.label,
-    required this.isLive,
     required this.event,
   });
 
@@ -271,7 +261,7 @@ class _DeviceVideoInfo extends StatelessWidget {
       title: loc.server,
       data: '${device.server.name} (${device.id})',
     );
-    if (isLive) {
+    if (video.player.isLive) {
       return [
         name,
         server,

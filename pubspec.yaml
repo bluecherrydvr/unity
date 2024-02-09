@@ -32,8 +32,8 @@ dependencies:
   intl: ^0.18.1
   flutter_localized_locales: ^2.0.5
   duration: ^3.0.13
-  firebase_core: 2.10.0
-  firebase_messaging: ^14.4.1
+  firebase_core: ^2.25.4
+  firebase_messaging: ^14.7.15
   awesome_notifications: ^0.8.2
   wakelock_plus: ^1.1.4
   app_links: ^3.5.0

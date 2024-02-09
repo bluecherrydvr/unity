@@ -9,6 +9,7 @@ This document explains how to use the Bluecherry Client and list all its feature
 - [Requirements](#requirements)
 - [Connecting to the server](#connecting-to-the-server)
 - [Viewing cameras](#viewing-cameras)
+  - `TODO` [PTZ](#ptz)
   - [`beta` Matrix zoom](#beta-matrix-zoom)
 - `TODO` [Layouts](#layouts)
   - [External streams](#external-streams)
@@ -73,6 +74,16 @@ To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view z
 ## Layouts
 
 ### External streams
+
+You can add external streams to the layout. This is useful for adding streams from other sources, such as webcams, IP cameras, or other Bluecherry servers.
+
+To add an external stream, click on the `Add external stream` tile and enter the stream URL:
+
+![Add external stream](./screenshots/layouts/external-stream.gif)
+
+> In the example above, we add a test video to the layout.
+
+External streams are added to the `External Stream` layout.
 
 ## Open app from configuration file
 

@@ -76,9 +76,9 @@ You can press and move the mouse to control the camera.
 
 You can perform the following movements:
 
-    * Pan: Press and move the mouse left or right.
-    * Tilt: Press and move the mouse up or down.
-    * Zoom: Scroll the mouse wheel up or down.
+  * Pan: Press and move the mouse left or right.
+  * Tilt: Press and move the mouse up or down.
+  * Zoom: Scroll the mouse wheel up or down.
 
 The PTZ movements are scheduled and will be executed after the previous movement is completed. Depending on the speed of the internet connection, you can experience minor delays between the movements and the camera response.
 
@@ -127,11 +127,11 @@ fullscreen = false
 sound = true
 ```
 
-`*` The `stream` section contains the video URL. The app will try to connect to this URL when it is opened.
+* The `stream` section contains the video URL. The app will try to connect to this URL when it is opened.
 
-`*` The `videoscreen` section contains the fullscreen setting, which determines if the app should open in fullscreen mode or add the video to the layout.
+* The `videoscreen` section contains the fullscreen setting, which determines if the app should open in fullscreen mode or add the video to the layout.
 
-`*` The `audio` section contains the sound setting, which determines if the stream should have sound or not.
+* The `audio` section contains the sound setting, which determines if the stream should have sound or not.
 
 You can open the app from the configuration file by double-clicking it and opening it with the Bluecherry Client.
 
@@ -148,9 +148,9 @@ position_x = 10
 position_y = 30
 ```
 
-`*` The `overlay` section contains the text, size, color, opacity, show, position_x, and position_y settings. The overlay is persistent and will be shown on top of the video.
+* The `overlay` section contains the text, size, color, opacity, show, position_x, and position_y settings. The overlay is persistent and will be shown on top of the video.
 
-The `position_x` and `position_y` determines the position of the overlay on the video, being `0` the top-left corner of the video.
+* The `position_x` and `position_y` determines the position of the overlay on the video, being `0` the top-left corner of the video.
 
 The overlay can be edited from within the app:
 

@@ -9,7 +9,7 @@ This document explains how to use the Bluecherry Client and list all its feature
 - [Requirements](#requirements)
 - [Connecting to the server](#connecting-to-the-server)
 - [Viewing cameras](#viewing-cameras)
-  - `TODO` [PTZ](#ptz)
+  - [PTZ](#ptz)
   - [`beta` Matrix zoom](#beta-matrix-zoom)
 - `TODO` [Layouts](#layouts)
   - [External streams](#external-streams)
@@ -62,6 +62,31 @@ After your server is added, you will be redirected to the camera list. You can v
 ![Drag and drop cameras](./screenshots/cameras/drag-to-add.gif)
 
 You can repeat this process or any camera or DVR that you have listed on the left side. Note: It’s possible to connect as many devices together as you need, and mix and match the videos in different layouts.
+
+## PTZ
+
+The PTZ feature allows you to control the pan, tilt, and zoom of a camera. To enable it, click on the `PTZ` button on the camera tile.
+
+> [!Note]
+> The PTZ feature is only available for cameras that support PTZ. If the camera does not support PTZ, the PTZ button will not be available.
+
+You can press and move the mouse to control the camera. 
+
+![PTZ](./screenshots/cameras/ptz.gif)
+
+You can perform the following movements:
+
+    * Pan: Press and move the mouse left or right.
+    * Tilt: Press and move the mouse up or down.
+    * Zoom: Scroll the mouse wheel up or down.
+
+The PTZ movements are scheduled and will be executed after the previous movement is completed. Depending on the speed of the internet connection, you can experience minor delays between the movements and the camera response.
+
+> [!Tip]
+> It is recommended to wait for the camera to complete the previous movement before performing another one, but scheduling multiple movements is possible.
+
+> [!Important]
+> PTZ zoom is not supported on mobile devices. See [this issue](https://github.com/bluecherrydvr/unity/issues/107).
 
 ## [beta] Matrix zoom
 

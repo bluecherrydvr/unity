@@ -1,5 +1,25 @@
 # Usage
 
+This document explains how to use the Bluecherry Client and list all its features.
+
+## Table of contents
+
+- [Overview](#overview)
+- [Download, Installation](#download-installation)
+- [Requirements](#requirements)
+- [Connecting to the server](#connecting-to-the-server)
+- [Viewing cameras](#viewing-cameras)
+  - [`beta` Matrix zoom](#beta-matrix-zoom)
+- `TODO` [Layouts](#layouts)
+  - [External streams](#external-streams)
+- [Open app from configuration file](#open-app-from-configuration-file)
+- `TODO` [Events](#events)
+  - `TODO` [Browse events](#browse-events)
+  - `TODO` [Timeline of Events](#timeline-of-events)
+  - `TODO` [Events details](#events-details)
+  - `TODO` [Downloads](#downloads)
+- `TODO` [Updating](#updating)
+
 ## Overview
 
 The Bluecherry Client lets you watch live and recorded video from your Bluecherry server. It is a cross-platform application that runs on Android, iOS, Windows, macOS, and Linux.
@@ -41,6 +61,18 @@ After your server is added, you will be redirected to the camera list. You can v
 ![Drag and drop cameras](./screenshots/cameras/drag-to-add.gif)
 
 You can repeat this process or any camera or DVR that you have listed on the left side. Note: It’s possible to connect as many devices together as you need, and mix and match the videos in different layouts.
+
+## [beta] Matrix zoom
+
+The matrix view is a feature that allows you to zoom into a camera. This is useful for multicast streams. This works better with cameras with larger resolutions.
+
+To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view zoom`.
+
+![Matrix view](./screenshots/cameras/matrix-zoom.gif)
+
+## Layouts
+
+### External streams
 
 ## Open app from configuration file
 
@@ -90,10 +122,4 @@ The overlay can be edited from within the app:
 
 Press `Finish` to add the stream to the layout.
 
-## [beta] Matrix zoom
 
-The matrix view is a feature that allows you to zoom into a camera. This is useful for multicast streams. This works better with cameras with larger resolutions.
-
-To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view zoom`.
-
-![Matrix view](./screenshots/cameras/matrix-zoom.gif)

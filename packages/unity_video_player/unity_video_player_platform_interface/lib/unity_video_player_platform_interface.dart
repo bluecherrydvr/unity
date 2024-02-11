@@ -437,11 +437,20 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   /// The video is considered late if the current position is more than 1.5
   /// seconds after the last image update.
   bool get isLate {
-    if (lastImageUpdate == null) return false;
+    if (dataSource == null || lastImageUpdate == null || !isLive) return false;
     final now = DateTime.now();
     final diff = now.difference(lastImageUpdate!);
     return diff.inMilliseconds > 1500;
   }
+
+  /// Whether the video is a live stream.
+  bool get isLive =>
+      // TODO(bdlukaa): do a better checking of this
+      dataSource != null &&
+      // It is only LIVE if it starts with rtsp or is hls
+      (dataSource!.startsWith('rtsp') ||
+          dataSource!.contains('media/mjpeg') ||
+          dataSource!.contains('.m3u8') /* hls */);
 
   void _handleLateVideo() {
     switch (lateVideoBehavior) {

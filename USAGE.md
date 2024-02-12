@@ -91,7 +91,7 @@ The PTZ movements are scheduled and will be executed after the previous movement
 
 ## [beta] Matrix zoom
 
-The matrix view is a feature that allows you to zoom into a camera. This is useful for multicast streams. This works better with cameras with larger resolutions.
+The matrix view is a feature that allows you to zoom into a camera inside a pre defined grid.  This is useful in the event you have one stream that provides a grid of cameras (4x4 for example). This works better for cameras with larger resolutions
 
 To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view zoom`.
 
@@ -112,6 +112,8 @@ The compact layouts creates a 2x2 grid with sub 2x2 grids. This is useful for vi
 ### Cycling
 
 You can enable the cycling to change the layouts automatically at a given interval (defaults to 30 seconds). This is useful for monitoring a large number of cameras.
+
+![Cycling at each 5 seconds](./screenshots/layouts/cycle.gif)
 
 ### External streams
 

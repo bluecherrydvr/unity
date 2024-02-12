@@ -9,45 +9,44 @@
   <b text-align="center"> Bluecherry DVR client to run across range of devices.</b>
   <br/>
 
-  <a href="https://www.bluecherrydvr.com/">Website</a> •
-  <a href="https://www.bluecherrydvr.com/product/v3license/">Purchase</a> •
-  <a href="https://www.bluecherrydvr.com/chat/">Chat</a>
-</div>
+<a href="https://www.bluecherrydvr.com/">Website</a> •
+<a href="https://www.bluecherrydvr.com/product/v3license/">Purchase</a> •
+<a href="https://www.bluecherrydvr.com/chat/">Chat</a>
 
+</div>
 
 ## Features
 
-* 🖲️ Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
-* 📺 Play any stream or recording from the web.
-* 🎛️ Interactive camera grid viewer, with support for multiple layouts:
+- 🖲️ Ability to add multiple [Bluecherry DVR servers](https://www.bluecherrydvr.com/downloads/).
+- 📺 Play any stream or recording from the web.
+- 🎛️ Interactive camera grid viewer, with support for multiple layouts:
   <br /> $~~~~$
-💻 For larger screens, compact and multiple layout views are available.
+  💻 For larger screens, compact and multiple layout views are available.
   <br /> $~~~~~$📱 For smaller screens, see multiple cameras in 2x3, 2x2, 2x1 or 1x1 view
   <br /> $~~~~~$👆 Re-orgderable drag-and-drop camera viewer
   <br /> $~~~~~$🛞 Cycle through different layout views automatically
-* 🔎 Pinch-to-zoom fullscreen camera viewer.
-* 📹 Multicast streams support
-* 🏃 Events List Viewer
-* 🚡 Events Timeline Viewer
-* 📸 Direct camera viewer.
-* 🎮 **P**an-**T**ilt-**Z**oom controls for supported cameras.
-* 🌓 Light & dark app theme.
-* 📰 System camera event notifications.
-* 📺 Adaptive and responsive design for larger screens
-* 📱 Cross-platform
+- 🔎 Pinch-to-zoom fullscreen camera viewer.
+- 📹 Multicast streams support
+- 🏃 Events List Viewer
+- 🚡 Events Timeline Viewer
+- 📸 Direct camera viewer.
+- 🎮 **P**an-**T**ilt-**Z**oom controls for supported cameras.
+- 🌓 Light & dark app theme.
+- 📰 System camera event notifications.
+- 📺 Adaptive and responsive design for larger screens
+- 📱 Cross-platform
   <br /> $~~~~$📱 Mobile: Android & iOS
   <br /> $~~~~$🖥️ Desktop: Windows, Linux & MacOS
-* 📦 Automatic updates
-
+- 📦 Automatic updates
 
 ## Download
 
-| Android | iOS | Windows | GNU/Linux | MacOS |
-| ------- | --- | ------- | ----- | ----- |
-| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk) | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-windows-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.AppImage) | [Executable `.app`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-macos.7z)  |
-| [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-armeabi-v7a-release.apk) |  | 🚧 **SOON** ~~`winget install bluecherry`~~ | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.deb) | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~ |
-| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk) |  | 🚧 **SOON** ~~Microsoft Store~~ | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |  |
-| 🚧 **SOON** ~~Play Store~~ |  |  | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) |  |
+| Android                                                                                                                            | iOS                                                                       | Windows                                                                                                              | GNU/Linux                                                                                                                         | MacOS                                                                                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-arm64-v8a-release.apk)    | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-windows-setup.exe) | [AppImage](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.AppImage)               | [Executable `.app`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-macos.7z) |
+| [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-armeabi-v7a-release.apk) |                                                                           | 🚧 **SOON** ~~`winget install bluecherry`~~                                                                          | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.deb)        | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~                                  |
+| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-android-x86_64-release.apk)      |                                                                           | 🚧 **SOON** ~~Microsoft Store~~                                                                                      | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.tar.gz) |                                                                                                                 |
+| 🚧 **SOON** ~~Play Store~~                                                                                                         |                                                                           |                                                                                                                      | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/bleeding_edge/bluecherry-linux-x86_64.rpm) |                                                                                                                 |
 
 Or download the latest release [here](https://github.com/bluecherrydvr/unity/releases).
 
@@ -58,15 +57,20 @@ Most platforms will not require any extra steps to install the app.
 #### Linux
 
 You need mpv & libmpv-dev installed:
+
 ```bash
 sudo apt install mpv libmpv-dev
 ```
 
 To install the `.deb` file, run:
+
 ```bash
 sudo dpkg -i bluecherry-linux-x86_64.deb
 ```
 
+## Usage
+
+Refer to [USAGE.md](./USAGE.md) for detailed usage instructions.
 
 ## License
 
@@ -160,7 +164,7 @@ flutter pub get
 flutter build [linux|windows|macos|android|ios]
 ```
 
-The automated build process is done using GitHub Actions. You may find the workflow [here](.github/workflows/main.yml). The workflow builds the app for all supported platforms & uploads the artifacts to the release page. 
+The automated build process is done using GitHub Actions. You may find the workflow [here](.github/workflows/main.yml). The workflow builds the app for all supported platforms & uploads the artifacts to the release page.
 
 On Linux, a Flutter executable with different environment variables is used to build the app for different distributions. This tells the app how the system is configured and how it should install updates. To run for Linux, you need to provide the following environment variables based on your system, where `[DISTRO_ENV]` can be `appimage` (AppImage), `deb` (Debian), `rpm` (RedHat), `tar.gz` (Tarball) or `pi` (Raspberry Pi).
 

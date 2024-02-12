@@ -11,7 +11,10 @@ This document explains how to use the Bluecherry Client and list all its feature
 - [Viewing cameras](#viewing-cameras)
   - [PTZ](#ptz)
   - [`beta` Matrix zoom](#beta-matrix-zoom)
-- `TODO` [Layouts](#layouts)
+- [Layouts](#layouts)
+  - [Multiple Layout](#multiple-layout)
+  - [Compact layout](#compact-layout)
+  - [Cycling](#cycling)
   - [External streams](#external-streams)
 - [Open app from configuration file](#open-app-from-configuration-file)
 - `TODO` [Events](#events)
@@ -97,6 +100,20 @@ To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view z
 ![Matrix view](./screenshots/cameras/matrix-zoom.gif)
 
 ## Layouts
+
+You can create layouts to organize the cameras. You can add cameras to the layout by dragging them from the camera list to the layout.
+
+### Multiple Layout
+
+The multiple layout allows you to view as many cameras as you want in a grid. The grid will adapt to the number of cameras you add.
+
+### Compact layout
+
+The compact layouts creates a 2x2 grid with sub 2x2 grids. This is useful for viewing a large number of cameras in a small space.
+
+### Cycling
+
+You can enable the cycling to change the layouts automatically at a given interval (defaults to 30 seconds). This is useful for monitoring a large number of cameras.
 
 ### External streams
 

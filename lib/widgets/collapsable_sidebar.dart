@@ -109,9 +109,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
               : AlignmentDirectional.topCenter,
           padding: collapsed
               ? EdgeInsetsDirectional.zero
-              : widget.left
-                  ? const EdgeInsetsDirectional.symmetric(horizontal: 5.0)
-                  : const EdgeInsetsDirectional.only(end: 5.0),
+              : const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
           child: SquaredIconButton(
             key: collapseButtonKey,
             tooltip: collapsed ? loc.expand : loc.collapse,

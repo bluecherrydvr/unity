@@ -66,7 +66,7 @@ class ServersProvider extends UnityProvider {
 
     servers.add(server);
     await save();
-    refreshDevices();
+    await refreshDevices(ids: [server.id]);
 
     if (isMobilePlatform) {
       // Register notification token.
@@ -160,20 +160,18 @@ class ServersProvider extends UnityProvider {
         notifyListeners();
       }
 
-      await API.instance.checkServerCredentials(server).then((server) {
-        return API.instance.getDevices(server).then((devices) {
-          if (devices != null) {
-            server.devices
-              ..clear()
-              ..addAll(devices);
-          }
+      server = await API.instance.checkServerCredentials(server);
+      final devices = await API.instance.getDevices(server);
+      if (devices != null) {
+        server.devices
+          ..clear()
+          ..addAll(devices);
+      }
 
-          if (loadingServer.contains(server.id)) {
-            loadingServer.remove(server.id);
-            notifyListeners();
-          }
-        });
-      });
+      if (loadingServer.contains(server.id)) {
+        loadingServer.remove(server.id);
+        notifyListeners();
+      }
     }));
     await save();
 

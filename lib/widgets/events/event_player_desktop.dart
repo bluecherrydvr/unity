@@ -122,7 +122,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     playingSubscription.cancel();
     bufferSubscription.cancel();
     focusNode.dispose();
-    videoController.dispose();
+    if (widget.player == null) videoController.dispose();
     super.dispose();
   }
 
@@ -140,17 +140,22 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     debugPrint(mediaUrl);
 
     if (mediaUrl != videoController.dataSource) {
-      videoController
-        ..setDataSource(mediaUrl)
-        ..setVolume(volume)
-        ..setSpeed(speed);
+      debugPrint(
+        'Setting data source from ${videoController.dataSource} to $mediaUrl',
+      );
+      videoController.setDataSource(mediaUrl);
     }
+    videoController
+      ..setVolume(volume)
+      ..setSpeed(speed);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     const padd = SizedBox(width: 16.0);
 
@@ -187,7 +192,23 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
                             return Stack(children: [
                               if (video.error != null)
-                                ErrorWarning(message: video.error!),
+                                Center(
+                                  child: ErrorWarning(message: video.error!),
+                                ),
+                              if (settings.showDebugInfo)
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'source: ${controller.dataSource}'
+                                    '\nposition: ${controller.currentPos}'
+                                    '\nduration ${controller.duration}'
+                                    '\nbuffer ${controller.currentBuffer}',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: Colors.white,
+                                      shadows: outlinedText(),
+                                    ),
+                                  ),
+                                ),
                               PositionedDirectional(
                                 bottom: 8.0,
                                 end: 8.0,

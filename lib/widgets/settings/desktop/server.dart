@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +126,7 @@ class CamerasSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -163,6 +165,80 @@ class CamerasSettings extends StatelessWidget {
               }
             },
             items: UnityVideoFit.values.map((q) {
+              return DropdownMenuItem(
+                value: q,
+                child: Row(children: [
+                  Icon(q.icon),
+                  const SizedBox(width: 8.0),
+                  Text(q.locale(context)),
+                ]),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: ListTile(
+          title: Text(loc.lateStreamBehavior),
+          subtitle: RichText(
+            text: TextSpan(
+              text: loc.lateStreamBehaviorDescription,
+              style: theme.textTheme.bodyMedium,
+              children: [
+                const TextSpan(text: '\n'),
+                switch (settings.lateVideoBehavior) {
+                  LateVideoBehavior.automatic => TextSpan(
+                      text: loc.automaticBehaviorDescription,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  LateVideoBehavior.manual => TextSpan(
+                      children: [
+                        ...() {
+                          final list = loc
+                              .manualBehaviorDescription(
+                                'manualBehaviorDescription',
+                              )
+                              .split(' ');
+
+                          return list.map((part) {
+                            if (part == 'manualBehaviorDescription') {
+                              return const WidgetSpan(
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.only(
+                                    start: 2.0,
+                                    end: 6.0,
+                                  ),
+                                  child: VideoStatusLabelIndicator(
+                                    status: VideoLabel.late,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return TextSpan(text: '$part ');
+                            }
+                          });
+                        }()
+                      ],
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  LateVideoBehavior.never => TextSpan(
+                      text: loc.neverBehaviorDescription,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    )
+                },
+              ],
+            ),
+          ),
+          trailing: DropdownButton<LateVideoBehavior>(
+            value: settings.lateVideoBehavior,
+            onChanged: (v) {
+              if (v != null) {
+                settings.lateVideoBehavior = v;
+              }
+            },
+            items: LateVideoBehavior.values.map((q) {
               return DropdownMenuItem(
                 value: q,
                 child: Row(children: [

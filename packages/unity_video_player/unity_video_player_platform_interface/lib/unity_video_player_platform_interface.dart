@@ -29,10 +29,7 @@ enum UnityVideoFit {
   }
 }
 
-enum RTSPProtocol {
-  tcp,
-  udp,
-}
+enum RTSPProtocol { tcp, udp }
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
   UnityVideoPlayerInterface() : super(token: _token);
@@ -104,7 +101,6 @@ class VideoViewInheritance extends InheritedWidget {
     required this.error,
     required this.position,
     required this.duration,
-    required this.isImageOld,
     required this.lastImageUpdate,
     required this.fps,
     required this.player,
@@ -119,15 +115,6 @@ class VideoViewInheritance extends InheritedWidget {
   /// The duration of the video. This is updated when the video is ready to play
   /// or when it's buffering.
   final Duration duration;
-
-  /// Whether the frame is old.
-  ///
-  /// This can be used to warn the user the image is stuck at some point and
-  /// some action is required to continue playing, such as reconnecting to the
-  /// internet or reloading the camera.
-  ///
-  /// This is usually used when the video is unpauseable and unseekable.
-  final bool isImageOld;
 
   /// The last time the image was updated.
   final DateTime? lastImageUpdate;
@@ -234,7 +221,6 @@ class UnityVideoViewState extends State<UnityVideoView> {
       error: widget.player.error,
       position: widget.player.currentPos,
       duration: widget.player.duration,
-      isImageOld: widget.player.isImageOld,
       fps: widget.player.fps.toInt(),
       lastImageUpdate: widget.player.lastImageUpdate,
       child: UnityVideoPlayerInterface.instance.createVideoView(
@@ -298,9 +284,22 @@ enum UnityVideoQuality {
   }
 }
 
+/// How to handle late video streams.
+enum LateVideoBehavior {
+  /// Automatically jump to the current time.
+  automatic,
+
+  /// Show an option to jump to the current time.
+  manual,
+
+  /// Do nothing.
+  never;
+}
+
 abstract class UnityVideoPlayer with ChangeNotifier {
   Future<String>? fallbackUrl;
   VoidCallback? onReload;
+  late LateVideoBehavior lateVideoBehavior;
 
   /// Creates a new [UnityVideoPlayer] instance.
   ///
@@ -326,6 +325,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     Future<String>? fallbackUrl,
     VoidCallback? onReload,
     String? title,
+    LateVideoBehavior lateVideoBehavior = LateVideoBehavior.automatic,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality.resolution.width.toInt(),
@@ -336,12 +336,21 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     )
       ..quality = quality
       ..fallbackUrl = fallbackUrl
-      ..onReload = onReload;
+      ..onReload = onReload
+      ..lateVideoBehavior = lateVideoBehavior;
   }
 
   static const timerInterval = Duration(seconds: 6);
   Timer? _oldImageTimer;
   bool _isImageOld = false;
+
+  /// Whether the frame is old.
+  ///
+  /// This can be used to warn the user the image is stuck at some point and
+  /// some action is required to continue playing, such as reconnecting to the
+  /// internet or reloading the camera.
+  ///
+  /// This is usually used when the video is unpauseable and unseekable.
   bool get isImageOld => _isImageOld;
   DateTime? _lastImageTime;
   DateTime? get lastImageUpdate => _lastImageTime;
@@ -376,19 +385,23 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       _isImageOld = false;
       error = null;
       _oldImageTimer?.cancel();
-      _oldImageTimer = Timer(timerInterval, () {
+      _oldImageTimer = Timer.periodic(timerInterval, (timer) {
         // If the image is still the same after the interval, then it's old.
         _isImageOld = true;
 
         if (lastImageUpdate != null) {
           final difference = lastImageUpdate!.difference(DateTime.now());
-          if (difference > timerInterval * 2) {
+          if (difference > timerInterval * 3) {
             // If the image is still the same after twice the interval, then
             // it's probably stuck and we should reload the video.
             onReload?.call();
+            timer.cancel();
+            notifyListeners();
           }
         }
+        notifyListeners();
       });
+      _handleLateVideo();
       notifyListeners();
     }
   }
@@ -408,13 +421,53 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     }
   }
 
-  void _onPositionUpdate(Duration duration) {
+  void _onPositionUpdate(Duration position) {
     error = null;
+    _handleLateVideo();
     notifyListeners();
   }
 
   void _onFpsUpdate(double fps) {
     notifyListeners();
+  }
+
+  /// Whether the current position of the video is not the same or near the
+  /// last image update.
+  ///
+  /// The video is considered late if the current position is more than 1.5
+  /// seconds after the last image update.
+  bool get isLate {
+    if (dataSource == null || lastImageUpdate == null || !isLive) return false;
+    final now = DateTime.now();
+    final diff = now.difference(lastImageUpdate!);
+    return diff.inMilliseconds > 1500;
+  }
+
+  /// Whether the video is a live stream.
+  bool get isLive =>
+      // TODO(bdlukaa): do a better checking of this
+      dataSource != null &&
+      // It is only LIVE if it starts with rtsp or is hls
+      (dataSource!.startsWith('rtsp') ||
+          dataSource!.contains('media/mjpeg') ||
+          dataSource!.contains('.m3u8') /* hls */);
+
+  void _handleLateVideo() {
+    switch (lateVideoBehavior) {
+      case LateVideoBehavior.automatic:
+        dismissLateVideo();
+        break;
+      case LateVideoBehavior.never:
+      case LateVideoBehavior.manual:
+        break;
+    }
+  }
+
+  void dismissLateVideo() {
+    if (isLate) {
+      debugPrint('Dismissing late video');
+      seekTo(duration);
+    }
   }
 
   /// The current data source url
@@ -453,9 +506,10 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   Future<void> setDataSource(String url, {bool autoPlay = true});
   Future<void> setMultipleDataSource(
-    List<String> url, {
+    Iterable<String> url, {
     bool autoPlay = true,
   });
+  Future<void> jumpToIndex(int index);
 
   Future<void> setVolume(double volume);
   double get volume;

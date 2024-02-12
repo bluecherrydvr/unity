@@ -57,9 +57,9 @@ Future<void> configureWindow() async {
         windowButtonVisibility: true,
       ),
       () async {
-        // if ((isDesktopPlatform && Platform.isMacOS) || kDebugMode) {
-        //  await windowManager.setSize(kInitialWindowSize);
-        // }
+        if (kDebugMode) {
+          await windowManager.setSize(kInitialWindowSize);
+        }
         await windowManager.show();
       },
     );

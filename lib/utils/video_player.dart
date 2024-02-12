@@ -78,7 +78,7 @@ class UnityPlayers with ChangeNotifier {
 
     Future<void> setSource() async {
       if (device.url != null) {
-        debugPrint(device.url);
+        debugPrint('Initializing ${device.url}');
         await controller.setDataSource(device.url!);
       } else {
         final (String source, Future<String> fallback) = switch (
@@ -92,7 +92,7 @@ class UnityPlayers with ChangeNotifier {
             ),
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };
-        debugPrint(source);
+        debugPrint('Initializing $source');
         controller.fallbackUrl = fallback;
         await controller.setDataSource(source);
 

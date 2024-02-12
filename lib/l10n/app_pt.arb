@@ -15,10 +15,13 @@
   "savePassword": "Salvar senha",
   "showPassword": "Mostrar senha",
   "hidePassword": "Ocultar senha",
+  "hide": "Esconder",
+  "show": "Mostrar",
   "useDefault": "Usar Padrão",
   "connect": "Conectar",
   "connectAutomaticallyAtStartup": "Conectar automaticamente ao iniciar",
   "connectAutomaticallyAtStartupDescription": "Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado.",
+  "checkingServerCredentials": "Verificando credenciais",
   "skip": "Pular",
   "cancel": "Cancelar",
   "disabled": "Desativado",
@@ -89,12 +92,14 @@
   "reloadCamera": "Recarregar Câmera",
   "selectACamera": "Selecione uma câmera",
   "switchCamera": "Trocar câmera",
+  "status": "Status",
   "online": "Online",
   "offline": "Offline",
   "live": "AO VIVO",
   "timedOut": "EXPIRADO",
   "loading": "CARREGANDO",
   "recorded": "GRAVADO",
+  "late": "ATRASADO",
   "removeFromView": "Remover do layout",
   "addToView": "Adicionar ao layout",
   "addAllToView": "Adicionar tudo ao layout",
@@ -104,10 +109,12 @@
   "streamURL": "URL da Transmissão",
   "streamURLRequired": "A URL da transmissão é obrigatória",
   "streamURLNotValid": "A url não é válida",
+  "uri": "URI",
   "eventBrowser": "Histórico de eventos",
   "eventsTimeline": "Linha do tempo de eventos",
   "server": "Servidor",
   "device": "Dispositivo",
+  "deviceInfo": "Informações do dispositivo",
   "event": "Evento",
   "duration": "Duração",
   "priority": "Prioridade",
@@ -183,6 +190,15 @@
   "configureServer": "Configurar servidor",
   "refreshDevices": "Recarregar dispositivos",
   "refreshServer": "Recarregar servidor",
+  "viewDevices": "Ver dispositivos",
+  "serverDevices": "Dispositivos de {server}",
+  "@serverDevices": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
   "refresh": "Recarregar",
   "view": "Layouts",
   "cameraRefreshPeriod": "Intervalo para recarregar cameras",
@@ -344,7 +360,8 @@
   "expand": "Expandir",
   "more": "Mais",
   "@PTZ": {},
-  "ptzSupported": "PTZ é suportado",
+  "isPtzSupported": "Possui PTZ?",
+  "ptzSupported": "Possui PTZ",
   "enabledPTZ": "PTZ está ativado",
   "disabledPTZ": "PTZ está desativado",
   "move": "Movimento",
@@ -471,6 +488,21 @@
   "contain": "Limitar",
   "fill": "Preencher",
   "cover": "Cobrir",
+  "@@Late stream behavior": {},
+  "lateStreamBehavior": "Transmissão atrasada",
+  "lateStreamBehaviorDescription": "O que fazer quando a transmissão está atrasada.",
+  "automaticBehavior": "Automático",
+  "automaticBehaviorDescription": "A transmissão será reajustada automaticamente",
+  "manualBehavior": "Manual",
+  "manualBehaviorDescription": "Pressione {label} para reposicionar a transmissão",
+  "@manualBehaviorDescription": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverBehaviorDescription": "A transmissão não será reajustada",
   "@@LOCALIZATION": {},
   "dateLanguage": "Data e Idioma",
   "language": "Idioma",
@@ -508,5 +540,7 @@
   "serverHostnameExample": "https://servidor.bluecherry.app:7001",
   "rackName": "Nome do rack",
   "rackNameExample": "Lab 1",
-  "openServer": "Abrir servidor"
+  "openServer": "Abrir servidor",
+  "@SEARCH": {},
+  "disableSearch": "Desativar pesquisa"
 }

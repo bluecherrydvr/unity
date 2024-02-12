@@ -19,7 +19,7 @@ dependencies:
   http: ^1.2.0
   # Dio is used by DownloadManager to show the donwload progress of the file. This is currently not possible by using http
   # TODO: no longer use dio and find a solution to show donwload progress using the http package
-  dio: ^5.3.3
+  dio: ^5.4.0
 
   xml2json: ^6.2.2
   auto_size_text: ^3.0.0
@@ -31,20 +31,20 @@ dependencies:
 
   intl: ^0.18.1
   flutter_localized_locales: ^2.0.5
-  duration: ^3.0.12
-  firebase_core: 2.10.0
-  firebase_messaging: ^14.4.1
+  duration: ^3.0.13
+  firebase_core: ^2.25.4
+  firebase_messaging: ^14.7.15
   awesome_notifications: ^0.8.2
   wakelock_plus: ^1.1.4
   app_links: ^3.5.0
   win32_registry: ^1.1.2
   
   system_date_time_format: ^0.7.0
-  device_info_plus: ^9.1.1
+  device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   connectivity_plus: ^5.0.2
   version: ^3.0.2
-  url_launcher: ^6.2.3
+  url_launcher: ^6.2.4
   logging: ^1.2.0
 
   path_provider: ^2.1.2
@@ -56,11 +56,11 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
-  permission_handler: ^11.2.0
-  uuid: ^4.1.0
+  permission_handler: ^11.1.0
+  uuid: ^4.3.3
 
   # Desktop
-  window_manager: ^0.3.7
+  window_manager: ^0.3.8
   titlebar_buttons: ^1.0.0
   unity_multi_window:
     path: packages/unity_multi_window/

@@ -26,13 +26,43 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
-class DirectCameraScreen extends StatelessWidget {
+class DirectCameraScreen extends StatefulWidget {
   const DirectCameraScreen({super.key});
+
+  @override
+  State<DirectCameraScreen> createState() => DirectCameraScreenState();
+}
+
+class DirectCameraScreenState extends State<DirectCameraScreen> {
+  bool _searchVisible = false;
+  bool get searchVisible => _searchVisible;
+  String _searchQuery = '';
+  final _searchFocusNode = FocusNode();
+  final _searchController = TextEditingController();
+
+  void toggleSearch() {
+    setState(() {
+      _searchVisible = !_searchVisible;
+    });
+    if (_searchVisible) {
+      _searchFocusNode.requestFocus();
+    } else {
+      _searchFocusNode.unfocus();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +70,34 @@ class DirectCameraScreen extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final hasDrawer = Scaffold.hasDrawer(context);
 
+    final searchBar = ToggleSearchBar(
+      searchController: _searchController,
+      searchFocusNode: _searchFocusNode,
+      searchVisible: _searchVisible,
+      onSearchChanged: (text) {
+        setState(() => _searchQuery = text);
+      },
+    );
+
     return SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        if (hasDrawer)
+        if (hasDrawer) ...[
           AppBar(
             leading: MaybeUnityDrawerButton(context),
             title: Text(loc.directCamera),
+            actions: [
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 12.0),
+                child: SearchToggleButton(
+                  searchVisible: _searchVisible,
+                  onPressed: toggleSearch,
+                ),
+              ),
+            ],
           ),
+          searchBar,
+        ] else
+          searchBar,
         Expanded(child: () {
           if (serversProviders.servers.isEmpty) {
             return const NoServerWarning();
@@ -60,6 +111,7 @@ class DirectCameraScreen extends StatelessWidget {
                       server: server,
                       isCompact: hasDrawer ||
                           consts.maxWidth < kMobileBreakpoint.width,
+                      searchQuery: _searchVisible ? _searchQuery : '',
                     );
                   }),
                 ]),
@@ -75,8 +127,13 @@ class DirectCameraScreen extends StatelessWidget {
 class _DevicesForServer extends StatelessWidget {
   final Server server;
   final bool isCompact;
+  final String searchQuery;
 
-  const _DevicesForServer({required this.server, required this.isCompact});
+  const _DevicesForServer({
+    required this.server,
+    required this.isCompact,
+    required this.searchQuery,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +179,7 @@ class _DevicesForServer extends StatelessWidget {
       ]);
     }
 
-    final devices = server.devices.sorted();
+    final devices = server.devices.sorted(searchQuery: searchQuery);
 
     if (isCompact) {
       return MultiSliver(pushPinnedChildren: true, children: [

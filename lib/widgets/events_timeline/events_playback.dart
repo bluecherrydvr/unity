@@ -149,8 +149,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             timeline!.volume = 0.0;
           }
           return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.keyR ||
-            event.logicalKey == LogicalKeyboardKey.f5) {
+        } else if (event.logicalKey == LogicalKeyboardKey.f5) {
           fetch();
           return KeyEventResult.handled;
         } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {

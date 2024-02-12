@@ -27,6 +27,7 @@ import 'package:bluecherry_client/widgets/direct_camera.dart';
 import 'package:bluecherry_client/widgets/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
+import 'package:bluecherry_client/widgets/search.dart';
 import 'package:bluecherry_client/widgets/servers/add_server.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
 import 'package:flutter/foundation.dart';
@@ -118,6 +119,8 @@ class _MobileHomeState extends State<Home> {
     });
   }
 
+  final directCameraKey = GlobalKey<DirectCameraScreenState>();
+
   @override
   Widget build(BuildContext context) {
     final home = context.watch<HomeProvider>();
@@ -165,7 +168,8 @@ class _MobileHomeState extends State<Home> {
                     },
                     child: switch (tab) {
                       UnityTab.deviceGrid => const DeviceGrid(),
-                      UnityTab.directCameraScreen => const DirectCameraScreen(),
+                      UnityTab.directCameraScreen =>
+                        DirectCameraScreen(key: directCameraKey),
                       UnityTab.eventsPlayback => EventsPlayback(),
                       UnityTab.eventsScreen =>
                         EventsScreen(key: eventsScreenKey),
@@ -336,14 +340,24 @@ class _MobileHomeState extends State<Home> {
             },
           ),
         ),
-        SizedBox(
-          height: imageSize + 16.0,
-          child: () {
-            if (home.isLoading) {
-              return const Center(child: UnityLoadingIndicator());
-            }
-          }(),
-        ),
+        if (directCameraKey.currentState != null)
+          SearchToggleButton(
+            searchVisible: directCameraKey.currentState!.searchVisible,
+            onPressed: () {
+              directCameraKey.currentState!.toggleSearch();
+              setState(() {});
+            },
+            iconSize: 24.0,
+          ),
+        if (home.isLoading)
+          SizedBox(
+            height: imageSize + 16.0,
+            child: () {
+              if (home.isLoading) {
+                return const Center(child: UnityLoadingIndicator());
+              }
+            }(),
+          ),
       ]),
     );
   }

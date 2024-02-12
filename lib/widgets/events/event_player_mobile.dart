@@ -57,7 +57,12 @@ class _EventPlayerMobile extends StatefulWidget {
 }
 
 class __EventPlayerMobileState extends State<_EventPlayerMobile> {
-  late final videoController = widget.player ?? UnityVideoPlayer.create();
+  late final videoController = widget.player ??
+      UnityVideoPlayer.create(
+        enableCache: true,
+        // TODO(bdlukaa): determine quality based on settings
+        quality: UnityVideoQuality.p480,
+      );
 
   @override
   void initState() {
@@ -82,9 +87,16 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         : widget.event.mediaURL.toString();
 
     debugPrint(mediaUrl);
-    videoController
-      ..setDataSource(mediaUrl)
-      ..setSpeed(1.0);
+    if (videoController.dataSource != mediaUrl) {
+      debugPrint(
+        'Setting data source from ${videoController.dataSource} to $mediaUrl',
+      );
+      videoController
+        ..setDataSource(mediaUrl)
+        ..setSpeed(1.0);
+    } else {
+      videoController.setSpeed(1.0);
+    }
 
     super.didChangeDependencies();
   }
@@ -119,17 +131,10 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
                 );
               },
               paneBuilder: (context, videoController) {
-                if (isDesktop) {
-                  return _DesktopVideoViewport(
-                    event: widget.event,
-                    player: videoController,
-                  );
-                } else {
-                  return VideoViewport(
-                    event: widget.event,
-                    player: videoController,
-                  );
-                }
+                return VideoViewport(
+                  event: widget.event,
+                  player: videoController,
+                );
               },
             ),
           ),
@@ -175,6 +180,7 @@ class _VideoViewportState extends State<VideoViewport> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
     final player = UnityVideoView.of(context);
     final error = player.error;
 
@@ -221,68 +227,90 @@ class _VideoViewportState extends State<VideoViewport> {
               ),
             ),
           ),
+          Positioned.fill(
+            child: () {
+              if (error != null) {
+                return ErrorWarning(message: error);
+              } else if (player.player.isBuffering) {
+                return const Center(
+                  child: CircularProgressIndicator.adaptive(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    strokeWidth: 2.0,
+                  ),
+                );
+              } else {
+                return Center(
+                  child: GestureDetector(
+                    child: PlayPauseIcon(
+                      isPlaying: player.player.isPlaying,
+                      color: Colors.white,
+                      size: 56.0,
+                    ),
+                    onTap: () {
+                      if (player.player.isPlaying) {
+                        widget.player.pause();
+                      } else {
+                        widget.player.start();
+                      }
+                    },
+                  ),
+                );
+              }
+            }(),
+          ),
           if (visible || player.player.isBuffering) ...[
             PositionedDirectional(
-              height: kToolbarHeight,
               start: 8.0,
               end: 8.0,
               top: MediaQuery.paddingOf(context).top,
               child: SafeArea(
-                child: Row(children: [
-                  // const BackButton(),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8.0),
-                    child: SquaredIconButton(
-                      onPressed: Navigator.of(context).pop,
-                      icon: Container(
-                        padding: const EdgeInsetsDirectional.all(4.0),
-                        child: Icon(
-                          Icons.adaptive.arrow_back,
-                          size: 20.0,
-                          color: theme.hintColor,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: kToolbarHeight,
+                      child: Row(children: [
+                        // const BackButton(),
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(start: 8.0),
+                          child: SquaredIconButton(
+                            onPressed: Navigator.of(context).pop,
+                            icon: Container(
+                              padding: const EdgeInsetsDirectional.all(4.0),
+                              child: Icon(
+                                Icons.adaptive.arrow_back,
+                                size: 20.0,
+                                color: theme.hintColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            '${widget.event.deviceName} (${widget.event.server.name})',
+                          ),
+                        ),
+                        DownloadIndicator(event: widget.event),
+                      ]),
+                    ),
+                    if (settings.showDebugInfo)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'source: ${player.player.dataSource}'
+                          '\nposition: ${player.player.currentPos}'
+                          '\nduration ${player.player.duration}'
+                          '\nbuffer ${player.player.currentBuffer}',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            shadows: outlinedText(),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      '${widget.event.deviceName} (${widget.event.server.name})',
-                    ),
-                  ),
-                  DownloadIndicator(event: widget.event),
-                ]),
+                  ],
+                ),
               ),
-            ),
-            Positioned.fill(
-              child: () {
-                if (error != null) {
-                  return ErrorWarning(message: error);
-                } else if (player.player.isBuffering) {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      strokeWidth: 2.0,
-                    ),
-                  );
-                } else {
-                  return Center(
-                    child: GestureDetector(
-                      child: PlayPauseIcon(
-                        isPlaying: player.player.isPlaying,
-                        color: Colors.white,
-                        size: 56.0,
-                      ),
-                      onTap: () {
-                        if (player.player.isPlaying) {
-                          widget.player.pause();
-                        } else {
-                          widget.player.start();
-                        }
-                      },
-                    ),
-                  );
-                }
-              }(),
             ),
             if (player.duration != Duration.zero)
               PositionedDirectional(
@@ -362,58 +390,5 @@ class _VideoViewportState extends State<VideoViewport> {
     // player.removeListener(listener);
 
     super.dispose();
-  }
-}
-
-class _DesktopVideoViewport extends StatefulWidget {
-  final Event event;
-  final UnityVideoPlayer player;
-
-  const _DesktopVideoViewport({
-    required this.event,
-    required this.player,
-  });
-
-  @override
-  State<_DesktopVideoViewport> createState() => __DesktopVideoViewportState();
-}
-
-class __DesktopVideoViewportState extends State<_DesktopVideoViewport> {
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Stack(children: [
-      PositionedDirectional(
-        bottom: 0,
-        start: 12.0,
-        end: 12.0,
-        child: Row(children: [
-          Text(
-            DateFormat.Hms().format(
-              widget.event.published.add(widget.player.currentPos),
-            ),
-            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
-          ),
-          Expanded(
-            child: Slider.adaptive(
-              value: widget.player.currentPos.inMilliseconds.toDouble(),
-              max: widget.player.duration.inMilliseconds.toDouble(),
-              secondaryTrackValue:
-                  widget.player.currentBuffer.inMilliseconds.toDouble(),
-              onChanged: (v) {
-                widget.player.seekTo(Duration(milliseconds: v.toInt()));
-              },
-            ),
-          ),
-          Text(
-            DateFormat.Hms().format(
-              widget.event.published.add(widget.event.duration),
-            ),
-            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
-          ),
-        ]),
-      ),
-    ]);
   }
 }

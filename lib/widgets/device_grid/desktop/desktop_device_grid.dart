@@ -91,9 +91,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 ),
                 child: Text(
                   '${view.currentLayout.devices.length}',
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimaryContainer,
-                  ),
+                  style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
                 ),
               ),
             ]);
@@ -502,10 +500,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           shadows: outlinedText(),
                         ),
                       ),
-                    if (states.isHovering && kDebugMode)
+                    if (states.isHovering && settings.showDebugInfo)
                       TextSpan(
-                        text: '\ndebug: '
-                            '${video?.player.dataSource}',
+                        text: '\nsource: ${video?.player.dataSource}'
+                            '\nposition: ${video?.player.currentPos}'
+                            '\nduration ${video?.player.duration}',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           shadows: outlinedText(),

@@ -17,12 +17,10 @@ This document explains how to use the Bluecherry Client and list all its feature
   - [Cycling](#cycling)
   - [External streams](#external-streams)
 - [Open app from configuration file](#open-app-from-configuration-file)
-- `TODO` [Events](#events)
-  - `TODO` [Browse events](#browse-events)
-  - `TODO` [Timeline of Events](#timeline-of-events)
-  - `TODO` [Events details](#events-details)
-  - `TODO` [Downloads](#downloads)
-- `TODO` [Updating](#updating)
+- [Events](#events)
+  - [Browse events](#browse-events)
+  - [Timeline of Events](#timeline-of-events)
+  - [Downloads](#downloads)
 
 ## Overview
 
@@ -73,15 +71,15 @@ The PTZ feature allows you to control the pan, tilt, and zoom of a camera. To en
 > [!Note]
 > The PTZ feature is only available for cameras that support PTZ. If the camera does not support PTZ, the PTZ button will not be available.
 
-You can press and move the mouse to control the camera. 
+You can press and move the mouse to control the camera.
 
 ![PTZ](./screenshots/cameras/ptz.gif)
 
 You can perform the following movements:
 
-  * Pan: Press and move the mouse left or right.
-  * Tilt: Press and move the mouse up or down.
-  * Zoom: Scroll the mouse wheel up or down.
+- Pan: Press and move the mouse left or right.
+- Tilt: Press and move the mouse up or down.
+- Zoom: Scroll the mouse wheel up or down.
 
 The PTZ movements are scheduled and will be executed after the previous movement is completed. Depending on the speed of the internet connection, you can experience minor delays between the movements and the camera response.
 
@@ -144,11 +142,11 @@ fullscreen = false
 sound = true
 ```
 
-* The `stream` section contains the video URL. The app will try to connect to this URL when it is opened.
+- The `stream` section contains the video URL. The app will try to connect to this URL when it is opened.
 
-* The `videoscreen` section contains the fullscreen setting, which determines if the app should open in fullscreen mode or add the video to the layout.
+- The `videoscreen` section contains the fullscreen setting, which determines if the app should open in fullscreen mode or add the video to the layout.
 
-* The `audio` section contains the sound setting, which determines if the stream should have sound or not.
+- The `audio` section contains the sound setting, which determines if the stream should have sound or not.
 
 You can open the app from the configuration file by double-clicking it and opening it with the Bluecherry Client.
 
@@ -165,9 +163,9 @@ position_x = 10
 position_y = 30
 ```
 
-* The `overlay` section contains the text, size, color, opacity, show, position_x, and position_y settings. The overlay is persistent and will be shown on top of the video.
+- The `overlay` section contains the text, size, color, opacity, show, position_x, and position_y settings. The overlay is persistent and will be shown on top of the video.
 
-* The `position_x` and `position_y` determines the position of the overlay on the video, being `0` the top-left corner of the video.
+- The `position_x` and `position_y` determines the position of the overlay on the video, being `0` the top-left corner of the video.
 
 The overlay can be edited from within the app:
 
@@ -175,4 +173,34 @@ The overlay can be edited from within the app:
 
 Press `Finish` to add the stream to the layout.
 
+## Events
 
+The events section allows you to view the events that were recorded by the server. You can view the events by clicking on the `Events History` tab.
+
+### Browse Events
+
+Select the camera you want to view the events and click on the `Filter` button. You can filter the events by date range.
+
+![Events History](./screenshots/events/events-history.gif)
+
+### Timeline of Events
+
+The timeline of events allows you to view the events in a timeline. This is useful for quickly finding events. You can filter the events by date.
+
+![Timeline of Events](./screenshots/events/timeline-of-events.gif)
+
+> [!Note]
+> You can only view 6 cameras at the same time in the timeline of events.
+
+> [!Tip]
+> Use the mouse scroll wheel to zoom in and out of the timeline.
+> Use the arrow keys to move the timeline forward and backward.
+
+### Downloads
+
+You can download the events by clicking on the `Download` button. To see the downloaded events, click on the `Downloads` tab.
+
+![Downloads](./screenshots/events/download.gif)
+
+> [!Tip]
+> You can choose the download location in the Settings. The default download location is the `Downloads` folder.

@@ -133,27 +133,28 @@ class CamerasSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Material(
-        borderRadius: BorderRadius.circular(6.0),
-        child: ListTile(
-          title: Text(loc.renderingQuality),
-          subtitle: Text(loc.renderingQualityDescription),
-          trailing: DropdownButton<RenderingQuality>(
-            value: settings.videoQuality,
-            onChanged: (v) {
-              if (v != null) {
-                settings.videoQuality = v;
-              }
-            },
-            items: RenderingQuality.values.map((q) {
-              return DropdownMenuItem(
-                value: q,
-                child: Text(q.locale(context)),
-              );
-            }).toList(),
+      if (!kIsWeb)
+        Material(
+          borderRadius: BorderRadius.circular(6.0),
+          child: ListTile(
+            title: Text(loc.renderingQuality),
+            subtitle: Text(loc.renderingQualityDescription),
+            trailing: DropdownButton<RenderingQuality>(
+              value: settings.videoQuality,
+              onChanged: (v) {
+                if (v != null) {
+                  settings.videoQuality = v;
+                }
+              },
+              items: RenderingQuality.values.map((q) {
+                return DropdownMenuItem(
+                  value: q,
+                  child: Text(q.locale(context)),
+                );
+              }).toList(),
+            ),
           ),
         ),
-      ),
       const SizedBox(height: 8.0),
       Material(
         borderRadius: BorderRadius.circular(6.0),

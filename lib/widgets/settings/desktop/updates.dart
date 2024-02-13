@@ -39,29 +39,36 @@ class UpdatesSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            loc.updates,
-            style: theme.textTheme.titleMedium,
-          ),
-          Text(
-            loc.runningOn(() {
-              if (Platform.isLinux) {
-                return loc.linux(UpdateManager.linuxEnvironment.name);
-              } else if (Platform.isWindows) {
-                return loc.windows;
-              }
+      if (!kIsWeb) ...[
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              loc.updates,
+              style: theme.textTheme.titleMedium,
+            ),
+            Text(
+              loc.runningOn(() {
+                if (kIsWeb) {
+                  return 'WEB';
+                } else if (Platform.isLinux) {
+                  return loc.linux(UpdateManager.linuxEnvironment.name);
+                } else if (Platform.isWindows) {
+                  return loc.windows;
+                }
 
-              return defaultTargetPlatform.name;
-            }()),
-            style: theme.textTheme.labelSmall,
-          ),
-        ]),
-      ),
-      const AppUpdateCard(),
-      const AppUpdateOptions(),
+                return defaultTargetPlatform.name;
+              }()),
+              style: theme.textTheme.labelSmall,
+            ),
+          ]),
+        ),
+        const AppUpdateCard(),
+        const AppUpdateOptions(),
+      ],
+      // TODO(bdlukaa): Show option to downlaod the native client when running
+      //                on the web.
       Padding(
         padding: DesktopSettings.horizontalPadding,
         child: Text('Beta Features', style: theme.textTheme.titleMedium),

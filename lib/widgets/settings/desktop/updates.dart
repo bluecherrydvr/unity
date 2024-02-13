@@ -115,27 +115,28 @@ class BetaFeatures extends StatelessWidget {
         subtitle:
             const Text('Most of these options are for debugging purposes'),
         children: [
-          FutureBuilder(
-            future: getLogFile(),
-            builder: (context, snapshot) {
-              return ListTile(
-                contentPadding: const EdgeInsetsDirectional.only(
-                  start: 68.0,
-                  end: 26.0,
-                ),
-                leading: const Icon(Icons.bug_report),
-                title: const Text('Open log file'),
-                subtitle: Text(snapshot.data?.path ?? loc.loading),
-                trailing: const Icon(Icons.navigate_next),
-                dense: false,
-                onTap: snapshot.data == null
-                    ? null
-                    : () {
-                        launchFileExplorer(snapshot.data!.path);
-                      },
-              );
-            },
-          ),
+          if (!kIsWeb)
+            FutureBuilder(
+              future: getLogFile(),
+              builder: (context, snapshot) {
+                return ListTile(
+                  contentPadding: const EdgeInsetsDirectional.only(
+                    start: 68.0,
+                    end: 26.0,
+                  ),
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Open log file'),
+                  subtitle: Text(snapshot.data?.path ?? loc.loading),
+                  trailing: const Icon(Icons.navigate_next),
+                  dense: false,
+                  onTap: snapshot.data == null
+                      ? null
+                      : () {
+                          launchFileExplorer(snapshot.data!.path);
+                        },
+                );
+              },
+            ),
           CheckboxListTile(
             contentPadding: const EdgeInsetsDirectional.only(
               start: 68.0,

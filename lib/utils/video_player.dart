@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -81,10 +82,14 @@ class UnityPlayers with ChangeNotifier {
         debugPrint('Initializing ${device.url}');
         await controller.setDataSource(device.url!);
       } else {
-        final (String source, Future<String> fallback) = switch (
-            device.preferredStreamingType ??
-                device.server.additionalSettings.preferredStreamingType ??
-                settings.streamingType) {
+        var streamingType = device.preferredStreamingType ??
+            device.server.additionalSettings.preferredStreamingType ??
+            settings.streamingType;
+        if (kIsWeb && streamingType == StreamingType.rtsp) {
+          streamingType = StreamingType.hls;
+        }
+        final (String source, Future<String> fallback) =
+            switch (streamingType) {
           StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
           StreamingType.hls => (
               await device.getHLSUrl(),

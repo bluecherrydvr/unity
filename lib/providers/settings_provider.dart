@@ -51,7 +51,8 @@ class SettingsProvider extends UnityProvider {
   static const kDefaultCameraRefreshPeriod = Duration(minutes: 5);
   static Future<Directory> get kDefaultDownloadsDirectory =>
       DownloadsManager.kDefaultDownloadsDirectory;
-  static const kDefaultStreamingType = StreamingType.rtsp;
+  static const kDefaultStreamingType =
+      kIsWeb ? StreamingType.hls : StreamingType.rtsp;
   static const kDefaultRTSPProtocol = RTSPProtocol.tcp;
   static const kDefaultVideoQuality = RenderingQuality.automatic;
   static const kDefaultWakelockEnabled = true;

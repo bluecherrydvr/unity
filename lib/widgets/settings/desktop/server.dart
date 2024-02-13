@@ -22,6 +22,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -84,10 +85,12 @@ class StreamingSettings extends StatelessWidget {
                 settings.streamingType = v;
               }
             },
-            items: StreamingType.values.map((q) {
+            items: StreamingType.values.map((value) {
               return DropdownMenuItem(
-                value: q,
-                child: Text(q.name.toUpperCase()),
+                value: value,
+                // Disable RTSP on web
+                enabled: !kIsWeb || value != StreamingType.rtsp,
+                child: Text(value.name.toUpperCase()),
               );
             }).toList(),
           ),
@@ -101,7 +104,7 @@ class StreamingSettings extends StatelessWidget {
           title: Text(loc.rtspProtocol),
           trailing: DropdownButton<RTSPProtocol>(
             value: settings.rtspProtocol,
-            onChanged: settings.streamingType == StreamingType.rtsp
+            onChanged: !kIsWeb && settings.streamingType == StreamingType.rtsp
                 ? (v) {
                     if (v != null) {
                       settings.rtspProtocol = v;

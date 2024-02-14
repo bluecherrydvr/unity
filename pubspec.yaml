@@ -24,7 +24,7 @@ dependencies:
   xml2json: ^6.2.2
   auto_size_text: ^3.0.0
   animations: ^2.0.11
-  provider: ^6.0.11
+  provider: ^6.1.1
   reorderables: ^0.6.0
   flutter_simple_treeview: ^3.0.2
   sliver_tools: ^0.2.12
@@ -52,6 +52,7 @@ dependencies:
   safe_local_storage: ^1.0.0
   
   # Hive is just used in terms of migration
+  # TODO: remove this in future
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
@@ -85,11 +86,11 @@ flutter_icons:
   ios: false
   image_path: "assets/images/icon.png"
   # min_sdk_android: 21 # android min sdk min:16, default 21
-  # web:
-  #   generate: true
-  #   image_path: "path/to/image.png"
-  #   background_color: "#hexcode"
-  #   theme_color: "#hexcode"
+  web:
+    generate: true
+    image_path: "assets/images/icon.png"
+    background_color: "#3F51B5"
+    theme_color: "#ff4081"
   windows:
     generate: true
     image_path: "assets/images/icon.png"

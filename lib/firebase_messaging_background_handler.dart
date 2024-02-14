@@ -445,7 +445,7 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.getToken().then((token) async {
       debugPrint('[FirebaseMessaging.instance.getToken]: $token');
       if (token != null) {
-        final data = await storage.read() as Map;
+        final data = await tryReadStorage(() => storage.read());
         // Do not proceed, if token is already saved.
         if (data[kHiveNotificationToken] == token) {
           return;

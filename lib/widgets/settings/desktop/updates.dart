@@ -39,29 +39,36 @@ class UpdatesSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            loc.updates,
-            style: theme.textTheme.titleMedium,
-          ),
-          Text(
-            loc.runningOn(() {
-              if (Platform.isLinux) {
-                return loc.linux(UpdateManager.linuxEnvironment.name);
-              } else if (Platform.isWindows) {
-                return loc.windows;
-              }
+      if (!kIsWeb) ...[
+        Padding(
+          padding: DesktopSettings.horizontalPadding,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              loc.updates,
+              style: theme.textTheme.titleMedium,
+            ),
+            Text(
+              loc.runningOn(() {
+                if (kIsWeb) {
+                  return 'WEB';
+                } else if (Platform.isLinux) {
+                  return loc.linux(UpdateManager.linuxEnvironment.name);
+                } else if (Platform.isWindows) {
+                  return loc.windows;
+                }
 
-              return defaultTargetPlatform.name;
-            }()),
-            style: theme.textTheme.labelSmall,
-          ),
-        ]),
-      ),
-      const AppUpdateCard(),
-      const AppUpdateOptions(),
+                return defaultTargetPlatform.name;
+              }()),
+              style: theme.textTheme.labelSmall,
+            ),
+          ]),
+        ),
+        const AppUpdateCard(),
+        const AppUpdateOptions(),
+      ],
+      // TODO(bdlukaa): Show option to downlaod the native client when running
+      //                on the web.
       Padding(
         padding: DesktopSettings.horizontalPadding,
         child: Text('Beta Features', style: theme.textTheme.titleMedium),
@@ -108,27 +115,28 @@ class BetaFeatures extends StatelessWidget {
         subtitle:
             const Text('Most of these options are for debugging purposes'),
         children: [
-          FutureBuilder(
-            future: getLogFile(),
-            builder: (context, snapshot) {
-              return ListTile(
-                contentPadding: const EdgeInsetsDirectional.only(
-                  start: 68.0,
-                  end: 26.0,
-                ),
-                leading: const Icon(Icons.bug_report),
-                title: const Text('Open log file'),
-                subtitle: Text(snapshot.data?.path ?? loc.loading),
-                trailing: const Icon(Icons.navigate_next),
-                dense: false,
-                onTap: snapshot.data == null
-                    ? null
-                    : () {
-                        launchFileExplorer(snapshot.data!.path);
-                      },
-              );
-            },
-          ),
+          if (!kIsWeb)
+            FutureBuilder(
+              future: getLogFile(),
+              builder: (context, snapshot) {
+                return ListTile(
+                  contentPadding: const EdgeInsetsDirectional.only(
+                    start: 68.0,
+                    end: 26.0,
+                  ),
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text('Open log file'),
+                  subtitle: Text(snapshot.data?.path ?? loc.loading),
+                  trailing: const Icon(Icons.navigate_next),
+                  dense: false,
+                  onTap: snapshot.data == null
+                      ? null
+                      : () {
+                          launchFileExplorer(snapshot.data!.path);
+                        },
+                );
+              },
+            ),
           CheckboxListTile(
             contentPadding: const EdgeInsetsDirectional.only(
               start: 68.0,

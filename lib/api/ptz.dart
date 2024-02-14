@@ -21,7 +21,6 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:http/http.dart' as http;
 
 enum PTZCommand {
   move,
@@ -113,7 +112,7 @@ extension PtzApiExtension on API {
 
     debugPrint(url.toString());
 
-    final response = await http.get(
+    final response = await API.client.get(
       url,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -156,7 +155,7 @@ extension PtzApiExtension on API {
 
     debugPrint(url.toString());
 
-    final response = await http.get(
+    final response = await API.client.get(
       url,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

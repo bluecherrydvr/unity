@@ -37,7 +37,8 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() {
-    return super.initializeStorage(eventsPlayback, kHiveEventsPlayback);
+    return tryReadStorage(
+        () => super.initializeStorage(eventsPlayback, kHiveEventsPlayback));
   }
 
   /// The list of the device ids that are currently selected
@@ -61,7 +62,7 @@ class EventsProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await eventsPlayback.read() as Map;
+    final data = await tryReadStorage(() => eventsPlayback.read());
 
     selectedIds =
         (jsonDecode(data[kHiveEventsPlayback]) as List).cast<String>();

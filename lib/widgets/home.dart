@@ -30,6 +30,7 @@ import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:bluecherry_client/widgets/servers/add_server.dart';
 import 'package:bluecherry_client/widgets/settings/settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -85,12 +86,13 @@ class NavigatorData {
         selectedIcon: Icons.dns,
         text: loc.addServer,
       ),
-      NavigatorData(
-        tab: UnityTab.downloads,
-        icon: Icons.download_outlined,
-        selectedIcon: Icons.download,
-        text: loc.downloads,
-      ),
+      if (!kIsWeb)
+        NavigatorData(
+          tab: UnityTab.downloads,
+          icon: Icons.download_outlined,
+          selectedIcon: Icons.download,
+          text: loc.downloads,
+        ),
       NavigatorData(
         tab: UnityTab.settings,
         icon: Icons.settings_outlined,

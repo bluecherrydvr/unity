@@ -737,7 +737,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       );
       focusScope.unfocus();
 
-      if (server.serverUUID != null && server.cookie != null) {
+      if (server.serverUUID != null && server.hasCookies) {
         widget.onServerChange(server);
         state = _ServerAddState.gettingDevices;
         await ServersProvider.instance.add(server);

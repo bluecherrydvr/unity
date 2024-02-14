@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -35,7 +36,7 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
-import 'package:bluecherry_client/utils/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
@@ -81,6 +82,7 @@ Future<void> main(List<String> args) async {
     }
 
     DevHttpOverrides.configureCertificates();
+    API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
     if (isDesktopPlatform && Platform.isLinux) {
       if (UpdateManager.linuxEnvironment == LinuxPlatform.embedded) {
@@ -146,7 +148,7 @@ Future<void> main(List<String> args) async {
     // Request notifications permission for iOS, Android 13+ and Windows.
     //
     // permission_handler only supports these platforms
-    if (isMobilePlatform || Platform.isWindows) {
+    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
       () async {
         if (await Permission.notification.isDenied) {
           final state = await Permission.notification.request();
@@ -170,8 +172,8 @@ Future<void> main(List<String> args) async {
       UpdateManager.ensureInitialized(),
     ]);
 
-    /// Firebase messaging isn't available on Windows nor Linux
-    if (kIsWeb || isMobilePlatform || Platform.isMacOS) {
+    /// Firebase messaging isn't available on windows nor linux
+    if (!kIsWeb && (isMobilePlatform || Platform.isMacOS)) {
       FirebaseConfiguration.ensureInitialized();
     }
 
@@ -198,8 +200,8 @@ class _UnityAppState extends State<UnityApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    windowManager.addListener(this);
     if (isDesktopPlatform && canConfigureWindow) {
+      windowManager.addListener(this);
       windowManager.setPreventClose(true).then((_) {
         if (mounted) setState(() {});
       });
@@ -209,7 +211,9 @@ class _UnityAppState extends State<UnityApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    windowManager.removeListener(this);
+    if (isDesktopPlatform && canConfigureWindow) {
+      windowManager.removeListener(this);
+    }
     super.dispose();
   }
 

@@ -12,7 +12,7 @@ import 'package:unity_video_player_platform_interface/unity_video_player_platfor
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
-  static void registerWith() {
+  static void registerWith([registrar]) {
     UnityVideoPlayerInterface.instance = UnityVideoPlayerMediaKitInterface();
   }
 
@@ -171,8 +171,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
-    if (mkPlayer.platform is NativePlayer) {
-      final platform = (mkPlayer.platform as NativePlayer)
+    if (!kIsWeb && mkPlayer.platform is NativePlayer) {
+      final platform = (mkPlayer.platform as dynamic)
         ..observeProperty('estimated-vf-fps', (fps) async {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
@@ -393,7 +393,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col, int size) async {
-    final player = mkPlayer.platform as NativePlayer;
+    if (kIsWeb) return;
+    final player = mkPlayer.platform as dynamic;
     // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
     // As of now (18 nov 2023), the "video-crop" parameter is not supported on
     // most distros. In this case, there is the "vf=crop" parameter that does
@@ -451,8 +452,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> dispose() async {
     await release();
     await super.dispose();
-    if (mkPlayer.platform is NativePlayer) {
-      final platform = mkPlayer.platform as NativePlayer;
+    if (!kIsWeb && mkPlayer.platform is NativePlayer) {
+      final platform = mkPlayer.platform as dynamic;
 
       await platform.unobserveProperty('estimated-vf-fps');
       await platform.unobserveProperty('dwidth');

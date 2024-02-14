@@ -29,7 +29,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';

@@ -59,7 +59,9 @@ class DesktopViewProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await initializeStorage(desktopView, kHiveDesktopLayouts);
+    await tryReadStorage(
+      () => initializeStorage(desktopView, kHiveDesktopLayouts),
+    );
     await Future.wait(
       currentLayout.devices.map<Future>((device) {
         final completer = Completer<UnityVideoPlayer>();
@@ -97,7 +99,7 @@ class DesktopViewProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await desktopView.read() as Map;
+    final data = await tryReadStorage(() => desktopView.read());
 
     layouts = ((await compute(
               jsonDecode,

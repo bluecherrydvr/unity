@@ -7,7 +7,6 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
 
 extension EventsExtension on API {
@@ -70,8 +69,8 @@ extension EventsExtension on API {
       '${deviceId != null ? 'for device $deviceId' : ''}',
     );
 
-    assert(server.serverUUID != null && server.cookie != null);
-    final response = await http.get(
+    assert(server.serverUUID != null && server.hasCookies);
+    final response = await API.client.get(
       Uri.https(
         '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
         '/events/',

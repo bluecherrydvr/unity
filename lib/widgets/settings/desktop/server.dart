@@ -22,6 +22,7 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
 import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
 import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -84,10 +85,12 @@ class StreamingSettings extends StatelessWidget {
                 settings.streamingType = v;
               }
             },
-            items: StreamingType.values.map((q) {
+            items: StreamingType.values.map((value) {
               return DropdownMenuItem(
-                value: q,
-                child: Text(q.name.toUpperCase()),
+                value: value,
+                // Disable RTSP on web
+                enabled: !kIsWeb || value != StreamingType.rtsp,
+                child: Text(value.name.toUpperCase()),
               );
             }).toList(),
           ),
@@ -101,7 +104,7 @@ class StreamingSettings extends StatelessWidget {
           title: Text(loc.rtspProtocol),
           trailing: DropdownButton<RTSPProtocol>(
             value: settings.rtspProtocol,
-            onChanged: settings.streamingType == StreamingType.rtsp
+            onChanged: !kIsWeb && settings.streamingType == StreamingType.rtsp
                 ? (v) {
                     if (v != null) {
                       settings.rtspProtocol = v;
@@ -130,27 +133,28 @@ class CamerasSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Material(
-        borderRadius: BorderRadius.circular(6.0),
-        child: ListTile(
-          title: Text(loc.renderingQuality),
-          subtitle: Text(loc.renderingQualityDescription),
-          trailing: DropdownButton<RenderingQuality>(
-            value: settings.videoQuality,
-            onChanged: (v) {
-              if (v != null) {
-                settings.videoQuality = v;
-              }
-            },
-            items: RenderingQuality.values.map((q) {
-              return DropdownMenuItem(
-                value: q,
-                child: Text(q.locale(context)),
-              );
-            }).toList(),
+      if (!kIsWeb)
+        Material(
+          borderRadius: BorderRadius.circular(6.0),
+          child: ListTile(
+            title: Text(loc.renderingQuality),
+            subtitle: Text(loc.renderingQualityDescription),
+            trailing: DropdownButton<RenderingQuality>(
+              value: settings.videoQuality,
+              onChanged: (v) {
+                if (v != null) {
+                  settings.videoQuality = v;
+                }
+              },
+              items: RenderingQuality.values.map((q) {
+                return DropdownMenuItem(
+                  value: q,
+                  child: Text(q.locale(context)),
+                );
+              }).toList(),
+            ),
           ),
         ),
-      ),
       const SizedBox(height: 8.0),
       Material(
         borderRadius: BorderRadius.circular(6.0),

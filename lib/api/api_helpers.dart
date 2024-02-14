@@ -24,7 +24,6 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// This file mainly contains helper functions for working with the API.
@@ -110,7 +109,7 @@ abstract class APIHelpers {
           return 'file://$filePath';
           // Download the event thumbnail only if it doesn't exist already.
         } else {
-          final response = await get(uri);
+          final response = await API.client.get(uri);
           debugPrint(response.statusCode.toString());
           if (response.statusCode ~/ 100 == 2 /* OK */) {
             await file.create(recursive: true);

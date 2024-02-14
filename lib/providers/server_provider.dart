@@ -54,7 +54,8 @@ class ServersProvider extends UnityProvider {
   /// Called by [ensureInitialized].
   @override
   Future<void> initialize() async {
-    await super.initializeStorage(serversStorage, kHiveServers);
+    await tryReadStorage(
+        () => super.initializeStorage(serversStorage, kHiveServers));
     refreshDevices(startup: true);
   }
 
@@ -70,7 +71,7 @@ class ServersProvider extends UnityProvider {
     if (isMobilePlatform) {
       // Register notification token.
       try {
-        final data = await serversStorage.read() as Map;
+        final data = await tryReadStorage(() => serversStorage.read());
         final notificationToken = data[kHiveNotificationToken];
         assert(notificationToken != null, '[kHiveNotificationToken] is null.');
         await API.instance
@@ -193,7 +194,7 @@ class ServersProvider extends UnityProvider {
   /// Restore currently added [Server]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await serversStorage.read() as Map;
+    final data = await tryReadStorage(() => serversStorage.read());
 
     final serversData = data[kHiveServers] is String
         ? await compute(jsonDecode, data[kHiveServers] as String)

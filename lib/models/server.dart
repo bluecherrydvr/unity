@@ -21,6 +21,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class AdditionalServerOptions {
@@ -212,6 +213,13 @@ class Server {
 
   String get id {
     return '$name;$ip;$port';
+  }
+
+  /// Whether this server has been connected to before.
+  bool get hasCookies {
+    if (kIsWeb) return true;
+
+    return cookie != null && cookie!.isNotEmpty;
   }
 
   @override

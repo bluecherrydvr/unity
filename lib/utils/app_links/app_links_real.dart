@@ -33,7 +33,7 @@ final instance = AppLinks();
 
 /// Registers a scheme the app will listen.
 Future<void> register(String scheme) async {
-  if (Platform.isWindows) {
+  if (isDesktopPlatform && Platform.isWindows) {
     var appPath = Platform.resolvedExecutable;
 
     var protocolRegKey = 'Software\\Classes\\$scheme';
@@ -64,7 +64,7 @@ bool get openedFromFile => _openedFromFile ?? false;
 void listen() {
   // Deep linking is not supported on Linux.
   // See https://github.com/llfbandit/app_links/issues/20 for more info.
-  if (!Platform.isLinux) {
+  if (isDesktopPlatform && !Platform.isLinux) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       instance.allUriLinkStream.listen((uri) async {
         debugPrint('Received URI: $uri');

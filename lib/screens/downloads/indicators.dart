@@ -22,7 +22,7 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

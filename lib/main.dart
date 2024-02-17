@@ -46,7 +46,7 @@ import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
-import 'package:bluecherry_client/widgets/home.dart';
+import 'package:bluecherry_client/screens/home.dart';
 import 'package:bluecherry_client/screens/multi_window/single_camera_window.dart';
 import 'package:bluecherry_client/screens/multi_window/single_layout_window.dart';
 import 'package:bluecherry_client/screens/multi_window/window.dart';

@@ -21,7 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -249,72 +249,6 @@ class SubHeader extends StatelessWidget {
         ]),
       ),
     );
-  }
-}
-
-/// A helper function that returns a [UnityDrawerButton] if the parent
-/// [Scaffold] has a drawer.
-///
-/// This is useful for when you want to display a drawer button in the appbar
-/// but only if the parent [Scaffold] has a drawer.
-// ignore: non_constant_identifier_names
-Widget? MaybeUnityDrawerButton(
-  BuildContext context, {
-  EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
-  VoidCallback? open,
-}) {
-  if (Scaffold.hasDrawer(context)) {
-    return Padding(
-      padding: padding,
-      child: UnityDrawerButton(
-        enforce: true,
-        open: Scaffold.of(context).openDrawer,
-      ),
-    );
-  }
-
-  return null;
-}
-
-/// A button that listen to updates to the parent [Scaffold] and display the
-/// drawer button accordingly
-class UnityDrawerButton extends StatelessWidget {
-  final Color? iconColor;
-  final double? iconSize;
-  final double splashRadius;
-
-  final bool enforce;
-  final VoidCallback? open;
-
-  const UnityDrawerButton({
-    super.key,
-    this.iconColor,
-    this.iconSize = 22.0,
-    this.splashRadius = 20.0,
-    this.enforce = false,
-    this.open,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (Scaffold.hasDrawer(context) || enforce) {
-      return Tooltip(
-        message: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        child: Center(
-          child: SizedBox(
-            height: 44.0,
-            width: 44.0,
-            child: InkWell(
-              onTap: open ?? () => Scaffold.of(context).openDrawer(),
-              radius: 10.0,
-              borderRadius: BorderRadius.circular(100.0),
-              child: Icon(Icons.menu, color: iconColor, size: iconSize),
-            ),
-          ),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
   }
 }
 

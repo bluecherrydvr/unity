@@ -23,7 +23,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/multicast_view.dart';

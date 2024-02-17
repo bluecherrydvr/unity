@@ -21,7 +21,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ import 'package:sliver_tools/sliver_tools.dart';
 
 typedef EventsPerDevice = Map<Device, int>;
 
-Future<Device?> showDeviceSelectorScreen(
+Future<Device?> showDeviceSelector(
   BuildContext context, {
   List<Device> selected = const [],
   Iterable<Device>? available,
@@ -49,7 +49,7 @@ Future<Device?> showDeviceSelectorScreen(
         builder: (context, controller) {
           return PrimaryScrollController(
             controller: controller,
-            child: DeviceSelectorScreen(
+            child: DeviceSelector(
               selected: selected,
               available: available,
               eventsPerDevice: eventsPerDevice,
@@ -61,7 +61,7 @@ Future<Device?> showDeviceSelectorScreen(
   );
 }
 
-class DeviceSelectorScreen extends StatelessWidget {
+class DeviceSelector extends StatelessWidget {
   /// The devices already selected
   final Iterable<Device> selected;
 
@@ -70,7 +70,7 @@ class DeviceSelectorScreen extends StatelessWidget {
   /// The amount of events per device
   final EventsPerDevice eventsPerDevice;
 
-  const DeviceSelectorScreen({
+  const DeviceSelector({
     super.key,
     this.selected = const [],
     this.available,

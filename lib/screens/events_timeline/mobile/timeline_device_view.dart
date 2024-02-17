@@ -28,8 +28,8 @@ import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
-import 'package:bluecherry_client/widgets/device_selector_screen.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/device_selector.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -86,7 +86,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
   /// Select a device to show on the timeline
   Future<void> selectDevice(BuildContext context) async {
-    device = await showDeviceSelectorScreen(
+    device = await showDeviceSelector(
       context,
       available: widget.timeline.tiles.map((t) => t.device),
       selected: [if (tile != null) tile!.device],

@@ -23,8 +23,8 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
-import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
-import 'package:bluecherry_client/widgets/device_selector_screen.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/device_selector.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -124,8 +124,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                         child: Text(loc.replaceCamera),
                         onTap: () async {
                           if (mounted) {
-                            final device =
-                                await showDeviceSelectorScreen(context);
+                            final device = await showDeviceSelector(context);
                             if (device != null) {
                               view.replace(widget.tab, widget.index, device);
                             }
@@ -164,7 +163,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
           onTap: () async {
             final result = await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => DeviceSelectorScreen(selected: selected),
+                builder: (context) => DeviceSelector(selected: selected),
               ),
             );
             if (result is Device) {

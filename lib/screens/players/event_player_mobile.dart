@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-part of 'events_screen.dart';
+part of '../events_browser/events_screen.dart';
 
 class EventPlayerScreen extends StatelessWidget {
   final Event event;

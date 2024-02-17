@@ -31,7 +31,7 @@ import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart'
     show calculateCrossAxisCount;
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline_card.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';

@@ -27,7 +27,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
+import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/home.dart';
 import 'package:flutter/foundation.dart';

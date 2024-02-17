@@ -35,8 +35,8 @@ import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
-import 'package:bluecherry_client/widgets/events/filter.dart';
+import 'package:bluecherry_client/screens/players/event_player_desktop.dart';
+import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/foundation.dart';
@@ -47,7 +47,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-part 'event_player_mobile.dart';
+part '../players/event_player_mobile.dart';
 part 'events_screen_desktop.dart';
 part 'events_screen_mobile.dart';
 

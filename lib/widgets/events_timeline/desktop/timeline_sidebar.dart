@@ -19,7 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/widgets/events/filter.dart';
+import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';

@@ -19,9 +19,12 @@
 
 import 'dart:async';
 
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 
 const double kDesktopAppBarHeight = 64.0;
 
@@ -487,6 +490,31 @@ class _EnforceScrollbarScrollState extends State<EnforceScrollbarScroll> {
           onExit: (v) => setState(() => isHovered = false),
           child: widget.child,
         ),
+      ),
+    );
+  }
+}
+
+class CameraViewFitButton extends StatelessWidget {
+  final UnityVideoFit fit;
+  final ValueChanged<UnityVideoFit> onChanged;
+
+  const CameraViewFitButton({
+    super.key,
+    required this.fit,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SquaredIconButton(
+      tooltip: fit.locale(context),
+      onPressed: () => onChanged(fit.next),
+      icon: Icon(
+        fit.icon,
+        size: 18.0,
+        shadows: outlinedText(),
+        color: Colors.white,
       ),
     );
   }

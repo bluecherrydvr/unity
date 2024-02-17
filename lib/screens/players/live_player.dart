@@ -31,7 +31,7 @@ import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/multi_window/window.dart';
+import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

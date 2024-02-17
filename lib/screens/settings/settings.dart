@@ -18,8 +18,8 @@
  */
 
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/widgets/settings/desktop/settings.dart';
-import 'package:bluecherry_client/widgets/settings/mobile/settings.dart';
+import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/mobile/settings.dart';
 import 'package:flutter/material.dart';
 
 class Settings extends StatelessWidget {

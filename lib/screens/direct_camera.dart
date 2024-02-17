@@ -202,7 +202,7 @@ class _DevicesForServer extends StatelessWidget {
                       : Icons.videocam_off_outlined,
                 ),
               ),
-              title: Text(device.name.uppercaseFirst()),
+              title: Text(device.name.uppercaseFirst),
               subtitle: Text([
                 device.uri,
                 '${device.resolutionX}x${device.resolutionY}',

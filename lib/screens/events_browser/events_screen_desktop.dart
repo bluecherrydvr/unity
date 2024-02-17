@@ -95,16 +95,15 @@ class EventsScreenDesktop extends StatelessWidget {
                   _buildTilePart(child: Text(event.server.name), flex: 2),
                   _buildTilePart(child: Text(event.deviceName)),
                   _buildTilePart(
-                    child: Text(event.type.locale(context).uppercaseFirst()),
+                    child: Text(event.type.locale(context).uppercaseFirst),
                   ),
                   _buildTilePart(
                     child: Text(event.duration
                         .humanReadableCompact(context)
-                        .uppercaseFirst()),
+                        .uppercaseFirst),
                   ),
                   _buildTilePart(
-                    child:
-                        Text(event.priority.locale(context).uppercaseFirst()),
+                    child: Text(event.priority.locale(context).uppercaseFirst),
                   ),
                   _buildTilePart(
                     child: Text(

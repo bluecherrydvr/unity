@@ -25,7 +25,6 @@ import 'package:bluecherry_client/screens/servers/configure_dvr_server.dart';
 import 'package:bluecherry_client/screens/servers/finish.dart';
 import 'package:bluecherry_client/widgets/drawer_button.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

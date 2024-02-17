@@ -28,18 +28,18 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
+import 'package:bluecherry_client/screens/events_browser/filter.dart';
+import 'package:bluecherry_client/screens/players/event_player_desktop.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/drawer_button.dart';
-import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
+import 'package:bluecherry_client/widgets/drawer_button.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
-import 'package:bluecherry_client/screens/players/event_player_desktop.dart';
-import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -263,7 +263,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   //   items: EventsMinLevelFilter.values.map((level) {
                   //     return DropdownMenuItem(
                   //       value: level,
-                  //       child: Text(level.name.uppercaseFirst()),
+                  //       child: Text(level.name.uppercaseFirst),
                   //     );
                   //   }).toList(),
                   //   onChanged: (v) => setState(

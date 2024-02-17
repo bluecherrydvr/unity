@@ -21,9 +21,9 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
-import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -163,7 +163,7 @@ class DeviceSelector extends StatelessWidget {
                                 : theme.disabledColor,
                           ),
                           children: [
-                            TextSpan(text: device.name.uppercaseFirst()),
+                            TextSpan(text: device.name.uppercaseFirst),
                             if (eventsPerDevice[device] != null)
                               TextSpan(
                                 text:

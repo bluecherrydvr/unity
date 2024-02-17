@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/stream_data.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';

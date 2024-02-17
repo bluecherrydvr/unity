@@ -24,17 +24,17 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
+import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_card.dart';
+import 'package:bluecherry_client/screens/layouts/device_grid.dart'
+    show calculateCrossAxisCount;
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
-import 'package:bluecherry_client/screens/layouts/device_grid.dart'
-    show calculateCrossAxisCount;
-import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
-import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_card.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/reorderable_static_grid.dart';
+import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

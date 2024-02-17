@@ -19,8 +19,8 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

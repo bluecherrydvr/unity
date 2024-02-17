@@ -17,11 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
 import 'package:bluecherry_client/screens/settings/desktop/server.dart';
 import 'package:bluecherry_client/screens/settings/desktop/updates.dart';
 import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

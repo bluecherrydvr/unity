@@ -110,7 +110,7 @@ extension UnityVideoQualityExtension on UnityVideoQuality {
 }
 
 extension StringExtension on String {
-  String uppercaseFirst() {
+  String get uppercaseFirst {
     if (isEmpty) return this;
 
     return substring(0, 1).toUpperCase() + substring(1);

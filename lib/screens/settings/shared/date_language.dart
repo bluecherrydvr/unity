@@ -19,8 +19,8 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
@@ -120,13 +120,13 @@ class LanguageSection extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      name.uppercaseFirst(),
+                      name.uppercaseFirst,
                       maxLines: 1,
                       softWrap: false,
                       style: theme.textTheme.bodyMedium,
                     ),
                     Text(
-                      nativeName.uppercaseFirst(),
+                      nativeName.uppercaseFirst,
                       style: theme.textTheme.labelSmall,
                     ),
                   ],

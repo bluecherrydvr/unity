@@ -344,7 +344,7 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
               ),
               Expanded(
                 child: AutoSizeText(
-                  widget.device.name.uppercaseFirst(),
+                  widget.device.name.uppercaseFirst,
                   maxLines: 1,
                   style: theme.textTheme.titleMedium!.copyWith(
                     color: widget.selected

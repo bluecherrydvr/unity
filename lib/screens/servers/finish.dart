@@ -18,9 +18,9 @@
  */
 
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

@@ -67,7 +67,7 @@ class Event {
         .last
         .trim()
         .split(' ')
-        .map((e) => e.uppercaseFirst())
+        .map((e) => e.uppercaseFirst)
         .join(' ');
   }
 

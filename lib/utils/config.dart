@@ -20,8 +20,8 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/main.dart';
-import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/rendering.dart';
 
 /// Represents a video overlay.

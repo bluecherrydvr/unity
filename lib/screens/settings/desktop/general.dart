@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

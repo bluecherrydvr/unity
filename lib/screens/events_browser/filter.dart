@@ -18,11 +18,11 @@
  */
 
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/widgets/tree_view.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
+import 'package:bluecherry_client/widgets/tree_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -194,7 +194,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
           items: EventsMinLevelFilter.values.map((level) {
             return DropdownMenuItem(
               value: level,
-              child: Text(level.name.uppercaseFirst()),
+              child: Text(level.name.uppercaseFirst),
             );
           }).toList(),
           onChanged: (filter) {

@@ -29,7 +29,6 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/drawer_button.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -155,7 +154,7 @@ class _DownloadTileState extends State<DownloadTile> {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    final eventType = widget.event.type.locale(context).uppercaseFirst();
+    final eventType = widget.event.type.locale(context).uppercaseFirst;
     final at = settings.formatDate(widget.event.published);
 
     final shape = RoundedRectangleBorder(

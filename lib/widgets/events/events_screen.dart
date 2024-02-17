@@ -34,7 +34,6 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
-import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/events/event_player_desktop.dart';
 import 'package:bluecherry_client/widgets/events/filter.dart';

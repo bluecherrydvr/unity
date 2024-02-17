@@ -30,7 +30,6 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
 import 'package:bluecherry_client/widgets/device_selector_screen.dart';
-import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/misc.dart';

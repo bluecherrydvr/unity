@@ -21,9 +21,12 @@ class ServerNotAddedErrorDialog extends StatelessWidget {
 
     return AlertDialog(
       title: Text(loc.serverNotAddedError(name)),
-      content: Text(
-        description,
-        style: theme.textTheme.headlineMedium,
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400.0),
+        child: Text(
+          description,
+          style: theme.textTheme.headlineMedium,
+        ),
       ),
       actions: [
         if (onRetry != null)

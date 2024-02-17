@@ -1,6 +1,6 @@
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/widgets/servers/add_server.dart';
-import 'package:bluecherry_client/widgets/servers/edit_server.dart';
+import 'package:bluecherry_client/screens/servers/additional_server_settings.dart';
+import 'package:bluecherry_client/screens/servers/edit_server.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showEditServerSettings(BuildContext context, Server server) {

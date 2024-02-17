@@ -53,7 +53,17 @@
       }
     }
   },
-  "serverNotAddedErrorDescription": "Sprawdź wprowadzone dane i upewnij się, że serwer jest online.\n\nJeśli łączysz się zdalnie to upewnij się, że porty na serwerzy Blueberry: 7001 i 7002, są otwarte!",
+  "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the {port} and {rtspPort} ports are open to the Bluecherry server!",
+  "@serverNotAddedErrorDescription": {
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "rtspPort": {
+        "type": "String"
+      }
+    }
+  },
   "serverAlreadyAdded": "The {serverName} server is already added",
   "@serverAlreadyAdded": {
     "placeholders": {

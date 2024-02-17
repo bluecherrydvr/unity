@@ -49,7 +49,17 @@
       "serverName": {}
     }
   },
-  "serverNotAddedErrorDescription": "S.V.P. vérifiez les informations entrées et assurez-vous que le serveur est en ligne.\n\nSi vous tentez de vous connectez à distance, assurez-vous que les ports 7001 et 7002 sont ouverts vers le serveur Bluecherry!",
+  "serverNotAddedErrorDescription": "Please check the entered details and ensure the server is online.\n\nIf you are connecting remote, make sure the {port} and {rtspPort} ports are open to the Bluecherry server!",
+  "@serverNotAddedErrorDescription": {
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "rtspPort": {
+        "type": "String"
+      }
+    }
+  },
   "serverAlreadyAdded": "Le serveur {serverName} a déjà été ajouté",
   "@serverAlreadyAdded": {
     "placeholders": {

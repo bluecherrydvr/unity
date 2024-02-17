@@ -22,7 +22,7 @@ import 'dart:async';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
-import 'package:bluecherry_client/widgets/device_grid/device_grid.dart';
+import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 

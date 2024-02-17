@@ -23,7 +23,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/widgets/squared_icon_button.dart';
-import 'package:bluecherry_client/widgets/device_grid/video_status_label.dart';
+import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/widgets/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';

@@ -24,7 +24,7 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/device_grid/desktop/external_stream.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 import 'package:win32_registry/win32_registry.dart';

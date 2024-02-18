@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/screens/settings/desktop/application.dart';
 import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
 import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
@@ -106,8 +107,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                     0 => const GeneralSettings(),
                     1 => const ServerSettings(),
                     2 => const EventsAndDownloadsSettings(),
+                    3 => const ApplicationSettings(),
                     4 => const UpdatesSettings(),
-                    3 => const LocalizationSettings(),
                     _ => const GeneralSettings(),
                   },
                 ),

@@ -36,7 +36,6 @@ class GeneralSettings extends StatelessWidget {
       const WakelockTile(),
       const SubHeader(
         'Notifications',
-        // subtext: ,
         padding: DesktopSettings.horizontalPadding,
       ),
       CheckboxListTile.adaptive(
@@ -45,8 +44,8 @@ class GeneralSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.crop),
         ),
+        contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('Notifications enabled'),
-        // subtitle: Text(loc.matrixedViewZoomDescription),
         value: true,
         onChanged: (value) {},
       ),
@@ -54,7 +53,6 @@ class GeneralSettings extends StatelessWidget {
       const NotificationClickBehaviorTile(),
       const SubHeader(
         'Data Usage',
-        // subtext: ,
         padding: DesktopSettings.horizontalPadding,
       ),
       OptionsChooserTile(
@@ -88,6 +86,7 @@ class GeneralSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.show_chart),
         ),
+        contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('View previous data usage'),
         trailing: const Icon(Icons.navigate_next),
       ),

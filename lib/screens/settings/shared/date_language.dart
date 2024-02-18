@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -101,7 +101,13 @@ class LanguageSection extends StatelessWidget {
 
     return DropdownButtonHideUnderline(
       child: ListTile(
-        title: Text(loc.language, style: theme.textTheme.titleMedium),
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.language),
+        ),
+        title: Text(loc.language),
         trailing: DropdownButton<Locale>(
           value: currentLocale,
           onChanged: (value) => settings.locale = value!,
@@ -160,27 +166,20 @@ class DateFormatSection extends StatelessWidget {
       ].map((e) => DateFormat(e, locale));
 
       if (consts.maxWidth >= 800) {
-        final crossAxisCount = consts.maxWidth >= 870 ? 4 : 3;
-        return Wrap(
-          children: formats.map((format) {
-            return SizedBox(
-              width: consts.maxWidth / crossAxisCount,
-              child: RadioListTile<String?>.adaptive(
-                value: format.pattern,
-                groupValue: settings.dateFormat.pattern,
-                onChanged: (value) {
-                  settings.dateFormat = format;
-                },
-                controlAffinity: ListTileControlAffinity.trailing,
-                title: AutoSizeText(
-                  format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-                  maxLines: 1,
-                  softWrap: false,
-                ),
-                subtitle: Text(format.pattern ?? ''),
-              ),
+        return OptionsChooserTile(
+          title: 'Date Format',
+          description: 'What format to use for displaying dates',
+          icon: Icons.calendar_month,
+          value: '',
+          values: formats.map((format) {
+            return Option(
+              value: format.pattern,
+              text: format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
             );
-          }).toList(),
+          }),
+          onChanged: (v) {
+            settings.dateFormat = DateFormat(v!, locale);
+          },
         );
       } else {
         return Column(
@@ -215,19 +214,20 @@ class TimeFormatSection extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
       final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
-      return Column(
-        children: patterns.map<Widget>((format) {
-          return ListTile(
-            onTap: () => settings.timeFormat = format,
-            trailing: Radio<String?>(
-              value: format.pattern,
-              groupValue: settings.timeFormat.pattern,
-              onChanged: (value) => settings.timeFormat = format,
-            ),
-            title: Text(format.format(date)),
-            subtitle: Text(format.pattern ?? ''),
+      return OptionsChooserTile(
+        title: 'Time Format',
+        description: 'What format to use for displaying time',
+        icon: Icons.hourglass_empty,
+        value: '',
+        values: patterns.map((pattern) {
+          return Option(
+            value: pattern.pattern,
+            text: pattern.format(date),
           );
-        }).toList(),
+        }),
+        onChanged: (v) {
+          settings.timeFormat = DateFormat(v!, locale);
+        },
       );
     });
   }

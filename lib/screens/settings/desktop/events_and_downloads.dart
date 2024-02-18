@@ -51,9 +51,15 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         value: false,
         onChanged: (v) {},
         contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.close),
+        ),
         title: const Text(
             'Block the app from closing when there are ongoing downloads'),
       ),
+      const SizedBox(height: 20.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
         child: Text('Events', style: theme.textTheme.titleMedium),
@@ -67,8 +73,10 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.picture_in_picture),
         ),
-        title: const Text(
-            'Move to picture-in-picture mode when the app moves to background'),
+        title: const Text('Picture-in-picture'),
+        subtitle: const Text(
+          'Move to picture-in-picture mode when the app moves to background.',
+        ),
       ),
       ListTile(
         leading: CircleAvatar(
@@ -78,8 +86,9 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
         contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('Default speed'),
+        subtitle: const Text('1.0'),
         trailing: SizedBox(
-          width: 200.0,
+          width: 160.0,
           child: Slider(
             value: 1.0,
             onChanged: (v) {},
@@ -94,14 +103,16 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
         contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('Default volume'),
+        subtitle: const Text('1.0'),
         trailing: SizedBox(
-          width: 200.0,
+          width: 160.0,
           child: Slider(
             value: 1.0,
             onChanged: (v) {},
           ),
         ),
       ),
+      const SizedBox(height: 20.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
         child: Text('Timeline of Events', style: theme.textTheme.titleMedium),

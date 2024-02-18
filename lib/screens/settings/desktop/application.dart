@@ -17,13 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
-import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
-import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class ApplicationSettings extends StatelessWidget {
   const ApplicationSettings({super.key});
@@ -32,23 +32,33 @@ class ApplicationSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      SubHeader(
-        loc.theme,
-        subtext: loc.themeDescription,
-        padding: DesktopSettings.horizontalPadding,
+      OptionsChooserTile<ThemeMode>(
+        title: 'Theme',
+        icon: Icons.contrast,
+        value: settings.themeMode,
+        values: ThemeMode.values.map((mode) {
+          return Option(
+            value: mode,
+            icon: switch (mode) {
+              ThemeMode.system => Icons.brightness_auto,
+              ThemeMode.light => Icons.light_mode,
+              ThemeMode.dark => Icons.dark_mode,
+            },
+            text: switch (mode) {
+              ThemeMode.system => loc.system,
+              ThemeMode.light => loc.light,
+              ThemeMode.dark => loc.dark,
+            },
+          );
+        }),
+        onChanged: (v) {
+          settings.themeMode = v;
+        },
       ),
-      ...ThemeMode.values.map((mode) => ThemeTile(themeMode: mode)),
       const LanguageSection(),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.dateFormat, style: theme.textTheme.titleMedium),
-      ),
       const DateFormatSection(),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.timeFormat, style: theme.textTheme.titleMedium),
-      ),
       const TimeFormatSection(),
       Padding(
         padding: DesktopSettings.horizontalPadding,

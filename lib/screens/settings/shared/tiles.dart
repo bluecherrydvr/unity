@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/stream_data.dart';
+import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
@@ -154,6 +155,7 @@ class NotificationClickBehaviorTile extends StatelessWidget {
           color: theme.textTheme.bodySmall?.color,
         ),
       ),
+      tilePadding: DesktopSettings.horizontalPadding,
       trailing: Text(settings.notificationClickBehavior.locale(context)),
       children: NotificationClickBehavior.values.map((behavior) {
         return RadioListTile<NotificationClickBehavior>.adaptive(
@@ -207,6 +209,7 @@ class CyclePeriodTile extends StatelessWidget {
         trailing: Text(
           settings.layoutCyclingTogglePeriod.humanReadableCompact(context),
         ),
+        tilePadding: DesktopSettings.horizontalPadding,
         childrenPadding: const EdgeInsetsDirectional.all(12.0),
         children: [
           ToggleButtons(

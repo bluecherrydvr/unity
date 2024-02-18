@@ -3,29 +3,29 @@ import 'package:flutter/material.dart';
 
 class Option<T> {
   final T value;
-  final IconData icon;
+  final IconData? icon;
   final String text;
 
   Option({
     required this.value,
-    required this.icon,
     required this.text,
+    this.icon,
   });
 }
 
 class OptionsChooserTile<T> extends StatelessWidget {
   final String title;
-  final String description;
+  final String? description;
   final IconData icon;
 
   final T value;
-  final List<Option<T>> values;
+  final Iterable<Option<T>> values;
   final ValueChanged<T> onChanged;
 
   const OptionsChooserTile({
     super.key,
     required this.title,
-    required this.description,
+    this.description,
     required this.icon,
     required this.value,
     required this.values,
@@ -46,12 +46,14 @@ class OptionsChooserTile<T> extends StatelessWidget {
       ),
       title: Text(title),
       textColor: theme.textTheme.bodyLarge?.color,
-      subtitle: Text(
-        description,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.textTheme.bodySmall?.color,
-        ),
-      ),
+      subtitle: description == null
+          ? null
+          : Text(
+              description!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.textTheme.bodySmall?.color,
+              ),
+            ),
       tilePadding: DesktopSettings.horizontalPadding,
       trailing: Text(values
           .firstWhere(
@@ -72,7 +74,7 @@ class OptionsChooserTile<T> extends StatelessWidget {
               onChanged(value);
             }
           },
-          secondary: Icon(option.icon),
+          secondary: option.icon == null ? null : Icon(option.icon),
           controlAffinity: ListTileControlAffinity.trailing,
           title: Padding(
             padding: const EdgeInsetsDirectional.only(start: 16.0),

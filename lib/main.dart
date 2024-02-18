@@ -36,6 +36,13 @@ import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/screens/downloads/close_dialog.dart';
+import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
+import 'package:bluecherry_client/screens/home.dart';
+import 'package:bluecherry_client/screens/multi_window/single_camera_window.dart';
+import 'package:bluecherry_client/screens/multi_window/single_layout_window.dart';
+import 'package:bluecherry_client/screens/multi_window/window.dart';
+import 'package:bluecherry_client/screens/players/live_player.dart';
 import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
@@ -44,13 +51,6 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
-import 'package:bluecherry_client/widgets/downloads_manager.dart';
-import 'package:bluecherry_client/widgets/events/events_screen.dart';
-import 'package:bluecherry_client/widgets/home.dart';
-import 'package:bluecherry_client/widgets/multi_window/single_camera_window.dart';
-import 'package:bluecherry_client/widgets/multi_window/single_layout_window.dart';
-import 'package:bluecherry_client/widgets/multi_window/window.dart';
-import 'package:bluecherry_client/widgets/player/live_player.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -251,11 +251,7 @@ class _UnityAppState extends State<UnityApp>
     if (isPreventClose && mounted && context.mounted) {
       final downloadsManager = context.read<DownloadsManager>();
       if (downloadsManager.downloading.isNotEmpty) {
-        final result = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const CloseDownloadsDialog(),
-        );
+        final result = await showCloseDownloadsDialog(context);
         if (result == null || !result) {
           return;
         }

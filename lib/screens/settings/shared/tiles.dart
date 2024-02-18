@@ -131,8 +131,8 @@ class SnoozeNotificationsTile extends StatelessWidget {
   }
 }
 
-class NavigationClickBehaviorTile extends StatelessWidget {
-  const NavigationClickBehaviorTile({super.key});
+class NotificationClickBehaviorTile extends StatelessWidget {
+  const NotificationClickBehaviorTile({super.key});
 
   @override
   Widget build(BuildContext context) {

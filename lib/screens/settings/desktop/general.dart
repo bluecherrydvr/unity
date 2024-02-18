@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
@@ -28,21 +29,70 @@ class GeneralSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      SubHeader(
-        loc.theme,
-        subtext: loc.themeDescription,
+      const CyclePeriodTile(),
+      const WakelockTile(),
+      const SubHeader(
+        'Notifications',
+        // subtext: ,
         padding: DesktopSettings.horizontalPadding,
       ),
-      ...ThemeMode.values.map((mode) => ThemeTile(themeMode: mode)),
-      SubHeader(loc.miscellaneous, padding: DesktopSettings.horizontalPadding),
+      CheckboxListTile.adaptive(
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.crop),
+        ),
+        title: const Text('Notifications enabled'),
+        // subtitle: Text(loc.matrixedViewZoomDescription),
+        value: true,
+        onChanged: (value) {},
+      ),
       const SnoozeNotificationsTile(),
-      const NavigationClickBehaviorTile(),
-      const DirectoryChooseTile(),
-      const CyclePeriodTile(),
-      const CameraReloadPeriodTile(),
-      const WakelockTile(),
+      const NotificationClickBehaviorTile(),
+      const SubHeader(
+        'Data Usage',
+        // subtext: ,
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      OptionsChooserTile(
+        icon: Icons.data_usage,
+        title: 'Automatic streaming',
+        description: 'When to stream videos automatically on startup',
+        selected: '...',
+        value: '',
+        values: [
+          Option(value: '', icon: Icons.insights, text: 'Auto'),
+          Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
+          Option(value: '', icon: Icons.not_interested, text: 'Never'),
+        ],
+        onChanged: (value) {},
+      ),
+      OptionsChooserTile(
+        icon: Icons.cloud_done,
+        title: 'Keep streams playing on background',
+        description:
+            'When to keep streams playing when the app is in background',
+        selected: '...',
+        value: '',
+        values: [
+          Option(value: '', icon: Icons.insights, text: 'Auto'),
+          Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
+          Option(value: '', icon: Icons.not_interested, text: 'Never'),
+        ],
+        onChanged: (value) {},
+      ),
+      ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.show_chart),
+        ),
+        title: const Text('View previous data usage'),
+        trailing: const Icon(Icons.navigate_next),
+      ),
     ]);
   }
 }

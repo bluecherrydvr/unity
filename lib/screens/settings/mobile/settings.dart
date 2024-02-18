@@ -95,7 +95,7 @@ class _MobileSettingsState extends State<MobileSettings> {
               SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
               SliverList.list(children: [
                 const SnoozeNotificationsTile(),
-                const NavigationClickBehaviorTile(),
+                const NotificationClickBehaviorTile(),
                 ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: const Color.fromRGBO(0, 0, 0, 0),

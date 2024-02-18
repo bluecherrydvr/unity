@@ -18,8 +18,8 @@
  */
 
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
-import 'package:bluecherry_client/screens/settings/desktop/server.dart';
-import 'package:bluecherry_client/screens/settings/desktop/updates.dart';
+import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
+import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
 import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -55,17 +55,25 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               icon: const Icon(Icons.dashboard),
               label: Text(loc.general),
             ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.dns),
-              label: Text(loc.servers),
+            const NavigationRailDestination(
+              icon: Icon(Icons.dns),
+              label: Text('Servers and Devices'),
             ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.update),
-              label: Text(loc.updates),
+            const NavigationRailDestination(
+              icon: Icon(Icons.event),
+              label: Text('Events and Downloads'),
             ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.language),
-              label: Text(loc.dateLanguage),
+            const NavigationRailDestination(
+              icon: Icon(Icons.style),
+              label: Text('Application'),
+            ),
+            const NavigationRailDestination(
+              icon: Icon(Icons.update),
+              label: Text('Updates and Help'),
+            ),
+            const NavigationRailDestination(
+              icon: Icon(Icons.code),
+              label: Text('Advanced Options'),
             ),
           ],
           selectedIndex: currentIndex,

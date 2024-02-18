@@ -143,6 +143,8 @@ lib
 │   ├───video_player.dart
 │   └───window.dart
 │
+├───screens                                            [All the screens of the application.]
+│
 ├───widgets                                            [UI/UX & widgets used to display content.]
 │
 ├───firebase_messaging_background_handler.dart         [handles in-app notifications, snoozing, thumbnails etc. & other Firebase related hooks.]

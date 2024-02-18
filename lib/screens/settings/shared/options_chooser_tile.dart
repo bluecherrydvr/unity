@@ -1,3 +1,4 @@
+import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:flutter/material.dart';
 
 class Option<T> {
@@ -17,7 +18,6 @@ class OptionsChooserTile<T> extends StatelessWidget {
   final String description;
   final IconData icon;
 
-  final String selected;
   final T value;
   final List<Option<T>> values;
   final ValueChanged<T> onChanged;
@@ -27,7 +27,6 @@ class OptionsChooserTile<T> extends StatelessWidget {
     required this.title,
     required this.description,
     required this.icon,
-    required this.selected,
     required this.value,
     required this.values,
     required this.onChanged,
@@ -53,11 +52,17 @@ class OptionsChooserTile<T> extends StatelessWidget {
           color: theme.textTheme.bodySmall?.color,
         ),
       ),
-      trailing: Text(selected),
+      tilePadding: DesktopSettings.horizontalPadding,
+      trailing: Text(values
+          .firstWhere(
+            (v) => v.text == value,
+            orElse: () => values.first,
+          )
+          .text),
       children: values.map((option) {
         return RadioListTile<T>.adaptive(
           contentPadding: const EdgeInsetsDirectional.only(
-            start: 68.0,
+            start: 76.0,
             end: 16.0,
           ),
           value: option.value,

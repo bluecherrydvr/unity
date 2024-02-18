@@ -16,3 +16,137 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+class EventsAndDownloadsSettings extends StatelessWidget {
+  const EventsAndDownloadsSettings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return ListView(padding: DesktopSettings.verticalPadding, children: [
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text(loc.downloads, style: theme.textTheme.titleMedium),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.create_new_folder),
+        ),
+        title: const Text('Choose location for each download'),
+      ),
+      const DirectoryChooseTile(),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        title: const Text(
+            'Block the app from closing when there are ongoing downloads'),
+      ),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text('Events', style: theme.textTheme.titleMedium),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.picture_in_picture),
+        ),
+        title: const Text(
+            'Move to picture-in-picture mode when the app moves to background'),
+      ),
+      ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.speed),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        title: const Text('Default speed'),
+        trailing: SizedBox(
+          width: 200.0,
+          child: Slider(
+            value: 1.0,
+            onChanged: (v) {},
+          ),
+        ),
+      ),
+      ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.equalizer),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        title: const Text('Default volume'),
+        trailing: SizedBox(
+          width: 200.0,
+          child: Slider(
+            value: 1.0,
+            onChanged: (v) {},
+          ),
+        ),
+      ),
+      Padding(
+        padding: DesktopSettings.horizontalPadding,
+        child: Text('Timeline of Events', style: theme.textTheme.titleMedium),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.color_lens),
+        ),
+        title: const Text('Show different colors for events'),
+        subtitle: const Text(
+          'Whether to show different colors for events in the timeline. '
+          'This will help you to easily identify the events.',
+        ),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.pause_presentation),
+        ),
+        title: const Text('Pause to buffer'),
+        subtitle: const Text(
+          'Whether the entire timeline should pause to buffer the events.',
+        ),
+      ),
+      OptionsChooserTile(
+        title: 'Initial point',
+        description: 'When the timeline should begin.',
+        icon: Icons.flag,
+        value: '',
+        values: [
+          Option(value: '', icon: Icons.start, text: 'Beginning'),
+          Option(value: '', icon: Icons.first_page, text: 'First event'),
+          Option(value: '', icon: Icons.hourglass_bottom, text: 'An hour ago'),
+        ],
+        onChanged: (v) {},
+      ),
+    ]);
+  }
+}

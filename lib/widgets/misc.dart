@@ -19,6 +19,7 @@
 
 import 'dart:async';
 
+import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
@@ -131,7 +132,7 @@ class CorrectedListTile extends StatelessWidget {
           minWidth: MediaQuery.sizeOf(context).width,
           maxWidth: MediaQuery.sizeOf(context).width,
         ),
-        padding: const EdgeInsetsDirectional.only(start: 16.0),
+        padding: DesktopSettings.horizontalPadding,
         child: Row(children: [
           Container(
             margin: const EdgeInsetsDirectional.only(end: 12.0),

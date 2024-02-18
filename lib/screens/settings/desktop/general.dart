@@ -61,7 +61,6 @@ class GeneralSettings extends StatelessWidget {
         icon: Icons.data_usage,
         title: 'Automatic streaming',
         description: 'When to stream videos automatically on startup',
-        selected: '...',
         value: '',
         values: [
           Option(value: '', icon: Icons.insights, text: 'Auto'),
@@ -75,7 +74,6 @@ class GeneralSettings extends StatelessWidget {
         title: 'Keep streams playing on background',
         description:
             'When to keep streams playing when the app is in background',
-        selected: '...',
         value: '',
         values: [
           Option(value: '', icon: Icons.insights, text: 'Auto'),

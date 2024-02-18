@@ -54,7 +54,7 @@ class ServerSettings extends StatelessWidget {
       const SizedBox(height: 12.0),
       Padding(
         padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.camerasSettings, style: theme.textTheme.titleMedium),
+        child: Text('Devices Settings', style: theme.textTheme.titleMedium),
       ),
       const SizedBox(height: 8.0),
       const Padding(
@@ -185,6 +185,33 @@ class CamerasSettings extends StatelessWidget {
       Material(
         borderRadius: BorderRadius.circular(6.0),
         child: ListTile(
+          title: const Text('Refresh Period'),
+          subtitle: const Text('How often to refresh the cameras'),
+          trailing: DropdownButton<Duration>(
+            value: Duration.zero,
+            onChanged: (v) {},
+            items: const [
+              Duration.zero,
+              Duration(seconds: 30),
+              Duration(minutes: 2),
+              Duration(minutes: 5),
+            ].map((q) {
+              return DropdownMenuItem(
+                value: q,
+                child: Row(children: [
+                  // Icon(q.icon),
+                  // const SizedBox(width: 8.0),
+                  Text(q.humanReadableCompact(context)),
+                ]),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: ListTile(
           title: Text(loc.lateStreamBehavior),
           subtitle: RichText(
             text: TextSpan(
@@ -253,6 +280,36 @@ class CamerasSettings extends StatelessWidget {
               );
             }).toList(),
           ),
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: CheckboxListTile.adaptive(
+          title: const Text('Automatically reload timed out streams'),
+          subtitle:
+              const Text('When to reload timed out streams automatically'),
+          value: true,
+          onChanged: (v) {},
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: CheckboxListTile.adaptive(
+          title: const Text('Hardware rendering'),
+          subtitle: const Text('Use hardware rendering when available'),
+          value: true,
+          onChanged: (v) {},
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      Material(
+        borderRadius: BorderRadius.circular(6.0),
+        child: ListTile(
+          title: const Text('Run a video test'),
+          trailing: const Icon(Icons.play_arrow),
+          onTap: () {},
         ),
       ),
     ]);

@@ -28,6 +28,7 @@ import 'package:bluecherry_client/screens/settings/desktop/advanced_options.dart
 import 'package:bluecherry_client/screens/settings/desktop/application.dart';
 import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
+import 'package:bluecherry_client/screens/settings/desktop/privacy_and_security.dart';
 import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -151,7 +152,16 @@ class _MobileSettingsState extends State<MobileSettings> {
                     title: const Text('Privacy and Security'),
                     subtitle: const Text('Diagnostics, Privacy, Security, etc'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () {},
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const PrivacySecuritySettings();
+                        },
+                      );
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.update),

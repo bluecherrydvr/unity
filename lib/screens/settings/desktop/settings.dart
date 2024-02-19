@@ -21,6 +21,7 @@ import 'package:bluecherry_client/screens/settings/desktop/advanced_options.dart
 import 'package:bluecherry_client/screens/settings/desktop/application.dart';
 import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
+import 'package:bluecherry_client/screens/settings/desktop/privacy_and_security.dart';
 import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -112,6 +113,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                     1 => const ServerSettings(),
                     2 => const EventsAndDownloadsSettings(),
                     3 => const ApplicationSettings(),
+                    4 => const PrivacySecuritySettings(),
                     5 => const UpdatesSettings(),
                     6 => const AdvancedOptionsSettings(),
                     _ => const GeneralSettings(),

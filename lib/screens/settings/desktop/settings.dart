@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/screens/settings/desktop/advanced_options.dart';
 import 'package:bluecherry_client/screens/settings/desktop/application.dart';
 import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/desktop/general.dart';
 import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
-import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -109,6 +109,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                     2 => const EventsAndDownloadsSettings(),
                     3 => const ApplicationSettings(),
                     4 => const UpdatesSettings(),
+                    5 => const AdvancedOptionsSettings(),
                     _ => const GeneralSettings(),
                   },
                 ),

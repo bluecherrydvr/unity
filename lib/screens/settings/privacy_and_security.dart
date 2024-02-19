@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -32,10 +32,10 @@ class PrivacySecuritySettings extends StatelessWidget {
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.crop),
+          child: const Icon(Icons.analytics),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('Use data'),
+        title: const Text('Allow Bluecherry to collect usage data'),
         subtitle: const Text(
           'Allow Bluecherry to collect data to improve the app and provide '
           'better services. Data is collected anonymously and does not contain '
@@ -47,6 +47,8 @@ class PrivacySecuritySettings extends StatelessWidget {
       ),
       OptionsChooserTile(
         title: 'Automatically report errors',
+        description: 'Automatically report errors to Bluecherry to help us '
+            'improve the app. Error reports may contain personal information.',
         icon: Icons.error,
         value: 'On',
         values: ['On', 'Ask', 'Error'].map((e) => Option(text: e, value: e)),
@@ -54,13 +56,23 @@ class PrivacySecuritySettings extends StatelessWidget {
       ),
       const Divider(),
       ListTile(
-        leading: const Icon(Icons.privacy_tip),
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.privacy_tip),
+        ),
         title: const Text('Privacy Policy'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {},
       ),
       ListTile(
-        leading: const Icon(Icons.policy),
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.policy),
+        ),
         title: const Text('Terms of Service'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {},

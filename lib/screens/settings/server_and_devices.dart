@@ -19,8 +19,8 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
-import 'package:bluecherry_client/screens/settings/mobile/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
+import 'package:bluecherry_client/screens/settings/settings_mobile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

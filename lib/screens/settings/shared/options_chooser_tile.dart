@@ -1,4 +1,4 @@
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:flutter/material.dart';
 
 class Option<T> {

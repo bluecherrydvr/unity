@@ -18,7 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';

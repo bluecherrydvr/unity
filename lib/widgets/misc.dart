@@ -19,7 +19,7 @@
 
 import 'dart:async';
 
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';

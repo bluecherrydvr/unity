@@ -24,13 +24,13 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/screens/servers/edit_server.dart';
 import 'package:bluecherry_client/screens/servers/edit_server_settings.dart';
-import 'package:bluecherry_client/screens/settings/desktop/advanced_options.dart';
-import 'package:bluecherry_client/screens/settings/desktop/application.dart';
-import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
-import 'package:bluecherry_client/screens/settings/desktop/general.dart';
-import 'package:bluecherry_client/screens/settings/desktop/privacy_and_security.dart';
-import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
-import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
+import 'package:bluecherry_client/screens/settings/advanced_options.dart';
+import 'package:bluecherry_client/screens/settings/application.dart';
+import 'package:bluecherry_client/screens/settings/events_and_downloads.dart';
+import 'package:bluecherry_client/screens/settings/general.dart';
+import 'package:bluecherry_client/screens/settings/privacy_and_security.dart';
+import 'package:bluecherry_client/screens/settings/server_and_devices.dart';
+import 'package:bluecherry_client/screens/settings/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/drawer_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -40,7 +40,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-part '../shared/server_tile.dart';
+part 'shared/server_tile.dart';
 
 class MobileSettings extends StatefulWidget {
   const MobileSettings({super.key});

@@ -69,11 +69,11 @@ class UpdatesSettings extends StatelessWidget {
       ],
       // TODO(bdlukaa): Show option to downlaod the native client when running
       //                on the web.
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text('Beta Features', style: theme.textTheme.titleMedium),
-      ),
-      const BetaFeatures(),
+      // Padding(
+      //   padding: DesktopSettings.horizontalPadding,
+      //   child: Text('Beta Features', style: theme.textTheme.titleMedium),
+      // ),
+      // const BetaFeatures(),
       const Divider(),
       const About(),
     ]);

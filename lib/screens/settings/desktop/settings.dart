@@ -70,6 +70,10 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               label: Text('Application'),
             ),
             const NavigationRailDestination(
+              icon: Icon(Icons.security),
+              label: Text('Privacy and Security'),
+            ),
+            const NavigationRailDestination(
               icon: Icon(Icons.update),
               label: Text('Updates and Help'),
             ),
@@ -108,8 +112,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                     1 => const ServerSettings(),
                     2 => const EventsAndDownloadsSettings(),
                     3 => const ApplicationSettings(),
-                    4 => const UpdatesSettings(),
-                    5 => const AdvancedOptionsSettings(),
+                    5 => const UpdatesSettings(),
+                    6 => const AdvancedOptionsSettings(),
                     _ => const GeneralSettings(),
                   },
                 ),

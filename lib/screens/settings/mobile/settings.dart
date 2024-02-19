@@ -17,30 +17,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/screens/servers/edit_server.dart';
 import 'package:bluecherry_client/screens/servers/edit_server_settings.dart';
-import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
-import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
-import 'package:bluecherry_client/screens/settings/shared/update.dart';
+import 'package:bluecherry_client/screens/settings/desktop/advanced_options.dart';
+import 'package:bluecherry_client/screens/settings/desktop/application.dart';
+import 'package:bluecherry_client/screens/settings/desktop/events_and_downloads.dart';
+import 'package:bluecherry_client/screens/settings/desktop/general.dart';
+import 'package:bluecherry_client/screens/settings/desktop/server_and_devices.dart';
+import 'package:bluecherry_client/screens/settings/desktop/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/drawer_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:provider/provider.dart';
-import 'package:unity_video_player/unity_video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 part '../shared/server_tile.dart';
@@ -63,8 +59,6 @@ class _MobileSettingsState extends State<MobileSettings> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final settings = context.watch<SettingsProvider>();
-    final servers = context.watch<ServersProvider>();
 
     return Material(
       type: MaterialType.transparency,
@@ -76,114 +70,131 @@ class _MobileSettingsState extends State<MobileSettings> {
               title: Text(loc.settings),
             ),
           Expanded(
-            child: CustomScrollView(slivers: [
-              SliverToBoxAdapter(
-                child: SubHeader(
-                  loc.servers,
-                  subtext: loc.nServers(servers.servers.length),
+            child: ListTileTheme(
+              data: ListTileThemeData(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
+                tileColor: theme.colorScheme.primaryContainer.withOpacity(0.42),
               ),
-              const SliverToBoxAdapter(child: ServersList()),
-              SliverToBoxAdapter(
-                child: SubHeader(loc.theme, subtext: loc.themeDescription),
-              ),
-              SliverList.list(
-                children: ThemeMode.values
-                    .map((mode) => ThemeTile(themeMode: mode))
+              child: ListView(
+                padding: const EdgeInsetsDirectional.all(8.0),
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.dashboard),
+                    title: Text(loc.general),
+                    subtitle:
+                        const Text('Notifications, Data Usage, Wakelock, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const GeneralSettings();
+                        },
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.dns),
+                    title: const Text('Servers and Devices'),
+                    subtitle: const Text('Servers, Devices, Streaming, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const ServerSettings();
+                        },
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.event),
+                    title: const Text('Events and Downloads'),
+                    subtitle: const Text('Downloads, Events, Timeline, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const EventsAndDownloadsSettings();
+                        },
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.style),
+                    title: const Text('Application'),
+                    subtitle: const Text(
+                        'Theme, Language, Date and Time, Window, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const ApplicationSettings();
+                        },
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.security),
+                    title: const Text('Privacy and Security'),
+                    subtitle: const Text('Diagnostics, Privacy, Security, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.update),
+                    title: const Text('Updates and Help'),
+                    subtitle: const Text('Check for updates, Help, About, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const UpdatesSettings();
+                        },
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.code),
+                    title: const Text('Advanced Options'),
+                    subtitle:
+                        const Text('Beta Features, Developer Options, etc'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        scrollControlDisabledMaxHeightRatio: 0.9,
+                        builder: (context) {
+                          return const AdvancedOptionsSettings();
+                        },
+                      );
+                    },
+                  ),
+                ]
+                    .map((e) => Padding(
+                          padding:
+                              const EdgeInsetsDirectional.only(bottom: 8.0),
+                          child: e,
+                        ))
                     .toList(),
               ),
-              SliverToBoxAdapter(child: SubHeader(loc.miscellaneous)),
-              SliverList.list(children: [
-                const SnoozeNotificationsTile(),
-                const NotificationClickBehaviorTile(),
-                ExpansionTile(
-                  leading: CircleAvatar(
-                    backgroundColor: const Color.fromRGBO(0, 0, 0, 0),
-                    foregroundColor: theme.iconTheme.color,
-                    child: const Icon(Icons.fit_screen),
-                  ),
-                  title: Text(loc.cameraViewFit),
-                  textColor: theme.textTheme.bodyLarge?.color,
-                  subtitle: Text(
-                    settings.cameraViewFit.locale(context),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                  ),
-                  children: UnityVideoFit.values.map((e) {
-                    return RadioListTile<UnityVideoFit>.adaptive(
-                      contentPadding: const EdgeInsetsDirectional.only(
-                        start: 68.0,
-                        end: 16.0,
-                      ),
-                      value: e,
-                      groupValue: settings.cameraViewFit,
-                      onChanged: (_) => settings.cameraViewFit = e,
-                      secondary: Icon(e.icon),
-                      controlAffinity: ListTileControlAffinity.trailing,
-                      title: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 16.0),
-                        child: Text(e.locale(context)),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const DirectoryChooseTile(),
-                const CyclePeriodTile(),
-                const CameraReloadPeriodTile(),
-              ]),
-              SliverToBoxAdapter(
-                child: CorrectedListTile(
-                  iconData: Icons.language,
-                  trailing: Icons.navigate_next,
-                  title: loc.dateLanguage,
-                  subtitle: '${settings.dateFormat.format(DateTime.now())} '
-                      '${settings.timeFormat.format(DateTime.now())}; '
-                      '${LocaleNames.of(context)!.nameOf(settings.locale.toLanguageTag())}',
-                  height: 80.0,
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        return DraggableScrollableSheet(
-                          expand: false,
-                          maxChildSize: 0.8,
-                          minChildSize: 0.8,
-                          initialChildSize: 0.8,
-                          builder: (context, controller) {
-                            return LocalizationSettings(controller: controller);
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              const SliverToBoxAdapter(child: WakelockTile()),
-              if (UpdateManager.isUpdatingSupported) ...[
-                SliverToBoxAdapter(
-                  child: SubHeader(
-                    loc.updates,
-                    subtext: loc.runningOn(() {
-                      if (Platform.isLinux) {
-                        return loc.linux(UpdateManager.linuxEnvironment.name);
-                      } else if (Platform.isWindows) {
-                        return loc.windows;
-                      }
-
-                      return defaultTargetPlatform.name;
-                    }()),
-                  ),
-                ),
-                const SliverToBoxAdapter(child: AppUpdateCard()),
-                const SliverToBoxAdapter(child: AppUpdateOptions()),
-              ],
-              SliverToBoxAdapter(child: SubHeader(loc.about)),
-              const SliverToBoxAdapter(child: About()),
-              const SliverToBoxAdapter(child: SizedBox(height: 16.0)),
-            ]),
+            ),
           ),
         ]),
       ),

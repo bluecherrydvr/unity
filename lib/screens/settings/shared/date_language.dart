@@ -153,53 +153,32 @@ class DateFormatSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final locale = Localizations.localeOf(context).toLanguageTag();
-    return LayoutBuilder(builder: (context, consts) {
-      final formats = [
-        'dd MMMM yyyy',
-        'EEEE, dd MMMM yyyy',
-        'EE, dd MMMM yyyy',
-        'MM/dd/yyyy',
-        'dd/MM/yyyy',
-        'MM-dd-yyyy',
-        'dd-MM-yyyy',
-        'yyyy-MM-dd'
-      ].map((e) => DateFormat(e, locale));
+    final formats = [
+      'dd MMMM yyyy',
+      'EEEE, dd MMMM yyyy',
+      'EE, dd MMMM yyyy',
+      'MM/dd/yyyy',
+      'dd/MM/yyyy',
+      'MM-dd-yyyy',
+      'dd-MM-yyyy',
+      'yyyy-MM-dd'
+    ].map((e) => DateFormat(e, locale));
 
-      if (consts.maxWidth >= 800) {
-        return OptionsChooserTile(
-          title: 'Date Format',
-          description: 'What format to use for displaying dates',
-          icon: Icons.calendar_month,
-          value: '',
-          values: formats.map((format) {
-            return Option(
-              value: format.pattern,
-              text: format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-            );
-          }),
-          onChanged: (v) {
-            settings.dateFormat = DateFormat(v!, locale);
-          },
+    return OptionsChooserTile(
+      title: 'Date Format',
+      description: 'What format to use for displaying dates',
+      icon: Icons.calendar_month,
+      value: '',
+      values: formats.map((format) {
+        return Option(
+          value: format.pattern,
+          text: format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
         );
-      } else {
-        return Column(
-          children: formats.map<Widget>((format) {
-            return RadioListTile<String?>.adaptive(
-              value: format.pattern,
-              groupValue: settings.dateFormat.pattern,
-              onChanged: (value) {
-                settings.dateFormat = format;
-              },
-              controlAffinity: ListTileControlAffinity.trailing,
-              title: Text(
-                format.format(DateTime.utc(1969, 7, 20, 14, 18, 04)),
-              ),
-              subtitle: Text(format.pattern ?? ''),
-            );
-          }).toList(),
-        );
-      }
-    });
+      }),
+      onChanged: (v) {
+        settings.dateFormat = DateFormat(v!, locale);
+      },
+    );
   }
 }
 
@@ -211,24 +190,22 @@ class TimeFormatSection extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final locale = Localizations.localeOf(context).toLanguageTag();
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
-      final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
-      return OptionsChooserTile(
-        title: 'Time Format',
-        description: 'What format to use for displaying time',
-        icon: Icons.hourglass_empty,
-        value: '',
-        values: patterns.map((pattern) {
-          return Option(
-            value: pattern.pattern,
-            text: pattern.format(date),
-          );
-        }),
-        onChanged: (v) {
-          settings.timeFormat = DateFormat(v!, locale);
-        },
-      );
-    });
+    final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
+    final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
+    return OptionsChooserTile(
+      title: 'Time Format',
+      description: 'What format to use for displaying time',
+      icon: Icons.hourglass_empty,
+      value: '',
+      values: patterns.map((pattern) {
+        return Option(
+          value: pattern.pattern,
+          text: pattern.format(date),
+        );
+      }),
+      onChanged: (v) {
+        settings.timeFormat = DateFormat(v!, locale);
+      },
+    );
   }
 }

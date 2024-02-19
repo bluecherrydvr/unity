@@ -21,6 +21,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/screens/settings/shared/date_language.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -60,10 +61,7 @@ class ApplicationSettings extends StatelessWidget {
       const LanguageSection(),
       const DateFormatSection(),
       const TimeFormatSection(),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text('Window', style: theme.textTheme.titleMedium),
-      ),
+      const SubHeader('Window'),
       CheckboxListTile.adaptive(
         value: false,
         onChanged: (v) {},
@@ -91,6 +89,49 @@ class ApplicationSettings extends StatelessWidget {
         subtitle: const Text(
           'Whether to close the app to the system tray when the window is closed. '
           'This will keep the app running in the background.',
+        ),
+      ),
+      const SubHeader('Acessibility'),
+      CheckboxListTile.adaptive(
+        value: true,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.animation),
+        ),
+        title: const Text('Animations'),
+        subtitle: const Text(
+            'Disable animations on low-end devices to improve performance. '
+            'This will also disable some visual effects. '),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.filter_b_and_w),
+        ),
+        title: const Text('High contrast mode'),
+        subtitle: const Text(
+          'Enable high contrast mode to make the app easier to read and use.',
+        ),
+      ),
+      CheckboxListTile.adaptive(
+        value: false,
+        onChanged: (v) {},
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.accessibility_new),
+        ),
+        title: const Text('Large text'),
+        subtitle: const Text(
+          'Increase the size of the text in the app to make it easier to read.',
         ),
       ),
     ]);

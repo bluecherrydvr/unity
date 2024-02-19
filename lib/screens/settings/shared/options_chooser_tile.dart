@@ -42,7 +42,10 @@ class OptionsChooserTile<T> extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: Colors.transparent,
         foregroundColor: theme.iconTheme.color,
-        child: Icon(icon),
+        child: Align(
+          alignment: AlignmentDirectional.topCenter,
+          child: Icon(icon),
+        ),
       ),
       title: Text(title),
       textColor: theme.textTheme.bodyLarge?.color,

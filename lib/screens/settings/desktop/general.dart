@@ -17,12 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
-import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class GeneralSettings extends StatelessWidget {
   const GeneralSettings({super.key});
@@ -31,9 +33,40 @@ class GeneralSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
     return ListView(padding: DesktopSettings.verticalPadding, children: [
-      const CyclePeriodTile(),
-      const WakelockTile(),
+      OptionsChooserTile(
+        title: loc.cycleTogglePeriod,
+        description: loc.cycleTogglePeriodDescription,
+        icon: Icons.timelapse,
+        value: settings.layoutCyclingTogglePeriod,
+        values: [5, 10, 30, 60, 60 * 5]
+            .map((seconds) => Duration(seconds: seconds))
+            .map((duration) {
+          return Option(
+            text: duration.humanReadableCompact(context),
+            value: duration,
+          );
+        }),
+        onChanged: (value) {
+          settings.layoutCyclingTogglePeriod = value;
+        },
+      ),
+      CheckboxListTile.adaptive(
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.monitor),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        title: Text(loc.wakelock),
+        subtitle: Text(loc.wakelockDescription),
+        isThreeLine: true,
+        value: settings.wakelockEnabled,
+        onChanged: (value) {
+          settings.wakelockEnabled = !settings.wakelockEnabled;
+        },
+      ),
       const SubHeader(
         'Notifications',
         padding: DesktopSettings.horizontalPadding,
@@ -49,8 +82,64 @@ class GeneralSettings extends StatelessWidget {
         value: true,
         onChanged: (value) {},
       ),
-      const SnoozeNotificationsTile(),
-      const NotificationClickBehaviorTile(),
+      ListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.notifications_paused),
+        ),
+        title: Text(loc.snoozeNotifications),
+        subtitle: Text(
+          settings.snoozedUntil.isAfter(DateTime.now())
+              ? loc.snoozedUntil(
+                  [
+                    if (settings.snoozedUntil.difference(DateTime.now()) >
+                        const Duration(hours: 24))
+                      settings.formatDate(settings.snoozedUntil),
+                    settings.formatTime(settings.snoozedUntil),
+                  ].join(' '),
+                )
+              : loc.notSnoozed,
+        ),
+        onTap: () async {
+          if (settings.snoozedUntil.isAfter(DateTime.now())) {
+            settings.snoozedUntil = SettingsProvider.defaultSnoozedUntil;
+          } else {
+            final timeOfDay = await showTimePicker(
+              context: context,
+              helpText: loc.snoozeNotificationsUntil.toUpperCase(),
+              initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+              useRootNavigator: false,
+            );
+            if (timeOfDay != null) {
+              settings.snoozedUntil = DateTime(
+                DateTime.now().year,
+                DateTime.now().month,
+                DateTime.now().day,
+                timeOfDay.hour,
+                timeOfDay.minute,
+              );
+            }
+          }
+        },
+      ),
+      OptionsChooserTile(
+        title: loc.notificationClickBehavior,
+        description: loc.notificationClickBehaviorDescription,
+        icon: Icons.beenhere_rounded,
+        value: settings.notificationClickBehavior,
+        values: NotificationClickBehavior.values
+            .map((behavior) => Option(
+                  value: behavior,
+                  icon: behavior.icon,
+                  text: behavior.locale(context),
+                ))
+            .toList(),
+        onChanged: (v) {
+          settings.notificationClickBehavior = v;
+        },
+      ),
       const SubHeader(
         'Data Usage',
         padding: DesktopSettings.horizontalPadding,

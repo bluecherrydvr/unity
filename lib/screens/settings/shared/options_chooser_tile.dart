@@ -43,7 +43,9 @@ class OptionsChooserTile<T> extends StatelessWidget {
         backgroundColor: Colors.transparent,
         foregroundColor: theme.iconTheme.color,
         child: Align(
-          alignment: AlignmentDirectional.topCenter,
+          alignment: description == null
+              ? Alignment.center
+              : AlignmentDirectional.topCenter,
           child: Icon(icon),
         ),
       ),

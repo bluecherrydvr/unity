@@ -17,11 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
-import 'package:bluecherry_client/screens/settings/shared/tiles.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class EventsAndDownloadsSettings extends StatelessWidget {
   const EventsAndDownloadsSettings({super.key});
@@ -30,6 +34,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       Padding(
         padding: DesktopSettings.horizontalPadding,
@@ -46,7 +51,28 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
         title: const Text('Choose location for each download'),
       ),
-      const DirectoryChooseTile(),
+      ListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.notifications_paused),
+        ),
+        title: Text(loc.downloadPath),
+        subtitle: Text(settings.downloadsDirectory),
+        trailing: const Icon(Icons.navigate_next),
+        onTap: () async {
+          final selectedDirectory = await FilePicker.platform.getDirectoryPath(
+            dialogTitle: loc.downloadPath,
+            initialDirectory: settings.downloadsDirectory,
+            lockParentWindow: true,
+          );
+
+          if (selectedDirectory != null) {
+            settings.downloadsDirectory = Directory(selectedDirectory).path;
+          }
+        },
+      ),
       CheckboxListTile.adaptive(
         value: false,
         onChanged: (v) {},

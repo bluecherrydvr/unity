@@ -5,27 +5,31 @@ class Option<T> {
   final T value;
   final IconData? icon;
   final String text;
+  final bool enabled;
 
-  Option({
+  const Option({
     required this.value,
     required this.text,
     this.icon,
+    this.enabled = true,
   });
 }
 
 class OptionsChooserTile<T> extends StatelessWidget {
   final String title;
   final String? description;
+  final Widget? subtitle;
   final IconData icon;
 
   final T value;
   final Iterable<Option<T>> values;
-  final ValueChanged<T> onChanged;
+  final ValueChanged<T>? onChanged;
 
   const OptionsChooserTile({
     super.key,
     required this.title,
     this.description,
+    this.subtitle,
     required this.icon,
     required this.value,
     required this.values,
@@ -51,18 +55,19 @@ class OptionsChooserTile<T> extends StatelessWidget {
       ),
       title: Text(title),
       textColor: theme.textTheme.bodyLarge?.color,
-      subtitle: description == null
-          ? null
-          : Text(
-              description!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.textTheme.bodySmall?.color,
-              ),
-            ),
+      subtitle: subtitle ??
+          (description == null
+              ? null
+              : Text(
+                  description!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
+                )),
       tilePadding: DesktopSettings.horizontalPadding,
       trailing: Text(values
           .firstWhere(
-            (v) => v.text == value,
+            (v) => v.value == value,
             orElse: () => values.first,
           )
           .text),
@@ -74,11 +79,13 @@ class OptionsChooserTile<T> extends StatelessWidget {
           ),
           value: option.value,
           groupValue: value,
-          onChanged: (value) {
-            if (value != null) {
-              onChanged(value);
-            }
-          },
+          onChanged: option.enabled && onChanged != null
+              ? (value) {
+                  if (value != null) {
+                    onChanged!(value);
+                  }
+                }
+              : null,
           secondary: option.icon == null ? null : Icon(option.icon),
           controlAffinity: ListTileControlAffinity.trailing,
           title: Padding(

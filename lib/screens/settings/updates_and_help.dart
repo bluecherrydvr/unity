@@ -21,10 +21,10 @@ import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
-import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/update.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/window.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -35,35 +35,26 @@ class UpdatesSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
+    return ListView(children: [
       if (!kIsWeb) ...[
-        Padding(
-          padding: DesktopSettings.horizontalPadding,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              loc.updates,
-              style: theme.textTheme.titleMedium,
-            ),
-            Text(
-              loc.runningOn(() {
-                if (kIsWeb) {
-                  return 'WEB';
-                } else if (Platform.isLinux) {
-                  return loc.linux(UpdateManager.linuxEnvironment.name);
-                } else if (Platform.isWindows) {
-                  return loc.windows;
-                }
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          SubHeader(
+            loc.updates,
+            subtext: loc.runningOn(() {
+              if (kIsWeb) {
+                return 'WEB';
+              } else if (Platform.isLinux) {
+                return loc.linux(UpdateManager.linuxEnvironment.name);
+              } else if (Platform.isWindows) {
+                return loc.windows;
+              }
 
-                return defaultTargetPlatform.name;
-              }()),
-              style: theme.textTheme.labelSmall,
-            ),
-          ]),
-        ),
+              return defaultTargetPlatform.name;
+            }()),
+          ),
+        ]),
         const AppUpdateCard(),
         const AppUpdateOptions(),
       ],

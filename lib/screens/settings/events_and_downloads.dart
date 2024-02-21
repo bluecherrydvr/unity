@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -35,11 +36,8 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.downloads, style: theme.textTheme.titleMedium),
-      ),
+    return ListView(children: [
+      SubHeader(loc.downloads),
       CheckboxListTile.adaptive(
         value: false,
         onChanged: (v) {},
@@ -86,10 +84,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
             'Block the app from closing when there are ongoing downloads'),
       ),
       const SizedBox(height: 20.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text('Events', style: theme.textTheme.titleMedium),
-      ),
+      const SubHeader('Events'),
       CheckboxListTile.adaptive(
         value: false,
         onChanged: (v) {},
@@ -139,10 +134,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 20.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text('Timeline of Events', style: theme.textTheme.titleMedium),
-      ),
+      const SubHeader('Timeline of Events'),
       CheckboxListTile.adaptive(
         value: false,
         onChanged: (v) {},
@@ -177,7 +169,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         description: 'When the timeline should begin.',
         icon: Icons.flag,
         value: '',
-        values: [
+        values: const [
           Option(value: '', icon: Icons.start, text: 'Beginning'),
           Option(value: '', icon: Icons.first_page, text: 'First event'),
           Option(value: '', icon: Icons.hourglass_bottom, text: 'An hour ago'),

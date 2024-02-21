@@ -21,7 +21,9 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/settings_mobile.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,25 +36,15 @@ class ServerSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.servers, style: theme.textTheme.titleMedium),
-      ),
+    return ListView(children: [
+      SubHeader(loc.servers),
       const ServersList(),
       const SizedBox(height: 8.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text(loc.streamingSettings, style: theme.textTheme.titleMedium),
-      ),
+      SubHeader(loc.streamingSettings),
       const SizedBox(height: 8.0),
       const StreamingSettings(),
       const SizedBox(height: 12.0),
-      Padding(
-        padding: DesktopSettings.horizontalPadding,
-        child: Text('Devices Settings', style: theme.textTheme.titleMedium),
-      ),
+      const SubHeader('Devices Settings'),
       const SizedBox(height: 8.0),
       const CamerasSettings(),
     ]);
@@ -66,60 +58,40 @@ class StreamingSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.sensors),
-        ),
-        title: Text(loc.streamingType),
-        contentPadding: DesktopSettings.horizontalPadding,
-        trailing: DropdownButton<StreamingType>(
-          value: settings.streamingType,
-          onChanged: (v) {
-            if (v != null) {
-              settings.streamingType = v;
-            }
-          },
-          items: StreamingType.values.map((value) {
-            return DropdownMenuItem(
-              value: value,
-              // Disable RTSP on web
-              enabled: !kIsWeb || value != StreamingType.rtsp,
-              child: Text(value.name.toUpperCase()),
-            );
-          }).toList(),
-        ),
+      OptionsChooserTile(
+        title: loc.streamingType,
+        icon: Icons.sensors,
+        value: settings.streamingType,
+        values: StreamingType.values.map((value) {
+          return Option(
+            value: value,
+            // Disable RTSP on web
+            enabled: !kIsWeb || value != StreamingType.rtsp,
+            text: value.name.toUpperCase(),
+          );
+        }),
+        onChanged: (v) {
+          settings.streamingType = v;
+        },
       ),
       const SizedBox(height: 8.0),
-      ListTile(
-        enabled: settings.streamingType == StreamingType.rtsp,
-        title: Text(loc.rtspProtocol),
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.sensors),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        trailing: DropdownButton<RTSPProtocol>(
-          value: settings.rtspProtocol,
-          onChanged: !kIsWeb && settings.streamingType == StreamingType.rtsp
-              ? (v) {
-                  if (v != null) {
-                    settings.rtspProtocol = v;
-                  }
-                }
-              : null,
-          items: RTSPProtocol.values.map((p) {
-            return DropdownMenuItem(
-              value: p,
-              child: Text(p.name.toUpperCase()),
-            );
-          }).toList(),
-        ),
+      OptionsChooserTile<RTSPProtocol>(
+        title: loc.rtspProtocol,
+        icon: Icons.sensors,
+        value: settings.rtspProtocol,
+        values: RTSPProtocol.values.map((value) {
+          return Option(
+            value: value,
+            text: value.name.toUpperCase(),
+          );
+        }),
+        onChanged: !kIsWeb && settings.streamingType == StreamingType.rtsp
+            ? (v) {
+                settings.rtspProtocol = v;
+              }
+            : null,
       ),
     ]);
   }
@@ -135,97 +107,59 @@ class CamerasSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       if (!kIsWeb)
-        ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.hd),
-          ),
-          title: Text(loc.renderingQuality),
-          subtitle: Text(loc.renderingQualityDescription),
-          contentPadding: DesktopSettings.horizontalPadding,
-          trailing: DropdownButton<RenderingQuality>(
-            value: settings.videoQuality,
-            onChanged: (v) {
-              if (v != null) {
-                settings.videoQuality = v;
-              }
-            },
-            items: RenderingQuality.values.map((q) {
-              return DropdownMenuItem(
-                value: q,
-                child: Text(q.locale(context)),
-              );
-            }).toList(),
-          ),
-        ),
-      const SizedBox(height: 8.0),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.fit_screen),
-        ),
-        title: Text(loc.cameraViewFit),
-        subtitle: Text(loc.cameraViewFitDescription),
-        contentPadding: DesktopSettings.horizontalPadding,
-        trailing: DropdownButton<UnityVideoFit>(
-          value: settings.cameraViewFit,
+        OptionsChooserTile(
+          title: loc.renderingQuality,
+          icon: Icons.hd,
+          value: settings.videoQuality,
+          values: RenderingQuality.values.map((value) {
+            return Option(
+              value: value,
+              text: value.locale(context),
+            );
+          }),
           onChanged: (v) {
-            if (v != null) {
-              settings.cameraViewFit = v;
-            }
+            settings.videoQuality = v;
           },
-          items: UnityVideoFit.values.map((q) {
-            return DropdownMenuItem(
-              value: q,
-              child: Row(children: [
-                Icon(q.icon),
-                const SizedBox(width: 8.0),
-                Text(q.locale(context)),
-              ]),
-            );
-          }).toList(),
         ),
+      const SizedBox(height: 8.0),
+      OptionsChooserTile(
+        title: loc.cameraViewFit,
+        description: loc.cameraViewFitDescription,
+        icon: Icons.fit_screen,
+        value: settings.cameraViewFit,
+        values: UnityVideoFit.values.map((value) {
+          return Option(
+            value: value,
+            text: value.locale(context),
+          );
+        }),
+        onChanged: (v) {
+          settings.cameraViewFit = v;
+        },
       ),
       const SizedBox(height: 8.0),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.sync),
-        ),
-        title: const Text('Refresh Period'),
-        subtitle: const Text('How often to refresh the cameras'),
-        contentPadding: DesktopSettings.horizontalPadding,
-        trailing: DropdownButton<Duration>(
-          value: Duration.zero,
-          onChanged: (v) {},
-          items: const [
-            Duration.zero,
-            Duration(seconds: 30),
-            Duration(minutes: 2),
-            Duration(minutes: 5),
-          ].map((q) {
-            return DropdownMenuItem(
-              value: q,
-              child: Row(children: [
-                // Icon(q.icon),
-                // const SizedBox(width: 8.0),
-                Text(q.humanReadableCompact(context)),
-              ]),
-            );
-          }).toList(),
-        ),
+      OptionsChooserTile(
+        title: 'Refresh Period',
+        description: 'How often to refresh the cameras',
+        icon: Icons.sync,
+        value: Duration.zero,
+        values: const [
+          Duration.zero,
+          Duration(seconds: 30),
+          Duration(minutes: 2),
+          Duration(minutes: 5),
+        ].map((q) {
+          return Option(
+            value: q,
+            text: q.humanReadableCompact(context),
+          );
+        }),
+        onChanged: (v) {},
       ),
       const SizedBox(height: 8.0),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.watch_later),
-        ),
-        title: Text(loc.lateStreamBehavior),
+      OptionsChooserTile<LateVideoBehavior>(
+        title: loc.lateStreamBehavior,
+        description: loc.lateStreamBehaviorDescription,
         subtitle: RichText(
           text: TextSpan(
             text: loc.lateStreamBehaviorDescription,
@@ -275,25 +209,17 @@ class CamerasSettings extends StatelessWidget {
             ],
           ),
         ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        trailing: DropdownButton<LateVideoBehavior>(
-          value: settings.lateVideoBehavior,
-          onChanged: (v) {
-            if (v != null) {
-              settings.lateVideoBehavior = v;
-            }
-          },
-          items: LateVideoBehavior.values.map((q) {
-            return DropdownMenuItem(
-              value: q,
-              child: Row(children: [
-                Icon(q.icon),
-                const SizedBox(width: 8.0),
-                Text(q.locale(context)),
-              ]),
-            );
-          }).toList(),
-        ),
+        icon: Icons.watch_later,
+        value: settings.lateVideoBehavior,
+        values: LateVideoBehavior.values.map((value) {
+          return Option(
+            value: value,
+            text: value.locale(context),
+          );
+        }),
+        onChanged: (v) {
+          settings.lateVideoBehavior = v;
+        },
       ),
       const SizedBox(height: 8.0),
       CheckboxListTile.adaptive(
@@ -316,7 +242,12 @@ class CamerasSettings extends StatelessWidget {
           child: const Icon(Icons.memory),
         ),
         title: const Text('Hardware rendering'),
-        subtitle: const Text('Use hardware rendering when available'),
+        subtitle: const Text(
+          'Use hardware rendering when available. This will improve the '
+          'performance of the video streams and reduce the CPU usage. '
+          'If not supported, it will fall back to software rendering. ',
+        ),
+        isThreeLine: true,
         contentPadding: DesktopSettings.horizontalPadding,
         value: true,
         onChanged: (v) {},

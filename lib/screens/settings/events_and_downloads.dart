@@ -57,17 +57,18 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           child: const Icon(Icons.notifications_paused),
         ),
         title: Text(loc.downloadPath),
-        subtitle: Text(settings.downloadsDirectory),
+        subtitle: Text(settings.kDownloadsDirectory.value),
         trailing: const Icon(Icons.navigate_next),
         onTap: () async {
           final selectedDirectory = await FilePicker.platform.getDirectoryPath(
             dialogTitle: loc.downloadPath,
-            initialDirectory: settings.downloadsDirectory,
+            initialDirectory: settings.kDownloadsDirectory.value,
             lockParentWindow: true,
           );
 
           if (selectedDirectory != null) {
-            settings.downloadsDirectory = Directory(selectedDirectory).path;
+            settings.kDownloadsDirectory.value =
+                Directory(selectedDirectory).path;
           }
         },
       ),

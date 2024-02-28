@@ -44,7 +44,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
       final settings = SettingsProvider.instance;
       final view = MobileViewProvider.instance;
 
-      if (settings.layoutCyclingEnabled) {
+      if (settings.kLayoutCycleEnabled.value) {
         if (view.tab == view.devices.keys.last) {
           view.setTab(view.devices.keys.first);
         } else {
@@ -119,7 +119,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 18.0,
-                  color: settings.layoutCyclingEnabled
+                  color: settings.kLayoutCycleEnabled.value
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onBackground,
                 ),

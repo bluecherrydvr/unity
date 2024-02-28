@@ -225,7 +225,7 @@ class DownloadsManager extends UnityProvider {
     downloading[event] = 0.0;
     notifyListeners();
 
-    final dir = SettingsProvider.instance.downloadsDirectory;
+    final dir = SettingsProvider.instance.kDownloadsDirectory.value;
     final fileName =
         'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);

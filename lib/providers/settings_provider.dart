@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
@@ -61,6 +62,8 @@ class SettingsOption<T> {
       this.saveAs = (value) => (value as DateFormat).pattern ?? '';
     } else if (T == Locale) {
       this.saveAs = (value) => (value as Locale).toLanguageTag();
+    } else if (T == DateTime) {
+      this.saveAs = (value) => (value as DateTime).toIso8601String();
     } else {
       this.saveAs = (value) => value.toString();
     }
@@ -77,6 +80,8 @@ class SettingsOption<T> {
       this.loadFrom = (value) => DateFormat(value) as T;
     } else if (T == Locale) {
       this.loadFrom = (value) => Locale.fromSubtags(languageCode: value) as T;
+    } else if (T == DateTime) {
+      this.loadFrom = (value) => DateTime.parse(value) as T;
     } else {
       this.loadFrom = (value) => value as T;
     }
@@ -93,6 +98,10 @@ class SettingsProvider extends UnityProvider {
   final kLayoutCyclePeriod = SettingsOption(
     def: const Duration(seconds: 5),
     key: 'general.cycle_period',
+  );
+  final kLayoutCycleEnabled = SettingsOption(
+    def: true,
+    key: 'general.cycle_enabled',
   );
   final kWakelock = SettingsOption(
     def: true,
@@ -112,6 +121,7 @@ class SettingsProvider extends UnityProvider {
     def: NotificationClickBehavior.showEventsScreen,
     key: 'notifications.click_behavior',
     loadFrom: (value) => NotificationClickBehavior.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
 
   // Data usage
@@ -119,11 +129,13 @@ class SettingsProvider extends UnityProvider {
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.automatic_streaming',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kStreamOnBackground = SettingsOption(
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.stream_on_background',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
 
   // Streaming settings
@@ -131,21 +143,25 @@ class SettingsProvider extends UnityProvider {
     def: kIsWeb ? StreamingType.hls : StreamingType.rtsp,
     key: 'streaming.type',
     loadFrom: (value) => StreamingType.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kRTSPProtocol = SettingsOption(
     def: RTSPProtocol.tcp,
     key: 'streaming.rtsp_protocol',
     loadFrom: (value) => RTSPProtocol.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kRenderingQuality = SettingsOption(
     def: RenderingQuality.automatic,
     key: 'streaming.rendering_quality',
     loadFrom: (value) => RenderingQuality.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kVideoFit = SettingsOption(
     def: UnityVideoFit.contain,
     key: 'streaming.video_fit',
     loadFrom: (value) => UnityVideoFit.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kRefreshRate = SettingsOption(
     def: const Duration(minutes: 5),
@@ -155,6 +171,7 @@ class SettingsProvider extends UnityProvider {
     def: LateVideoBehavior.automatic,
     key: 'streaming.late_video_behavior',
     loadFrom: (value) => LateVideoBehavior.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kReloadTimedOutStreams = SettingsOption(
     def: true,
@@ -210,6 +227,7 @@ class SettingsProvider extends UnityProvider {
     def: TimelineIntialPoint.beggining,
     key: 'timeline.initial_point',
     loadFrom: (value) => TimelineIntialPoint.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
 
   // Application
@@ -217,6 +235,7 @@ class SettingsProvider extends UnityProvider {
     def: ThemeMode.system,
     key: 'application.theme_mode',
     loadFrom: (value) => ThemeMode.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kLanguageCode = SettingsOption(
     def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
@@ -284,6 +303,7 @@ class SettingsProvider extends UnityProvider {
     def: MatrixType.t16,
     key: 'other.matrix_size',
     loadFrom: (value) => MatrixType.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
   final kShowDebugInfo = SettingsOption(
     def: false,
@@ -304,10 +324,14 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
+    // await settings.delete();
     final data = await tryReadStorage(() => settings.read());
 
     kLayoutCyclePeriod.value = kLayoutCyclePeriod.loadFrom(
       data[kLayoutCyclePeriod.key] ?? kLayoutCyclePeriod.defAsString,
+    );
+    kLayoutCycleEnabled.value = kLayoutCycleEnabled.loadFrom(
+      data[kLayoutCycleEnabled.key] ?? kLayoutCycleEnabled.defAsString,
     );
     kWakelock.value = kWakelock.loadFrom(
       data[kWakelock.key] ?? kWakelock.defAsString,
@@ -359,6 +383,10 @@ class SettingsProvider extends UnityProvider {
     kChooseLocationEveryTime.value = kChooseLocationEveryTime.loadFrom(
       data[kChooseLocationEveryTime.key] ??
           kChooseLocationEveryTime.defAsString,
+    );
+    kDownloadsDirectory.value = kDownloadsDirectory.loadFrom(
+      data[kDownloadsDirectory.key] ??
+          (await DownloadsManager.kDefaultDownloadsDirectory).path,
     );
     kAllowAppCloseWhenDownloading.value =
         kAllowAppCloseWhenDownloading.loadFrom(
@@ -446,6 +474,8 @@ class SettingsProvider extends UnityProvider {
       await settings.write({
         kLayoutCyclePeriod.key:
             kLayoutCyclePeriod.saveAs(kLayoutCyclePeriod.value),
+        kLayoutCycleEnabled.key:
+            kLayoutCycleEnabled.saveAs(kLayoutCycleEnabled.value),
         kWakelock.key: kWakelock.saveAs(kWakelock.value),
         kNotificationsEnabled.key:
             kNotificationsEnabled.saveAs(kNotificationsEnabled.value),
@@ -509,6 +539,11 @@ class SettingsProvider extends UnityProvider {
     if (toLocal) time = time.toLocal();
 
     return kTimeFormat.value.format(time);
+  }
+
+  void toggleCycling() {
+    kLayoutCycleEnabled.value = !kLayoutCycleEnabled.value;
+    save();
   }
 }
 

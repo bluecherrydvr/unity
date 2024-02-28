@@ -70,7 +70,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 20.0,
-                  color: settings.layoutCyclingEnabled
+                  color: settings.kLayoutCycleEnabled.value
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),

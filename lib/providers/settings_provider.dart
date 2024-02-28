@@ -326,6 +326,7 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
+    await settings.delete();
     final data = await tryReadStorage(() => settings.read());
 
     kLayoutCyclePeriod.value = kLayoutCyclePeriod.loadFrom(
@@ -524,6 +525,11 @@ class SettingsProvider extends UnityProvider {
     super.save(notifyListeners: notifyListeners);
   }
 
+  void updateProperty(VoidCallback update) {
+    update();
+    save();
+  }
+
   /// Formats the date according to the current [dateFormat].
   ///
   /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
@@ -545,6 +551,11 @@ class SettingsProvider extends UnityProvider {
   void toggleCycling() {
     kLayoutCycleEnabled.value = !kLayoutCycleEnabled.value;
     save();
+  }
+
+  Future<void> restoreDefaults() async {
+    await settings.delete();
+    await initialize();
   }
 }
 

@@ -52,7 +52,9 @@ class AdvancedOptionsSettings extends StatelessWidget {
         value: settings.kDefaultBetaMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
+            settings.updateProperty(() {
+              settings.kDefaultBetaMatrixedZoomEnabled.value = value;
+            });
           }
         },
       ),
@@ -66,7 +68,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
             text: size.toString(),
           );
         }),
-        onChanged: (v) {},
+        onChanged: (v) {
+          settings.updateProperty(() {
+            settings.kMatrixSize.value = v;
+          });
+        },
       ),
       const SubHeader('Developer Options'),
       if (!kIsWeb) ...[
@@ -117,7 +123,9 @@ class AdvancedOptionsSettings extends StatelessWidget {
           value: settings.kShowDebugInfo.value,
           onChanged: (v) {
             if (v != null) {
-              settings.kShowDebugInfo.value = v;
+              settings.updateProperty(() {
+                settings.kShowDebugInfo.value = v;
+              });
             }
           },
           dense: false,
@@ -129,8 +137,14 @@ class AdvancedOptionsSettings extends StatelessWidget {
           subtitle: const Text(
             'Display network usage information over playing videos.',
           ),
-          value: false,
-          onChanged: (v) {},
+          value: settings.kShowNetworkUsage.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.updateProperty(() {
+                settings.kShowNetworkUsage.value = v;
+              });
+            }
+          },
           dense: false,
         ),
         ListTile(
@@ -142,7 +156,8 @@ class AdvancedOptionsSettings extends StatelessWidget {
             'affect your servers or any other data.',
           ),
           trailing: const Icon(Icons.navigate_next),
-          onTap: () {},
+          // TODO(bdlukaa): Show an "Are you sure?" dialog
+          onTap: settings.restoreDefaults,
         ),
       ],
     ]);

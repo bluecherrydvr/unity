@@ -306,7 +306,7 @@ class _UnityAppState extends State<UnityApp>
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           navigatorObservers: [NObserver()],
-          locale: settings.locale,
+          locale: settings.kLanguageCode.value,
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -315,7 +315,7 @@ class _UnityAppState extends State<UnityApp>
             LocaleNamesLocalizationsDelegate(),
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          themeMode: settings.themeMode,
+          themeMode: settings.kThemeMode.value,
           theme: createTheme(brightness: Brightness.light),
           darkTheme: createTheme(brightness: Brightness.dark),
           initialRoute: '/',

@@ -70,7 +70,7 @@ class _TimelineCardState extends State<TimelineCard> {
         color: Colors.transparent,
         fit: _fit ??
             device.server.additionalSettings.videoFit ??
-            settings.cameraViewFit,
+            settings.kVideoFit.value,
         paneBuilder: (context, controller) {
           if (currentEvent == null) {
             return RepaintBoundary(
@@ -131,7 +131,7 @@ class _TimelineCardState extends State<TimelineCard> {
                     const TextSpan(text: '\n'),
                     if (states.isHovering)
                       TextSpan(
-                        text: settings.showDebugInfo
+                        text: settings.kShowDebugInfo.value
                             ? currentEvent
                                 .position(widget.timeline.currentDate)
                                 .toString()
@@ -139,7 +139,7 @@ class _TimelineCardState extends State<TimelineCard> {
                                 .position(widget.timeline.currentDate)
                                 .humanReadableCompact(context),
                       ),
-                    if (settings.showDebugInfo) ...[
+                    if (settings.kShowDebugInfo.value) ...[
                       const TextSpan(text: '\ndebug: '),
                       TextSpan(text: controller.currentPos.toString()),
                       TextSpan(
@@ -153,7 +153,7 @@ class _TimelineCardState extends State<TimelineCard> {
                   ],
                 ),
               ),
-              if (settings.showDebugInfo)
+              if (settings.kShowDebugInfo.value)
                 Positioned(
                   top: 36.0,
                   right: 0.0,
@@ -222,7 +222,7 @@ class _TimelineCardState extends State<TimelineCard> {
                       CameraViewFitButton(
                         fit: _fit ??
                             device.server.additionalSettings.videoFit ??
-                            settings.cameraViewFit,
+                            settings.kVideoFit.value,
                         onChanged: (fit) => setState(() => _fit = fit),
                       ),
                       SquaredIconButton(

@@ -150,7 +150,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
     }
 
     final isLateDismissal = status == VideoLabel.late &&
-        settings.lateVideoBehavior == LateVideoBehavior.manual;
+        settings.kLateStreamBehavior.value == LateVideoBehavior.manual;
 
     return MouseRegion(
       onEnter: _openWithTap || isLateDismissal ? null : (_) => showOverlay(),

@@ -44,9 +44,6 @@ class ServerSettings extends StatelessWidget {
       const SizedBox(height: 8.0),
       const StreamingSettings(),
       const SizedBox(height: 12.0),
-      const SubHeader('Devices Settings'),
-      const SizedBox(height: 8.0),
-      const CamerasSettings(),
     ]);
   }
 }
@@ -56,6 +53,7 @@ class StreamingSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
 
@@ -63,7 +61,7 @@ class StreamingSettings extends StatelessWidget {
       OptionsChooserTile(
         title: loc.streamingType,
         icon: Icons.sensors,
-        value: settings.streamingType,
+        value: settings.kStreamingType.value,
         values: StreamingType.values.map((value) {
           return Option(
             value: value,
@@ -73,44 +71,33 @@ class StreamingSettings extends StatelessWidget {
           );
         }),
         onChanged: (v) {
-          settings.streamingType = v;
+          settings.kStreamingType.value = v;
         },
       ),
       const SizedBox(height: 8.0),
       OptionsChooserTile<RTSPProtocol>(
         title: loc.rtspProtocol,
         icon: Icons.sensors,
-        value: settings.rtspProtocol,
+        value: settings.kRTSPProtocol.value,
         values: RTSPProtocol.values.map((value) {
           return Option(
             value: value,
             text: value.name.toUpperCase(),
           );
         }),
-        onChanged: !kIsWeb && settings.streamingType == StreamingType.rtsp
-            ? (v) {
-                settings.rtspProtocol = v;
-              }
-            : null,
+        onChanged:
+            !kIsWeb && settings.kStreamingType.value == StreamingType.rtsp
+                ? (v) {
+                    settings.kRTSPProtocol.value = v;
+                  }
+                : null,
       ),
-    ]);
-  }
-}
-
-class CamerasSettings extends StatelessWidget {
-  const CamerasSettings({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final settings = context.watch<SettingsProvider>();
-    final loc = AppLocalizations.of(context);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       if (!kIsWeb)
         OptionsChooserTile(
           title: loc.renderingQuality,
+          description: loc.renderingQualityDescription,
           icon: Icons.hd,
-          value: settings.videoQuality,
+          value: settings.kRenderingQuality.value,
           values: RenderingQuality.values.map((value) {
             return Option(
               value: value,
@@ -118,7 +105,7 @@ class CamerasSettings extends StatelessWidget {
             );
           }),
           onChanged: (v) {
-            settings.videoQuality = v;
+            settings.kRenderingQuality.value = v;
           },
         ),
       const SizedBox(height: 8.0),
@@ -126,7 +113,7 @@ class CamerasSettings extends StatelessWidget {
         title: loc.cameraViewFit,
         description: loc.cameraViewFitDescription,
         icon: Icons.fit_screen,
-        value: settings.cameraViewFit,
+        value: settings.kVideoFit.value,
         values: UnityVideoFit.values.map((value) {
           return Option(
             value: value,
@@ -134,7 +121,7 @@ class CamerasSettings extends StatelessWidget {
           );
         }),
         onChanged: (v) {
-          settings.cameraViewFit = v;
+          settings.kVideoFit.value = v;
         },
       ),
       const SizedBox(height: 8.0),
@@ -166,7 +153,7 @@ class CamerasSettings extends StatelessWidget {
             style: theme.textTheme.bodyMedium,
             children: [
               const TextSpan(text: '\n'),
-              switch (settings.lateVideoBehavior) {
+              switch (settings.kLateStreamBehavior.value) {
                 LateVideoBehavior.automatic => TextSpan(
                     text: loc.automaticBehaviorDescription,
                     style: const TextStyle(fontWeight: FontWeight.w600),
@@ -210,7 +197,7 @@ class CamerasSettings extends StatelessWidget {
           ),
         ),
         icon: Icons.watch_later,
-        value: settings.lateVideoBehavior,
+        value: settings.kLateStreamBehavior.value,
         values: LateVideoBehavior.values.map((value) {
           return Option(
             value: value,
@@ -218,7 +205,7 @@ class CamerasSettings extends StatelessWidget {
           );
         }),
         onChanged: (v) {
-          settings.lateVideoBehavior = v;
+          settings.kLateStreamBehavior.value = v;
         },
       ),
       const SizedBox(height: 8.0),
@@ -241,9 +228,9 @@ class CamerasSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.memory),
         ),
-        title: const Text('Hardware rendering'),
+        title: const Text('Hardware decoding'),
         subtitle: const Text(
-          'Use hardware rendering when available. This will improve the '
+          'Use hardware decoding when available. This improves the '
           'performance of the video streams and reduce the CPU usage. '
           'If not supported, it will fall back to software rendering. ',
         ),

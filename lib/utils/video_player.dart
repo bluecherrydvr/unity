@@ -47,9 +47,9 @@ class UnityPlayers with ChangeNotifier {
   static void createTimer() {
     UnityPlayers._reloadTimer?.cancel();
     UnityPlayers._reloadTimer = null;
-    if (SettingsProvider.instance.cameraRefreshPeriod > Duration.zero) {
+    if (SettingsProvider.instance.kRefreshRate.value > Duration.zero) {
       UnityPlayers._reloadTimer = Timer.periodic(
-        SettingsProvider.instance.cameraRefreshPeriod,
+        SettingsProvider.instance.kRefreshRate.value,
         (_) => reloadDevices(),
       );
     }
@@ -84,7 +84,7 @@ class UnityPlayers with ChangeNotifier {
       } else {
         var streamingType = device.preferredStreamingType ??
             device.server.additionalSettings.preferredStreamingType ??
-            settings.streamingType;
+            settings.kStreamingType.value;
         if (kIsWeb && streamingType == StreamingType.rtsp) {
           streamingType = StreamingType.hls;
         }
@@ -108,7 +108,7 @@ class UnityPlayers with ChangeNotifier {
 
     controller = UnityVideoPlayer.create(
       quality: switch (device.server.additionalSettings.renderingQuality ??
-          settings.videoQuality) {
+          settings.kRenderingQuality.value) {
         RenderingQuality.p4k => UnityVideoQuality.p4k,
         RenderingQuality.p1080 => UnityVideoQuality.p1080,
         RenderingQuality.p720 => UnityVideoQuality.p720,

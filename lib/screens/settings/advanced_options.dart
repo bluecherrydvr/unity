@@ -49,10 +49,10 @@ class AdvancedOptionsSettings extends StatelessWidget {
         contentPadding: DesktopSettings.horizontalPadding,
         title: Text(loc.matrixedViewZoom),
         subtitle: Text(loc.matrixedViewZoomDescription),
-        value: settings.betaMatrixedZoomEnabled,
+        value: settings.kDefaultBetaMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.betaMatrixedZoomEnabled = value;
+            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
           }
         },
       ),
@@ -114,10 +114,10 @@ class AdvancedOptionsSettings extends StatelessWidget {
             'Display useful information for debugging, such as video metadata '
             'and other useful information for debugging purposes.',
           ),
-          value: settings.showDebugInfo,
+          value: settings.kShowDebugInfo.value,
           onChanged: (v) {
             if (v != null) {
-              settings.showDebugInfo = v;
+              settings.kShowDebugInfo.value = v;
             }
           },
           dense: false,

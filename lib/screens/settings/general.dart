@@ -39,7 +39,7 @@ class GeneralSettings extends StatelessWidget {
         title: loc.cycleTogglePeriod,
         description: loc.cycleTogglePeriodDescription,
         icon: Icons.timelapse,
-        value: settings.layoutCyclingTogglePeriod,
+        value: settings.kLayoutCyclePeriod.value,
         values: [5, 10, 30, 60, 60 * 5]
             .map((seconds) => Duration(seconds: seconds))
             .map((duration) {
@@ -49,7 +49,7 @@ class GeneralSettings extends StatelessWidget {
           );
         }),
         onChanged: (value) {
-          settings.layoutCyclingTogglePeriod = value;
+          settings.kLayoutCyclePeriod.value = value;
         },
       ),
       CheckboxListTile.adaptive(
@@ -62,9 +62,9 @@ class GeneralSettings extends StatelessWidget {
         title: Text(loc.wakelock),
         subtitle: Text(loc.wakelockDescription),
         isThreeLine: true,
-        value: settings.wakelockEnabled,
+        value: settings.kWakelock.value,
         onChanged: (value) {
-          settings.wakelockEnabled = !settings.wakelockEnabled;
+          settings.kWakelock.value = !settings.kWakelock.value;
         },
       ),
       const SubHeader(
@@ -91,20 +91,25 @@ class GeneralSettings extends StatelessWidget {
         ),
         title: Text(loc.snoozeNotifications),
         subtitle: Text(
-          settings.snoozedUntil.isAfter(DateTime.now())
+          settings.kSnoozeNotificationsUntil.value.isAfter(DateTime.now())
               ? loc.snoozedUntil(
                   [
-                    if (settings.snoozedUntil.difference(DateTime.now()) >
+                    if (settings.kSnoozeNotificationsUntil.value
+                            .difference(DateTime.now()) >
                         const Duration(hours: 24))
-                      settings.formatDate(settings.snoozedUntil),
-                    settings.formatTime(settings.snoozedUntil),
+                      settings
+                          .formatDate(settings.kSnoozeNotificationsUntil.value),
+                    settings
+                        .formatTime(settings.kSnoozeNotificationsUntil.value),
                   ].join(' '),
                 )
               : loc.notSnoozed,
         ),
         onTap: () async {
-          if (settings.snoozedUntil.isAfter(DateTime.now())) {
-            settings.snoozedUntil = SettingsProvider.defaultSnoozedUntil;
+          if (settings.kSnoozeNotificationsUntil.value
+              .isAfter(DateTime.now())) {
+            settings.kSnoozeNotificationsUntil.value =
+                SettingsProvider.instance.kSnoozeNotificationsUntil.def;
           } else {
             final timeOfDay = await showTimePicker(
               context: context,
@@ -113,7 +118,7 @@ class GeneralSettings extends StatelessWidget {
               useRootNavigator: false,
             );
             if (timeOfDay != null) {
-              settings.snoozedUntil = DateTime(
+              settings.kSnoozeNotificationsUntil.value = DateTime(
                 DateTime.now().year,
                 DateTime.now().month,
                 DateTime.now().day,
@@ -128,7 +133,7 @@ class GeneralSettings extends StatelessWidget {
         title: loc.notificationClickBehavior,
         description: loc.notificationClickBehaviorDescription,
         icon: Icons.beenhere_rounded,
-        value: settings.notificationClickBehavior,
+        value: settings.kNotificationClickBehavior.value,
         values: NotificationClickBehavior.values
             .map((behavior) => Option(
                   value: behavior,
@@ -137,7 +142,7 @@ class GeneralSettings extends StatelessWidget {
                 ))
             .toList(),
         onChanged: (v) {
-          settings.notificationClickBehavior = v;
+          settings.kNotificationClickBehavior.value = v;
         },
       ),
       const SubHeader(

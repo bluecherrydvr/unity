@@ -40,7 +40,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
     super.didChangeDependencies();
     final settings = context.watch<SettingsProvider>();
     timer?.cancel();
-    timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
+    timer = Timer.periodic(settings.kLayoutCyclePeriod.value, (timer) {
       final settings = SettingsProvider.instance;
       final view = MobileViewProvider.instance;
 

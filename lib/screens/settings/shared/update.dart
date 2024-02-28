@@ -324,7 +324,8 @@ class AppUpdateOptions extends StatelessWidget {
                           TextSpan(text: version.version),
                           const TextSpan(text: '   '),
                           TextSpan(
-                            text: SettingsProvider.instance.dateFormat.format(
+                            text: SettingsProvider.instance.kDateFormat.value
+                                .format(
                               DateFormat('EEE, d MMM yyyy', 'en_US')
                                   .parse(version.publishedAt),
                             ),

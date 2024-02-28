@@ -52,7 +52,8 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await configureStorage();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
-  if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+  if (SettingsProvider.instance.kSnoozeNotificationsUntil.value
+      .isAfter(DateTime.now())) {
     debugPrint(
       'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
     );
@@ -192,7 +193,7 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
   if (action.buttonKeyPressed.isEmpty) {
     debugPrint('action.buttonKeyPressed.isEmpty');
     // Fetch device & server details to show the [DeviceFullscreenViewer].
-    if (SettingsProvider.instance.notificationClickBehavior ==
+    if (SettingsProvider.instance.kNotificationClickBehavior.value ==
         NotificationClickBehavior.showFullscreenCamera) {
       final eventType = action.payload!['eventType'];
       final serverUUID = action.payload!['serverId'];
@@ -264,7 +265,8 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       },
     );
     debugPrint(DateTime.now().add(duration).toString());
-    SettingsProvider.instance.snoozedUntil = DateTime.now().add(duration);
+    SettingsProvider.instance.kSnoozeNotificationsUntil.value =
+        DateTime.now().add(duration);
     if (action.id != null) {
       AwesomeNotifications().dismiss(action.id!);
     }
@@ -282,7 +284,8 @@ abstract class FirebaseConfiguration {
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      if (SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())) {
+      if (SettingsProvider.instance.kSnoozeNotificationsUntil.value
+          .isAfter(DateTime.now())) {
         debugPrint(
           'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
         );

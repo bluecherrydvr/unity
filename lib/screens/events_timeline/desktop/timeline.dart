@@ -670,7 +670,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ]),
           ),
           Text(
-            '${settings.dateFormat.format(timeline.currentDate)} '
+            '${settings.kDateFormat.value.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
           ConstrainedBox(
@@ -986,7 +986,7 @@ class _TimelineTile extends StatelessWidget {
                       //             1)]
                       //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
-                      child: settings.showDebugInfo
+                      child: settings.kShowDebugInfo.value
                           ? Align(
                               alignment: AlignmentDirectional.centerStart,
                               child: Text(

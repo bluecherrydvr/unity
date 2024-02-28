@@ -40,7 +40,7 @@ class ApplicationSettings extends StatelessWidget {
       OptionsChooserTile<ThemeMode>(
         title: 'Theme',
         icon: Icons.contrast,
-        value: settings.themeMode,
+        value: settings.kThemeMode.value,
         values: ThemeMode.values.map((mode) {
           return Option(
             value: mode,
@@ -57,7 +57,7 @@ class ApplicationSettings extends StatelessWidget {
           );
         }),
         onChanged: (v) {
-          settings.themeMode = v;
+          settings.kThemeMode.value = v;
         },
       ),
       const LanguageSection(),
@@ -87,9 +87,9 @@ class ApplicationSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.sensor_door),
         ),
-        title: const Text('Close app to tray'),
+        title: const Text('Minimize to tray'),
         subtitle: const Text(
-          'Whether to close the app to the system tray when the window is closed. '
+          'Whether to minimize app to the system tray when the window is closed. '
           'This will keep the app running in the background.',
         ),
       ),
@@ -163,7 +163,7 @@ class LanguageSection extends StatelessWidget {
         title: Text(loc.language),
         trailing: DropdownButton<Locale>(
           value: currentLocale,
-          onChanged: (value) => settings.locale = value!,
+          onChanged: (value) => settings.kLanguageCode.value = value!,
           items: locales.map((locale) {
             final name =
                 names.nameOf(locale.toLanguageTag()) ?? locale.toLanguageTag();
@@ -229,7 +229,7 @@ class DateFormatSection extends StatelessWidget {
         );
       }),
       onChanged: (v) {
-        settings.dateFormat = DateFormat(v!, locale);
+        settings.kDateFormat.value = DateFormat(v!, locale);
       },
     );
   }
@@ -257,7 +257,7 @@ class TimeFormatSection extends StatelessWidget {
         );
       }),
       onChanged: (v) {
-        settings.timeFormat = DateFormat(v!, locale);
+        settings.kTimeFormat.value = DateFormat(v!, locale);
       },
     );
   }

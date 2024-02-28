@@ -89,10 +89,10 @@ class BetaFeatures extends StatelessWidget {
         ),
         title: Text(loc.matrixedViewZoom),
         subtitle: Text(loc.matrixedViewZoomDescription),
-        value: settings.betaMatrixedZoomEnabled,
+        value: settings.kDefaultBetaMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.betaMatrixedZoomEnabled = value;
+            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
           }
         },
       ),
@@ -136,10 +136,10 @@ class BetaFeatures extends StatelessWidget {
             secondary: const Icon(Icons.adb),
             title: const Text('Show debug info'),
             subtitle: const Text('Display useful information for debugging'),
-            value: settings.showDebugInfo,
+            value: settings.kShowDebugInfo.value,
             onChanged: (v) {
               if (v != null) {
-                settings.showDebugInfo = v;
+                settings.kShowDebugInfo.value = v;
               }
             },
             dense: false,

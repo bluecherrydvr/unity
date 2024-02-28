@@ -133,7 +133,7 @@ class _MobileLivePlayer extends StatefulWidget {
 class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   bool overlay = true;
   late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
-      SettingsProvider.instance.cameraViewFit;
+      SettingsProvider.instance.kVideoFit.value;
 
   late bool ptzEnabled = widget.ptzEnabled;
 
@@ -260,7 +260,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                           onPressed: toggleOverlay,
                         ),
                       ),
-                    if (overlay && settings.showDebugInfo)
+                    if (overlay && settings.kShowDebugInfo.value)
                       PositionedDirectional(
                         bottom: 8.0,
                         start: 8.0,
@@ -313,7 +313,7 @@ class _DesktopLivePlayer extends StatefulWidget {
 
 class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
   late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
-      SettingsProvider.instance.cameraViewFit;
+      SettingsProvider.instance.kVideoFit.value;
   late bool ptzEnabled = widget.ptzEnabled;
 
   late StreamSubscription<double> _volumeStreamSubscription;
@@ -368,7 +368,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                       ),
                     ),
                   ),
-                  if (states.isHovering && settings.showDebugInfo)
+                  if (states.isHovering && settings.kShowDebugInfo.value)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(

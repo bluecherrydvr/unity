@@ -244,7 +244,7 @@ class DeviceTileState extends State<DeviceTile> {
         heroTag: widget.device.streamURL,
         player: videoPlayer,
         fit: widget.device.server.additionalSettings.videoFit ??
-            settings.cameraViewFit,
+            settings.kVideoFit.value,
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
           final error = video.error;

@@ -18,12 +18,11 @@
  */
 
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 enum NetworkUsage { auto, wifiOnly, never }
@@ -57,10 +56,6 @@ class SettingsOption<T> {
       this.saveAs = (value) => (value as Duration).inMilliseconds.toString();
     } else if (T == Enum) {
       this.saveAs = (value) => (value as Enum).index.toString();
-    } else if (T == DateFormat) {
-      this.saveAs = (value) => (value as DateFormat).pattern ?? '';
-    } else if (T == Locale) {
-      this.saveAs = (value) => (value as Locale).toLanguageTag();
     } else {
       this.saveAs = (value) => value.toString();
     }
@@ -73,10 +68,6 @@ class SettingsOption<T> {
       this.loadFrom = (value) => Duration(milliseconds: int.parse(value)) as T;
     } else if (T == Enum) {
       throw UnsupportedError('Enum type must provide a loadFrom function');
-    } else if (T == DateFormat) {
-      this.loadFrom = (value) => DateFormat(value) as T;
-    } else if (T == Locale) {
-      this.loadFrom = (value) => Locale.fromSubtags(languageCode: value) as T;
     } else {
       this.loadFrom = (value) => value as T;
     }
@@ -85,9 +76,9 @@ class SettingsOption<T> {
   String get defAsString => saveAs(def);
 }
 
-class SettingsProvider extends UnityProvider {
-  SettingsProvider._();
-  static late SettingsProvider instance;
+class AppSettings extends UnityProvider {
+  AppSettings._();
+  static late AppSettings instance;
 
   // General settings
   final kLayoutCyclePeriod = SettingsOption(
@@ -104,8 +95,8 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'notifications.enabled',
   );
-  final kSnoozeNotificationsUntil = SettingsOption<DateTime>(
-    def: DateTime.utc(1969, 7, 20, 20, 18, 04),
+  final kSnoozeNotificationsUntil = SettingsOption<DateTime?>(
+    def: null,
     key: 'notifications.snooze_until',
   );
   final kNotificationClickBehavior = SettingsOption(
@@ -178,10 +169,6 @@ class SettingsProvider extends UnityProvider {
     def: false,
     key: 'downloads.allow_app_close_when_downloading',
   );
-  final kDownloadsDirectory = SettingsOption(
-    def: '',
-    key: 'downloads.directory',
-  );
 
   // Events
   final kPictureInPicture = SettingsOption(
@@ -219,15 +206,15 @@ class SettingsProvider extends UnityProvider {
     loadFrom: (value) => ThemeMode.values[int.parse(value)],
   );
   final kLanguageCode = SettingsOption(
-    def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
+    def: 'en',
     key: 'application.language_code',
   );
   final kDateFormat = SettingsOption(
-    def: DateFormat('EEEE, dd MMMM yyyy'),
+    def: 'EEEE, dd MMMM yyyy',
     key: 'application.date_format',
   );
   final kTimeFormat = SettingsOption(
-    def: DateFormat('hh:mm a'),
+    def: 'hh:mm a',
     key: 'application.time_format',
   );
 
@@ -294,10 +281,10 @@ class SettingsProvider extends UnityProvider {
     key: 'other.show_network_usage',
   );
 
-  /// Initializes the [SettingsProvider] instance & fetches state from `async`
+  /// Initializes the [AppSettings] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
-  static Future<SettingsProvider> ensureInitialized() async {
-    instance = SettingsProvider._();
+  static Future<AppSettings> ensureInitialized() async {
+    instance = AppSettings._();
     await instance.initialize();
     return instance;
   }
@@ -491,94 +478,5 @@ class SettingsProvider extends UnityProvider {
       debugPrint('Error saving settings: $e');
     }
     super.save(notifyListeners: notifyListeners);
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatDate(DateTime date, {bool toLocal = false}) {
-    if (toLocal) date = date.toLocal();
-
-    return kDateFormat.value.format(date);
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatTime(DateTime time, {bool toLocal = false}) {
-    if (toLocal) time = time.toLocal();
-
-    return kTimeFormat.value.format(time);
-  }
-}
-
-enum NotificationClickBehavior {
-  showFullscreenCamera,
-  showEventsScreen;
-
-  IconData get icon {
-    return switch (this) {
-      NotificationClickBehavior.showEventsScreen =>
-        Icons.featured_play_list_outlined,
-      NotificationClickBehavior.showFullscreenCamera =>
-        Icons.screenshot_monitor,
-    };
-  }
-
-  String locale(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return switch (this) {
-      NotificationClickBehavior.showEventsScreen => loc.showFullscreenCamera,
-      NotificationClickBehavior.showFullscreenCamera => loc.showEventsScreen,
-    };
-  }
-}
-
-enum RenderingQuality {
-  automatic,
-  p4k,
-  p1080,
-  p720,
-  p480,
-  p360,
-  p240;
-
-  String locale(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return switch (this) {
-      RenderingQuality.p4k => loc.p4k,
-      RenderingQuality.p1080 => loc.p1080,
-      RenderingQuality.p720 => loc.p720,
-      RenderingQuality.p480 => loc.p480,
-      RenderingQuality.p360 => loc.p360,
-      RenderingQuality.p240 => loc.p240,
-      RenderingQuality.automatic => loc.automaticResolution,
-    };
-  }
-}
-
-enum StreamingType {
-  rtsp,
-  hls,
-  mjpeg;
-}
-
-/// How to handle late video streams.
-extension LateVideoBehaviorExtension on LateVideoBehavior {
-  IconData get icon {
-    return switch (this) {
-      LateVideoBehavior.automatic => Icons.auto_awesome,
-      LateVideoBehavior.manual => Icons.badge,
-      LateVideoBehavior.never => Icons.close,
-    };
-  }
-
-  String locale(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return switch (this) {
-      LateVideoBehavior.automatic => loc.automaticBehavior,
-      LateVideoBehavior.manual => loc.manualBehavior,
-      LateVideoBehavior.never => loc.never,
-    };
   }
 }

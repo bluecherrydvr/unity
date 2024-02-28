@@ -32,14 +32,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:path_provider_windows/path_provider_windows.dart'
-    hide WindowsKnownFolder;
-// ignore: implementation_imports
-import 'package:path_provider_windows/src/folders_stub.dart'
-    if (dart.library.ffi) 'package:path_provider_windows/src/folders.dart'
-    show WindowsKnownFolder;
-
 class DownloadedEvent {
   final Event event;
   final String downloadPath;
@@ -105,19 +97,31 @@ class DownloadsManager extends UnityProvider {
 
   static Future<Directory> get kDefaultDownloadsDirectory async {
     Directory? dir;
-    if (PathProviderPlatform.instance is PathProviderWindows) {
-      final instance = PathProviderPlatform.instance as PathProviderWindows;
-      final videosPath =
-          // ignore: unnecessary_cast
-          await instance.getPath((WindowsKnownFolder as dynamic).Videos)
-              as String;
-      dir = Directory(path.join(videosPath, 'Bluecherry Client', 'Downloads'));
-    }
+    try {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        final dirs = await getExternalStorageDirectories(
+            type: StorageDirectory.downloads);
+        if (dirs?.isNotEmpty ?? false) dir = dirs!.first;
+      }
 
-    if (dir == null) {
+      if (dir == null) {
+        final downloadsDir = await getDownloadsDirectory();
+        if (downloadsDir != null) {
+          dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+        }
+      }
+
+      if (dir == null) {
+        final docsDir = await getApplicationSupportDirectory();
+        dir = Directory(path.join(docsDir.path, 'downloads'));
+      }
+    } catch (error, stack) {
+      debugPrint('Failed to get default downloads directory: $error\n$stack');
       final docsDir = await getApplicationSupportDirectory();
       dir = Directory(path.join(docsDir.path, 'downloads'));
     }
+
+    debugPrint('The default downloads is ${dir.path}');
 
     return dir.create(recursive: true);
   }

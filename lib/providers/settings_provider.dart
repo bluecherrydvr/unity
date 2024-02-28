@@ -82,6 +82,8 @@ class SettingsOption<T> {
       this.loadFrom = (value) => Locale.fromSubtags(languageCode: value) as T;
     } else if (T == DateTime) {
       this.loadFrom = (value) => DateTime.parse(value) as T;
+    } else if (T == double) {
+      this.loadFrom = (value) => double.parse(value) as T;
     } else {
       this.loadFrom = (value) => value as T;
     }
@@ -324,7 +326,6 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    // await settings.delete();
     final data = await tryReadStorage(() => settings.read());
 
     kLayoutCyclePeriod.value = kLayoutCyclePeriod.loadFrom(

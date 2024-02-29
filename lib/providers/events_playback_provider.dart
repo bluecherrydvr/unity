@@ -32,6 +32,7 @@ class EventsProvider extends UnityProvider {
   static Future<EventsProvider> ensureInitialized() async {
     instance = EventsProvider._();
     await instance.initialize();
+    debugPrint('EventsProvider initialized');
     return instance;
   }
 

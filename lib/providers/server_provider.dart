@@ -38,6 +38,7 @@ class ServersProvider extends UnityProvider {
   static Future<ServersProvider> ensureInitialized() async {
     instance = ServersProvider._();
     await instance.initialize();
+    debugPrint('ServersProvider initialized');
     return instance;
   }
 

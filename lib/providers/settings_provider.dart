@@ -90,6 +90,10 @@ class SettingsOption<T> {
   }
 
   String get defAsString => saveAs(def);
+
+  void loadData(Map data) {
+    value = loadFrom(data[key] ?? defAsString);
+  }
 }
 
 class SettingsProvider extends UnityProvider {
@@ -321,153 +325,61 @@ class SettingsProvider extends UnityProvider {
   static Future<SettingsProvider> ensureInitialized() async {
     instance = SettingsProvider._();
     await instance.initialize();
+    debugPrint('SettingsProvider initialized');
     return instance;
   }
 
   @override
   Future<void> initialize() async {
-    await settings.delete();
+    // await settings.delete();
     final data = await tryReadStorage(() => settings.read());
 
-    kLayoutCyclePeriod.value = kLayoutCyclePeriod.loadFrom(
-      data[kLayoutCyclePeriod.key] ?? kLayoutCyclePeriod.defAsString,
-    );
-    kLayoutCycleEnabled.value = kLayoutCycleEnabled.loadFrom(
-      data[kLayoutCycleEnabled.key] ?? kLayoutCycleEnabled.defAsString,
-    );
-    kWakelock.value = kWakelock.loadFrom(
-      data[kWakelock.key] ?? kWakelock.defAsString,
-    );
-    kNotificationsEnabled.value = kNotificationsEnabled.loadFrom(
-      data[kNotificationsEnabled.key] ?? kNotificationsEnabled.defAsString,
-    );
-    kSnoozeNotificationsUntil.value = kSnoozeNotificationsUntil.loadFrom(
-      data[kSnoozeNotificationsUntil.key] ??
-          kSnoozeNotificationsUntil.defAsString,
-    );
-    kNotificationClickBehavior.value = kNotificationClickBehavior.loadFrom(
-      data[kNotificationClickBehavior.key] ??
-          kNotificationClickBehavior.defAsString,
-    );
-    kAutomaticStreaming.value = kAutomaticStreaming.loadFrom(
-      data[kAutomaticStreaming.key] ?? kAutomaticStreaming.defAsString,
-    );
-    kStreamOnBackground.value = kStreamOnBackground.loadFrom(
-      data[kStreamOnBackground.key] ?? kStreamOnBackground.defAsString,
-    );
-    kStreamingType.value = kStreamingType.loadFrom(
-      data[kStreamingType.key] ?? kStreamingType.defAsString,
-    );
-    kRTSPProtocol.value = kRTSPProtocol.loadFrom(
-      data[kRTSPProtocol.key] ?? kRTSPProtocol.defAsString,
-    );
-    kRenderingQuality.value = kRenderingQuality.loadFrom(
-      data[kRenderingQuality.key] ?? kRenderingQuality.defAsString,
-    );
-    kVideoFit.value = kVideoFit.loadFrom(
-      data[kVideoFit.key] ?? kVideoFit.defAsString,
-    );
-    kRefreshRate.value = kRefreshRate.loadFrom(
-      data[kRefreshRate.key] ?? kRefreshRate.defAsString,
-    );
-    kLateStreamBehavior.value = kLateStreamBehavior.loadFrom(
-      data[kLateStreamBehavior.key] ?? kLateStreamBehavior.defAsString,
-    );
-    kReloadTimedOutStreams.value = kReloadTimedOutStreams.loadFrom(
-      data[kReloadTimedOutStreams.key] ?? kReloadTimedOutStreams.defAsString,
-    );
-    kUseHardwareDecoding.value = kUseHardwareDecoding.loadFrom(
-      data[kUseHardwareDecoding.key] ?? kUseHardwareDecoding.defAsString,
-    );
-    kDownloadOnMobileData.value = kDownloadOnMobileData.loadFrom(
-      data[kDownloadOnMobileData.key] ?? kDownloadOnMobileData.defAsString,
-    );
-    kChooseLocationEveryTime.value = kChooseLocationEveryTime.loadFrom(
-      data[kChooseLocationEveryTime.key] ??
-          kChooseLocationEveryTime.defAsString,
-    );
-    kDownloadsDirectory.value = kDownloadsDirectory.loadFrom(
+    kLayoutCyclePeriod.loadData(data);
+    kLayoutCycleEnabled.loadData(data);
+    kWakelock.loadData(data);
+    kNotificationsEnabled.loadData(data);
+    kSnoozeNotificationsUntil.loadData(data);
+    kNotificationClickBehavior.loadData(data);
+    kAutomaticStreaming.loadData(data);
+    kStreamOnBackground.loadData(data);
+    kStreamingType.loadData(data);
+    kRTSPProtocol.loadData(data);
+    kRenderingQuality.loadData(data);
+    kVideoFit.loadData(data);
+    kRefreshRate.loadData(data);
+    kLateStreamBehavior.loadData(data);
+    kReloadTimedOutStreams.loadData(data);
+    kUseHardwareDecoding.loadData(data);
+    kDownloadOnMobileData.loadData(data);
+    kChooseLocationEveryTime.loadData(data);
+    kDownloadsDirectory.loadFrom(
       data[kDownloadsDirectory.key] ??
           (await DownloadsManager.kDefaultDownloadsDirectory).path,
     );
-    kAllowAppCloseWhenDownloading.value =
-        kAllowAppCloseWhenDownloading.loadFrom(
-      data[kAllowAppCloseWhenDownloading.key] ??
-          kAllowAppCloseWhenDownloading.defAsString,
-    );
-    kPictureInPicture.value = kPictureInPicture.loadFrom(
-      data[kPictureInPicture.key] ?? kPictureInPicture.defAsString,
-    );
-    kEventsSpeed.value = kEventsSpeed.loadFrom(
-      data[kEventsSpeed.key] ?? kEventsSpeed.defAsString,
-    );
-    kEventsVolume.value = kEventsVolume.loadFrom(
-      data[kEventsVolume.key] ?? kEventsVolume.defAsString,
-    );
-    kShowDifferentColorsForEvents.value =
-        kShowDifferentColorsForEvents.loadFrom(
-      data[kShowDifferentColorsForEvents.key] ??
-          kShowDifferentColorsForEvents.defAsString,
-    );
-    kPauseToBuffer.value = kPauseToBuffer.loadFrom(
-      data[kPauseToBuffer.key] ?? kPauseToBuffer.defAsString,
-    );
-    kTimelineInitialPoint.value = kTimelineInitialPoint.loadFrom(
-      data[kTimelineInitialPoint.key] ?? kTimelineInitialPoint.defAsString,
-    );
-    kThemeMode.value = kThemeMode.loadFrom(
-      data[kThemeMode.key] ?? kThemeMode.defAsString,
-    );
-    kLanguageCode.value = kLanguageCode.loadFrom(
-      data[kLanguageCode.key] ?? kLanguageCode.defAsString,
-    );
-    kDateFormat.value = kDateFormat.loadFrom(
-      data[kDateFormat.key] ?? kDateFormat.defAsString,
-    );
-    kTimeFormat.value = kTimeFormat.loadFrom(
-      data[kTimeFormat.key] ?? kTimeFormat.defAsString,
-    );
-    kLaunchAppOnStartup.value = kLaunchAppOnStartup.loadFrom(
-      data[kLaunchAppOnStartup.key] ?? kLaunchAppOnStartup.defAsString,
-    );
-    kMinimizeToTray.value = kMinimizeToTray.loadFrom(
-      data[kMinimizeToTray.key] ?? kMinimizeToTray.defAsString,
-    );
-    kAnimationsEnabled.value = kAnimationsEnabled.loadFrom(
-      data[kAnimationsEnabled.key] ?? kAnimationsEnabled.defAsString,
-    );
-    kHighContrast.value = kHighContrast.loadFrom(
-      data[kHighContrast.key] ?? kHighContrast.defAsString,
-    );
-    kLargeFont.value = kLargeFont.loadFrom(
-      data[kLargeFont.key] ?? kLargeFont.defAsString,
-    );
-    kAllowDataCollection.value = kAllowDataCollection.loadFrom(
-      data[kAllowDataCollection.key] ?? kAllowDataCollection.defAsString,
-    );
-    kAllowCrashReports.value = kAllowCrashReports.loadFrom(
-      data[kAllowCrashReports.key] ?? kAllowCrashReports.defAsString,
-    );
-    kAutoUpdate.value = kAutoUpdate.loadFrom(
-      data[kAutoUpdate.key] ?? kAutoUpdate.defAsString,
-    );
-    kShowReleaseNotes.value = kShowReleaseNotes.loadFrom(
-      data[kShowReleaseNotes.key] ?? kShowReleaseNotes.defAsString,
-    );
-    kDefaultBetaMatrixedZoomEnabled.value =
-        kDefaultBetaMatrixedZoomEnabled.loadFrom(
-      data[kDefaultBetaMatrixedZoomEnabled.key] ??
-          kDefaultBetaMatrixedZoomEnabled.defAsString,
-    );
-    kMatrixSize.value = kMatrixSize.loadFrom(
-      data[kMatrixSize.key] ?? kMatrixSize.defAsString,
-    );
-    kShowDebugInfo.value = kShowDebugInfo.loadFrom(
-      data[kShowDebugInfo.key] ?? kShowDebugInfo.defAsString,
-    );
-    kShowNetworkUsage.value = kShowNetworkUsage.loadFrom(
-      data[kShowNetworkUsage.key] ?? kShowNetworkUsage.defAsString,
-    );
+    kAllowAppCloseWhenDownloading.loadData(data);
+    kPictureInPicture.loadData(data);
+    kEventsSpeed.loadData(data);
+    kEventsVolume.loadData(data);
+    kShowDifferentColorsForEvents.loadData(data);
+    kPauseToBuffer.loadData(data);
+    kTimelineInitialPoint.loadData(data);
+    kThemeMode.loadData(data);
+    kLanguageCode.loadData(data);
+    kDateFormat.loadData(data);
+    kTimeFormat.loadData(data);
+    kLaunchAppOnStartup.loadData(data);
+    kMinimizeToTray.loadData(data);
+    kAnimationsEnabled.loadData(data);
+    kHighContrast.loadData(data);
+    kLargeFont.loadData(data);
+    kAllowDataCollection.loadData(data);
+    kAllowCrashReports.loadData(data);
+    kAutoUpdate.loadData(data);
+    kShowReleaseNotes.loadData(data);
+    kDefaultBetaMatrixedZoomEnabled.loadData(data);
+    kMatrixSize.loadData(data);
+    kShowDebugInfo.loadData(data);
+    kShowNetworkUsage.loadData(data);
   }
 
   @override

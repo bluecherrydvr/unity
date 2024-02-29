@@ -37,6 +37,7 @@ class DesktopViewProvider extends UnityProvider {
   static Future<DesktopViewProvider> ensureInitialized() async {
     instance = DesktopViewProvider._();
     await instance.initialize();
+    debugPrint('DesktopViewProvider initialized');
     return instance;
   }
 

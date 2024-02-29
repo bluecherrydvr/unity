@@ -113,6 +113,7 @@ class UpdateManager extends UnityProvider {
   static Future<UpdateManager> ensureInitialized() async {
     instance = UpdateManager._();
     await instance.initialize();
+    debugPrint('UpdateManager initialized');
     return instance;
   }
 

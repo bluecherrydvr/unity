@@ -92,6 +92,7 @@ class DownloadsManager extends UnityProvider {
   static Future<DownloadsManager> ensureInitialized() async {
     instance = DownloadsManager._();
     await instance.initialize();
+    debugPrint('DownloadsManager initialized');
     return instance;
   }
 

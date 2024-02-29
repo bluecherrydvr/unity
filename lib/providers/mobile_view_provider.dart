@@ -33,6 +33,7 @@ class MobileViewProvider extends UnityProvider {
   static Future<MobileViewProvider> ensureInitialized() async {
     instance = MobileViewProvider._();
     await instance.initialize();
+    debugPrint('MobileViewProvider initialized');
     return instance;
   }
 

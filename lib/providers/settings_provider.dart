@@ -36,6 +36,7 @@ enum EnabledPreference { on, ask, never }
 class SettingsOption<T> {
   final String key;
   final T def;
+  final Future<T> Function()? getDefault;
 
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
@@ -45,54 +46,62 @@ class SettingsOption<T> {
   SettingsOption({
     required this.key,
     required this.def,
+    this.getDefault,
     String Function(T value)? saveAs,
     T Function(String value)? loadFrom,
   }) {
-    value = def;
+    Future.microtask(() async {
+      value = getDefault != null ? await getDefault!() : def;
 
-    if (saveAs != null) {
-      this.saveAs = saveAs;
-    } else if (T == bool) {
-      this.saveAs = (value) => value.toString();
-    } else if (T == Duration) {
-      this.saveAs = (value) => (value as Duration).inMilliseconds.toString();
-    } else if (T == Enum) {
-      this.saveAs = (value) => (value as Enum).index.toString();
-    } else if (T == DateFormat) {
-      this.saveAs = (value) => (value as DateFormat).pattern ?? '';
-    } else if (T == Locale) {
-      this.saveAs = (value) => (value as Locale).toLanguageTag();
-    } else if (T == DateTime) {
-      this.saveAs = (value) => (value as DateTime).toIso8601String();
-    } else {
-      this.saveAs = (value) => value.toString();
-    }
+      if (saveAs != null) {
+        this.saveAs = saveAs;
+      } else if (T == bool) {
+        this.saveAs = (value) => value.toString();
+      } else if (T == Duration) {
+        this.saveAs = (value) => (value as Duration).inMilliseconds.toString();
+      } else if (T == Enum) {
+        this.saveAs = (value) => (value as Enum).index.toString();
+      } else if (T == DateFormat) {
+        this.saveAs = (value) => (value as DateFormat).pattern ?? '';
+      } else if (T == Locale) {
+        this.saveAs = (value) => (value as Locale).toLanguageTag();
+      } else if (T == DateTime) {
+        this.saveAs = (value) => (value as DateTime).toIso8601String();
+      } else {
+        this.saveAs = (value) => value.toString();
+      }
 
-    if (loadFrom != null) {
-      this.loadFrom = loadFrom;
-    } else if (T == bool) {
-      this.loadFrom = (value) => (bool.tryParse(value) ?? def) as T;
-    } else if (T == Duration) {
-      this.loadFrom = (value) => Duration(milliseconds: int.parse(value)) as T;
-    } else if (T == Enum) {
-      throw UnsupportedError('Enum type must provide a loadFrom function');
-    } else if (T == DateFormat) {
-      this.loadFrom = (value) => DateFormat(value) as T;
-    } else if (T == Locale) {
-      this.loadFrom = (value) => Locale.fromSubtags(languageCode: value) as T;
-    } else if (T == DateTime) {
-      this.loadFrom = (value) => DateTime.parse(value) as T;
-    } else if (T == double) {
-      this.loadFrom = (value) => double.parse(value) as T;
-    } else {
-      this.loadFrom = (value) => value as T;
-    }
+      if (loadFrom != null) {
+        this.loadFrom = loadFrom;
+      } else if (T == bool) {
+        this.loadFrom = (value) => (bool.tryParse(value) ?? def) as T;
+      } else if (T == Duration) {
+        this.loadFrom =
+            (value) => Duration(milliseconds: int.parse(value)) as T;
+      } else if (T == Enum) {
+        throw UnsupportedError('Enum type must provide a loadFrom function');
+      } else if (T == DateFormat) {
+        this.loadFrom = (value) => DateFormat(value) as T;
+      } else if (T == Locale) {
+        this.loadFrom = (value) => Locale.fromSubtags(languageCode: value) as T;
+      } else if (T == DateTime) {
+        this.loadFrom = (value) => DateTime.parse(value) as T;
+      } else if (T == double) {
+        this.loadFrom = (value) => double.parse(value) as T;
+      } else {
+        this.loadFrom = (value) => value as T;
+      }
+    });
   }
 
   String get defAsString => saveAs(def);
 
-  void loadData(Map data) {
-    value = loadFrom(data[key] ?? defAsString);
+  Future<void> loadData(Map data) async {
+    String? serializedData = data[key];
+    if (getDefault != null) serializedData ??= saveAs(await getDefault!());
+    serializedData ??= defAsString;
+
+    value = loadFrom(serializedData);
   }
 }
 
@@ -203,6 +212,8 @@ class SettingsProvider extends UnityProvider {
   );
   final kDownloadsDirectory = SettingsOption(
     def: '',
+    getDefault: () async =>
+        (await DownloadsManager.kDefaultDownloadsDirectory).path,
     key: 'downloads.directory',
   );
 
@@ -331,7 +342,6 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    // await settings.delete();
     final data = await tryReadStorage(() => settings.read());
 
     kLayoutCyclePeriod.loadData(data);
@@ -352,10 +362,7 @@ class SettingsProvider extends UnityProvider {
     kUseHardwareDecoding.loadData(data);
     kDownloadOnMobileData.loadData(data);
     kChooseLocationEveryTime.loadData(data);
-    kDownloadsDirectory.loadFrom(
-      data[kDownloadsDirectory.key] ??
-          (await DownloadsManager.kDefaultDownloadsDirectory).path,
-    );
+    kDownloadsDirectory.loadData(data);
     kAllowAppCloseWhenDownloading.loadData(data);
     kPictureInPicture.loadData(data);
     kEventsSpeed.loadData(data);

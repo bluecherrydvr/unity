@@ -100,7 +100,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                 data: theme.copyWith(
                   cardTheme: CardTheme(
                     color: ElevationOverlay.applySurfaceTint(
-                      theme.colorScheme.background,
+                      theme.colorScheme.surface,
                       theme.colorScheme.surfaceTint,
                       4,
                     ),

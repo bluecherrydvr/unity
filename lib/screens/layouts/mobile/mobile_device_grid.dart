@@ -90,7 +90,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
               return FadeThroughTransition(
                 animation: primaryAnimation,
                 secondaryAnimation: secondaryAnimation,
-                fillColor: theme.colorScheme.background,
+                fillColor: theme.colorScheme.surface,
                 child: child,
               );
             },
@@ -111,7 +111,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
             width: double.infinity,
             child: Row(children: <Widget>[
               UnityDrawerButton(
-                iconColor: theme.colorScheme.onBackground,
+                iconColor: theme.colorScheme.onSurface,
                 iconSize: 18.0,
                 splashRadius: 24.0,
               ),
@@ -121,7 +121,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                   size: 18.0,
                   color: settings.kLayoutCycleEnabled.value
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.onBackground,
+                      : theme.colorScheme.onSurface,
                 ),
                 tooltip: loc.cycle,
                 onPressed: settings.toggleCycling,
@@ -144,7 +144,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
                         style: TextStyle(
                           color: view.tab == tab
                               ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onBackground,
+                              : theme.colorScheme.onSurface,
                           fontSize: 18.0,
                         ),
                       ),

@@ -488,7 +488,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         content: Text(
           message,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [

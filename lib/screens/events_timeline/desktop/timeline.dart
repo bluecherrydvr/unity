@@ -810,13 +810,13 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               child: Container(
                                 width: 8,
                                 height: 4,
-                                // color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onSurface,
                                 color: Colors.black,
                               ),
                             ),
                             Expanded(
                               child: Container(
-                                // color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onSurface,
                                 width: 1.8,
                                 color: Colors.black,
                               ),
@@ -1051,7 +1051,7 @@ class _TimelineHours extends StatelessWidget {
                     child: Container(
                       height: 6.5,
                       width: 2,
-                      color: theme.colorScheme.onBackground,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 );

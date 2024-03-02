@@ -61,7 +61,7 @@ class DesktopViewProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await tryReadStorage(
-      () => initializeStorage(desktopView, kHiveDesktopLayouts),
+      () => initializeStorage(desktopView, kStorageDesktopLayouts),
     );
     await Future.wait(
       currentLayout.devices.map<Future>((device) {
@@ -86,9 +86,9 @@ class DesktopViewProvider extends UnityProvider {
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await desktopView.write({
-        kHiveDesktopLayouts:
+        kStorageDesktopLayouts:
             jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
-        kHiveDesktopCurrentLayout: _currentLayout,
+        kStorageDesktopCurrentLayout: _currentLayout,
       });
     } catch (error, stackTrace) {
       debugPrint('Failed to save desktop view:\n $error\n$stackTrace');
@@ -104,14 +104,14 @@ class DesktopViewProvider extends UnityProvider {
 
     layouts = ((await compute(
               jsonDecode,
-              data[kHiveDesktopLayouts] as String,
+              data[kStorageDesktopLayouts] as String,
             ) ??
             []) as List)
         .cast<Map>()
         .map<Layout>((item) {
       return Layout.fromMap(item.cast<String, dynamic>());
     }).toList();
-    _currentLayout = data[kHiveDesktopCurrentLayout] ?? 0;
+    _currentLayout = data[kStorageDesktopCurrentLayout] ?? 0;
 
     super.restore(notifyListeners: notifyListeners);
   }

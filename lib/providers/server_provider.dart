@@ -56,7 +56,7 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await tryReadStorage(
-        () => super.initializeStorage(serversStorage, kHiveServers));
+        () => super.initializeStorage(serversStorage, kStorageServers));
     refreshDevices(startup: true);
   }
 
@@ -73,8 +73,9 @@ class ServersProvider extends UnityProvider {
       // Register notification token.
       try {
         final data = await tryReadStorage(() => serversStorage.read());
-        final notificationToken = data[kHiveNotificationToken];
-        assert(notificationToken != null, '[kHiveNotificationToken] is null.');
+        final notificationToken = data[kStorageNotificationToken];
+        assert(
+            notificationToken != null, '[kStorageNotificationToken] is null.');
         await API.instance
             .registerNotificationToken(server, notificationToken!);
       } catch (exception, stacktrace) {
@@ -184,7 +185,7 @@ class ServersProvider extends UnityProvider {
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await serversStorage.write({
-        kHiveServers: servers.map((e) => e.toJson()).toList(),
+        kStorageServers: servers.map((e) => e.toJson()).toList(),
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -197,9 +198,9 @@ class ServersProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => serversStorage.read());
 
-    final serversData = data[kHiveServers] is String
-        ? await compute(jsonDecode, data[kHiveServers] as String)
-        : data[kHiveServers] as List;
+    final serversData = data[kStorageServers] is String
+        ? await compute(jsonDecode, data[kStorageServers] as String)
+        : data[kStorageServers] as List;
     servers = serversData
         .cast<Map<String, dynamic>>()
         .map(Server.fromJson)

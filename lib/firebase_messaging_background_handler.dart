@@ -434,7 +434,7 @@ abstract class FirebaseConfiguration {
     FirebaseMessaging.instance.onTokenRefresh.listen(
       (token) async {
         debugPrint('[FirebaseMessaging.instance.onTokenRefresh]: $token');
-        storage.add({kHiveNotificationToken: token});
+        storage.add({kStorageNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
             await API.instance.checkServerCredentials(server),
@@ -450,10 +450,10 @@ abstract class FirebaseConfiguration {
       if (token != null) {
         final data = await tryReadStorage(() => storage.read());
         // Do not proceed, if token is already saved.
-        if (data[kHiveNotificationToken] == token) {
+        if (data[kStorageNotificationToken] == token) {
           return;
         }
-        await storage.add({kHiveNotificationToken: token});
+        await storage.add({kStorageNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
             await API.instance.checkServerCredentials(server),

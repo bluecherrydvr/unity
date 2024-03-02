@@ -33,36 +33,17 @@ const kDefaultUsername = 'Admin';
 /// Default password used in Bluecherry DVR server.
 const kDefaultPassword = 'bluecherry';
 
-// Keys used for storing data in cache using `package:hive`.
-
-const kHiveServers = 'servers';
-const kHiveMobileView = 'mobile_view';
-const kHiveMobileViewTab = 'mobile_view_current_tab';
-const kHiveDesktopLayouts = 'desktop_view_layouts';
-const kHiveDesktopCurrentLayout = 'desktop_view_current_layout';
-const kHiveNotificationToken = 'notification_token';
-const kHiveLocale = 'locale';
-const kHiveThemeMode = 'theme_mode';
-const kHiveDateFormat = 'date_format';
-const kHiveTimeFormat = 'time_format';
-const kHiveSnoozedUntil = 'snoozed_until';
-const kHiveNotificationClickBehavior = 'notification_click_action';
-const kHiveCameraViewFit = 'camera_view_fit';
-const kHiveDownloadsDirectorySetting = 'downloads_dir';
-const kHiveDownloads = 'downloads';
-const kHiveEventsPlayback = 'events_playback';
-const kHiveLayoutCycling = 'layout_cycling';
-const kHiveLayoutCyclingPeriod = 'layout_cycling_period';
-const kHiveCameraRefreshPeriod = 'camera_refresh_period';
-const kHiveAutomaticUpdates = 'automatic_download_updates';
-const kHiveLastCheck = 'last_update_check';
-const kHiveStreamingType = 'streaming_type';
-const kHiveStreamingProtocol = 'streaming_protocol';
-const kHiveVideoQuality = 'video_quality';
-const kHiveWakelockEnabled = 'wakelock_enabled';
-const kHiveBetaMatrixedZoom = 'matrized_zoom';
-const kHiveShowDebugInfo = 'show_debug_info';
-const kHiveLateVideoBehavior = 'late_video_behavior';
+// Keys used for storing data.
+const kStorageServers = 'servers';
+const kStorageMobileView = 'mobile_view';
+const kStorageMobileViewTab = 'mobile_view_current_tab';
+const kStorageDesktopLayouts = 'desktop_view_layouts';
+const kStorageDesktopCurrentLayout = 'desktop_view_current_layout';
+const kStorageNotificationToken = 'notification_token';
+const kStorageDownloads = 'downloads';
+const kStorageEventsPlayback = 'events_playback';
+const kStorageAutomaticUpdates = 'automatic_download_updates';
+const kStorageLastCheck = 'last_update_check';
 
 /// Used as frame buffer size in [DeviceTile], and calculating aspect ratio. Only relevant on desktop.
 const kDeviceTileWidth = 640.0;

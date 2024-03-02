@@ -74,7 +74,7 @@ class MobileViewProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await tryReadStorage(
-        () => super.initializeStorage(mobileView, kHiveMobileView));
+        () => super.initializeStorage(mobileView, kStorageMobileView));
     for (final device in current) {
       if (device != null) {
         UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
@@ -191,8 +191,8 @@ class MobileViewProvider extends UnityProvider {
     );
     try {
       await mobileView.write({
-        kHiveMobileView: jsonEncode(data),
-        kHiveMobileViewTab: tab,
+        kStorageMobileView: jsonEncode(data),
+        kStorageMobileViewTab: tab,
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -206,7 +206,7 @@ class MobileViewProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => mobileView.read());
     devices =
-        ((await compute(jsonDecode, data[kHiveMobileView] as String)) as Map)
+        ((await compute(jsonDecode, data[kStorageMobileView] as String)) as Map)
             .map(
               (key, value) => MapEntry<int, List<Device?>>(
                 int.parse(key),
@@ -226,7 +226,7 @@ class MobileViewProvider extends UnityProvider {
       });
     }
 
-    tab = data[kHiveMobileViewTab]!;
+    tab = data[kStorageMobileViewTab]!;
     super.restore(notifyListeners: notifyListeners);
   }
 }

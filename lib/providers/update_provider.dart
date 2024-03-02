@@ -155,7 +155,7 @@ class UpdateManager extends UnityProvider {
       return _setPackageInfo();
     }
     await tryReadStorage(
-        () => super.initializeStorage(updates, kHiveAutomaticUpdates));
+        () => super.initializeStorage(updates, kStorageAutomaticUpdates));
 
     tempDir = (await getTemporaryDirectory()).path;
 
@@ -173,8 +173,8 @@ class UpdateManager extends UnityProvider {
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await updates.write({
-        kHiveAutomaticUpdates: automaticDownloads,
-        kHiveLastCheck: lastCheck?.toIso8601String(),
+        kStorageAutomaticUpdates: automaticDownloads,
+        kStorageLastCheck: lastCheck?.toIso8601String(),
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -187,10 +187,10 @@ class UpdateManager extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await updates.read() as Map;
 
-    _automaticDownloads = data[kHiveAutomaticUpdates];
-    _lastCheck = data[kHiveLastCheck] == null
+    _automaticDownloads = data[kStorageAutomaticUpdates];
+    _lastCheck = data[kStorageLastCheck] == null
         ? null
-        : DateTime.tryParse(data[kHiveLastCheck]!);
+        : DateTime.tryParse(data[kStorageLastCheck]!);
 
     super.restore(notifyListeners: notifyListeners);
   }

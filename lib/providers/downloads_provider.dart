@@ -160,14 +160,14 @@ class DownloadsManager extends UnityProvider {
     });
 
     await tryReadStorage(
-        () => super.initializeStorage(downloads, kHiveDownloads));
+        () => super.initializeStorage(downloads, kStorageDownloads));
   }
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await downloads.write({
-        kHiveDownloads:
+        kStorageDownloads:
             jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
       });
     } catch (e) {
@@ -181,9 +181,9 @@ class DownloadsManager extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => downloads.read());
 
-    downloadedEvents = data[kHiveDownloads] == null
+    downloadedEvents = data[kStorageDownloads] == null
         ? []
-        : ((await compute(jsonDecode, data[kHiveDownloads] as String) ?? [])
+        : ((await compute(jsonDecode, data[kStorageDownloads] as String) ?? [])
                 as List)
             .cast<Map>()
             .map<DownloadedEvent>((item) {

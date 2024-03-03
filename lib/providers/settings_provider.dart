@@ -33,7 +33,7 @@ enum TimelineIntialPoint { beggining, firstEvent, lastEvent }
 
 enum EnabledPreference { on, ask, never }
 
-class SettingsOption<T> {
+class _SettingsOption<T> {
   final String key;
   final T def;
   final Future<T> Function()? getDefault;
@@ -41,9 +41,16 @@ class SettingsOption<T> {
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
 
-  late T value;
+  late T _value;
 
-  SettingsOption({
+  T get value => _value;
+  set value(T newValue) {
+    SettingsProvider.instance.updateProperty(() {
+      _value = newValue;
+    });
+  }
+
+  _SettingsOption({
     required this.key,
     required this.def,
     this.getDefault,
@@ -51,7 +58,7 @@ class SettingsOption<T> {
     T Function(String value)? loadFrom,
   }) {
     Future.microtask(() async {
-      value = getDefault != null ? await getDefault!() : def;
+      _value = getDefault != null ? await getDefault!() : def;
 
       if (saveAs != null) {
         this.saveAs = saveAs;
@@ -101,7 +108,7 @@ class SettingsOption<T> {
     if (getDefault != null) serializedData ??= saveAs(await getDefault!());
     serializedData ??= defAsString;
 
-    value = loadFrom(serializedData);
+    _value = loadFrom(serializedData);
   }
 }
 
@@ -110,29 +117,29 @@ class SettingsProvider extends UnityProvider {
   static late SettingsProvider instance;
 
   // General settings
-  final kLayoutCyclePeriod = SettingsOption(
+  final kLayoutCyclePeriod = _SettingsOption(
     def: const Duration(seconds: 5),
     key: 'general.cycle_period',
   );
-  final kLayoutCycleEnabled = SettingsOption(
+  final kLayoutCycleEnabled = _SettingsOption(
     def: true,
     key: 'general.cycle_enabled',
   );
-  final kWakelock = SettingsOption(
+  final kWakelock = _SettingsOption(
     def: true,
     key: 'general.wakelock',
   );
 
   // Notifications
-  final kNotificationsEnabled = SettingsOption(
+  final kNotificationsEnabled = _SettingsOption(
     def: true,
     key: 'notifications.enabled',
   );
-  final kSnoozeNotificationsUntil = SettingsOption<DateTime>(
+  final kSnoozeNotificationsUntil = _SettingsOption<DateTime>(
     def: DateTime.utc(1969, 7, 20, 20, 18, 04),
     key: 'notifications.snooze_until',
   );
-  final kNotificationClickBehavior = SettingsOption(
+  final kNotificationClickBehavior = _SettingsOption(
     def: NotificationClickBehavior.showEventsScreen,
     key: 'notifications.click_behavior',
     loadFrom: (value) => NotificationClickBehavior.values[int.parse(value)],
@@ -140,13 +147,13 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Data usage
-  final kAutomaticStreaming = SettingsOption(
+  final kAutomaticStreaming = _SettingsOption(
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.automatic_streaming',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kStreamOnBackground = SettingsOption(
+  final kStreamOnBackground = _SettingsOption(
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.stream_on_background',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
@@ -154,63 +161,63 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Streaming settings
-  final kStreamingType = SettingsOption(
+  final kStreamingType = _SettingsOption(
     def: kIsWeb ? StreamingType.hls : StreamingType.rtsp,
     key: 'streaming.type',
     loadFrom: (value) => StreamingType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRTSPProtocol = SettingsOption(
+  final kRTSPProtocol = _SettingsOption(
     def: RTSPProtocol.tcp,
     key: 'streaming.rtsp_protocol',
     loadFrom: (value) => RTSPProtocol.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRenderingQuality = SettingsOption(
+  final kRenderingQuality = _SettingsOption(
     def: RenderingQuality.automatic,
     key: 'streaming.rendering_quality',
     loadFrom: (value) => RenderingQuality.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kVideoFit = SettingsOption(
+  final kVideoFit = _SettingsOption(
     def: UnityVideoFit.contain,
     key: 'streaming.video_fit',
     loadFrom: (value) => UnityVideoFit.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRefreshRate = SettingsOption(
+  final kRefreshRate = _SettingsOption(
     def: const Duration(minutes: 5),
     key: 'streaming.refresh_rate',
   );
-  final kLateStreamBehavior = SettingsOption(
+  final kLateStreamBehavior = _SettingsOption(
     def: LateVideoBehavior.automatic,
     key: 'streaming.late_video_behavior',
     loadFrom: (value) => LateVideoBehavior.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kReloadTimedOutStreams = SettingsOption(
+  final kReloadTimedOutStreams = _SettingsOption(
     def: true,
     key: 'streaming.reload_timed_out_streams',
   );
-  final kUseHardwareDecoding = SettingsOption(
+  final kUseHardwareDecoding = _SettingsOption(
     def: true,
     key: 'streaming.use_hardware_decoding',
   );
 
   // Downloads
-  final kDownloadOnMobileData = SettingsOption(
+  final kDownloadOnMobileData = _SettingsOption(
     def: false,
     key: 'downloads.download_on_mobile_data',
   );
-  final kChooseLocationEveryTime = SettingsOption(
+  final kChooseLocationEveryTime = _SettingsOption(
     def: false,
     key: 'downloads.choose_location_every_time',
   );
-  final kAllowAppCloseWhenDownloading = SettingsOption(
+  final kAllowAppCloseWhenDownloading = _SettingsOption(
     def: false,
     key: 'downloads.allow_app_close_when_downloading',
   );
-  final kDownloadsDirectory = SettingsOption(
+  final kDownloadsDirectory = _SettingsOption(
     def: '',
     getDefault: () async =>
         (await DownloadsManager.kDefaultDownloadsDirectory).path,
@@ -218,29 +225,29 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Events
-  final kPictureInPicture = SettingsOption(
+  final kPictureInPicture = _SettingsOption(
     def: false,
     key: 'events.picture_in_picture',
   );
-  final kEventsSpeed = SettingsOption(
+  final kEventsSpeed = _SettingsOption(
     def: 1.0,
     key: 'events.speed',
   );
-  final kEventsVolume = SettingsOption(
+  final kEventsVolume = _SettingsOption(
     def: 1.0,
     key: 'events.volume',
   );
 
   // Timeline of Events
-  final kShowDifferentColorsForEvents = SettingsOption(
+  final kShowDifferentColorsForEvents = _SettingsOption(
     def: false,
     key: 'timeline.show_different_colors_for_events',
   );
-  final kPauseToBuffer = SettingsOption(
+  final kPauseToBuffer = _SettingsOption(
     def: false,
     key: 'timeline.pause_to_buffer',
   );
-  final kTimelineInitialPoint = SettingsOption(
+  final kTimelineInitialPoint = _SettingsOption(
     def: TimelineIntialPoint.beggining,
     key: 'timeline.initial_point',
     loadFrom: (value) => TimelineIntialPoint.values[int.parse(value)],
@@ -248,85 +255,85 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Application
-  final kThemeMode = SettingsOption(
+  final kThemeMode = _SettingsOption(
     def: ThemeMode.system,
     key: 'application.theme_mode',
     loadFrom: (value) => ThemeMode.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kLanguageCode = SettingsOption(
+  final kLanguageCode = _SettingsOption(
     def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
     key: 'application.language_code',
   );
-  final kDateFormat = SettingsOption(
+  final kDateFormat = _SettingsOption(
     def: DateFormat('EEEE, dd MMMM yyyy'),
     key: 'application.date_format',
   );
-  final kTimeFormat = SettingsOption(
+  final kTimeFormat = _SettingsOption(
     def: DateFormat('hh:mm a'),
     key: 'application.time_format',
   );
 
   // Window
-  final kLaunchAppOnStartup = SettingsOption(
+  final kLaunchAppOnStartup = _SettingsOption(
     def: false,
     key: 'window.launch_app_on_startup',
   );
-  final kMinimizeToTray = SettingsOption(
+  final kMinimizeToTray = _SettingsOption(
     def: false,
     key: 'window.minimize_to_tray',
   );
 
   // Acessibility
-  final kAnimationsEnabled = SettingsOption(
+  final kAnimationsEnabled = _SettingsOption(
     def: true,
     key: 'accessibility.animations_enabled',
   );
-  final kHighContrast = SettingsOption(
+  final kHighContrast = _SettingsOption(
     def: false,
     key: 'accessibility.high_contrast',
   );
-  final kLargeFont = SettingsOption(
+  final kLargeFont = _SettingsOption(
     def: false,
     key: 'accessibility.large_font',
   );
 
   // Privacy and Security
-  final kAllowDataCollection = SettingsOption(
+  final kAllowDataCollection = _SettingsOption(
     def: true,
     key: 'privacy.allow_data_collection',
   );
-  final kAllowCrashReports = SettingsOption(
+  final kAllowCrashReports = _SettingsOption(
     def: true,
     key: 'privacy.allow_crash_reports',
   );
 
   // Updates
-  final kAutoUpdate = SettingsOption(
+  final kAutoUpdate = _SettingsOption(
     def: true,
     key: 'updates.auto_update',
   );
-  final kShowReleaseNotes = SettingsOption(
+  final kShowReleaseNotes = _SettingsOption(
     def: true,
     key: 'updates.show_release_notes',
   );
 
   // Other
-  final kDefaultBetaMatrixedZoomEnabled = SettingsOption(
+  final kDefaultBetaMatrixedZoomEnabled = _SettingsOption(
     def: false,
     key: 'other.matrixed_zoom_enabled',
   );
-  final kMatrixSize = SettingsOption(
+  final kMatrixSize = _SettingsOption(
     def: MatrixType.t16,
     key: 'other.matrix_size',
     loadFrom: (value) => MatrixType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kShowDebugInfo = SettingsOption(
+  final kShowDebugInfo = _SettingsOption(
     def: false,
     key: 'other.show_debug_info',
   );
-  final kShowNetworkUsage = SettingsOption(
+  final kShowNetworkUsage = _SettingsOption(
     def: false,
     key: 'other.show_network_usage',
   );

@@ -116,7 +116,7 @@ class _SettingsOption<T> {
     try {
       _value = loadFrom(serializedData);
     } catch (e) {
-      debugPrint('Error loading data for $key: $e');
+      debugPrint('Error loading data for $key: $e\nFallback to default');
       _value = (await getDefault?.call()) ?? def;
     }
   }
@@ -363,49 +363,53 @@ class SettingsProvider extends UnityProvider {
   Future<void> initialize() async {
     final data = await tryReadStorage(() => settings.read());
 
-    kLayoutCyclePeriod.loadData(data);
-    kLayoutCycleEnabled.loadData(data);
-    kWakelock.loadData(data);
-    kNotificationsEnabled.loadData(data);
-    kSnoozeNotificationsUntil.loadData(data);
-    kNotificationClickBehavior.loadData(data);
-    kAutomaticStreaming.loadData(data);
-    kStreamOnBackground.loadData(data);
-    kStreamingType.loadData(data);
-    kRTSPProtocol.loadData(data);
-    kRenderingQuality.loadData(data);
-    kVideoFit.loadData(data);
-    kRefreshRate.loadData(data);
-    kLateStreamBehavior.loadData(data);
-    kReloadTimedOutStreams.loadData(data);
-    kUseHardwareDecoding.loadData(data);
-    kDownloadOnMobileData.loadData(data);
-    kChooseLocationEveryTime.loadData(data);
-    kDownloadsDirectory.loadData(data);
-    kAllowAppCloseWhenDownloading.loadData(data);
-    kPictureInPicture.loadData(data);
-    kEventsSpeed.loadData(data);
-    kEventsVolume.loadData(data);
-    kShowDifferentColorsForEvents.loadData(data);
-    kPauseToBuffer.loadData(data);
-    kTimelineInitialPoint.loadData(data);
-    kThemeMode.loadData(data);
-    kLanguageCode.loadData(data);
-    kDateFormat.loadData(data);
-    kTimeFormat.loadData(data);
-    kLaunchAppOnStartup.loadData(data);
-    kMinimizeToTray.loadData(data);
-    kAnimationsEnabled.loadData(data);
-    kHighContrast.loadData(data);
-    kLargeFont.loadData(data);
-    kAllowDataCollection.loadData(data);
-    kAllowCrashReports.loadData(data);
-    kAutoUpdate.loadData(data);
-    kShowReleaseNotes.loadData(data);
-    kDefaultBetaMatrixedZoomEnabled.loadData(data);
-    kMatrixSize.loadData(data);
-    kShowDebugInfo.loadData(data);
-    kShowNetworkUsage.loadData(data);
+    await Future.wait([
+      kLayoutCyclePeriod.loadData(data),
+      kLayoutCycleEnabled.loadData(data),
+      kWakelock.loadData(data),
+      kNotificationsEnabled.loadData(data),
+      kSnoozeNotificationsUntil.loadData(data),
+      kNotificationClickBehavior.loadData(data),
+      kAutomaticStreaming.loadData(data),
+      kStreamOnBackground.loadData(data),
+      kStreamingType.loadData(data),
+      kRTSPProtocol.loadData(data),
+      kRenderingQuality.loadData(data),
+      kVideoFit.loadData(data),
+      kRefreshRate.loadData(data),
+      kLateStreamBehavior.loadData(data),
+      kReloadTimedOutStreams.loadData(data),
+      kUseHardwareDecoding.loadData(data),
+      kDownloadOnMobileData.loadData(data),
+      kChooseLocationEveryTime.loadData(data),
+      kDownloadsDirectory.loadData(data),
+      kAllowAppCloseWhenDownloading.loadData(data),
+      kPictureInPicture.loadData(data),
+      kEventsSpeed.loadData(data),
+      kEventsVolume.loadData(data),
+      kShowDifferentColorsForEvents.loadData(data),
+      kPauseToBuffer.loadData(data),
+      kTimelineInitialPoint.loadData(data),
+      kThemeMode.loadData(data),
+      kLanguageCode.loadData(data),
+      kDateFormat.loadData(data),
+      kTimeFormat.loadData(data),
+      kLaunchAppOnStartup.loadData(data),
+      kMinimizeToTray.loadData(data),
+      kAnimationsEnabled.loadData(data),
+      kHighContrast.loadData(data),
+      kLargeFont.loadData(data),
+      kAllowDataCollection.loadData(data),
+      kAllowCrashReports.loadData(data),
+      kAutoUpdate.loadData(data),
+      kShowReleaseNotes.loadData(data),
+      kDefaultBetaMatrixedZoomEnabled.loadData(data),
+      kMatrixSize.loadData(data),
+      kShowDebugInfo.loadData(data),
+      kShowNetworkUsage.loadData(data),
+    ]);
+
+    notifyListeners();
   }
 
   @override

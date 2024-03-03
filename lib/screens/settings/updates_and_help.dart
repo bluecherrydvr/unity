@@ -42,6 +42,8 @@ class UpdatesSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final update = context.watch<UpdateManager>();
 
+    final isMacOs = isDesktopPlatform && Platform.isMacOS;
+
     return ListView(children: [
       if (!kIsWeb) ...[
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -61,41 +63,42 @@ class UpdatesSettings extends StatelessWidget {
           ),
         ]),
         const AppUpdateCard(),
-        CheckboxListTile.adaptive(
-          onChanged: (v) {
-            if (v != null) {
-              update.automaticDownloads = v;
-            }
-          },
-          value: update.automaticDownloads,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.podcasts),
-          ),
-          contentPadding: DesktopSettings.horizontalPadding,
-          title: Text(loc.automaticDownloadUpdates),
-          subtitle: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(text: loc.automaticDownloadUpdatesDescription),
-                TextSpan(
-                  text: '\n${loc.learnMore}',
-                  style: theme.textTheme.labelMedium!.copyWith(
-                    color: theme.colorScheme.primary,
+        if (!isMacOs)
+          CheckboxListTile.adaptive(
+            onChanged: (v) {
+              if (v != null) {
+                update.automaticDownloads = v;
+              }
+            },
+            value: update.automaticDownloads,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.podcasts),
+            ),
+            contentPadding: DesktopSettings.horizontalPadding,
+            title: Text(loc.automaticDownloadUpdates),
+            subtitle: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(text: loc.automaticDownloadUpdatesDescription),
+                  TextSpan(
+                    text: '\n${loc.learnMore}',
+                    style: theme.textTheme.labelMedium!.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                    mouseCursor: SystemMouseCursors.click,
+                    recognizer: TapGestureRecognizer()..onTap = () {},
                   ),
-                  mouseCursor: SystemMouseCursors.click,
-                  recognizer: TapGestureRecognizer()..onTap = () {},
+                ],
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface,
                 ),
-              ],
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface,
               ),
             ),
+            isThreeLine: true,
           ),
-          isThreeLine: true,
-        ),
-        if (kDebugMode && !Platform.isMacOS)
+        if (kDebugMode && !isMacOs)
           CheckboxListTile.adaptive(
             secondary: CircleAvatar(
               backgroundColor: Colors.transparent,

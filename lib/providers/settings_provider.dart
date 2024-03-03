@@ -303,8 +303,8 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'privacy.allow_data_collection',
   );
-  final kAllowCrashReports = _SettingsOption(
-    def: true,
+  final kAllowCrashReports = _SettingsOption<EnabledPreference>(
+    def: EnabledPreference.on,
     key: 'privacy.allow_crash_reports',
   );
 

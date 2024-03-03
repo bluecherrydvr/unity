@@ -407,7 +407,7 @@ class About extends StatelessWidget {
             ),
             const SizedBox(width: 8.0),
             Link(
-              uri: Uri.https('www.bluecherrydvr.com', '/contact'),
+              uri: Uri.https('www.bluecherrydvr.com', '/contact/'),
               builder: (context, open) {
                 return TextButton(
                   onPressed: open,

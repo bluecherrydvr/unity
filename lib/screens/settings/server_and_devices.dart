@@ -130,7 +130,7 @@ class StreamingSettings extends StatelessWidget {
           title: 'Refresh Period',
           description: 'How often to refresh the cameras',
           icon: Icons.sync,
-          value: Duration.zero,
+          value: settings.kRefreshRate.value,
           values: const [
             Duration.zero,
             Duration(seconds: 30),
@@ -142,7 +142,9 @@ class StreamingSettings extends StatelessWidget {
               text: q.humanReadableCompact(context),
             );
           }),
-          onChanged: (v) {},
+          onChanged: (v) {
+            settings.kRefreshRate.value = v;
+          },
         ),
       ],
       const SizedBox(height: 8.0),
@@ -222,8 +224,12 @@ class StreamingSettings extends StatelessWidget {
           subtitle:
               const Text('When to reload timed out streams automatically'),
           contentPadding: DesktopSettings.horizontalPadding,
-          value: true,
-          onChanged: (v) {},
+          value: settings.kReloadTimedOutStreams.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kReloadTimedOutStreams.value = v;
+            }
+          },
         ),
         const SizedBox(height: 8.0),
         CheckboxListTile.adaptive(
@@ -240,8 +246,12 @@ class StreamingSettings extends StatelessWidget {
           ),
           isThreeLine: true,
           contentPadding: DesktopSettings.horizontalPadding,
-          value: true,
-          onChanged: (v) {},
+          value: settings.kUseHardwareDecoding.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kUseHardwareDecoding.value = v;
+            }
+          },
         ),
         const SizedBox(height: 8.0),
         ListTile(

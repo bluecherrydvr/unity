@@ -80,8 +80,12 @@ class GeneralSettings extends StatelessWidget {
         ),
         contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('Notifications enabled'),
-        value: true,
-        onChanged: (value) {},
+        value: settings.kNotificationsEnabled.value,
+        onChanged: (value) {
+          if (value != null) {
+            settings.kNotificationsEnabled.value = value;
+          }
+        },
       ),
       ListTile(
         contentPadding: DesktopSettings.horizontalPadding,

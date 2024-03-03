@@ -67,8 +67,12 @@ class ApplicationSettings extends StatelessWidget {
       if (kDebugMode) ...[
         const SubHeader('Window'),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kLaunchAppOnStartup.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kLaunchAppOnStartup.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -81,8 +85,12 @@ class ApplicationSettings extends StatelessWidget {
           ),
         ),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kMinimizeToTray.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kMinimizeToTray.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -97,8 +105,12 @@ class ApplicationSettings extends StatelessWidget {
         ),
         const SubHeader('Acessibility'),
         CheckboxListTile.adaptive(
-          value: true,
-          onChanged: (v) {},
+          value: settings.kAnimationsEnabled.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kAnimationsEnabled.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -107,12 +119,17 @@ class ApplicationSettings extends StatelessWidget {
           ),
           title: const Text('Animations'),
           subtitle: const Text(
-              'Disable animations on low-end devices to improve performance. '
-              'This will also disable some visual effects. '),
+            'Disable animations on low-end devices to improve performance. This '
+            'will also disable some visual effects. ',
+          ),
         ),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kHighContrast.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kHighContrast.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -125,15 +142,19 @@ class ApplicationSettings extends StatelessWidget {
           ),
         ),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kLargeFont.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kLargeFont.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.accessibility_new),
           ),
-          title: const Text('Large text'),
+          title: const Text('Large Font'),
           subtitle: const Text(
             'Increase the size of the text in the app to make it easier to read.',
           ),

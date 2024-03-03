@@ -41,8 +41,12 @@ class EventsAndDownloadsSettings extends StatelessWidget {
       SubHeader(loc.downloads),
       if (kDebugMode)
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kChooseLocationEveryTime.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kChooseLocationEveryTime.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -91,8 +95,12 @@ class EventsAndDownloadsSettings extends StatelessWidget {
       const SubHeader('Events'),
       if (kDebugMode)
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kPictureInPicture.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kPictureInPicture.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -116,8 +124,10 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         trailing: SizedBox(
           width: 160.0,
           child: Slider(
-            value: 1.0,
-            onChanged: (v) {},
+            value: settings.kEventsSpeed.value,
+            onChanged: (v) {
+              settings.kEventsSpeed.value = v;
+            },
           ),
         ),
       ),
@@ -133,8 +143,10 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         trailing: SizedBox(
           width: 160.0,
           child: Slider(
-            value: 1.0,
-            onChanged: (v) {},
+            value: settings.kEventsVolume.value,
+            onChanged: (v) {
+              settings.kEventsVolume.value = v;
+            },
           ),
         ),
       ),
@@ -142,8 +154,12 @@ class EventsAndDownloadsSettings extends StatelessWidget {
       if (kDebugMode) ...[
         const SubHeader('Timeline of Events'),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kShowDifferentColorsForEvents.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kShowDifferentColorsForEvents.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -157,8 +173,12 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           ),
         ),
         CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
+          value: settings.kPauseToBuffer.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kPauseToBuffer.value = v;
+            }
+          },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,

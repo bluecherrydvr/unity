@@ -342,7 +342,7 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
   final kShowDebugInfo = _SettingsOption(
-    def: false,
+    def: kDebugMode,
     key: 'other.show_debug_info',
   );
   final kShowNetworkUsage = _SettingsOption(

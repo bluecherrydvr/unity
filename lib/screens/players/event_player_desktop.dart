@@ -336,7 +336,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       padd,
                       padd,
                       padd,
-                      Text(loc.speed(speed.toStringAsFixed(2))),
+                      Text(loc.speed(speed.toStringAsFixed(1))),
                       SizedBox(
                         width: kSliderControlerWidth,
                         child: Slider.adaptive(
@@ -346,8 +346,6 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                           ),
                           min: settings.kEventsSpeed.min!,
                           max: settings.kEventsSpeed.max!,
-                          divisions: 7,
-                          label: speed.toStringAsFixed(2),
                           onChanged: (v) => setState(() => speed = v),
                           onChangeEnd: (v) async {
                             videoController.setSpeed(v);

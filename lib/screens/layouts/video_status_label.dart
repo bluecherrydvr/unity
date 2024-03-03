@@ -273,7 +273,9 @@ class _DeviceVideoInfo extends StatelessWidget {
         _buildTextSpan(
           context,
           title: loc.resolution,
-          data: '${device.resolutionX}x${device.resolutionY}',
+          data: '${video.player.width ?? device.resolutionX}'
+              'x'
+              '${video.player.height ?? device.resolutionY}',
         ),
         _buildTextSpan(context, title: loc.fps, data: '${video.fps}'),
         _buildTextSpan(

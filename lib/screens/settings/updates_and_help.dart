@@ -53,10 +53,10 @@ class UpdatesSettings extends StatelessWidget {
         ]),
         const AppUpdateCard(),
         const AppUpdateOptions(),
+        const Divider(),
       ],
       // TODO(bdlukaa): Show option to downlaod the native client when running
       //                on the web.
-      const Divider(),
       const About(),
     ]);
   }

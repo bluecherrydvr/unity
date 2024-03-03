@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
@@ -36,20 +38,28 @@ class AppUpdateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    assert(!kIsWeb, 'This widget should not be used on the web');
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final textDirection = Directionality.of(context);
     final update = context.watch<UpdateManager>();
 
+    final horizontalPadding =
+        DesktopSettings.horizontalPadding.resolve(textDirection);
+    final cardMargin = EdgeInsetsDirectional.only(
+      top: 8.0,
+      start: horizontalPadding.left,
+      end: horizontalPadding.right,
+      bottom: 6.0,
+    );
+
+    final isMacOs = isDesktopPlatform && Platform.isMacOS;
+
     if (update.hasUpdateAvailable) {
-      final executable = update.executableFor(update.latestVersion!.version);
+      final executable =
+          isMacOs ? null : update.executableFor(update.latestVersion!.version);
       return Card(
-        margin: EdgeInsetsDirectional.only(
-          top: 8.0,
-          start: DesktopSettings.horizontalPadding.resolve(textDirection).left,
-          end: DesktopSettings.horizontalPadding.resolve(textDirection).right,
-          bottom: 6.0,
-        ),
+        margin: cardMargin,
         child: Padding(
           padding: const EdgeInsetsDirectional.all(8.0),
           child: Row(children: [
@@ -81,7 +91,17 @@ class AppUpdateCard extends StatelessWidget {
                   style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: 6.0),
-                if (update.downloading)
+                if (isMacOs)
+                  Link(
+                    uri: Uri.parse(update.downloadMacOSRedirect),
+                    builder: (context, followLink) {
+                      return FilledButton(
+                        onPressed: followLink,
+                        child: const Text('Download at website'),
+                      );
+                    },
+                  )
+                else if (update.downloading)
                   SizedBox(
                     height: 32.0,
                     width: 32.0,
@@ -115,12 +135,7 @@ class AppUpdateCard extends StatelessWidget {
       );
     } else {
       return Card(
-        margin: EdgeInsetsDirectional.only(
-          top: 8.0,
-          bottom: 6.0,
-          start: DesktopSettings.horizontalPadding.resolve(textDirection).left,
-          end: DesktopSettings.horizontalPadding.resolve(textDirection).right,
-        ),
+        margin: cardMargin,
         child: Padding(
           padding: const EdgeInsetsDirectional.all(8.0),
           child: Row(children: [
@@ -160,14 +175,18 @@ class AppUpdateCard extends StatelessWidget {
                         if (DateUtils.isSameDay(
                           update.lastCheck,
                           DateTime.now(),
-                        )) return loc.today;
+                        )) {
+                          return '${loc.today}, ${DateFormat.Hms().format(update.lastCheck!)}';
+                        }
 
                         if (DateUtils.isSameDay(
                           update.lastCheck,
                           DateTime.now().subtract(
                             const Duration(days: 1, minutes: 12),
                           ),
-                        )) return loc.yesterday;
+                        )) {
+                          return '${loc.yesterday}, ${DateFormat.Hms().format(update.lastCheck!)}';
+                        }
 
                         return DateFormat().format(update.lastCheck!);
                       }(),
@@ -178,7 +197,7 @@ class AppUpdateCard extends StatelessWidget {
               ),
             ),
             FilledButton.tonal(
-              onPressed: update.checkForUpdates,
+              onPressed: update.loading ? null : update.checkForUpdates,
               child: update.loading
                   ? SizedBox(
                       height: 20.0,
@@ -270,7 +289,7 @@ class AppUpdateOptions extends StatelessWidget {
         ),
         isThreeLine: true,
       ),
-      if (kDebugMode)
+      if (kDebugMode && !Platform.isMacOS)
         CheckboxListTile.adaptive(
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,

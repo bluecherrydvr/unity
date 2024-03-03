@@ -306,11 +306,14 @@ class UpdateManager extends UnityProvider {
       if (file.existsSync()) return file;
     } else {
       throw UnsupportedError(
-        'Unsupported platform. Only Windows and Linux are supported',
+        'Unsupported platform. Only Windows and Linux are supported.',
       );
     }
     return null;
   }
+
+  String get downloadMacOSRedirect =>
+      'https://github.com/bluecherrydvr/unity?tab=readme-ov-file#download';
 
   /// Downloads the latest version executable.
   Future<void> download(String version) async {

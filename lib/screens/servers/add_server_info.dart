@@ -71,7 +71,7 @@ class AddServerInfoScreen extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     Link(
-                      uri: Uri.https('www.bluecherrydvr.com', '/'),
+                      uri: Uri.https('bluecherrydvr.com', '/'),
                       builder: (context, open) {
                         return TextButton(
                           onPressed: open,
@@ -82,7 +82,7 @@ class AddServerInfoScreen extends StatelessWidget {
                     const SizedBox(width: 8.0),
                     Link(
                       uri: Uri.https(
-                        'www.bluecherrydvr.com',
+                        'bluecherrydvr.com',
                         '/product/v3license/',
                       ),
                       builder: (context, open) {

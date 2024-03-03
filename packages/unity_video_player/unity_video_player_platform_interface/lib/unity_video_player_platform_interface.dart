@@ -270,18 +270,6 @@ enum UnityVideoQuality {
   final bool isHD;
 
   const UnityVideoQuality._({required this.resolution, this.isHD = false});
-
-  /// Returns the video quality for the video height
-  static UnityVideoQuality qualityForResolutionY(int? height) {
-    return switch (height) {
-      1080 => p1080,
-      720 => p720,
-      480 => p480,
-      360 => p360,
-      240 => p240,
-      _ => p480,
-    };
-  }
 }
 
 /// How to handle late video streams.
@@ -319,7 +307,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   /// The [onReload] parameter is called when the video needs to be reloaded.
   /// It is usually used when the image has been old for a while.
   static UnityVideoPlayer create({
-    UnityVideoQuality quality = UnityVideoQuality.p360,
+    UnityVideoQuality? quality,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     Future<String>? fallbackUrl,
@@ -328,8 +316,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     LateVideoBehavior lateVideoBehavior = LateVideoBehavior.automatic,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
-      width: quality.resolution.width.toInt(),
-      height: quality.resolution.height.toInt(),
+      width: quality?.resolution.width.toInt(),
+      height: quality?.resolution.height.toInt(),
       enableCache: enableCache,
       rtspProtocol: rtspProtocol,
       title: title,
@@ -362,6 +350,9 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   int? width;
   int? height;
+  Size? get resolution => width != null && height != null
+      ? Size(width!.toDouble(), height!.toDouble())
+      : null;
   String? error;
 
   UnityVideoQuality? quality;

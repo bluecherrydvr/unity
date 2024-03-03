@@ -115,8 +115,7 @@ class UnityPlayers with ChangeNotifier {
         RenderingQuality.p480 => UnityVideoQuality.p480,
         RenderingQuality.p360 => UnityVideoQuality.p360,
         RenderingQuality.p240 => UnityVideoQuality.p240,
-        RenderingQuality.automatic =>
-          UnityVideoQuality.qualityForResolutionY(device.resolutionY),
+        RenderingQuality.automatic => null,
       },
       onReload: setSource,
       title: device.fullName,

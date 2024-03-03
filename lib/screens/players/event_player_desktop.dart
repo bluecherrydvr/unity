@@ -69,8 +69,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   late final StreamSubscription playingSubscription;
   late final StreamSubscription bufferSubscription;
 
-  double speed = 1.0;
-  double volume = 1.0;
+  late double speed = SettingsProvider.instance.kEventsSpeed.value;
+  late double volume = SettingsProvider.instance.kEventsVolume.value;
   double? _position;
 
   /// Whether the video should automatically play after seeking
@@ -336,15 +336,16 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       padd,
                       padd,
                       padd,
-                      Text(loc.speed(speed.toStringAsFixed(2))),
+                      Text(loc.speed(speed.toStringAsFixed(1))),
                       SizedBox(
                         width: kSliderControlerWidth,
                         child: Slider.adaptive(
-                          value: speed,
-                          min: 0.25,
-                          max: 2,
-                          divisions: 7,
-                          label: speed.toStringAsFixed(2),
+                          value: speed.clamp(
+                            settings.kEventsSpeed.min!,
+                            settings.kEventsSpeed.max!,
+                          ),
+                          min: settings.kEventsSpeed.min!,
+                          max: settings.kEventsSpeed.max!,
                           onChanged: (v) => setState(() => speed = v),
                           onChangeEnd: (v) async {
                             videoController.setSpeed(v);

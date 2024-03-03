@@ -317,10 +317,13 @@ class Timeline extends ChangeNotifier {
     }
   }
 
-  double _speed = 1.0;
+  double _speed = SettingsProvider.instance.kEventsSpeed.value;
   double get speed => _speed;
   set speed(double value) {
-    _speed = value;
+    _speed = value.clamp(
+      SettingsProvider.instance.kEventsSpeed.min!,
+      SettingsProvider.instance.kEventsSpeed.max!,
+    );
     stop();
     notifyListeners();
 
@@ -593,8 +596,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     constraints: const BoxConstraints(maxWidth: 120.0),
                     child: Slider.adaptive(
                       value: _speed ?? timeline.speed,
-                      min: 0.5,
-                      max: 2.0,
+                      min: settings.kEventsSpeed.min!,
+                      max: settings.kEventsSpeed.max!,
                       onChanged: (s) => setState(() => _speed = s),
                       onChangeEnd: (s) {
                         _speed = null;

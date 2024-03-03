@@ -32,14 +32,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:path_provider_windows/path_provider_windows.dart'
-    hide WindowsKnownFolder;
-// ignore: implementation_imports
-import 'package:path_provider_windows/src/folders_stub.dart'
-    if (dart.library.ffi) 'package:path_provider_windows/src/folders.dart'
-    show WindowsKnownFolder;
-
 class DownloadedEvent {
   final Event event;
   final String downloadPath;
@@ -100,24 +92,37 @@ class DownloadsManager extends UnityProvider {
   static Future<DownloadsManager> ensureInitialized() async {
     instance = DownloadsManager._();
     await instance.initialize();
+    debugPrint('DownloadsManager initialized');
     return instance;
   }
 
   static Future<Directory> get kDefaultDownloadsDirectory async {
     Directory? dir;
-    if (PathProviderPlatform.instance is PathProviderWindows) {
-      final instance = PathProviderPlatform.instance as PathProviderWindows;
-      final videosPath =
-          // ignore: unnecessary_cast
-          await instance.getPath((WindowsKnownFolder as dynamic).Videos)
-              as String;
-      dir = Directory(path.join(videosPath, 'Bluecherry Client', 'Downloads'));
-    }
+    try {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        final dirs = await getExternalStorageDirectories(
+            type: StorageDirectory.downloads);
+        if (dirs?.isNotEmpty ?? false) dir = dirs!.first;
+      }
 
-    if (dir == null) {
+      if (dir == null) {
+        final downloadsDir = await getDownloadsDirectory();
+        if (downloadsDir != null) {
+          dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+        }
+      }
+
+      if (dir == null) {
+        final docsDir = await getApplicationSupportDirectory();
+        dir = Directory(path.join(docsDir.path, 'downloads'));
+      }
+    } catch (error, stack) {
+      debugPrint('Failed to get default downloads directory: $error\n$stack');
       final docsDir = await getApplicationSupportDirectory();
       dir = Directory(path.join(docsDir.path, 'downloads'));
     }
+
+    debugPrint('The default downloads is ${dir.path}');
 
     return dir.create(recursive: true);
   }
@@ -155,14 +160,14 @@ class DownloadsManager extends UnityProvider {
     });
 
     await tryReadStorage(
-        () => super.initializeStorage(downloads, kHiveDownloads));
+        () => super.initializeStorage(downloads, kStorageDownloads));
   }
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await downloads.write({
-        kHiveDownloads:
+        kStorageDownloads:
             jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
       });
     } catch (e) {
@@ -176,9 +181,9 @@ class DownloadsManager extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => downloads.read());
 
-    downloadedEvents = data[kHiveDownloads] == null
+    downloadedEvents = data[kStorageDownloads] == null
         ? []
-        : ((await compute(jsonDecode, data[kHiveDownloads] as String) ?? [])
+        : ((await compute(jsonDecode, data[kStorageDownloads] as String) ?? [])
                 as List)
             .cast<Map>()
             .map<DownloadedEvent>((item) {
@@ -225,7 +230,7 @@ class DownloadsManager extends UnityProvider {
     downloading[event] = 0.0;
     notifyListeners();
 
-    final dir = SettingsProvider.instance.downloadsDirectory;
+    final dir = SettingsProvider.instance.kDownloadsDirectory.value;
     final fileName =
         'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);

@@ -149,7 +149,7 @@ class HomeProvider extends ChangeNotifier {
     }
     final settings = context.read<SettingsProvider>();
 
-    if (!settings.wakelockEnabled) {
+    if (!settings.kWakelock.value) {
       WakelockPlus.disable();
     } else {
       switch (tab) {

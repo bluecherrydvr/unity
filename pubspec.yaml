@@ -51,11 +51,6 @@ dependencies:
   file_picker: ^6.1.1
   safe_local_storage: ^1.0.0
   
-  # Hive is just used in terms of migration
-  # TODO: remove this in future
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-
   permission_handler: ^11.1.0
   uuid: ^4.3.3
 

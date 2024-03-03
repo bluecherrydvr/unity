@@ -19,9 +19,10 @@
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -247,6 +248,7 @@ class AppUpdateOptions extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.podcasts),
         ),
+        contentPadding: DesktopSettings.horizontalPadding,
         title: Text(loc.automaticDownloadUpdates),
         subtitle: RichText(
           text: TextSpan(
@@ -268,12 +270,28 @@ class AppUpdateOptions extends StatelessWidget {
         ),
         isThreeLine: true,
       ),
+      if (kDebugMode)
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.memory),
+          ),
+          title: const Text('Show release notes'),
+          subtitle: const Text(
+            'Display release notes when a new version is downloaded',
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: true,
+          onChanged: (v) {},
+        ),
       ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.history),
         ),
+        contentPadding: DesktopSettings.horizontalPadding,
         title: Text(loc.updateHistory),
         trailing: const Icon(Icons.navigate_next),
         onTap: () => showUpdateHistory(context),
@@ -308,7 +326,8 @@ class AppUpdateOptions extends StatelessWidget {
                           TextSpan(text: version.version),
                           const TextSpan(text: '   '),
                           TextSpan(
-                            text: SettingsProvider.instance.dateFormat.format(
+                            text: SettingsProvider.instance.kDateFormat.value
+                                .format(
                               DateFormat('EEE, d MMM yyyy', 'en_US')
                                   .parse(version.publishedAt),
                             ),
@@ -357,7 +376,7 @@ class About extends StatelessWidget {
     final update = context.watch<UpdateManager>();
 
     return Padding(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 24.0),
+      padding: DesktopSettings.horizontalPadding,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SizedBox(height: 8.0),
         if (update.packageInfo != null) ...[
@@ -369,22 +388,60 @@ class About extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 8.0),
-        Link(
-          uri: Uri.https('www.bluecherrydvr.com', '/'),
-          builder: (context, open) {
-            return MaterialButton(
-              onPressed: open,
-              padding: EdgeInsetsDirectional.zero,
-              minWidth: 0.0,
+        Row(
+          children: [
+            Link(
+              uri: Uri.https('www.bluecherrydvr.com', '/'),
+              builder: (context, open) {
+                return TextButton(
+                  onPressed: open,
+                  child: Text(
+                    loc.website,
+                    semanticsLabel: 'www.bluecherrydvr.com',
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8.0),
+            Link(
+              uri: Uri.https('www.bluecherrydvr.com', '/contact/'),
+              builder: (context, open) {
+                return TextButton(
+                  onPressed: open,
+                  child: Text(
+                    'Help',
+                    semanticsLabel: 'www.bluecherrydvr.com/contact',
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8.0),
+            TextButton(
+              onPressed: () {
+                showLicensePage(
+                  context: context,
+                  applicationName: 'Bluecherry Client',
+                  applicationIcon: Image.asset(
+                    'assets/images/icon.png',
+                  ),
+                  applicationVersion: update.packageInfo?.version,
+                  applicationLegalese: '© 2022 Bluecherry, LLC',
+                );
+              },
               child: Text(
-                loc.website,
-                semanticsLabel: 'www.bluecherrydvr.com',
+                'Licenses',
                 style: TextStyle(
                   color: theme.colorScheme.primary,
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ]),
     );

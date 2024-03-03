@@ -242,7 +242,8 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                     ),
                   ),
                 ),
-                if (settings.betaMatrixedZoomEnabled && showMoreOptions) ...[
+                if (settings.kDefaultBetaMatrixedZoomEnabled.value &&
+                    showMoreOptions) ...[
                   const SizedBox(height: 16.0),
                   Text(loc.matrixType, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),

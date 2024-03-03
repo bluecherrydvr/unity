@@ -111,7 +111,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                     title: loc.streamingType,
                     values: StreamingType.values,
                     value: streamingType,
-                    defaultValue: settings.streamingType,
+                    defaultValue: settings.kStreamingType.value,
                     onChanged: (value) {
                       setState(() {
                         streamingType = value;
@@ -122,7 +122,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                     title: loc.rtspProtocol,
                     values: RTSPProtocol.values,
                     value: rtspProtocol,
-                    defaultValue: settings.rtspProtocol,
+                    defaultValue: settings.kRTSPProtocol.value,
                     onChanged: (value) {
                       setState(() {
                         rtspProtocol = value;
@@ -134,7 +134,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                     description: loc.cameraViewFitDescription,
                     values: UnityVideoFit.values,
                     value: videoFit,
-                    defaultValue: settings.cameraViewFit,
+                    defaultValue: settings.kVideoFit.value,
                     onChanged: (value) {
                       setState(() {
                         videoFit = value;
@@ -146,7 +146,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                     description: loc.renderingQualityDescription,
                     values: RenderingQuality.values,
                     value: renderingQuality,
-                    defaultValue: settings.videoQuality,
+                    defaultValue: settings.kRenderingQuality.value,
                     onChanged: (value) {
                       setState(() {
                         renderingQuality = value;

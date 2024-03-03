@@ -62,12 +62,12 @@ class _LayoutManagerState extends State<LayoutManager> {
     super.didChangeDependencies();
     final settings = context.watch<SettingsProvider>();
     timer?.cancel();
-    timer = Timer.periodic(settings.layoutCyclingTogglePeriod, (timer) {
+    timer = Timer.periodic(settings.kLayoutCyclePeriod.value, (timer) {
       if (!mounted) return;
 
       final view = DesktopViewProvider.instance;
 
-      if (settings.layoutCyclingEnabled) {
+      if (settings.kLayoutCycleEnabled.value) {
         final currentIsLast =
             view.currentLayoutIndex == view.layouts.length - 1;
 
@@ -123,7 +123,7 @@ class _LayoutManagerState extends State<LayoutManager> {
                   icon: Icon(
                     Icons.cyclone,
                     size: 18.0,
-                    color: settings.layoutCyclingEnabled
+                    color: settings.kLayoutCycleEnabled.value
                         ? theme.colorScheme.primary
                         : IconTheme.of(context).color,
                   ),
@@ -488,7 +488,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         content: Text(
           message,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [

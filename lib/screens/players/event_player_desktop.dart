@@ -102,7 +102,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
           title: title,
         );
     fit = device?.server.additionalSettings.videoFit ??
-        SettingsProvider.instance.cameraViewFit;
+        SettingsProvider.instance.kVideoFit.value;
     playingSubscription =
         videoController.onPlayingStateUpdate.listen((isPlaying) {
       if (!mounted) return;
@@ -194,7 +194,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 Center(
                                   child: ErrorWarning(message: video.error!),
                                 ),
-                              if (settings.showDebugInfo)
+                              if (settings.kShowDebugInfo.value)
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(

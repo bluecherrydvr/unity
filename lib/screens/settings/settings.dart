@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'package:bluecherry_client/screens/settings/desktop/settings.dart';
-import 'package:bluecherry_client/screens/settings/mobile/settings.dart';
+import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
+import 'package:bluecherry_client/screens/settings/settings_mobile.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 

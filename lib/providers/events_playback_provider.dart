@@ -32,13 +32,14 @@ class EventsProvider extends UnityProvider {
   static Future<EventsProvider> ensureInitialized() async {
     instance = EventsProvider._();
     await instance.initialize();
+    debugPrint('EventsProvider initialized');
     return instance;
   }
 
   @override
   Future<void> initialize() {
     return tryReadStorage(
-        () => super.initializeStorage(eventsPlayback, kHiveEventsPlayback));
+        () => super.initializeStorage(eventsPlayback, kStorageEventsPlayback));
   }
 
   /// The list of the device ids that are currently selected
@@ -50,7 +51,7 @@ class EventsProvider extends UnityProvider {
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await eventsPlayback.write({
-        kHiveEventsPlayback: jsonEncode(selectedIds),
+        kStorageEventsPlayback: jsonEncode(selectedIds),
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -65,7 +66,7 @@ class EventsProvider extends UnityProvider {
     final data = await tryReadStorage(() => eventsPlayback.read());
 
     selectedIds =
-        (jsonDecode(data[kHiveEventsPlayback]) as List).cast<String>();
+        (jsonDecode(data[kStorageEventsPlayback]) as List).cast<String>();
 
     super.restore(notifyListeners: notifyListeners);
   }

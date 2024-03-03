@@ -670,7 +670,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             ]),
           ),
           Text(
-            '${settings.dateFormat.format(timeline.currentDate)} '
+            '${settings.kDateFormat.value.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
           ConstrainedBox(
@@ -810,13 +810,13 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                               child: Container(
                                 width: 8,
                                 height: 4,
-                                // color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onSurface,
                                 color: Colors.black,
                               ),
                             ),
                             Expanded(
                               child: Container(
-                                // color: theme.colorScheme.onBackground,
+                                // color: theme.colorScheme.onSurface,
                                 width: 1.8,
                                 color: Colors.black,
                               ),
@@ -986,7 +986,7 @@ class _TimelineTile extends StatelessWidget {
                       //             1)]
                       //     : theme.colorScheme.primary,
                       color: theme.colorScheme.primary,
-                      child: settings.showDebugInfo
+                      child: settings.kShowDebugInfo.value
                           ? Align(
                               alignment: AlignmentDirectional.centerStart,
                               child: Text(
@@ -1051,7 +1051,7 @@ class _TimelineHours extends StatelessWidget {
                     child: Container(
                       height: 6.5,
                       width: 2,
-                      color: theme.colorScheme.onBackground,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 );

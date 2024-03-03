@@ -189,7 +189,7 @@ class _StreamDataState extends State<StreamData> {
                         Icon(fit.icon),
                         const SizedBox(width: 8.0),
                         Flexible(child: Text(fit.locale(context), maxLines: 1)),
-                        if (settings.cameraViewFit == fit) ...[
+                        if (settings.kVideoFit.value == fit) ...[
                           const SizedBox(width: 2.5),
                           const DefaultValueIcon(),
                         ],
@@ -209,7 +209,7 @@ class _StreamDataState extends State<StreamData> {
                     isSelected: StreamingType.values
                         .map(
                           (type) => streamingType == null
-                              ? type == settings.streamingType
+                              ? type == settings.kStreamingType.value
                               : type == streamingType,
                         )
                         .toList(),
@@ -228,7 +228,7 @@ class _StreamDataState extends State<StreamData> {
                         children: [
                           const SizedBox(width: 12.0),
                           Text(type.name.toUpperCase()),
-                          if (settings.streamingType == type) ...[
+                          if (settings.kStreamingType.value == type) ...[
                             const SizedBox(width: 10.0),
                             const DefaultValueIcon(),
                           ],
@@ -243,7 +243,7 @@ class _StreamDataState extends State<StreamData> {
                     },
                   ),
                 ],
-                if (settings.betaMatrixedZoomEnabled) ...[
+                if (settings.kDefaultBetaMatrixedZoomEnabled.value) ...[
                   const SizedBox(height: 16.0),
                   Text(loc.matrixType, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),

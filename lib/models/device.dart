@@ -265,17 +265,21 @@ class Device {
       queryParameters: data,
     );
 
-    var response = await API.client.get(uri);
+    try {
+      var response = await API.client.get(uri);
 
-    if (response.statusCode == 200) {
-      var ret = json.decode(response.body) as Map;
+      if (response.statusCode == 200) {
+        var ret = json.decode(response.body) as Map;
 
-      if (ret['status'] == 6) {
-        var hlsLink = ret['msg'][0];
-        return Uri.encodeFull(hlsLink);
+        if (ret['status'] == 6) {
+          var hlsLink = ret['msg'][0];
+          return Uri.encodeFull(hlsLink);
+        }
+      } else {
+        debugPrint('Request failed with status: ${response.statusCode}');
       }
-    } else {
-      debugPrint('Request failed with status: ${response.statusCode}');
+    } catch (error, stacktrace) {
+      debugPrint('Failed to get HLS url($uri): $error, $stacktrace');
     }
 
     return hlsURL;

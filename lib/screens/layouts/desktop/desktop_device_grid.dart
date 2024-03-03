@@ -70,7 +70,7 @@ class _DesktopDeviceGridState extends State<DesktopDeviceGrid> {
                 icon: Icon(
                   Icons.cyclone,
                   size: 20.0,
-                  color: settings.layoutCyclingEnabled
+                  color: settings.kLayoutCycleEnabled.value
                       ? theme.colorScheme.primary
                       : IconTheme.of(context).color,
                 ),
@@ -305,7 +305,7 @@ class DesktopDeviceTile extends StatefulWidget {
 
 class _DesktopDeviceTileState extends State<DesktopDeviceTile> {
   late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
-      SettingsProvider.instance.cameraViewFit;
+      SettingsProvider.instance.kVideoFit.value;
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +471,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         final fit =
             context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
                 widget.device.server.additionalSettings.videoFit ??
-                settings.cameraViewFit;
+                settings.kVideoFit.value;
 
         return Stack(children: [
           Positioned.fill(child: MulticastViewport(device: widget.device)),
@@ -500,7 +500,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           shadows: outlinedText(),
                         ),
                       ),
-                    if (states.isHovering && settings.showDebugInfo)
+                    if (states.isHovering && settings.kShowDebugInfo.value)
                       TextSpan(
                         text: '\nsource: ${video?.player.dataSource}'
                             '\nposition: ${video?.player.currentPos}'

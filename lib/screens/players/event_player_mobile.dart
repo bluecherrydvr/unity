@@ -122,7 +122,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
             child: UnityVideoView(
               heroTag: widget.event.mediaURL,
               player: videoController,
-              fit: settings.cameraViewFit,
+              fit: settings.kVideoFit.value,
               videoBuilder: (context, video) {
                 return InteractiveViewer(
                   minScale: 1.0,
@@ -294,7 +294,7 @@ class _VideoViewportState extends State<VideoViewport> {
                         DownloadIndicator(event: widget.event),
                       ]),
                     ),
-                    if (settings.showDebugInfo)
+                    if (settings.kShowDebugInfo.value)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(

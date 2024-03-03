@@ -324,8 +324,8 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               heroTag: currentEvent?.videoUrl,
               player: tile.videoController,
               fit: device?.server.additionalSettings.videoFit ??
-                  settings.cameraViewFit,
-              paneBuilder: !settings.showDebugInfo
+                  settings.kVideoFit.value,
+              paneBuilder: !settings.kShowDebugInfo.value
                   ? null
                   : (context, controller) {
                       return Padding(
@@ -392,7 +392,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           child: currentDate == null
               ? const Text(' ■■■■■ • ■■■■■ ')
               : Text(
-                  '${settings.dateFormat.format(currentDate!)}'
+                  '${settings.kDateFormat.value.format(currentDate!)}'
                   ' '
                   '${timelineTimeFormat.format(currentDate!)}',
                   style: theme.textTheme.labelMedium,

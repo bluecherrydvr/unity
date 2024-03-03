@@ -24,6 +24,7 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -38,17 +39,18 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
       SubHeader(loc.downloads),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.create_new_folder),
+      if (kDebugMode)
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.create_new_folder),
+          ),
+          title: const Text('Choose location for each download'),
         ),
-        title: const Text('Choose location for each download'),
-      ),
       ListTile(
         contentPadding: DesktopSettings.horizontalPadding,
         leading: CircleAvatar(
@@ -72,34 +74,36 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           }
         },
       ),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.close),
+      if (kDebugMode)
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.close),
+          ),
+          title: const Text(
+              'Block the app from closing when there are ongoing downloads'),
         ),
-        title: const Text(
-            'Block the app from closing when there are ongoing downloads'),
-      ),
       const SizedBox(height: 20.0),
       const SubHeader('Events'),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.picture_in_picture),
+      if (kDebugMode)
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.picture_in_picture),
+          ),
+          title: const Text('Picture-in-picture'),
+          subtitle: const Text(
+            'Move to picture-in-picture mode when the app moves to background.',
+          ),
         ),
-        title: const Text('Picture-in-picture'),
-        subtitle: const Text(
-          'Move to picture-in-picture mode when the app moves to background.',
-        ),
-      ),
       ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -135,48 +139,51 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 20.0),
-      const SubHeader('Timeline of Events'),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.color_lens),
+      if (kDebugMode) ...[
+        const SubHeader('Timeline of Events'),
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.color_lens),
+          ),
+          title: const Text('Show different colors for events'),
+          subtitle: const Text(
+            'Whether to show different colors for events in the timeline. '
+            'This will help you to easily identify the events.',
+          ),
         ),
-        title: const Text('Show different colors for events'),
-        subtitle: const Text(
-          'Whether to show different colors for events in the timeline. '
-          'This will help you to easily identify the events.',
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.pause_presentation),
+          ),
+          title: const Text('Pause to buffer'),
+          subtitle: const Text(
+            'Whether the entire timeline should pause to buffer the events.',
+          ),
         ),
-      ),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.pause_presentation),
+        OptionsChooserTile(
+          title: 'Initial point',
+          description: 'When the timeline should begin.',
+          icon: Icons.flag,
+          value: '',
+          values: const [
+            Option(value: '', icon: Icons.start, text: 'Beginning'),
+            Option(value: '', icon: Icons.first_page, text: 'First event'),
+            Option(
+                value: '', icon: Icons.hourglass_bottom, text: 'An hour ago'),
+          ],
+          onChanged: (v) {},
         ),
-        title: const Text('Pause to buffer'),
-        subtitle: const Text(
-          'Whether the entire timeline should pause to buffer the events.',
-        ),
-      ),
-      OptionsChooserTile(
-        title: 'Initial point',
-        description: 'When the timeline should begin.',
-        icon: Icons.flag,
-        value: '',
-        values: const [
-          Option(value: '', icon: Icons.start, text: 'Beginning'),
-          Option(value: '', icon: Icons.first_page, text: 'First event'),
-          Option(value: '', icon: Icons.hourglass_bottom, text: 'An hour ago'),
-        ],
-        onChanged: (v) {},
-      ),
+      ],
     ]);
   }
 }

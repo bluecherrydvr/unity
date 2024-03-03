@@ -124,25 +124,27 @@ class StreamingSettings extends StatelessWidget {
           settings.kVideoFit.value = v;
         },
       ),
-      const SizedBox(height: 8.0),
-      OptionsChooserTile(
-        title: 'Refresh Period',
-        description: 'How often to refresh the cameras',
-        icon: Icons.sync,
-        value: Duration.zero,
-        values: const [
-          Duration.zero,
-          Duration(seconds: 30),
-          Duration(minutes: 2),
-          Duration(minutes: 5),
-        ].map((q) {
-          return Option(
-            value: q,
-            text: q.humanReadableCompact(context),
-          );
-        }),
-        onChanged: (v) {},
-      ),
+      if (kDebugMode) ...[
+        const SizedBox(height: 8.0),
+        OptionsChooserTile(
+          title: 'Refresh Period',
+          description: 'How often to refresh the cameras',
+          icon: Icons.sync,
+          value: Duration.zero,
+          values: const [
+            Duration.zero,
+            Duration(seconds: 30),
+            Duration(minutes: 2),
+            Duration(minutes: 5),
+          ].map((q) {
+            return Option(
+              value: q,
+              text: q.humanReadableCompact(context),
+            );
+          }),
+          onChanged: (v) {},
+        ),
+      ],
       const SizedBox(height: 8.0),
       OptionsChooserTile<LateVideoBehavior>(
         title: loc.lateStreamBehavior,
@@ -209,43 +211,46 @@ class StreamingSettings extends StatelessWidget {
         },
       ),
       const SizedBox(height: 8.0),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.history),
+      if (kDebugMode) ...[
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.history),
+          ),
+          title: const Text('Automatically reload timed out streams'),
+          subtitle:
+              const Text('When to reload timed out streams automatically'),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: true,
+          onChanged: (v) {},
         ),
-        title: const Text('Automatically reload timed out streams'),
-        subtitle: const Text('When to reload timed out streams automatically'),
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: true,
-        onChanged: (v) {},
-      ),
-      const SizedBox(height: 8.0),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.memory),
+        const SizedBox(height: 8.0),
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.memory),
+          ),
+          title: const Text('Hardware decoding'),
+          subtitle: const Text(
+            'Use hardware decoding when available. This improves the '
+            'performance of the video streams and reduce the CPU usage. '
+            'If not supported, it will fall back to software rendering. ',
+          ),
+          isThreeLine: true,
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: true,
+          onChanged: (v) {},
         ),
-        title: const Text('Hardware decoding'),
-        subtitle: const Text(
-          'Use hardware decoding when available. This improves the '
-          'performance of the video streams and reduce the CPU usage. '
-          'If not supported, it will fall back to software rendering. ',
+        const SizedBox(height: 8.0),
+        ListTile(
+          title: const Text('Run a video test'),
+          trailing: const Icon(Icons.play_arrow),
+          contentPadding: DesktopSettings.horizontalPadding,
+          onTap: () {},
         ),
-        isThreeLine: true,
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: true,
-        onChanged: (v) {},
-      ),
-      const SizedBox(height: 8.0),
-      ListTile(
-        title: const Text('Run a video test'),
-        trailing: const Icon(Icons.play_arrow),
-        contentPadding: DesktopSettings.horizontalPadding,
-        onTap: () {},
-      ),
+      ],
     ]);
   }
 }

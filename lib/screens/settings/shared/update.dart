@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -269,20 +270,21 @@ class AppUpdateOptions extends StatelessWidget {
         ),
         isThreeLine: true,
       ),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.memory),
+      if (kDebugMode)
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.memory),
+          ),
+          title: const Text('Show release notes'),
+          subtitle: const Text(
+            'Display release notes when a new version is downloaded',
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: true,
+          onChanged: (v) {},
         ),
-        title: const Text('Show release notes'),
-        subtitle: const Text(
-          'Display release notes when a new version is downloaded',
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: true,
-        onChanged: (v) {},
-      ),
       ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.transparent,

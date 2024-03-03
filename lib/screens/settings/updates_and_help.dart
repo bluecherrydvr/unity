@@ -19,16 +19,12 @@
 
 import 'dart:io';
 
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/settings/shared/update.dart';
-import 'package:bluecherry_client/utils/logging.dart';
-import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 class UpdatesSettings extends StatelessWidget {
   const UpdatesSettings({super.key});
@@ -60,92 +56,8 @@ class UpdatesSettings extends StatelessWidget {
       ],
       // TODO(bdlukaa): Show option to downlaod the native client when running
       //                on the web.
-      // Padding(
-      //   padding: DesktopSettings.horizontalPadding,
-      //   child: Text('Beta Features', style: theme.textTheme.titleMedium),
-      // ),
-      // const BetaFeatures(),
       const Divider(),
       const About(),
-    ]);
-  }
-}
-
-class BetaFeatures extends StatelessWidget {
-  const BetaFeatures({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
-    final settings = context.watch<SettingsProvider>();
-
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.crop),
-        ),
-        title: Text(loc.matrixedViewZoom),
-        subtitle: Text(loc.matrixedViewZoomDescription),
-        value: settings.kDefaultBetaMatrixedZoomEnabled.value,
-        onChanged: (value) {
-          if (value != null) {
-            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
-          }
-        },
-      ),
-      ExpansionTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.developer_mode),
-        ),
-        title: const Text('Developer options'),
-        subtitle:
-            const Text('Most of these options are for debugging purposes'),
-        children: [
-          if (!kIsWeb)
-            FutureBuilder(
-              future: getLogFile(),
-              builder: (context, snapshot) {
-                return ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 68.0,
-                    end: 26.0,
-                  ),
-                  leading: const Icon(Icons.bug_report),
-                  title: const Text('Open log file'),
-                  subtitle: Text(snapshot.data?.path ?? loc.loading),
-                  trailing: const Icon(Icons.navigate_next),
-                  dense: false,
-                  onTap: snapshot.data == null
-                      ? null
-                      : () {
-                          launchFileExplorer(snapshot.data!.path);
-                        },
-                );
-              },
-            ),
-          CheckboxListTile(
-            contentPadding: const EdgeInsetsDirectional.only(
-              start: 68.0,
-              end: 26.0,
-            ),
-            secondary: const Icon(Icons.adb),
-            title: const Text('Show debug info'),
-            subtitle: const Text('Display useful information for debugging'),
-            value: settings.kShowDebugInfo.value,
-            onChanged: (v) {
-              if (v != null) {
-                settings.kShowDebugInfo.value = v;
-              }
-            },
-            dense: false,
-          )
-        ],
-      ),
     ]);
   }
 }

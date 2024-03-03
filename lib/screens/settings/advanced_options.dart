@@ -58,22 +58,23 @@ class AdvancedOptionsSettings extends StatelessWidget {
           }
         },
       ),
-      OptionsChooserTile<MatrixType>(
-        title: 'Default Matrix Size',
-        icon: Icons.view_quilt,
-        value: MatrixType.t4,
-        values: MatrixType.values.map((size) {
-          return Option(
-            value: size,
-            text: size.toString(),
-          );
-        }),
-        onChanged: (v) {
-          settings.updateProperty(() {
-            settings.kMatrixSize.value = v;
-          });
-        },
-      ),
+      if (kDebugMode)
+        OptionsChooserTile<MatrixType>(
+          title: 'Default Matrix Size',
+          icon: Icons.view_quilt,
+          value: MatrixType.t4,
+          values: MatrixType.values.map((size) {
+            return Option(
+              value: size,
+              text: size.toString(),
+            );
+          }),
+          onChanged: (v) {
+            settings.updateProperty(() {
+              settings.kMatrixSize.value = v;
+            });
+          },
+        ),
       const SubHeader('Developer Options'),
       if (!kIsWeb) ...[
         FutureBuilder(
@@ -130,23 +131,24 @@ class AdvancedOptionsSettings extends StatelessWidget {
           },
           dense: false,
         ),
-        CheckboxListTile(
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: const Icon(Icons.network_check),
-          title: const Text('Network Usage'),
-          subtitle: const Text(
-            'Display network usage information over playing videos.',
+        if (kDebugMode)
+          CheckboxListTile(
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: const Icon(Icons.network_check),
+            title: const Text('Network Usage'),
+            subtitle: const Text(
+              'Display network usage information over playing videos.',
+            ),
+            value: settings.kShowNetworkUsage.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.updateProperty(() {
+                  settings.kShowNetworkUsage.value = v;
+                });
+              }
+            },
+            dense: false,
           ),
-          value: settings.kShowNetworkUsage.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.updateProperty(() {
-                settings.kShowNetworkUsage.value = v;
-              });
-            }
-          },
-          dense: false,
-        ),
         ListTile(
           contentPadding: DesktopSettings.horizontalPadding,
           leading: const Icon(Icons.restore),

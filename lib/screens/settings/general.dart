@@ -22,6 +22,7 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -145,45 +146,47 @@ class GeneralSettings extends StatelessWidget {
           settings.kNotificationClickBehavior.value = v;
         },
       ),
-      const SubHeader(
-        'Data Usage',
-        padding: DesktopSettings.horizontalPadding,
-      ),
-      OptionsChooserTile(
-        icon: Icons.data_usage,
-        title: 'Automatic streaming',
-        description: 'When to stream videos automatically on startup',
-        value: '',
-        values: const [
-          Option(value: '', icon: Icons.insights, text: 'Auto'),
-          Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
-          Option(value: '', icon: Icons.not_interested, text: 'Never'),
-        ],
-        onChanged: (value) {},
-      ),
-      OptionsChooserTile(
-        icon: Icons.cloud_done,
-        title: 'Keep streams playing on background',
-        description:
-            'When to keep streams playing when the app is in background',
-        value: '',
-        values: const [
-          Option(value: '', icon: Icons.insights, text: 'Auto'),
-          Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
-          Option(value: '', icon: Icons.not_interested, text: 'Never'),
-        ],
-        onChanged: (value) {},
-      ),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.show_chart),
+      if (kDebugMode) ...[
+        const SubHeader(
+          'Data Usage',
+          padding: DesktopSettings.horizontalPadding,
         ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('View previous data usage'),
-        trailing: const Icon(Icons.navigate_next),
-      ),
+        OptionsChooserTile(
+          icon: Icons.data_usage,
+          title: 'Automatic streaming',
+          description: 'When to stream videos automatically on startup',
+          value: '',
+          values: const [
+            Option(value: '', icon: Icons.insights, text: 'Auto'),
+            Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
+            Option(value: '', icon: Icons.not_interested, text: 'Never'),
+          ],
+          onChanged: (value) {},
+        ),
+        OptionsChooserTile(
+          icon: Icons.cloud_done,
+          title: 'Keep streams playing on background',
+          description:
+              'When to keep streams playing when the app is in background',
+          value: '',
+          values: const [
+            Option(value: '', icon: Icons.insights, text: 'Auto'),
+            Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
+            Option(value: '', icon: Icons.not_interested, text: 'Never'),
+          ],
+          onChanged: (value) {},
+        ),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.show_chart),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: const Text('View previous data usage'),
+          trailing: const Icon(Icons.navigate_next),
+        ),
+      ],
     ]);
   }
 }

@@ -22,6 +22,7 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
@@ -63,79 +64,81 @@ class ApplicationSettings extends StatelessWidget {
       const LanguageSection(),
       const DateFormatSection(),
       const TimeFormatSection(),
-      const SubHeader('Window'),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.launch),
+      if (kDebugMode) ...[
+        const SubHeader('Window'),
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.launch),
+          ),
+          title: const Text('Launch app on startup'),
+          subtitle: const Text(
+            'Whether to launchthe app when the system starts',
+          ),
         ),
-        title: const Text('Launch app on startup'),
-        subtitle: const Text(
-          'Whether to launchthe app when the system starts',
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.sensor_door),
+          ),
+          title: const Text('Minimize to tray'),
+          subtitle: const Text(
+            'Whether to minimize app to the system tray when the window is closed. '
+            'This will keep the app running in the background.',
+          ),
         ),
-      ),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.sensor_door),
+        const SubHeader('Acessibility'),
+        CheckboxListTile.adaptive(
+          value: true,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.animation),
+          ),
+          title: const Text('Animations'),
+          subtitle: const Text(
+              'Disable animations on low-end devices to improve performance. '
+              'This will also disable some visual effects. '),
         ),
-        title: const Text('Minimize to tray'),
-        subtitle: const Text(
-          'Whether to minimize app to the system tray when the window is closed. '
-          'This will keep the app running in the background.',
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.filter_b_and_w),
+          ),
+          title: const Text('High contrast mode'),
+          subtitle: const Text(
+            'Enable high contrast mode to make the app easier to read and use.',
+          ),
         ),
-      ),
-      const SubHeader('Acessibility'),
-      CheckboxListTile.adaptive(
-        value: true,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.animation),
+        CheckboxListTile.adaptive(
+          value: false,
+          onChanged: (v) {},
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.accessibility_new),
+          ),
+          title: const Text('Large text'),
+          subtitle: const Text(
+            'Increase the size of the text in the app to make it easier to read.',
+          ),
         ),
-        title: const Text('Animations'),
-        subtitle: const Text(
-            'Disable animations on low-end devices to improve performance. '
-            'This will also disable some visual effects. '),
-      ),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.filter_b_and_w),
-        ),
-        title: const Text('High contrast mode'),
-        subtitle: const Text(
-          'Enable high contrast mode to make the app easier to read and use.',
-        ),
-      ),
-      CheckboxListTile.adaptive(
-        value: false,
-        onChanged: (v) {},
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.accessibility_new),
-        ),
-        title: const Text('Large text'),
-        subtitle: const Text(
-          'Increase the size of the text in the app to make it easier to read.',
-        ),
-      ),
+      ],
     ]);
   }
 }

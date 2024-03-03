@@ -50,12 +50,17 @@ class _SettingsOption<T> {
     });
   }
 
+  final T? min;
+  final T? max;
+
   _SettingsOption({
     required this.key,
     required this.def,
     this.getDefault,
     String Function(T value)? saveAs,
     T Function(String value)? loadFrom,
+    this.min,
+    this.max,
   }) {
     Future.microtask(() async {
       _value = getDefault != null ? await getDefault!() : def;
@@ -235,6 +240,8 @@ class SettingsProvider extends UnityProvider {
     key: 'events.picture_in_picture',
   );
   final kEventsSpeed = _SettingsOption(
+    min: 0.25,
+    max: 6.0,
     def: 1.0,
     key: 'events.speed',
   );

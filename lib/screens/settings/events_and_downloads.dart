@@ -120,11 +120,16 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
         contentPadding: DesktopSettings.horizontalPadding,
         title: const Text('Default speed'),
-        subtitle: const Text('1.0'),
+        subtitle: Text(settings.kEventsSpeed.value.toStringAsFixed(1)),
         trailing: SizedBox(
           width: 160.0,
           child: Slider(
-            value: settings.kEventsSpeed.value,
+            value: settings.kEventsSpeed.value.clamp(
+              settings.kEventsSpeed.min!,
+              settings.kEventsSpeed.max!,
+            ),
+            min: settings.kEventsSpeed.min!,
+            max: settings.kEventsSpeed.max!,
             onChanged: (v) {
               settings.kEventsSpeed.value = v;
             },

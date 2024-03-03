@@ -138,7 +138,11 @@ class UnityPlayers with ChangeNotifier {
   static Future<void> releaseDevice(String deviceUUID) async {
     debugPrint('Releasing device $deviceUUID. ${players[deviceUUID]}');
     _reloadable.remove(deviceUUID);
-    await players[deviceUUID]?.dispose();
+    try {
+      await players[deviceUUID]?.dispose();
+    } catch (e) {
+      debugPrint('Error disposing player: $e');
+    }
     players.remove(deviceUUID);
   }
 

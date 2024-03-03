@@ -108,7 +108,12 @@ class _SettingsOption<T> {
     if (getDefault != null) serializedData ??= saveAs(await getDefault!());
     serializedData ??= defAsString;
 
-    _value = loadFrom(serializedData);
+    try {
+      _value = loadFrom(serializedData);
+    } catch (e) {
+      debugPrint('Error loading data for $key: $e');
+      _value = (await getDefault?.call()) ?? def;
+    }
   }
 }
 

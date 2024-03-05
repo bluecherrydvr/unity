@@ -115,8 +115,7 @@ class UnityPlayers with ChangeNotifier {
         RenderingQuality.p480 => UnityVideoQuality.p480,
         RenderingQuality.p360 => UnityVideoQuality.p360,
         RenderingQuality.p240 => UnityVideoQuality.p240,
-        RenderingQuality.automatic =>
-          UnityVideoQuality.qualityForResolutionY(device.resolutionY),
+        RenderingQuality.automatic => null,
       },
       onReload: setSource,
       title: device.fullName,
@@ -139,7 +138,11 @@ class UnityPlayers with ChangeNotifier {
   static Future<void> releaseDevice(String deviceUUID) async {
     debugPrint('Releasing device $deviceUUID. ${players[deviceUUID]}');
     _reloadable.remove(deviceUUID);
-    await players[deviceUUID]?.dispose();
+    try {
+      await players[deviceUUID]?.dispose();
+    } catch (e) {
+      debugPrint('Error disposing player: $e');
+    }
     players.remove(deviceUUID);
   }
 

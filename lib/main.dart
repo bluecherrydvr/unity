@@ -264,7 +264,11 @@ class _UnityAppState extends State<UnityApp>
       await Future.microtask(() async {
         for (final player in UnityVideoPlayerInterface.players.toList()) {
           debugPrint('Disposing player ${player.hashCode}');
-          await player.dispose();
+          try {
+            await player.dispose();
+          } catch (e) {
+            debugPrint('Error disposing player: $e');
+          }
         }
       });
       windowManager.destroy();

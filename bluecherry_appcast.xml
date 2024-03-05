@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta15</title>
+            <description>macOS support, search and late stream management.</description>
+            <pubDate>Tue, 05 Mar 2024</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta14</title>
             <description>Multicast support, external streams and Linux stability.</description>
             <pubDate>Sat, 02 Dec 2023</pubDate>

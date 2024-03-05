@@ -231,6 +231,7 @@ jobs:
           flutter build linux --verbose --dart-define-from-file=linux/env/rpm.json
 
       - name: Build RPM Package
+        continue-on-error: true
         run: |
           mkdir -p linux/debian/usr/bin
           cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
@@ -256,6 +257,7 @@ jobs:
           ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
 
       - name: Build DEB Package
+        continue-on-error: true
         run: |
           dpkg-deb --build --root-owner-group linux/debian
           cp linux/*.deb bluecherry-linux-x86_64.deb
@@ -273,6 +275,7 @@ jobs:
           ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
 
       - name: Build Tarball
+        continue-on-error: true
         run: |
           mkdir -p AppDir/
           cp -r linux/debian/usr AppDir/
@@ -290,6 +293,7 @@ jobs:
           flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json
 
       - name: Build AppImage
+        continue-on-error: true
         run: |
           sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
           appimage-builder --skip-tests

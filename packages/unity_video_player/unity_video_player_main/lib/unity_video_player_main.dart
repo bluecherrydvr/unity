@@ -460,8 +460,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       final platform = mkPlayer.platform as dynamic;
 
       await platform.unobserveProperty('estimated-vf-fps');
-      await platform.unobserveProperty('dwidth');
-      await platform.unobserveProperty('dheight');
+      await platform.unobserveProperty('width');
+      await platform.unobserveProperty('height');
     }
     await _fpsStreamController.close();
     await mkPlayer.dispose();

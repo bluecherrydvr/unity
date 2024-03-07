@@ -394,6 +394,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> crop(int row, int col, int size) async {
     if (kIsWeb) return;
+    // Usage as dynamic is necessary because the property is not available on the
+    // web platform, and the compiler will complain about it.
     final player = mkPlayer.platform as dynamic;
     // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
     // As of now (18 nov 2023), the "video-crop" parameter is not supported on
@@ -401,8 +403,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     // the same thing. "video-crop" is preferred on the other platforms because
     // of its performance.
 
+    final useVideoFilter = Platform.isLinux || Platform.isMacOS;
+
     if (row == -1 || col == -1 || size == -1) {
-      if (Platform.isLinux) {
+      if (useVideoFilter) {
         await player.setProperty('vf', 'crop=');
       } else {
         await player.setProperty('video-crop', '0x0+0+0');
@@ -423,7 +427,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         'Cropping | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
       );
 
-      if (Platform.isLinux) {
+      if (useVideoFilter) {
         await player.setProperty(
           'vf',
           'crop='

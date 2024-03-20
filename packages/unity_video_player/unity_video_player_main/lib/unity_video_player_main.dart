@@ -394,23 +394,33 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> crop(int row, int col, int size) async {
     if (kIsWeb) return;
-    // Usage as dynamic is necessary because the property is not available on the
-    // web platform, and the compiler will complain about it.
-    final player = mkPlayer.platform as dynamic;
-    // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
-    // As of now (18 nov 2023), the "video-crop" parameter is not supported on
-    // most distros. In this case, there is the "vf=crop" parameter that does
-    // the same thing. "video-crop" is preferred on the other platforms because
-    // of its performance.
 
-    final useVideoFilter = Platform.isLinux || Platform.isMacOS;
-
-    if (row == -1 || col == -1 || size == -1) {
-      if (useVideoFilter) {
-        await player.setProperty('vf', 'crop=');
+    final reset = row == -1 || col == -1 || size == -1;
+    if (Platform.isMacOS) {
+      if (reset) {
+        _isCropped = false;
       } else {
-        await player.setProperty('video-crop', '0x0+0+0');
+        _isCropped = true;
       }
+      return;
+    }
+
+    // final player = mkPlayer.platform as dynamic;
+
+    final Future<void> Function(Rect) crop;
+    if (Platform.isLinux) {
+      // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
+      // As of now (18 nov 2023), the "video-crop" parameter is not supported on
+      // most distros. In this case, there is the "vf=crop" parameter that does
+      // the same thing. "video-crop" is preferred on the other platforms because
+      // of its performance.
+      crop = _cropWithFilter;
+    } else {
+      crop = _cropWithoutFilter;
+    }
+
+    if (reset) {
+      await crop(Rect.zero);
       _isCropped = false;
     } else if (width != null && height != null) {
       final tileWidth = maxSize.width / size;
@@ -427,25 +437,43 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         'Cropping | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
       );
 
-      if (useVideoFilter) {
-        await player.setProperty(
-          'vf',
-          'crop='
-              '${viewportRect.width.toInt()}:'
-              '${viewportRect.height.toInt()}:'
-              '${viewportRect.left.toInt()}:'
-              '${viewportRect.top.toInt()}',
-        );
-      } else {
-        await player.setProperty(
-          'video-crop',
-          '${viewportRect.width.toInt()}x'
-              '${viewportRect.height.toInt()}+'
-              '${viewportRect.left.toInt()}+'
-              '${viewportRect.top.toInt()}',
-        );
-      }
+      await crop(viewportRect);
       _isCropped = true;
+    }
+  }
+
+  Future<void> _cropWithFilter(Rect viewportRect) async {
+    // Usage as dynamic is necessary because the property is not available on the
+    // web platform, and the compiler will complain about it.
+    final player = mkPlayer.platform as dynamic;
+    if (viewportRect.isEmpty) {
+      await player.setProperty('vf', 'crop=');
+    } else {
+      await player.setProperty(
+        'vf',
+        'crop='
+            '${viewportRect.width.toInt()}:'
+            '${viewportRect.height.toInt()}:'
+            '${viewportRect.left.toInt()}:'
+            '${viewportRect.top.toInt()}',
+      );
+    }
+  }
+
+  Future<void> _cropWithoutFilter(Rect viewportRect) async {
+    // Usage as dynamic is necessary because the property is not available on the
+    // web platform, and the compiler will complain about it.
+    final player = mkPlayer.platform as dynamic;
+    if (viewportRect.isEmpty) {
+      await player.setProperty('video-crop', '0x0+0+0');
+    } else {
+      await player.setProperty(
+        'video-crop',
+        '${viewportRect.width.toInt()}x'
+            '${viewportRect.height.toInt()}+'
+            '${viewportRect.left.toInt()}+'
+            '${viewportRect.top.toInt()}',
+      );
     }
   }
 

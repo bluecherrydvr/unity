@@ -107,10 +107,9 @@ class _MKVideoState extends State<_MKVideo> {
   @override
   void didUpdateWidget(covariant _MKVideo oldWidget) {
     super.didUpdateWidget(oldWidget);
-    videoKey.currentState?.update(
-      fit: widget.fit,
-      fill: widget.color,
-    );
+    if (oldWidget.fit != widget.fit || oldWidget.color != widget.color) {
+      videoKey.currentState?.update(fit: widget.fit, fill: widget.color);
+    }
   }
 
   @override

@@ -50,6 +50,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     Color color = const Color(0xFF000000),
   }) {
     videoBuilder ??= (context, video) => video;
+    final mkPlayer = (player as UnityVideoPlayerMediaKit);
 
     return Builder(builder: (context) {
       return Stack(children: [
@@ -58,8 +59,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
             context,
             _MKVideo(
               key: ValueKey(player),
-              player: (player as UnityVideoPlayerMediaKit).mkPlayer,
+              player: mkPlayer.mkPlayer,
               videoController: player.mkVideoController,
+              mkPlayer: mkPlayer,
               color: color,
               fit: () {
                 return switch (fit) {
@@ -88,12 +90,14 @@ class _MKVideo extends StatefulWidget {
     super.key,
     required this.player,
     required this.videoController,
+    required this.mkPlayer,
     required this.fit,
     required this.color,
   });
 
   final Player player;
   final VideoController videoController;
+  final UnityVideoPlayerMediaKit mkPlayer;
   final BoxFit fit;
   final Color color;
 
@@ -114,7 +118,7 @@ class _MKVideoState extends State<_MKVideo> {
 
   @override
   Widget build(BuildContext context) {
-    return Video(
+    final videoWidget = Video(
       key: videoKey,
       controller: widget.videoController,
       fill: widget.color,
@@ -122,6 +126,39 @@ class _MKVideoState extends State<_MKVideo> {
       controls: NoVideoControls,
       wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );
+
+    final shouldSoftwareZoom = Platform.isMacOS;
+    if (!shouldSoftwareZoom) {
+      return videoWidget;
+    }
+
+    // digital zoom
+
+    final videoSize = widget.mkPlayer.maxSize;
+    final zoomRect = widget.mkPlayer.viewportRect;
+
+    final rectXFactor =
+        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.left / videoSize.width;
+    final rectYFactor =
+        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.top / videoSize.height;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final consts = !widget.mkPlayer.isCropped ? constraints : constraints * 4;
+      final rectX = consts.maxWidth * rectXFactor;
+      final rectY = consts.maxHeight * rectYFactor;
+      return Stack(children: [
+        const Positioned.fill(child: SizedBox.shrink()),
+        Positioned(
+          left: -rectX,
+          top: -rectY,
+          child: SizedBox(
+            width: consts.maxWidth,
+            height: consts.maxHeight,
+            child: videoWidget,
+          ),
+        ),
+      ]);
+    });
   }
 }
 
@@ -389,24 +426,17 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> resetCrop() => crop(-1, -1, -1);
 
+  Rect viewportRect = Rect.zero;
+
   /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col, int size) async {
     if (kIsWeb) return;
 
     final reset = row == -1 || col == -1 || size == -1;
-    if (Platform.isMacOS) {
-      if (reset) {
-        _isCropped = false;
-      } else {
-        _isCropped = true;
-      }
-      return;
-    }
-
     // final player = mkPlayer.platform as dynamic;
 
-    final Future<void> Function(Rect) crop;
+    final Future<void> Function(Rect rect) crop;
     if (Platform.isLinux) {
       // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
       // As of now (18 nov 2023), the "video-crop" parameter is not supported on
@@ -414,6 +444,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       // the same thing. "video-crop" is preferred on the other platforms because
       // of its performance.
       crop = _cropWithFilter;
+    } else if (Platform.isMacOS) {
+      // On macOS, the mpv options don't seem to work properly. Because of this,
+      // software zoom is used instead.
+      crop = (rect) async {
+        viewportRect = rect;
+      };
     } else {
       crop = _cropWithoutFilter;
     }
@@ -425,7 +461,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       final tileWidth = maxSize.width / size;
       final tileHeight = maxSize.height / size;
 
-      final viewportRect = Rect.fromLTWH(
+      viewportRect = Rect.fromLTWH(
         col * tileWidth,
         row * tileHeight,
         tileWidth,

@@ -165,6 +165,16 @@ class UnityVideoView extends StatefulWidget {
   ///   * [Hero.tag], the identifier for this particular hero.
   final dynamic heroTag;
 
+  /// The matrix type to use for the video view.
+  ///
+  /// Defaults to [MatrixType.t16].
+  final MatrixType matrixType;
+
+  /// Whether to use software zoom.
+  ///
+  /// Defaults to `false`.
+  final bool softwareZoom;
+
   /// Creates a new video view.
   const UnityVideoView({
     super.key,
@@ -174,6 +184,8 @@ class UnityVideoView extends StatefulWidget {
     this.videoBuilder,
     this.color = const Color(0xFF000000),
     this.heroTag,
+    this.matrixType = MatrixType.t16,
+    this.softwareZoom = false,
   });
 
   static VideoViewInheritance of(BuildContext context) {
@@ -289,6 +301,9 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   VoidCallback? onReload;
   late LateVideoBehavior lateVideoBehavior;
 
+  MatrixType matrixType = MatrixType.t1;
+  bool softwareZoom = false;
+
   /// Creates a new [UnityVideoPlayer] instance.
   ///
   /// The [quality] parameter is used to set the rendering resolution of the
@@ -314,6 +329,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     VoidCallback? onReload,
     String? title,
     LateVideoBehavior lateVideoBehavior = LateVideoBehavior.automatic,
+    MatrixType matrixType = MatrixType.t1,
+    bool softwareZoom = false,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality?.resolution.width.toInt(),
@@ -325,7 +342,9 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       ..quality = quality
       ..fallbackUrl = fallbackUrl
       ..onReload = onReload
-      ..lateVideoBehavior = lateVideoBehavior;
+      ..lateVideoBehavior = lateVideoBehavior
+      ..matrixType = matrixType
+      ..softwareZoom = softwareZoom;
   }
 
   static const timerInterval = Duration(seconds: 6);
@@ -538,5 +557,36 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     _isImageOld = false;
 
     super.dispose();
+  }
+}
+
+enum MatrixType {
+  t16(4),
+  t9(3),
+  t4(2),
+  t1(1);
+
+  final int size;
+
+  const MatrixType(this.size);
+
+  @override
+  String toString() {
+    return switch (this) {
+      MatrixType.t16 => '4x4',
+      MatrixType.t9 => '3x3',
+      MatrixType.t4 => '2x2',
+      MatrixType.t1 => '1x1',
+    };
+  }
+
+  MatrixType get next {
+    return switch (this) {
+      MatrixType.t16 => MatrixType.t9,
+      MatrixType.t9 => MatrixType.t4,
+      MatrixType.t4 => MatrixType.t16,
+      // ideally, t1 is never reached
+      MatrixType.t1 => MatrixType.t16,
+    };
   }
 }

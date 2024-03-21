@@ -250,7 +250,8 @@ class _StreamDataState extends State<StreamData> {
                   Center(
                     child: ToggleButtons(
                       isSelected: MatrixType.values.map((type) {
-                        return type.index == matrixType.index;
+                        return type.index ==
+                            (matrixType?.index ?? settings.kMatrixSize.value);
                       }).toList(),
                       onPressed: (type) => setState(() {
                         matrixType = MatrixType.values[type];

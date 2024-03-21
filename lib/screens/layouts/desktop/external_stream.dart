@@ -28,44 +28,18 @@ import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_video_player/unity_video_player.dart';
 import 'package:uuid/uuid.dart';
 
-enum MatrixType {
-  t16(4),
-  t9(3),
-  t4(2),
-  t1(1);
+export 'package:unity_video_player/unity_video_player.dart' show MatrixType;
 
-  final int size;
-
-  const MatrixType(this.size);
-
-  @override
-  String toString() {
-    return switch (this) {
-      MatrixType.t16 => '4x4',
-      MatrixType.t9 => '3x3',
-      MatrixType.t4 => '2x2',
-      MatrixType.t1 => '1x1',
-    };
-  }
-
+extension MatrixTypeExtension on MatrixType {
   Widget get icon {
     return switch (this) {
       MatrixType.t16 => const Icon(Icons.grid_4x4),
       MatrixType.t9 => const Icon(Icons.grid_3x3),
       MatrixType.t4 => const Icon(Icons.add),
       MatrixType.t1 => const Icon(Icons.square_outlined),
-    };
-  }
-
-  MatrixType get next {
-    return switch (this) {
-      MatrixType.t16 => MatrixType.t9,
-      MatrixType.t9 => MatrixType.t4,
-      MatrixType.t4 => MatrixType.t16,
-      // ideally, t1 is never reached
-      MatrixType.t1 => MatrixType.t16,
     };
   }
 }

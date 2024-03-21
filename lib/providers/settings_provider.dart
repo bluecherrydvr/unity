@@ -17,10 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
-import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/storage.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -40,6 +42,7 @@ class _SettingsOption<T> {
 
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
+  final ValueChanged<T>? onChanged;
 
   late T _value;
 
@@ -47,6 +50,7 @@ class _SettingsOption<T> {
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() {
       _value = newValue;
+      onChanged?.call(value);
     });
   }
 
@@ -61,6 +65,7 @@ class _SettingsOption<T> {
     T Function(String value)? loadFrom,
     this.min,
     this.max,
+    this.onChanged,
   }) {
     Future.microtask(() async {
       _value = getDefault != null ? await getDefault!() : def;
@@ -341,6 +346,17 @@ class SettingsProvider extends UnityProvider {
     loadFrom: (value) => MatrixType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
+  final kSoftwareZooming = _SettingsOption<bool>(
+    def: Platform.isMacOS ? true : false,
+    key: 'other.software_zoom',
+    onChanged: (value) {
+      for (final player in UnityPlayers.players.values) {
+        player
+          ..resetCrop()
+          ..softwareZoom = value;
+      }
+    },
+  );
   final kShowDebugInfo = _SettingsOption(
     def: kDebugMode,
     key: 'other.show_debug_info',
@@ -405,6 +421,7 @@ class SettingsProvider extends UnityProvider {
       kShowReleaseNotes.loadData(data),
       kDefaultBetaMatrixedZoomEnabled.loadData(data),
       kMatrixSize.loadData(data),
+      kSoftwareZooming.loadData(data),
       kShowDebugInfo.loadData(data),
       kShowNetworkUsage.loadData(data),
     ]);
@@ -460,6 +477,29 @@ class SettingsProvider extends UnityProvider {
             kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
         kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
         kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
+        kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),
+        kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
+        kLaunchAppOnStartup.key:
+            kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
+        kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),
+        kAnimationsEnabled.key:
+            kAnimationsEnabled.saveAs(kAnimationsEnabled.value),
+        kHighContrast.key: kHighContrast.saveAs(kHighContrast.value),
+        kLargeFont.key: kLargeFont.saveAs(kLargeFont.value),
+        kAllowDataCollection.key:
+            kAllowDataCollection.saveAs(kAllowDataCollection.value),
+        kAllowCrashReports.key:
+            kAllowCrashReports.saveAs(kAllowCrashReports.value),
+        kAutoUpdate.key: kAutoUpdate.saveAs(kAutoUpdate.value),
+        kShowReleaseNotes.key:
+            kShowReleaseNotes.saveAs(kShowReleaseNotes.value),
+        kDefaultBetaMatrixedZoomEnabled.key: kDefaultBetaMatrixedZoomEnabled
+            .saveAs(kDefaultBetaMatrixedZoomEnabled.value),
+        kMatrixSize.key: kMatrixSize.saveAs(kMatrixSize.value),
+        kSoftwareZooming.key: kSoftwareZooming.saveAs(kSoftwareZooming.value),
+        kShowDebugInfo.key: kShowDebugInfo.saveAs(kShowDebugInfo.value),
+        kShowNetworkUsage.key:
+            kShowNetworkUsage.saveAs(kShowNetworkUsage.value),
       });
     } catch (e) {
       debugPrint('Error saving settings: $e');

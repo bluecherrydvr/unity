@@ -151,6 +151,16 @@ lib
 ├───firebase_options.dart                              [auto-generated firebase configuration.]
 └───main.dart                                          [entry-point of the application.]
 
+packages
+│
+├───unity_multi_window                                 [multi-window support for desktop platforms.]                  
+│
+├───unity_video_player
+│   ├───unity_video_player                             [the core video player logic.]
+│   ├───unity_video_player_flutter                     [video player used as fallback, used on embedded platforms.]
+│   ├───unity_video_player_main                        [main video player logic, used on most platforms.]
+│   ├───unity_video_player_platform_interface          [the platform interface for the video player.]
+│   └───unity_video_player_web                         [web specific video player logic, used on web.]
 ```
 
 Feel free to send any pull-requests to add any features you wish or fix any bugs you notice.

@@ -32,6 +32,8 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
     String? title,
+    MatrixType matrixType = MatrixType.t16,
+    bool softwareZoom = false,
   }) {
     final player = UnityVideoPlayerFlutter(
       width: width,

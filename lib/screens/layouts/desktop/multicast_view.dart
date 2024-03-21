@@ -101,7 +101,8 @@ class _MulticastViewportState extends State<MulticastViewport> {
       return const SizedBox.shrink();
     }
 
-    final size = widget.device.matrixType.size;
+    final matrixType = widget.device.matrixType ?? settings.kMatrixSize.value;
+    final size = matrixType.size;
     if (view.player.isCropped) {
       return Listener(
         onPointerSignal: (event) async {
@@ -155,9 +156,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
                   onDoubleTap: () {
                     views.updateDevice(
                       widget.device,
-                      widget.device.copyWith(
-                        matrixType: widget.device.matrixType.next,
-                      ),
+                      widget.device.copyWith(matrixType: matrixType.next),
                     );
                   },
                   onPressed: () {

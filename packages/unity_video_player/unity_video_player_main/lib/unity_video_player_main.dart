@@ -29,13 +29,17 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
     String? title,
+    MatrixType matrixType = MatrixType.t16,
+    bool softwareZoom = false,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
       height: height,
       enableCache: enableCache,
       title: title,
-    );
+    )
+      ..matrixType = matrixType
+      ..softwareZoom = softwareZoom;
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }
@@ -50,6 +54,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     Color color = const Color(0xFF000000),
   }) {
     videoBuilder ??= (context, video) => video;
+    final mkPlayer = (player as UnityVideoPlayerMediaKit);
 
     return Builder(builder: (context) {
       return Stack(children: [
@@ -58,8 +63,9 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
             context,
             _MKVideo(
               key: ValueKey(player),
-              player: (player as UnityVideoPlayerMediaKit).mkPlayer,
+              player: mkPlayer.mkPlayer,
               videoController: player.mkVideoController,
+              mkPlayer: mkPlayer,
               color: color,
               fit: () {
                 return switch (fit) {
@@ -88,12 +94,14 @@ class _MKVideo extends StatefulWidget {
     super.key,
     required this.player,
     required this.videoController,
+    required this.mkPlayer,
     required this.fit,
     required this.color,
   });
 
   final Player player;
   final VideoController videoController;
+  final UnityVideoPlayerMediaKit mkPlayer;
   final BoxFit fit;
   final Color color;
 
@@ -107,15 +115,14 @@ class _MKVideoState extends State<_MKVideo> {
   @override
   void didUpdateWidget(covariant _MKVideo oldWidget) {
     super.didUpdateWidget(oldWidget);
-    videoKey.currentState?.update(
-      fit: widget.fit,
-      fill: widget.color,
-    );
+    if (oldWidget.fit != widget.fit || oldWidget.color != widget.color) {
+      videoKey.currentState?.update(fit: widget.fit, fill: widget.color);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Video(
+    final videoWidget = Video(
       key: videoKey,
       controller: widget.videoController,
       fill: widget.color,
@@ -123,6 +130,40 @@ class _MKVideoState extends State<_MKVideo> {
       controls: NoVideoControls,
       wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );
+
+    if (!widget.mkPlayer.softwareZoom) {
+      return videoWidget;
+    }
+
+    // digital zoom
+
+    final videoSize = widget.mkPlayer.maxSize;
+    final zoomRect = widget.mkPlayer.viewportRect;
+
+    final rectXFactor =
+        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.left / videoSize.width;
+    final rectYFactor =
+        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.top / videoSize.height;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final consts = !widget.mkPlayer.isCropped
+          ? constraints
+          : constraints * widget.mkPlayer.matrixType.size.toDouble();
+      final rectX = consts.maxWidth * rectXFactor;
+      final rectY = consts.maxHeight * rectYFactor;
+      return Stack(children: [
+        const Positioned.fill(child: SizedBox.shrink()),
+        Positioned(
+          left: -rectX,
+          top: -rectY,
+          child: SizedBox(
+            width: consts.maxWidth,
+            height: consts.maxHeight,
+            child: videoWidget,
+          ),
+        ),
+      ]);
+    });
   }
 }
 
@@ -390,29 +431,42 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Future<void> resetCrop() => crop(-1, -1, -1);
 
+  Rect viewportRect = Rect.zero;
+
   /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col, int size) async {
     if (kIsWeb) return;
-    final player = mkPlayer.platform as dynamic;
-    // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
-    // As of now (18 nov 2023), the "video-crop" parameter is not supported on
-    // most distros. In this case, there is the "vf=crop" parameter that does
-    // the same thing. "video-crop" is preferred on the other platforms because
-    // of its performance.
 
-    if (row == -1 || col == -1 || size == -1) {
-      if (Platform.isLinux) {
-        await player.setProperty('vf', 'crop=');
-      } else {
-        await player.setProperty('video-crop', '0x0+0+0');
-      }
+    final reset = row == -1 || col == -1 || size == -1;
+    // final player = mkPlayer.platform as dynamic;
+
+    final Future<void> Function(Rect rect) crop;
+    if (softwareZoom) {
+      // On macOS, the mpv options don't seem to work properly. Because of this,
+      // software zoom is used instead.
+      crop = (rect) async {
+        viewportRect = rect;
+      };
+    } else if (Platform.isLinux) {
+      // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
+      // As of now (18 nov 2023), the "video-crop" parameter is not supported on
+      // most distros. In this case, there is the "vf=crop" parameter that does
+      // the same thing. "video-crop" is preferred on the other platforms because
+      // of its performance.
+      crop = _cropWithFilter;
+    } else {
+      crop = _cropWithoutFilter;
+    }
+
+    if (reset) {
+      await crop(Rect.zero);
       _isCropped = false;
     } else if (width != null && height != null) {
       final tileWidth = maxSize.width / size;
       final tileHeight = maxSize.height / size;
 
-      final viewportRect = Rect.fromLTWH(
+      viewportRect = Rect.fromLTWH(
         col * tileWidth,
         row * tileHeight,
         tileWidth,
@@ -420,28 +474,46 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
 
       debugPrint(
-        'Cropping | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
+        'Cropping $softwareZoom | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
       );
 
-      if (Platform.isLinux) {
-        await player.setProperty(
-          'vf',
-          'crop='
-              '${viewportRect.width.toInt()}:'
-              '${viewportRect.height.toInt()}:'
-              '${viewportRect.left.toInt()}:'
-              '${viewportRect.top.toInt()}',
-        );
-      } else {
-        await player.setProperty(
-          'video-crop',
-          '${viewportRect.width.toInt()}x'
-              '${viewportRect.height.toInt()}+'
-              '${viewportRect.left.toInt()}+'
-              '${viewportRect.top.toInt()}',
-        );
-      }
+      await crop(viewportRect);
       _isCropped = true;
+    }
+  }
+
+  Future<void> _cropWithFilter(Rect viewportRect) async {
+    // Usage as dynamic is necessary because the property is not available on the
+    // web platform, and the compiler will complain about it.
+    final player = mkPlayer.platform as dynamic;
+    if (viewportRect.isEmpty) {
+      await player.setProperty('vf', 'crop=');
+    } else {
+      await player.setProperty(
+        'vf',
+        'crop='
+            '${viewportRect.width.toInt()}:'
+            '${viewportRect.height.toInt()}:'
+            '${viewportRect.left.toInt()}:'
+            '${viewportRect.top.toInt()}',
+      );
+    }
+  }
+
+  Future<void> _cropWithoutFilter(Rect viewportRect) async {
+    // Usage as dynamic is necessary because the property is not available on the
+    // web platform, and the compiler will complain about it.
+    final player = mkPlayer.platform as dynamic;
+    if (viewportRect.isEmpty) {
+      await player.setProperty('video-crop', '0x0+0+0');
+    } else {
+      await player.setProperty(
+        'video-crop',
+        '${viewportRect.width.toInt()}x'
+            '${viewportRect.height.toInt()}+'
+            '${viewportRect.left.toInt()}+'
+            '${viewportRect.top.toInt()}',
+      );
     }
   }
 
@@ -456,8 +528,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       final platform = mkPlayer.platform as dynamic;
 
       await platform.unobserveProperty('estimated-vf-fps');
-      await platform.unobserveProperty('dwidth');
-      await platform.unobserveProperty('dheight');
+      await platform.unobserveProperty('width');
+      await platform.unobserveProperty('height');
     }
     await _fpsStreamController.close();
     await mkPlayer.dispose();

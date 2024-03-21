@@ -100,8 +100,8 @@ class Device {
 
   /// The type of zoom matrix of this device.
   ///
-  /// Defaults to a 4x4 matrix.
-  final MatrixType matrixType;
+  /// If not provided, used from the settings.
+  final MatrixType? matrixType;
 
   /// A list of text overlays that will be rendered over the video.
   final List<VideoOverlay> overlays;
@@ -124,7 +124,7 @@ class Device {
     required this.server,
     this.hasPTZ = false,
     this.url,
-    this.matrixType = MatrixType.t16,
+    this.matrixType,
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
@@ -372,7 +372,7 @@ class Device {
       'server': server.toJson(devices: false),
       'hasPTZ': hasPTZ,
       'url': url,
-      'matrixType': matrixType.index,
+      if (matrixType != null) 'matrixType': matrixType!.index,
       'overlays': overlays.map((e) => e.toMap()).toList(),
       'preferredStreamingType': preferredStreamingType?.name,
       'externalData': externalData?.toMap(),

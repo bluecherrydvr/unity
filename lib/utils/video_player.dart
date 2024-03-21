@@ -119,7 +119,7 @@ class UnityPlayers with ChangeNotifier {
       },
       onReload: setSource,
       title: device.fullName,
-      matrixType: device.matrixType,
+      matrixType: device.matrixType ?? settings.kMatrixSize.value,
       softwareZoom: settings.kSoftwareZooming.value,
     )
       ..setVolume(0.0)

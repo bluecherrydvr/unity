@@ -474,7 +474,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
 
       debugPrint(
-        'Cropping | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
+        'Cropping $softwareZoom | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
       );
 
       await crop(viewportRect);

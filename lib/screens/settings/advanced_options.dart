@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
@@ -52,29 +54,47 @@ class AdvancedOptionsSettings extends StatelessWidget {
         value: settings.kDefaultBetaMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.updateProperty(() {
-              settings.kDefaultBetaMatrixedZoomEnabled.value = value;
-            });
+            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
           }
         },
       ),
-      if (kDebugMode)
-        OptionsChooserTile<MatrixType>(
-          title: 'Default Matrix Size',
-          icon: Icons.view_quilt,
-          value: MatrixType.t4,
-          values: MatrixType.values.map((size) {
-            return Option(
-              value: size,
-              text: size.toString(),
-            );
-          }),
-          onChanged: (v) {
-            settings.updateProperty(() {
-              settings.kMatrixSize.value = v;
-            });
-          },
+      OptionsChooserTile<MatrixType>(
+        title: 'Default Matrix Size',
+        icon: Icons.view_quilt,
+        value: settings.kMatrixSize.value,
+        values: MatrixType.values.map((size) {
+          return Option(
+            value: size,
+            text: size.toString(),
+          );
+        }),
+        onChanged: (v) {
+          settings.kMatrixSize.value = v;
+        },
+      ),
+      CheckboxListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.center_focus_strong),
         ),
+        title: const Text('Software zoom'),
+        subtitle: Text(
+          'When enabled, the matrix zoom will not happen in the GPU. This is '
+          'useful when the hardware zoom is not working properly. '
+          '${Platform.isMacOS ? 'On macOS, this can not be disabled.' : ''}',
+        ),
+        value: Platform.isMacOS ? true : settings.kSoftwareZooming.value,
+        onChanged: Platform.isMacOS
+            ? null
+            : (v) {
+                if (v != null) {
+                  settings.kSoftwareZooming.value = v;
+                }
+              },
+        dense: false,
+      ),
       const SubHeader('Developer Options'),
       if (!kIsWeb) ...[
         FutureBuilder(
@@ -82,7 +102,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
           builder: (context, snapshot) {
             return ListTile(
               contentPadding: DesktopSettings.horizontalPadding,
-              leading: const Icon(Icons.bug_report),
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: theme.iconTheme.color,
+                child: const Icon(Icons.bug_report),
+              ),
               title: const Text('Open log file'),
               subtitle: Text(snapshot.data?.path ?? loc.loading),
               trailing: const Icon(Icons.navigate_next),
@@ -100,7 +124,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
           builder: (context, snapshot) {
             return ListTile(
               contentPadding: DesktopSettings.horizontalPadding,
-              leading: const Icon(Icons.home),
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: theme.iconTheme.color,
+                child: const Icon(Icons.home),
+              ),
               title: const Text('Open app data'),
               subtitle: Text(snapshot.data?.path ?? loc.loading),
               trailing: const Icon(Icons.navigate_next),
@@ -115,7 +143,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
         ),
         CheckboxListTile(
           contentPadding: DesktopSettings.horizontalPadding,
-          secondary: const Icon(Icons.adb),
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.adb),
+          ),
           title: const Text('Debug info'),
           subtitle: const Text(
             'Display useful information for debugging, such as video metadata '
@@ -124,9 +156,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
           value: settings.kShowDebugInfo.value,
           onChanged: (v) {
             if (v != null) {
-              settings.updateProperty(() {
-                settings.kShowDebugInfo.value = v;
-              });
+              settings.kShowDebugInfo.value = v;
             }
           },
           dense: false,
@@ -134,7 +164,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
         if (kDebugMode)
           CheckboxListTile(
             contentPadding: DesktopSettings.horizontalPadding,
-            secondary: const Icon(Icons.network_check),
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.network_check),
+            ),
             title: const Text('Network Usage'),
             subtitle: const Text(
               'Display network usage information over playing videos.',
@@ -151,7 +185,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
           ),
         ListTile(
           contentPadding: DesktopSettings.horizontalPadding,
-          leading: const Icon(Icons.restore),
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.restore),
+          ),
           title: const Text('Restore Defaults'),
           subtitle: const Text(
             'Restore all settings to their default values. This will not '

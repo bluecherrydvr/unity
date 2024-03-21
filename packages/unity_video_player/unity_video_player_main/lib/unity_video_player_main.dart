@@ -29,13 +29,17 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
     String? title,
+    MatrixType matrixType = MatrixType.t16,
+    bool softwareZoom = false,
   }) {
     final player = UnityVideoPlayerMediaKit(
       width: width,
       height: height,
       enableCache: enableCache,
       title: title,
-    );
+    )
+      ..matrixType = matrixType
+      ..softwareZoom = softwareZoom;
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }
@@ -127,8 +131,7 @@ class _MKVideoState extends State<_MKVideo> {
       wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );
 
-    final shouldSoftwareZoom = Platform.isMacOS;
-    if (!shouldSoftwareZoom) {
+    if (!widget.mkPlayer.softwareZoom) {
       return videoWidget;
     }
 
@@ -143,7 +146,9 @@ class _MKVideoState extends State<_MKVideo> {
         !widget.mkPlayer.isCropped ? 0.0 : zoomRect.top / videoSize.height;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final consts = !widget.mkPlayer.isCropped ? constraints : constraints * 4;
+      final consts = !widget.mkPlayer.isCropped
+          ? constraints
+          : constraints * widget.mkPlayer.matrixType.size.toDouble();
       final rectX = consts.maxWidth * rectXFactor;
       final rectY = consts.maxHeight * rectYFactor;
       return Stack(children: [
@@ -437,19 +442,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     // final player = mkPlayer.platform as dynamic;
 
     final Future<void> Function(Rect rect) crop;
-    if (Platform.isLinux) {
+    if (softwareZoom) {
+      // On macOS, the mpv options don't seem to work properly. Because of this,
+      // software zoom is used instead.
+      crop = (rect) async {
+        viewportRect = rect;
+      };
+    } else if (Platform.isLinux) {
       // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
       // As of now (18 nov 2023), the "video-crop" parameter is not supported on
       // most distros. In this case, there is the "vf=crop" parameter that does
       // the same thing. "video-crop" is preferred on the other platforms because
       // of its performance.
       crop = _cropWithFilter;
-    } else if (Platform.isMacOS) {
-      // On macOS, the mpv options don't seem to work properly. Because of this,
-      // software zoom is used instead.
-      crop = (rect) async {
-        viewportRect = rect;
-      };
     } else {
       crop = _cropWithoutFilter;
     }

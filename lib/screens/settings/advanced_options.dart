@@ -72,7 +72,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
           settings.kMatrixSize.value = v;
         },
       ),
-      CheckboxListTile(
+      CheckboxListTile.adaptive(
         contentPadding: DesktopSettings.horizontalPadding,
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -141,7 +141,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
             );
           },
         ),
-        CheckboxListTile(
+        CheckboxListTile.adaptive(
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -162,7 +162,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
           dense: false,
         ),
         if (kDebugMode)
-          CheckboxListTile(
+          CheckboxListTile.adaptive(
             contentPadding: DesktopSettings.horizontalPadding,
             secondary: CircleAvatar(
               backgroundColor: Colors.transparent,

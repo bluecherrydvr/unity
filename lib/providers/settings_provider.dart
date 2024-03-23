@@ -44,11 +44,11 @@ class _SettingsOption<T> {
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
   final ValueChanged<T>? onChanged;
-  final ValueChanged<T>? valueOverrider;
+  final T Function()? valueOverrider;
 
   late T _value;
 
-  T get value => _value;
+  T get value => valueOverrider?.call() ?? _value;
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() {
       _value = newValue;
@@ -360,7 +360,7 @@ class SettingsProvider extends UnityProvider {
       }
     },
     valueOverrider: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded
-        ? (value) => true
+        ? () => true
         : null,
   );
   final kShowDebugInfo = _SettingsOption(

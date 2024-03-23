@@ -306,6 +306,12 @@ class DesktopViewProvider extends UnityProvider {
       }
     }
 
+    if (previousDevice.matrixType != device.matrixType) {
+      final player = UnityPlayers.players[device.uuid];
+      player?.zoom.matrixType = device.matrixType ?? MatrixType.t16;
+      player?.zoom.zoomAxis = (-1, -1);
+    }
+
     if (reload) {
       UnityPlayers.reloadDevice(device);
     }

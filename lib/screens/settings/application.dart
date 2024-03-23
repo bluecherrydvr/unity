@@ -22,7 +22,6 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
@@ -39,7 +38,8 @@ class ApplicationSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     return ListView(padding: DesktopSettings.verticalPadding, children: [
       OptionsChooserTile<ThemeMode>(
-        title: 'Theme',
+        title: loc.theme,
+        description: loc.themeDescription,
         icon: Icons.contrast,
         value: settings.kThemeMode.value,
         values: ThemeMode.values.map((mode) {
@@ -232,6 +232,7 @@ class DateFormatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final locale = Localizations.localeOf(context).toLanguageTag();
     final formats = [
@@ -246,7 +247,7 @@ class DateFormatSection extends StatelessWidget {
     ].map((e) => DateFormat(e, locale));
 
     return OptionsChooserTile(
-      title: 'Date Format',
+      title: loc.dateFormat,
       description: 'What format to use for displaying dates',
       icon: Icons.calendar_month,
       value: '',
@@ -268,13 +269,14 @@ class TimeFormatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final locale = Localizations.localeOf(context).toLanguageTag();
 
     final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
     final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
     return OptionsChooserTile(
-      title: 'Time Format',
+      title: loc.timeFormat,
       description: 'What format to use for displaying time',
       icon: Icons.hourglass_empty,
       value: '',

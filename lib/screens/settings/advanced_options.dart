@@ -187,7 +187,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
           contentPadding: DesktopSettings.horizontalPadding,
           leading: CircleAvatar(
             backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
+            foregroundColor: theme.colorScheme.error,
             child: const Icon(Icons.restore),
           ),
           title: const Text('Restore Defaults'),
@@ -196,8 +196,36 @@ class AdvancedOptionsSettings extends StatelessWidget {
             'affect your servers or any other data.',
           ),
           trailing: const Icon(Icons.navigate_next),
-          // TODO(bdlukaa): Show an "Are you sure?" dialog
-          onTap: settings.restoreDefaults,
+          textColor: theme.colorScheme.error,
+          iconColor: theme.colorScheme.error,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Are you sure?'),
+                  content: const Text(
+                    'This will restore all settings to their default values. '
+                    'This will not affect your servers or any other data.',
+                  ),
+                  actions: [
+                    FilledButton(
+                      onPressed: () {
+                        settings.restoreDefaults();
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(loc.yes),
+                    ),
+                    TextButton(
+                      autofocus: true,
+                      onPressed: Navigator.of(context).pop,
+                      child: Text(loc.no),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
       ],
     ]);

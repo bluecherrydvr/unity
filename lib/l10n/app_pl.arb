@@ -317,6 +317,14 @@
   },
   "noRecords": "Ta kamera nie ma nagrań w tym zakresie.",
   "filter": "Filtr",
+  "loadEvents": "{n, plural, =0{Load} =1{Load from 1 device} other{Load from {n} devices}}",
+  "@loadEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeFilter": "Filtr czasu",
   "fromDate": "Od",
   "toDate": "Do",

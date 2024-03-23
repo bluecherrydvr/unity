@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
@@ -70,15 +71,24 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   final EventsData events = {};
   Map<Server, bool> invalid = {};
 
-  List<Event> filteredEvents = [];
+  Iterable<Event> filteredEvents = [];
 
   /// The devices that can't be displayed in the list.
   ///
-  /// The rtsp url is used to identify the device.
+  /// The stream url is used to identify the device.
   Set<String> disabledDevices = {
-    for (final server in ServersProvider.instance.servers)
+    for (final server
+        in ServersProvider.instance.servers.where((server) => server.online))
       ...server.devices.map((d) => d.streamURL)
   };
+
+  Iterable<Device> get allowedDevices {
+    return ServersProvider.instance.servers
+        .where((server) => server.online)
+        .expand((server) => server.devices)
+        .where((device) =>
+            device.status && !disabledDevices.contains(device.streamURL));
+  }
 
   /// Fetches the events from the servers.
   Future<void> fetch() async {
@@ -125,12 +135,11 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   }
 
   Future<void> computeFiltered() async {
-    filteredEvents = (await compute(_updateFiltered, {
+    filteredEvents = await compute(_updateFiltered, {
       'events': events,
       'levelFilter': levelFilter,
       'disabledDevices': disabledDevices,
-    }))
-        .toList();
+    });
   }
 
   static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
@@ -273,7 +282,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   const SizedBox(height: 8.0),
                   FilledButton(
                     onPressed: isLoading ? null : fetch,
-                    child: Text(loc.filter),
+                    child: Text(loc.loadEvents(allowedDevices.length)),
                   ),
                   const SizedBox(height: 12.0),
                 ]),

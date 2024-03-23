@@ -5,6 +5,11 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'video_zoom.dart';
+
+export 'video_zoom.dart';
+export 'video_view.dart';
+
 typedef UnityVideoPaneBuilder = Widget Function(
   BuildContext context,
   UnityVideoPlayer controller,
@@ -29,7 +34,10 @@ enum UnityVideoFit {
   }
 }
 
-enum RTSPProtocol { tcp, udp }
+enum RTSPProtocol {
+  tcp,
+  udp;
+}
 
 abstract class UnityVideoPlayerInterface extends PlatformInterface {
   UnityVideoPlayerInterface() : super(token: _token);
@@ -94,164 +102,6 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   }
 }
 
-class VideoViewInheritance extends InheritedWidget {
-  const VideoViewInheritance({
-    super.key,
-    required super.child,
-    required this.error,
-    required this.position,
-    required this.duration,
-    required this.lastImageUpdate,
-    required this.fps,
-    required this.player,
-  });
-
-  /// When the video is in an error state, this will be set with a description
-  final String? error;
-
-  /// The current position of the video. This is updated as the video plays.
-  final Duration position;
-
-  /// The duration of the video. This is updated when the video is ready to play
-  /// or when it's buffering.
-  final Duration duration;
-
-  /// The last time the image was updated.
-  final DateTime? lastImageUpdate;
-
-  /// The FPS of the video.
-  final int fps;
-
-  /// The player that is currently being used by the video.
-  final UnityVideoPlayer player;
-
-  bool get isLoading => !player.isSeekable && error == null;
-
-  static VideoViewInheritance? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<VideoViewInheritance>();
-  }
-
-  @override
-  bool updateShouldNotify(VideoViewInheritance oldWidget) {
-    return error != oldWidget.error ||
-        position != oldWidget.position ||
-        duration != oldWidget.duration;
-  }
-}
-
-/// A widget that displays a video from a [UnityVideoPlayer].
-class UnityVideoView extends StatefulWidget {
-  /// The player that is currently being used by the video.
-  final UnityVideoPlayer player;
-
-  /// The image fit. Defaults to [UnityVideoFit.contain].
-  final UnityVideoFit fit;
-
-  /// Builds the foreground of the video view.
-  final UnityVideoPaneBuilder? paneBuilder;
-
-  /// Builds the video view itself. Can be used to wrap the video with some
-  /// widget.
-  final UnityVideoBuilder? videoBuilder;
-
-  /// The background color of the view when nothing is painted. Defaults to
-  /// black.
-  final Color color;
-
-  /// The hero tag for the video view.
-  ///
-  /// See also:
-  ///
-  ///   * [Hero.tag], the identifier for this particular hero.
-  final dynamic heroTag;
-
-  /// The matrix type to use for the video view.
-  ///
-  /// Defaults to [MatrixType.t16].
-  final MatrixType matrixType;
-
-  /// Whether to use software zoom.
-  ///
-  /// Defaults to `false`.
-  final bool softwareZoom;
-
-  /// Creates a new video view.
-  const UnityVideoView({
-    super.key,
-    required this.player,
-    this.fit = UnityVideoFit.contain,
-    this.paneBuilder,
-    this.videoBuilder,
-    this.color = const Color(0xFF000000),
-    this.heroTag,
-    this.matrixType = MatrixType.t16,
-    this.softwareZoom = false,
-  });
-
-  static VideoViewInheritance of(BuildContext context) {
-    return VideoViewInheritance.maybeOf(context)!;
-  }
-
-  static VideoViewInheritance? maybeOf(BuildContext context) {
-    return VideoViewInheritance.maybeOf(context);
-  }
-
-  @override
-  State<UnityVideoView> createState() => UnityVideoViewState();
-}
-
-class UnityVideoViewState extends State<UnityVideoView> {
-  @override
-  void initState() {
-    super.initState();
-    widget.player.addListener(_onPlayerUpdate);
-  }
-
-  @override
-  void didUpdateWidget(covariant UnityVideoView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.player != widget.player) {
-      oldWidget.player.removeListener(_onPlayerUpdate);
-      widget.player.addListener(_onPlayerUpdate);
-    }
-  }
-
-  void _onPlayerUpdate() {
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    widget.player.removeListener(_onPlayerUpdate);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final videoView = VideoViewInheritance(
-      player: widget.player,
-      error: widget.player.error,
-      position: widget.player.currentPos,
-      duration: widget.player.duration,
-      fps: widget.player.fps.toInt(),
-      lastImageUpdate: widget.player.lastImageUpdate,
-      child: UnityVideoPlayerInterface.instance.createVideoView(
-        player: widget.player,
-        color: widget.color,
-        fit: widget.fit,
-        videoBuilder: widget.videoBuilder,
-        paneBuilder: widget.paneBuilder,
-      ),
-    );
-
-    if (widget.heroTag != null) {
-      return Hero(tag: widget.heroTag, child: videoView);
-    }
-
-    return videoView;
-  }
-}
-
 /// The size of a view with 4K resolution
 const p4kResolution = Size(3840, 2160);
 
@@ -301,9 +151,6 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   VoidCallback? onReload;
   late LateVideoBehavior lateVideoBehavior;
 
-  MatrixType matrixType = MatrixType.t1;
-  bool softwareZoom = false;
-
   /// Creates a new [UnityVideoPlayer] instance.
   ///
   /// The [quality] parameter is used to set the rendering resolution of the
@@ -343,8 +190,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       ..fallbackUrl = fallbackUrl
       ..onReload = onReload
       ..lateVideoBehavior = lateVideoBehavior
-      ..matrixType = matrixType
-      ..softwareZoom = softwareZoom;
+      ..zoom.matrixType = matrixType
+      ..zoom.softwareZoom = softwareZoom;
   }
 
   static const timerInterval = Duration(seconds: 6);
@@ -375,6 +222,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   String? error;
 
   UnityVideoQuality? quality;
+  VideoZoom zoom = VideoZoom();
 
   late final VoidCallback onReady;
 
@@ -542,7 +390,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   Future<void> reset();
 
   Future<void> resetCrop();
-  Future<void> crop(int row, int col, int size);
+  Future<void> crop(int row, int col);
   bool get isCropped;
 
   @mustCallSuper
@@ -557,36 +405,5 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     _isImageOld = false;
 
     super.dispose();
-  }
-}
-
-enum MatrixType {
-  t16(4),
-  t9(3),
-  t4(2),
-  t1(1);
-
-  final int size;
-
-  const MatrixType(this.size);
-
-  @override
-  String toString() {
-    return switch (this) {
-      MatrixType.t16 => '4x4',
-      MatrixType.t9 => '3x3',
-      MatrixType.t4 => '2x2',
-      MatrixType.t1 => '1x1',
-    };
-  }
-
-  MatrixType get next {
-    return switch (this) {
-      MatrixType.t16 => MatrixType.t9,
-      MatrixType.t9 => MatrixType.t4,
-      MatrixType.t4 => MatrixType.t16,
-      // ideally, t1 is never reached
-      MatrixType.t1 => MatrixType.t16,
-    };
   }
 }

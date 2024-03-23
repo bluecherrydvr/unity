@@ -227,11 +227,11 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   }
 
   @override
-  Future<void> resetCrop() => crop(-1, -1, -1);
+  Future<void> resetCrop() => crop(-1, -1);
 
   /// Crops the current video into a box at the given row and column
   @override
-  Future<void> crop(int row, int col, int size) async {
+  Future<void> crop(int row, int col) async {
     throw UnsupportedError('Cropping is not implemented on this platform');
   }
 

@@ -353,7 +353,7 @@ class SettingsProvider extends UnityProvider {
       for (final player in UnityPlayers.players.values) {
         player
           ..resetCrop()
-          ..softwareZoom = value;
+          ..zoom.softwareZoom = value;
       }
     },
   );

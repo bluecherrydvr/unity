@@ -161,7 +161,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
           },
           dense: false,
         ),
-        if (kDebugMode)
+        if (settings.kShowDebugInfo.value)
           CheckboxListTile.adaptive(
             contentPadding: DesktopSettings.horizontalPadding,
             secondary: CircleAvatar(

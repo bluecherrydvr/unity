@@ -51,7 +51,11 @@ class ApplicationSettings extends StatelessWidget {
               ThemeMode.dark => Icons.dark_mode,
             },
             text: switch (mode) {
-              ThemeMode.system => loc.system,
+              ThemeMode.system => loc.system +
+                  switch (MediaQuery.platformBrightnessOf(context)) {
+                    Brightness.light => ' (${loc.light})',
+                    Brightness.dark => ' (${loc.dark})',
+                  },
               ThemeMode.light => loc.light,
               ThemeMode.dark => loc.dark,
             },
@@ -64,7 +68,7 @@ class ApplicationSettings extends StatelessWidget {
       const LanguageSection(),
       const DateFormatSection(),
       const TimeFormatSection(),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Window'),
         CheckboxListTile.adaptive(
           value: settings.kLaunchAppOnStartup.value,

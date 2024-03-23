@@ -22,7 +22,6 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -150,7 +149,7 @@ class GeneralSettings extends StatelessWidget {
           settings.kNotificationClickBehavior.value = v;
         },
       ),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         const SubHeader(
           'Data Usage',
           padding: DesktopSettings.horizontalPadding,

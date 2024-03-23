@@ -28,6 +28,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -230,7 +231,23 @@ class DownloadsManager extends UnityProvider {
     downloading[event] = 0.0;
     notifyListeners();
 
-    final dir = SettingsProvider.instance.kDownloadsDirectory.value;
+    final dir = await () async {
+      final settings = SettingsProvider.instance;
+
+      if (settings.kChooseLocationEveryTime.value) {
+        final selectedDirectory = await FilePicker.platform.getDirectoryPath(
+          dialogTitle: 'Choose download location',
+          initialDirectory: settings.kDownloadsDirectory.value,
+          lockParentWindow: true,
+        );
+
+        if (selectedDirectory != null) {
+          debugPrint('Selected directory: $selectedDirectory');
+          settings.kDownloadsDirectory.value = selectedDirectory;
+        }
+      }
+      return settings.kDownloadsDirectory.value;
+    }();
     final fileName =
         'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);

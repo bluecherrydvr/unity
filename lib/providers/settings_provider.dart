@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
+import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -43,10 +44,11 @@ class _SettingsOption<T> {
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
   final ValueChanged<T>? onChanged;
+  final T Function()? valueOverrider;
 
   late T _value;
 
-  T get value => _value;
+  T get value => valueOverrider?.call() ?? _value;
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() {
       _value = newValue;
@@ -66,6 +68,7 @@ class _SettingsOption<T> {
     this.min,
     this.max,
     this.onChanged,
+    this.valueOverrider,
   }) {
     Future.microtask(() async {
       _value = getDefault != null ? await getDefault!() : def;
@@ -347,15 +350,18 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
   final kSoftwareZooming = _SettingsOption<bool>(
-    def: Platform.isMacOS ? true : false,
+    def: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded ? true : false,
     key: 'other.software_zoom',
     onChanged: (value) {
       for (final player in UnityPlayers.players.values) {
         player
           ..resetCrop()
-          ..softwareZoom = value;
+          ..zoom.softwareZoom = value;
       }
     },
+    valueOverrider: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded
+        ? () => true
+        : null,
   );
   final kShowDebugInfo = _SettingsOption(
     def: kDebugMode,

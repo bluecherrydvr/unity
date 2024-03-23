@@ -24,7 +24,6 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -39,22 +38,26 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
       SubHeader(loc.downloads),
-      if (kDebugMode)
-        CheckboxListTile.adaptive(
-          value: settings.kChooseLocationEveryTime.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kChooseLocationEveryTime.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.create_new_folder),
-          ),
-          title: const Text('Choose location for each download'),
+      CheckboxListTile.adaptive(
+        value: settings.kChooseLocationEveryTime.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kChooseLocationEveryTime.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.create_new_folder),
         ),
+        title: const Text('Choose location for each download'),
+        subtitle: const Text(
+          'Whether to choose the location for each download or use the default '
+          'location. When enabled, you will be prompted to choose the download '
+          'directory for each download.',
+        ),
+      ),
       ListTile(
         contentPadding: DesktopSettings.horizontalPadding,
         leading: CircleAvatar(
@@ -78,7 +81,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           }
         },
       ),
-      if (kDebugMode)
+      if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(
           value: false,
           onChanged: (v) {},
@@ -91,9 +94,8 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           title: const Text(
               'Block the app from closing when there are ongoing downloads'),
         ),
-      const SizedBox(height: 20.0),
       const SubHeader('Events'),
-      if (kDebugMode)
+      if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(
           value: settings.kPictureInPicture.value,
           onChanged: (v) {
@@ -156,7 +158,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 20.0),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Timeline of Events'),
         CheckboxListTile.adaptive(
           value: settings.kShowDifferentColorsForEvents.value,

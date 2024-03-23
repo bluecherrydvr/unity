@@ -21,7 +21,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -70,7 +69,7 @@ class PrivacySecuritySettings extends StatelessWidget {
           settings.kAllowCrashReports.value = v;
         },
       ),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         const Divider(),
         ListTile(
           contentPadding: DesktopSettings.horizontalPadding,

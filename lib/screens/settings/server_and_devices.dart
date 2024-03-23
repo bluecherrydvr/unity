@@ -124,7 +124,7 @@ class StreamingSettings extends StatelessWidget {
           settings.kVideoFit.value = v;
         },
       ),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         const SizedBox(height: 8.0),
         OptionsChooserTile(
           title: 'Refresh Period',
@@ -213,7 +213,7 @@ class StreamingSettings extends StatelessWidget {
         },
       ),
       const SizedBox(height: 8.0),
-      if (kDebugMode) ...[
+      if (settings.kShowDebugInfo.value) ...[
         CheckboxListTile.adaptive(
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,

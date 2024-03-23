@@ -38,8 +38,8 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       enableCache: enableCache,
       title: title,
     )
-      ..matrixType = matrixType
-      ..softwareZoom = softwareZoom;
+      ..zoom.matrixType = matrixType
+      ..zoom.softwareZoom = softwareZoom;
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }
@@ -122,7 +122,7 @@ class _MKVideoState extends State<_MKVideo> {
 
   @override
   Widget build(BuildContext context) {
-    final videoWidget = Video(
+    return Video(
       key: videoKey,
       controller: widget.videoController,
       fill: widget.color,
@@ -130,40 +130,6 @@ class _MKVideoState extends State<_MKVideo> {
       controls: NoVideoControls,
       wakelock: UnityVideoPlayerInterface.wakelockEnabled,
     );
-
-    if (!widget.mkPlayer.softwareZoom) {
-      return videoWidget;
-    }
-
-    // digital zoom
-
-    final videoSize = widget.mkPlayer.maxSize;
-    final zoomRect = widget.mkPlayer.viewportRect;
-
-    final rectXFactor =
-        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.left / videoSize.width;
-    final rectYFactor =
-        !widget.mkPlayer.isCropped ? 0.0 : zoomRect.top / videoSize.height;
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final consts = !widget.mkPlayer.isCropped
-          ? constraints
-          : constraints * widget.mkPlayer.matrixType.size.toDouble();
-      final rectX = consts.maxWidth * rectXFactor;
-      final rectY = consts.maxHeight * rectYFactor;
-      return Stack(children: [
-        const Positioned.fill(child: SizedBox.shrink()),
-        Positioned(
-          left: -rectX,
-          top: -rectY,
-          child: SizedBox(
-            width: consts.maxWidth,
-            height: consts.maxHeight,
-            child: videoWidget,
-          ),
-        ),
-      ]);
-    });
   }
 }
 
@@ -177,8 +143,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   final _fpsStreamController = StreamController<double>.broadcast();
   @override
   Stream<double> get fpsStream => _fpsStreamController.stream;
-
-  bool _isCropped = false;
 
   Size maxSize = Size.zero;
 
@@ -428,27 +392,21 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     await seekTo(Duration.zero);
   }
 
-  @override
-  Future<void> resetCrop() => crop(-1, -1, -1);
-
-  Rect viewportRect = Rect.zero;
-
   /// Crops the current video into a box at the given row and column
   @override
-  Future<void> crop(int row, int col, int size) async {
-    if (kIsWeb) return;
+  Future<void> crop(int row, int col) async {
+    super.crop(row, col);
+    if (kIsWeb ||
+        // On macOS, the mpv options don't seem to work properly. Because of this,
+        // software zoom is used instead.
+        Platform.isMacOS ||
+        zoom.softwareZoom) return;
 
-    final reset = row == -1 || col == -1 || size == -1;
+    final reset = zoom.zoomAxis == (-1, -1);
     // final player = mkPlayer.platform as dynamic;
 
     final Future<void> Function(Rect rect) crop;
-    if (softwareZoom) {
-      // On macOS, the mpv options don't seem to work properly. Because of this,
-      // software zoom is used instead.
-      crop = (rect) async {
-        viewportRect = rect;
-      };
-    } else if (Platform.isLinux) {
+    if (Platform.isLinux) {
       // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
       // As of now (18 nov 2023), the "video-crop" parameter is not supported on
       // most distros. In this case, there is the "vf=crop" parameter that does
@@ -461,12 +419,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     if (reset) {
       await crop(Rect.zero);
-      _isCropped = false;
     } else if (width != null && height != null) {
-      final tileWidth = maxSize.width / size;
-      final tileHeight = maxSize.height / size;
+      final tileWidth = maxSize.width / zoom.matrixType.size;
+      final tileHeight = maxSize.height / zoom.matrixType.size;
 
-      viewportRect = Rect.fromLTWH(
+      zoom.zoomRect = Rect.fromLTWH(
         col * tileWidth,
         row * tileHeight,
         tileWidth,
@@ -474,11 +431,10 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
 
       debugPrint(
-        'Cropping $softwareZoom | row=$row | col=$col | size=$maxSize | viewport=$viewportRect',
+        'Cropping ${zoom.softwareZoom} | row=$row | col=$col | size=$maxSize | viewport=${zoom.zoomRect}',
       );
 
-      await crop(viewportRect);
-      _isCropped = true;
+      await crop(zoom.zoomRect);
     }
   }
 
@@ -516,9 +472,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
     }
   }
-
-  @override
-  bool get isCropped => _isCropped;
 
   @override
   Future<void> dispose() async {

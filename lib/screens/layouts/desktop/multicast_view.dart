@@ -124,7 +124,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
               next = previousZoom(currentZoom!, size);
             }
 
-            view.player.crop(next.$1, next.$2, size);
+            view.player.crop(next.$1, next.$2);
             debugPrint('next: $next');
             currentZoom = next;
           }
@@ -160,7 +160,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
                     );
                   },
                   onPressed: () {
-                    view.player.crop(row, col, size);
+                    view.player.crop(row, col);
                     currentZoom = (row, col);
                   },
                   builder: (context, states) => SizedBox.expand(

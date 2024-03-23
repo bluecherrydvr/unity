@@ -144,8 +144,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Stream<double> get fpsStream => _fpsStreamController.stream;
 
-  bool _isCropped = false;
-
   Size maxSize = Size.zero;
 
   UnityVideoPlayerMediaKit({
@@ -394,27 +392,21 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     await seekTo(Duration.zero);
   }
 
-  @override
-  Future<void> resetCrop() => crop(-1, -1);
-
   /// Crops the current video into a box at the given row and column
   @override
   Future<void> crop(int row, int col) async {
-    if (kIsWeb) return;
-
-    zoom.zoomAxis = (row, col);
+    super.crop(row, col);
+    if (kIsWeb ||
+        // On macOS, the mpv options don't seem to work properly. Because of this,
+        // software zoom is used instead.
+        Platform.isMacOS ||
+        zoom.softwareZoom) return;
 
     final reset = zoom.zoomAxis == (-1, -1);
     // final player = mkPlayer.platform as dynamic;
 
     final Future<void> Function(Rect rect) crop;
-    if (zoom.softwareZoom) {
-      // On macOS, the mpv options don't seem to work properly. Because of this,
-      // software zoom is used instead.
-      crop = (rect) async {
-        zoom.zoomRect = rect;
-      };
-    } else if (Platform.isLinux) {
+    if (Platform.isLinux) {
       // On linux, the mpv binaries used come from the distros (sudo apt install mpv ...)
       // As of now (18 nov 2023), the "video-crop" parameter is not supported on
       // most distros. In this case, there is the "vf=crop" parameter that does
@@ -427,7 +419,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
     if (reset) {
       await crop(Rect.zero);
-      _isCropped = false;
     } else if (width != null && height != null) {
       final tileWidth = maxSize.width / zoom.matrixType.size;
       final tileHeight = maxSize.height / zoom.matrixType.size;
@@ -444,7 +435,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
 
       await crop(zoom.zoomRect);
-      _isCropped = true;
     }
   }
 
@@ -482,9 +472,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       );
     }
   }
-
-  @override
-  bool get isCropped => _isCropped;
 
   @override
   Future<void> dispose() async {

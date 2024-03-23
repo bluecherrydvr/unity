@@ -389,9 +389,18 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   Future<void> release();
   Future<void> reset();
 
-  Future<void> resetCrop();
-  Future<void> crop(int row, int col);
-  bool get isCropped;
+  @mustCallSuper
+  Future<void> resetCrop() => crop(-1, -1);
+
+  @mustCallSuper
+  Future<void> crop(int row, int col) async {
+    zoom.zoomAxis = (row, col);
+  }
+
+  @mustCallSuper
+  bool get isCropped {
+    return zoom.zoomAxis != (-1, -1);
+  }
 
   @mustCallSuper
   @override

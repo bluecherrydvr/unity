@@ -38,22 +38,26 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
       SubHeader(loc.downloads),
-      if (settings.kShowDebugInfo.value)
-        CheckboxListTile.adaptive(
-          value: settings.kChooseLocationEveryTime.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kChooseLocationEveryTime.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.create_new_folder),
-          ),
-          title: const Text('Choose location for each download'),
+      CheckboxListTile.adaptive(
+        value: settings.kChooseLocationEveryTime.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kChooseLocationEveryTime.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.create_new_folder),
         ),
+        title: const Text('Choose location for each download'),
+        subtitle: const Text(
+          'Whether to choose the location for each download or use the default '
+          'location. When enabled, you will be prompted to choose the download '
+          'directory for each download.',
+        ),
+      ),
       ListTile(
         contentPadding: DesktopSettings.horizontalPadding,
         leading: CircleAvatar(

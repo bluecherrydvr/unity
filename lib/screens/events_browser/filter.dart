@@ -53,25 +53,32 @@ class EventsDevicesPicker extends StatelessWidget {
         iconSize: 18.0,
         nodes: servers.servers.map((server) {
           final enabledDevicesForServer = eventsProvider.selectedDevices.where(
-              (d) => server.devices.any((device) => device.streamURL == d));
-          final isTriState = eventsProvider.selectedDevices.any(
-              (d) => server.devices.any((device) => device.streamURL == d));
+            (deviceUrl) => server.devices.any(
+              (device) => device.streamURL == deviceUrl,
+            ),
+          );
           final isOffline = !server.online;
-          final serverEvents =
-              (eventsProvider.loadedEvents?.events ?? {})[server];
+          final serverEvents = (eventsProvider.loadedEvents?.events ?? {})
+              .entries
+              .firstWhereOrNull((entry) => entry.key.ip == server.ip)
+              ?.value;
 
           return TreeNode(
             content: buildCheckbox(
               value: enabledDevicesForServer.isEmpty || isOffline
                   ? false
-                  : isTriState
-                      ? null
-                      : true,
+                  : enabledDevicesForServer.length ==
+                          server.devices.where((device) => device.status).length
+                      ? true
+                      : null,
               isError: isOffline,
               onChanged: (v) {
                 if (v == true) {
                   eventsProvider.selectDevices(
-                      server.devices.map((device) => device.streamURL));
+                    server.devices
+                        .where((device) => device.status)
+                        .map((device) => device.streamURL),
+                  );
                 } else if (v == null || !v) {
                   final toUnselectDevices = server.devices
                       .map((device) => device.streamURL)

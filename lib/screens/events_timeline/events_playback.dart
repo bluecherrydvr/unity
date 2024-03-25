@@ -71,17 +71,18 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
   @override
   Future<void> fetch() async {
+    final eventsProvider = context.read<EventsProvider>();
     setState(() {
       hasEverFetched = true;
       date = date.toLocal();
-      startTime = DateTime(date.year, date.month, date.day).toLocal();
-      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      eventsProvider
+        ..startTime = DateTime(date.year, date.month, date.day).toLocal()
+        ..endTime =
+            DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
     await super.fetch();
-
-    final eventsProvider = context.read<EventsProvider>();
 
     final devices = <Device, List<Event>>{};
 
@@ -173,7 +174,6 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (!hasEverFetched) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // disabledDevices.clear();
               fetch();
             });
           }

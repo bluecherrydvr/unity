@@ -32,21 +32,20 @@ typedef EventsData = Map<Server, List<Event>>;
 class LoadedEvents {
   final EventsData events;
   final List<Server> invalidResponses;
-  final List<Event> filteredEvents;
 
   factory LoadedEvents() {
     return LoadedEvents.raw(
       events: {},
       invalidResponses: List.empty(growable: true),
-      filteredEvents: List.empty(growable: true),
     );
   }
 
   const LoadedEvents.raw({
     required this.events,
     required this.invalidResponses,
-    required this.filteredEvents,
   });
+
+  List<Event> get filteredEvents => events.values.expand((e) => e).toList();
 }
 
 class EventsProvider extends UnityProvider {
@@ -112,11 +111,14 @@ class EventsProvider extends UnityProvider {
 
     super.restore(notifyListeners: notifyListeners);
   }
+
+  void _notify() => notifyListeners();
 }
 
 extension EventsScreenProvider on EventsProvider {
   Future<void> loadEvents() async {
     loadedEvents = LoadedEvents();
+    _notify();
 
     // Load the events at the same time
     await Future.wait(ServersProvider.instance.servers.map((server) async {
@@ -130,15 +132,32 @@ extension EventsScreenProvider on EventsProvider {
 
         // Perform a query for each selected device
         await Future.wait(allowedDevices.map((device) async {
-          final iterable = await API.instance.getEvents(
+          final iterable = (await API.instance.getEvents(
             server,
             startTime: startTime,
             endTime: endTime,
             device: device,
-          );
+          ))
+              .toList()
+            ..removeWhere((event) {
+              switch (levelFilter) {
+                case EventsMinLevelFilter.alarming:
+                  if (event.isAlarm) return true;
+                  break;
+                case EventsMinLevelFilter.warning:
+                  if (event.priority == EventPriority.warning) return true;
+                  break;
+                default:
+                  break;
+              }
+              return false;
+            });
+
+          if (iterable.isEmpty) return;
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);
+          _notify();
         }));
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
@@ -146,48 +165,5 @@ extension EventsScreenProvider on EventsProvider {
         loadedEvents!.invalidResponses.add(server);
       }
     }));
-
-    await computeFiltered(levelFilter);
-  }
-
-  Future<void> computeFiltered(EventsMinLevelFilter levelFilter) async {
-    assert(loadedEvents != null);
-    loadedEvents!.filteredEvents.clear();
-    loadedEvents!.filteredEvents.addAll(await compute(_updateFiltered, {
-      'events': loadedEvents!.events,
-      'levelFilter': levelFilter,
-      'selectedDevices': selectedDevices,
-    }));
-  }
-
-  static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
-    final events = data['events'] as EventsData;
-    final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
-    final selectedDevices = data['selectedDevices'] as Set<String>;
-
-    return events.values.expand((events) sync* {
-      for (final event in events) {
-        switch (levelFilter) {
-          case EventsMinLevelFilter.alarming:
-            if (!event.isAlarm) continue;
-            break;
-          case EventsMinLevelFilter.warning:
-            if (event.priority != EventPriority.warning) continue;
-            break;
-          default:
-            break;
-        }
-
-        // This is hacky. Maybe find a way to move this logic to [API.getEvents]
-        // It'd also be useful to find a way to get the device at Event creation time
-        final devices = event.server.devices.where((device) =>
-            device.name.toLowerCase() == event.deviceName.toLowerCase());
-        if (devices.isNotEmpty) {
-          if (!selectedDevices.contains(devices.first.streamURL)) continue;
-        }
-
-        yield event;
-      }
-    });
   }
 }

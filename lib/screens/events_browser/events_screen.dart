@@ -20,7 +20,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
@@ -30,18 +29,16 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
+import 'package:bluecherry_client/screens/events_browser/sidebar.dart';
 import 'package:bluecherry_client/screens/players/event_player_desktop.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/drawer_button.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/search.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -93,10 +90,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
 
     final eventsProvider = context.watch<EventsProvider>();
     final hasDrawer = Scaffold.hasDrawer(context);
-    final loc = AppLocalizations.of(context);
-    final isLoading = HomeProvider.instance.isLoadingFor(
-      UnityLoadingReason.fetchingEventsHistory,
-    );
 
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
@@ -105,84 +98,35 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
           loadedServers: eventsProvider.loadedEvents?.events.keys ?? [],
           refresh: fetch,
           invalid: eventsProvider.loadedEvents?.invalidResponses ?? [],
-          showFilter: () => showMobileFilter(context),
         );
       }
 
       return Material(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ConstrainedBox(
-            constraints: kSidebarConstraints,
-            child: SafeArea(
-              child: DropdownButtonHideUnderline(
-                child: Column(children: [
-                  SubHeader(
-                    loc.servers,
-                    height: 38.0,
-                    trailing: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 6.0),
-                          child: SearchToggleButton(
-                            searchVisible: searchVisible,
-                            onPressed: () {
-                              setState(() => searchVisible = !searchVisible);
-                              if (searchVisible) {
-                                searchFocusNode.requestFocus();
-                              }
-                            },
-                          ),
-                        ),
-                        Text('${ServersProvider.instance.servers.length}'),
-                      ],
-                    ),
-                  ),
-                  ToggleSearchBar(
-                    searchVisible: searchVisible,
-                    searchController: searchController,
-                    searchFocusNode: searchFocusNode,
-                    onSearchChanged: (query) {
-                      super.setState(() => searchQuery = query);
-                    },
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: EventsDevicesPicker(
-                        events: eventsProvider.loadedEvents?.events ?? {},
-                        onDisabledDeviceAdded: eventsProvider.toggleDevice,
-                        onDisabledDeviceRemoved: eventsProvider.toggleDevice,
-                        searchQuery: searchQuery,
-                      ),
-                    ),
-                  ),
-                  const Divider(),
-                  buildTimeFilterTile(),
-                  // const SubHeader('Minimum level', height: 24.0),
-                  // DropdownButton<EventsMinLevelFilter>(
-                  //   isExpanded: true,
-                  //   value: levelFilter,
-                  //   items: EventsMinLevelFilter.values.map((level) {
-                  //     return DropdownMenuItem(
-                  //       value: level,
-                  //       child: Text(level.name.uppercaseFirst),
-                  //     );
-                  //   }).toList(),
-                  //   onChanged: (v) => setState(
-                  //     () => levelFilter = v ?? levelFilter,
-                  //   ),
-                  // ),
-                  const SizedBox(height: 8.0),
-                  FilledButton(
-                    onPressed: isLoading ? null : fetch,
-                    child: Text(
-                      loc.loadEvents(eventsProvider.selectedDevices.length),
-                    ),
-                  ),
-                  const SizedBox(height: 12.0),
-                ]),
-              ),
-            ),
+          EventsScreenSidebar(
+            searchVisible: searchVisible,
+            searchQuery: searchQuery,
+            searchController: searchController,
+            searchFocusNode: searchFocusNode,
+            onSearchChanged: (query) {
+              setState(() {
+                searchQuery = query;
+              });
+            },
+            onSearchVisibilityToggle: () {
+              setState(() {
+                searchVisible = !searchVisible;
+
+                if (searchVisible) {
+                  searchFocusNode.requestFocus();
+                } else {
+                  searchQuery = '';
+                  searchController.clear();
+                }
+              });
+            },
+            buildTimeFilterTile: (context) => buildTimeFilterTile(),
+            fetch: fetch,
           ),
           Expanded(
             child: Card(
@@ -244,51 +188,5 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
         },
       );
     });
-  }
-
-  Future<void> showMobileFilter(BuildContext context) async {
-    /// This is used to update the screen when the bottom sheet is closed.
-    var hasChanged = false;
-
-    await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          maxChildSize: 0.85,
-          initialChildSize: 0.85,
-          builder: (context, controller) {
-            return const SizedBox.shrink();
-            // return PrimaryScrollController(
-            //   controller: controller,
-            //   child: MobileFilterSheet(
-            //     events: events,
-            //     disabledDevices: disabledDevices,
-            //     onDisabledDeviceAdded: (device) {
-            //       setState(() => disabledDevices.add(device));
-            //       hasChanged = true;
-            //     },
-            //     onDisabledDeviceRemoved: (device) {
-            //       setState(() => disabledDevices.remove(device));
-            //       hasChanged = true;
-            //     },
-            //     levelFilter: levelFilter,
-            //     onLevelFilterChanged: (filter) {
-            //       setState(() => levelFilter = filter);
-            //       hasChanged = true;
-            //     },
-            //     timeFilterTile: buildTimeFilterTile(onSelect: () {
-            //       hasChanged = true;
-            //     }),
-            //   ),
-            // );
-          },
-        );
-      },
-    );
-
-    if (hasChanged) fetch();
   }
 }

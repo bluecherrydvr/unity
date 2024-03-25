@@ -26,15 +26,12 @@ class EventsScreenMobile extends StatefulWidget {
   final RefreshCallback refresh;
   final List<Server> invalid;
 
-  final VoidCallback showFilter;
-
   const EventsScreenMobile({
     super.key,
     required this.events,
     required this.loadedServers,
     required this.refresh,
     required this.invalid,
-    required this.showFilter,
   });
 
   @override
@@ -45,7 +42,9 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => widget.showFilter());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => showFilterSheet(context),
+    );
   }
 
   @override
@@ -75,7 +74,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
             child: SquaredIconButton(
               icon: const Icon(Icons.filter_list),
               tooltip: loc.filter,
-              onPressed: widget.showFilter,
+              onPressed: () => showFilterSheet(context),
             ),
           ),
         ],
@@ -95,7 +94,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                 if (!isLoading) ...[
                   const SizedBox(height: 12.0),
                   ElevatedButton.icon(
-                    onPressed: widget.showFilter,
+                    onPressed: () => showFilterSheet(context),
                     icon: const Icon(Icons.filter_list),
                     label: Text(loc.filter),
                   ),
@@ -219,5 +218,51 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
         );
       }(),
     );
+  }
+
+  Future<void> showFilterSheet(BuildContext context) async {
+    /// This is used to update the screen when the bottom sheet is closed.
+    var hasChanged = false;
+
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          maxChildSize: 0.85,
+          initialChildSize: 0.85,
+          builder: (context, controller) {
+            return const SizedBox.shrink();
+            // return PrimaryScrollController(
+            //   controller: controller,
+            //   child: MobileFilterSheet(
+            //     events: events,
+            //     disabledDevices: disabledDevices,
+            //     onDisabledDeviceAdded: (device) {
+            //       setState(() => disabledDevices.add(device));
+            //       hasChanged = true;
+            //     },
+            //     onDisabledDeviceRemoved: (device) {
+            //       setState(() => disabledDevices.remove(device));
+            //       hasChanged = true;
+            //     },
+            //     levelFilter: levelFilter,
+            //     onLevelFilterChanged: (filter) {
+            //       setState(() => levelFilter = filter);
+            //       hasChanged = true;
+            //     },
+            //     timeFilterTile: buildTimeFilterTile(onSelect: () {
+            //       hasChanged = true;
+            //     }),
+            //   ),
+            // );
+          },
+        );
+      },
+    );
+
+    // if (hasChanged) fetch();
   }
 }

@@ -111,9 +111,13 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
               ),
             ),
             const Divider(),
-            SubHeader(loc.timeFilter, height: 24.0),
             ListTile(
-              title: AutoSizeText(
+              dense: true,
+              title: Text(
+                loc.timeFilter,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: AutoSizeText(
                 () {
                   final formatter = DateFormat.MEd();
                   if (DateUtils.isSameDay(widget.date, DateTime.now())) {

@@ -32,14 +32,15 @@ enum EventsMinLevelFilter { any, info, warning, alarming, critical }
 class EventsDevicesPicker extends StatelessWidget {
   final double checkboxScale;
   final double gapCheckboxText;
-
   final String searchQuery;
+  final VoidCallback? onChanged;
 
   const EventsDevicesPicker({
     super.key,
     required this.searchQuery,
     this.checkboxScale = 0.8,
     this.gapCheckboxText = 0.0,
+    this.onChanged,
   });
 
   @override
@@ -79,11 +80,13 @@ class EventsDevicesPicker extends StatelessWidget {
                         .where((device) => device.status)
                         .map((device) => device.streamURL),
                   );
+                  onChanged?.call();
                 } else if (v == null || !v) {
                   final toUnselectDevices = server.devices
                       .map((device) => device.streamURL)
                       .where((d) => eventsProvider.selectedDevices.contains(d));
                   eventsProvider.unselectDevices(toUnselectDevices);
+                  onChanged?.call();
                 }
               },
               checkboxScale: checkboxScale,
@@ -117,8 +120,10 @@ class EventsDevicesPicker extends StatelessWidget {
 
                           if (enabled) {
                             eventsProvider.unselectDevices([device.streamURL]);
+                            onChanged?.call();
                           } else {
                             eventsProvider.selectDevices([device.streamURL]);
+                            onChanged?.call();
                           }
                         },
                         checkboxScale: checkboxScale,
@@ -142,10 +147,12 @@ class EventsDevicesPicker extends StatelessWidget {
 
 class MobileFilterSheet extends StatefulWidget {
   final Widget timeFilterTile;
+  final VoidCallback? onChanged;
 
   const MobileFilterSheet({
     super.key,
     required this.timeFilterTile,
+    this.onChanged,
   });
 
   @override
@@ -170,7 +177,6 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
     final loc = AppLocalizations.of(context);
     final eventsProvider = context.watch<EventsProvider>();
     return ListView(primary: true, children: [
-      SubHeader(loc.timeFilter, height: 20.0),
       widget.timeFilterTile,
       const SubHeader('Minimum level', height: 20.0),
       DropdownButtonHideUnderline(
@@ -208,6 +214,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
         gapCheckboxText: 10.0,
         checkboxScale: 1.15,
         searchQuery: searchQuery,
+        onChanged: widget.onChanged,
       )
     ]);
   }

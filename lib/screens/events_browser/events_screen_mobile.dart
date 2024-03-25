@@ -24,7 +24,7 @@ class EventsScreenMobile extends StatefulWidget {
   final Iterable<Server> loadedServers;
 
   final RefreshCallback refresh;
-  final List<Server> invalid;
+  final Iterable<Server> invalid;
 
   final Widget Function({required VoidCallback onSelect}) buildTimeFilterTile;
 
@@ -46,14 +46,13 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => showFilterSheet(context),
+      (_) => showFilterSheet(context, loadInitially: true),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final settings = context.watch<SettingsProvider>();
     final servers = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
 
@@ -91,9 +90,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                NoEventsLoaded(
-                  isLoading: isLoading,
-                ),
+                NoEventsLoaded(isLoading: isLoading),
                 if (!isLoading) ...[
                   const SizedBox(height: 12.0),
                   ElevatedButton.icon(
@@ -107,113 +104,58 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
           );
         }
 
+        final serversList = servers.servers.sorted((a, b) {
+          final aEvents =
+              widget.events.where((event) => event.server.id == a.id);
+          final bEvents =
+              widget.events.where((event) => event.server.id == b.id);
+
+          final aOnline = a.online && aEvents.isNotEmpty;
+          final bOnline = b.online && bEvents.isNotEmpty;
+
+          if (aOnline && !bOnline) return -1;
+          if (!aOnline && bOnline) return 1;
+
+          return a.name.compareTo(b.name);
+        });
+
         return Material(
           child: RefreshIndicator.adaptive(
             onRefresh: widget.refresh,
             triggerMode: RefreshIndicatorTriggerMode.anywhere,
             child: ListView.builder(
-              itemCount: servers.servers.length,
+              itemCount: serversList.length,
               itemBuilder: (context, index) {
-                final server = servers.servers[index];
-                final isLoaded = widget.loadedServers.contains(server);
+                final server = serversList[index];
                 final serverEvents = widget.events
                     .where((event) => event.server.id == server.id);
                 final hasEvents = serverEvents.isNotEmpty;
 
-                return IgnorePointer(
-                  ignoring: !server.online || !isLoaded,
-                  child: ExpansionTile(
-                    initiallyExpanded: servers.servers.length == 1,
-                    maintainState: true,
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      child: !server.online
-                          ? Icon(
-                              Icons.desktop_access_disabled,
-                              color: theme.colorScheme.error,
-                            )
-                          : !isLoaded
-                              ? const SizedBox(
-                                  height: 20.0,
-                                  width: 20.0,
-                                  child: CircularProgressIndicator.adaptive(
-                                    strokeWidth: 2.0,
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.language,
-                                  color: theme.iconTheme.color,
-                                ),
-                    ),
-                    trailing: server.online ? null : const SizedBox.shrink(),
-                    title: Text(server.name),
-                    subtitle: !server.online
-                        ? Text(
-                            loc.offline,
-                            style: TextStyle(
-                              color: theme.colorScheme.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          )
-                        : Text(
-                            '${loc.nDevices(server.devices.length)} • ${server.ip}  • ${serverEvents.length} events',
-                          ),
-                    children: !hasEvents
-                        ? [
-                            if (isLoaded)
-                              if (widget.invalid.contains(server))
-                                SizedBox(
-                                  height: 72.0,
-                                  child: Center(
-                                    child: Text(
-                                      loc.invalidResponse,
-                                      style: theme.textTheme.headlineSmall
-                                          ?.copyWith(fontSize: 16.0),
-                                    ),
-                                  ),
-                                )
-                              else
-                                SizedBox(
-                                  height: 72.0,
-                                  child: Center(
-                                    child: Text(
-                                      loc.noEventsLoaded,
-                                      style: theme.textTheme.headlineSmall
-                                          ?.copyWith(fontSize: 16.0),
-                                    ),
-                                  ),
-                                ),
-                          ]
-                        : serverEvents.map((event) {
-                            return ListTile(
-                              contentPadding: const EdgeInsetsDirectional.only(
-                                start: 70.0,
-                                end: 16.0,
-                              ),
-                              onTap: event.mediaURL == null
-                                  ? null
-                                  : () async {
-                                      await Navigator.of(context).pushNamed(
-                                        '/events',
-                                        arguments: {
-                                          'event': event,
-                                          'upcoming': serverEvents,
-                                        },
-                                      );
-                                    },
-                              title: Text(event.deviceName),
-                              isThreeLine: true,
-                              subtitle: Text(
-                                [
-                                  '${event.type.locale(context)} • ${event.duration.humanReadable(context)}',
-                                  '${settings.formatDate(event.updated)}'
-                                      ' ${settings.formatTime(event.updated).toUpperCase()}',
-                                ].join('\n'),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
+                return ListTile(
+                  title: Text(
+                    server.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text(
+                    server.online
+                        ? loc.nEvents(serverEvents.length)
+                        : loc.offline,
+                  ),
+                  trailing: !server.online
+                      ? Icon(
+                          Icons.domain_disabled_outlined,
+                          color: theme.colorScheme.error,
+                          size: 20.0,
+                        )
+                      : hasEvents
+                          ? const Icon(Icons.navigate_next, size: 20.0)
+                          : null,
+                  enabled: server.online && hasEvents,
+                  onTap: () async {
+                    if (!server.online || !hasEvents) return;
+
+                    showEventsList(serverEvents);
+                  },
                 );
               },
             ),
@@ -223,7 +165,10 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
     );
   }
 
-  Future<void> showFilterSheet(BuildContext context) async {
+  Future<void> showFilterSheet(
+    BuildContext context, {
+    bool loadInitially = false,
+  }) async {
     /// This is used to update the screen when the bottom sheet is closed.
     var hasChanged = false;
 
@@ -240,6 +185,9 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
             return PrimaryScrollController(
               controller: controller,
               child: MobileFilterSheet(
+                onChanged: () {
+                  hasChanged = true;
+                },
                 timeFilterTile: widget.buildTimeFilterTile(onSelect: () {
                   hasChanged = true;
                 }),
@@ -250,9 +198,79 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
       },
     );
 
-    if (mounted && hasChanged) {
-      // ignore: use_build_context_synchronously
-      context.read<EventsProvider>().loadEvents();
-    }
+    if (hasChanged || loadInitially) widget.refresh();
+  }
+
+  Future<void> showEventsList(Iterable<Event> events) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          maxChildSize: 0.8,
+          initialChildSize: 0.8,
+          expand: false,
+          builder: (context, controller) {
+            final settings = context.watch<SettingsProvider>();
+            return ListView.builder(
+              controller: controller,
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                final event = events.elementAt(index);
+                return ListTile(
+                  title: Row(children: [
+                    Flexible(
+                      child: Text(
+                        event.deviceName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' (${event.type.locale(context)})',
+                      style: const TextStyle(fontSize: 10.0),
+                    ),
+                  ]),
+                  dense: true,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        const Icon(Icons.event, size: 16.0),
+                        const SizedBox(width: 6.0),
+                        Expanded(
+                          child: Text(
+                            '${settings.formatDate(event.updated)}'
+                            ' • ${settings.formatTime(event.updated).toUpperCase()}',
+                          ),
+                        ),
+                      ]),
+                      Row(children: [
+                        const Icon(Icons.timelapse, size: 16.0),
+                        const SizedBox(width: 6.0),
+                        Expanded(
+                          child: Text(
+                            event.duration.humanReadable(context),
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.navigate_next, size: 20.0),
+                  onTap: () async {
+                    await Navigator.of(context).pushNamed(
+                      '/events',
+                      arguments: {'event': event, 'upcoming': events},
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }

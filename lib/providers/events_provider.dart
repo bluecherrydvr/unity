@@ -107,7 +107,7 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => desktopView.read());
+    // final data = await tryReadStorage(() => desktopView.read());
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -152,8 +152,6 @@ extension EventsScreenProvider on EventsProvider {
               }
               return false;
             });
-
-          if (iterable.isEmpty) return;
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);

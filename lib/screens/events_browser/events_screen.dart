@@ -60,19 +60,12 @@ class EventsScreen extends StatefulWidget {
 }
 
 class EventsScreenState<T extends StatefulWidget> extends State<T> {
-  DateTime? startTime, endTime;
-  EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
-
   /// Fetches the events from the servers.
   Future<void> fetch() async {
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
 
-    await context.read<EventsProvider>().loadEvents(
-          startTime: startTime,
-          endTime: endTime,
-          levelFilter: levelFilter,
-        );
+    await context.read<EventsProvider>().loadEvents();
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
   }
@@ -98,6 +91,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
           loadedServers: eventsProvider.loadedEvents?.events.keys ?? [],
           refresh: fetch,
           invalid: eventsProvider.loadedEvents?.invalidResponses ?? [],
+          buildTimeFilterTile: buildTimeFilterTile,
         );
       }
 
@@ -137,7 +131,8 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                 ),
               ),
               child: EventsScreenDesktop(
-                events: eventsProvider.loadedEvents?.filteredEvents ?? [],
+                events:
+                    eventsProvider.loadedEvents?.filteredEvents ?? List.empty(),
               ),
             ),
           ),
@@ -149,6 +144,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   Widget buildTimeFilterTile({VoidCallback? onSelect}) {
     return Builder(builder: (context) {
       final loc = AppLocalizations.of(context);
+      final eventsProvider = context.watch<EventsProvider>();
       return ListTile(
         dense: true,
         title: Text(
@@ -157,14 +153,16 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
         ),
         subtitle: Text(() {
           final formatter = DateFormat.MEd();
-          if (startTime == null || endTime == null) {
+          if (eventsProvider.startTime == null ||
+              eventsProvider.endTime == null) {
             return loc.today;
-          } else if (DateUtils.isSameDay(startTime, endTime)) {
-            return formatter.format(startTime!);
+          } else if (DateUtils.isSameDay(
+              eventsProvider.startTime, eventsProvider.endTime)) {
+            return formatter.format(eventsProvider.startTime!);
           } else {
             return loc.fromToDate(
-              formatter.format(startTime!),
-              formatter.format(endTime!),
+              formatter.format(eventsProvider.startTime!),
+              formatter.format(eventsProvider.endTime!),
             );
           }
         }()),
@@ -174,14 +172,18 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
             firstDate: DateTime(1970),
             lastDate: DateTime.now(),
             initialEntryMode: DatePickerEntryMode.calendarOnly,
-            initialDateRange: startTime == null || endTime == null
+            initialDateRange: eventsProvider.startTime == null ||
+                    eventsProvider.endTime == null
                 ? null
-                : DateTimeRange(start: startTime!, end: endTime!),
+                : DateTimeRange(
+                    start: eventsProvider.startTime!,
+                    end: eventsProvider.endTime!),
           );
           if (range != null) {
             setState(() {
-              startTime = range.start;
-              endTime = range.end;
+              eventsProvider
+                ..startTime = range.start
+                ..endTime = range.end;
             });
             onSelect?.call();
           }

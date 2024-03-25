@@ -70,6 +70,24 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
+  void selectDevices(Iterable<String> devices) {
+    selectedDevices.addAll(devices);
+    notifyListeners();
+  }
+
+  void unselectDevices(Iterable<String> devices) {
+    selectedDevices.removeAll(devices);
+    notifyListeners();
+  }
+
+  DateTime? startTime, endTime;
+  EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
+  EventsMinLevelFilter get levelFilter => _levelFilter;
+  set levelFilter(EventsMinLevelFilter value) {
+    _levelFilter = value;
+    notifyListeners();
+  }
+
   LoadedEvents? loadedEvents;
 
   @override
@@ -97,11 +115,7 @@ class EventsProvider extends UnityProvider {
 }
 
 extension EventsScreenProvider on EventsProvider {
-  Future<void> loadEvents({
-    required DateTime? startTime,
-    required DateTime? endTime,
-    required EventsMinLevelFilter levelFilter,
-  }) async {
+  Future<void> loadEvents() async {
     loadedEvents = LoadedEvents();
 
     // Load the events at the same time

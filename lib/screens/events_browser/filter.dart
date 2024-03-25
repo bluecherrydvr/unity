@@ -19,7 +19,6 @@
 
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
@@ -31,20 +30,13 @@ import 'package:provider/provider.dart';
 enum EventsMinLevelFilter { any, info, warning, alarming, critical }
 
 class EventsDevicesPicker extends StatelessWidget {
-  final EventsData events;
   final double checkboxScale;
   final double gapCheckboxText;
-
-  final ValueChanged<String> onDisabledDeviceAdded;
-  final ValueChanged<String> onDisabledDeviceRemoved;
 
   final String searchQuery;
 
   const EventsDevicesPicker({
     super.key,
-    required this.events,
-    required this.onDisabledDeviceAdded,
-    required this.onDisabledDeviceRemoved,
     required this.searchQuery,
     this.checkboxScale = 0.8,
     this.gapCheckboxText = 0.0,
@@ -65,7 +57,8 @@ class EventsDevicesPicker extends StatelessWidget {
           final isTriState = eventsProvider.selectedDevices.any(
               (d) => server.devices.any((device) => device.streamURL == d));
           final isOffline = !server.online;
-          final serverEvents = events[server];
+          final serverEvents =
+              (eventsProvider.loadedEvents?.events ?? {})[server];
 
           return TreeNode(
             content: buildCheckbox(
@@ -77,13 +70,13 @@ class EventsDevicesPicker extends StatelessWidget {
               isError: isOffline,
               onChanged: (v) {
                 if (v == true) {
-                  for (final d in server.devices) {
-                    onDisabledDeviceRemoved(d.streamURL);
-                  }
+                  eventsProvider.selectDevices(
+                      server.devices.map((device) => device.streamURL));
                 } else if (v == null || !v) {
-                  for (final d in server.devices) {
-                    onDisabledDeviceAdded(d.streamURL);
-                  }
+                  final toUnselectDevices = server.devices
+                      .map((device) => device.streamURL)
+                      .where((d) => eventsProvider.selectedDevices.contains(d));
+                  eventsProvider.unselectDevices(toUnselectDevices);
                 }
               },
               checkboxScale: checkboxScale,
@@ -116,9 +109,9 @@ class EventsDevicesPicker extends StatelessWidget {
                           if (!device.status) return;
 
                           if (enabled) {
-                            onDisabledDeviceAdded(device.streamURL);
+                            eventsProvider.unselectDevices([device.streamURL]);
                           } else {
-                            onDisabledDeviceRemoved(device.streamURL);
+                            eventsProvider.selectDevices([device.streamURL]);
                           }
                         },
                         checkboxScale: checkboxScale,
@@ -141,25 +134,10 @@ class EventsDevicesPicker extends StatelessWidget {
 }
 
 class MobileFilterSheet extends StatefulWidget {
-  final EventsData events;
-  final Set<String> disabledDevices;
-
-  final ValueChanged<String> onDisabledDeviceAdded;
-  final ValueChanged<String> onDisabledDeviceRemoved;
-
-  final EventsMinLevelFilter levelFilter;
-  final ValueChanged<EventsMinLevelFilter> onLevelFilterChanged;
-
   final Widget timeFilterTile;
 
   const MobileFilterSheet({
     super.key,
-    required this.events,
-    required this.disabledDevices,
-    required this.onDisabledDeviceAdded,
-    required this.onDisabledDeviceRemoved,
-    required this.levelFilter,
-    required this.onLevelFilterChanged,
     required this.timeFilterTile,
   });
 
@@ -183,6 +161,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final eventsProvider = context.watch<EventsProvider>();
     return ListView(primary: true, children: [
       SubHeader(loc.timeFilter, height: 20.0),
       widget.timeFilterTile,
@@ -190,7 +169,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
       DropdownButtonHideUnderline(
         child: DropdownButton<EventsMinLevelFilter>(
           isExpanded: true,
-          value: widget.levelFilter,
+          value: eventsProvider.levelFilter,
           items: EventsMinLevelFilter.values.map((level) {
             return DropdownMenuItem(
               value: level,
@@ -199,7 +178,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
           }).toList(),
           onChanged: (filter) {
             if (filter != null) {
-              widget.onLevelFilterChanged(filter);
+              eventsProvider.levelFilter = filter;
             }
           },
         ),
@@ -219,13 +198,8 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
         onSearchChanged: (query) => setState(() => searchQuery = query),
       ),
       EventsDevicesPicker(
-        events: widget.events,
         gapCheckboxText: 10.0,
         checkboxScale: 1.15,
-        onDisabledDeviceAdded: (device) =>
-            setState(() => widget.disabledDevices.add(device)),
-        onDisabledDeviceRemoved: (device) =>
-            setState(() => widget.disabledDevices.remove(device)),
         searchQuery: searchQuery,
       )
     ]);

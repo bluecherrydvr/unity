@@ -20,15 +20,13 @@
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-
-import 'filter.dart';
 
 class EventsScreenSidebar extends StatelessWidget {
   final bool searchVisible;
@@ -96,12 +94,7 @@ class EventsScreenSidebar extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: EventsDevicesPicker(
-                  events: eventsProvider.loadedEvents?.events ?? {},
-                  onDisabledDeviceAdded: eventsProvider.toggleDevice,
-                  onDisabledDeviceRemoved: eventsProvider.toggleDevice,
-                  searchQuery: searchQuery,
-                ),
+                child: EventsDevicesPicker(searchQuery: searchQuery),
               ),
             ),
             const Divider(),

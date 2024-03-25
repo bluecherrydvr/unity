@@ -71,12 +71,12 @@ class EventsProvider extends UnityProvider {
 
   void selectDevices(Iterable<String> devices) {
     selectedDevices.addAll(devices);
-    notifyListeners();
+    save();
   }
 
   void unselectDevices(Iterable<String> devices) {
     selectedDevices.removeAll(devices);
-    notifyListeners();
+    save();
   }
 
   DateTime? startTime, endTime;
@@ -97,9 +97,12 @@ class EventsProvider extends UnityProvider {
   @override
   Future<void> save({bool notifyListeners = true}) async {
     try {
-      await events.write({});
+      await events.write({
+        kStorageEvents: kStorageEvents,
+        'selectedDevices': selectedDevices.toList(),
+      });
     } catch (error, stackTrace) {
-      debugPrint('Failed to save desktop view:\n $error\n$stackTrace');
+      debugPrint('Failed to save events:\n $error\n$stackTrace');
     }
 
     super.save(notifyListeners: notifyListeners);
@@ -107,7 +110,9 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    // final data = await tryReadStorage(() => desktopView.read());
+    final data = await tryReadStorage(() => events.read());
+
+    selectedDevices = (data['selectedDevices'] as List).toSet().cast<String>();
 
     super.restore(notifyListeners: notifyListeners);
   }

@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
@@ -80,9 +81,11 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     });
     await super.fetch();
 
+    final eventsProvider = context.read<EventsProvider>();
+
     final devices = <Device, List<Event>>{};
 
-    for (final event in filteredEvents) {
+    for (final event in eventsProvider.loadedEvents!.filteredEvents) {
       if (event.isAlarm || event.mediaURL == null) continue;
 
       if (!DateUtils.isSameDay(event.published, date) ||
@@ -170,7 +173,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (!hasEverFetched) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              disabledDevices.clear();
+              // disabledDevices.clear();
               fetch();
             });
           }

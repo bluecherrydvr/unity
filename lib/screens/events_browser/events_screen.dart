@@ -21,10 +21,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
-import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -53,8 +53,6 @@ part '../players/event_player_mobile.dart';
 part 'events_screen_desktop.dart';
 part 'events_screen_mobile.dart';
 
-typedef EventsData = Map<Server, Iterable<Event>>;
-
 final eventsScreenKey = GlobalKey<EventsScreenState>();
 
 class EventsScreen extends StatefulWidget {
@@ -68,119 +66,18 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
   DateTime? startTime, endTime;
   EventsMinLevelFilter levelFilter = EventsMinLevelFilter.any;
 
-  final EventsData events = {};
-  Map<Server, bool> invalid = {};
-
-  Iterable<Event> filteredEvents = [];
-
-  /// The devices that can't be displayed in the list.
-  ///
-  /// The stream url is used to identify the device.
-  Set<String> disabledDevices = {
-    for (final server
-        in ServersProvider.instance.servers.where((server) => server.online))
-      ...server.devices.map((d) => d.streamURL)
-  };
-
-  Iterable<Device> get allowedDevices {
-    return ServersProvider.instance.servers
-        .where((server) => server.online)
-        .expand((server) => server.devices)
-        .where((device) =>
-            device.status && !disabledDevices.contains(device.streamURL));
-  }
-
   /// Fetches the events from the servers.
   Future<void> fetch() async {
-    events.clear();
-    filteredEvents = [];
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
-    // Load the events at the same time
-    await Future.wait(ServersProvider.instance.servers.map((server) async {
-      if (!server.online || server.devices.isEmpty) return;
 
-      server = await API.instance.checkServerCredentials(server);
-
-      try {
-        final allowedDevices = server.devices
-            .where((d) => d.status && !disabledDevices.contains(d.streamURL));
-
-        // Perform a query for each selected device
-        await Future.wait(allowedDevices.map((device) async {
-          final iterable = await API.instance.getEvents(
-            server,
-            startTime: startTime,
-            endTime: endTime,
-            device: device,
-          );
-          if (mounted) {
-            super.setState(() {
-              events[server] ??= [];
-              events[server] = [...events[server]!, ...iterable];
-              invalid[server] = false;
-            });
-          }
-        }));
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
-        invalid[server] = true;
-      }
-    }));
-
-    await computeFiltered();
+    await context.read<EventsProvider>().loadEvents(
+          startTime: startTime,
+          endTime: endTime,
+          levelFilter: levelFilter,
+        );
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
-  }
-
-  Future<void> computeFiltered() async {
-    filteredEvents = await compute(_updateFiltered, {
-      'events': events,
-      'levelFilter': levelFilter,
-      'disabledDevices': disabledDevices,
-    });
-  }
-
-  static Iterable<Event> _updateFiltered(Map<String, dynamic> data) {
-    final events = data['events'] as EventsData;
-    final levelFilter = data['levelFilter'] as EventsMinLevelFilter;
-    final disabledDevices = data['disabledDevices'] as Set<String>;
-
-    return events.values.expand((events) sync* {
-      for (final event in events) {
-        switch (levelFilter) {
-          case EventsMinLevelFilter.alarming:
-            if (!event.isAlarm) continue;
-            break;
-          case EventsMinLevelFilter.warning:
-            if (event.priority != EventPriority.warning) continue;
-            break;
-          default:
-            break;
-        }
-
-        // This is hacky. Maybe find a way to move this logic to [API.getEvents]
-        // It'd also be useful to find a way to get the device at Event creation time
-        final devices = event.server.devices.where((device) =>
-            device.name.toLowerCase() == event.deviceName.toLowerCase());
-        if (devices.isNotEmpty) {
-          if (disabledDevices.contains(devices.first.streamURL)) continue;
-        }
-
-        yield event;
-      }
-    });
-  }
-
-  /// We override setState because we need to update the filtered events
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    // computes the events based on the filter, then update the screen
-    computeFiltered().then((_) {
-      if (mounted) super.setState(() {});
-    });
   }
 
   bool searchVisible = false;
@@ -194,6 +91,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
       return const NoServerWarning();
     }
 
+    final eventsProvider = context.watch<EventsProvider>();
     final hasDrawer = Scaffold.hasDrawer(context);
     final loc = AppLocalizations.of(context);
     final isLoading = HomeProvider.instance.isLoadingFor(
@@ -203,10 +101,10 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     return LayoutBuilder(builder: (context, consts) {
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
         return EventsScreenMobile(
-          events: filteredEvents,
-          loadedServers: events.keys,
+          events: eventsProvider.loadedEvents?.filteredEvents ?? [],
+          loadedServers: eventsProvider.loadedEvents?.events.keys ?? [],
           refresh: fetch,
-          invalid: invalid,
+          invalid: eventsProvider.loadedEvents?.invalidResponses ?? [],
           showFilter: () => showMobileFilter(context),
         );
       }
@@ -236,9 +134,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                             },
                           ),
                         ),
-                        Text(
-                          '${ServersProvider.instance.servers.length}',
-                        ),
+                        Text('${ServersProvider.instance.servers.length}'),
                       ],
                     ),
                   ),
@@ -253,17 +149,14 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: EventsDevicesPicker(
-                        events: events,
-                        disabledDevices: disabledDevices,
-                        onDisabledDeviceAdded: (device) =>
-                            setState(() => disabledDevices.add(device)),
-                        onDisabledDeviceRemoved: (device) =>
-                            setState(() => disabledDevices.remove(device)),
+                        events: eventsProvider.loadedEvents?.events ?? {},
+                        onDisabledDeviceAdded: eventsProvider.toggleDevice,
+                        onDisabledDeviceRemoved: eventsProvider.toggleDevice,
                         searchQuery: searchQuery,
                       ),
                     ),
                   ),
-                  SubHeader(loc.timeFilter, height: 24.0),
+                  const Divider(),
                   buildTimeFilterTile(),
                   // const SubHeader('Minimum level', height: 24.0),
                   // DropdownButton<EventsMinLevelFilter>(
@@ -282,7 +175,9 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   const SizedBox(height: 8.0),
                   FilledButton(
                     onPressed: isLoading ? null : fetch,
-                    child: Text(loc.loadEvents(allowedDevices.length)),
+                    child: Text(
+                      loc.loadEvents(eventsProvider.selectedDevices.length),
+                    ),
                   ),
                   const SizedBox(height: 12.0),
                 ]),
@@ -297,7 +192,9 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   topStart: Radius.circular(12.0),
                 ),
               ),
-              child: EventsScreenDesktop(events: filteredEvents),
+              child: EventsScreenDesktop(
+                events: eventsProvider.loadedEvents?.filteredEvents ?? [],
+              ),
             ),
           ),
         ]),
@@ -309,7 +206,12 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     return Builder(builder: (context) {
       final loc = AppLocalizations.of(context);
       return ListTile(
-        title: Text(() {
+        dense: true,
+        title: Text(
+          loc.timeFilter,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(() {
           final formatter = DateFormat.MEd();
           if (startTime == null || endTime == null) {
             return loc.today;
@@ -358,29 +260,30 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
           maxChildSize: 0.85,
           initialChildSize: 0.85,
           builder: (context, controller) {
-            return PrimaryScrollController(
-              controller: controller,
-              child: MobileFilterSheet(
-                events: events,
-                disabledDevices: disabledDevices,
-                onDisabledDeviceAdded: (device) {
-                  setState(() => disabledDevices.add(device));
-                  hasChanged = true;
-                },
-                onDisabledDeviceRemoved: (device) {
-                  setState(() => disabledDevices.remove(device));
-                  hasChanged = true;
-                },
-                levelFilter: levelFilter,
-                onLevelFilterChanged: (filter) {
-                  setState(() => levelFilter = filter);
-                  hasChanged = true;
-                },
-                timeFilterTile: buildTimeFilterTile(onSelect: () {
-                  hasChanged = true;
-                }),
-              ),
-            );
+            return const SizedBox.shrink();
+            // return PrimaryScrollController(
+            //   controller: controller,
+            //   child: MobileFilterSheet(
+            //     events: events,
+            //     disabledDevices: disabledDevices,
+            //     onDisabledDeviceAdded: (device) {
+            //       setState(() => disabledDevices.add(device));
+            //       hasChanged = true;
+            //     },
+            //     onDisabledDeviceRemoved: (device) {
+            //       setState(() => disabledDevices.remove(device));
+            //       hasChanged = true;
+            //     },
+            //     levelFilter: levelFilter,
+            //     onLevelFilterChanged: (filter) {
+            //       setState(() => levelFilter = filter);
+            //       hasChanged = true;
+            //     },
+            //     timeFilterTile: buildTimeFilterTile(onSelect: () {
+            //       hasChanged = true;
+            //     }),
+            //   ),
+            // );
           },
         );
       },

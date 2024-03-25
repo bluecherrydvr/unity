@@ -24,7 +24,7 @@ class EventsScreenMobile extends StatefulWidget {
   final Iterable<Server> loadedServers;
 
   final RefreshCallback refresh;
-  final Map<Server, bool> invalid;
+  final List<Server> invalid;
 
   final VoidCallback showFilter;
 
@@ -159,7 +159,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                     children: !hasEvents
                         ? [
                             if (isLoaded)
-                              if (widget.invalid[server] ?? true)
+                              if (widget.invalid.contains(server))
                                 SizedBox(
                                   height: 72.0,
                                   child: Center(

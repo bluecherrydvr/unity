@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -31,7 +32,6 @@ enum EventsMinLevelFilter { any, info, warning, alarming, critical }
 
 class EventsDevicesPicker extends StatelessWidget {
   final EventsData events;
-  final Set<String> disabledDevices;
   final double checkboxScale;
   final double gapCheckboxText;
 
@@ -43,7 +43,6 @@ class EventsDevicesPicker extends StatelessWidget {
   const EventsDevicesPicker({
     super.key,
     required this.events,
-    required this.disabledDevices,
     required this.onDisabledDeviceAdded,
     required this.onDisabledDeviceRemoved,
     required this.searchQuery,
@@ -54,23 +53,23 @@ class EventsDevicesPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
+    final eventsProvider = context.watch<EventsProvider>();
 
     return SingleChildScrollView(
       child: TreeView(
         indent: 56,
         iconSize: 18.0,
         nodes: servers.servers.map((server) {
-          final disabledDevicesForServer = disabledDevices.where(
+          final enabledDevicesForServer = eventsProvider.selectedDevices.where(
               (d) => server.devices.any((device) => device.streamURL == d));
-          final isTriState = disabledDevices.any(
+          final isTriState = eventsProvider.selectedDevices.any(
               (d) => server.devices.any((device) => device.streamURL == d));
           final isOffline = !server.online;
           final serverEvents = events[server];
 
           return TreeNode(
             content: buildCheckbox(
-              value: disabledDevicesForServer.length == server.devices.length ||
-                      isOffline
+              value: enabledDevicesForServer.isEmpty || isOffline
                   ? false
                   : isTriState
                       ? null
@@ -103,7 +102,8 @@ class EventsDevicesPicker extends StatelessWidget {
                     .map((device) {
                   final enabled = isOffline
                       ? false
-                      : !disabledDevices.contains(device.streamURL);
+                      : eventsProvider.selectedDevices
+                          .contains(device.streamURL);
                   final eventsForDevice = serverEvents
                       ?.where((event) => event.deviceID == device.id);
                   return TreeNode(
@@ -220,7 +220,6 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
       ),
       EventsDevicesPicker(
         events: widget.events,
-        disabledDevices: widget.disabledDevices,
         gapCheckboxText: 10.0,
         checkboxScale: 1.15,
         onDisabledDeviceAdded: (device) =>

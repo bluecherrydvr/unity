@@ -18,6 +18,7 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
@@ -26,6 +27,7 @@ import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
   const TimelineSidebar({
@@ -61,6 +63,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final state = eventsPlaybackScreenKey.currentState!;
+    final eventsProvider = context.watch<EventsProvider>();
 
     return Card(
       shape: const RoundedRectangleBorder(
@@ -109,13 +112,11 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
             ),
             Expanded(
               child: StatefulBuilder(builder: (context, setState) {
+                final eventsProvider = context.read<EventsProvider>();
                 return EventsDevicesPicker(
-                  disabledDevices: state.disabledDevices,
-                  events: state.events,
-                  onDisabledDeviceAdded: (device) =>
-                      setState(() => state.disabledDevices.add(device)),
-                  onDisabledDeviceRemoved: (device) =>
-                      setState(() => state.disabledDevices.remove(device)),
+                  events: eventsProvider.loadedEvents?.events ?? {},
+                  onDisabledDeviceAdded: eventsProvider.toggleDevice,
+                  onDisabledDeviceRemoved: eventsProvider.toggleDevice,
                   searchQuery: searchQuery,
                 );
               }),

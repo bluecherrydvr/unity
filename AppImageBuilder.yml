@@ -84,5 +84,5 @@ AppDir:
       command: ./AppRun
 AppImage:
   arch: x86_64
-  comp: None
+  comp: gzip
   update-information: guess

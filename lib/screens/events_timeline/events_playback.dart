@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
@@ -70,11 +71,14 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
   @override
   Future<void> fetch() async {
+    final eventsProvider = context.read<EventsProvider>();
     setState(() {
       hasEverFetched = true;
       date = date.toLocal();
-      startTime = DateTime(date.year, date.month, date.day).toLocal();
-      endTime = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      eventsProvider
+        ..startTime = DateTime(date.year, date.month, date.day).toLocal()
+        ..endTime =
+            DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
@@ -82,7 +86,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
     final devices = <Device, List<Event>>{};
 
-    for (final event in filteredEvents) {
+    for (final event in eventsProvider.loadedEvents!.filteredEvents) {
       if (event.isAlarm || event.mediaURL == null) continue;
 
       if (!DateUtils.isSameDay(event.published, date) ||
@@ -170,7 +174,6 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (!hasEverFetched) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              disabledDevices.clear();
               fetch();
             });
           }

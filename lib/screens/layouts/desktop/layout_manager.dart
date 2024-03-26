@@ -50,12 +50,8 @@ class LayoutManager extends StatefulWidget {
   State<LayoutManager> createState() => _LayoutManagerState();
 }
 
-class _LayoutManagerState extends State<LayoutManager> {
+class _LayoutManagerState extends State<LayoutManager> with Searchable {
   Timer? timer;
-
-  bool searchVisible = false;
-  final searchController = TextEditingController();
-  final searchFocusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
@@ -110,14 +106,8 @@ class _LayoutManagerState extends State<LayoutManager> {
                 const SizedBox(width: 5.0),
                 Expanded(child: Text(loc.view, maxLines: 1)),
                 SearchToggleButton(
-                  searchVisible: searchVisible,
+                  searchable: this,
                   iconSize: 18.0,
-                  onPressed: () {
-                    setState(() => searchVisible = !searchVisible);
-                    if (searchVisible) {
-                      searchFocusNode.requestFocus();
-                    }
-                  },
                 ),
                 SquaredIconButton(
                   icon: Icon(
@@ -165,10 +155,7 @@ class _LayoutManagerState extends State<LayoutManager> {
           ),
         ),
         ToggleSearchBar(
-          searchVisible: searchVisible,
-          searchController: searchController,
-          searchFocusNode: searchFocusNode,
-          onSearchChanged: widget.onSearchChanged,
+          searchable: this,
           showBottomDivider: false,
         ),
         const Divider(height: 1.0),

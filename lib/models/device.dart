@@ -76,7 +76,8 @@ class Device {
   /// [Uri] to the RTSP stream associated with the device.
   final int id;
 
-  /// `true` [status] indicates that device device is working correctly or is `Online`.
+  /// `true` [status] indicates that device device is working correctly or is
+  /// `Online`.
   final bool status;
 
   /// Horizontal resolution of the device device.

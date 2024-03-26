@@ -30,7 +30,7 @@ import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
-import 'package:bluecherry_client/providers/events_playback_provider.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -168,8 +168,8 @@ Future<void> main(List<String> args) async {
       MobileViewProvider.ensureInitialized(),
       DesktopViewProvider.ensureInitialized(),
       ServersProvider.ensureInitialized(),
-      EventsProvider.ensureInitialized(),
       UpdateManager.ensureInitialized(),
+      EventsProvider.ensureInitialized(),
     ]);
 
     /// Firebase messaging isn't available on windows nor linux
@@ -295,14 +295,14 @@ class _UnityAppState extends State<UnityApp>
         ChangeNotifierProvider<ServersProvider>.value(
           value: ServersProvider.instance,
         ),
-        ChangeNotifierProvider<EventsProvider>.value(
-          value: EventsProvider.instance,
-        ),
         ChangeNotifierProvider<UpdateManager>.value(
           value: UpdateManager.instance,
         ),
         ChangeNotifierProvider<UnityPlayers>.value(
           value: UnityPlayers.instance,
+        ),
+        ChangeNotifierProvider<EventsProvider>.value(
+          value: EventsProvider.instance,
         ),
       ],
       child: Consumer<SettingsProvider>(

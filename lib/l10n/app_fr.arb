@@ -295,6 +295,14 @@
   },
   "noRecords": "Cette caméra n'a aucun enregistrement dans la période actuelle",
   "filter": "Filtre",
+  "loadEvents": "{n, plural, =0{Load} =1{Load from 1 device} other{Load from {n} devices}}",
+  "@loadEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeFilter": "Filtre par temps",
   "fromDate": "De",
   "toDate": "À",

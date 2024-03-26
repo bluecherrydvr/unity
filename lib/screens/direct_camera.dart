@@ -40,45 +40,15 @@ class DirectCameraScreen extends StatefulWidget {
   State<DirectCameraScreen> createState() => DirectCameraScreenState();
 }
 
-class DirectCameraScreenState extends State<DirectCameraScreen> {
-  bool _searchVisible = false;
-  bool get searchVisible => _searchVisible;
-  String _searchQuery = '';
-  final _searchFocusNode = FocusNode();
-  final _searchController = TextEditingController();
-
-  void toggleSearch() {
-    setState(() {
-      _searchVisible = !_searchVisible;
-    });
-    if (_searchVisible) {
-      _searchFocusNode.requestFocus();
-    } else {
-      _searchFocusNode.unfocus();
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchFocusNode.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
-
+class DirectCameraScreenState extends State<DirectCameraScreen>
+    with Searchable {
   @override
   Widget build(BuildContext context) {
     final serversProviders = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
     final hasDrawer = Scaffold.hasDrawer(context);
 
-    final searchBar = ToggleSearchBar(
-      searchController: _searchController,
-      searchFocusNode: _searchFocusNode,
-      searchVisible: _searchVisible,
-      onSearchChanged: (text) {
-        setState(() => _searchQuery = text);
-      },
-    );
+    final searchBar = ToggleSearchBar(searchable: this);
 
     return SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -89,10 +59,7 @@ class DirectCameraScreenState extends State<DirectCameraScreen> {
             actions: [
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 12.0),
-                child: SearchToggleButton(
-                  searchVisible: _searchVisible,
-                  onPressed: toggleSearch,
-                ),
+                child: SearchToggleButton(searchable: this),
               ),
             ],
           ),
@@ -112,7 +79,7 @@ class DirectCameraScreenState extends State<DirectCameraScreen> {
                       server: server,
                       isCompact: hasDrawer ||
                           consts.maxWidth < kMobileBreakpoint.width,
-                      searchQuery: _searchVisible ? _searchQuery : '',
+                      searchQuery: searchVisible ? searchQuery : '',
                     );
                   }),
                 ]),

@@ -317,6 +317,14 @@
   },
   "noRecords": "Essa câmera não tem gravações neste período.",
   "filter": "Filtrar",
+  "loadEvents": "{n, plural, =0{Buscar} =1{Buscar de 1 dispositivo} other{Buscar de {n} dispositivos}}",
+  "@loadEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeFilter": "Filtro de tempo",
   "fromDate": "De",
   "toDate": "à",

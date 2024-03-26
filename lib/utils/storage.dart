@@ -39,6 +39,7 @@ Future<void> configureStorage() async {
   mobileView = SafeLocalStorage(path.join(dir, 'mobileView.json'));
   desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
   updates = SafeLocalStorage(path.join(dir, 'updates.json'));
+  events = SafeLocalStorage(path.join(dir, 'events.json'));
 }
 
 late final SafeLocalStorage storage;
@@ -49,6 +50,7 @@ late final SafeLocalStorage settings;
 late final SafeLocalStorage mobileView;
 late final SafeLocalStorage desktopView;
 late final SafeLocalStorage updates;
+late final SafeLocalStorage events;
 
 extension SafeLocalStorageExtension on SafeLocalStorage {
   Future<void> add(Map data) async {

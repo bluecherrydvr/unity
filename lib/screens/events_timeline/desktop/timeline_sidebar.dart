@@ -19,7 +19,6 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
-import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
@@ -44,23 +43,10 @@ class TimelineSidebar extends StatefulWidget {
   State<TimelineSidebar> createState() => _TimelineSidebarState();
 }
 
-class _TimelineSidebarState extends State<TimelineSidebar> {
-  bool searchVisible = false;
-  String searchQuery = '';
-  final searchFocusNode = FocusNode();
-  final searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchFocusNode.dispose();
-    searchController.dispose();
-    super.dispose();
-  }
-
+class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final state = eventsPlaybackScreenKey.currentState!;
 
     return Card(
       shape: const RoundedRectangleBorder(
@@ -86,44 +72,26 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SearchToggleButton(
-                    searchVisible: searchVisible,
-                    iconSize: 22.0,
-                    onPressed: () {
-                      setState(() => searchVisible = !searchVisible);
-                      if (searchVisible) {
-                        searchFocusNode.requestFocus();
-                      }
-                    },
-                  ),
+                  SearchToggleButton(searchable: this, iconSize: 22.0),
                   collapseButton,
                 ],
               ),
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
-            ToggleSearchBar(
-              searchVisible: searchVisible,
-              searchController: searchController,
-              searchFocusNode: searchFocusNode,
-              onSearchChanged: (query) => setState(() => searchQuery = query),
-            ),
+            ToggleSearchBar(searchable: this),
             Expanded(
-              child: StatefulBuilder(builder: (context, setState) {
-                return EventsDevicesPicker(
-                  disabledDevices: state.disabledDevices,
-                  events: state.events,
-                  onDisabledDeviceAdded: (device) =>
-                      setState(() => state.disabledDevices.add(device)),
-                  onDisabledDeviceRemoved: (device) =>
-                      setState(() => state.disabledDevices.remove(device)),
-                  searchQuery: searchQuery,
-                );
-              }),
+              child: EventsDevicesPicker(
+                searchQuery: searchQuery,
+              ),
             ),
             const Divider(),
-            SubHeader(loc.timeFilter, height: 24.0),
             ListTile(
-              title: AutoSizeText(
+              dense: true,
+              title: Text(
+                loc.timeFilter,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: AutoSizeText(
                 () {
                   final formatter = DateFormat.MEd();
                   if (DateUtils.isSameDay(widget.date, DateTime.now())) {

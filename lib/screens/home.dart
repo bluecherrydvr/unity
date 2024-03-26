@@ -342,11 +342,7 @@ class _MobileHomeState extends State<Home> {
         ),
         if (directCameraKey.currentState != null)
           SearchToggleButton(
-            searchVisible: directCameraKey.currentState!.searchVisible,
-            onPressed: () {
-              directCameraKey.currentState!.toggleSearch();
-              setState(() {});
-            },
+            searchable: directCameraKey.currentState!,
             iconSize: 24.0,
           ),
         if (home.isLoading)

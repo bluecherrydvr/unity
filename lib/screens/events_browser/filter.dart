@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
@@ -29,68 +29,97 @@ import 'package:provider/provider.dart';
 
 enum EventsMinLevelFilter { any, info, warning, alarming, critical }
 
-class EventsDevicesPicker extends StatelessWidget {
-  final EventsData events;
-  final Set<String> disabledDevices;
+class EventsDevicesPicker extends StatefulWidget {
   final double checkboxScale;
   final double gapCheckboxText;
-
-  final ValueChanged<String> onDisabledDeviceAdded;
-  final ValueChanged<String> onDisabledDeviceRemoved;
-
   final String searchQuery;
+  final VoidCallback? onChanged;
 
   const EventsDevicesPicker({
     super.key,
-    required this.events,
-    required this.disabledDevices,
-    required this.onDisabledDeviceAdded,
-    required this.onDisabledDeviceRemoved,
     required this.searchQuery,
     this.checkboxScale = 0.8,
     this.gapCheckboxText = 0.0,
+    this.onChanged,
   });
 
   @override
+  State<EventsDevicesPicker> createState() => _EventsDevicesPickerState();
+}
+
+class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
+  final treeViewController = TreeController(allNodesExpanded: false);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final eventsProvider = context.read<EventsProvider>();
+      final serversProvider = context.read<ServersProvider>();
+
+      for (var server in serversProvider.servers) {
+        if (server.devices.length < 7 ||
+            eventsProvider.selectedDevices.any(
+                (d) => server.devices.any((device) => device.streamURL == d))) {
+          setState(
+              () => treeViewController.toggleNodeExpanded(ValueKey(server.ip)));
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final servers = context.watch<ServersProvider>();
+    final serversProvider = context.watch<ServersProvider>();
+    final eventsProvider = context.watch<EventsProvider>();
 
     return SingleChildScrollView(
       child: TreeView(
+        treeController: treeViewController,
         indent: 56,
         iconSize: 18.0,
-        nodes: servers.servers.map((server) {
-          final disabledDevicesForServer = disabledDevices.where(
-              (d) => server.devices.any((device) => device.streamURL == d));
-          final isTriState = disabledDevices.any(
-              (d) => server.devices.any((device) => device.streamURL == d));
+        nodes: serversProvider.servers.map((server) {
+          final enabledDevicesForServer = eventsProvider.selectedDevices.where(
+            (deviceUrl) => server.devices.any(
+              (device) => device.streamURL == deviceUrl,
+            ),
+          );
           final isOffline = !server.online;
-          final serverEvents = events[server];
+          final serverEvents = (eventsProvider.loadedEvents?.events ?? {})
+              .entries
+              .firstWhereOrNull((entry) => entry.key.ip == server.ip)
+              ?.value;
 
           return TreeNode(
+            key: ValueKey(server.ip),
             content: buildCheckbox(
-              value: disabledDevicesForServer.length == server.devices.length ||
-                      isOffline
+              value: enabledDevicesForServer.isEmpty || isOffline
                   ? false
-                  : isTriState
-                      ? null
-                      : true,
+                  : enabledDevicesForServer.length ==
+                          server.devices.where((device) => device.status).length
+                      ? true
+                      : null,
               isError: isOffline,
               onChanged: (v) {
                 if (v == true) {
-                  for (final d in server.devices) {
-                    onDisabledDeviceRemoved(d.streamURL);
-                  }
+                  eventsProvider.selectDevices(
+                    server.devices
+                        .where((device) => device.status)
+                        .map((device) => device.streamURL),
+                  );
+                  widget.onChanged?.call();
                 } else if (v == null || !v) {
-                  for (final d in server.devices) {
-                    onDisabledDeviceAdded(d.streamURL);
-                  }
+                  final toUnselectDevices = server.devices
+                      .map((device) => device.streamURL)
+                      .where((d) => eventsProvider.selectedDevices.contains(d));
+                  eventsProvider.unselectDevices(toUnselectDevices);
+                  widget.onChanged?.call();
                 }
               },
-              checkboxScale: checkboxScale,
+              checkboxScale: widget.checkboxScale,
               text: server.name,
               secondaryText: isOffline ? null : '${server.devices.length}',
-              gapCheckboxText: gapCheckboxText,
+              gapCheckboxText: widget.gapCheckboxText,
               textFit: FlexFit.tight,
               offlineIcon: Icons.domain_disabled_outlined,
             ),
@@ -99,14 +128,16 @@ class EventsDevicesPicker extends StatelessWidget {
                 return <TreeNode>[];
               } else {
                 return server.devices
-                    .sorted(searchQuery: searchQuery)
+                    .sorted(searchQuery: widget.searchQuery)
                     .map((device) {
                   final enabled = isOffline
                       ? false
-                      : !disabledDevices.contains(device.streamURL);
+                      : eventsProvider.selectedDevices
+                          .contains(device.streamURL);
                   final eventsForDevice = serverEvents
                       ?.where((event) => event.deviceID == device.id);
                   return TreeNode(
+                    key: ValueKey(device.streamURL),
                     content: IgnorePointer(
                       ignoring: !device.status,
                       child: buildCheckbox(
@@ -116,17 +147,19 @@ class EventsDevicesPicker extends StatelessWidget {
                           if (!device.status) return;
 
                           if (enabled) {
-                            onDisabledDeviceAdded(device.streamURL);
+                            eventsProvider.unselectDevices([device.streamURL]);
+                            widget.onChanged?.call();
                           } else {
-                            onDisabledDeviceRemoved(device.streamURL);
+                            eventsProvider.selectDevices([device.streamURL]);
+                            widget.onChanged?.call();
                           }
                         },
-                        checkboxScale: checkboxScale,
+                        checkboxScale: widget.checkboxScale,
                         text: device.name,
                         secondaryText: eventsForDevice != null && device.status
                             ? ' (${eventsForDevice.length})'
                             : null,
-                        gapCheckboxText: gapCheckboxText,
+                        gapCheckboxText: widget.gapCheckboxText,
                       ),
                     ),
                   );
@@ -141,56 +174,31 @@ class EventsDevicesPicker extends StatelessWidget {
 }
 
 class MobileFilterSheet extends StatefulWidget {
-  final EventsData events;
-  final Set<String> disabledDevices;
-
-  final ValueChanged<String> onDisabledDeviceAdded;
-  final ValueChanged<String> onDisabledDeviceRemoved;
-
-  final EventsMinLevelFilter levelFilter;
-  final ValueChanged<EventsMinLevelFilter> onLevelFilterChanged;
-
   final Widget timeFilterTile;
+  final VoidCallback? onChanged;
 
   const MobileFilterSheet({
     super.key,
-    required this.events,
-    required this.disabledDevices,
-    required this.onDisabledDeviceAdded,
-    required this.onDisabledDeviceRemoved,
-    required this.levelFilter,
-    required this.onLevelFilterChanged,
     required this.timeFilterTile,
+    this.onChanged,
   });
 
   @override
   State<MobileFilterSheet> createState() => _MobileFilterSheetState();
 }
 
-class _MobileFilterSheetState extends State<MobileFilterSheet> {
-  final searchController = TextEditingController();
-  final searchFocusNode = FocusNode();
-  String searchQuery = '';
-  bool searchVisible = false;
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    searchFocusNode.dispose();
-    super.dispose();
-  }
-
+class _MobileFilterSheetState extends State<MobileFilterSheet> with Searchable {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final eventsProvider = context.watch<EventsProvider>();
     return ListView(primary: true, children: [
-      SubHeader(loc.timeFilter, height: 20.0),
       widget.timeFilterTile,
       const SubHeader('Minimum level', height: 20.0),
       DropdownButtonHideUnderline(
         child: DropdownButton<EventsMinLevelFilter>(
           isExpanded: true,
-          value: widget.levelFilter,
+          value: eventsProvider.levelFilter,
           items: EventsMinLevelFilter.values.map((level) {
             return DropdownMenuItem(
               value: level,
@@ -199,7 +207,7 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
           }).toList(),
           onChanged: (filter) {
             if (filter != null) {
-              widget.onLevelFilterChanged(filter);
+              eventsProvider.levelFilter = filter;
             }
           },
         ),
@@ -207,27 +215,14 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> {
       SubHeader(
         loc.servers,
         height: 38.0,
-        trailing: SearchToggleButton(
-          searchVisible: searchVisible,
-          onPressed: () => setState(() => searchVisible = !searchVisible),
-        ),
+        trailing: SearchToggleButton(searchable: this),
       ),
-      ToggleSearchBar(
-        searchVisible: searchVisible,
-        searchController: searchController,
-        searchFocusNode: searchFocusNode,
-        onSearchChanged: (query) => setState(() => searchQuery = query),
-      ),
+      ToggleSearchBar(searchable: this),
       EventsDevicesPicker(
-        events: widget.events,
-        disabledDevices: widget.disabledDevices,
         gapCheckboxText: 10.0,
         checkboxScale: 1.15,
-        onDisabledDeviceAdded: (device) =>
-            setState(() => widget.disabledDevices.add(device)),
-        onDisabledDeviceRemoved: (device) =>
-            setState(() => widget.disabledDevices.remove(device)),
         searchQuery: searchQuery,
+        onChanged: widget.onChanged,
       )
     ]);
   }

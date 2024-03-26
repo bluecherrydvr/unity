@@ -2,16 +2,45 @@ import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+mixin Searchable<T extends StatefulWidget> on State<T> {
+  bool _searchVisible = false;
+  bool get searchVisible => _searchVisible;
+  final searchController = TextEditingController();
+  final searchFocusNode = FocusNode();
+  String searchQuery = '';
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+    searchFocusNode.dispose();
+  }
+
+  void toggleSearch() {
+    setState(() {
+      _searchVisible = !_searchVisible;
+    });
+    if (_searchVisible) {
+      searchFocusNode.requestFocus();
+    } else {
+      searchFocusNode.unfocus();
+    }
+  }
+
+  void onSearchChanged(String text) {
+    setState(() => searchQuery = text);
+  }
+}
+
 class SearchToggleButton extends StatelessWidget {
-  final bool searchVisible;
-  final VoidCallback onPressed;
+  final Searchable searchable;
 
   final double iconSize;
 
   const SearchToggleButton({
     super.key,
-    required this.searchVisible,
-    required this.onPressed,
+    required this.searchable,
     this.iconSize = 20.0,
   });
 
@@ -20,31 +49,25 @@ class SearchToggleButton extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     return SquaredIconButton(
       icon: Icon(
-        searchVisible ? Icons.search_off : Icons.search,
+        searchable.searchVisible ? Icons.search_off : Icons.search,
         size: iconSize,
       ),
-      tooltip: searchVisible
+      tooltip: searchable.searchVisible
           ? loc.disableSearch
           : MaterialLocalizations.of(context).searchFieldLabel,
-      onPressed: onPressed,
+      onPressed: searchable.toggleSearch,
     );
   }
 }
 
 class ToggleSearchBar extends StatelessWidget {
-  final bool searchVisible;
-  final TextEditingController searchController;
-  final FocusNode searchFocusNode;
-  final ValueChanged<String> onSearchChanged;
+  final Searchable searchable;
 
   final bool showBottomDivider;
 
   const ToggleSearchBar({
     super.key,
-    required this.searchVisible,
-    required this.searchController,
-    required this.searchFocusNode,
-    required this.onSearchChanged,
+    required this.searchable,
     this.showBottomDivider = true,
   });
 
@@ -54,14 +77,14 @@ class ToggleSearchBar extends StatelessWidget {
       duration: kThemeChangeDuration,
       curve: Curves.easeInOut,
       child: Builder(builder: (context) {
-        if (!searchVisible) return const SizedBox.shrink();
+        if (!searchable.searchVisible) return const SizedBox.shrink();
         return Column(children: [
           const Divider(height: 1.0),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: searchController,
-              focusNode: searchFocusNode,
+              controller: searchable.searchController,
+              focusNode: searchable.searchFocusNode,
               decoration: InputDecoration(
                 hintText: MaterialLocalizations.of(context).searchFieldLabel,
                 isDense: true,
@@ -73,7 +96,7 @@ class ToggleSearchBar extends StatelessWidget {
                   vertical: 4.0,
                 ),
               ),
-              onChanged: onSearchChanged,
+              onChanged: searchable.onSearchChanged,
             ),
           ),
           if (showBottomDivider) ...[

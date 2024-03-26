@@ -43,19 +43,7 @@ class TimelineSidebar extends StatefulWidget {
   State<TimelineSidebar> createState() => _TimelineSidebarState();
 }
 
-class _TimelineSidebarState extends State<TimelineSidebar> {
-  bool searchVisible = false;
-  String searchQuery = '';
-  final searchFocusNode = FocusNode();
-  final searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchFocusNode.dispose();
-    searchController.dispose();
-    super.dispose();
-  }
-
+class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -84,27 +72,13 @@ class _TimelineSidebarState extends State<TimelineSidebar> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SearchToggleButton(
-                    searchVisible: searchVisible,
-                    iconSize: 22.0,
-                    onPressed: () {
-                      setState(() => searchVisible = !searchVisible);
-                      if (searchVisible) {
-                        searchFocusNode.requestFocus();
-                      }
-                    },
-                  ),
+                  SearchToggleButton(searchable: this, iconSize: 22.0),
                   collapseButton,
                 ],
               ),
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
-            ToggleSearchBar(
-              searchVisible: searchVisible,
-              searchController: searchController,
-              searchFocusNode: searchFocusNode,
-              onSearchChanged: (query) => setState(() => searchQuery = query),
-            ),
+            ToggleSearchBar(searchable: this),
             Expanded(
               child: EventsDevicesPicker(
                 searchQuery: searchQuery,

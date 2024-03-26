@@ -147,7 +147,9 @@ class WindowButtons extends StatelessWidget {
             }
 
             if (!isMacOSPlatform) {
-              return navData.firstWhere((d) => d.tab == tab).text;
+              return navData
+                  .firstWhere((d) => d.tab == tab, orElse: () => navData.first)
+                  .text;
             }
 
             return '';

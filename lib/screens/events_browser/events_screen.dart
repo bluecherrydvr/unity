@@ -70,11 +70,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
   }
 
-  bool searchVisible = false;
-  final searchController = TextEditingController();
-  final searchFocusNode = FocusNode();
-  String searchQuery = '';
-
   @override
   Widget build(BuildContext context) {
     if (ServersProvider.instance.servers.isEmpty) {
@@ -98,27 +93,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
       return Material(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           EventsScreenSidebar(
-            searchVisible: searchVisible,
-            searchQuery: searchQuery,
-            searchController: searchController,
-            searchFocusNode: searchFocusNode,
-            onSearchChanged: (query) {
-              setState(() {
-                searchQuery = query;
-              });
-            },
-            onSearchVisibilityToggle: () {
-              setState(() {
-                searchVisible = !searchVisible;
-
-                if (searchVisible) {
-                  searchFocusNode.requestFocus();
-                } else {
-                  searchQuery = '';
-                  searchController.clear();
-                }
-              });
-            },
             buildTimeFilterTile: (context) => buildTimeFilterTile(),
             fetch: fetch,
           ),

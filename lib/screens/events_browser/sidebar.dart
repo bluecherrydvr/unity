@@ -28,28 +28,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class EventsScreenSidebar extends StatelessWidget {
-  final bool searchVisible;
-  final String searchQuery;
-  final TextEditingController searchController;
-  final FocusNode searchFocusNode;
-  final ValueChanged<String> onSearchChanged;
-  final VoidCallback onSearchVisibilityToggle;
+class EventsScreenSidebar extends StatefulWidget {
   final WidgetBuilder buildTimeFilterTile;
   final VoidCallback fetch;
 
   const EventsScreenSidebar({
     super.key,
-    required this.searchVisible,
-    required this.searchQuery,
-    required this.searchController,
-    required this.searchFocusNode,
-    required this.onSearchChanged,
-    required this.onSearchVisibilityToggle,
     required this.buildTimeFilterTile,
     required this.fetch,
   });
 
+  @override
+  State<EventsScreenSidebar> createState() => _EventsScreenSidebarState();
+}
+
+class _EventsScreenSidebarState extends State<EventsScreenSidebar>
+    with Searchable {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -72,33 +66,20 @@ class EventsScreenSidebar extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 6.0),
-                    child: SearchToggleButton(
-                      searchVisible: searchVisible,
-                      onPressed: () {
-                        onSearchVisibilityToggle();
-                        if (searchVisible) {
-                          searchFocusNode.requestFocus();
-                        }
-                      },
-                    ),
+                    child: SearchToggleButton(searchable: this),
                   ),
                   Text('${serversProvider.servers.length}'),
                 ],
               ),
             ),
-            ToggleSearchBar(
-              searchVisible: searchVisible,
-              searchController: searchController,
-              searchFocusNode: searchFocusNode,
-              onSearchChanged: onSearchChanged,
-            ),
+            ToggleSearchBar(searchable: this),
             Expanded(
               child: SingleChildScrollView(
                 child: EventsDevicesPicker(searchQuery: searchQuery),
               ),
             ),
             const Divider(),
-            Builder(builder: buildTimeFilterTile),
+            Builder(builder: widget.buildTimeFilterTile),
             // const SubHeader('Minimum level', height: 24.0),
             // DropdownButton<EventsMinLevelFilter>(
             //   isExpanded: true,
@@ -115,7 +96,7 @@ class EventsScreenSidebar extends StatelessWidget {
             // ),
             const SizedBox(height: 8.0),
             FilledButton(
-              onPressed: isLoading ? null : fetch,
+              onPressed: isLoading ? null : widget.fetch,
               child: Text(
                 loc.loadEvents(eventsProvider.selectedDevices.length),
               ),

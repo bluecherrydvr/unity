@@ -51,12 +51,8 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.create_new_folder),
         ),
-        title: const Text('Choose location for each download'),
-        subtitle: const Text(
-          'Whether to choose the location for each download or use the default '
-          'location. When enabled, you will be prompted to choose the download '
-          'directory for each download.',
-        ),
+        title: Text(loc.chooseEveryDownloadsLocation),
+        subtitle: Text(loc.chooseEveryDownloadsLocationDescription),
       ),
       ListTile(
         contentPadding: DesktopSettings.horizontalPadding,
@@ -91,10 +87,9 @@ class EventsAndDownloadsSettings extends StatelessWidget {
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.close),
           ),
-          title: const Text(
-              'Block the app from closing when there are ongoing downloads'),
+          title: Text(loc.blockCloseWhenDownloading),
         ),
-      const SubHeader('Events'),
+      SubHeader(loc.events),
       if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(
           value: settings.kPictureInPicture.value,
@@ -121,7 +116,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           child: const Icon(Icons.speed),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('Default speed'),
+        title: Text(loc.initialEventSpeed),
         subtitle: Text(settings.kEventsSpeed.value.toStringAsFixed(1)),
         trailing: SizedBox(
           width: 160.0,
@@ -145,8 +140,8 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           child: const Icon(Icons.equalizer),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('Default volume'),
-        subtitle: const Text('1.0'),
+        title: Text(loc.intiialEventVolume),
+        subtitle: Text(settings.kEventsVolume.value.toStringAsFixed(1)),
         trailing: SizedBox(
           width: 160.0,
           child: Slider(
@@ -159,7 +154,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
       ),
       const SizedBox(height: 20.0),
       if (settings.kShowDebugInfo.value) ...[
-        const SubHeader('Timeline of Events'),
+        SubHeader(loc.eventsTimeline),
         CheckboxListTile.adaptive(
           value: settings.kShowDifferentColorsForEvents.value,
           onChanged: (v) {

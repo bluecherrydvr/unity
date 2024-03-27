@@ -143,7 +143,7 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           child: const Icon(Icons.equalizer),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.intiialEventVolume),
+        title: Text(loc.initialEventVolume),
         subtitle: Text(settings.kEventsVolume.value.toStringAsFixed(1)),
         trailing: SizedBox(
           width: 160.0,
@@ -156,27 +156,24 @@ class EventsAndDownloadsSettings extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 20.0),
-      if (settings.kShowDebugInfo.value) ...[
-        SubHeader(loc.eventsTimeline),
-        CheckboxListTile.adaptive(
-          value: settings.kShowDifferentColorsForEvents.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kShowDifferentColorsForEvents.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.color_lens),
-          ),
-          title: const Text('Show different colors for events'),
-          subtitle: const Text(
-            'Whether to show different colors for events in the timeline. '
-            'This will help you to easily identify the events.',
-          ),
+      SubHeader(loc.eventsTimeline),
+      CheckboxListTile.adaptive(
+        value: settings.kShowDifferentColorsForEvents.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kShowDifferentColorsForEvents.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.color_lens),
         ),
+        title: Text(loc.differentEventColors),
+        subtitle: Text(loc.differentEventColorsDescription),
+      ),
+      if (settings.kShowDebugInfo.value) ...[
         CheckboxListTile.adaptive(
           value: settings.kPauseToBuffer.value,
           onChanged: (v) {

@@ -898,7 +898,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   }
 }
 
-class _TimelineTile extends StatelessWidget {
+class _TimelineTile extends StatefulWidget {
   final TimelineTile tile;
 
   const _TimelineTile({super.key, required this.tile});
@@ -944,6 +944,28 @@ class _TimelineTile extends StatelessWidget {
   }
 
   @override
+  State<_TimelineTile> createState() => _TimelineTileState();
+}
+
+class _TimelineTileState extends State<_TimelineTile> {
+  late final Map<Event, Color> colors;
+
+  @override
+  void initState() {
+    super.initState();
+    colors = Map.fromIterables(
+      widget.tile.events.map((e) => e.event),
+      widget.tile.events.indexed.map((e) {
+        final index = e.$1;
+        return [
+          ...Colors.primaries,
+          ...Colors.accents,
+        ][index % [...Colors.primaries, ...Colors.accents].length];
+      }),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
@@ -962,14 +984,15 @@ class _TimelineTile extends StatelessWidget {
             height: _kTimelineTileHeight,
             decoration: BoxDecoration(border: border),
             child: LayoutBuilder(builder: (context, constraints) {
-              if (!tile.events.any((event) => event.startTime.hour == hour)) {
+              if (!widget.tile.events
+                  .any((event) => event.startTime.hour == hour)) {
                 return const SizedBox.shrink();
               }
 
               final secondWidth = constraints.maxWidth / 60 / 60;
 
               return Stack(clipBehavior: Clip.none, children: [
-                for (final event in tile.events
+                for (final event in widget.tile.events
                     .where((event) => event.startTime.hour == hour))
                   PositionedDirectional(
                     // the minute (in seconds) + the start second * the width of
@@ -980,20 +1003,16 @@ class _TimelineTile extends StatelessWidget {
                     width: event.duration.inSeconds * secondWidth,
                     height: _kTimelineTileHeight,
                     child: ColoredBox(
-                      // color: kDebugMode
-                      //     ? [
-                      //         ...Colors.primaries,
-                      //         ...Colors.accents
-                      //       ][Random().nextInt(
-                      //         [...Colors.primaries, ...Colors.accents].length -
-                      //             1)]
-                      //     : theme.colorScheme.primary,
-                      color: theme.colorScheme.primary,
+                      color: settings.kShowDebugInfo.value ||
+                              settings.kShowDifferentColorsForEvents.value
+                          ? colors[event.event] ?? theme.colorScheme.primary
+                          : theme.colorScheme.primary,
+                      // color: theme.colorScheme.primary,
                       child: settings.kShowDebugInfo.value
                           ? Align(
                               alignment: AlignmentDirectional.centerStart,
                               child: Text(
-                                '${tile.events.indexOf(event)}',
+                                '${widget.tile.events.indexOf(event)}',
                                 style: TextStyle(
                                   color: theme.colorScheme.onPrimary,
                                   fontSize: 10.0,

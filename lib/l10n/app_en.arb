@@ -64,7 +64,7 @@
       }
     }
   },
-  "serverAlreadyAdded": "The {serverName} server is already added",
+  "serverAlreadyAdded": "The {serverName} server is already added.",
   "@serverAlreadyAdded": {
     "placeholders": {
       "serverName": {
@@ -72,6 +72,7 @@
       }
     }
   },
+  "serverVersionMismatch": "Tried to add a server with an unsupported version. Please upgrade your server and try again!",
   "noServersAvailable": "No servers available",
   "error": "Error",
   "videoError": "An error happened while trying to play the video.",

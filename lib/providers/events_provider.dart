@@ -129,7 +129,7 @@ extension EventsScreenProvider on EventsProvider {
     await Future.wait(ServersProvider.instance.servers.map((server) async {
       if (!server.online || server.devices.isEmpty) return;
 
-      server = await API.instance.checkServerCredentials(server);
+      (_, server) = await API.instance.checkServerCredentials(server);
 
       try {
         final allowedDevices = server.devices

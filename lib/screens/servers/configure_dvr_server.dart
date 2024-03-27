@@ -444,7 +444,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
         });
       }
       final port = int.parse(portController.text.trim());
-      final server = await API.instance.checkServerCredentials(
+      final (code, server) = await API.instance.checkServerCredentials(
         Server(
           name: name,
           ip: hostname,
@@ -457,7 +457,9 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       );
       focusScope.unfocus();
 
-      if (server.serverUUID != null && server.hasCookies) {
+      if (server.serverUUID != null &&
+          server.hasCookies &&
+          code == ServerAdditionResponse.validated) {
         widget.onServerChange(server);
         state = _ServerAddState.gettingDevices;
         await ServersProvider.instance.add(server);
@@ -471,10 +473,16 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               final loc = AppLocalizations.of(context);
               return ServerNotAddedErrorDialog(
                 name: server.name,
-                description: loc.serverNotAddedErrorDescription(
-                  server.port.toString(),
-                  server.rtspPort.toString(),
-                ),
+                description: switch (code) {
+                  ServerAdditionResponse.versionMismatch =>
+                    loc.serverVersionMismatch,
+                  ServerAdditionResponse.unknown ||
+                  _ =>
+                    loc.serverNotAddedErrorDescription(
+                      server.port.toString(),
+                      server.rtspPort.toString(),
+                    )
+                },
                 onRetry: () {
                   Navigator.of(context).maybePop();
                   if (this.context.mounted) finish(this.context);

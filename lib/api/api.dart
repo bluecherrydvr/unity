@@ -29,6 +29,12 @@ import 'package:xml2json/xml2json.dart';
 export 'events.dart';
 export 'ptz.dart';
 
+enum ServerAdditionResponse {
+  validated,
+  versionMismatch,
+  unknown;
+}
+
 class API {
   static final API instance = API();
 
@@ -49,7 +55,10 @@ class API {
   /// If the attributes present in [Server] are correct, then the
   /// returned object will have [Server.serverUUID] & [Server.cookie]
   /// present in it otherwise `null`.
-  Future<Server> checkServerCredentials(Server server) async {
+  Future<(ServerAdditionResponse response, Server server)>
+      checkServerCredentials(
+    Server server,
+  ) async {
     debugPrint('Checking server credentials for server ${server.id}');
     try {
       final uri = Uri.https(
@@ -79,12 +88,19 @@ class API {
       );
 
       if (response.statusCode == 200) {
+        if (body == 'Route error!') {
+          server.online = false;
+          return (ServerAdditionResponse.versionMismatch, server);
+        }
         final json = await compute(jsonDecode, body);
-        return server.copyWith(
-          serverUUID: json['server_uuid'],
-          cookie:
-              response.headers['set-cookie'] ?? response.headers['Set-Cookie'],
-          online: true,
+        return (
+          ServerAdditionResponse.validated,
+          server.copyWith(
+            serverUUID: json['server_uuid'],
+            cookie: response.headers['set-cookie'] ??
+                response.headers['Set-Cookie'],
+            online: true,
+          )
         );
       } else {
         debugPrint(body);
@@ -97,7 +113,7 @@ class API {
 
       server.online = false;
     }
-    return server;
+    return (ServerAdditionResponse.unknown, server);
   }
 
   /// Gets [Device] devices present on the [server] after login.

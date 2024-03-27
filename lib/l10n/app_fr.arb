@@ -68,6 +68,7 @@
       }
     }
   },
+  "serverVersionMismatch": "Tried to add a server with an unsupported version. Please upgrade your server and try again!",
   "noServersAvailable": "Aucun serveur disponible",
   "error": "Erreur",
   "videoError": "Une erreur est survenue lors de la lecture de la vidé.",

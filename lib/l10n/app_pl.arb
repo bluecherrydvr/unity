@@ -448,11 +448,6 @@
       }
     }
   },
-  "@BETA FEATURES": {},
-  "betaFeatures": "Beta features",
-  "matrixedViewZoom": "Matrixed view zoom",
-  "matrixedViewZoomDescription": "Zoom in on a 16x16 matrixed view to see more detail.",
-  "matrixType": "Matrix type",
   "@CURRENT TASKS": {},
   "currentTasks": "Bieżące zadania",
   "noCurrentTasks": "Brak zadań",
@@ -497,6 +492,9 @@
   "termsOfService": "Terms of Service",
   "@@ADVANCED_OPTIONS": {},
   "matrixZoom": "Matrix Zoom",
+  "matrixedViewZoom": "Matrixed view zoom",
+  "matrixedViewZoomDescription": "Zoom in on a 16x16 matrixed view to see more detail.",
+  "matrixType": "Matrix type",
   "defaultMatrixSize": "Default Matrix Size",
   "softwareZoom": "Software zoom",
   "softwareZoomDescription": "When enabled, the matrix zoom will not happen in the GPU. This is useful when the hardware zoom is not working properly.",

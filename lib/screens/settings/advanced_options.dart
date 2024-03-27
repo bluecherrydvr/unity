@@ -41,7 +41,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
-      const SubHeader('Matrix Zoom'),
+      SubHeader(loc.matrixZoom),
       CheckboxListTile.adaptive(
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -59,7 +59,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
         },
       ),
       OptionsChooserTile<MatrixType>(
-        title: 'Default Matrix Size',
+        title: loc.defaultMatrixSize,
         icon: Icons.view_quilt,
         value: settings.kMatrixSize.value,
         values: MatrixType.values.map((size) {
@@ -79,11 +79,11 @@ class AdvancedOptionsSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.center_focus_strong),
         ),
-        title: const Text('Software zoom'),
+        title: Text(loc.softwareZoom),
         subtitle: Text(
-          'When enabled, the matrix zoom will not happen in the GPU. This is '
-          'useful when the hardware zoom is not working properly. '
-          '${Platform.isMacOS ? 'On macOS, this can not be disabled.' : ''}',
+          Platform.isMacOS
+              ? loc.softwareZoomDescriptionMacOS
+              : loc.softwareZoomDescription,
         ),
         value: Platform.isMacOS ? true : settings.kSoftwareZooming.value,
         onChanged: Platform.isMacOS
@@ -95,7 +95,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
               },
         dense: false,
       ),
-      const SubHeader('Developer Options'),
+      SubHeader(loc.developerOptions),
       if (!kIsWeb) ...[
         FutureBuilder(
           future: getLogFile(),
@@ -107,7 +107,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
                 foregroundColor: theme.iconTheme.color,
                 child: const Icon(Icons.bug_report),
               ),
-              title: const Text('Open log file'),
+              title: Text(loc.openLogFile),
               subtitle: Text(snapshot.data?.path ?? loc.loading),
               trailing: const Icon(Icons.navigate_next),
               dense: false,
@@ -129,7 +129,7 @@ class AdvancedOptionsSettings extends StatelessWidget {
                 foregroundColor: theme.iconTheme.color,
                 child: const Icon(Icons.home),
               ),
-              title: const Text('Open app data'),
+              title: Text(loc.openAppDataDirectory),
               subtitle: Text(snapshot.data?.path ?? loc.loading),
               trailing: const Icon(Icons.navigate_next),
               dense: false,
@@ -148,11 +148,8 @@ class AdvancedOptionsSettings extends StatelessWidget {
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.adb),
           ),
-          title: const Text('Debug info'),
-          subtitle: const Text(
-            'Display useful information for debugging, such as video metadata '
-            'and other useful information for debugging purposes.',
-          ),
+          title: Text(loc.debugInfo),
+          subtitle: Text(loc.debugInfoDescription),
           value: settings.kShowDebugInfo.value,
           onChanged: (v) {
             if (v != null) {
@@ -190,11 +187,8 @@ class AdvancedOptionsSettings extends StatelessWidget {
             foregroundColor: theme.colorScheme.error,
             child: const Icon(Icons.restore),
           ),
-          title: const Text('Restore Defaults'),
-          subtitle: const Text(
-            'Restore all settings to their default values. This will not '
-            'affect your servers or any other data.',
-          ),
+          title: Text(loc.restoreDefaults),
+          subtitle: Text(loc.restoreDefaultsDescription),
           trailing: const Icon(Icons.navigate_next),
           textColor: theme.colorScheme.error,
           iconColor: theme.colorScheme.error,
@@ -203,11 +197,8 @@ class AdvancedOptionsSettings extends StatelessWidget {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: const Text('Are you sure?'),
-                  content: const Text(
-                    'This will restore all settings to their default values. '
-                    'This will not affect your servers or any other data.',
-                  ),
+                  title: Text(loc.areYouSure),
+                  content: Text(loc.areYouSureDescription),
                   actions: [
                     FilledButton(
                       onPressed: () {

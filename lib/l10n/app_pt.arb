@@ -160,8 +160,6 @@
       }
     }
   },
-  "dateFormat": "Formato de Data",
-  "timeFormat": "Formato de Hora",
   "nDevices": "{n, plural, =0{Nenhum dispositivo} =1{1 dispositivo} other{{n} dispositivos}}",
   "@nDevices": {
     "placeholders": {
@@ -479,12 +477,16 @@
   "events": "Events",
   "initialEventSpeed": "Initial speed",
   "intiialEventVolume": "Initial volume",
-  "@@APPEARANCE": {},
+  "@@APPLICATION": {},
   "theme": "Aparência",
   "themeDescription": "Mude a aparência do aplicativo",
   "system": "Padrão do Sistema",
   "light": "Claro",
   "dark": "Escuro",
+  "dateFormat": "Formato de Data",
+  "dateFormatDescription": "What format to use for displaying dates",
+  "timeFormat": "Formato de Hora",
+  "timeFormatDescription": "What format to use for displaying time",
   "@@MISC": {},
   "miscellaneous": "Outros",
   "wakelock": "Manter tela ativa",

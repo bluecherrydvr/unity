@@ -77,18 +77,21 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           }
         },
       ),
-      if (settings.kShowDebugInfo.value)
-        CheckboxListTile.adaptive(
-          value: false,
-          onChanged: (v) {},
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.close),
-          ),
-          title: Text(loc.blockCloseWhenDownloading),
+      CheckboxListTile.adaptive(
+        value: settings.kAllowAppCloseWhenDownloading.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kAllowAppCloseWhenDownloading.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.close),
         ),
+        title: Text(loc.allowCloseWhenDownloading),
+      ),
       SubHeader(loc.events),
       if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(

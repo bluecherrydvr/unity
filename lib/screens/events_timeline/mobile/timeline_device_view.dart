@@ -609,9 +609,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                       )
                     : isDownloading
                         ? DownloadProgressIndicator(
-                            progress: downloads.downloading[downloads
-                                .downloading.keys
-                                .firstWhere((e) => e.id == event.id)]!,
+                            progress: downloads
+                                .downloading[downloads.downloading.keys
+                                    .firstWhere((e) => e.id == event.id)]!
+                                .$1,
                           )
                         : const Icon(Icons.download),
                 text: isDownloaded

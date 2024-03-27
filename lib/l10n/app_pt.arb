@@ -468,7 +468,7 @@
   "@@EVENTS_AND_DOWNLOADS": {},
   "chooseEveryDownloadsLocation": "Escolher a localização de cada download",
   "chooseEveryDownloadsLocationDescription": "Se você deseja escolher a localização de cada download ou usar a localização padrão. Quando ativado, você será solicitado a escolher o diretório de download para cada download.",
-  "blockCloseWhenDownloading": "Impedir o aplicativo de fechar quando houver downloads em andamento.",
+  "allowCloseWhenDownloading": "Block the app from closing when there are ongoing downloads",
   "events": "Eventos",
   "initialEventSpeed": "Velocidade inicial",
   "intiialEventVolume": "Volume inicial",

@@ -70,7 +70,7 @@ class DownloadsManagerScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final entry = downloads.downloading.entries.elementAt(index);
                   final event = entry.key;
-                  final progress = entry.value;
+                  final (progress, _) = entry.value;
 
                   return DownloadTile(
                     key: ValueKey(event.id),

@@ -61,7 +61,7 @@ class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
               contentPadding: EdgeInsets.zero,
               trailing: SizedBox.fromSize(
                 size: const Size(40.0, 40.0),
-                child: DownloadProgressIndicator(progress: entry.value),
+                child: DownloadProgressIndicator(progress: entry.value.$1),
               ),
               title: Text(entry.key.deviceName),
               subtitle: Text(entry.key.server.name),

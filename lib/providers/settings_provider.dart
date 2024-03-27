@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -31,8 +32,6 @@ import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 enum NetworkUsage { auto, wifiOnly, never }
-
-enum TimelineIntialPoint { beggining, firstEvent, lastEvent }
 
 enum EnabledPreference { on, ask, never }
 
@@ -268,9 +267,9 @@ class SettingsProvider extends UnityProvider {
     key: 'timeline.pause_to_buffer',
   );
   final kTimelineInitialPoint = _SettingsOption(
-    def: TimelineIntialPoint.beggining,
+    def: TimelineInitialPoint.beginning,
     key: 'timeline.initial_point',
-    loadFrom: (value) => TimelineIntialPoint.values[int.parse(value)],
+    loadFrom: (value) => TimelineInitialPoint.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
 

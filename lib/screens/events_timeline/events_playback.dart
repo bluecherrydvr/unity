@@ -23,6 +23,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
@@ -72,6 +73,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   @override
   Future<void> fetch() async {
     final eventsProvider = context.read<EventsProvider>();
+    final settings = context.read<SettingsProvider>();
     setState(() {
       hasEverFetched = true;
       date = date.toLocal();
@@ -122,7 +124,31 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
     if (mounted) {
       setState(() {
-        timeline = Timeline(tiles: parsedTiles, date: date);
+        timeline = Timeline(
+          tiles: parsedTiles,
+          date: date,
+          initialPosition: switch (settings.kTimelineInitialPoint.value) {
+            TimelineInitialPoint.beginning => Duration.zero,
+            TimelineInitialPoint.firstEvent => () {
+                final firstEvent = parsedTiles
+                    .map((e) {
+                      final earliestEvent = e.events.reduce(
+                          (a, b) => a.startTime.isBefore(b.startTime) ? a : b);
+                      return earliestEvent;
+                    })
+                    .reduce((a, b) => a.startTime.isBefore(b.startTime) ? a : b)
+                    .startTime;
+                return Duration(
+                  hours: firstEvent.hour,
+                  minutes: firstEvent.minute,
+                  seconds: firstEvent.second,
+                );
+              }(),
+            TimelineInitialPoint.hourAgo => Duration(
+                hours: DateTime.now().hour - 1,
+              ),
+          },
+        );
       });
     }
   }

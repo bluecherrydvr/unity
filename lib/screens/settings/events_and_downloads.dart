@@ -20,6 +20,7 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -192,20 +193,33 @@ class EventsAndDownloadsSettings extends StatelessWidget {
             'Whether the entire timeline should pause to buffer the events.',
           ),
         ),
-        OptionsChooserTile(
-          title: 'Initial point',
-          description: 'When the timeline should begin.',
-          icon: Icons.flag,
-          value: '',
-          values: const [
-            Option(value: '', icon: Icons.start, text: 'Beginning'),
-            Option(value: '', icon: Icons.first_page, text: 'First event'),
-            Option(
-                value: '', icon: Icons.hourglass_bottom, text: 'An hour ago'),
-          ],
-          onChanged: (v) {},
-        ),
       ],
+      OptionsChooserTile<TimelineInitialPoint>(
+        title: loc.initialTimelinePoint,
+        description: loc.initialTimelinePointDescription,
+        icon: Icons.flag,
+        value: settings.kTimelineInitialPoint.value,
+        values: [
+          Option(
+            value: TimelineInitialPoint.beginning,
+            icon: Icons.start,
+            text: loc.beginningInitialPoint,
+          ),
+          Option(
+            value: TimelineInitialPoint.firstEvent,
+            icon: Icons.first_page,
+            text: loc.firstEventInitialPoint,
+          ),
+          Option(
+            value: TimelineInitialPoint.hourAgo,
+            icon: Icons.hourglass_bottom,
+            text: loc.hourAgoInitialPoint,
+          ),
+        ],
+        onChanged: (v) {
+          settings.kTimelineInitialPoint.value = v;
+        },
+      ),
     ]);
   }
 }

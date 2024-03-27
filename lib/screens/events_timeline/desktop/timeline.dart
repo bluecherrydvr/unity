@@ -45,6 +45,19 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 final timelineTimeFormat = DateFormat('hh:mm:ss a');
 
+/// The initial point of the timeline.
+enum TimelineInitialPoint {
+  /// The timeline will start at the beginning of the day (00:00:00).
+  beginning,
+
+  /// The timeline will start at the first event of the day, if any. Otherwise,
+  /// it will start at the [beginning] of the day.
+  firstEvent,
+
+  /// The timeline will start at an hour ago from the current time.
+  hourAgo,
+}
+
 class TimelineTile {
   final Device device;
   final List<TimelineEvent> events;
@@ -167,7 +180,13 @@ class Timeline extends ChangeNotifier {
   /// All the events must have happened in the same day
   final DateTime date;
 
-  Timeline({required List<TimelineTile> tiles, required this.date}) {
+  Timeline({
+    required List<TimelineTile> tiles,
+    required this.date,
+    Duration initialPosition = Duration.zero,
+  }) {
+    currentPosition = initialPosition;
+
     add(tiles.where((tile) => tile.events.isNotEmpty));
 
     for (final tile in this.tiles) {

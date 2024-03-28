@@ -183,14 +183,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           _fpsStreamController.add(_fps);
         })
         ..observeProperty('width', (width) async {
-          debugPrint('display width: $width');
+          debugPrint('$title: display width: $width/${this.width}');
           this.width = int.tryParse(width);
           if (this.width != null && this.width! > maxSize.width) {
             maxSize = Size(this.width!.toDouble(), maxSize.height);
           }
         })
         ..observeProperty('height', (height) async {
-          debugPrint('display height: $height');
+          debugPrint('$title: display height: $height/${this.height}');
           this.height = int.tryParse(height);
           if (this.height != null && this.height! > maxSize.height) {
             maxSize = Size(maxSize.width, this.height!.toDouble());

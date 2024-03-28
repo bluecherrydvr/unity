@@ -67,10 +67,7 @@ class GeneralSettings extends StatelessWidget {
           settings.kWakelock.value = !settings.kWakelock.value;
         },
       ),
-      const SubHeader(
-        'Notifications',
-        padding: DesktopSettings.horizontalPadding,
-      ),
+      SubHeader(loc.notifications, padding: DesktopSettings.horizontalPadding),
       CheckboxListTile.adaptive(
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -78,7 +75,7 @@ class GeneralSettings extends StatelessWidget {
           child: const Icon(Icons.crop),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('Notifications enabled'),
+        title: Text(loc.notificationsEnabled),
         value: settings.kNotificationsEnabled.value,
         onChanged: (value) {
           if (value != null) {

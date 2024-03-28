@@ -437,7 +437,7 @@ abstract class FirebaseConfiguration {
         storage.add({kStorageNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
-            await API.instance.checkServerCredentials(server),
+            (await API.instance.checkServerCredentials(server)).$2,
             token,
           );
         }
@@ -456,7 +456,7 @@ abstract class FirebaseConfiguration {
         await storage.add({kStorageNotificationToken: token});
         for (final server in ServersProvider.instance.servers) {
           API.instance.registerNotificationToken(
-            await API.instance.checkServerCredentials(server),
+            (await API.instance.checkServerCredentials(server)).$2,
             token,
           );
         }

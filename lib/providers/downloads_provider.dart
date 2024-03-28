@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -132,7 +133,7 @@ class DownloadsManager extends UnityProvider {
   List<DownloadedEvent> downloadedEvents = [];
 
   /// The events that are downloading
-  Map<Event, DownloadProgress> downloading = {};
+  Map<Event, (DownloadProgress progress, String filePath)> downloading = {};
 
   Completer? downloadsCompleter;
   // bool _isProgressBarSet = false;
@@ -228,7 +229,7 @@ class DownloadsManager extends UnityProvider {
       downloadsCompleter = Completer();
     }
 
-    downloading[event] = 0.0;
+    downloading[event] = (0.0, '');
     notifyListeners();
 
     final dir = await () async {
@@ -260,7 +261,7 @@ class DownloadsManager extends UnityProvider {
       ),
       onReceiveProgress: (received, total) {
         if (total != -1) {
-          downloading[event] = received / total;
+          downloading[event] = (received / total, fileName);
           notifyListeners();
         }
       },
@@ -288,5 +289,23 @@ class DownloadsManager extends UnityProvider {
     await save();
 
     if (await file.exists()) await file.delete();
+  }
+
+  /// Cancels the ongoing downloads and deletes the downloaded files.
+  Future<void> cancelDownloading() async {
+    for (final event in downloading.keys.toList()) {
+      try {
+        final file = File(downloading[event]!.$2);
+        if (file.existsSync()) file.deleteSync();
+      } catch (e, s) {
+        debugPrint('Failed to delete file: $e');
+        writeLogToFile(
+          'Failed to delete file during cancelDownloading: $e, $s',
+        );
+      }
+      downloading.remove(event);
+    }
+
+    downloadsCompleter?.complete();
   }
 }

@@ -248,7 +248,7 @@ class DateFormatSection extends StatelessWidget {
 
     return OptionsChooserTile(
       title: loc.dateFormat,
-      description: 'What format to use for displaying dates',
+      description: loc.dateFormatDescription,
       icon: Icons.calendar_month,
       value: '',
       values: formats.map((format) {
@@ -277,7 +277,7 @@ class TimeFormatSection extends StatelessWidget {
     final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
     return OptionsChooserTile(
       title: loc.timeFormat,
-      description: 'What format to use for displaying time',
+      description: loc.timeFormatDescription,
       icon: Icons.hourglass_empty,
       value: '',
       values: patterns.map((pattern) {

@@ -75,11 +75,13 @@ class MobileViewProvider extends UnityProvider {
   Future<void> initialize() async {
     await tryReadStorage(
         () => super.initializeStorage(mobileView, kStorageMobileView));
-    for (final device in current) {
-      if (device != null) {
-        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
+    Future.microtask(() {
+      for (final device in current) {
+        if (device != null) {
+          UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
+        }
       }
-    }
+    });
   }
 
   /// Moves a device tile from [initial] position to [end] position inside a [tab].

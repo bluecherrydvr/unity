@@ -162,7 +162,7 @@ class ServersProvider extends UnityProvider {
         notifyListeners();
       }
 
-      server = await API.instance.checkServerCredentials(server);
+      (_, server) = await API.instance.checkServerCredentials(server);
       final devices = await API.instance.getDevices(server);
       if (devices != null) {
         server.devices

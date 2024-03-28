@@ -124,29 +124,27 @@ class StreamingSettings extends StatelessWidget {
           settings.kVideoFit.value = v;
         },
       ),
-      if (settings.kShowDebugInfo.value) ...[
-        const SizedBox(height: 8.0),
-        OptionsChooserTile(
-          title: 'Refresh Period',
-          description: 'How often to refresh the cameras',
-          icon: Icons.sync,
-          value: settings.kRefreshRate.value,
-          values: const [
-            Duration.zero,
-            Duration(seconds: 30),
-            Duration(minutes: 2),
-            Duration(minutes: 5),
-          ].map((q) {
-            return Option(
-              value: q,
-              text: q.humanReadableCompact(context),
-            );
-          }),
-          onChanged: (v) {
-            settings.kRefreshRate.value = v;
-          },
-        ),
-      ],
+      const SizedBox(height: 8.0),
+      OptionsChooserTile(
+        title: loc.cameraRefreshPeriod,
+        description: loc.cameraRefreshPeriodDescription,
+        icon: Icons.sync,
+        value: settings.kRefreshRate.value,
+        values: const [
+          Duration.zero,
+          Duration(seconds: 30),
+          Duration(minutes: 2),
+          Duration(minutes: 5),
+        ].map((q) {
+          return Option(
+            value: q,
+            text: q.humanReadableCompact(context),
+          );
+        }),
+        onChanged: (v) {
+          settings.kRefreshRate.value = v;
+        },
+      ),
       const SizedBox(height: 8.0),
       OptionsChooserTile<LateVideoBehavior>(
         title: loc.lateStreamBehavior,

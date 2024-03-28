@@ -46,11 +46,13 @@ Future<void> showEditServer(BuildContext context, Server server) {
 }
 
 Future<void> updateServer(BuildContext context, Server serverCopy) async {
-  final updatedServer = await API.instance.checkServerCredentials(
+  final (code, updatedServer) = await API.instance.checkServerCredentials(
     serverCopy,
   );
 
-  if (updatedServer.serverUUID != null && updatedServer.hasCookies) {
+  if (updatedServer.serverUUID != null &&
+      updatedServer.hasCookies &&
+      code == ServerAdditionResponse.validated) {
     await ServersProvider.instance.update(updatedServer);
 
     if (context.mounted) Navigator.of(context).pop();

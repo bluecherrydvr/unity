@@ -22,6 +22,7 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class PrivacySecuritySettings extends StatelessWidget {
@@ -31,6 +32,7 @@ class PrivacySecuritySettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
     return ListView(children: [
       CheckboxListTile.adaptive(
         secondary: CircleAvatar(
@@ -39,12 +41,8 @@ class PrivacySecuritySettings extends StatelessWidget {
           child: const Icon(Icons.analytics),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: const Text('Allow Bluecherry to collect usage data'),
-        subtitle: const Text(
-          'Allow Bluecherry to collect data to improve the app and provide '
-          'better services. Data is collected anonymously and does not contain '
-          'any personal information.',
-        ),
+        title: Text(loc.allowDataCollection),
+        subtitle: Text(loc.allowDataCollectionDescription),
         isThreeLine: true,
         value: settings.kAllowDataCollection.value,
         onChanged: (value) {
@@ -54,16 +52,12 @@ class PrivacySecuritySettings extends StatelessWidget {
         },
       ),
       OptionsChooserTile<EnabledPreference>(
-        title: 'Automatically report errors',
-        description: 'Automatically report errors to Bluecherry to help us '
-            'improve the app. Error reports may contain personal information.',
+        title: loc.automaticallyReportErrors,
+        description: loc.automaticallyReportErrorsDescription,
         icon: Icons.error,
         value: settings.kAllowCrashReports.value,
         values: EnabledPreference.values.map(
-          (e) => Option(
-            text: e.name.uppercaseFirst,
-            value: e,
-          ),
+          (e) => Option(text: e.name.uppercaseFirst, value: e),
         ),
         onChanged: (v) {
           settings.kAllowCrashReports.value = v;
@@ -78,7 +72,7 @@ class PrivacySecuritySettings extends StatelessWidget {
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.privacy_tip),
           ),
-          title: const Text('Privacy Policy'),
+          title: Text(loc.privacyPolicy),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {},
         ),
@@ -89,7 +83,7 @@ class PrivacySecuritySettings extends StatelessWidget {
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.policy),
           ),
-          title: const Text('Terms of Service'),
+          title: Text(loc.termsOfService),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {},
         ),

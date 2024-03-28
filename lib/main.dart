@@ -250,10 +250,15 @@ class _UnityAppState extends State<UnityApp>
     final context = navigatorKey.currentContext!;
     if (isPreventClose && mounted && context.mounted) {
       final downloadsManager = context.read<DownloadsManager>();
+      final settings = context.read<SettingsProvider>();
       if (downloadsManager.downloading.isNotEmpty) {
-        final result = await showCloseDownloadsDialog(context);
-        if (result == null || !result) {
-          return;
+        if (settings.kAllowAppCloseWhenDownloading.value) {
+          downloadsManager.cancelDownloading();
+        } else {
+          final result = await showCloseDownloadsDialog(context);
+          if (result == null || !result) {
+            return;
+          }
         }
       }
 

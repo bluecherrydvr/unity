@@ -128,8 +128,10 @@ class DownloadIndicator extends StatelessWidget {
 
         if (downloads.isEventDownloading(event.id)) {
           return DownloadProgressIndicator(
-            progress: downloads.downloading[downloads.downloading.keys
-                .firstWhere((e) => e.id == event.id)]!,
+            progress: downloads
+                .downloading[downloads.downloading.keys
+                    .firstWhere((e) => e.id == event.id)]!
+                .$1,
             color: highlight ? Colors.amber : null,
           );
         }

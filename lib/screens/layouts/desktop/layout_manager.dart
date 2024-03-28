@@ -77,8 +77,6 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
   @override
   void dispose() {
     timer?.cancel();
-    searchController.dispose();
-    searchFocusNode.dispose();
     super.dispose();
   }
 

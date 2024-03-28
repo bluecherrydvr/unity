@@ -87,7 +87,7 @@ abstract class APIHelpers {
     int attempts = 50,
   }) async {
     final events = await API.instance.getEvents(
-      await API.instance.checkServerCredentials(server),
+      (await API.instance.checkServerCredentials(server)).$2,
     );
     debugPrint(events.map((e) => e.id).toList().toString());
     Future<String?> getThumbnailForMediaID(int mediaID) async {

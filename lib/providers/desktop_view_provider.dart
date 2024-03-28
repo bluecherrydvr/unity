@@ -63,21 +63,23 @@ class DesktopViewProvider extends UnityProvider {
     await tryReadStorage(
       () => initializeStorage(desktopView, kStorageDesktopLayouts),
     );
-    await Future.wait(
-      currentLayout.devices.map<Future>((device) {
-        final completer = Completer<UnityVideoPlayer>();
-        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
-          device,
-          () async {
-            if (Platform.isLinux) {
-              await Future.delayed(const Duration(milliseconds: 250));
-            }
-            completer.complete(UnityPlayers.players[device.uuid]);
-          },
-        );
-        return completer.future;
-      }),
-    );
+    Future.microtask(() async {
+      await Future.wait(
+        currentLayout.devices.map<Future>((device) {
+          final completer = Completer<UnityVideoPlayer>();
+          UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
+            device,
+            () async {
+              if (Platform.isAndroid || Platform.isLinux) {
+                await Future.delayed(const Duration(milliseconds: 250));
+              }
+              completer.complete(UnityPlayers.players[device.uuid]);
+            },
+          );
+          return completer.future;
+        }),
+      );
+    });
   }
 
   /// Saves current layout/order of [Device]s to cache using `package:hive`.

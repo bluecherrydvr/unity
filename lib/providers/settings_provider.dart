@@ -216,7 +216,7 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'streaming.reload_timed_out_streams',
   );
-  final kUseHardwareDecoding = _SettingsOption(
+  final kUseHardwareDecoding = _SettingsOption<bool>(
     def: true,
     key: 'streaming.use_hardware_decoding',
   );
@@ -325,6 +325,8 @@ class SettingsProvider extends UnityProvider {
   final kAllowCrashReports = _SettingsOption<EnabledPreference>(
     def: EnabledPreference.on,
     key: 'privacy.allow_crash_reports',
+    loadFrom: (value) => EnabledPreference.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
 
   // Updates

@@ -23,6 +23,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -130,6 +131,11 @@ class _SettingsOption<T> {
       debugPrint('Error loading data for $key: $e\nFallback to default');
       _value = (await getDefault?.call()) ?? def;
     }
+  }
+
+  @override
+  String toString() {
+    return 'SettingsOption<$T>($key: $_value)';
   }
 }
 
@@ -297,7 +303,7 @@ class SettingsProvider extends UnityProvider {
     key: 'application.time_format',
   );
   final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
-    def: true,
+    def: false,
     key: 'application.convert_time_to_local_timezone',
   );
 
@@ -534,9 +540,17 @@ class SettingsProvider extends UnityProvider {
   ///
   /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
   String formatDate(DateTime date) {
-    if (kConvertTimeToLocalTimezone()) date = date.toLocal();
+    if (kConvertTimeToLocalTimezone.value) date = date.toLocal();
 
     return kDateFormat.value.format(date);
+  }
+
+  String formatRawTime(String rawDate) {
+    return kTimeFormat.value.format(
+      kConvertTimeToLocalTimezone.value
+          ? DateTime.parse(rawDate).toLocal()
+          : timezoneAwareDate(rawDate),
+    );
   }
 
   /// Formats the date according to the current [dateFormat].

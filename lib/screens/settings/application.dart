@@ -66,6 +66,10 @@ class ApplicationSettings extends StatelessWidget {
         },
       ),
       const LanguageSection(),
+      const SubHeader(
+        'Date and Time',
+        padding: DesktopSettings.horizontalPadding,
+      ),
       const DateFormatSection(),
       const TimeFormatSection(),
       CheckboxListTile.adaptive(
@@ -270,7 +274,7 @@ class DateFormatSection extends StatelessWidget {
       title: loc.dateFormat,
       description: loc.dateFormatDescription,
       icon: Icons.calendar_month,
-      value: '',
+      value: settings.kDateFormat.value.pattern,
       values: formats.map((format) {
         return Option(
           value: format.pattern,
@@ -299,7 +303,7 @@ class TimeFormatSection extends StatelessWidget {
       title: loc.timeFormat,
       description: loc.timeFormatDescription,
       icon: Icons.hourglass_empty,
-      value: '',
+      value: settings.kTimeFormat.value.pattern,
       values: patterns.map((pattern) {
         return Option(
           value: pattern.pattern,

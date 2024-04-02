@@ -573,9 +573,20 @@ class SettingsProvider extends UnityProvider {
     return pattern.format(time);
   }
 
+  String formatTimeRaw(
+    String rawTime, {
+    DateFormat? pattern,
+    Duration offset = Duration.zero,
+  }) {
+    return formatTime(
+      timezoneAwareDate(rawTime).add(offset),
+      pattern: pattern,
+    );
+  }
+
   String formatRawDateAndTime(String rawDateTime) {
     final date = formatDate(DateTime.parse(rawDateTime));
-    final time = formatRawTime(rawDateTime);
+    final time = formatRawTime(rawDateTime).toUpperCase();
     return '$date $time';
   }
 

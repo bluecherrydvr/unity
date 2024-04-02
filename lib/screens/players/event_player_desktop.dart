@@ -27,7 +27,6 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
-import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -243,11 +242,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 snapshot.data ?? videoController.currentPos;
                             return Row(children: [
                               Text(
-                                settings.formatTime(
-                                  timezoneAwareDate(currentEvent.publishedRaw)
-                                      .add(pos),
+                                settings.formatTimeRaw(
+                                  currentEvent.publishedRaw,
+                                  offset: pos,
                                   pattern: DateFormat.Hms(),
-                                  toLocal: false,
                                 ),
                               ),
                               padd,
@@ -298,11 +296,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                       ),
                       padd,
                       Text(
-                        settings.formatTime(
-                          timezoneAwareDate(currentEvent.publishedRaw)
-                              .add(duration),
+                        settings.formatTimeRaw(
+                          currentEvent.publishedRaw,
+                          offset: duration,
                           pattern: DateFormat.Hms(),
-                          toLocal: false,
                         ),
                       ),
                       padd,
@@ -495,7 +492,7 @@ class EventTile extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     final eventType = event.type.locale(context).uppercaseFirst;
-    final at = settings.formatDate(timezoneAwareDate(event.publishedRaw));
+    final at = settings.formatRawDateAndTime(event.publishedRaw);
 
     return SizedBox(
       width: double.infinity,

@@ -36,7 +36,11 @@ class ApplicationSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
+    return ListView(children: [
+      SubHeader(
+        loc.appearance,
+        padding: DesktopSettings.horizontalPadding,
+      ),
       OptionsChooserTile<ThemeMode>(
         title: loc.theme,
         description: loc.themeDescription,
@@ -66,8 +70,8 @@ class ApplicationSettings extends StatelessWidget {
         },
       ),
       const LanguageSection(),
-      const SubHeader(
-        'Date and Time',
+      SubHeader(
+        loc.dateAndTime,
         padding: DesktopSettings.horizontalPadding,
       ),
       const DateFormatSection(),
@@ -85,12 +89,9 @@ class ApplicationSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.history_toggle_off),
         ),
-        title: const Text('Convert dates to local timezone'),
-        subtitle: const Text(
-          'Whether to convert dates to the local timezone. This will affect the '
-          'date and time displayed in the app. This is useful if you are in a '
-          'different timezone than the server.',
-        ),
+        title: Text(loc.convertToLocalTime),
+        subtitle: Text(loc.convertToLocalTimeDescription),
+        isThreeLine: true,
       ),
       if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Window'),

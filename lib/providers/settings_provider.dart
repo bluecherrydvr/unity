@@ -573,6 +573,12 @@ class SettingsProvider extends UnityProvider {
     return pattern.format(time);
   }
 
+  String formatRawDateAndTime(String rawDateTime) {
+    final date = formatDate(DateTime.parse(rawDateTime));
+    final time = formatRawTime(rawDateTime);
+    return '$date $time';
+  }
+
   void toggleCycling() {
     kLayoutCycleEnabled.value = !kLayoutCycleEnabled.value;
     save();

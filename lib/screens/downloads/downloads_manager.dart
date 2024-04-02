@@ -155,7 +155,7 @@ class _DownloadTileState extends State<DownloadTile> {
     final settings = context.watch<SettingsProvider>();
 
     final eventType = widget.event.type.locale(context).uppercaseFirst;
-    final at = settings.formatDate(widget.event.published);
+    final at = settings.formatRawDateAndTime(widget.event.publishedRaw);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),

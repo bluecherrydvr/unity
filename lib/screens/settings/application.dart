@@ -68,6 +68,26 @@ class ApplicationSettings extends StatelessWidget {
       const LanguageSection(),
       const DateFormatSection(),
       const TimeFormatSection(),
+      CheckboxListTile.adaptive(
+        value: settings.kConvertTimeToLocalTimezone.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kConvertTimeToLocalTimezone.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.history_toggle_off),
+        ),
+        title: const Text('Convert dates to local timezone'),
+        subtitle: const Text(
+          'Whether to convert dates to the local timezone. This will affect the '
+          'date and time displayed in the app. This is useful if you are in a '
+          'different timezone than the server.',
+        ),
+      ),
       if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Window'),
         CheckboxListTile.adaptive(

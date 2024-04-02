@@ -36,7 +36,11 @@ class ApplicationSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
+    return ListView(children: [
+      SubHeader(
+        loc.appearance,
+        padding: DesktopSettings.horizontalPadding,
+      ),
       OptionsChooserTile<ThemeMode>(
         title: loc.theme,
         description: loc.themeDescription,
@@ -66,8 +70,29 @@ class ApplicationSettings extends StatelessWidget {
         },
       ),
       const LanguageSection(),
+      SubHeader(
+        loc.dateAndTime,
+        padding: DesktopSettings.horizontalPadding,
+      ),
       const DateFormatSection(),
       const TimeFormatSection(),
+      CheckboxListTile.adaptive(
+        value: settings.kConvertTimeToLocalTimezone.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kConvertTimeToLocalTimezone.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.history_toggle_off),
+        ),
+        title: Text(loc.convertToLocalTime),
+        subtitle: Text(loc.convertToLocalTimeDescription),
+        isThreeLine: true,
+      ),
       if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Window'),
         CheckboxListTile.adaptive(
@@ -250,7 +275,7 @@ class DateFormatSection extends StatelessWidget {
       title: loc.dateFormat,
       description: loc.dateFormatDescription,
       icon: Icons.calendar_month,
-      value: '',
+      value: settings.kDateFormat.value.pattern,
       values: formats.map((format) {
         return Option(
           value: format.pattern,
@@ -279,7 +304,7 @@ class TimeFormatSection extends StatelessWidget {
       title: loc.timeFormat,
       description: loc.timeFormatDescription,
       icon: Icons.hourglass_empty,
-      value: '',
+      value: settings.kTimeFormat.value.pattern,
       values: patterns.map((pattern) {
         return Option(
           value: pattern.pattern,

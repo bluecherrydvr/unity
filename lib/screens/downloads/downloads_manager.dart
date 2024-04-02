@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -155,7 +156,7 @@ class _DownloadTileState extends State<DownloadTile> {
     final settings = context.watch<SettingsProvider>();
 
     final eventType = widget.event.type.locale(context).uppercaseFirst;
-    final at = settings.formatDate(widget.event.published);
+    final at = settings.formatRawDateAndTime(widget.event.publishedRaw);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),

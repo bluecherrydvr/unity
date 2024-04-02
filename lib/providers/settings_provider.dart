@@ -55,6 +55,10 @@ class _SettingsOption<T> {
     });
   }
 
+  T call() {
+    return value;
+  }
+
   final T? min;
   final T? max;
 
@@ -126,6 +130,11 @@ class _SettingsOption<T> {
       debugPrint('Error loading data for $key: $e\nFallback to default');
       _value = (await getDefault?.call()) ?? def;
     }
+  }
+
+  @override
+  String toString() {
+    return 'SettingsOption<$T>($key: $_value)';
   }
 }
 
@@ -292,6 +301,10 @@ class SettingsProvider extends UnityProvider {
     def: DateFormat('hh:mm a'),
     key: 'application.time_format',
   );
+  final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
+    def: false,
+    key: 'application.convert_time_to_local_timezone',
+  );
 
   // Window
   final kLaunchAppOnStartup = _SettingsOption(
@@ -417,6 +430,7 @@ class SettingsProvider extends UnityProvider {
       kLanguageCode.loadData(data),
       kDateFormat.loadData(data),
       kTimeFormat.loadData(data),
+      kConvertTimeToLocalTimezone.loadData(data),
       kLaunchAppOnStartup.loadData(data),
       kMinimizeToTray.loadData(data),
       kAnimationsEnabled.loadData(data),
@@ -486,6 +500,8 @@ class SettingsProvider extends UnityProvider {
         kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
         kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),
         kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
+        kConvertTimeToLocalTimezone.key: kConvertTimeToLocalTimezone
+            .saveAs(kConvertTimeToLocalTimezone.value),
         kLaunchAppOnStartup.key:
             kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
         kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),
@@ -517,24 +533,6 @@ class SettingsProvider extends UnityProvider {
   void updateProperty(VoidCallback update) {
     update();
     save();
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatDate(DateTime date, {bool toLocal = false}) {
-    if (toLocal) date = date.toLocal();
-
-    return kDateFormat.value.format(date);
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatTime(DateTime time, {bool toLocal = false}) {
-    if (toLocal) time = time.toLocal();
-
-    return kTimeFormat.value.format(time);
   }
 
   void toggleCycling() {

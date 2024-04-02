@@ -93,7 +93,7 @@ extension EventsExtension on API {
         events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
             .cast<Map>()
             .map((eventObject) {
-          final published = DateTime.parse(eventObject['published']).toLocal();
+          final published = DateTime.parse(eventObject['published']);
           final event = Event(
             server: server,
             id: () {
@@ -115,10 +115,12 @@ extension EventsExtension on API {
                   '-1',
             ),
             title: eventObject['title'],
+            publishedRaw: eventObject['published'],
             published: published,
+            updatedRaw: eventObject['updated'] ?? eventObject['published'],
             updated: eventObject['updated'] == null
                 ? published
-                : DateTime.parse(eventObject['updated']).toLocal(),
+                : DateTime.parse(eventObject['updated']),
             category: eventObject['category']['term'],
             mediaID: eventObject.containsKey('content')
                 ? int.parse(eventObject['content']['media_id'])
@@ -147,12 +149,14 @@ extension EventsExtension on API {
             deviceID:
                 int.parse((e['category']['term'] as String).split('/').first),
             title: e['title']['\$t'],
+            publishedRaw: e['published']['\$t'],
             published: e['published'] == null || e['published']['\$t'] == null
-                ? DateTime.now().toLocal()
-                : DateTime.parse(e['published']['\$t']).toLocal(),
+                ? DateTime.now()
+                : DateTime.parse(e['published']['\$t']),
+            updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
             updated: e['updated'] == null || e['updated']['\$t'] == null
-                ? DateTime.now().toLocal()
-                : DateTime.parse(e['updated']['\$t']).toLocal(),
+                ? DateTime.now()
+                : DateTime.parse(e['updated']['\$t']),
             category: e['category']['term'],
             mediaID: !e.containsKey('content')
                 ? null

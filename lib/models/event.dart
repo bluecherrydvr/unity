@@ -29,7 +29,9 @@ class Event {
   final int id;
   final int deviceID;
   final String title;
+  final String publishedRaw;
   final DateTime published;
+  final String updatedRaw;
   final DateTime updated;
   final String? category;
   final int? mediaID;
@@ -40,7 +42,9 @@ class Event {
     required this.id,
     required this.deviceID,
     required this.title,
+    required this.publishedRaw,
     required this.published,
+    required this.updatedRaw,
     required this.updated,
     required this.category,
     required this.mediaID,
@@ -52,13 +56,17 @@ class Event {
     this.id = 1,
     this.deviceID = 1,
     this.title = '',
+    String? publishedRaw,
     DateTime? published,
+    String? updatedRaw,
     DateTime? updated,
     this.category,
     this.mediaID,
     this.mediaURL,
   })  : server = server ?? ServersProvider.instance.servers.first,
+        publishedRaw = publishedRaw ?? DateTime.now().toIso8601String(),
         published = published ?? DateTime.now(),
+        updatedRaw = updatedRaw ?? DateTime.now().toIso8601String(),
         updated = updated ?? DateTime.now();
 
   String get deviceName {
@@ -86,7 +94,9 @@ class Event {
         other.id == id &&
         other.deviceID == deviceID &&
         other.title == title &&
+        other.publishedRaw == publishedRaw &&
         other.published == published &&
+        other.updatedRaw == updatedRaw &&
         other.updated == updated &&
         other.category == category &&
         other.mediaID == mediaID &&
@@ -99,7 +109,9 @@ class Event {
         id.hashCode ^
         deviceID.hashCode ^
         title.hashCode ^
+        publishedRaw.hashCode ^
         published.hashCode ^
+        updatedRaw.hashCode ^
         updated.hashCode ^
         category.hashCode ^
         mediaID.hashCode ^
@@ -107,31 +119,8 @@ class Event {
   }
 
   @override
-  String toString() =>
-      'Event($id, $deviceID, $title, $published, $updated, $category, $mediaID, $mediaURL)';
-
-  Event copyWith(
-    Server? server,
-    int? id,
-    int? deviceID,
-    String? title,
-    DateTime? published,
-    DateTime? updated,
-    String? category,
-    int? mediaID,
-    Uri? mediaURL,
-  ) {
-    return Event(
-      server: server ?? this.server,
-      deviceID: deviceID ?? this.deviceID,
-      id: id ?? this.id,
-      title: title ?? this.title,
-      published: published ?? this.published,
-      updated: updated ?? this.updated,
-      category: category ?? this.category,
-      mediaID: mediaID ?? this.mediaID,
-      mediaURL: mediaURL ?? this.mediaURL,
-    );
+  String toString() {
+    return 'Event(server: $server, id: $id, deviceID: $deviceID, title: $title, publishedRaw: $publishedRaw, published: $published, updatedRaw: $updatedRaw, updated: $updated, category: $category, mediaID: $mediaID, mediaURL: $mediaURL)';
   }
 
   Map<String, dynamic> toJson() => {
@@ -152,7 +141,9 @@ class Event {
       deviceID: json['deviceID'],
       id: json['id'],
       title: json['title'],
+      publishedRaw: json['published'],
       published: DateTime.parse(json['published']),
+      updatedRaw: json['updated'],
       updated: DateTime.parse(json['updated']),
       category: json['category'],
       mediaID: json['mediaID'],
@@ -209,6 +200,34 @@ class Event {
       default:
         return EventType.unknown;
     }
+  }
+
+  Event copyWith({
+    Server? server,
+    int? id,
+    int? deviceID,
+    String? title,
+    String? publishedRaw,
+    DateTime? published,
+    String? updatedRaw,
+    DateTime? updated,
+    String? category,
+    int? mediaID,
+    Uri? mediaURL,
+  }) {
+    return Event(
+      server: server ?? this.server,
+      id: id ?? this.id,
+      deviceID: deviceID ?? this.deviceID,
+      title: title ?? this.title,
+      publishedRaw: publishedRaw ?? this.publishedRaw,
+      published: published ?? this.published,
+      updatedRaw: updatedRaw ?? this.updatedRaw,
+      updated: updated ?? this.updated,
+      category: category ?? this.category,
+      mediaID: mediaID ?? this.mediaID,
+      mediaURL: mediaURL ?? this.mediaURL,
+    );
   }
 }
 

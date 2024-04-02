@@ -107,7 +107,7 @@ class EventsScreenDesktop extends StatelessWidget {
                   ),
                   _buildTilePart(
                     child: Text(
-                      '${settings.formatDate(event.updated)} ${settings.formatTime(event.updated).toUpperCase()}',
+                      settings.formatRawDateAndTime(event.publishedRaw),
                     ),
                     flex: 2,
                   ),

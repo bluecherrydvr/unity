@@ -23,7 +23,6 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
-import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -534,60 +533,6 @@ class SettingsProvider extends UnityProvider {
   void updateProperty(VoidCallback update) {
     update();
     save();
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatDate(DateTime date) {
-    if (kConvertTimeToLocalTimezone.value) date = date.toLocal();
-
-    return kDateFormat.value.format(date);
-  }
-
-  String formatRawTime(String rawDate) {
-    return kTimeFormat.value.format(
-      kConvertTimeToLocalTimezone.value
-          ? DateTime.parse(rawDate).toLocal()
-          : timezoneAwareDate(rawDate),
-    );
-  }
-
-  /// Formats the date according to the current [dateFormat].
-  ///
-  /// [toLocal] defines if the date will be converted to local time. Defaults to `true`
-  String formatTime(
-    DateTime time, {
-    DateFormat? pattern,
-    bool withSeconds = false,
-    bool? toLocal,
-  }) {
-    if (toLocal ?? kConvertTimeToLocalTimezone()) time = time.toLocal();
-
-    pattern ??= DateFormat(kTimeFormat.value.pattern);
-
-    if (withSeconds) {
-      pattern = pattern.add_s();
-    }
-
-    return pattern.format(time);
-  }
-
-  String formatTimeRaw(
-    String rawTime, {
-    DateFormat? pattern,
-    Duration offset = Duration.zero,
-  }) {
-    return formatTime(
-      timezoneAwareDate(rawTime).add(offset),
-      pattern: pattern,
-    );
-  }
-
-  String formatRawDateAndTime(String rawDateTime) {
-    final date = formatDate(DateTime.parse(rawDateTime));
-    final time = formatRawTime(rawDateTime).toUpperCase();
-    return '$date $time';
   }
 
   void toggleCycling() {

@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -216,36 +217,37 @@ class DeviceTileState extends State<DeviceTile> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return UnityVideoView(
-      heroTag: widget.device.streamURL,
-      player: videoPlayer,
-      fit: widget.device.server.additionalSettings.videoFit ??
-          settings.kVideoFit.value,
-      paneBuilder: (context, controller) {
-        final video = UnityVideoView.of(context);
-        final error = video.error;
+    return GestureDetectorWithReducedDoubleTapTime(
+      onTap: () {
+        if (mounted) setState(() => hover = !hover);
+      },
+      // Fullscreen on double-tap.
+      onDoubleTap: () async {
+        if (videoPlayer.error == null) {
+          await Navigator.of(context).pushNamed(
+            '/fullscreen',
+            arguments: {
+              'device': widget.device,
+              'player': videoPlayer,
+            },
+          );
+        }
+      },
+      child: UnityVideoView(
+        heroTag: widget.device.streamURL,
+        player: videoPlayer,
+        fit: widget.device.server.additionalSettings.videoFit ??
+            settings.kVideoFit.value,
+        paneBuilder: (context, controller) {
+          final video = UnityVideoView.of(context);
+          final error = video.error;
+          final isLoading = !controller.isSeekable;
 
-        return GestureDetectorWithReducedDoubleTapTime(
-          onTap: () {
-            if (mounted) setState(() => hover = !hover);
-          },
-          // Fullscreen on double-tap.
-          onDoubleTap: () async {
-            if (error != null) {
-              await Navigator.of(context).pushNamed(
-                '/fullscreen',
-                arguments: {
-                  'device': widget.device,
-                  'player': videoPlayer,
-                },
-              );
-            }
-          },
-          child: ClipRect(
+          return ClipRect(
             child: Stack(alignment: Alignment.center, children: [
               if (error != null)
                 ErrorWarning(message: error)
-              else if (!controller.isSeekable)
+              else if (isLoading)
                 const CircularProgressIndicator.adaptive(
                   valueColor: AlwaysStoppedAnimation(Colors.white),
                   strokeWidth: 1.5,
@@ -291,21 +293,22 @@ class DeviceTileState extends State<DeviceTile> {
                 start: 0.0,
                 end: 0.0,
                 child: AnimatedSlide(
-                  offset: Offset(0, error != null || hover ? 0.0 : 1.0),
+                  offset: Offset(
+                    0,
+                    error != null || isLoading || hover ? 0.0 : 1.0,
+                  ),
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Container(
-                    height: 48.0,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 16.0,
+                      top: 6.0,
+                      bottom: 6.0,
+                      end: 16.0,
+                    ),
                     alignment: AlignmentDirectional.centerEnd,
                     color: Colors.black26,
                     child: Row(children: [
-                      const SizedBox(width: 16.0),
-                      const Icon(
-                        Icons.videocam,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
-                      const SizedBox(width: 16.0),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -336,15 +339,14 @@ class DeviceTileState extends State<DeviceTile> {
                           size: 20.0,
                           semanticLabel: loc.ptzSupported,
                         ),
-                      const SizedBox(width: 16.0),
                     ]),
                   ),
                 ),
               ),
             ]),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

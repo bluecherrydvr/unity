@@ -92,6 +92,7 @@ class GestureDetectorWithReducedDoubleTapTime extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       key: key,
+      behavior: HitTestBehavior.opaque,
       onTap: _onTap,
       onTapDown: _onTapDown,
       onTapCancel: _onTapCancel,

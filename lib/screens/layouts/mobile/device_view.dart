@@ -250,46 +250,42 @@ class DeviceTileState extends State<DeviceTile> {
           final error = video.error;
 
           return ClipRect(
-            child: Stack(children: [
+            child: Stack(alignment: Alignment.center, children: [
               if (error != null)
                 ErrorWarning(message: error)
               else if (!controller.isSeekable)
-                const Center(
-                  child: CircularProgressIndicator.adaptive(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 1.5,
-                  ),
+                const CircularProgressIndicator.adaptive(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  strokeWidth: 1.5,
                 ),
               if (video.lastImageUpdate != null)
-                Center(
-                  child: TweenAnimationBuilder(
-                    tween: Tween<double>(
-                      begin: 0.0,
-                      end: hover ? 1.0 : 0.0,
-                    ),
-                    duration: const Duration(milliseconds: 300),
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: child,
+                TweenAnimationBuilder(
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: hover ? 1.0 : 0.0,
+                  ),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: child,
+                    );
+                  },
+                  child: SquaredIconButton(
+                    // splashRadius: 20.0,
+                    onPressed: () async {
+                      await Navigator.of(context).pushNamed(
+                        '/fullscreen',
+                        arguments: {
+                          'device': widget.device,
+                          'player': videoPlayer,
+                        },
                       );
                     },
-                    child: SquaredIconButton(
-                      // splashRadius: 20.0,
-                      onPressed: () async {
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': videoPlayer,
-                          },
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.fullscreen,
-                        color: Colors.white,
-                        size: 32.0,
-                      ),
+                    icon: const Icon(
+                      Icons.fullscreen,
+                      color: Colors.white,
+                      size: 32.0,
                     ),
                   ),
                 ),

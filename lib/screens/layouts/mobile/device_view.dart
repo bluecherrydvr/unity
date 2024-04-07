@@ -21,7 +21,6 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_selector.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -48,11 +47,7 @@ class MobileDeviceView extends StatefulWidget {
   final int index;
 
   /// Creates a device view used in mobile grids
-  const MobileDeviceView({
-    super.key,
-    required this.tab,
-    required this.index,
-  });
+  const MobileDeviceView({super.key, required this.tab, required this.index});
 
   @override
   State<MobileDeviceView> createState() => _MobileDeviceViewState();
@@ -190,16 +185,11 @@ class DeviceTile extends StatefulWidget {
   final int tab;
   final int index;
 
-  final double width;
-  final double height;
-
   const DeviceTile({
     super.key,
     required this.device,
     required this.tab,
     required this.index,
-    this.width = 640.0,
-    this.height = 360.0,
   });
 
   @override
@@ -226,30 +216,32 @@ class DeviceTileState extends State<DeviceTile> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return GestureDetectorWithReducedDoubleTapTime(
-      onTap: () {
-        if (mounted) setState(() => hover = !hover);
-      },
-      // Fullscreen on double-tap.
-      onDoubleTap: () async {
-        await Navigator.of(context).pushNamed(
-          '/fullscreen',
-          arguments: {
-            'device': widget.device,
-            'player': videoPlayer,
-          },
-        );
-      },
-      child: UnityVideoView(
-        heroTag: widget.device.streamURL,
-        player: videoPlayer,
-        fit: widget.device.server.additionalSettings.videoFit ??
-            settings.kVideoFit.value,
-        paneBuilder: (context, controller) {
-          final video = UnityVideoView.of(context);
-          final error = video.error;
+    return UnityVideoView(
+      heroTag: widget.device.streamURL,
+      player: videoPlayer,
+      fit: widget.device.server.additionalSettings.videoFit ??
+          settings.kVideoFit.value,
+      paneBuilder: (context, controller) {
+        final video = UnityVideoView.of(context);
+        final error = video.error;
 
-          return ClipRect(
+        return GestureDetectorWithReducedDoubleTapTime(
+          onTap: () {
+            if (mounted) setState(() => hover = !hover);
+          },
+          // Fullscreen on double-tap.
+          onDoubleTap: () async {
+            if (error != null) {
+              await Navigator.of(context).pushNamed(
+                '/fullscreen',
+                arguments: {
+                  'device': widget.device,
+                  'player': videoPlayer,
+                },
+              );
+            }
+          },
+          child: ClipRect(
             child: Stack(alignment: Alignment.center, children: [
               if (error != null)
                 ErrorWarning(message: error)
@@ -292,17 +284,14 @@ class DeviceTileState extends State<DeviceTile> {
               PositionedDirectional(
                 top: 6.0,
                 start: 6.0,
-                child: VideoStatusLabel(
-                  video: video,
-                  device: widget.device,
-                ),
+                child: VideoStatusLabel(video: video, device: widget.device),
               ),
               PositionedDirectional(
                 bottom: 0.0,
                 start: 0.0,
                 end: 0.0,
                 child: AnimatedSlide(
-                  offset: Offset(0, hover ? 0.0 : 1.0),
+                  offset: Offset(0, error != null || hover ? 0.0 : 1.0),
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Container(
@@ -324,10 +313,7 @@ class DeviceTileState extends State<DeviceTile> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.device.name
-                                  .split(' ')
-                                  .map((word) => word.uppercaseFirst)
-                                  .join(' '),
+                              widget.device.name,
                               style: theme.textTheme.displayLarge?.copyWith(
                                 color: Colors.white,
                                 fontSize: 14.0,
@@ -356,9 +342,9 @@ class DeviceTileState extends State<DeviceTile> {
                 ),
               ),
             ]),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

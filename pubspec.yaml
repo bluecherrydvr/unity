@@ -34,7 +34,7 @@ dependencies:
   duration: ^3.0.13
   firebase_core: 2.10.0
   firebase_messaging: ^14.4.1
-  awesome_notifications: ^0.8.2
+  awesome_notifications: ^0.9.3
   wakelock_plus: ^1.1.4
   app_links: ^3.5.0
   win32_registry: ^1.1.2
@@ -66,6 +66,9 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   msix: ^3.7.0
   flutter_launcher_icons: ^0.13.0
+
+dependency_overrides:
+  intl: 0.18.1
 
 flutter:
   uses-material-design: true

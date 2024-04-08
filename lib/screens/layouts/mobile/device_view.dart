@@ -21,7 +21,6 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/device_selector.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -48,11 +47,7 @@ class MobileDeviceView extends StatefulWidget {
   final int index;
 
   /// Creates a device view used in mobile grids
-  const MobileDeviceView({
-    super.key,
-    required this.tab,
-    required this.index,
-  });
+  const MobileDeviceView({super.key, required this.tab, required this.index});
 
   @override
   State<MobileDeviceView> createState() => _MobileDeviceViewState();
@@ -190,16 +185,11 @@ class DeviceTile extends StatefulWidget {
   final int tab;
   final int index;
 
-  final double width;
-  final double height;
-
   const DeviceTile({
     super.key,
     required this.device,
     required this.tab,
     required this.index,
-    this.width = 640.0,
-    this.height = 360.0,
   });
 
   @override
@@ -232,13 +222,15 @@ class DeviceTileState extends State<DeviceTile> {
       },
       // Fullscreen on double-tap.
       onDoubleTap: () async {
-        await Navigator.of(context).pushNamed(
-          '/fullscreen',
-          arguments: {
-            'device': widget.device,
-            'player': videoPlayer,
-          },
-        );
+        if (videoPlayer.error == null) {
+          await Navigator.of(context).pushNamed(
+            '/fullscreen',
+            arguments: {
+              'device': widget.device,
+              'player': videoPlayer,
+            },
+          );
+        }
       },
       child: UnityVideoView(
         heroTag: widget.device.streamURL,
@@ -248,79 +240,74 @@ class DeviceTileState extends State<DeviceTile> {
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
           final error = video.error;
+          final isLoading = !controller.isSeekable;
 
           return ClipRect(
-            child: Stack(children: [
+            child: Stack(alignment: Alignment.center, children: [
               if (error != null)
                 ErrorWarning(message: error)
-              else if (!controller.isSeekable)
-                const Center(
-                  child: CircularProgressIndicator.adaptive(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 1.5,
-                  ),
+              else if (isLoading)
+                const CircularProgressIndicator.adaptive(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  strokeWidth: 1.5,
                 ),
               if (video.lastImageUpdate != null)
-                Center(
-                  child: TweenAnimationBuilder(
-                    tween: Tween<double>(
-                      begin: 0.0,
-                      end: hover ? 1.0 : 0.0,
-                    ),
-                    duration: const Duration(milliseconds: 300),
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: child,
+                TweenAnimationBuilder(
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: hover ? 1.0 : 0.0,
+                  ),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: child,
+                    );
+                  },
+                  child: SquaredIconButton(
+                    // splashRadius: 20.0,
+                    onPressed: () async {
+                      await Navigator.of(context).pushNamed(
+                        '/fullscreen',
+                        arguments: {
+                          'device': widget.device,
+                          'player': videoPlayer,
+                        },
                       );
                     },
-                    child: SquaredIconButton(
-                      // splashRadius: 20.0,
-                      onPressed: () async {
-                        await Navigator.of(context).pushNamed(
-                          '/fullscreen',
-                          arguments: {
-                            'device': widget.device,
-                            'player': videoPlayer,
-                          },
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.fullscreen,
-                        color: Colors.white,
-                        size: 32.0,
-                      ),
+                    icon: const Icon(
+                      Icons.fullscreen,
+                      color: Colors.white,
+                      size: 32.0,
                     ),
                   ),
                 ),
               PositionedDirectional(
                 top: 6.0,
                 start: 6.0,
-                child: VideoStatusLabel(
-                  video: video,
-                  device: widget.device,
-                ),
+                child: VideoStatusLabel(video: video, device: widget.device),
               ),
               PositionedDirectional(
                 bottom: 0.0,
                 start: 0.0,
                 end: 0.0,
                 child: AnimatedSlide(
-                  offset: Offset(0, hover ? 0.0 : 1.0),
+                  offset: Offset(
+                    0,
+                    error != null || isLoading || hover ? 0.0 : 1.0,
+                  ),
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Container(
-                    height: 48.0,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 16.0,
+                      top: 6.0,
+                      bottom: 6.0,
+                      end: 16.0,
+                    ),
                     alignment: AlignmentDirectional.centerEnd,
                     color: Colors.black26,
                     child: Row(children: [
-                      const SizedBox(width: 16.0),
-                      const Icon(
-                        Icons.videocam,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
-                      const SizedBox(width: 16.0),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -328,10 +315,7 @@ class DeviceTileState extends State<DeviceTile> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.device.name
-                                  .split(' ')
-                                  .map((word) => word.uppercaseFirst)
-                                  .join(' '),
+                              widget.device.name,
                               style: theme.textTheme.displayLarge?.copyWith(
                                 color: Colors.white,
                                 fontSize: 14.0,
@@ -354,7 +338,6 @@ class DeviceTileState extends State<DeviceTile> {
                           size: 20.0,
                           semanticLabel: loc.ptzSupported,
                         ),
-                      const SizedBox(width: 16.0),
                     ]),
                   ),
                 ),

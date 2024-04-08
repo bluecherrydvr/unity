@@ -102,25 +102,27 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           event: widget.event,
         );
         final minHeight = label.buildTextSpans(context).length * 15;
+
+        final willLeftOverflow =
+            position.dx + _DeviceVideoInfo.minWidth > constraints.maxWidth;
+
+        final left = willLeftOverflow
+            ? (constraints.maxWidth - _DeviceVideoInfo.minWidth - 8.0)
+            : position.dx;
+        final top = position.dy > minHeight + 8.0
+            ? null
+            : position.dy + boxSize.height + 8.0;
+        final bottom = position.dy > minHeight + 8.0
+            ? constraints.maxHeight - position.dy + 8.0
+            : null;
+
         return Stack(children: [
-          if (position.dy > minHeight + 8.0)
-            Positioned(
-              bottom: constraints.maxHeight - position.dy + 8.0,
-              right: constraints.maxWidth - position.dx - boxSize.width,
-              child: label,
-            )
-          else
-            () {
-              final willLeftOverflow = position.dx + _DeviceVideoInfo.minWidth >
-                  constraints.maxWidth;
-              return Positioned(
-                top: position.dy + boxSize.height + 8.0,
-                left: willLeftOverflow
-                    ? (constraints.maxWidth - _DeviceVideoInfo.minWidth - 8.0)
-                    : position.dx,
-                child: label,
-              );
-            }(),
+          Positioned(
+            left: left,
+            top: top,
+            bottom: bottom,
+            child: label,
+          ),
         ]);
       });
     });

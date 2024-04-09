@@ -537,6 +537,12 @@
       }
     }
   },
+  "@@SERVERS": {},
+  "connectToServerAutomaticallyAtStartup": "Conectar automaticamente ao iniciar",
+  "connectToServerAutomaticallyAtStartupDescription": "Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado. Isso só se aplica aos novos servidores que você adicionar.",
+  "allowUntrustedCertificates": "Permitir certificados não confiáveis",
+  "allowUntrustedCertificatesDescription": "Permitir a conexão a servidores com certificados não confiáveis. Isso é útil quando você está usando certificados autoassinados ou certificados de autoridades desconhecidas.",
+  "certificateNotPassed": "Certificado não autorizado",
   "@@STREAMING": {},
   "streamingSettings": "Configurações de streaming",
   "streamingType": "Tipo de streaming",

@@ -511,6 +511,12 @@
       "time": {}
     }
   },
+  "@@SERVERS": {},
+  "connectToServerAutomaticallyAtStartup": "Connect automatically at startup",
+  "connectToServerAutomaticallyAtStartupDescription": "If enabled, the server will be automatically connected when the app starts. This only applies to the new servers you add.",
+  "allowUntrustedCertificates": "Allow untrusted certificates",
+  "allowUntrustedCertificatesDescription": "Allow connecting to servers with untrusted certificates. This is useful when you are using self-signed certificates or certificates from unknown authorities.",
+  "certificateNotPassed": "Certificate not passed",
   "@@STREAMING": {},
   "streamingSettings": "Paramètre de diffusion",
   "streamingType": "Type de diffusion",

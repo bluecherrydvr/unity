@@ -37,13 +37,16 @@ class ServerAndDevicesSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return ListView(children: [
-      SubHeader(loc.servers),
+      SubHeader(loc.servers, padding: DesktopSettings.horizontalPadding),
       const ServersList(),
       const SizedBox(height: 8.0),
-      const SubHeader('Server Settings'),
+      SubHeader(loc.serverSettings, padding: DesktopSettings.horizontalPadding),
       const ServerSettings(),
       const SizedBox(height: 8.0),
-      SubHeader(loc.streamingSettings),
+      SubHeader(
+        loc.streamingSettings,
+        padding: DesktopSettings.horizontalPadding,
+      ),
       const StreamingSettings(),
       const SizedBox(height: 12.0),
     ]);
@@ -76,12 +79,8 @@ class ServerSettings extends StatelessWidget {
         },
       ),
       CheckboxListTile.adaptive(
-        title: const Text('Allow untrusted certificates'),
-        subtitle: const Text(
-          'Allow connections to servers with untrusted certificates. '
-          'This is useful for self-signed certificates or when the '
-          'certificate is not signed by a trusted authority. ',
-        ),
+        title: Text(loc.allowUntrustedCertificates),
+        subtitle: Text(loc.allowUntrustedCertificatesDescription),
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,

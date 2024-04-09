@@ -99,9 +99,11 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                             child: SubHeader(
                               server.name,
                               materialType: MaterialType.canvas,
-                              subtext: server.online
-                                  ? loc.nDevices(devices.length)
-                                  : loc.offline,
+                              subtext: !server.passedCertificates
+                                  ? loc.certificateNotPassed
+                                  : server.online
+                                      ? loc.nDevices(devices.length)
+                                      : loc.offline,
                               subtextStyle: TextStyle(
                                 color: !server.online
                                     ? theme.colorScheme.error

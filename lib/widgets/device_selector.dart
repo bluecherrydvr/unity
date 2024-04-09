@@ -109,11 +109,15 @@ class DeviceSelector extends StatelessWidget {
                   child: SubHeader(
                     server.name,
                     materialType: MaterialType.canvas,
-                    subtext: server.online
-                        ? loc.nDevices(server.devices.length)
-                        : loc.offline,
+                    subtext: !server.passedCertificates
+                        ? loc.certificateNotPassed
+                        : server.online
+                            ? loc.nDevices(server.devices.length)
+                            : loc.offline,
                     subtextStyle: TextStyle(
-                      color: !server.online ? theme.colorScheme.error : null,
+                      color: !server.online || !server.passedCertificates
+                          ? theme.colorScheme.error
+                          : null,
                     ),
                     trailing: servers.isServerLoading(server)
                         ? const SizedBox(

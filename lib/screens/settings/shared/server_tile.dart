@@ -203,7 +203,9 @@ class ServerTile extends StatelessWidget {
           !isLoading
               ? [
                   if (server.name != server.ip) server.ip,
-                  if (server.online)
+                  if (!server.passedCertificates)
+                    loc.certificateNotPassed
+                  else if (server.online)
                     loc.nDevices(server.devices.length)
                   else
                     loc.offline,
@@ -295,13 +297,17 @@ class ServerCard extends StatelessWidget {
                     style: theme.textTheme.bodySmall,
                   ),
                   Text(
-                    !server.online
-                        ? loc.offline
-                        : !isLoading
-                            ? loc.nDevices(server.devices.length)
-                            : '',
+                    !server.passedCertificates
+                        ? loc.certificateNotPassed
+                        : !server.online
+                            ? loc.offline
+                            : !isLoading
+                                ? loc.nDevices(server.devices.length)
+                                : '',
                     style: TextStyle(
-                      color: !server.online ? theme.colorScheme.error : null,
+                      color: !server.online || !server.passedCertificates
+                          ? theme.colorScheme.error
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 12.0),

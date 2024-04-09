@@ -186,6 +186,16 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
 
+  // Server settings
+  final kConnectAutomaticallyAtStartup = _SettingsOption(
+    def: true,
+    key: 'server.connect_automatically_at_startup',
+  );
+  final kAllowUntrustedCertificates = _SettingsOption(
+    def: true,
+    key: 'server.allow_untrusted_certificates',
+  );
+
   // Streaming settings
   final kStreamingType = _SettingsOption(
     def: kIsWeb ? StreamingType.hls : StreamingType.rtsp,
@@ -408,6 +418,8 @@ class SettingsProvider extends UnityProvider {
       kNotificationClickBehavior.loadData(data),
       kAutomaticStreaming.loadData(data),
       kStreamOnBackground.loadData(data),
+      kConnectAutomaticallyAtStartup.loadData(data),
+      kAllowUntrustedCertificates.loadData(data),
       kStreamingType.loadData(data),
       kRTSPProtocol.loadData(data),
       kRenderingQuality.loadData(data),
@@ -469,6 +481,10 @@ class SettingsProvider extends UnityProvider {
             kAutomaticStreaming.saveAs(kAutomaticStreaming.value),
         kStreamOnBackground.key:
             kStreamOnBackground.saveAs(kStreamOnBackground.value),
+        kConnectAutomaticallyAtStartup.key: kConnectAutomaticallyAtStartup
+            .saveAs(kConnectAutomaticallyAtStartup.value),
+        kAllowUntrustedCertificates.key: kAllowUntrustedCertificates
+            .saveAs(kAllowUntrustedCertificates.value),
         kStreamingType.key: kStreamingType.saveAs(kStreamingType.value),
         kRTSPProtocol.key: kRTSPProtocol.saveAs(kRTSPProtocol.value),
         kRenderingQuality.key:

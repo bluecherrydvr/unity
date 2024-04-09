@@ -537,6 +537,9 @@
       }
     }
   },
+  "@@SERVERS": {},
+  "connectToServerAutomaticallyAtStartup": "Connect automatically at startup",
+  "connectToServerAutomaticallyAtStartupDescription": "If enabled, the server will be automatically connected when the app starts. This only applies to the new servers you add.",
   "@@STREAMING": {},
   "streamingSettings": "Streaming settings",
   "streamingType": "Streaming type",

@@ -110,7 +110,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                   duration: kThemeChangeDuration,
                   child: switch (currentIndex) {
                     0 => const GeneralSettings(),
-                    1 => const ServerSettings(),
+                    1 => const ServerAndDevicesSettings(),
                     2 => const EventsAndDownloadsSettings(),
                     3 => const ApplicationSettings(),
                     4 => const PrivacySecuritySettings(),

@@ -109,7 +109,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                         showDragHandle: true,
                         scrollControlDisabledMaxHeightRatio: 0.9,
                         builder: (context) {
-                          return const ServerSettings();
+                          return const ServerAndDevicesSettings();
                         },
                       );
                     },

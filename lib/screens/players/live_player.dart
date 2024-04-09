@@ -361,7 +361,10 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                   Positioned.fill(
                     child: Center(
                       child: AspectRatio(
-                        aspectRatio: player.aspectRatio,
+                        aspectRatio: player.aspectRatio == 0 ||
+                                player.aspectRatio == double.infinity
+                            ? 16 / 9
+                            : player.aspectRatio,
                         child: MulticastViewport(
                           device: widget.device,
                         ),

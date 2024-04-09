@@ -310,8 +310,8 @@ class _UnityAppState extends State<UnityApp>
           value: EventsProvider.instance,
         ),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, _) => MaterialApp(
+      child: Consumer<SettingsProvider>(builder: (context, settings, _) {
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           navigatorObservers: [NObserver()],
@@ -396,8 +396,8 @@ class _UnityAppState extends State<UnityApp>
 
             return null;
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 }

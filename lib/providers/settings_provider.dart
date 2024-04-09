@@ -317,7 +317,7 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Acessibility
-  final kAnimationsEnabled = _SettingsOption(
+  final kAnimationsEnabled = _SettingsOption<bool>(
     def: true,
     key: 'accessibility.animations_enabled',
   );

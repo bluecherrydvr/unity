@@ -31,7 +31,20 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-enum NetworkUsage { auto, wifiOnly, never }
+enum NetworkUsage {
+  auto,
+  wifiOnly,
+  never;
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      NetworkUsage.auto => loc.automatic,
+      NetworkUsage.wifiOnly => loc.wifiOnly,
+      NetworkUsage.never => loc.never,
+    };
+  }
+}
 
 enum EnabledPreference { on, ask, never }
 

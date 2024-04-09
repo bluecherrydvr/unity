@@ -52,6 +52,7 @@ import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/splash_screen.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -220,8 +221,11 @@ class _UnityAppState extends State<UnityApp>
   /// Whether the app is in background or not
   bool isInBackground = false;
 
+  Timer? backgroundTimer;
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    final settings = SettingsProvider.instance;
     switch (state) {
       case AppLifecycleState.resumed:
         debugPrint('in foreground');
@@ -233,6 +237,10 @@ class _UnityAppState extends State<UnityApp>
         }
 
         isInBackground = false;
+
+        backgroundTimer?.cancel();
+        backgroundTimer = null;
+        UnityPlayers.playAll();
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
@@ -240,6 +248,24 @@ class _UnityAppState extends State<UnityApp>
       case AppLifecycleState.hidden:
         debugPrint('in background');
         isInBackground = true;
+
+        // After 30 seconds in background, pause all the streams
+        backgroundTimer = Timer(const Duration(seconds: 30), () async {
+          switch (settings.kStreamOnBackground.value) {
+            case NetworkUsage.auto:
+            case NetworkUsage.wifiOnly:
+              debugPrint('Pausing all streams');
+              final connectionType = await Connectivity().checkConnectivity();
+              if (connectionType == ConnectivityResult.mobile ||
+                  connectionType == ConnectivityResult.bluetooth) {
+                UnityPlayers.pauseAll();
+              }
+              break;
+            case NetworkUsage.never:
+              break;
+          }
+          backgroundTimer = null;
+        });
         break;
     }
   }

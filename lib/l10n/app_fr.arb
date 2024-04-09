@@ -401,6 +401,8 @@
   "automaticDownloadUpdates": "Téléchargement automatique des mises à jour",
   "automaticDownloadUpdatesDescription": "Faites parti des premiers à recevoir les dernières mises à jour, correctifs et améliorations quand elles sortent.",
   "updateHistory": "Historique de mises à jour",
+  "showReleaseNotes": "Show release notes",
+  "showReleaseNotesDescription": "Display release notes when a new version is installed",
   "newVersionAvailable": "Nouvelle version disponible",
   "installVersion": "Installer",
   "downloadVersion": "Télécharger",
@@ -595,5 +597,8 @@
   "rackNameExample": "Labo 1",
   "openServer": "Serveur libre",
   "@SEARCH": {},
-  "disableSearch": "Désactiver la recherche"
+  "disableSearch": "Désactiver la recherche",
+  "@@@Updates and Help": {},
+  "help": "Help",
+  "licenses": "Licenças"
 }

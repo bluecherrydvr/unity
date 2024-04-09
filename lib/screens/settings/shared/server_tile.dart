@@ -263,18 +263,20 @@ class ServerCard extends StatelessWidget {
 
     return GestureDetector(
       onSecondaryTap: showMenu,
-      child: SizedBox(
-        height: 180,
-        width: 180,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 180.0,
+          maxHeight: 200.0,
+          minWidth: 180.0,
+          maxWidth: 200.0,
+        ),
         child: Card(
-          child: Stack(children: [
-            Positioned.fill(
-              bottom: 8.0,
-              left: 8.0,
-              right: 8.0,
-              top: 8.0,
+          child: Stack(alignment: AlignmentDirectional.center, children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.transparent,
@@ -309,6 +311,7 @@ class ServerCard extends StatelessWidget {
                           ? theme.colorScheme.error
                           : null,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12.0),
                   Transform.scale(

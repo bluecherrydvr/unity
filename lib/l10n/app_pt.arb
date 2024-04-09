@@ -425,6 +425,8 @@
   "automaticDownloadUpdates": "Baixar atualizações automaticamente",
   "automaticDownloadUpdatesDescription": "Seja um dos primeiros a receber as atualizações, correções e melhorias mais recentes assim que lançadas.",
   "updateHistory": "Histórico de atualizações",
+  "showReleaseNotes": "Mostrar notas de atualização",
+  "showReleaseNotesDescription": "Mostrar as notas de atualização quando uma versão for instalada.",
   "newVersionAvailable": "Nova versão disponível!",
   "installVersion": "Instalar",
   "downloadVersion": "Baixar",
@@ -493,7 +495,7 @@
   "firstEventInitialPoint": "Primeiro evento",
   "hourAgoInitialPoint": "1 hora atrás",
   "@@APPLICATION": {},
-  "appearance": "Appearance",
+  "appearance": "Visualização",
   "theme": "Aparência",
   "themeDescription": "Mude a aparência do aplicativo",
   "system": "Padrão do Sistema",
@@ -504,8 +506,8 @@
   "dateFormatDescription": "Qual formato usar para exibir datas",
   "timeFormat": "Formato de Hora",
   "timeFormatDescription": "Qual formato usar para exibir horas",
-  "convertToLocalTime": "Convert dates to the local timezone",
-  "convertToLocalTimeDescription": "This will affect the date and time displayed in the app. This is useful when you are in a different timezone than the server. When disabled, the server timezone will be used.",
+  "convertToLocalTime": "Converter datas para o fuso-horário local",
+  "convertToLocalTimeDescription": "Isso afetará a data e a hora exibidas no aplicativo. É útil quando você está em um fuso horário diferente do servidor. Quando desativado, o fuso horário do servidor será usado.",
   "@@PRIVACY_AND_SECURITY": {},
   "allowDataCollection": "Permitir que Bluecherry colete dados de uso",
   "allowDataCollectionDescription": "Permitir que Bluecherry colete dados para melhorar o aplicativo e fornecer serviços melhores. Os dados são coletados anonimamente e não contêm informações pessoais.",
@@ -621,5 +623,8 @@
   "rackNameExample": "Lab 1",
   "openServer": "Abrir servidor",
   "@SEARCH": {},
-  "disableSearch": "Desativar pesquisa"
+  "disableSearch": "Desativar pesquisa",
+  "@@@Updates and Help": {},
+  "help": "Ajuda",
+  "licenses": "Licenças"
 }

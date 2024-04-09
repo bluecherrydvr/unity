@@ -425,6 +425,8 @@
   "automaticDownloadUpdates": "Automatic download updates",
   "automaticDownloadUpdatesDescription": "Be among the first to get the latest updates, fixes and improvements as they roll out.",
   "updateHistory": "Update history",
+  "showReleaseNotes": "Show release notes",
+  "showReleaseNotesDescription": "Display release notes when a new version is installed",
   "newVersionAvailable": "New version available",
   "installVersion": "Install",
   "downloadVersion": "Download",
@@ -621,5 +623,8 @@
   "rackNameExample": "Lab 1",
   "openServer": "Open server",
   "@SEARCH": {},
-  "disableSearch": "Disable search"
+  "disableSearch": "Disable search",
+  "@@@Updates and Help": {},
+  "help": "Help",
+  "licenses": "Licenses"
 }

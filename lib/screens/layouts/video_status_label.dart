@@ -103,11 +103,11 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
         );
         final minHeight = label.buildTextSpans(context).length * 15;
 
-        final willLeftOverflow =
+        final willRightOverflow =
             position.dx + _DeviceVideoInfo.minWidth > constraints.maxWidth;
 
-        final left = willLeftOverflow
-            ? (constraints.maxWidth - _DeviceVideoInfo.minWidth - 8.0)
+        final left = willRightOverflow
+            ? (position.dx - _DeviceVideoInfo.minWidth - 16.0)
             : position.dx;
         final top = position.dy > minHeight + 8.0
             ? null

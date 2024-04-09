@@ -58,29 +58,29 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               icon: const Icon(Icons.dashboard),
               label: Text(loc.general),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.dns),
-              label: Text('Servers and Devices'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.dns),
+              label: Text(loc.serverAndDevices),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.event),
-              label: Text('Events and Downloads'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.event),
+              label: Text(loc.eventsAndDownloads),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.style),
-              label: Text('Application'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.style),
+              label: Text(loc.application),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.security),
-              label: Text('Privacy and Security'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.security),
+              label: Text(loc.privacyAndSecurity),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.update),
-              label: Text('Updates and Help'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.update),
+              label: Text(loc.updatesAndHelp),
             ),
-            const NavigationRailDestination(
-              icon: Icon(Icons.code),
-              label: Text('Advanced Options'),
+            NavigationRailDestination(
+              icon: const Icon(Icons.code),
+              label: Text(loc.advancedOptions),
             ),
           ],
           selectedIndex: currentIndex,

@@ -84,8 +84,7 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ListTile(
                     leading: const Icon(Icons.dashboard),
                     title: Text(loc.general),
-                    subtitle:
-                        const Text('Notifications, Data Usage, Wakelock, etc'),
+                    subtitle: Text(loc.generalSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -100,8 +99,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.dns),
-                    title: const Text('Servers and Devices'),
-                    subtitle: const Text('Servers, Devices, Streaming, etc'),
+                    title: Text(loc.serverAndDevices),
+                    subtitle: Text(loc.serverAndDevicesSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -116,8 +115,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.event),
-                    title: const Text('Events and Downloads'),
-                    subtitle: const Text('Downloads, Events, Timeline, etc'),
+                    title: Text(loc.eventsAndDownloads),
+                    subtitle: Text(loc.eventsAndDownloadsSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -132,9 +131,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.style),
-                    title: const Text('Application'),
-                    subtitle: const Text(
-                        'Theme, Language, Date and Time, Window, etc'),
+                    title: Text(loc.application),
+                    subtitle: Text(loc.applicationSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -149,8 +147,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.security),
-                    title: const Text('Privacy and Security'),
-                    subtitle: const Text('Diagnostics, Privacy, Security, etc'),
+                    title: Text(loc.privacyAndSecurity),
+                    subtitle: Text(loc.privacyAndSecuritySettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -165,8 +163,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.update),
-                    title: const Text('Updates and Help'),
-                    subtitle: const Text('Check for updates, Help, About, etc'),
+                    title: Text(loc.updatesAndHelp),
+                    subtitle: Text(loc.updatesAndHelpSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(
@@ -181,9 +179,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.code),
-                    title: const Text('Advanced Options'),
-                    subtitle:
-                        const Text('Beta Features, Developer Options, etc'),
+                    title: Text(loc.advancedOptions),
+                    subtitle: Text(loc.advancedOptionsSettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(

@@ -454,7 +454,7 @@ class DevicesListDialog extends StatelessWidget {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             final device = server.devices[index];
-            return DesktopDeviceSelectorTile(
+            return DeviceSelectorTile(
               device: device,
               selected: false,
               selectable: false,

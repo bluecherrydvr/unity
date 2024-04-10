@@ -40,7 +40,7 @@ enum DesktopLayoutType {
 
   /// If selected, only 4 views will be show in the grid. Each view can have 4
   /// cameras displayed, creating a soft and compact layout view
-  compactView,
+  compactView;
 }
 
 /// A layout is a view that can contain one or more [Device]s.

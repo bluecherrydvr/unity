@@ -34,10 +34,7 @@ import 'package:unity_video_player/unity_video_player.dart';
 class MulticastViewport extends StatefulWidget {
   final Device device;
 
-  const MulticastViewport({
-    super.key,
-    required this.device,
-  });
+  const MulticastViewport({super.key, required this.device});
 
   @override
   State<MulticastViewport> createState() => _MulticastViewportState();

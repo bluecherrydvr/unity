@@ -37,7 +37,7 @@ class MobileViewProvider extends UnityProvider {
     return instance;
   }
 
-  /// Keeps camera [Device]s order/layout to show inside the [MobileDeviceGrid] in the order user last saved them.
+  /// Keeps camera [Device]s order/layout to show inside the [SmallDeviceGrid] in the order user last saved them.
   ///
   /// ```dart
   /// {

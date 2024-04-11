@@ -35,6 +35,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+extension DesktopLayoutTypeExtension on DesktopLayoutType {
+  String text(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return switch (this) {
+      DesktopLayoutType.singleView => loc.singleView,
+      DesktopLayoutType.multipleView => loc.multipleView,
+      DesktopLayoutType.compactView => loc.compactView,
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      DesktopLayoutType.singleView => Icons.crop_square,
+      DesktopLayoutType.multipleView => Icons.view_compact_outlined,
+      DesktopLayoutType.compactView => Icons.view_comfy_outlined,
+    };
+  }
+
+  IconData get selectedIcon {
+    return switch (this) {
+      DesktopLayoutType.singleView => Icons.crop_square_rounded,
+      DesktopLayoutType.multipleView => Icons.view_compact_rounded,
+      DesktopLayoutType.compactView => Icons.view_comfy_rounded,
+    };
+  }
+}
+
 class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
 
@@ -218,8 +246,8 @@ class _LayoutTileState extends State<LayoutTile> {
               enabled: !widget.selected,
               child: Icon(
                 widget.selected
-                    ? selectedIconForLayout(widget.layout.type)
-                    : iconForLayout(widget.layout.type),
+                    ? widget.layout.type.selectedIcon
+                    : widget.layout.type.icon,
                 key: ValueKey(widget.layout.type),
                 size: 20.0,
               ),
@@ -316,49 +344,11 @@ class _LayoutTileState extends State<LayoutTile> {
   }
 }
 
-String textForLayout(BuildContext context, DesktopLayoutType type) {
-  final loc = AppLocalizations.of(context);
-
-  switch (type) {
-    case DesktopLayoutType.singleView:
-      return loc.singleView;
-    case DesktopLayoutType.multipleView:
-      return loc.multipleView;
-    case DesktopLayoutType.compactView:
-      return loc.compactView;
-  }
-}
-
-IconData iconForLayout(DesktopLayoutType type) {
-  switch (type) {
-    case DesktopLayoutType.singleView:
-      return Icons.crop_square;
-    case DesktopLayoutType.multipleView:
-      return Icons.view_compact_outlined;
-    case DesktopLayoutType.compactView:
-      return Icons.view_comfy_outlined;
-  }
-}
-
-IconData selectedIconForLayout(DesktopLayoutType type) {
-  switch (type) {
-    case DesktopLayoutType.singleView:
-      return Icons.square_rounded;
-    case DesktopLayoutType.multipleView:
-      return Icons.view_compact;
-    case DesktopLayoutType.compactView:
-      return Icons.view_comfy;
-  }
-}
-
 class _LayoutTypeChooser extends StatelessWidget {
   final int selected;
   final ValueChanged<int> onSelect;
 
-  const _LayoutTypeChooser({
-    required this.selected,
-    required this.onSelect,
-  });
+  const _LayoutTypeChooser({required this.selected, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -369,8 +359,7 @@ class _LayoutTypeChooser extends StatelessWidget {
       onPressed: onSelect,
       children: DesktopLayoutType.values.map<Widget>((type) {
         final isSelected = type.index == selected;
-        final icon =
-            isSelected ? selectedIconForLayout(type) : iconForLayout(type);
+        final icon = isSelected ? type.selectedIcon : type.icon;
 
         return Row(children: [
           const SizedBox(width: 12.0),
@@ -379,7 +368,7 @@ class _LayoutTypeChooser extends StatelessWidget {
             child: Icon(icon, key: ValueKey(icon), size: 22.0),
           ),
           const SizedBox(width: 8.0),
-          Text(textForLayout(context, type)),
+          Text(type.text(context)),
           const SizedBox(width: 16.0),
         ]);
       }).toList(),
@@ -395,12 +384,12 @@ class NewLayoutDialog extends StatefulWidget {
 }
 
 class _NewLayoutDialogState extends State<NewLayoutDialog> {
-  final controller = TextEditingController();
-  int selected = 1;
+  final _nameController = TextEditingController();
+  int _typeIndex = 1;
 
   @override
   void dispose() {
-    controller.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -500,7 +489,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
       title: Text(loc.createNewLayout),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
-          controller: controller,
+          controller: _nameController,
           decoration: InputDecoration(
             hintText: loc.layoutNameHint,
             label: Text(loc.layoutName),
@@ -509,9 +498,9 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
         SubHeader(loc.layoutTypeLabel, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
-          selected: selected,
+          selected: _typeIndex,
           onSelect: (index) {
-            if (mounted) setState(() => selected = index);
+            if (mounted) setState(() => _typeIndex = index);
           },
         ),
       ]),
@@ -538,9 +527,10 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           FilledButton(
             onPressed: () {
               view.addLayout(Layout(
-                name:
-                    controller.text.isNotEmpty ? controller.text : fallbackName,
-                type: DesktopLayoutType.values[selected],
+                name: _nameController.text.isNotEmpty
+                    ? _nameController.text
+                    : fallbackName,
+                type: DesktopLayoutType.values[_typeIndex],
                 devices: [],
               ));
               Navigator.of(context).pop();
@@ -563,12 +553,14 @@ class EditLayoutDialog extends StatefulWidget {
 }
 
 class _EditLayoutDialogState extends State<EditLayoutDialog> {
-  late final controller = TextEditingController(text: widget.layout.name);
+  late final layoutNameController = TextEditingController(
+    text: widget.layout.name,
+  );
   late int selected = widget.layout.type.index;
 
   @override
   void dispose() {
-    controller.dispose();
+    layoutNameController.dispose();
     super.dispose();
   }
 
@@ -598,7 +590,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
       ]),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         TextField(
-          controller: controller,
+          controller: layoutNameController,
           decoration: InputDecoration(
             hintText: loc.layoutNameHint,
             label: Text(loc.layoutName),
@@ -623,7 +615,9 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
             view.updateLayout(
               widget.layout,
               widget.layout.copyWith(
-                name: controller.text.isEmpty ? null : controller.text,
+                name: layoutNameController.text.isEmpty
+                    ? null
+                    : layoutNameController.text,
                 type: DesktopLayoutType.values[selected],
               ),
             );

@@ -30,20 +30,70 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-class ServerSettings extends StatelessWidget {
-  const ServerSettings({super.key});
+class ServerAndDevicesSettings extends StatelessWidget {
+  const ServerAndDevicesSettings({super.key});
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return ListView(children: [
-      SubHeader(loc.servers),
+      SubHeader(loc.servers, padding: DesktopSettings.horizontalPadding),
       const ServersList(),
       const SizedBox(height: 8.0),
-      SubHeader(loc.streamingSettings),
+      SubHeader(loc.serverSettings, padding: DesktopSettings.horizontalPadding),
+      const ServerSettings(),
       const SizedBox(height: 8.0),
+      SubHeader(
+        loc.streamingSettings,
+        padding: DesktopSettings.horizontalPadding,
+      ),
       const StreamingSettings(),
       const SizedBox(height: 12.0),
+    ]);
+  }
+}
+
+class ServerSettings extends StatelessWidget {
+  const ServerSettings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      CheckboxListTile.adaptive(
+        title: Text(loc.connectToServerAutomaticallyAtStartup),
+        subtitle: Text(loc.connectToServerAutomaticallyAtStartupDescription),
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.connect_without_contact),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        value: settings.kConnectAutomaticallyAtStartup.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kConnectAutomaticallyAtStartup.value = v;
+          }
+        },
+      ),
+      CheckboxListTile.adaptive(
+        title: Text(loc.allowUntrustedCertificates),
+        subtitle: Text(loc.allowUntrustedCertificatesDescription),
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.approval),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        value: settings.kAllowUntrustedCertificates.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kAllowUntrustedCertificates.value = v;
+          }
+        },
+      ),
     ]);
   }
 }
@@ -60,7 +110,7 @@ class StreamingSettings extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       OptionsChooserTile(
         title: loc.streamingType,
-        icon: Icons.sensors,
+        icon: Icons.live_tv,
         value: settings.kStreamingType.value,
         values: StreamingType.values.map((value) {
           return Option(
@@ -77,7 +127,7 @@ class StreamingSettings extends StatelessWidget {
       const SizedBox(height: 8.0),
       OptionsChooserTile<RTSPProtocol>(
         title: loc.rtspProtocol,
-        icon: Icons.sensors,
+        icon: Icons.settings_input_antenna,
         value: settings.kRTSPProtocol.value,
         values: RTSPProtocol.values.map((value) {
           return Option(

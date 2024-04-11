@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -167,7 +168,7 @@ class DevHttpOverrides extends HttpOverrides {
           }
         }
 
-        return true;
+        return SettingsProvider.instance.kAllowUntrustedCertificates.value;
       };
   }
 }

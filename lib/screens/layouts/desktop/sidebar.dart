@@ -99,9 +99,11 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                             child: SubHeader(
                               server.name,
                               materialType: MaterialType.canvas,
-                              subtext: server.online
-                                  ? loc.nDevices(devices.length)
-                                  : loc.offline,
+                              subtext: !server.passedCertificates
+                                  ? loc.certificateNotPassed
+                                  : server.online
+                                      ? loc.nDevices(devices.length)
+                                      : loc.offline,
                               subtextStyle: TextStyle(
                                 color: !server.online
                                     ? theme.colorScheme.error
@@ -168,7 +170,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                 final selected =
                                     view.currentLayout.devices.contains(device);
 
-                                final tile = DesktopDeviceSelectorTile(
+                                final tile = DeviceSelectorTile(
                                   device: device,
                                   selected: selected,
                                 );
@@ -229,34 +231,31 @@ class NoServers extends StatelessWidget {
     final home = context.watch<HomeProvider>();
     return Padding(
       padding: const EdgeInsetsDirectional.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.dns,
-            size: 48.0,
-          ),
-          const SizedBox(height: 6.0),
-          Text(loc.noServersAdded, textAlign: TextAlign.center),
-          Text.rich(
-            TextSpan(
-              text: loc.howToAddServer,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => home.setTab(UnityTab.addServer, context),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Icon(
+          Icons.dns,
+          size: 48.0,
+        ),
+        const SizedBox(height: 6.0),
+        Text(loc.noServersAdded, textAlign: TextAlign.center),
+        Text.rich(
+          TextSpan(
+            text: loc.howToAddServer,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
             ),
-            textAlign: TextAlign.center,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => home.setTab(UnityTab.addServer, context),
           ),
-        ],
-      ),
+          textAlign: TextAlign.center,
+        ),
+      ]),
     );
   }
 }
 
-class DesktopDeviceSelectorTile extends StatefulWidget {
-  const DesktopDeviceSelectorTile({
+class DeviceSelectorTile extends StatefulWidget {
+  const DeviceSelectorTile({
     super.key,
     required this.device,
     required this.selected,
@@ -268,13 +267,14 @@ class DesktopDeviceSelectorTile extends StatefulWidget {
   final bool selectable;
 
   @override
-  State<DesktopDeviceSelectorTile> createState() =>
-      _DesktopDeviceSelectorTileState();
+  State<DeviceSelectorTile> createState() => _DeviceSelectorTileState();
 }
 
-class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
-  PointerDeviceKind? currentLongPressDeviceKind;
+class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
+  /// Used to check if the long press was caused by a touch input.
+  PointerDeviceKind? _currentLongPressDeviceKind;
 
+  /// Whether the user is hovering the tile.
   bool hovering = false;
 
   @override
@@ -287,8 +287,9 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
       onSecondaryTap: () => _displayOptions(context),
 
       // Only display options on long press if it's caused by a touch input
+      onLongPressDown: (details) => _currentLongPressDeviceKind = details.kind,
       onLongPressEnd: (details) {
-        switch (currentLongPressDeviceKind) {
+        switch (_currentLongPressDeviceKind) {
           case PointerDeviceKind.touch:
             _displayOptions(context);
             break;
@@ -296,9 +297,8 @@ class _DesktopDeviceSelectorTileState extends State<DesktopDeviceSelectorTile> {
             break;
         }
 
-        currentLongPressDeviceKind = null;
+        _currentLongPressDeviceKind = null;
       },
-      onLongPressDown: (details) => currentLongPressDeviceKind = details.kind,
       child: InkWell(
         onTap: !widget.device.status || !widget.selectable
             ? null

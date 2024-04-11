@@ -194,6 +194,23 @@ class UnityPlayers with ChangeNotifier {
     if (isLocalController) await player.dispose();
   }
 
+  static Future<void> playAll() async {
+    for (final player in players.values) {
+      if (!player.isPlaying) {
+        player.seekTo(player.duration);
+        await player.start();
+      }
+    }
+    return Future.value();
+  }
+
+  static Future<void> pauseAll() {
+    for (final player in players.values) {
+      if (player.isPlaying) player.pause();
+    }
+    return Future.value();
+  }
+
   @override
   void dispose() {
     _reloadTimer?.cancel();

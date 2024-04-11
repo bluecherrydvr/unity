@@ -51,7 +51,9 @@ class AdditionalServerSettings extends StatefulWidget {
 }
 
 class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
-  bool connectAutomaticallyAtStartup = true;
+  late bool connectAutomaticallyAtStartup =
+      widget.server?.additionalSettings.connectAutomaticallyAtStartup ??
+          SettingsProvider.instance.kConnectAutomaticallyAtStartup.value;
   late StreamingType? streamingType =
       widget.server?.additionalSettings.preferredStreamingType;
   late RTSPProtocol? rtspProtocol =

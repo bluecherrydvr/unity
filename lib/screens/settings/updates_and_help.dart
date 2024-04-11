@@ -105,10 +105,8 @@ class UpdatesSettings extends StatelessWidget {
               foregroundColor: theme.iconTheme.color,
               child: const Icon(Icons.memory),
             ),
-            title: const Text('Show release notes'),
-            subtitle: const Text(
-              'Display release notes when a new version is downloaded',
-            ),
+            title: Text(loc.showReleaseNotes),
+            subtitle: Text(loc.showReleaseNotesDescription),
             contentPadding: DesktopSettings.horizontalPadding,
             value: true,
             onChanged: (v) {},
@@ -459,7 +457,7 @@ class About extends StatelessWidget {
                 return TextButton(
                   onPressed: open,
                   child: Text(
-                    'Help',
+                    loc.help,
                     semanticsLabel: 'www.bluecherrydvr.com/contact',
                     style: TextStyle(
                       color: theme.colorScheme.primary,
@@ -482,7 +480,7 @@ class About extends StatelessWidget {
                 );
               },
               child: Text(
-                'Licenses',
+                loc.licenses,
                 style: TextStyle(
                   color: theme.colorScheme.primary,
                 ),

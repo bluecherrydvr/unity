@@ -137,9 +137,11 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    server.online
-                        ? loc.nEvents(serverEvents.length)
-                        : loc.offline,
+                    !server.passedCertificates
+                        ? loc.certificateNotPassed
+                        : server.online
+                            ? loc.nEvents(serverEvents.length)
+                            : loc.offline,
                   ),
                   trailing: !server.online
                       ? Icon(

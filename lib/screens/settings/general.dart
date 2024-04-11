@@ -147,28 +147,31 @@ class GeneralSettings extends StatelessWidget {
           settings.kNotificationClickBehavior.value = v;
         },
       ),
+      SubHeader(
+        loc.dataUsage,
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      OptionsChooserTile(
+        icon: Icons.cloud_done,
+        title: loc.streamsOnBackground,
+        description: loc.streamsOnBackgroundDescription,
+        value: settings.kStreamOnBackground.value,
+        values: NetworkUsage.values.map((value) {
+          return Option(
+            value: value,
+            // icon: value.icon,
+            text: value.locale(context),
+          );
+        }),
+        onChanged: (value) {
+          settings.kStreamOnBackground.value = value;
+        },
+      ),
       if (settings.kShowDebugInfo.value) ...[
-        const SubHeader(
-          'Data Usage',
-          padding: DesktopSettings.horizontalPadding,
-        ),
         OptionsChooserTile(
           icon: Icons.data_usage,
           title: 'Automatic streaming',
           description: 'When to stream videos automatically on startup',
-          value: '',
-          values: const [
-            Option(value: '', icon: Icons.insights, text: 'Auto'),
-            Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
-            Option(value: '', icon: Icons.not_interested, text: 'Never'),
-          ],
-          onChanged: (value) {},
-        ),
-        OptionsChooserTile(
-          icon: Icons.cloud_done,
-          title: 'Keep streams playing on background',
-          description:
-              'When to keep streams playing when the app is in background',
           value: '',
           values: const [
             Option(value: '', icon: Icons.insights, text: 'Auto'),

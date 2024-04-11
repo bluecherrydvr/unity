@@ -37,7 +37,7 @@ import 'package:unity_video_player/unity_video_player.dart';
 ///
 /// See also:
 ///
-///  * [MobileDeviceGrid], used to render mobile views
+///  * [SmallDeviceGrid], used to render mobile views
 ///  * [DeviceTile], used to render the tile
 class MobileDeviceView extends StatefulWidget {
   /// Which tab is selected on the mobile device grid

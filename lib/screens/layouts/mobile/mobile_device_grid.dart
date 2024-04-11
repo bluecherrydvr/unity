@@ -19,14 +19,14 @@
 
 part of '../device_grid.dart';
 
-class MobileDeviceGrid extends StatefulWidget {
-  const MobileDeviceGrid({super.key});
+class SmallDeviceGrid extends StatefulWidget {
+  const SmallDeviceGrid({super.key});
 
   @override
-  State<MobileDeviceGrid> createState() => _MobileDeviceGridState();
+  State<SmallDeviceGrid> createState() => _SmallDeviceGridState();
 }
 
-class _MobileDeviceGridState extends State<MobileDeviceGrid> {
+class _SmallDeviceGridState extends State<SmallDeviceGrid> {
   Timer? timer;
 
   @override
@@ -79,7 +79,7 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
         Expanded(
           child: PageTransitionSwitcher(
             child: view.devices.keys
-                .map((key) => _MobileDeviceGridChild(tab: key))
+                .map((key) => _SmallDeviceGridChild(tab: key))
                 .elementAt(
                   view.devices.keys
                       .toList()
@@ -160,10 +160,10 @@ class _MobileDeviceGridState extends State<MobileDeviceGrid> {
   }
 }
 
-class _MobileDeviceGridChild extends StatelessWidget {
+class _SmallDeviceGridChild extends StatelessWidget {
   final int tab;
 
-  const _MobileDeviceGridChild({required this.tab});
+  const _SmallDeviceGridChild({required this.tab});
 
   @override
   Widget build(BuildContext context) {

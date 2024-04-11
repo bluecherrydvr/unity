@@ -134,7 +134,7 @@ class LetsGoScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: server!.devices.sorted().map((device) {
-                      return DesktopDeviceSelectorTile(
+                      return DeviceSelectorTile(
                         device: device,
                         selected: false,
                         selectable: false,
@@ -179,7 +179,7 @@ class LetsGoScreen extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: server!.devices.sorted().map((device) {
-                            return DesktopDeviceSelectorTile(
+                            return DeviceSelectorTile(
                               device: device,
                               selected: false,
                               selectable: false,

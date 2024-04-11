@@ -114,8 +114,11 @@ class _DevicesForServer extends StatelessWidget {
     final serverIndicator = SubHeader(
       server.name,
       materialType: MaterialType.canvas,
-      subtext:
-          server.online ? loc.nDevices(server.devices.length) : loc.offline,
+      subtext: !server.passedCertificates
+          ? loc.certificateNotPassed
+          : server.online
+              ? loc.nDevices(server.devices.length)
+              : loc.offline,
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),

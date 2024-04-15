@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta16</title>
+            <description>Improved iOS support, improved events fetching logic and performance and implemented software zoom.</description>
+            <pubDate>Mon, 15 Apr 2024</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta15</title>
             <description>macOS support, search and late stream management.</description>
             <pubDate>Tue, 05 Mar 2024</pubDate>

@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -80,9 +81,10 @@ class DeviceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final servers = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
     final viewPadding = MediaQuery.viewPaddingOf(context);
+    final servers = context.watch<ServersProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -109,11 +111,15 @@ class DeviceSelector extends StatelessWidget {
                   child: SubHeader(
                     server.name,
                     materialType: MaterialType.canvas,
-                    subtext: !server.passedCertificates
-                        ? loc.certificateNotPassed
-                        : server.online
-                            ? loc.nDevices(server.devices.length)
-                            : loc.offline,
+                    subtext: () {
+                      if (!settings.checkServerCertificates(server)) {
+                        return loc.certificateNotPassed;
+                      } else if (server.online) {
+                        return loc.nDevices(server.devices.length);
+                      } else {
+                        return loc.offline;
+                      }
+                    }(),
                     subtextStyle: TextStyle(
                       color: !server.online || !server.passedCertificates
                           ? theme.colorScheme.error

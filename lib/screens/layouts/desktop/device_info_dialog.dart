@@ -63,8 +63,12 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
             ),
           ),
           _buildInfoTile(loc.uri, widget.device.uri),
-          _buildInfoTile(loc.resolution,
-              '${widget.device.resolutionX}x${widget.device.resolutionY}'),
+          _buildInfoTile(
+            loc.resolution,
+            '${widget.device.resolutionX ?? '${loc.unknown} '}'
+            'x'
+            '${widget.device.resolutionY ?? ' ${loc.unknown}'}',
+          ),
           _buildInfoTile(
               loc.isPtzSupported, widget.device.hasPTZ ? loc.yes : loc.no),
           _buildInfoTileWidget(

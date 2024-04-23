@@ -55,6 +55,7 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     final isLoading = context.watch<HomeProvider>().isLoadingFor(
           UnityLoadingReason.fetchingEventsHistory,
@@ -137,11 +138,15 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    !server.passedCertificates
-                        ? loc.certificateNotPassed
-                        : server.online
-                            ? loc.nEvents(serverEvents.length)
-                            : loc.offline,
+                    () {
+                      if (!settings.checkServerCertificates(server)) {
+                        return loc.certificateNotPassed;
+                      } else if (server.online) {
+                        return loc.nEvents(serverEvents.length);
+                      } else {
+                        return loc.offline;
+                      }
+                    }(),
                   ),
                   trailing: !server.online
                       ? Icon(

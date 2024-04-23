@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
@@ -572,6 +573,18 @@ class SettingsProvider extends UnityProvider {
   Future<void> restoreDefaults() async {
     await settings.delete();
     await initialize();
+  }
+
+  /// Check if the server certificates passes
+  ///
+  /// If [kAllowUntrustedCertificates] is enabled, it will return true.
+  /// Otherwise, it will return the server's [Server.passedCertificates] value.
+  bool checkServerCertificates(Server server) {
+    if (kAllowUntrustedCertificates.value) {
+      return true;
+    }
+
+    return server.passedCertificates;
   }
 }
 

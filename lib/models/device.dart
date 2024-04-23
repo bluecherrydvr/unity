@@ -172,11 +172,11 @@ class Device {
 
   factory Device.fromServerJson(Map map, Server server) {
     return Device(
-      name: map['device_name'],
-      id: int.tryParse(map['id']) ?? 0,
+      name: map['device_name'] ?? map['device'] ?? 'Unkown Device',
+      id: int.tryParse('${map['id']}') ?? 0,
       status: map['status'] == 'OK',
-      resolutionX: int.tryParse(map['resolutionX']),
-      resolutionY: int.tryParse(map['resolutionY']),
+      resolutionX: int.tryParse('${map['resolutionX']}'),
+      resolutionY: int.tryParse('${map['resolutionY']}'),
       server: server,
       hasPTZ: map['ptz_control_protocol'] != null,
     );

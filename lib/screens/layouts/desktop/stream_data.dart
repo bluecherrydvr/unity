@@ -112,9 +112,8 @@ class _StreamDataState extends State<StreamData> {
 
     const borderSize = 4.0;
 
-    //This, basically, would
-    // contain all the information about this stream - and provide
-    // more options, such as adding/changing overlays.
+    // This, basically, would contain all the information about this stream -
+    // and provide more options, such as adding/changing overlays.
     return AlertDialog(
       title: RichText(
         text: TextSpan(

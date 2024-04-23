@@ -43,6 +43,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
     final servers = context.watch<ServersProvider>();
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SafeArea(
       top: false,
@@ -99,11 +100,15 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                             child: SubHeader(
                               server.name,
                               materialType: MaterialType.canvas,
-                              subtext: !server.passedCertificates
-                                  ? loc.certificateNotPassed
-                                  : server.online
-                                      ? loc.nDevices(devices.length)
-                                      : loc.offline,
+                              subtext: () {
+                                if (!settings.checkServerCertificates(server)) {
+                                  return loc.certificateNotPassed;
+                                } else if (server.online) {
+                                  return loc.nDevices(devices.length);
+                                } else {
+                                  return loc.offline;
+                                }
+                              }(),
                               subtextStyle: TextStyle(
                                 color: !server.online
                                     ? theme.colorScheme.error

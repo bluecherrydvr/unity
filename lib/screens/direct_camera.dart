@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
@@ -108,17 +109,22 @@ class _DevicesForServer extends StatelessWidget {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final servers = context.watch<ServersProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     final isLoading = servers.isServerLoading(server);
 
     final serverIndicator = SubHeader(
       server.name,
       materialType: MaterialType.canvas,
-      subtext: !server.passedCertificates
-          ? loc.certificateNotPassed
-          : server.online
-              ? loc.nDevices(server.devices.length)
-              : loc.offline,
+      subtext: () {
+        if (!settings.checkServerCertificates(server)) {
+          return loc.certificateNotPassed;
+        } else if (server.online) {
+          return loc.nDevices(server.devices.length);
+        } else {
+          return loc.offline;
+        }
+      }(),
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),

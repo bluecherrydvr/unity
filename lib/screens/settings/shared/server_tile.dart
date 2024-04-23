@@ -203,12 +203,11 @@ class ServerTile extends StatelessWidget {
           !isLoading
               ? [
                   if (server.name != server.ip) server.ip,
-                  if (!server.passedCertificates)
-                    loc.certificateNotPassed
-                  else if (server.online)
+                  if (server.online)
                     loc.nDevices(server.devices.length)
                   else
                     loc.offline,
+                  if (!server.passedCertificates) loc.certificateNotPassed
                 ].join(' • ')
               : loc.gettingDevices,
           overflow: TextOverflow.ellipsis,
@@ -246,6 +245,7 @@ class ServerCard extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     final isLoading = servers.isServerLoading(server);
 
@@ -299,17 +299,28 @@ class ServerCard extends StatelessWidget {
                     style: theme.textTheme.bodySmall,
                   ),
                   Text(
-                    !server.passedCertificates
-                        ? loc.certificateNotPassed
-                        : !server.online
-                            ? loc.offline
-                            : !isLoading
-                                ? loc.nDevices(server.devices.length)
-                                : '',
+                    () {
+                      if (!settings.checkServerCertificates(server)) {
+                        return loc.certificateNotPassed;
+                      } else if (!server.online) {
+                        return loc.offline;
+                      } else if (!isLoading) {
+                        return loc.nDevices(server.devices.length);
+                      }
+
+                      return '';
+                    }(),
                     style: TextStyle(
-                      color: !server.online || !server.passedCertificates
-                          ? theme.colorScheme.error
-                          : null,
+                      color: () {
+                        if (settings.checkServerCertificates(server)) {
+                          return theme.colorScheme.error;
+                        }
+                        if (!server.online) {
+                          return theme.colorScheme.error;
+                        }
+
+                        return null;
+                      }(),
                     ),
                     textAlign: TextAlign.center,
                   ),

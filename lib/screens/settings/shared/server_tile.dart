@@ -312,15 +312,15 @@ class ServerCard extends StatelessWidget {
                     }(),
                     style: TextStyle(
                       color: () {
-                        if (settings.checkServerCertificates(server)) {
+                        if (!settings.checkServerCertificates(server)) {
                           return theme.colorScheme.error;
-                        }
-                        if (!server.online) {
+                        } else if (!server.online) {
                           return theme.colorScheme.error;
                         }
 
                         return null;
                       }(),
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -415,7 +415,7 @@ Future showServerMenu({
       const PopupMenuDivider(height: 1.0),
       PopupMenuItem(
         child: Text(loc.browseEvents),
-        onTap: () => home.setTab(UnityTab.eventsScreen, context),
+        onTap: () => home.setTab(UnityTab.eventsHistory, context),
       ),
       PopupMenuItem(
         child: Text(loc.configureServer),

@@ -23,9 +23,11 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -141,84 +143,105 @@ class AdvancedOptionsSettings extends StatelessWidget {
             );
           },
         ),
+      ],
+      ListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.attachment),
+        ),
+        title: Text(loc.importConfigFile),
+        subtitle: Text(loc.importConfigFileDescription),
+        trailing: const Icon(Icons.navigate_next),
+        dense: false,
+        onTap: () async {
+          final pickResult = await FilePicker.platform.pickFiles(
+            dialogTitle: loc.importConfigFile,
+            allowedExtensions: ['bluecherry'],
+            lockParentWindow: true,
+          );
+          if (pickResult == null || pickResult.count <= 0) return;
+
+          final file = File(pickResult.files.first.path!);
+          handleConfigurationFile(file);
+        },
+      ),
+      CheckboxListTile.adaptive(
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.adb),
+        ),
+        title: Text(loc.debugInfo),
+        subtitle: Text(loc.debugInfoDescription),
+        value: settings.kShowDebugInfo.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kShowDebugInfo.value = v;
+          }
+        },
+        dense: false,
+      ),
+      if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.adb),
+            child: const Icon(Icons.network_check),
           ),
-          title: Text(loc.debugInfo),
-          subtitle: Text(loc.debugInfoDescription),
-          value: settings.kShowDebugInfo.value,
+          title: const Text('Network Usage'),
+          subtitle: const Text(
+            'Display network usage information over playing videos.',
+          ),
+          value: settings.kShowNetworkUsage.value,
           onChanged: (v) {
             if (v != null) {
-              settings.kShowDebugInfo.value = v;
+              settings.kShowNetworkUsage.value = v;
             }
           },
           dense: false,
         ),
-        if (settings.kShowDebugInfo.value)
-          CheckboxListTile.adaptive(
-            contentPadding: DesktopSettings.horizontalPadding,
-            secondary: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: theme.iconTheme.color,
-              child: const Icon(Icons.network_check),
-            ),
-            title: const Text('Network Usage'),
-            subtitle: const Text(
-              'Display network usage information over playing videos.',
-            ),
-            value: settings.kShowNetworkUsage.value,
-            onChanged: (v) {
-              if (v != null) {
-                settings.updateProperty(() {
-                  settings.kShowNetworkUsage.value = v;
-                });
-              }
-            },
-            dense: false,
-          ),
-        ListTile(
-          contentPadding: DesktopSettings.horizontalPadding,
-          leading: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.colorScheme.error,
-            child: const Icon(Icons.restore),
-          ),
-          title: Text(loc.restoreDefaults),
-          subtitle: Text(loc.restoreDefaultsDescription),
-          trailing: const Icon(Icons.navigate_next),
-          textColor: theme.colorScheme.error,
-          iconColor: theme.colorScheme.error,
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text(loc.areYouSure),
-                  content: Text(loc.areYouSureDescription),
-                  actions: [
-                    FilledButton(
-                      onPressed: () {
-                        settings.restoreDefaults();
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(loc.yes),
-                    ),
-                    TextButton(
-                      autofocus: true,
-                      onPressed: Navigator.of(context).pop,
-                      child: Text(loc.no),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+      ListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.colorScheme.error,
+          child: const Icon(Icons.restore),
         ),
-      ],
+        title: Text(loc.restoreDefaults),
+        subtitle: Text(loc.restoreDefaultsDescription),
+        trailing: const Icon(Icons.navigate_next),
+        textColor: theme.colorScheme.error,
+        iconColor: theme.colorScheme.error,
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(loc.areYouSure),
+                content: Text(loc.areYouSureDescription),
+                actions: [
+                  FilledButton(
+                    onPressed: () {
+                      settings.restoreDefaults();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(loc.yes),
+                  ),
+                  TextButton(
+                    autofocus: true,
+                    onPressed: Navigator.of(context).pop,
+                    child: Text(loc.no),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     ]);
   }
 }

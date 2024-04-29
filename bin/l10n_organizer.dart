@@ -24,4 +24,6 @@ void main() {
         const JsonEncoder.withIndent('  ').convert(newContentMap);
     file.writeAsString(newContent);
   }
+
+  Process.run('flutter', ['gen-l10n'], runInShell: true);
 }

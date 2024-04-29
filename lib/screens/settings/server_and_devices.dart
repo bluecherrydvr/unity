@@ -49,6 +49,11 @@ class ServerAndDevicesSettings extends StatelessWidget {
       ),
       const StreamingSettings(),
       const SizedBox(height: 12.0),
+      SubHeader(
+        loc.devicesSettings,
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      const DevicesSettings(),
     ]);
   }
 }
@@ -109,7 +114,8 @@ class StreamingSettings extends StatelessWidget {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       OptionsChooserTile(
-        title: loc.streamingType,
+        title: loc.preferredStreamingProtocol,
+        subtitle: Text(loc.preferredStreamingProtocolDescription),
         icon: Icons.live_tv,
         value: settings.kStreamingType.value,
         values: StreamingType.values.map((value) {
@@ -176,8 +182,8 @@ class StreamingSettings extends StatelessWidget {
       ),
       const SizedBox(height: 8.0),
       OptionsChooserTile(
-        title: loc.cameraRefreshPeriod,
-        description: loc.cameraRefreshPeriodDescription,
+        title: loc.streamRefreshPeriod,
+        description: loc.streamRefreshPeriodDescription,
         icon: Icons.sync,
         value: settings.kRefreshRate.value,
         values: const [
@@ -280,6 +286,7 @@ class StreamingSettings extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8.0),
+        /* 
         CheckboxListTile.adaptive(
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -301,6 +308,7 @@ class StreamingSettings extends StatelessWidget {
             }
           },
         ),
+        */
         const SizedBox(height: 8.0),
         ListTile(
           title: const Text('Run a video test'),
@@ -309,6 +317,37 @@ class StreamingSettings extends StatelessWidget {
           onTap: () {},
         ),
       ],
+    ]);
+  }
+}
+
+class DevicesSettings extends StatelessWidget {
+  const DevicesSettings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
+
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      CheckboxListTile.adaptive(
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.colorScheme.error,
+          child: const Icon(Icons.videocam_off),
+        ),
+        title: Text(loc.listOfflineDevices),
+        subtitle: Text(loc.listOfflineDevicesDescriptions),
+        contentPadding: DesktopSettings.horizontalPadding,
+        value: settings.kListOfflineDevices.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kListOfflineDevices.value = v;
+          }
+        },
+      ),
+      const SizedBox(height: 8.0),
     ]);
   }
 }

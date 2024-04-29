@@ -254,6 +254,12 @@ class SettingsProvider extends UnityProvider {
     key: 'streaming.use_hardware_decoding',
   );
 
+  // Devices Settings
+  final kListOfflineDevices = _SettingsOption<bool>(
+    def: true,
+    key: 'devices.list_offline',
+  );
+
   // Downloads
   final kDownloadOnMobileData = _SettingsOption(
     def: false,
@@ -442,6 +448,7 @@ class SettingsProvider extends UnityProvider {
       kLateStreamBehavior.loadData(data),
       kReloadTimedOutStreams.loadData(data),
       kUseHardwareDecoding.loadData(data),
+      kListOfflineDevices.loadData(data),
       kDownloadOnMobileData.loadData(data),
       kChooseLocationEveryTime.loadData(data),
       kDownloadsDirectory.loadData(data),
@@ -511,6 +518,8 @@ class SettingsProvider extends UnityProvider {
             kReloadTimedOutStreams.saveAs(kReloadTimedOutStreams.value),
         kUseHardwareDecoding.key:
             kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
+        kListOfflineDevices.key:
+            kListOfflineDevices.saveAs(kListOfflineDevices.value),
         kDownloadOnMobileData.key:
             kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
         kChooseLocationEveryTime.key:

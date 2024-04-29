@@ -223,8 +223,8 @@ class WindowButtons extends StatelessWidget {
                       padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
                       child: UnityLoadingIndicator(),
                     )
-                  else if (home.tab == UnityTab.eventsScreen ||
-                      home.tab == UnityTab.eventsPlayback && !canPop)
+                  else if (home.tab == UnityTab.eventsHistory ||
+                      home.tab == UnityTab.eventsTimeline && !canPop)
                     SquaredIconButton(
                       onPressed: () {
                         eventsScreenKey.currentState?.fetch();

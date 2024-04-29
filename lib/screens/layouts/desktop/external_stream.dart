@@ -22,6 +22,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -67,14 +68,20 @@ class AddExternalStreamDialog extends StatefulWidget {
     String? defaultUrl,
     List<VideoOverlay> overlays = const [],
     bool fullscreen = false,
-  }) {
-    return showDialog<Device>(
+  }) async {
+    final device = await showDialog<Device>(
       context: context,
       builder: (context) => AddExternalStreamDialog(
         defaultUrl: defaultUrl,
         overlays: overlays,
       ),
     );
+
+    if (device != null && context.mounted) {
+      context.read<HomeProvider>().setTab(UnityTab.deviceGrid, context);
+    }
+
+    return device;
   }
 
   static Device addStream(

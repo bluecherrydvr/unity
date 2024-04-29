@@ -415,7 +415,7 @@ Future showServerMenu({
       const PopupMenuDivider(height: 1.0),
       PopupMenuItem(
         child: Text(loc.browseEvents),
-        onTap: () => home.setTab(UnityTab.eventsScreen, context),
+        onTap: () => home.setTab(UnityTab.eventsHistory, context),
       ),
       PopupMenuItem(
         child: Text(loc.configureServer),

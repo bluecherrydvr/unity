@@ -29,12 +29,33 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 enum UnityTab {
+  /// Initial app tab.
+  ///
+  /// On mobile, a grid of devices. On Desktop, options about layouts and devices.
   deviceGrid,
-  eventsPlayback,
+
+  /// Camera screen.
+  ///
+  /// Display a camera stream directly in fullscreen.
   directCameraScreen,
-  eventsScreen,
+
+  /// Events History tab.
+  ///
+  /// Display the servers' events in a list.
+  eventsHistory,
+
+  /// Events Timeline tab.
+  ///
+  /// Display the events in a day timeline.
+  eventsTimeline,
+
+  /// Add server tab.
   addServer,
+
+  /// Downloads tab.
   downloads,
+
+  /// Settings tab.
   settings;
 }
 
@@ -154,7 +175,7 @@ class HomeProvider extends ChangeNotifier {
     } else {
       switch (tab) {
         case UnityTab.deviceGrid:
-        case UnityTab.eventsPlayback:
+        case UnityTab.eventsTimeline:
           WakelockPlus.enable();
           break;
         default:

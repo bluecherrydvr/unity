@@ -61,7 +61,7 @@ class NavigatorData {
         text: loc.screens,
       ),
       NavigatorData(
-        tab: UnityTab.eventsPlayback,
+        tab: UnityTab.eventsTimeline,
         icon: Icons.subscriptions_outlined,
         selectedIcon: Icons.subscriptions,
         text: loc.eventsTimeline,
@@ -75,7 +75,7 @@ class NavigatorData {
           text: loc.directCamera,
         ),
       NavigatorData(
-        tab: UnityTab.eventsScreen,
+        tab: UnityTab.eventsHistory,
         icon: Icons.featured_play_list_outlined,
         selectedIcon: Icons.featured_play_list,
         text: loc.eventBrowser,
@@ -170,8 +170,8 @@ class _MobileHomeState extends State<Home> {
                       UnityTab.deviceGrid => const DeviceGrid(),
                       UnityTab.directCameraScreen =>
                         DirectCameraScreen(key: directCameraKey),
-                      UnityTab.eventsPlayback => EventsPlayback(),
-                      UnityTab.eventsScreen =>
+                      UnityTab.eventsTimeline => EventsPlayback(),
+                      UnityTab.eventsHistory =>
                         EventsScreen(key: eventsScreenKey),
                       UnityTab.addServer => AddServerWizard(
                           onFinish: () async =>

@@ -509,6 +509,8 @@
   "developerOptions": "Options de développement",
   "openLogFile": "Ovrir les fichiers logs",
   "openAppDataDirectory": "Ouvrir le répertoir de l'application",
+  "importConfigFile": "Import configuration file",
+  "importConfigFileDescription": "Import a .bluecherry configuration file that contains streaming information.",
   "debugInfo": "Informations de débogage",
   "debugInfoDescription": "Affiche les informations utiles pour le débogage, tel que les métadonnées vidéo et autres informations utiles au débogage.",
   "restoreDefaults": "Paramètres par défaut",

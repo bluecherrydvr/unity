@@ -151,15 +151,13 @@ class AdvancedOptionsSettings extends StatelessWidget {
           foregroundColor: theme.iconTheme.color,
           child: const Icon(Icons.attachment),
         ),
-        title: const Text('Import configuration file'),
-        subtitle: const Text(
-          'Import a .bluecherry configuration file that contains streaming information.',
-        ),
+        title: Text(loc.importConfigFile),
+        subtitle: Text(loc.importConfigFileDescription),
         trailing: const Icon(Icons.navigate_next),
         dense: false,
         onTap: () async {
           final pickResult = await FilePicker.platform.pickFiles(
-            dialogTitle: 'Import configuration file',
+            dialogTitle: loc.importConfigFile,
             allowedExtensions: ['bluecherry'],
             lockParentWindow: true,
           );

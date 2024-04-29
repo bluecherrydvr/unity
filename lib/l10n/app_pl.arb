@@ -533,6 +533,8 @@
   "developerOptions": "Developer options",
   "openLogFile": "Open log file",
   "openAppDataDirectory": "Open app data directory",
+  "importConfigFile": "Import configuration file",
+  "importConfigFileDescription": "Import a .bluecherry configuration file that contains streaming information.",
   "debugInfo": "Debug info",
   "debugInfoDescription": "Display useful information for debugging, such as video metadata and other useful information for debugging purposes.",
   "restoreDefaults": "Restore Defaults",

@@ -180,6 +180,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                   selected: selected,
                                 );
 
+                                if (!device.status &&
+                                    !settings.kListOfflineDevices.value) {
+                                  return const SizedBox.shrink();
+                                }
                                 if (selected || !device.status) return tile;
 
                                 final isBlocked = view.currentLayout.type ==

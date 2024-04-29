@@ -110,7 +110,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                     ),
                   ),
                   _buildSelectable<StreamingType>(
-                    title: loc.streamingType,
+                    title: loc.streamingProtocol,
                     values: StreamingType.values,
                     value: streamingType,
                     defaultValue: settings.kStreamingType.value,

@@ -109,7 +109,8 @@ class StreamingSettings extends StatelessWidget {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       OptionsChooserTile(
-        title: loc.streamingType,
+        title: loc.preferredStreamingProtocol,
+        subtitle: Text(loc.preferredStreamingProtocolDescription),
         icon: Icons.live_tv,
         value: settings.kStreamingType.value,
         values: StreamingType.values.map((value) {
@@ -176,8 +177,8 @@ class StreamingSettings extends StatelessWidget {
       ),
       const SizedBox(height: 8.0),
       OptionsChooserTile(
-        title: loc.cameraRefreshPeriod,
-        description: loc.cameraRefreshPeriodDescription,
+        title: loc.deviceRefreshPeriod,
+        description: loc.deviceRefreshPeriodDescription,
         icon: Icons.sync,
         value: settings.kRefreshRate.value,
         values: const [

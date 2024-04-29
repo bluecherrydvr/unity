@@ -202,7 +202,10 @@ class _StreamDataState extends State<StreamData> {
                 ),
                 if (widget.device.url == null) ...[
                   const SizedBox(height: 16.0),
-                  Text(loc.streamingType, style: theme.textTheme.headlineSmall),
+                  Text(
+                    loc.streamingProtocol,
+                    style: theme.textTheme.headlineSmall,
+                  ),
                   const SizedBox(height: 6.0),
                   ToggleButtons(
                     isSelected: StreamingType.values

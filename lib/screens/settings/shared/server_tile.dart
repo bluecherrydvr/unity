@@ -312,15 +312,15 @@ class ServerCard extends StatelessWidget {
                     }(),
                     style: TextStyle(
                       color: () {
-                        if (settings.checkServerCertificates(server)) {
+                        if (!settings.checkServerCertificates(server)) {
                           return theme.colorScheme.error;
-                        }
-                        if (!server.online) {
+                        } else if (!server.online) {
                           return theme.colorScheme.error;
                         }
 
                         return null;
                       }(),
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),

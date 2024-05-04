@@ -152,9 +152,12 @@ extension DeviceListExtension on Iterable<Device> {
   List<Device> sorted({
     Iterable? available,
     String searchQuery = '',
+    bool onlyEnabled = false,
   }) {
-    final list = where((device) =>
-        device.name.toLowerCase().contains(searchQuery.toLowerCase())).toList()
+    final list = where((device) {
+      if (onlyEnabled && !device.status) return false;
+      return device.name.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList()
       ..sort((a, b) => a.name.compareTo(b.name));
 
     if (available != null) list.sort((a, b) => available.contains(a) ? 0 : 1);

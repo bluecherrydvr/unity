@@ -80,10 +80,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   bool shouldAutoplay = false;
 
   Duration get duration {
-    if (widget.event.duration > videoController.duration) {
-      return widget.event.duration;
+    if (widget.event.duration < videoController.duration) {
+      return videoController.duration;
     }
-    return videoController.duration;
+    return widget.event.duration;
   }
 
   Device? get device => currentEvent.server.devices.firstWhereOrNull(
@@ -131,10 +131,16 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
     final downloads = context.read<DownloadsManager>();
     final mediaUrl = downloads.isEventDownloaded(event.id)
-        ? Uri.file(
-            downloads.getDownloadedPathForEvent(event.id),
-            windows: Platform.isWindows,
-          ).toString()
+        ? () {
+            if (File(downloads.getDownloadedPathForEvent(event.id))
+                .existsSync()) {
+              return Uri.file(
+                downloads.getDownloadedPathForEvent(event.id),
+                windows: Platform.isWindows,
+              ).toString();
+            }
+            return event.mediaURL.toString();
+          }()
         : event.mediaURL.toString();
 
     debugPrint(mediaUrl);

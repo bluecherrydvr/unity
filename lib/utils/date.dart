@@ -15,6 +15,7 @@ DateTime timezoneAwareDate(String originalDateString) {
     var offsetFactors = originalDateString.split('+');
     if (offsetFactors.isEmpty) {
       offsetFactors = originalDateString.split('-');
+      if (offsetFactors.length <= 2) return originalDateTime;
       offsetSign = -1.0;
     }
     final offsetString = offsetFactors.last;

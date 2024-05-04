@@ -275,8 +275,14 @@ class SettingsProvider extends UnityProvider {
   );
   final kDownloadsDirectory = _SettingsOption(
     def: '',
-    getDefault: () async =>
-        (await DownloadsManager.kDefaultDownloadsDirectory).path,
+    getDefault: () async {
+      try {
+        return (await DownloadsManager.kDefaultDownloadsDirectory).path;
+      } catch (e) {
+        debugPrint('Error getting default downloads directory: $e');
+        return '';
+      }
+    },
     key: 'downloads.directory',
   );
 

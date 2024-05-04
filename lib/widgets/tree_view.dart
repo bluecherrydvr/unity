@@ -184,10 +184,10 @@ class KeyProvider {
     if (originalKey == null) {
       return _TreeNodeKey(_nextIndex++);
     }
-    if (_keys.contains(originalKey)) {
-      throw ArgumentError('There should not be nodes with the same kays. '
-          'Duplicate value found: $originalKey.');
-    }
+    // if (_keys.contains(originalKey)) {
+    //   throw ArgumentError('There should not be nodes with the same keys. '
+    //       'Duplicate value found: $originalKey.');
+    // }
     _keys.add(originalKey);
     return originalKey;
   }

@@ -128,6 +128,7 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
                 return <TreeNode>[];
               } else {
                 return server.devices
+                    .toSet()
                     .sorted(searchQuery: widget.searchQuery)
                     .map((device) {
                   final enabled = isOffline

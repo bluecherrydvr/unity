@@ -82,12 +82,7 @@ enum UnityLoadingReason {
 }
 
 class HomeProvider extends ChangeNotifier {
-  static late HomeProvider _instance;
-
-  HomeProvider() {
-    _instance = this;
-  }
-
+  static final _instance = HomeProvider();
   static HomeProvider get instance => _instance;
 
   UnityTab tab = ServersProvider.instance.hasServers

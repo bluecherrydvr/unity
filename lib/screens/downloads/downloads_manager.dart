@@ -88,7 +88,7 @@ class DownloadsManagerScreen extends StatelessWidget {
             SliverList.builder(
               itemCount: downloads.downloadedEvents.length,
               itemBuilder: (context, index) {
-                final de = downloads.downloadedEvents[index];
+                final de = downloads.downloadedEvents.elementAt(index);
 
                 return DownloadTile(
                   key: ValueKey(de.event.id),

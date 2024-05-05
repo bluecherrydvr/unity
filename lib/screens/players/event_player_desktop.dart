@@ -126,14 +126,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     super.dispose();
   }
 
-  void setEvent(Event event) {
+  Future<void> setEvent(Event event) async {
     currentEvent = event;
 
     final downloads = context.read<DownloadsManager>();
     final mediaUrl = downloads.isEventDownloaded(event.id)
-        ? () {
-            if (File(downloads.getDownloadedPathForEvent(event.id))
-                .existsSync()) {
+        ? await () async {
+            if (await downloads.doesEventFileExist(event.id)) {
               return Uri.file(
                 downloads.getDownloadedPathForEvent(event.id),
                 windows: Platform.isWindows,

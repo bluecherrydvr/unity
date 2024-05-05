@@ -2,6 +2,8 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:intl/intl.dart';
 
+Set<String> _loggedErrorredDates = {};
+
 /// Convert a date string to a DateTime object, considering the timezone offset.
 DateTime timezoneAwareDate(String originalDateString) {
   final originalDateTime = DateTime.parse(originalDateString);
@@ -33,10 +35,13 @@ DateTime timezoneAwareDate(String originalDateString) {
 
     return originalDateTime.add(offset);
   } catch (e) {
-    writeLogToFile(
-      'Failed to parse date string: $originalDateString',
-      print: true,
-    );
+    if (!_loggedErrorredDates.contains(originalDateString)) {
+      writeLogToFile(
+        'Failed to parse date string: $originalDateString',
+        print: true,
+      );
+      _loggedErrorredDates.add(originalDateString);
+    }
     return originalDateTime;
   }
 }

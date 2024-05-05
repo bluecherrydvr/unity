@@ -92,6 +92,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   String get title =>
       '${currentEvent.deviceName} (${currentEvent.server.name})';
 
+  /// All the events but the current one.
+  Iterable<Event> get upcomingEvents {
+    return widget.upcomingEvents.where((ue) => ue != widget.event);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -375,7 +380,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                     ]),
                   ]),
                 ),
-                if (widget.upcomingEvents.isNotEmpty)
+                if (upcomingEvents.isNotEmpty)
                   CollapsableSidebar(
                     left: false,
                     builder: (context, collapsed, collapseButton) {
@@ -423,10 +428,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 key: ValueKey(currentEvent),
                                 event: currentEvent,
                               ),
-                              ...widget.upcomingEvents.map((event) {
-                                if (event == currentEvent) {
-                                  return const SizedBox.shrink();
-                                }
+                              ...upcomingEvents.map((event) {
                                 return Padding(
                                   padding: const EdgeInsetsDirectional.only(
                                       top: 6.0),

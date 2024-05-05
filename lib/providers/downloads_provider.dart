@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
@@ -177,7 +178,7 @@ class DownloadsManager extends UnityProvider {
               'Event file does not exist: ${de.event.id}. Redownloading');
           final downloadPath = await _downloadEventFile(
             de.event,
-            de.downloadPath,
+            path.dirname(de.downloadPath),
           );
           downloadedEvents.add(de.copyWith(downloadPath: downloadPath));
         }
@@ -280,7 +281,13 @@ class DownloadsManager extends UnityProvider {
 
   /// Downloads the given [event] and returns the path of the downloaded file
   Future<String> _downloadEventFile(Event event, String dir) async {
-    debugPrint('Downloading event: $event');
+    if (downloading.entries.any((de) => de.key.id == event.id)) {
+      return downloading.entries
+          .firstWhere((de) => de.key.id == event.id)
+          .value
+          .$2;
+    }
+    debugPrint('Downloading event: $event to $dir');
     final home = HomeProvider.instance
       ..loading(UnityLoadingReason.downloadEvent);
 
@@ -323,19 +330,28 @@ class DownloadsManager extends UnityProvider {
     if (await file.exists()) await file.delete();
   }
 
+  void cancelEventDownload(Event target) {
+    final event = downloading.keys.firstWhereOrNull((downloadingEvent) {
+      return downloadingEvent.id == target.id;
+    });
+
+    try {
+      final file = File(downloading[event]!.$2);
+      if (file.existsSync()) file.deleteSync();
+    } catch (e, s) {
+      debugPrint('Failed to delete file: $e');
+      writeLogToFile(
+        'Failed to delete file during cancelDownloading: $e, $s',
+      );
+    }
+    downloading.remove(event);
+    notifyListeners();
+  }
+
   /// Cancels the ongoing downloads and deletes the downloaded files.
-  Future<void> cancelDownloading() async {
-    for (final event in downloading.keys.toList()) {
-      try {
-        final file = File(downloading[event]!.$2);
-        if (file.existsSync()) file.deleteSync();
-      } catch (e, s) {
-        debugPrint('Failed to delete file: $e');
-        writeLogToFile(
-          'Failed to delete file during cancelDownloading: $e, $s',
-        );
-      }
-      downloading.remove(event);
+  Future<void> cancelDownloading([String? downloadPath]) async {
+    for (final event in downloading.keys) {
+      cancelEventDownload(event);
     }
 
     downloadsCompleter?.complete();

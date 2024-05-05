@@ -108,10 +108,13 @@ class DownloadsManager extends UnityProvider {
         if (dirs?.isNotEmpty ?? false) dir = dirs!.first;
       }
 
-      if (dir == null) {
-        final downloadsDir = await getDownloadsDirectory();
-        if (downloadsDir != null) {
-          dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+      // This method is only available on macOS
+      if (Platform.isMacOS) {
+        if (dir == null) {
+          final downloadsDir = await getDownloadsDirectory();
+          if (downloadsDir != null) {
+            dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+          }
         }
       }
 

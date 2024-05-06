@@ -80,10 +80,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   bool shouldAutoplay = false;
 
   Duration get duration {
-    if (widget.event.duration > videoController.duration) {
-      return widget.event.duration;
+    if (widget.event.duration < videoController.duration) {
+      return videoController.duration;
     }
-    return videoController.duration;
+    return widget.event.duration;
   }
 
   Device? get device => currentEvent.server.devices.firstWhereOrNull(
@@ -91,6 +91,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
       );
   String get title =>
       '${currentEvent.deviceName} (${currentEvent.server.name})';
+
+  /// All the events but the current one.
+  Iterable<Event> get upcomingEvents {
+    return widget.upcomingEvents.where((ue) => ue != widget.event);
+  }
 
   @override
   void initState() {
@@ -126,15 +131,20 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     super.dispose();
   }
 
-  void setEvent(Event event) {
+  Future<void> setEvent(Event event) async {
     currentEvent = event;
 
     final downloads = context.read<DownloadsManager>();
     final mediaUrl = downloads.isEventDownloaded(event.id)
-        ? Uri.file(
-            downloads.getDownloadedPathForEvent(event.id),
-            windows: Platform.isWindows,
-          ).toString()
+        ? await () async {
+            if (await downloads.doesEventFileExist(event.id)) {
+              return Uri.file(
+                downloads.getDownloadedPathForEvent(event.id),
+                windows: Platform.isWindows,
+              ).toString();
+            }
+            return event.mediaURL.toString();
+          }()
         : event.mediaURL.toString();
 
     debugPrint(mediaUrl);
@@ -370,7 +380,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                     ]),
                   ]),
                 ),
-                if (widget.upcomingEvents.isNotEmpty)
+                if (upcomingEvents.isNotEmpty)
                   CollapsableSidebar(
                     left: false,
                     builder: (context, collapsed, collapseButton) {
@@ -418,10 +428,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 key: ValueKey(currentEvent),
                                 event: currentEvent,
                               ),
-                              ...widget.upcomingEvents.map((event) {
-                                if (event == currentEvent) {
-                                  return const SizedBox.shrink();
-                                }
+                              ...upcomingEvents.map((event) {
                                 return Padding(
                                   padding: const EdgeInsetsDirectional.only(
                                       top: 6.0),

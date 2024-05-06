@@ -132,7 +132,9 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
               eventsProvider.endTime == null) {
             return loc.today;
           } else if (DateUtils.isSameDay(
-              eventsProvider.startTime, eventsProvider.endTime)) {
+            eventsProvider.startTime,
+            eventsProvider.endTime,
+          )) {
             return formatter.format(eventsProvider.startTime!);
           } else {
             return loc.fromToDate(

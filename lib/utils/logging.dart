@@ -55,15 +55,16 @@ Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
   final file = await getLogFile();
 
   await file.writeAsString(errorLog, mode: FileMode.append);
-  Logger.root.log(Level.INFO, 'Wrote log file to ${file.path}');
+  Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
 }
 
-Future<void> writeLogToFile(String text) async {
+Future<void> writeLogToFile(String text, {bool print = false}) async {
   if (kIsWeb) return;
 
   final time = DateTime.now().toIso8601String();
   final file = await getLogFile();
 
   await file.writeAsString('\n[$time] $text', mode: FileMode.append);
-  Logger.root.log(Level.INFO, 'Wrote log file to ${file.path}');
+  Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
+  if (print) debugPrint(text);
 }

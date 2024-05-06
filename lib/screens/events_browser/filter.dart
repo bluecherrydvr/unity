@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
@@ -72,6 +73,7 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
   Widget build(BuildContext context) {
     final serversProvider = context.watch<ServersProvider>();
     final eventsProvider = context.watch<EventsProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SingleChildScrollView(
       child: TreeView(
@@ -128,7 +130,11 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
                 return <TreeNode>[];
               } else {
                 return server.devices
-                    .sorted(searchQuery: widget.searchQuery)
+                    .toSet()
+                    .sorted(
+                      searchQuery: widget.searchQuery,
+                      onlyEnabled: !settings.kListOfflineDevices.value,
+                    )
                     .map((device) {
                   final enabled = isOffline
                       ? false

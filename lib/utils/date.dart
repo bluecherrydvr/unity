@@ -1,13 +1,26 @@
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:intl/intl.dart';
+
+Set<String> _loggedErrorredDates = {};
 
 /// Convert a date string to a DateTime object, considering the timezone offset.
 DateTime timezoneAwareDate(String originalDateString) {
   final originalDateTime = DateTime.parse(originalDateString);
 
   try {
-    final offsetString = originalDateString.split('-').last;
+    // Get the offset sign and factors from the date string.
+    //
+    // If the timezone is positive (e.g. +02:00), the offset sign is positive.
+    // Otherwise (e.g. -02:00), the offset sign is negative.
+    var offsetSign = 1.0;
+    var offsetFactors = originalDateString.split('+');
+    if (offsetFactors.isEmpty) {
+      offsetFactors = originalDateString.split('-');
+      if (offsetFactors.length <= 2) return originalDateTime;
+      offsetSign = -1.0;
+    }
+    final offsetString = offsetFactors.last;
     final parts = offsetString.split(':');
 
     // Convert hours and minutes strings to integers
@@ -15,11 +28,20 @@ DateTime timezoneAwareDate(String originalDateString) {
     final minutes = int.parse(parts[1]);
 
     // Create a Duration object based on the offset sign
-    final offset = Duration(hours: -hours, minutes: -minutes);
+    final offset = Duration(
+      hours: (hours * offsetSign).toInt(),
+      minutes: (minutes * offsetSign).toInt(),
+    );
 
     return originalDateTime.add(offset);
   } catch (e) {
-    debugPrint('Failed to parse date string: $originalDateString');
+    if (!_loggedErrorredDates.contains(originalDateString)) {
+      writeLogToFile(
+        'Failed to parse date string: $originalDateString',
+        print: true,
+      );
+      _loggedErrorredDates.add(originalDateString);
+    }
     return originalDateTime;
   }
 }

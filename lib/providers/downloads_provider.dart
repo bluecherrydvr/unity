@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
@@ -107,10 +108,13 @@ class DownloadsManager extends UnityProvider {
         if (dirs?.isNotEmpty ?? false) dir = dirs!.first;
       }
 
-      if (dir == null) {
-        final downloadsDir = await getDownloadsDirectory();
-        if (downloadsDir != null) {
-          dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+      // This method is only available on macOS
+      if (Platform.isMacOS) {
+        if (dir == null) {
+          final downloadsDir = await getDownloadsDirectory();
+          if (downloadsDir != null) {
+            dir = Directory(path.join(downloadsDir.path, 'Bluecherry Client'));
+          }
         }
       }
 
@@ -130,7 +134,7 @@ class DownloadsManager extends UnityProvider {
   }
 
   /// All the downloaded events
-  List<DownloadedEvent> downloadedEvents = [];
+  Set<DownloadedEvent> downloadedEvents = {};
 
   /// The events that are downloading
   Map<Event, (DownloadProgress progress, String filePath)> downloading = {};
@@ -144,6 +148,11 @@ class DownloadsManager extends UnityProvider {
       if (downloadsCompleter != null && downloadsCompleter!.isCompleted) {
         downloadsCompleter = null;
       }
+
+      downloading.removeWhere((key, value) {
+        final progress = value.$1;
+        return progress == 1.0;
+      });
 
       // // setProgressBar is only available on Windows and macOS
       // if (isDesktopPlatform && !Platform.isLinux) {
@@ -162,7 +171,22 @@ class DownloadsManager extends UnityProvider {
     });
 
     await tryReadStorage(
-        () => super.initializeStorage(downloads, kStorageDownloads));
+      () => super.initializeStorage(downloads, kStorageDownloads),
+    );
+
+    for (final de in downloadedEvents) {
+      doesEventFileExist(de.event.id).then((exist) async {
+        if (!exist) {
+          debugPrint(
+              'Event file does not exist: ${de.event.id}. Redownloading');
+          final downloadPath = await _downloadEventFile(
+            de.event,
+            path.dirname(de.downloadPath),
+          );
+          downloadedEvents.add(de.copyWith(downloadPath: downloadPath));
+        }
+      });
+    }
   }
 
   @override
@@ -184,13 +208,13 @@ class DownloadsManager extends UnityProvider {
     final data = await tryReadStorage(() => downloads.read());
 
     downloadedEvents = data[kStorageDownloads] == null
-        ? []
+        ? <DownloadedEvent>{}
         : ((await compute(jsonDecode, data[kStorageDownloads] as String) ?? [])
                 as List)
             .cast<Map>()
             .map<DownloadedEvent>((item) {
             return DownloadedEvent.fromJson(item.cast<String, dynamic>());
-          }).toList();
+          }).toSet();
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -203,6 +227,11 @@ class DownloadsManager extends UnityProvider {
   /// Whether the given event is downloaded
   bool isEventDownloaded(int eventId) {
     return downloadedEvents.any((de) => de.event.id == eventId);
+  }
+
+  Future<bool> doesEventFileExist(int eventId) async {
+    final downloadPath = getDownloadedPathForEvent(eventId);
+    return File(downloadPath).exists();
   }
 
   String getDownloadedPathForEvent(int eventId) {
@@ -222,16 +251,6 @@ class DownloadsManager extends UnityProvider {
     assert(event.mediaURL != null, 'There must be an url to be downloaded');
     if (event.mediaURL == null) return; // safe for release
 
-    final home = HomeProvider.instance
-      ..loading(UnityLoadingReason.downloadEvent);
-
-    if (downloadsCompleter == null || downloadsCompleter!.isCompleted) {
-      downloadsCompleter = Completer();
-    }
-
-    downloading[event] = (0.0, '');
-    notifyListeners();
-
     final dir = await () async {
       final settings = SettingsProvider.instance;
 
@@ -249,10 +268,42 @@ class DownloadsManager extends UnityProvider {
       }
       return settings.kDownloadsDirectory.value;
     }();
+    final downloadPath = await _downloadEventFile(event, dir);
+
+    downloading.remove(event);
+    downloadedEvents
+      ..removeWhere((downloadedEvent) => downloadedEvent.event.id == event.id)
+      ..add(DownloadedEvent(event: event, downloadPath: downloadPath));
+
+    if (downloading.isEmpty) {
+      downloadsCompleter?.complete();
+    }
+
+    await save();
+  }
+
+  /// Downloads the given [event] and returns the path of the downloaded file
+  Future<String> _downloadEventFile(Event event, String dir) async {
+    if (downloading.entries.any((de) => de.key.id == event.id)) {
+      return downloading.entries
+          .firstWhere((de) => de.key.id == event.id)
+          .value
+          .$2;
+    }
+    debugPrint('Downloading event: $event to $dir');
+    final home = HomeProvider.instance
+      ..loading(UnityLoadingReason.downloadEvent);
+
+    if (downloadsCompleter == null || downloadsCompleter!.isCompleted) {
+      downloadsCompleter = Completer();
+    }
+
+    downloading[event] = (0.0, '');
+    notifyListeners();
+
     final fileName =
         'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);
-
     await Dio().downloadUri(
       event.mediaURL!,
       downloadPath,
@@ -267,18 +318,9 @@ class DownloadsManager extends UnityProvider {
       },
     );
 
-    downloading.remove(event);
-    downloadedEvents.add(DownloadedEvent(
-      event: event,
-      downloadPath: downloadPath,
-    ));
-
-    if (downloading.isEmpty) {
-      downloadsCompleter?.complete();
-    }
-
     home.notLoading(UnityLoadingReason.downloadEvent);
-    await save();
+
+    return downloadPath;
   }
 
   /// Deletes any downloaded events at the given [downloadPath]
@@ -291,19 +333,28 @@ class DownloadsManager extends UnityProvider {
     if (await file.exists()) await file.delete();
   }
 
+  void cancelEventDownload(Event target) {
+    final event = downloading.keys.firstWhereOrNull((downloadingEvent) {
+      return downloadingEvent.id == target.id;
+    });
+
+    try {
+      final file = File(downloading[event]!.$2);
+      if (file.existsSync()) file.deleteSync();
+    } catch (e, s) {
+      debugPrint('Failed to delete file: $e');
+      writeLogToFile(
+        'Failed to delete file during cancelDownloading: $e, $s',
+      );
+    }
+    downloading.remove(event);
+    notifyListeners();
+  }
+
   /// Cancels the ongoing downloads and deletes the downloaded files.
-  Future<void> cancelDownloading() async {
-    for (final event in downloading.keys.toList()) {
-      try {
-        final file = File(downloading[event]!.$2);
-        if (file.existsSync()) file.deleteSync();
-      } catch (e, s) {
-        debugPrint('Failed to delete file: $e');
-        writeLogToFile(
-          'Failed to delete file during cancelDownloading: $e, $s',
-        );
-      }
-      downloading.remove(event);
+  Future<void> cancelDownloading([String? downloadPath]) async {
+    for (final event in downloading.keys) {
+      cancelEventDownload(event);
     }
 
     downloadsCompleter?.complete();

@@ -88,7 +88,7 @@ class DownloadsManagerScreen extends StatelessWidget {
             SliverList.builder(
               itemCount: downloads.downloadedEvents.length,
               itemBuilder: (context, index) {
-                final de = downloads.downloadedEvents[index];
+                final de = downloads.downloadedEvents.elementAt(index);
 
                 return DownloadTile(
                   key: ValueKey(de.event.id),
@@ -299,17 +299,26 @@ class _DownloadTileState extends State<DownloadTile> {
                               ]),
                             ),
                           ),
-                          TextButton.icon(
-                            onPressed: isDownloaded
-                                ? () {
-                                    context
-                                        .read<DownloadsManager>()
-                                        .delete(widget.downloadPath!);
-                                  }
-                                : null,
-                            icon: const Icon(Icons.delete, size: 20.0),
-                            label: Text(loc.delete),
-                          ),
+                          if (isDownloaded)
+                            TextButton.icon(
+                              onPressed: () {
+                                context
+                                    .read<DownloadsManager>()
+                                    .delete(widget.downloadPath!);
+                              },
+                              icon: const Icon(Icons.delete, size: 20.0),
+                              label: Text(loc.delete),
+                            )
+                          else
+                            TextButton.icon(
+                              onPressed: () {
+                                context
+                                    .read<DownloadsManager>()
+                                    .cancelEventDownload(widget.event);
+                              },
+                              icon: const Icon(Icons.cancel, size: 20.0),
+                              label: Text(loc.cancel),
+                            ),
                           if (isDesktop)
                             TextButton.icon(
                               onPressed: isDownloaded

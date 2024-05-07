@@ -94,6 +94,7 @@ Future<HandleType> _handleUri(Uri uri) async {
     return HandleType.none;
   }
 
+  // Handle `.bluecherry` files.
   if (uri.path.isNotEmpty && path.extension(uri.path) == '.bluecherry') {
     final file = File(uri.path);
     if (await file.exists()) {
@@ -102,6 +103,7 @@ Future<HandleType> _handleUri(Uri uri) async {
     }
   }
 
+  // Handle `rtsp://` links.
   final url = uri.toString();
   await writeLogToFile(
     'Opening uri $uri with context ${navigatorKey.currentContext}',
@@ -109,9 +111,10 @@ Future<HandleType> _handleUri(Uri uri) async {
   if (isDesktopPlatform) {
     final context = navigatorKey.currentContext;
     if (context != null && context.mounted) {
-      await AddExternalStreamDialog.show(
+      AddExternalStreamDialog.addStream(
         context,
-        defaultUrl: url,
+        url,
+        name: path.basenameWithoutExtension(url),
       );
     }
   } else {

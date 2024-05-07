@@ -39,13 +39,18 @@ import 'package:window_manager/window_manager.dart';
 
 final navigationStream = StreamController.broadcast();
 
-class NObserver extends NavigatorObserver {
-  void update(Route? route) {
-    if (route == null) return;
+final navigatorObserver = NObserver();
 
-    // do not update if it's a popup
-    if (route is PopupRoute) return;
-    if (route is DialogRoute) return;
+class NObserver extends NavigatorObserver {
+  bool poppableRoute = false;
+
+  void update(Route? route) {
+    if (route == null || route is DialogRoute) {
+      poppableRoute = false;
+      return;
+    }
+
+    poppableRoute = true;
 
     navigationStream.add(route.settings.arguments);
   }
@@ -110,8 +115,6 @@ class WindowButtons extends StatelessWidget {
     final tab = home.tab;
 
     final navData = NavigatorData.of(context);
-    final canPop = navigatorKey.currentState?.canPop() ?? false;
-    final showNavigator = !canPop && this.showNavigator;
 
     final isMacOSPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
@@ -125,6 +128,10 @@ class WindowButtons extends StatelessWidget {
     return StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
+        final canPop = (navigatorKey.currentState?.canPop() ?? false) &&
+            navigatorObserver.poppableRoute;
+        final showNavigator = !canPop && this.showNavigator;
+
         final titleWidget = Text(
           () {
             if (title != null) return title!;

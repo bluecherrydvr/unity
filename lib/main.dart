@@ -340,7 +340,7 @@ class _UnityAppState extends State<UnityApp>
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
-          navigatorObservers: [NObserver()],
+          navigatorObservers: [navigatorObserver],
           locale: settings.kLanguageCode.value,
           localizationsDelegates: const [
             AppLocalizations.delegate,

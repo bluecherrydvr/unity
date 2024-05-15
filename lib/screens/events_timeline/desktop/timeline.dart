@@ -191,7 +191,7 @@ class Timeline extends ChangeNotifier {
 
     for (final tile in this.tiles) {
       tile.videoController
-        ..onBufferUpdate.listen((_) => _eventCallback(tile))
+        // ..onBufferUpdate.listen((_) => _eventCallback(tile))
         ..onDurationUpdate.listen((_) => _eventCallback(tile))
         ..onPlayingStateUpdate.listen((_) => _eventCallback(tile))
         ..onCurrentPosUpdate.listen((_) => _eventCallback(tile, notify: false));

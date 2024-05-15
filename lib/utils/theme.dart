@@ -145,8 +145,8 @@ ThemeData createTheme({required Brightness brightness}) {
       selectionColor: primary.withOpacity(0.2),
     ),
     scrollbarTheme: ScrollbarThemeData(
-      thumbVisibility: MaterialStateProperty.all(true),
-      thickness: MaterialStateProperty.all(8.0),
+      thumbVisibility: WidgetStateProperty.all(true),
+      thickness: WidgetStateProperty.all(8.0),
       crossAxisMargin: 0.0,
       radius: Radius.zero,
       minThumbLength: 96.0,

@@ -194,7 +194,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       ..zoom.softwareZoom = softwareZoom;
   }
 
-  static const timerInterval = Duration(seconds: 6);
+  static const timerInterval = Duration(seconds: 14);
   Timer? _oldImageTimer;
   bool _isImageOld = false;
 
@@ -298,7 +298,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     if (dataSource == null || lastImageUpdate == null || !isLive) return false;
     final now = DateTime.now();
     final diff = now.difference(lastImageUpdate!);
-    return diff.inMilliseconds > 1500;
+    return diff.inMilliseconds > 2000;
   }
 
   /// Whether the video is a live stream.

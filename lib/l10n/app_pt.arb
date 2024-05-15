@@ -255,6 +255,14 @@
   "layoutName": "Nome do layout",
   "layoutNameHint": "Primeiro andar",
   "layoutTypeLabel": "Tipo do layout",
+  "clearLayout": "Limpar {amount} câmeras",
+  "@clearLayout": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Downloads",
   "download": "Baixar",

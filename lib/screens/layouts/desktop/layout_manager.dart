@@ -319,6 +319,18 @@ class _LayoutTileState extends State<LayoutTile> {
           ),
         ),
         const PopupMenuDivider(),
+        if (widget.layout.devices.isNotEmpty) ...[
+          PopupMenuItem(
+            child: Text(loc.clearLayout(widget.layout.devices.length)),
+            onTap: () {
+              DesktopViewProvider.instance.updateLayout(
+                widget.layout,
+                widget.layout.copyWith(devices: []),
+              );
+            },
+          ),
+          const PopupMenuDivider(),
+        ],
         PopupMenuItem(
           child: Text(loc.editLayout),
           onTap: () {

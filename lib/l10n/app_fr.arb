@@ -245,6 +245,14 @@
   "layoutName": "Nom de la disposition",
   "layoutNameHint": "Premier étage",
   "layoutTypeLabel": "Type de disposition",
+  "clearLayout": "Clear {amount} devices",
+  "@clearLayout": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",

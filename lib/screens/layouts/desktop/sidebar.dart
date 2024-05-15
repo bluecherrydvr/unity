@@ -33,8 +33,29 @@ class DesktopSidebar extends StatefulWidget {
 }
 
 class _DesktopSidebarState extends State<DesktopSidebar> {
-  bool isSidebarHovering = false;
-  String searchQuery = '';
+  var isSidebarHovering = false;
+  var searchQuery = '';
+  final _servers = <Server, Iterable<Device>>{};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final servers = context.watch<ServersProvider>();
+
+    _servers.clear();
+    for (final server in (servers.servers)
+      // online servers are rendered first
+      ..sort((a, b) => b.online.toString().compareTo(a.online.toString()))) {
+      final devices = server.devices
+          .where(
+            (device) => device.name.toLowerCase().contains(
+                  searchQuery.toLowerCase(),
+                ),
+          )
+          .sorted();
+      _servers[server] = devices;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +89,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final server in (servers.servers)
-                      // online servers are rendered first
-                      ..sort((a, b) =>
-                          b.online.toString().compareTo(a.online.toString())))
+                    for (final MapEntry(key: server, value: devices)
+                        in _servers.entries)
                       () {
-                        final devices = server.devices
-                            .where(
-                              (device) => device.name.toLowerCase().contains(
-                                    searchQuery.toLowerCase(),
-                                  ),
-                            )
-                            .sorted();
                         final isLoading = servers.isServerLoading(server);
                         if (!isLoading &&
                             devices.isEmpty &&
@@ -171,7 +183,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                             SliverList.builder(
                               itemCount: devices.length,
                               itemBuilder: (context, index) {
-                                final device = devices[index];
+                                final device = devices.elementAt(index);
                                 final selected =
                                     view.currentLayout.devices.contains(device);
 

@@ -165,8 +165,6 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     if (width != null) width = (width! * pixelRatio).toInt();
     if (height != null) height = (height! * pixelRatio).toInt();
 
-    debugPrint('Pixel ratio: $pixelRatio');
-
     mkVideoController = VideoController(
       mkPlayer,
       configuration: VideoControllerConfiguration(
@@ -196,8 +194,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
             maxSize = Size(maxSize.width, this.height!.toDouble());
           }
         });
-      platform.setProperty('msg-level', 'all=v');
 
+      platform.setProperty('msg-level', 'all=v');
       mkPlayer.stream.log.listen((event) {
         // debugPrint('${event.level} / ${event.prefix}: ${event.text}');
         if (event.level == 'fatal') {
@@ -248,7 +246,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       } else {
         platform
           ..setProperty('cache', 'no')
+          ..setProperty('cache-secs', '0')
           ..setProperty('cache-on-disk', 'no')
+          ..setProperty('demuxer-seekable-cache', 'no')
+          ..setProperty('demuxer-max-back-bytes', '0')
+          ..setProperty('demuxer-donate-buffer', 'no')
           ..setProperty('video-sync', 'audio');
         // these two properties reduce latency, but it causes problems with FPS
         // platform.setProperty("profile", "low-latency");

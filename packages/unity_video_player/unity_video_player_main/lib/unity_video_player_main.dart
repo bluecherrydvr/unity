@@ -246,10 +246,13 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       } else {
         platform
           ..setProperty('cache', 'no')
+          // https://mpv.io/manual/master/#options-cache-secs
           ..setProperty('cache-secs', '0')
-          ..setProperty('cache-on-disk', 'no')
-          ..setProperty('demuxer-seekable-cache', 'no')
+          // https://mpv.io/manual/master/#options-cache-on-disk
+          ..setProperty('cache-on-disk', 'yes')
+          // https://mpv.io/manual/master/#options-demuxer-max-back-bytes
           ..setProperty('demuxer-max-back-bytes', '0')
+          // https://mpv.io/manual/master/#options-demuxer-donate-buffer
           ..setProperty('demuxer-donate-buffer', 'no')
           ..setProperty('video-sync', 'audio');
         // these two properties reduce latency, but it causes problems with FPS

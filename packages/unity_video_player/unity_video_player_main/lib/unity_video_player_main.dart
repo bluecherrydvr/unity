@@ -228,8 +228,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           // https://mpv.io/manual/stable/#options-cache-pause-initial
           ..setProperty('cache-pause-initial', 'yes')
           // https://mpv.io/manual/stable/#options-cache-pause-wait
-          ..setProperty('cache-pause-wait', '1')
-          ..setProperty('cache-pause', 'no')
+          // ..setProperty('cache-pause-wait', '1')
+          // ..setProperty('cache-pause', 'no')
           // https://mpv.io/manual/stable/#options-cache-secs
           ..setProperty('cache-secs', '13');
         getTemporaryDirectory().then((value) {

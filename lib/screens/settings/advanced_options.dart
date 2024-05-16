@@ -266,14 +266,14 @@ class AdvancedOptionsSettings extends StatelessWidget {
             ]);
           }
 
-          Widget buildCardFutureProp(String title, Future<String> value) {
-            return FutureBuilder(
-              future: value,
-              builder: (context, snapshot) {
-                return buildCardProp(title, snapshot.data ?? loc.loading);
-              },
-            );
-          }
+          // Widget buildCardFutureProp(String title, Future<String> value) {
+          //   return FutureBuilder(
+          //     future: value,
+          //     builder: (context, snapshot) {
+          //       return buildCardProp(title, snapshot.data ?? loc.loading);
+          //     },
+          //   );
+          // }
 
           return Card(
             child: Padding(

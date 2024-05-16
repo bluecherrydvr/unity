@@ -28,7 +28,6 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
-    String? title,
     MatrixType matrixType = MatrixType.t16,
     bool softwareZoom = false,
   }) {
@@ -36,7 +35,6 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       width: width,
       height: height,
       enableCache: enableCache,
-      title: title,
     )
       ..zoom.matrixType = matrixType
       ..zoom.softwareZoom = softwareZoom;
@@ -151,13 +149,12 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     super.height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
-    String? title,
   }) {
     mkPlayer = Player(
       configuration: PlayerConfiguration(
         bufferSize: 16 * 1024 * 1024,
         logLevel: MPVLogLevel.info,
-        title: title ?? 'Bluecherry',
+        title: title,
         ready: onReady,
       ),
     );
@@ -313,6 +310,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Stream<bool> get onPlayingStateUpdate => mkPlayer.stream.playing;
+
+  @override
+  Future<String> getProperty(String propertyName) {
+    return (mkPlayer.platform as dynamic).getProperty(propertyName);
+  }
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {

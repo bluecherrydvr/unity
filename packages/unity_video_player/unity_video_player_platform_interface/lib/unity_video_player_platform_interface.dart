@@ -67,7 +67,6 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
     int? height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
-    String? title,
   });
 
   /// Creates a video view
@@ -146,6 +145,8 @@ enum LateVideoBehavior {
   never;
 }
 
+const kDefaultVideoPlayerName = 'Bluecherry';
+
 abstract class UnityVideoPlayer with ChangeNotifier {
   Future<String>? fallbackUrl;
   VoidCallback? onReload;
@@ -184,14 +185,14 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       height: quality?.resolution.height.toInt(),
       enableCache: enableCache,
       rtspProtocol: rtspProtocol,
-      title: title,
     )
       ..quality = quality
       ..fallbackUrl = fallbackUrl
       ..onReload = onReload
       ..lateVideoBehavior = lateVideoBehavior
       ..zoom.matrixType = matrixType
-      ..zoom.softwareZoom = softwareZoom;
+      ..zoom.softwareZoom = softwareZoom
+      ..title = title ?? kDefaultVideoPlayerName;
   }
 
   static const timerInterval = Duration(seconds: 14);
@@ -213,6 +214,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   late StreamSubscription<String> _onErrorSubscription;
   late StreamSubscription<Duration> _onPositionUpdateSubscription;
   late StreamSubscription<double> _fpsSubscription;
+
+  String title = 'Bluecherry';
 
   int? width;
   int? height;
@@ -358,6 +361,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   double get fps;
   Stream<double> get fpsStream;
+
+  Future<String> getProperty(String propertyName);
 
   /// Whether the media is seekable
   bool get isSeekable;

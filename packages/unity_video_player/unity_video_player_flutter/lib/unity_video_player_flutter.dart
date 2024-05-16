@@ -197,6 +197,13 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   double get aspectRatio => player?.value.aspectRatio ?? 1.0;
 
   @override
+  Future<String> getProperty(String propertyName) {
+    throw UnsupportedError(
+      'getProperty is not supported on this platform',
+    );
+  }
+
+  @override
   Future<void> setSpeed(double speed) async =>
       await player?.setPlaybackSpeed(speed);
   @override

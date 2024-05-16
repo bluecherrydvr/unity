@@ -28,7 +28,6 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
     VoidCallback? onReload,
-    String? title,
     MatrixType matrixType = MatrixType.t16,
     bool softwareZoom = false,
   }) {
@@ -36,7 +35,6 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       width: width,
       height: height,
       enableCache: enableCache,
-      title: title,
     )
       ..zoom.matrixType = matrixType
       ..zoom.softwareZoom = softwareZoom;
@@ -151,21 +149,18 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     super.height,
     bool enableCache = false,
     RTSPProtocol? rtspProtocol,
-    String? title,
   }) {
     mkPlayer = Player(
       configuration: PlayerConfiguration(
-        bufferSize: 5 * 1024,
-        logLevel: MPVLogLevel.warn,
-        title: title ?? 'Bluecherry',
+        bufferSize: 16 * 1024 * 1024,
+        logLevel: MPVLogLevel.info,
+        title: title,
         ready: onReady,
       ),
     );
     final pixelRatio = PlatformDispatcher.instance.views.first.devicePixelRatio;
     if (width != null) width = (width! * pixelRatio).toInt();
     if (height != null) height = (height! * pixelRatio).toInt();
-
-    debugPrint('Pixel ratio: $pixelRatio');
 
     mkVideoController = VideoController(
       mkPlayer,
@@ -196,8 +191,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
             maxSize = Size(maxSize.width, this.height!.toDouble());
           }
         });
-      platform.setProperty('msg-level', 'all=v');
 
+      platform.setProperty('msg-level', 'all=v');
       mkPlayer.stream.log.listen((event) {
         // debugPrint('${event.level} / ${event.prefix}: ${event.text}');
         if (event.level == 'fatal') {
@@ -230,8 +225,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           // https://mpv.io/manual/stable/#options-cache-pause-initial
           ..setProperty('cache-pause-initial', 'yes')
           // https://mpv.io/manual/stable/#options-cache-pause-wait
-          ..setProperty('cache-pause-wait', '1')
-          ..setProperty('cache-pause', 'no')
+          // ..setProperty('cache-pause-wait', '1')
+          // ..setProperty('cache-pause', 'no')
           // https://mpv.io/manual/stable/#options-cache-secs
           ..setProperty('cache-secs', '13');
         getTemporaryDirectory().then((value) {
@@ -248,7 +243,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
       } else {
         platform
           ..setProperty('cache', 'no')
-          ..setProperty('cache-on-disk', 'no')
+          // https://mpv.io/manual/master/#options-cache-secs
+          ..setProperty('cache-secs', '0')
+          // https://mpv.io/manual/master/#options-cache-on-disk
+          ..setProperty('cache-on-disk', 'yes')
+          // https://mpv.io/manual/master/#options-demuxer-max-back-bytes
+          ..setProperty('demuxer-max-back-bytes', '0')
+          // https://mpv.io/manual/master/#options-demuxer-donate-buffer
+          ..setProperty('demuxer-donate-buffer', 'no')
           ..setProperty('video-sync', 'audio');
         // these two properties reduce latency, but it causes problems with FPS
         // platform.setProperty("profile", "low-latency");
@@ -308,6 +310,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
   @override
   Stream<bool> get onPlayingStateUpdate => mkPlayer.stream.playing;
+
+  @override
+  Future<String> getProperty(String propertyName) {
+    return (mkPlayer.platform as dynamic).getProperty(propertyName);
+  }
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) {

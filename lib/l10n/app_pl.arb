@@ -255,6 +255,14 @@
   "layoutName": "Nazwa układu",
   "layoutNameHint": "First floor",
   "layoutTypeLabel": "Typ układu",
+  "clearLayout": "Clear {amount} devices",
+  "@clearLayout": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Pobrania",
   "download": "Pobierz",

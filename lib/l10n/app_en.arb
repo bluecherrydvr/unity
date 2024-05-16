@@ -255,6 +255,14 @@
   "layoutName": "Layout name",
   "layoutNameHint": "First floor",
   "layoutTypeLabel": "Layout type",
+  "clearLayout": "Clear {amount} devices",
+  "@clearLayout": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Downloads",
   "download": "Download",

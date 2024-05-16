@@ -45,7 +45,7 @@ class NObserver extends NavigatorObserver {
   bool poppableRoute = false;
 
   void update(Route? route) {
-    if (route == null || route is DialogRoute) {
+    if (route == null || route is DialogRoute || route is PopupRoute) {
       poppableRoute = false;
       return;
     }

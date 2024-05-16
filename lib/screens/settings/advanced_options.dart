@@ -19,12 +19,14 @@
 
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
@@ -239,6 +241,77 @@ class AdvancedOptionsSettings extends StatelessWidget {
                 ],
               );
             },
+          );
+        },
+      ),
+      const SubHeader('Video Instances'),
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: UnityPlayers.players.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+        ),
+        padding: DesktopSettings.horizontalPadding,
+        itemBuilder: (context, index) {
+          final instance = UnityPlayers.players.entries.elementAt(index);
+          final uuid = instance.key;
+          final player = instance.value;
+
+          Widget buildCardProp(String title, String value) {
+            return Row(children: [
+              Text('$title:', style: theme.textTheme.labelMedium),
+              const SizedBox(width: 4.0),
+              Text(value, style: theme.textTheme.bodySmall),
+            ]);
+          }
+
+          Widget buildCardFutureProp(String title, Future<String> value) {
+            return FutureBuilder(
+              future: value,
+              builder: (context, snapshot) {
+                return buildCardProp(title, snapshot.data ?? loc.loading);
+              },
+            );
+          }
+
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ListenableBuilder(
+                listenable: player,
+                builder: (context, _) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // TODO(bdlukaa): Display player name
+                    Text(
+                      'Player ${index + 1} - ${player.title}',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    AutoSizeText(
+                      uuid,
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 1,
+                    ),
+                    const Divider(),
+                    buildCardProp('Position', player.currentPos.toString()),
+                    buildCardProp('Duration', player.duration.toString()),
+                    buildCardProp('Buffer', player.currentBuffer.toString()),
+                    buildCardProp('FPS', player.fps.toString()),
+                    buildCardProp('LIU', player.lastImageUpdate.toString()),
+                    buildCardProp('Resolution',
+                        '${player.resolution?.width}x${player.resolution?.height}'),
+                    buildCardProp(
+                        'Quality', player.quality?.name ?? loc.unknown),
+                    buildCardProp('Volume', player.volume.toString()),
+                    // buildCardFutureProp(
+                    //   'bitrate',
+                    //   player.getProperty('video-bitrate'),
+                    // ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
       ),

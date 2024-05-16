@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 Future<void> showEditServerSettings(BuildContext context, Server server) {
   return showDialog(
     context: context,
-    barrierDismissible: true,
     builder: (context) {
       return EditServerSettings(server: server);
     },

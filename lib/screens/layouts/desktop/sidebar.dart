@@ -40,19 +40,17 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final servers = context.watch<ServersProvider>();
+    _updateServers();
+  }
+
+  void _updateServers() {
+    final servers = context.read<ServersProvider>();
 
     _servers.clear();
-    for (final server in (servers.servers)
-      // online servers are rendered first
-      ..sort((a, b) => b.online.toString().compareTo(a.online.toString()))) {
-      final devices = server.devices
-          .where(
-            (device) => device.name.toLowerCase().contains(
-                  searchQuery.toLowerCase(),
-                ),
-          )
-          .sorted();
+    for (final server in servers.servers) {
+      final devices = server.devices.sorted(
+        searchQuery: searchQuery,
+      );
       _servers[server] = devices;
     }
   }
@@ -75,7 +73,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
           LayoutManager(
             collapseButton: widget.collapseButton,
             onSearchChanged: (text) {
-              setState(() => searchQuery = text);
+              setState(() {
+                searchQuery = text;
+                _updateServers();
+              });
             },
           ),
           if (servers.servers.isEmpty)
@@ -89,8 +90,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final MapEntry(key: server, value: devices)
-                        in _servers.entries)
+                    for (final MapEntry<Server, Iterable<Device>>(
+                          key: server,
+                          value: devices,
+                        ) in _servers.entries)
                       () {
                         final isLoading = servers.isServerLoading(server);
                         if (!isLoading &&
@@ -161,7 +164,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                     onPressed: () {
                                       if (isAllInView) {
                                         view.removeDevicesFromCurrentLayout(
-                                            devices);
+                                          devices,
+                                        );
                                       } else {
                                         for (final device in devices) {
                                           if (device.status &&

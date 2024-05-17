@@ -100,17 +100,21 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid> {
         },
       ),
       Expanded(
-        child: LayoutView(
-          layout: view.currentLayout,
-          onAccept: view.add,
-          onReorder: view.reorder,
-          onWillAccept: (device) {
-            if (device == null) return false;
-            if (view.currentLayout.type == DesktopLayoutType.singleView) {
-              return view.currentLayout.devices.isEmpty;
-            }
-            return !view.currentLayout.devices.contains(device);
-          },
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: LayoutView(
+            key: ValueKey(view.currentLayout.hashCode),
+            layout: view.currentLayout,
+            onAccept: view.add,
+            onReorder: view.reorder,
+            onWillAccept: (device) {
+              if (device == null) return false;
+              if (view.currentLayout.type == DesktopLayoutType.singleView) {
+                return view.currentLayout.devices.isEmpty;
+              }
+              return !view.currentLayout.devices.contains(device);
+            },
+          ),
         ),
       ),
     ];

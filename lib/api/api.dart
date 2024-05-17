@@ -147,7 +147,7 @@ class API {
       Iterable<Device> devices;
       if (devicesResult is Iterable) {
         // This is reached in the case the server has multiple cameras
-        devices = devicesResult.cast<Map>().map((device) {
+        devices = List<Map>.from(devicesResult).map((device) {
           return Device.fromServerJson(device, server);
         });
       } else if (devicesResult is Map) {

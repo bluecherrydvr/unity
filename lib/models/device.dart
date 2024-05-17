@@ -105,7 +105,7 @@ class Device {
   final MatrixType? matrixType;
 
   /// A list of text overlays that will be rendered over the video.
-  final List<VideoOverlay> overlays;
+  final Iterable<VideoOverlay> overlays;
 
   /// The preferred streaming type.
   ///
@@ -343,7 +343,7 @@ class Device {
     bool? hasPTZ,
     String? url,
     MatrixType? matrixType,
-    List<VideoOverlay>? overlays,
+    Iterable<VideoOverlay>? overlays,
     StreamingType? preferredStreamingType,
     ExternalDeviceData? externalData,
   }) =>
@@ -395,8 +395,9 @@ class Device {
       url: json['url'],
       matrixType: MatrixType.values[json['matrixType'] ?? 0],
       overlays: json['overlays'] != null
-          ? List<VideoOverlay>.from(
-              (json['overlays'] as List).cast<Map>().map(VideoOverlay.fromMap))
+          ? List<VideoOverlay>.from((json['overlays'] as List).map((item) {
+              return VideoOverlay.fromMap(item as Map);
+            }))
           : [],
       preferredStreamingType: StreamingType.values.firstWhereOrNull(
         (type) => type.name == json['preferredStreamingType'],

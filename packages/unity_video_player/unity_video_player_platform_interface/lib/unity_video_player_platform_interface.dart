@@ -292,26 +292,44 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     notifyListeners();
   }
 
+  static const kLateStreamThreshold = Duration(milliseconds: 1500);
+
   /// Whether the current position of the video is not the same or near the
   /// last image update.
   ///
-  /// The video is considered late if the current position is more than 1.5
-  /// seconds after the last image update.
+  /// The video is considered late if the current position is greater than
+  /// [kLateStreamThreshold] after the last image update
+  ///
+  /// OR
+  ///
+  /// if the difference between the last image update and the current position
+  /// is greater than [kLateStreamThreshold].
   bool get isLate {
     if (dataSource == null || lastImageUpdate == null || !isLive) return false;
-    final now = DateTime.now();
-    final diff = now.difference(lastImageUpdate!);
-    return diff.inMilliseconds > 2000;
+    final lastImageDiff = DateTime.now().difference(lastImageUpdate!);
+    if (lastImageDiff > kLateStreamThreshold) return true;
+
+    final positionDiff = (duration - currentPos).abs();
+    if (positionDiff > kLateStreamThreshold) return true;
+
+    return false;
   }
 
   /// Whether the video is a live stream.
-  bool get isLive =>
-      // TODO(bdlukaa): do a better checking of this
-      dataSource != null &&
-      // It is only LIVE if it starts with rtsp or is hls
-      (dataSource!.startsWith('rtsp') ||
-          dataSource!.contains('media/mjpeg') ||
-          dataSource!.contains('.m3u8') /* hls */);
+  ///
+  /// A live stream is considered any url which protocol is either RTSP or RTMP.
+  /// MJPEG and HLS are also considered live streams in a Bluecherry Server.
+  bool get isLive {
+    if (dataSource == null) return false;
+
+    final source = dataSource!.toLowerCase().trim();
+    for (var protocol in ['rtsp', 'rtmp']) {
+      if (source.startsWith(protocol)) return true;
+    }
+
+    // HLS and MJPEG are also considered live streams in a Bluecherry Server.
+    return source.contains('media/mjpeg') || source.contains('.m3u8');
+  }
 
   void _handleLateVideo() {
     switch (lateVideoBehavior) {

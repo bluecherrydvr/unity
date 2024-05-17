@@ -100,9 +100,9 @@ class Layout {
   factory Layout.fromMap(Map<String, dynamic> map) {
     return Layout(
       name: map['name'] ?? '',
-      devices: List<Device>.from((map['devices'] as List)
-          .cast<Map<String, dynamic>>()
-          .map(Device.fromJson)),
+      devices: List<Map<String, dynamic>>.from(map['devices'] as List)
+          .map<Device>(Device.fromJson)
+          .toList(),
       type: DesktopLayoutType.values[map['layoutType'] as int],
     );
   }

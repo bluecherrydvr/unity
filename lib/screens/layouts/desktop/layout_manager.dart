@@ -109,6 +109,12 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
   }
 
   @override
+  void onSearchChanged(String text) {
+    super.onSearchChanged(text);
+    widget.onSearchChanged(text);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -131,10 +137,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                 widget.collapseButton,
                 const SizedBox(width: 5.0),
                 Expanded(child: Text(loc.view, maxLines: 1)),
-                SearchToggleButton(
-                  searchable: this,
-                  iconSize: 18.0,
-                ),
+                SearchToggleButton(searchable: this, iconSize: 18.0),
                 SquaredIconButton(
                   icon: Icon(
                     Icons.cyclone,
@@ -180,10 +183,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
             },
           ),
         ),
-        ToggleSearchBar(
-          searchable: this,
-          showBottomDivider: false,
-        ),
+        ToggleSearchBar(searchable: this, showBottomDivider: false),
         const Divider(height: 1.0),
       ]),
     );

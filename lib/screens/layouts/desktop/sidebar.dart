@@ -161,7 +161,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                                     onPressed: () {
                                       if (isAllInView) {
                                         view.removeDevicesFromCurrentLayout(
-                                            devices);
+                                          devices,
+                                        );
                                       } else {
                                         for (final device in devices) {
                                           if (device.status &&

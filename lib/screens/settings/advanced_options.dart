@@ -283,7 +283,6 @@ class AdvancedOptionsSettings extends StatelessWidget {
                 builder: (context, _) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TODO(bdlukaa): Display player name
                     Text(
                       'Player ${index + 1} - ${player.title}',
                       style: theme.textTheme.titleMedium,

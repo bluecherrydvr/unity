@@ -152,7 +152,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }) {
     mkPlayer = Player(
       configuration: PlayerConfiguration(
-        bufferSize: 16 * 1024 * 1024,
+        bufferSize: 32 * 1024 * 1024,
         logLevel: MPVLogLevel.info,
         title: title,
         ready: onReady,

@@ -395,8 +395,9 @@ class Device {
       url: json['url'],
       matrixType: MatrixType.values[json['matrixType'] ?? 0],
       overlays: json['overlays'] != null
-          ? List<VideoOverlay>.from(
-              (json['overlays'] as List).cast<Map>().map(VideoOverlay.fromMap))
+          ? List<VideoOverlay>.from((json['overlays'] as List).map((item) {
+              return VideoOverlay.fromMap(item as Map);
+            }))
           : [],
       preferredStreamingType: StreamingType.values.firstWhereOrNull(
         (type) => type.name == json['preferredStreamingType'],

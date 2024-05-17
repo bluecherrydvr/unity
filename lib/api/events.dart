@@ -91,8 +91,8 @@ extension EventsExtension on API {
       if (response.headers['content-type'] == 'application/json') {
         debugPrint('Server returned a JSON response');
         events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
-            .cast<Map>()
-            .map((eventObject) {
+            .map((item) {
+          final eventObject = item as Map;
           final published = DateTime.parse(eventObject['published']);
           final event = Event(
             server: server,
@@ -140,8 +140,8 @@ extension EventsExtension on API {
         debugPrint('Server returned a XML response');
         final parser = Xml2Json()..parse(response.body);
         events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable)
-            .cast<Map>()
-            .map((e) {
+            .map<Event>((item) {
+          final e = item as Map;
           if (!e.containsKey('content')) debugPrint(e.toString());
           return Event(
             server: server,
@@ -170,7 +170,7 @@ extension EventsExtension on API {
                     ),
                   ),
           );
-        }).cast<Event>();
+        });
       }
     } catch (exception, stacktrace) {
       debugPrint('Failed to getEvents on server ${server.name}');

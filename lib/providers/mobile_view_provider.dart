@@ -103,8 +103,7 @@ class MobileViewProvider extends UnityProvider {
     // [Device]s present in the new tab.
     final items = devices[value]!;
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
-    for (final device
-        in items.where((device) => device != null).cast<Device>()) {
+    for (final device in items.whereType<Device>()) {
       UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
     // Remove & dispose the video player instances that will not be used in this new tab.
@@ -188,7 +187,7 @@ class MobileViewProvider extends UnityProvider {
     final data = devices.map(
       (key, value) => MapEntry(
         key.toString(),
-        value.map((e) => e?.toJson()).toList().cast<Map<String, dynamic>?>(),
+        value.map<Map<String, dynamic>?>((e) => e?.toJson()),
       ),
     );
     try {
@@ -212,10 +211,9 @@ class MobileViewProvider extends UnityProvider {
             .map(
               (key, value) => MapEntry<int, List<Device?>>(
                 int.parse(key),
-                value
-                    .map((e) => e == null ? null : Device.fromJson(e))
-                    .toList()
-                    .cast<Device?>(),
+                (value as Iterable)
+                    .map<Device?>((e) => e == null ? null : Device.fromJson(e))
+                    .toList(),
               ),
             )
             .cast<int, List<Device?>>();

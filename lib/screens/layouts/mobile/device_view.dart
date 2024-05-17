@@ -144,8 +144,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
       );
     }
 
-    final selected =
-        view.devices[widget.tab]!.where((d) => d != null).cast<Device>();
+    final selected = view.devices[widget.tab]!.whereType<Device>();
 
     return SizedBox(
       width: double.infinity,

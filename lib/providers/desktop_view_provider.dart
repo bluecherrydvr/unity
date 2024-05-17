@@ -109,9 +109,8 @@ class DesktopViewProvider extends UnityProvider {
               data[kStorageDesktopLayouts] as String,
             ) ??
             []) as List)
-        .cast<Map>()
         .map<Layout>((item) {
-      return Layout.fromMap(item.cast<String, dynamic>());
+      return Layout.fromMap((item as Map).cast<String, dynamic>());
     }).toList();
     _currentLayout = data[kStorageDesktopCurrentLayout] ?? 0;
 

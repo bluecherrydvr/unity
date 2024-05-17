@@ -112,7 +112,8 @@ class EventsProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => events.read());
 
-    selectedDevices = (data['selectedDevices'] as List).toSet().cast<String>();
+    selectedDevices =
+        List<String>.from(data['selectedDevices'] as List).toSet();
 
     super.restore(notifyListeners: notifyListeners);
   }

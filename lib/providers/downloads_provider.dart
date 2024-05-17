@@ -211,9 +211,10 @@ class DownloadsManager extends UnityProvider {
         ? <DownloadedEvent>{}
         : ((await compute(jsonDecode, data[kStorageDownloads] as String) ?? [])
                 as List)
-            .cast<Map>()
             .map<DownloadedEvent>((item) {
-            return DownloadedEvent.fromJson(item.cast<String, dynamic>());
+            return DownloadedEvent.fromJson(
+              (item as Map).cast<String, dynamic>(),
+            );
           }).toSet();
 
     super.restore(notifyListeners: notifyListeners);

@@ -316,13 +316,20 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   }
 
   /// Whether the video is a live stream.
-  bool get isLive =>
-      // TODO(bdlukaa): do a better checking of this
-      dataSource != null &&
-      // It is only LIVE if it starts with rtsp or is hls
-      (dataSource!.startsWith('rtsp') ||
-          dataSource!.contains('media/mjpeg') ||
-          dataSource!.contains('.m3u8') /* hls */);
+  ///
+  /// A live stream is considered any url which protocol is either RTSP or RTMP.
+  /// MJPEG and HLS are also considered live streams in a Bluecherry Server.
+  bool get isLive {
+    if (dataSource == null) return false;
+
+    final source = dataSource!.toLowerCase().trim();
+    for (var protocol in ['rtsp', 'rtmp']) {
+      if (source.startsWith(protocol)) return true;
+    }
+
+    // HLS and MJPEG are also considered live streams in a Bluecherry Server.
+    return source.contains('media/mjpeg') || source.contains('.m3u8');
+  }
 
   void _handleLateVideo() {
     switch (lateVideoBehavior) {

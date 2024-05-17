@@ -105,7 +105,7 @@ class Device {
   final MatrixType? matrixType;
 
   /// A list of text overlays that will be rendered over the video.
-  final List<VideoOverlay> overlays;
+  final Iterable<VideoOverlay> overlays;
 
   /// The preferred streaming type.
   ///
@@ -343,7 +343,7 @@ class Device {
     bool? hasPTZ,
     String? url,
     MatrixType? matrixType,
-    List<VideoOverlay>? overlays,
+    Iterable<VideoOverlay>? overlays,
     StreamingType? preferredStreamingType,
     ExternalDeviceData? externalData,
   }) =>

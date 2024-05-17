@@ -121,7 +121,7 @@ class DownloadTile extends StatefulWidget {
 
   final Size size;
   final Event event;
-  final List<Event> upcomingEvents;
+  final Iterable<Event> upcomingEvents;
   final double progress;
   final String? downloadPath;
   final bool initiallyExpanded;

@@ -47,7 +47,7 @@ extension MatrixTypeExtension on MatrixType {
 
 class AddExternalStreamDialog extends StatefulWidget {
   final String? defaultUrl;
-  final List<VideoOverlay> overlays;
+  final Iterable<VideoOverlay> overlays;
 
   const AddExternalStreamDialog({
     super.key,

@@ -292,16 +292,27 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     notifyListeners();
   }
 
+  static const kLateStreamThreshold = Duration(milliseconds: 1500);
+
   /// Whether the current position of the video is not the same or near the
   /// last image update.
   ///
-  /// The video is considered late if the current position is more than 1.5
-  /// seconds after the last image update.
+  /// The video is considered late if the current position is greater than
+  /// [kLateStreamThreshold] after the last image update
+  ///
+  /// OR
+  ///
+  /// if the difference between the last image update and the current position
+  /// is greater than [kLateStreamThreshold].
   bool get isLate {
     if (dataSource == null || lastImageUpdate == null || !isLive) return false;
-    final now = DateTime.now();
-    final diff = now.difference(lastImageUpdate!);
-    return diff.inMilliseconds > 2000;
+    final lastImageDiff = DateTime.now().difference(lastImageUpdate!);
+    if (lastImageDiff > kLateStreamThreshold) return true;
+
+    final positionDiff = (duration - currentPos).abs();
+    if (positionDiff > kLateStreamThreshold) return true;
+
+    return false;
   }
 
   /// Whether the video is a live stream.

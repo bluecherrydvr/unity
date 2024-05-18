@@ -107,16 +107,9 @@ class UnityPlayers with ChangeNotifier {
     }
 
     controller = UnityVideoPlayer.create(
-      quality: switch (device.server.additionalSettings.renderingQuality ??
-          settings.kRenderingQuality.value) {
-        RenderingQuality.p4k => UnityVideoQuality.p4k,
-        RenderingQuality.p1080 => UnityVideoQuality.p1080,
-        RenderingQuality.p720 => UnityVideoQuality.p720,
-        RenderingQuality.p480 => UnityVideoQuality.p480,
-        RenderingQuality.p360 => UnityVideoQuality.p360,
-        RenderingQuality.p240 => UnityVideoQuality.p240,
-        RenderingQuality.automatic => null,
-      },
+      quality: (device.server.additionalSettings.renderingQuality ??
+              settings.kRenderingQuality.value)
+          .playerQuality,
       onReload: setSource,
       title: device.name,
       matrixType: device.matrixType ?? settings.kMatrixSize.value,

@@ -646,6 +646,18 @@ enum RenderingQuality {
       RenderingQuality.automatic => loc.automaticResolution,
     };
   }
+
+  UnityVideoQuality? get playerQuality {
+    return switch (this) {
+      RenderingQuality.p4k => UnityVideoQuality.p4k,
+      RenderingQuality.p1080 => UnityVideoQuality.p1080,
+      RenderingQuality.p720 => UnityVideoQuality.p720,
+      RenderingQuality.p480 => UnityVideoQuality.p480,
+      RenderingQuality.p360 => UnityVideoQuality.p360,
+      RenderingQuality.p240 => UnityVideoQuality.p240,
+      RenderingQuality.automatic => null,
+    };
+  }
 }
 
 enum StreamingType {

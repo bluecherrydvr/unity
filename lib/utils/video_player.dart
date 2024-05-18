@@ -146,6 +146,7 @@ class UnityPlayers with ChangeNotifier {
       debugPrint('Error disposing player: $e');
     }
     players.remove(deviceUUID);
+    instance.notifyListeners();
   }
 
   /// Reload the video player for the given [Device].

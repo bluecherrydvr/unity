@@ -36,14 +36,39 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-class AdvancedOptionsSettings extends StatelessWidget {
+class AdvancedOptionsSettings extends StatefulWidget {
   const AdvancedOptionsSettings({super.key});
+
+  @override
+  State<AdvancedOptionsSettings> createState() =>
+      _AdvancedOptionsSettingsState();
+}
+
+class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
+  @override
+  void initState() {
+    super.initState();
+    UnityPlayers.instance.addListener(_playerUpdateListener);
+  }
+
+  void _playerUpdateListener() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    UnityPlayers.instance.removeListener(_playerUpdateListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
+
     return ListView(children: [
       SubHeader(loc.matrixZoom),
       CheckboxListTile.adaptive(
@@ -244,72 +269,83 @@ class AdvancedOptionsSettings extends StatelessWidget {
           );
         },
       ),
-      const SubHeader('Video Instances'),
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: UnityPlayers.players.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-        ),
-        padding: DesktopSettings.horizontalPadding,
-        itemBuilder: (context, index) {
-          final instance = UnityPlayers.players.entries.elementAt(index);
-          final uuid = instance.key;
-          final player = instance.value;
+      SubHeader(
+        'Video Instances',
+        trailing: Text('${UnityPlayers.players.length}'),
+      ),
+      if (UnityPlayers.players.isEmpty)
+        const Center(
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(bottom: 16.0),
+            child: Text('No video instances found.'),
+          ),
+        )
+      else
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: UnityPlayers.players.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
+          padding: DesktopSettings.horizontalPadding,
+          itemBuilder: (context, index) {
+            final instance = UnityPlayers.players.entries.elementAt(index);
+            final uuid = instance.key;
+            final player = instance.value;
 
-          Widget buildCardProp(String title, String value) {
-            return Row(children: [
-              Text('$title:', style: theme.textTheme.labelMedium),
-              const SizedBox(width: 4.0),
-              Text(value, style: theme.textTheme.bodySmall),
-            ]);
-          }
+            Widget buildCardProp(String title, String value) {
+              return Row(children: [
+                Text('$title:', style: theme.textTheme.labelMedium),
+                const SizedBox(width: 4.0),
+                Text(value, style: theme.textTheme.bodySmall),
+              ]);
+            }
 
-          // Widget buildCardFutureProp(String title, Future<String> value) {
-          //   return FutureBuilder(
-          //     future: value,
-          //     builder: (context, snapshot) {
-          //       return buildCardProp(title, snapshot.data ?? loc.loading);
-          //     },
-          //   );
-          // }
+            // Widget buildCardFutureProp(String title, Future<String> value) {
+            //   return FutureBuilder(
+            //     future: value,
+            //     builder: (context, snapshot) {
+            //       return buildCardProp(title, snapshot.data ?? loc.loading);
+            //     },
+            //   );
+            // }
 
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: ListenableBuilder(
-                listenable: player,
-                builder: (context, _) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Player ${index + 1} - ${player.title}',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    AutoSizeText(
-                      uuid,
-                      style: theme.textTheme.bodySmall,
-                      maxLines: 1,
-                    ),
-                    const Divider(),
-                    buildCardProp('Position', player.currentPos.toString()),
-                    buildCardProp('Duration', player.duration.toString()),
-                    buildCardProp('Buffer', player.currentBuffer.toString()),
-                    buildCardProp('FPS', player.fps.toString()),
-                    buildCardProp('LIU', player.lastImageUpdate.toString()),
-                    buildCardProp('Resolution',
-                        '${player.resolution?.width}x${player.resolution?.height}'),
-                    buildCardProp(
-                        'Quality', player.quality?.name ?? loc.unknown),
-                    buildCardProp('Volume', player.volume.toString()),
-                  ],
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: ListenableBuilder(
+                  listenable: player,
+                  builder: (context, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Player ${index + 1} - ${player.title}',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      AutoSizeText(
+                        uuid,
+                        style: theme.textTheme.bodySmall,
+                        maxLines: 1,
+                      ),
+                      const Divider(),
+                      buildCardProp('Position', player.currentPos.toString()),
+                      buildCardProp('Duration', player.duration.toString()),
+                      buildCardProp('Buffer', player.currentBuffer.toString()),
+                      buildCardProp('FPS', player.fps.toString()),
+                      buildCardProp('LIU', player.lastImageUpdate.toString()),
+                      buildCardProp('Resolution',
+                          '${player.resolution?.width}x${player.resolution?.height}'),
+                      buildCardProp(
+                          'Quality', player.quality?.name ?? loc.unknown),
+                      buildCardProp('Volume', player.volume.toString()),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
     ]);
   }
 }

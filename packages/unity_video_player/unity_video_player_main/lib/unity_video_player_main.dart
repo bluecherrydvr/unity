@@ -311,9 +311,24 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   @override
   Stream<bool> get onPlayingStateUpdate => mkPlayer.stream.playing;
 
+  /// Gets a property from the media kit player.
+  ///
+  /// Do not use this to get the properties of already observed properties.
   @override
   Future<String> getProperty(String propertyName) {
-    return (mkPlayer.platform as dynamic).getProperty(propertyName);
+    // return (mkPlayer.platform as dynamic).getProperty(propertyName);
+
+    final propertyCompleter = Completer<String>();
+    try {
+      (mkPlayer.platform as dynamic).observeProperty(propertyName,
+          (value) async {
+        propertyCompleter.complete(value);
+        (mkPlayer.platform as dynamic).unobserveProperty(propertyName);
+      });
+    } catch (e) {
+      propertyCompleter.completeError(e);
+    }
+    return propertyCompleter.future;
   }
 
   @override

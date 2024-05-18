@@ -303,10 +303,6 @@ class AdvancedOptionsSettings extends StatelessWidget {
                     buildCardProp(
                         'Quality', player.quality?.name ?? loc.unknown),
                     buildCardProp('Volume', player.volume.toString()),
-                    // buildCardFutureProp(
-                    //   'bitrate',
-                    //   player.getProperty('video-bitrate'),
-                    // ),
                   ],
                 ),
               ),

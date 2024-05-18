@@ -12,24 +12,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # media_kit: ^1.1.10                             # Primary package.
-  # media_kit_video: ^1.2.4                        # For video rendering.
-  # media_kit_libs_video: ^1.0.4                   # Native video dependencies.
+  media_kit: ^1.1.10                             # Primary package.
+  media_kit_video: ^1.2.4                        # For video rendering.
+  #media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
   path_provider:
-  media_kit:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: media_kit/
+  # media_kit:
+  #   git:
+  #     url: https://github.com/media-kit/media-kit/
+  #     path: media_kit/
   media_kit_native_event_loop:
     git:
       url: https://github.com/media-kit/media-kit/
       path: media_kit_native_event_loop/
-  media_kit_video:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: media_kit_video/
+  # media_kit_video:
+  #   git:
+  #     url: https://github.com/media-kit/media-kit/
+  #     path: media_kit_video/
   media_kit_libs_android_video:
     git:
       url: https://github.com/media-kit/media-kit/
@@ -59,8 +59,8 @@ dev_dependencies:
 dependency_overrides:
   media_kit:
     git:
-      url: https://github.com/media-kit/media-kit/
-      path: media_kit/
+     url: https://github.com/media-kit/media-kit/
+     path: media_kit/
   #media_kit_native_event_loop:
   #  git:
   #    url: https://github.com/media-kit/media-kit/

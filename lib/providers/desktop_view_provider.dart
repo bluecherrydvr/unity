@@ -254,6 +254,11 @@ class DesktopViewProvider extends UnityProvider {
         ..removeAt(layoutIndex)
         ..insert(layoutIndex, newLayout);
 
+      for (final device
+          in oldLayout.devices.where((d) => !newLayout.devices.contains(d))) {
+        _releaseDevice(device);
+      }
+
       debugPrint('Replaced $oldLayout at $layoutIndex with $newLayout');
     } else {
       debugPrint('Layout $oldLayout not found');

@@ -284,7 +284,11 @@ class DeviceTileState extends State<DeviceTile> {
               PositionedDirectional(
                 top: 6.0,
                 start: 6.0,
-                child: VideoStatusLabel(video: video, device: widget.device),
+                child: VideoStatusLabel(
+                  video: video,
+                  device: widget.device,
+                  position: VideoStatusLabelPosition.top,
+                ),
               ),
               PositionedDirectional(
                 bottom: 0.0,

@@ -24,20 +24,31 @@ import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+
+/// The position of the [VideoStatusLabel].
+enum VideoStatusLabelPosition {
+  /// The label will be displayed at the bottom of the video.
+  ///
+  /// This is the default position.
+  bottom,
+  top;
+}
 
 class VideoStatusLabel extends StatefulWidget {
   final VideoViewInheritance video;
   final Device device;
   final Event? event;
+  final VideoStatusLabelPosition position;
 
   const VideoStatusLabel({
     super.key,
     required this.video,
     required this.device,
     this.event,
+    this.position = VideoStatusLabelPosition.bottom,
   });
 
   @override
@@ -101,26 +112,22 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
           label: status,
           event: widget.event,
         );
-        final minHeight = label.buildTextSpans(context).length * 15;
+        final (height, width) = label.textSize(context);
+        const padding = 8.0;
 
-        final willRightOverflow =
-            position.dx + _DeviceVideoInfo.minWidth > constraints.maxWidth;
-
-        final left = willRightOverflow
-            ? (position.dx - _DeviceVideoInfo.minWidth - 16.0)
+        final left = widget.position == VideoStatusLabelPosition.bottom
+            ? position.dx - width + boxSize.width
             : position.dx;
-        final top = position.dy > minHeight + 8.0
-            ? null
-            : position.dy + boxSize.height + 8.0;
-        final bottom = position.dy > minHeight + 8.0
-            ? constraints.maxHeight - position.dy + 8.0
-            : null;
+        final top = widget.position == VideoStatusLabelPosition.bottom
+            ? position.dy - height - padding
+            : position.dy + boxSize.height + padding;
 
         return Stack(children: [
           Positioned(
             left: left,
             top: top,
-            bottom: bottom,
+            height: height,
+            width: width,
             child: label,
           ),
         ]);
@@ -253,9 +260,7 @@ class _DeviceVideoInfo extends StatelessWidget {
     required this.event,
   });
 
-  static const minWidth = 211.0;
-
-  List<TextSpan> buildTextSpans(BuildContext context) {
+  List<TextSpan> _buildTextSpans(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     final name = _buildTextSpan(context, title: loc.device, data: device.name);
@@ -317,11 +322,27 @@ class _DeviceVideoInfo extends StatelessWidget {
     }
   }
 
+  (double height, double width) textSize(BuildContext context) {
+    final spans = _buildTextSpans(context);
+    var height = 0.0;
+    var width = 0.0;
+    for (final span in spans) {
+      final painter = TextPainter(
+        maxLines: 1,
+        text: span,
+        textDirection: TextDirection.ltr,
+      )..layout(maxWidth: MediaQuery.of(context).size.width);
+      height += painter.height;
+      if (painter.width > width) width = painter.width;
+    }
+
+    return (height, width);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      constraints: const BoxConstraints(minWidth: minWidth),
       decoration: BoxDecoration(
         color: theme.colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(6.0),
@@ -330,7 +351,7 @@ class _DeviceVideoInfo extends StatelessWidget {
         vertical: 12.0,
         horizontal: 12.0,
       ),
-      child: RichText(text: TextSpan(children: buildTextSpans(context))),
+      child: RichText(text: TextSpan(children: _buildTextSpans(context))),
     );
   }
 

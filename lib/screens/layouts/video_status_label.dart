@@ -163,8 +163,8 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
         settings.kLateStreamBehavior.value == LateVideoBehavior.manual;
 
     return MouseRegion(
-      onEnter: _openWithTap || isLateDismissal ? null : (_) => showOverlay(),
-      onExit: _openWithTap || isLateDismissal ? null : (_) => dismissOverlay(),
+      onEnter: _openWithTap ? null : (_) => showOverlay(),
+      onExit: _openWithTap ? null : (_) => dismissOverlay(),
       child: GestureDetector(
         onTap: () {
           if (isLateDismissal) {

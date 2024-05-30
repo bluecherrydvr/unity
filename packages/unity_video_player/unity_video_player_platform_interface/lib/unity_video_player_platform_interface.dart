@@ -309,8 +309,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     final lastImageDiff = DateTime.now().difference(lastImageUpdate!);
     if (lastImageDiff > kLateStreamThreshold) return true;
 
-    final positionDiff = (duration - currentPos).abs();
-    if (positionDiff > kLateStreamThreshold) return true;
+    // final positionDiff = (duration - currentPos).abs();
+    // if (positionDiff > kLateStreamThreshold) return true;
 
     return false;
   }
@@ -344,7 +344,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   void dismissLateVideo() {
     if (isLate) {
-      debugPrint('Dismissing late video');
+      // debugPrint('Dismissing late video');
       // seekTo(duration);
       // start();
     }

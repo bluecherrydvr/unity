@@ -68,3 +68,42 @@ Future<void> writeLogToFile(String text, {bool print = false}) async {
   Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
   if (print) debugPrint(text);
 }
+
+Future<File> getLogFileForStream(String streamUrl) async {
+  final dir = await getApplicationSupportDirectory();
+
+  final streamUri = Uri.tryParse(streamUrl);
+  String fileName;
+  if (streamUri == null || streamUri.host.isEmpty) {
+    fileName = streamUrl;
+  } else {
+    fileName = ''
+        '${streamUri.host}-'
+        '${streamUri.port}'
+        '${streamUri.path.replaceAll('/', '-')}';
+  }
+  fileName = fileName.trim();
+
+  final file = File(
+    path.join(
+      dir.path,
+      'logs',
+      '$fileName.txt',
+    ),
+  );
+
+  if (!(await file.exists())) {
+    await file.create(recursive: true);
+  }
+
+  return file;
+}
+
+Future<void> logStreamToFile(String streamUrl, String log) async {
+  if (kIsWeb) return;
+
+  final time = DateTime.now().toIso8601String();
+  final file = await getLogFileForStream(streamUrl);
+
+  await file.writeAsString('\n[$time] $log', mode: FileMode.append);
+}

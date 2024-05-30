@@ -114,6 +114,12 @@ class UnityPlayers with ChangeNotifier {
       title: device.name,
       matrixType: device.matrixType ?? settings.kMatrixSize.value,
       softwareZoom: settings.kSoftwareZooming.value,
+      onLog: (message) {
+        logStreamToFile(
+          device.url ?? '${device.name} (${device.server.ip})',
+          message,
+        );
+      },
     )
       ..setVolume(0.0)
       ..setSpeed(1.0);

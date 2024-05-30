@@ -150,6 +150,7 @@ const kDefaultVideoPlayerName = 'Bluecherry';
 abstract class UnityVideoPlayer with ChangeNotifier {
   Future<String>? fallbackUrl;
   VoidCallback? onReload;
+  ValueChanged<String>? onLog;
   late LateVideoBehavior lateVideoBehavior;
 
   /// Creates a new [UnityVideoPlayer] instance.
@@ -179,6 +180,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     LateVideoBehavior lateVideoBehavior = LateVideoBehavior.automatic,
     MatrixType matrixType = MatrixType.t1,
     bool softwareZoom = false,
+    ValueChanged<String>? onLog,
   }) {
     return UnityVideoPlayerInterface.instance.createPlayer(
       width: quality?.resolution.width.toInt(),
@@ -192,7 +194,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
       ..lateVideoBehavior = lateVideoBehavior
       ..zoom.matrixType = matrixType
       ..zoom.softwareZoom = softwareZoom
-      ..title = title ?? kDefaultVideoPlayerName;
+      ..title = title ?? kDefaultVideoPlayerName
+      ..onLog = onLog;
   }
 
   static const timerInterval = Duration(seconds: 14);

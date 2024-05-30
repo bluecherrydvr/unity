@@ -156,7 +156,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   }) {
     mkPlayer = Player(
       configuration: PlayerConfiguration(
-        logLevel: MPVLogLevel.info,
+        logLevel: MPVLogLevel.v,
         title: title,
         ready: onReady,
       ),
@@ -172,6 +172,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         height: height,
       ),
     );
+
+    onLog?.call(
+        'Initialized player $title with width=$width and height=$height');
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
     if (!kIsWeb && platform is NativePlayer) {
@@ -195,13 +198,14 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
           }
         });
 
-      platform.setProperty('msg-level', 'all=v');
       mkPlayer.stream.log.listen((event) {
-        debugPrint('${event.level} | ${event.prefix}: ${event.text}');
+        final logMessage = '${event.level} | ${event.prefix}: ${event.text}';
+        if (event.level != 'v') debugPrint(logMessage);
         if (event.level == 'fatal') {
           // ignore: invalid_use_of_protected_member
           platform.errorController.add(event.text);
         }
+        onLog?.call(logMessage);
       });
 
       // Some servers use self-signed certificates. This is necessary to allow

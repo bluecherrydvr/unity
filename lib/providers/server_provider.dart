@@ -151,23 +151,23 @@ class ServersProvider extends UnityProvider {
     bool startup = false,
     Iterable<String>? ids,
   }) async {
-    await Future.wait(servers.map((server) async {
-      if (ids != null && !ids.contains(server.id)) return;
-      if (startup && !server.additionalSettings.connectAutomaticallyAtStartup) {
+    final replacehold = <String, Server>{};
+    await Future.wait(servers.map((target) async {
+      if (ids != null && !ids.contains(target.id)) return;
+      if (startup && !target.additionalSettings.connectAutomaticallyAtStartup) {
         return;
       }
 
-      if (!loadingServer.contains(server.id)) {
-        loadingServer.add(server.id);
+      if (!loadingServer.contains(target.id)) {
+        loadingServer.add(target.id);
         notifyListeners();
       }
 
-      (_, server) = await API.instance.checkServerCredentials(server);
+      var (_, server) = await API.instance.checkServerCredentials(target);
       final devices = await API.instance.getDevices(server);
       if (devices != null) {
-        server.devices
-          ..clear()
-          ..addAll(devices);
+        debugPrint(devices.length.toString());
+        replacehold[target.id] = server;
       }
 
       if (loadingServer.contains(server.id)) {
@@ -175,6 +175,13 @@ class ServersProvider extends UnityProvider {
         notifyListeners();
       }
     }));
+
+    for (final entry in replacehold.entries) {
+      final server = entry.value;
+      final index = servers.indexWhere((s) => s.id == server.id);
+      servers[index] = server;
+    }
+
     await save();
 
     return servers;

@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 
 class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
@@ -136,6 +135,7 @@ class _MKVideoState extends State<_MKVideo> {
 
 class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   late final Player mkPlayer;
+  get platform => (mkPlayer.platform as dynamic);
   late VideoController mkVideoController;
 
   double _fps = 0;
@@ -146,16 +146,16 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Stream<double> get fpsStream => _fpsStreamController.stream;
 
   Size maxSize = Size.zero;
+  final bool enableCache;
 
   UnityVideoPlayerMediaKit({
     super.width,
     super.height,
-    bool enableCache = false,
+    this.enableCache = false,
     RTSPProtocol? rtspProtocol,
   }) {
     mkPlayer = Player(
       configuration: PlayerConfiguration(
-        bufferSize: 32 * 1024 * 1024,
         logLevel: MPVLogLevel.info,
         title: title,
         ready: onReady,
@@ -174,8 +174,8 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
     );
 
     // Check type. Only true for libmpv based platforms. Currently Windows & Linux.
-    if (!kIsWeb && mkPlayer.platform is NativePlayer) {
-      final platform = (mkPlayer.platform as dynamic)
+    if (!kIsWeb && platform is NativePlayer) {
+      platform
         ..observeProperty('estimated-vf-fps', (fps) async {
           _fps = double.parse(fps);
           _fpsStreamController.add(_fps);
@@ -197,16 +197,19 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
       platform.setProperty('msg-level', 'all=v');
       mkPlayer.stream.log.listen((event) {
-        // debugPrint('${event.level} / ${event.prefix}: ${event.text}');
+        debugPrint('${event.level} | ${event.prefix}: ${event.text}');
         if (event.level == 'fatal') {
           // ignore: invalid_use_of_protected_member
           platform.errorController.add(event.text);
         }
       });
 
+      // Some servers use self-signed certificates. This is necessary to allow
+      // the connection to these servers.
       platform.setProperty('tls-verify', 'no');
       platform.setProperty('insecure', 'yes');
 
+      // Defines the protocol to be used in the RTSP connection.
       if (rtspProtocol != null) {
         platform.setProperty(
           'rtsp-transport',
@@ -218,47 +221,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         );
       }
 
+      // Ensures the stream can be seekable. We use seekable streams to dismiss
+      // late streams.
       platform.setProperty('force-seekable', 'yes');
-
-      if (enableCache) {
-        debugPrint('Cache is enabled');
-        // https://mpv.io/manual/stable/#options-cache
-        platform
-          ..setProperty('cache', 'yes')
-          // https://mpv.io/manual/stable/#options-cache-pause-initial
-          ..setProperty('cache-pause-initial', 'yes')
-          // https://mpv.io/manual/stable/#options-cache-pause-wait
-          // ..setProperty('cache-pause-wait', '1')
-          // ..setProperty('cache-pause', 'no')
-          // https://mpv.io/manual/stable/#options-cache-secs
-          ..setProperty('cache-secs', '13');
-        getTemporaryDirectory().then((value) {
-          platform
-            ..setProperty('cache-on-disk', 'yes')
-            ..setProperty('cache-dir', value.path);
-        });
-
-        platform
-          // https://mpv.io/manual/master/#options-gapless-audio
-          ..setProperty('gapless-audio', 'yes')
-          // https://mpv.io/manual/master/#options-prefetch-playlist
-          ..setProperty('prefetch-playlist', 'yes');
-      } else {
-        platform
-          ..setProperty('cache', 'no')
-          // https://mpv.io/manual/master/#options-cache-secs
-          ..setProperty('cache-secs', '0')
-          // https://mpv.io/manual/master/#options-cache-on-disk
-          ..setProperty('cache-on-disk', 'yes')
-          // https://mpv.io/manual/master/#options-demuxer-max-back-bytes
-          ..setProperty('demuxer-max-back-bytes', '0')
-          // https://mpv.io/manual/master/#options-demuxer-donate-buffer
-          ..setProperty('demuxer-donate-buffer', 'no')
-          ..setProperty('video-sync', 'audio');
-        // these two properties reduce latency, but it causes problems with FPS
-        // platform.setProperty("profile", "low-latency");
-        // platform.setProperty("untimed", "");
-      }
     }
   }
 

@@ -346,6 +346,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     if (isLate) {
       debugPrint('Dismissing late video');
       seekTo(duration);
+      start();
     }
   }
 

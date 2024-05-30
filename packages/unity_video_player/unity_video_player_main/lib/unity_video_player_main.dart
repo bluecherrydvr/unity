@@ -223,7 +223,7 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
 
       // Ensures the stream can be seekable. We use seekable streams to dismiss
       // late streams.
-      platform.setProperty('force-seekable', 'yes');
+      // platform.setProperty('force-seekable', 'yes');
     }
   }
 

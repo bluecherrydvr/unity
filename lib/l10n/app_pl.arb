@@ -99,6 +99,7 @@
     }
   },
   "removeCamera": "Usuń kamerę",
+  "removePlayer": "Remove all devices from this player",
   "replaceCamera": "Zastąp kamerę",
   "reloadCamera": "Odśwież kamerę",
   "selectACamera": "Wybierz kamerę",

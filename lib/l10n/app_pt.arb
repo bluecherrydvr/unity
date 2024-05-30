@@ -99,6 +99,7 @@
     }
   },
   "removeCamera": "Remover Câmera",
+  "removePlayer": "Remover todos as câmeras atribuidas a esse player",
   "replaceCamera": "Substituir Câmera",
   "reloadCamera": "Recarregar Câmera",
   "selectACamera": "Selecione uma câmera",

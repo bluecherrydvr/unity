@@ -99,6 +99,7 @@
     }
   },
   "removeCamera": "Remove Camera",
+  "removePlayer": "Remove all devices attached to this player",
   "replaceCamera": "Replace Camera",
   "reloadCamera": "Reload Camera",
   "selectACamera": "Select a camera",

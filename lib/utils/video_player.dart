@@ -41,7 +41,7 @@ class UnityPlayers with ChangeNotifier {
   static final players = <String, UnityVideoPlayer>{};
 
   /// Devices that should be reloaded at every [reloadTime] interval.
-  static final _reloadable = <String>[];
+  static final _reloadable = <String>{};
 
   static Timer? _reloadTimer;
   static void createTimer() {

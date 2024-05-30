@@ -37,9 +37,11 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       width: width,
       height: height,
       enableCache: enableCache,
+      rtspProtocol: rtspProtocol,
     )
       ..zoom.matrixType = matrixType
-      ..zoom.softwareZoom = softwareZoom;
+      ..zoom.softwareZoom = softwareZoom
+      ..onReload = onReload;
     UnityVideoPlayerInterface.registerPlayer(player);
     return player;
   }

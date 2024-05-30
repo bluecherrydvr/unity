@@ -99,6 +99,7 @@
     }
   },
   "removeCamera": "Usuń kamerę",
+  "removePlayer": "Remove all devices from this player",
   "replaceCamera": "Zastąp kamerę",
   "reloadCamera": "Odśwież kamerę",
   "selectACamera": "Wybierz kamerę",
@@ -301,7 +302,9 @@
   },
   "playbackOptions": "OPCJE ODTWARZANIA",
   "play": "Odtwarzaj",
+  "playing": "Playing",
   "pause": "Pauza",
+  "paused": "Paused",
   "volume": "Głośność • {v}",
   "@volume": {
     "placeholders": {

@@ -41,7 +41,7 @@ class UnityPlayers with ChangeNotifier {
   static final players = <String, UnityVideoPlayer>{};
 
   /// Devices that should be reloaded at every [reloadTime] interval.
-  static final _reloadable = <String>[];
+  static final _reloadable = <String>{};
 
   static Timer? _reloadTimer;
   static void createTimer() {
@@ -74,7 +74,7 @@ class UnityPlayers with ChangeNotifier {
     Device device, [
     VoidCallback? onSetSource,
   ]) {
-    final settings = SettingsProvider.instance;
+    SettingsProvider settings() => SettingsProvider.instance;
     late UnityVideoPlayer controller;
 
     Future<void> setSource() async {
@@ -84,7 +84,7 @@ class UnityPlayers with ChangeNotifier {
       } else {
         var streamingType = device.preferredStreamingType ??
             device.server.additionalSettings.preferredStreamingType ??
-            settings.kStreamingType.value;
+            settings().kStreamingType.value;
         if (kIsWeb && streamingType == StreamingType.rtsp) {
           streamingType = StreamingType.hls;
         }
@@ -108,12 +108,22 @@ class UnityPlayers with ChangeNotifier {
 
     controller = UnityVideoPlayer.create(
       quality: (device.server.additionalSettings.renderingQuality ??
-              settings.kRenderingQuality.value)
+              settings().kRenderingQuality.value)
           .playerQuality,
-      onReload: setSource,
+      onReload: () {
+        if (settings().kReloadTimedOutStreams.value) {
+          setSource();
+        }
+      },
       title: device.name,
-      matrixType: device.matrixType ?? settings.kMatrixSize.value,
-      softwareZoom: settings.kSoftwareZooming.value,
+      matrixType: device.matrixType ?? settings().kMatrixSize.value,
+      softwareZoom: settings().kSoftwareZooming.value,
+      onLog: (message) {
+        logStreamToFile(
+          device.url ?? '${device.name} (${device.server.ip})',
+          message,
+        );
+      },
     )
       ..setVolume(0.0)
       ..setSpeed(1.0);

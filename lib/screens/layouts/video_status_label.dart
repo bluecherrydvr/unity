@@ -163,8 +163,8 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
         settings.kLateStreamBehavior.value == LateVideoBehavior.manual;
 
     return MouseRegion(
-      onEnter: _openWithTap || isLateDismissal ? null : (_) => showOverlay(),
-      onExit: _openWithTap || isLateDismissal ? null : (_) => dismissOverlay(),
+      onEnter: _openWithTap ? null : (_) => showOverlay(),
+      onExit: _openWithTap ? null : (_) => dismissOverlay(),
       child: GestureDetector(
         onTap: () {
           if (isLateDismissal) {
@@ -292,6 +292,11 @@ class _DeviceVideoInfo extends StatelessWidget {
           data: video.lastImageUpdate == null
               ? loc.unknown
               : DateFormat.Hms().format(video.lastImageUpdate!),
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.status,
+          data: video.player.isPlaying ? loc.playing : loc.paused,
           last: true,
         ),
       ];
@@ -316,6 +321,12 @@ class _DeviceVideoInfo extends StatelessWidget {
           data: event!.type.locale(context),
           last: true,
         ),
+        _buildTextSpan(
+          context,
+          title: loc.status,
+          data: video.player.isPlaying ? loc.playing : loc.paused,
+          last: true,
+        ),
       ];
     } else {
       return [name, server];
@@ -324,6 +335,7 @@ class _DeviceVideoInfo extends StatelessWidget {
 
   (double height, double width) textSize(BuildContext context) {
     final spans = _buildTextSpans(context);
+    const padding = 12.0 * 2.0;
     var height = 0.0;
     var width = 0.0;
     for (final span in spans) {
@@ -336,7 +348,7 @@ class _DeviceVideoInfo extends StatelessWidget {
       if (painter.width > width) width = painter.width;
     }
 
-    return (height, width);
+    return (height + padding, width + padding);
   }
 
   @override
@@ -351,6 +363,7 @@ class _DeviceVideoInfo extends StatelessWidget {
         vertical: 12.0,
         horizontal: 12.0,
       ),
+      alignment: AlignmentDirectional.center,
       child: RichText(text: TextSpan(children: _buildTextSpans(context))),
     );
   }

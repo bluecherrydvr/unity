@@ -296,7 +296,7 @@ class _DeviceVideoInfo extends StatelessWidget {
         _buildTextSpan(
           context,
           title: loc.status,
-          data: video.player.isPlaying ? 'Playing' : 'Paused',
+          data: video.player.isPlaying ? loc.playing : loc.paused,
           last: true,
         ),
       ];
@@ -319,6 +319,12 @@ class _DeviceVideoInfo extends StatelessWidget {
           context,
           title: loc.eventType,
           data: event!.type.locale(context),
+          last: true,
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.status,
+          data: video.player.isPlaying ? loc.playing : loc.paused,
           last: true,
         ),
       ];

@@ -301,7 +301,9 @@
   },
   "playbackOptions": "PLAYBACK OPTIONS",
   "play": "Play",
+  "playing": "Playing",
   "pause": "Pause",
+  "paused": "Paused",
   "volume": "Volume • {v}",
   "@volume": {
     "placeholders": {

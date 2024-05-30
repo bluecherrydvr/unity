@@ -301,7 +301,9 @@
   },
   "playbackOptions": "OPÇÕES DE REPRODUÇÃO",
   "play": "Reproduzir",
+  "playing": "Reproduzindo",
   "pause": "Pausar",
+  "paused": "Pausado",
   "volume": "Volume • {v}",
   "@volume": {
     "placeholders": {

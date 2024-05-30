@@ -292,6 +292,11 @@ class _DeviceVideoInfo extends StatelessWidget {
           data: video.lastImageUpdate == null
               ? loc.unknown
               : DateFormat.Hms().format(video.lastImageUpdate!),
+        ),
+        _buildTextSpan(
+          context,
+          title: loc.status,
+          data: video.player.isPlaying ? 'Playing' : 'Paused',
           last: true,
         ),
       ];

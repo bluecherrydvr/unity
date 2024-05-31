@@ -46,6 +46,12 @@ class _CameraViewState extends State<CameraView> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.black,

@@ -90,11 +90,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final MapEntry<Server, Iterable<Device>>(
-                          key: server,
-                          value: devices,
-                        ) in _servers.entries)
+                    for (final entry in _servers.entries)
                       () {
+                        final server = entry.key;
+                        final devices = entry.value;
                         final isLoading = servers.isServerLoading(server);
                         if (!isLoading &&
                             devices.isEmpty &&

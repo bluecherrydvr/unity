@@ -138,44 +138,50 @@ class _MulticastViewportState extends State<MulticastViewport> {
     }
 
     return LayoutBuilder(builder: (context, constraints) {
-      return Stack(children: [
+      return Stack(alignment: Alignment.center, children: [
         if (size > 1)
           Positioned.fill(
-            child: GridView.count(
-              crossAxisCount: size,
-              childAspectRatio: kHorizontalAspectRatio,
-              physics: const NeverScrollableScrollPhysics(),
-              children: List.generate(size * size, (index) {
-                final row = index ~/ size;
-                final col = index % size;
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: kHorizontalAspectRatio,
+                child: GridView.count(
+                  crossAxisCount: size,
+                  childAspectRatio: kHorizontalAspectRatio,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  children: List.generate(size * size, (index) {
+                    final row = index ~/ size;
+                    final col = index % size;
 
-                return HoverButton(
-                  onDoubleTap: () {
-                    views.updateDevice(
-                      widget.device,
-                      widget.device.copyWith(matrixType: matrixType.next),
+                    return HoverButton(
+                      onDoubleTap: () {
+                        views.updateDevice(
+                          widget.device,
+                          widget.device.copyWith(matrixType: matrixType.next),
+                        );
+                      },
+                      onPressed: () {
+                        view.player.crop(row, col);
+                        currentZoom = (row, col);
+                      },
+                      builder: (context, states) => SizedBox.expand(
+                        child: IgnorePointer(
+                          child: states.isHovering
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: theme.colorScheme.secondary,
+                                      width: 2.25,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
                     );
-                  },
-                  onPressed: () {
-                    view.player.crop(row, col);
-                    currentZoom = (row, col);
-                  },
-                  builder: (context, states) => SizedBox.expand(
-                    child: IgnorePointer(
-                      child: states.isHovering
-                          ? Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: theme.colorScheme.secondary,
-                                  width: 2.25,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                );
-              }),
+                  }),
+                ),
+              ),
             ),
           ),
         for (final overlay in widget.device.overlays)

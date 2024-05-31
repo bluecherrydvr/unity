@@ -45,7 +45,6 @@ class _CameraViewState extends State<CameraView> {
   void initState() {
     super.initState();
     controller = UnityVideoPlayer.create(
-      quality: UnityVideoQuality.p720,
       title: widget.device.fullName,
     )
       ..setDataSource(widget.device.streamURL)
@@ -68,10 +67,7 @@ class _CameraViewState extends State<CameraView> {
     return Material(
       color: Colors.black,
       child: Column(children: [
-        WindowButtons(
-          title: widget.device.name,
-          showNavigator: false,
-        ),
+        WindowButtons(title: widget.device.name, showNavigator: false),
         Expanded(
           child: UnityVideoView(
             player: controller,

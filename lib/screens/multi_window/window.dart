@@ -25,7 +25,6 @@ import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 /// A widget that provides a [Window] for the [child] widget.
@@ -56,26 +55,26 @@ class AlternativeWindowState extends State<AlternativeWindow> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider.value(value: HomeProvider.instance),
         ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
         ChangeNotifierProvider.value(value: SettingsProvider.instance),
       ],
-      child: MaterialApp(
-        navigatorKey: navigatorKey,
-        navigatorObservers: [NObserver()],
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        themeMode: widget.mode,
-        theme: createTheme(brightness: Brightness.light),
-        darkTheme: createTheme(brightness: Brightness.dark),
-        debugShowCheckedModeBanner: false,
-        home: widget.child,
-      ),
+      builder: (context, child) {
+        final settings = context.watch<SettingsProvider>();
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          navigatorObservers: [navigatorObserver],
+          locale: settings.kLanguageCode.value,
+          localizationsDelegates: UnityApp.localizationDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          themeMode: widget.mode,
+          theme: createTheme(brightness: Brightness.light),
+          darkTheme: createTheme(brightness: Brightness.dark),
+          debugShowCheckedModeBanner: false,
+          home: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

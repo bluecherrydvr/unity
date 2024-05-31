@@ -90,6 +90,7 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
+      'multi_window',
       '${MultiWindowType.device.index}',
       json.encode(toJson()),
       '${SettingsProvider.instance.kThemeMode.value.index}',

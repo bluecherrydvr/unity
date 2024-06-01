@@ -72,6 +72,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
   @override
   Future<void> fetch() async {
+    if (!context.mounted) return;
     final eventsProvider = context.read<EventsProvider>();
     final settings = context.read<SettingsProvider>();
     setState(() {
@@ -199,9 +200,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             // special case: the width is less than the mobile breakpoint
             constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
           if (!hasEverFetched) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              fetch();
-            });
+            WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
           }
           if (timeline == null) {
             return SafeArea(

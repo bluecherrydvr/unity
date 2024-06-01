@@ -142,8 +142,7 @@ class _DownloadTileState extends State<DownloadTile> {
     super.initState();
     if (widget.initiallyExpanded) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-
+        if (!context.mounted) return;
         Scrollable.ensureVisible(context);
       });
     }

@@ -467,6 +467,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
             child: Text(loc.showFullscreenCamera),
             onTap: () async {
               WidgetsBinding.instance.addPostFrameCallback((_) async {
+                if (!context.mounted) return;
                 var player = UnityPlayers.players[widget.device.uuid];
                 final isLocalController = player == null;
                 if (isLocalController) {
@@ -498,6 +499,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
           child: Text(loc.deviceInfo),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!context.mounted) return;
               await showDeviceInfoDialog(context, widget.device);
             });
           },

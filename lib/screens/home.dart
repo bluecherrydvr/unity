@@ -115,6 +115,7 @@ class _MobileHomeState extends State<Home> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!context.mounted) return;
       context.read<HomeProvider>().refreshDeviceOrientation(context);
     });
   }

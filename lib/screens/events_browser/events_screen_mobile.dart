@@ -45,9 +45,10 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => showFilterSheet(context, loadInitially: true),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      showFilterSheet(context, loadInitially: true);
+    });
   }
 
   @override

@@ -55,6 +55,7 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
       final eventsProvider = context.read<EventsProvider>();
       final serversProvider = context.read<ServersProvider>();
 

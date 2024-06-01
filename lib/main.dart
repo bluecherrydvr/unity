@@ -113,12 +113,12 @@ Future<void> main(List<String> args) async {
           await SettingsProvider.ensureInitialized();
           await DesktopViewProvider.ensureInitialized();
 
-          final windowType = MultiWindowType.values[int.tryParse(args[0]) ?? 0];
-          final themeMode = ThemeMode.values[int.tryParse(args[2]) ?? 0];
+          final windowType = MultiWindowType.values[int.tryParse(args[1]) ?? 0];
+          final themeMode = ThemeMode.values[int.tryParse(args[3]) ?? 0];
 
           switch (windowType) {
             case MultiWindowType.device:
-              final device = Device.fromJson(json.decode(args[1]));
+              final device = Device.fromJson(json.decode(args[2]));
               configureWindowTitle(device.fullName);
 
               runApp(AlternativeWindow(
@@ -127,7 +127,7 @@ Future<void> main(List<String> args) async {
               ));
               break;
             case MultiWindowType.layout:
-              final layout = Layout.fromJson(args[1]);
+              final layout = Layout.fromJson(args[2]);
               configureWindowTitle(layout.name);
 
               runApp(AlternativeWindow(
@@ -174,7 +174,7 @@ Future<void> main(List<String> args) async {
     ]);
 
     /// Firebase messaging isn't available on windows nor linux
-    if (!kIsWeb && (isMobilePlatform || Platform.isMacOS)) {
+    if (!kIsWeb && isMobilePlatform) {
       FirebaseConfiguration.ensureInitialized();
     }
 
@@ -193,6 +193,14 @@ class UnityApp extends StatefulWidget {
 
   @override
   State<UnityApp> createState() => _UnityAppState();
+
+  static const localizationDelegates = [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    LocaleNamesLocalizationsDelegate(),
+  ];
 }
 
 class _UnityAppState extends State<UnityApp>
@@ -310,7 +318,9 @@ class _UnityAppState extends State<UnityApp>
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider<HomeProvider>.value(
+          value: HomeProvider.instance,
+        ),
         ChangeNotifierProvider<SettingsProvider>.value(
           value: SettingsProvider.instance,
         ),
@@ -342,13 +352,7 @@ class _UnityAppState extends State<UnityApp>
           navigatorKey: navigatorKey,
           navigatorObservers: [navigatorObserver],
           locale: settings.kLanguageCode.value,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            LocaleNamesLocalizationsDelegate(),
-          ],
+          localizationsDelegates: UnityApp.localizationDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           themeMode: settings.kThemeMode.value,
           theme: createTheme(brightness: Brightness.light),

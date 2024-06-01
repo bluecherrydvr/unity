@@ -17,11 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
-
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -36,30 +35,19 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  late final UnityVideoPlayer controller;
-  late final StreamSubscription _durationSubscription;
+  late final UnityVideoPlayer _controller;
   late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
       SettingsProvider.instance.kVideoFit.value;
 
   @override
   void initState() {
     super.initState();
-    controller = UnityVideoPlayer.create(
-      quality: UnityVideoQuality.p720,
-      title: widget.device.fullName,
-    )
-      ..setDataSource(widget.device.streamURL)
-      ..setVolume(0.0)
-      ..setSpeed(1.0);
-
-    _durationSubscription = controller.onDurationUpdate.listen((event) {
-      if (mounted) setState(() {});
-    });
+    _controller = UnityPlayers.forDevice(widget.device);
   }
 
   @override
   void dispose() {
-    _durationSubscription.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -68,13 +56,10 @@ class _CameraViewState extends State<CameraView> {
     return Material(
       color: Colors.black,
       child: Column(children: [
-        WindowButtons(
-          title: widget.device.name,
-          showNavigator: false,
-        ),
+        WindowButtons(title: widget.device.name, showNavigator: false),
         Expanded(
           child: UnityVideoView(
-            player: controller,
+            player: _controller,
             fit: fit,
             paneBuilder: (context, controller) {
               return DesktopTileViewport(

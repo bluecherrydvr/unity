@@ -51,7 +51,9 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       final devices = server.devices.sorted(
         searchQuery: searchQuery,
       );
-      _servers[server] = devices;
+      if (devices.isNotEmpty) {
+        _servers[server] = devices;
+      }
     }
   }
 
@@ -90,11 +92,10 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final MapEntry<Server, Iterable<Device>>(
-                          key: server,
-                          value: devices,
-                        ) in _servers.entries)
+                    for (final entry in _servers.entries)
                       () {
+                        final server = entry.key;
+                        final devices = entry.value;
                         final isLoading = servers.isServerLoading(server);
                         if (!isLoading &&
                             devices.isEmpty &&
@@ -466,6 +467,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
             child: Text(loc.showFullscreenCamera),
             onTap: () async {
               WidgetsBinding.instance.addPostFrameCallback((_) async {
+                if (!context.mounted) return;
                 var player = UnityPlayers.players[widget.device.uuid];
                 final isLocalController = player == null;
                 if (isLocalController) {
@@ -497,6 +499,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
           child: Text(loc.deviceInfo),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!context.mounted) return;
               await showDeviceInfoDialog(context, widget.device);
             });
           },

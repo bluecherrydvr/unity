@@ -125,7 +125,7 @@ Win32Window::~Win32Window() {
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
                          const Size& size) {
-  if (SendAppLinkToInstance(title)) {
+  if (title.substr(0, 12) == L"multi_window" && SendAppLinkToInstance(title)) {
     return false;
   }
   Destroy();

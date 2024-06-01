@@ -98,7 +98,7 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
   OverlayEntry? entry;
   bool get isOverlayOpen => entry != null;
   void showOverlay({bool force = false}) {
-    if (entry != null && !force) return;
+    if ((entry != null && !force) || !context.mounted) return;
 
     final box = context.findRenderObject() as RenderBox;
     final boxSize = box.size;

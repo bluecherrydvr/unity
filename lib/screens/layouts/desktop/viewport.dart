@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -102,28 +104,25 @@ class DesktopTileViewport extends StatefulWidget {
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
-  late double? volume = widget.controller?.volume;
-
-  void updateVolume() {
-    if (widget.controller != null && mounted) {
-      setState(() => volume = widget.controller!.volume);
-    }
-  }
+  double get volume => widget.controller?.volume ?? 0.0;
+  StreamSubscription<double>? volumeSubscription;
 
   @override
   void initState() {
     super.initState();
     if (widget.controller != null) {
-      updateVolume();
+      volumeSubscription = widget.controller!.volumeStream.listen((event) {
+        if (mounted) {
+          setState(() {});
+        }
+      });
     }
   }
 
   @override
-  void didUpdateWidget(covariant DesktopTileViewport oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller == null && widget.controller != null) {
-      updateVolume();
-    }
+  void dispose() {
+    volumeSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -244,13 +243,11 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                               tooltip:
                                   isMuted ? loc.enableAudio : loc.disableAudio,
                               onPressed: () async {
-                                if (isMuted) {
-                                  await widget.controller!.setVolume(1.0);
-                                } else {
+                                if (!isMuted) {
                                   await widget.controller!.setVolume(0.0);
+                                } else {
+                                  await widget.controller!.setVolume(1.0);
                                 }
-
-                                updateVolume();
                               },
                             ),
                           if (isDesktopPlatform &&
@@ -343,7 +340,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                                 device.preferredStreamingType !=
                                     widget.device.preferredStreamingType,
                           );
-                          updateVolume();
                         }
                       },
                     ),

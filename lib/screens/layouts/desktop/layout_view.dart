@@ -256,7 +256,21 @@ class LayoutView extends StatelessWidget {
               topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
             ),
           ),
-          child: SafeArea(child: Center(child: child)),
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    layout.name,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                Expanded(child: child),
+              ],
+            ),
+          ),
         );
       },
     );

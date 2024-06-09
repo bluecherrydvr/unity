@@ -132,6 +132,11 @@ bool get isCupertino {
   return cupertinoPlatforms.contains(defaultTargetPlatform);
 }
 
+bool get isEmbedded {
+  return true;
+  return UpdateManager.linuxEnvironment == LinuxPlatform.embedded;
+}
+
 /// Determines the amount of events that can be loaded at once.
 ///
 /// The calculation is based on the current connectivity status. If the device

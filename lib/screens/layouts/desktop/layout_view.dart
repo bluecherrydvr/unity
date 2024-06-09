@@ -50,11 +50,7 @@ int calculateCrossAxisCount(int deviceAmount) {
 class _LargeDeviceGridState extends State<LargeDeviceGrid> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
-    final settings = context.watch<SettingsProvider>();
-    final loc = AppLocalizations.of(context);
-
     final isReversed = widget.width <= _kReverseBreakpoint;
 
     final children = [
@@ -63,38 +59,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid> {
         left: !isReversed,
         builder: (context, collapsed, collapseButton) {
           if (collapsed) {
-            return Column(children: [
-              collapseButton,
-              const Spacer(),
-              SquaredIconButton(
-                icon: Icon(
-                  Icons.cyclone,
-                  size: 20.0,
-                  color: settings.kLayoutCycleEnabled.value
-                      ? theme.colorScheme.primary
-                      : IconTheme.of(context).color,
-                ),
-                tooltip: loc.cycle,
-                onPressed: settings.toggleCycling,
-              ),
-              SquaredIconButton(
-                icon: const Icon(Icons.camera_outdoor, size: 20.0),
-                tooltip: loc.addExternalStream,
-                onPressed: () => AddExternalStreamDialog.show(context),
-              ),
-              Container(
-                padding: const EdgeInsetsDirectional.all(8.0),
-                margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.primaryContainer,
-                ),
-                child: Text(
-                  '${view.currentLayout.devices.length}',
-                  style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-                ),
-              ),
-            ]);
+            return CollapsedSidebar(collapseButton: collapseButton);
           }
           return DesktopSidebar(collapseButton: collapseButton);
         },

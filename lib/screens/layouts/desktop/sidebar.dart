@@ -508,3 +508,49 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
     );
   }
 }
+
+class CollapsedSidebar extends StatelessWidget {
+  final Widget collapseButton;
+
+  const CollapsedSidebar({super.key, required this.collapseButton});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final view = context.watch<DesktopViewProvider>();
+    return Column(children: [
+      collapseButton,
+      const Spacer(),
+      SquaredIconButton(
+        icon: Icon(
+          Icons.cyclone,
+          size: 20.0,
+          color: settings.kLayoutCycleEnabled.value
+              ? theme.colorScheme.primary
+              : IconTheme.of(context).color,
+        ),
+        tooltip: loc.cycle,
+        onPressed: settings.toggleCycling,
+      ),
+      SquaredIconButton(
+        icon: const Icon(Icons.camera_outdoor, size: 20.0),
+        tooltip: loc.addExternalStream,
+        onPressed: () => AddExternalStreamDialog.show(context),
+      ),
+      Container(
+        padding: const EdgeInsetsDirectional.all(8.0),
+        margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: theme.colorScheme.primaryContainer,
+        ),
+        child: Text(
+          '${view.currentLayout.devices.length}',
+          style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        ),
+      ),
+    ]);
+  }
+}

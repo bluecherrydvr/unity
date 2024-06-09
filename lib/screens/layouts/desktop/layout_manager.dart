@@ -142,11 +142,12 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                   onPressed: settings.toggleCycling,
                 ),
                 SquaredIconButton(
-                  icon: Icon(
-                    Icons.add,
-                    size: 18.0,
-                    color: IconTheme.of(context).color,
-                  ),
+                  icon: const Icon(Icons.next_plan_outlined, size: 18.0),
+                  tooltip: loc.switchToNext,
+                  onPressed: view.switchToNextLayout,
+                ),
+                SquaredIconButton(
+                  icon: const Icon(Icons.add, size: 18.0),
                   tooltip: loc.newLayout,
                   onPressed: () {
                     showDialog(

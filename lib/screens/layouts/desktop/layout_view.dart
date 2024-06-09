@@ -267,7 +267,7 @@ class LayoutView extends StatelessWidget {
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
-                Expanded(child: child),
+                Expanded(child: Center(child: child)),
               ],
             ),
           ),

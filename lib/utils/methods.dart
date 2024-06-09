@@ -133,8 +133,10 @@ bool get isCupertino {
 }
 
 bool get isEmbedded {
-  return true;
-  return UpdateManager.linuxEnvironment == LinuxPlatform.embedded;
+  if (Platform.isLinux) {
+    return UpdateManager.linuxEnvironment == LinuxPlatform.embedded;
+  }
+  return false;
 }
 
 /// Determines the amount of events that can be loaded at once.

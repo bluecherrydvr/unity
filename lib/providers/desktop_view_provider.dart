@@ -309,6 +309,14 @@ class DesktopViewProvider extends UnityProvider {
     return save(notifyListeners: false);
   }
 
+  Future<void> clearLayout({Layout? layout}) {
+    layout ??= currentLayout;
+    return updateLayout(
+      layout,
+      layout.copyWith(devices: []),
+    );
+  }
+
   /// Updates a device in all the layouts.
   ///
   /// If [reload] is `true`, the device player will be reloaded.

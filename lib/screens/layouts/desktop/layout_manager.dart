@@ -315,10 +315,7 @@ class _LayoutTileState extends State<LayoutTile> {
           PopupMenuItem(
             child: Text(loc.clearLayout(widget.layout.devices.length)),
             onTap: () {
-              DesktopViewProvider.instance.updateLayout(
-                widget.layout,
-                widget.layout.copyWith(devices: []),
-              );
+              DesktopViewProvider.instance.clearLayout(layout: widget.layout);
             },
           ),
           const PopupMenuDivider(),
@@ -332,7 +329,7 @@ class _LayoutTileState extends State<LayoutTile> {
             );
           },
         ),
-        if (isDesktopPlatform)
+        if (canOpenNewWindow)
           PopupMenuItem(
             onTap: widget.layout.openInANewWindow,
             child: Text(loc.openInANewWindow),

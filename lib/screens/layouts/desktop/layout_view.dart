@@ -107,6 +107,7 @@ class LayoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final view = context.watch<DesktopViewProvider>();
 
     return DragTarget<Device>(
       onWillAcceptWithDetails: onWillAccept == null
@@ -261,11 +262,45 @@ class LayoutView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    layout.name,
-                    style: theme.textTheme.titleSmall,
-                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(children: [
+                    Expanded(
+                      child: Text(
+                        layout.name,
+                        style: theme.textTheme.titleSmall,
+                      ),
+                    ),
+                    if (layout.devices.isNotEmpty)
+                      SquaredIconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: loc.clearLayout(layout.devices.length),
+                        onPressed: view.clearLayout,
+                      ),
+                    if (canOpenNewWindow)
+                      SquaredIconButton(
+                        icon: const Icon(Icons.open_in_new),
+                        tooltip: loc.openInANewWindow,
+                        onPressed: layout.openInANewWindow,
+                      ),
+                    SquaredIconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: loc.editLayout,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              EditLayoutDialog(layout: layout),
+                        );
+                      },
+                    ),
+                    SquaredIconButton(
+                      icon: const Icon(Icons.import_export),
+                      tooltip: loc.exportLayout,
+                      onPressed: () {
+                        layout.export(dialogTitle: loc.exportLayout);
+                      },
+                    ),
+                  ]),
                 ),
                 Expanded(child: Center(child: child)),
               ],

@@ -55,7 +55,8 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid> {
 
     final children = [
       CollapsableSidebar(
-        initiallyClosed: app_links.openedFromFile,
+        initiallyClosed:
+            app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
         left: !isReversed,
         builder: (context, collapsed, collapseButton) {
           if (collapsed) {

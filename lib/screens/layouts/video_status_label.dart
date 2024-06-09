@@ -319,7 +319,6 @@ class _DeviceVideoInfo extends StatelessWidget {
           context,
           title: loc.eventType,
           data: event!.type.locale(context),
-          last: true,
         ),
         _buildTextSpan(
           context,

@@ -522,7 +522,14 @@ class CollapsedSidebar extends StatelessWidget {
     final view = context.watch<DesktopViewProvider>();
     return Column(children: [
       collapseButton,
-      const Spacer(),
+      SquaredIconButton(
+        icon: Icon(
+          view.currentLayout.type.icon,
+          size: 20.0,
+        ),
+        tooltip: loc.switchToNext,
+        onPressed: view.switchToNextLayout,
+      ),
       SquaredIconButton(
         icon: Icon(
           Icons.cyclone,
@@ -534,6 +541,7 @@ class CollapsedSidebar extends StatelessWidget {
         tooltip: loc.cycle,
         onPressed: settings.toggleCycling,
       ),
+      const Spacer(),
       SquaredIconButton(
         icon: const Icon(Icons.camera_outdoor, size: 20.0),
         tooltip: loc.addExternalStream,

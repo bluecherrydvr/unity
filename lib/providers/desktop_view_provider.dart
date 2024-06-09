@@ -281,6 +281,18 @@ class DesktopViewProvider extends UnityProvider {
     return save(notifyListeners: false);
   }
 
+  Layout get nextLayout {
+    final next = (_currentLayout + 1) % layouts.length;
+    return layouts[next];
+  }
+
+  Future<void> switchToNextLayout() {
+    if (layouts.length > 1) {
+      return updateCurrentLayout((_currentLayout + 1) % layouts.length);
+    }
+    return Future.value();
+  }
+
   /// Reorders the layouts
   Future<void> reorderLayout(int oldIndex, int newIndex) {
     if (oldIndex == newIndex) return Future.value();

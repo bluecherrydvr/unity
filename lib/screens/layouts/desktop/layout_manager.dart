@@ -88,16 +88,8 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
     timer?.cancel();
     timer = Timer.periodic(settings.kLayoutCyclePeriod.value, (timer) {
       if (!mounted) return;
-
-      final view = DesktopViewProvider.instance;
-
       if (settings.kLayoutCycleEnabled.value) {
-        final currentIsLast =
-            view.currentLayoutIndex == view.layouts.length - 1;
-
-        view.updateCurrentLayout(
-          currentIsLast ? 0 : view.currentLayoutIndex + 1,
-        );
+        DesktopViewProvider.instance.switchToNextLayout();
       }
     });
   }

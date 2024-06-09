@@ -88,7 +88,6 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
                 tooltip: _showStreamUrl ? loc.hide : loc.show,
                 icon: Icon(
                   _showStreamUrl ? Icons.visibility_off : Icons.visibility,
-                  size: 18.0,
                 ),
               ),
             ]),

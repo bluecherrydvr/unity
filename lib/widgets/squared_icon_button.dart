@@ -42,7 +42,10 @@ class SquaredIconButton extends StatelessWidget {
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsetsDirectional.all(2.5),
-          child: icon,
+          child: IconTheme.merge(
+            data: const IconThemeData(size: 18.0),
+            child: icon,
+          ),
         ),
       ),
     );

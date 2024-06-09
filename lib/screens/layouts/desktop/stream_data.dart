@@ -155,7 +155,6 @@ class _StreamDataState extends State<StreamData> {
                     tooltip: showUrl ? loc.hide : loc.show,
                     icon: Icon(
                       showUrl ? Icons.visibility_off : Icons.visibility,
-                      size: 18.0,
                     ),
                     onPressed: () {
                       setState(() => showUrl = !showUrl);
@@ -165,7 +164,7 @@ class _StreamDataState extends State<StreamData> {
                 WidgetSpan(
                   child: SquaredIconButton(
                     padding: EdgeInsetsDirectional.zero,
-                    icon: const Icon(Icons.copy, size: 18.0),
+                    icon: const Icon(Icons.copy),
                     tooltip: MaterialLocalizations.of(context).copyButtonLabel,
                     onPressed: () {
                       Clipboard.setData(

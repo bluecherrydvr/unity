@@ -245,7 +245,6 @@ class _TimelineCardState extends State<TimelineCard> {
                           Icons.fullscreen,
                           color: Colors.white,
                           shadows: outlinedText(),
-                          size: 18.0,
                         ),
                       )
                     ],

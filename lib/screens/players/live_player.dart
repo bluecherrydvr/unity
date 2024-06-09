@@ -412,7 +412,6 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                                 : Icons.volume_up_rounded,
                             shadows: outlinedText(),
                             color: Colors.white,
-                            size: 18.0,
                           ),
                           tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
                           onPressed: () async {
@@ -430,7 +429,6 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                             Icons.open_in_new,
                             shadows: outlinedText(),
                             color: Colors.white,
-                            size: 18.0,
                           ),
                           tooltip: loc.openInANewWindow,
                           onPressed: () {

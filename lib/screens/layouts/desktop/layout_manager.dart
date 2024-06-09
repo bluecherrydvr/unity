@@ -133,7 +133,6 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                 SquaredIconButton(
                   icon: Icon(
                     Icons.cyclone,
-                    size: 18.0,
                     color: settings.kLayoutCycleEnabled.value
                         ? theme.colorScheme.primary
                         : IconTheme.of(context).color,
@@ -142,12 +141,12 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                   onPressed: settings.toggleCycling,
                 ),
                 SquaredIconButton(
-                  icon: const Icon(Icons.next_plan_outlined, size: 18.0),
+                  icon: const Icon(Icons.next_plan_outlined),
                   tooltip: loc.switchToNext,
                   onPressed: view.switchToNextLayout,
                 ),
                 SquaredIconButton(
-                  icon: const Icon(Icons.add, size: 18.0),
+                  icon: const Icon(Icons.add),
                   tooltip: loc.newLayout,
                   onPressed: () {
                     showDialog(
@@ -580,13 +579,8 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
         if (view.layouts.length > 1)
           SquaredIconButton(
-            icon: Icon(
-              Icons.delete,
-              color: theme.colorScheme.error,
-              size: 18.0,
-            ),
+            icon: Icon(Icons.delete, color: theme.colorScheme.error),
             tooltip: loc.delete,
-            // iconSize: 18.0,
             onPressed: () {
               view.removeLayout(widget.layout);
               Navigator.of(context).pop();

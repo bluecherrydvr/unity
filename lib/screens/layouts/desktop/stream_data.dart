@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/device_info_dialog.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -162,26 +163,7 @@ class _StreamDataState extends State<StreamData> {
                   ),
                 ),
                 WidgetSpan(
-                  child: SquaredIconButton(
-                    padding: EdgeInsetsDirectional.zero,
-                    icon: const Icon(Icons.copy),
-                    tooltip: MaterialLocalizations.of(context).copyButtonLabel,
-                    onPressed: () {
-                      Clipboard.setData(
-                        ClipboardData(text: widget.device.streamURL),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            loc.copiedToClipboard('URL'),
-                            textAlign: TextAlign.center,
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          width: 200.0,
-                        ),
-                      );
-                    },
-                  ),
+                  child: CopyDeviceUrlButton(device: widget.device),
                 ),
               ],
             ),

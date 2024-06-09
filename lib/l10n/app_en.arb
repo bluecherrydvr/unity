@@ -126,7 +126,7 @@
   "eventsTimeline": "Timeline of Events",
   "server": "Server",
   "device": "Device",
-  "deviceInfo": "Device info",
+  "viewDeviceDetails": "View device details",
   "event": "Event",
   "duration": "Duration",
   "priority": "Priority",

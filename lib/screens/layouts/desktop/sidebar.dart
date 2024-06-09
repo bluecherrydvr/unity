@@ -386,7 +386,9 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
               ),
               if (isMobile || hovering)
                 Tooltip(
-                  message: loc.cameraOptions,
+                  message: widget.device.status
+                      ? loc.cameraOptions
+                      : loc.viewDeviceDetails,
                   preferBelow: false,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(4.0),
@@ -496,7 +498,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
           ),
         const PopupMenuDivider(),
         PopupMenuItem(
-          child: Text(loc.deviceInfo),
+          child: Text(loc.viewDeviceDetails),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               if (!context.mounted) return;

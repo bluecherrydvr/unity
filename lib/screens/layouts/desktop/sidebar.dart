@@ -530,7 +530,7 @@ class CollapsedSidebar extends StatelessWidget {
           size: 20.0,
         ),
         tooltip: loc.switchToNext,
-        onPressed: view.switchToNextLayout,
+        onPressed: view.layouts.length > 1 ? view.switchToNextLayout : null,
       ),
       SquaredIconButton(
         icon: Icon(

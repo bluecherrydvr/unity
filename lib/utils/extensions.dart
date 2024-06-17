@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io' show File;
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:duration/duration.dart';
@@ -164,5 +166,12 @@ extension DeviceListExtension on Iterable<Device> {
     list.sort((a, b) => a.status ? 0 : 1);
 
     return list;
+  }
+}
+
+extension FileExtension on File {
+  double get mbSize {
+    int sizeInBytes = this.lengthSync();
+    return sizeInBytes / (1024 * 1024);
   }
 }

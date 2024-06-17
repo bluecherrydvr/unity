@@ -252,8 +252,19 @@ class _DownloadTileState extends State<DownloadTile> {
                                 Text(eventType),
                                 Text(widget.event.deviceName),
                                 Text(widget.event.server.name),
-                                Text(widget.event.duration
-                                    .humanReadable(context)),
+                                Text(
+                                  () {
+                                    var fileSize = '';
+                                    if (isDownloaded) {
+                                      fileSize =
+                                          ' (${File(widget.downloadPath!).mbSize.toStringAsFixed(2)} MB)';
+                                    }
+
+                                    return widget.event.duration
+                                            .humanReadable(context) +
+                                        fileSize;
+                                  }(),
+                                ),
                                 Text(at),
                               ],
                             ),

@@ -256,8 +256,10 @@ class _DownloadTileState extends State<DownloadTile> {
                                   () {
                                     var fileSize = '';
                                     if (isDownloaded) {
+                                      final size =
+                                          File(widget.downloadPath!).mbSize;
                                       fileSize =
-                                          ' (${File(widget.downloadPath!).mbSize.toStringAsFixed(2)} MB)';
+                                          ' (${size.toStringAsFixed(2)} MB)';
                                     }
 
                                     return widget.event.duration

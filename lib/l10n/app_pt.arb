@@ -332,7 +332,9 @@
       }
     }
   },
-  "timeFilter": "Filtro de tempo",
+  "period": "Period",
+  "dateFilter": "Periodo",
+  "timeFilter": "Filtro de Tempo",
   "fromDate": "De",
   "toDate": "à",
   "today": "Hoje",
@@ -349,6 +351,18 @@
       }
     }
   },
+  "fromToTime": "De {from} às {to}",
+  "@fromToTime": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRecent": "Mais recentes",
   "allowAlarms": "Permitir alarmes",
   "nextEvents": "Próximos eventos",
   "nEvents": "{n, plural, =0{Nenhum evento} =1{1 evento} other{{n} eventos}}",

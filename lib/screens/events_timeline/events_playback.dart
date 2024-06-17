@@ -79,8 +79,8 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       hasEverFetched = true;
       date = date.toLocal();
       eventsProvider
-        ..startTime = DateTime(date.year, date.month, date.day).toLocal()
-        ..endTime =
+        ..startDate = DateTime(date.year, date.month, date.day).toLocal()
+        ..endDate =
             DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;

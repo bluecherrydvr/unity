@@ -26,15 +26,12 @@ class EventsScreenMobile extends StatefulWidget {
   final RefreshCallback refresh;
   final Iterable<Server> invalid;
 
-  final Widget Function({required VoidCallback onSelect}) buildTimeFilterTile;
-
   const EventsScreenMobile({
     super.key,
     required this.events,
     required this.loadedServers,
     required this.refresh,
     required this.invalid,
-    required this.buildTimeFilterTile,
   });
 
   @override
@@ -193,10 +190,8 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
             return PrimaryScrollController(
               controller: controller,
               child: MobileFilterSheet(
-                onChanged: () {
-                  hasChanged = true;
-                },
-                timeFilterTile: widget.buildTimeFilterTile(onSelect: () {
+                onChanged: () => hasChanged = true,
+                timeFilterTile: EventsDateTimeFilter(onSelect: () {
                   hasChanged = true;
                 }),
               ),

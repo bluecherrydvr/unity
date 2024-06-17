@@ -171,7 +171,7 @@ extension DeviceListExtension on Iterable<Device> {
 
 extension FileExtension on File {
   double get mbSize {
-    int sizeInBytes = this.lengthSync();
-    return sizeInBytes / (1024 * 1024);
+    if (!existsSync()) return 0.0;
+    return lengthSync() / (1024 * 1024);
   }
 }

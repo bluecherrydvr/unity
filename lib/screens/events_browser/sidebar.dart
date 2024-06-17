@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/screens/events_browser/date_time_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -29,14 +30,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class EventsScreenSidebar extends StatefulWidget {
-  final WidgetBuilder buildTimeFilterTile;
   final VoidCallback fetch;
 
-  const EventsScreenSidebar({
-    super.key,
-    required this.buildTimeFilterTile,
-    required this.fetch,
-  });
+  const EventsScreenSidebar({super.key, required this.fetch});
 
   @override
   State<EventsScreenSidebar> createState() => _EventsScreenSidebarState();
@@ -79,7 +75,7 @@ class _EventsScreenSidebarState extends State<EventsScreenSidebar>
               ),
             ),
             const Divider(),
-            Builder(builder: widget.buildTimeFilterTile),
+            const EventsDateTimeFilter(),
             // const SubHeader('Minimum level', height: 24.0),
             // DropdownButton<EventsMinLevelFilter>(
             //   isExpanded: true,

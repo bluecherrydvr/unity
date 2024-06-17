@@ -79,7 +79,9 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
-  DateTime? startTime, endTime;
+  DateTime? startDate, endDate;
+  bool get isDateSet => startDate != null && endDate != null;
+
   EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
   EventsMinLevelFilter get levelFilter => _levelFilter;
   set levelFilter(EventsMinLevelFilter value) {
@@ -140,8 +142,8 @@ extension EventsScreenProvider on EventsProvider {
         await Future.wait(allowedDevices.map((device) async {
           final iterable = (await API.instance.getEvents(
             server,
-            startTime: startTime,
-            endTime: endTime,
+            startTime: startDate,
+            endTime: endDate,
             device: device,
           ))
               .toList()

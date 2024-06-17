@@ -347,7 +347,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       icon: Icon(
                         Icons.close_outlined,
                         color: theme.colorScheme.error,
-                        size: 18.0,
                       ),
                       tooltip: loc.removeCamera,
                       onPressed: () => view.remove(widget.device),

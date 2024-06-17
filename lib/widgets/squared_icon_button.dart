@@ -35,6 +35,7 @@ class SquaredIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final widget = Padding(
       padding: padding,
       child: InkWell(
@@ -42,12 +43,18 @@ class SquaredIconButton extends StatelessWidget {
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsetsDirectional.all(2.5),
-          child: icon,
+          child: IconTheme.merge(
+            data: IconThemeData(
+              size: 18.0,
+              color: onPressed == null ? theme.disabledColor : null,
+            ),
+            child: icon,
+          ),
         ),
       ),
     );
 
-    if (tooltip != null) {
+    if (tooltip != null && onPressed != null) {
       return Tooltip(message: tooltip!, child: widget);
     }
 

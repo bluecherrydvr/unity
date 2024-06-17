@@ -21,6 +21,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> showDeviceInfoDialog(BuildContext context, Device device) async {
@@ -82,13 +83,13 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
                       }).join(),
               ),
               const SizedBox(width: 6.0),
+              CopyDeviceUrlButton(device: widget.device),
               SquaredIconButton(
                 onPressed: () =>
                     setState(() => _showStreamUrl = !_showStreamUrl),
                 tooltip: _showStreamUrl ? loc.hide : loc.show,
                 icon: Icon(
                   _showStreamUrl ? Icons.visibility_off : Icons.visibility,
-                  size: 18.0,
                 ),
               ),
             ]),
@@ -120,5 +121,36 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
         ]),
       );
     });
+  }
+}
+
+class CopyDeviceUrlButton extends StatelessWidget {
+  final Device device;
+
+  const CopyDeviceUrlButton({super.key, required this.device});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return SquaredIconButton(
+      padding: EdgeInsetsDirectional.zero,
+      icon: const Icon(Icons.copy),
+      tooltip: MaterialLocalizations.of(context).copyButtonLabel,
+      onPressed: () {
+        Clipboard.setData(
+          ClipboardData(text: device.streamURL),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              loc.copiedToClipboard('URL'),
+              textAlign: TextAlign.center,
+            ),
+            behavior: SnackBarBehavior.floating,
+            width: 200.0,
+          ),
+        );
+      },
+    );
   }
 }

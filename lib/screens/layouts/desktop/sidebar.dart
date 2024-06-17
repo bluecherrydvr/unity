@@ -386,7 +386,9 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
               ),
               if (isMobile || hovering)
                 Tooltip(
-                  message: loc.cameraOptions,
+                  message: widget.device.status
+                      ? loc.cameraOptions
+                      : loc.viewDeviceDetails,
                   preferBelow: false,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(4.0),
@@ -496,7 +498,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
           ),
         const PopupMenuDivider(),
         PopupMenuItem(
-          child: Text(loc.deviceInfo),
+          child: Text(loc.viewDeviceDetails),
           onTap: () async {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               if (!context.mounted) return;
@@ -506,5 +508,59 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
         ),
       ],
     );
+  }
+}
+
+class CollapsedSidebar extends StatelessWidget {
+  final Widget collapseButton;
+
+  const CollapsedSidebar({super.key, required this.collapseButton});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    final view = context.watch<DesktopViewProvider>();
+    return Column(children: [
+      collapseButton,
+      SquaredIconButton(
+        icon: Icon(
+          view.currentLayout.type.icon,
+          size: 20.0,
+        ),
+        tooltip: loc.switchToNext,
+        onPressed: view.switchToNextLayout,
+      ),
+      SquaredIconButton(
+        icon: Icon(
+          Icons.cyclone,
+          size: 20.0,
+          color: settings.kLayoutCycleEnabled.value
+              ? theme.colorScheme.primary
+              : IconTheme.of(context).color,
+        ),
+        tooltip: loc.cycle,
+        onPressed: settings.toggleCycling,
+      ),
+      const Spacer(),
+      SquaredIconButton(
+        icon: const Icon(Icons.camera_outdoor, size: 20.0),
+        tooltip: loc.addExternalStream,
+        onPressed: () => AddExternalStreamDialog.show(context),
+      ),
+      Container(
+        padding: const EdgeInsetsDirectional.all(8.0),
+        margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: theme.colorScheme.primaryContainer,
+        ),
+        child: Text(
+          '${view.currentLayout.devices.length}',
+          style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        ),
+      ),
+    ]);
   }
 }

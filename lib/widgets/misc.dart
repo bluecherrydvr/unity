@@ -444,7 +444,6 @@ class CameraViewFitButton extends StatelessWidget {
       onPressed: () => onChanged(fit.next),
       icon: Icon(
         fit.icon,
-        size: 18.0,
         shadows: outlinedText(),
         color: Colors.white,
       ),

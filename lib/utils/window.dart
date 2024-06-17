@@ -80,6 +80,10 @@ Future<void> configureWindowTitle(String title) async {
 
 enum MultiWindowType { device, layout }
 
+bool get canOpenNewWindow {
+  return isDesktopPlatform && !isEmbedded;
+}
+
 extension DeviceWindowExtension on Device {
   /// Opens this device in a new window
   Future<void> openInANewWindow() async {
@@ -87,6 +91,8 @@ extension DeviceWindowExtension on Device {
       isDesktopPlatform,
       'Can not open a new window in a non-desktop environment',
     );
+
+    assert(!isEmbedded, 'Can not open a new window in an embedded environment');
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
@@ -106,6 +112,8 @@ extension LayoutWindowExtension on Layout {
       isDesktopPlatform,
       'Can not open a new window in a non-desktop environment',
     );
+
+    assert(!isEmbedded, 'Can not open a new window in an embedded environment');
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([

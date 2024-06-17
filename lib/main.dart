@@ -86,7 +86,7 @@ Future<void> main(List<String> args) async {
     API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
     if (isDesktopPlatform && Platform.isLinux) {
-      if (UpdateManager.linuxEnvironment == LinuxPlatform.embedded) {
+      if (isEmbedded) {
         UnityVideoPlayerFlutterInterface.registerWith();
       } else {
         UnityVideoPlayerMediaKitInterface.registerWith();

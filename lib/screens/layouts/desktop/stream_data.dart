@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/device_info_dialog.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -28,7 +29,6 @@ import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -155,7 +155,6 @@ class _StreamDataState extends State<StreamData> {
                     tooltip: showUrl ? loc.hide : loc.show,
                     icon: Icon(
                       showUrl ? Icons.visibility_off : Icons.visibility,
-                      size: 18.0,
                     ),
                     onPressed: () {
                       setState(() => showUrl = !showUrl);
@@ -163,26 +162,7 @@ class _StreamDataState extends State<StreamData> {
                   ),
                 ),
                 WidgetSpan(
-                  child: SquaredIconButton(
-                    padding: EdgeInsetsDirectional.zero,
-                    icon: const Icon(Icons.copy, size: 18.0),
-                    tooltip: MaterialLocalizations.of(context).copyButtonLabel,
-                    onPressed: () {
-                      Clipboard.setData(
-                        ClipboardData(text: widget.device.streamURL),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            loc.copiedToClipboard('URL'),
-                            textAlign: TextAlign.center,
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          width: 200.0,
-                        ),
-                      );
-                    },
-                  ),
+                  child: CopyDeviceUrlButton(device: widget.device),
                 ),
               ],
             ),

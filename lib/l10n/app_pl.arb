@@ -126,7 +126,7 @@
   "eventsTimeline": "Oś czasu zdarzeń",
   "server": "Serwer",
   "device": "Urządzenie",
-  "deviceInfo": "Device info",
+  "viewDeviceDetails": "Device info",
   "event": "Zdarzenie",
   "duration": "Czas trwania",
   "priority": "Priorytet",
@@ -264,6 +264,7 @@
       }
     }
   },
+  "switchToNext": "Switch to next",
   "@Downloads": {},
   "downloads": "Pobrania",
   "download": "Pobierz",

@@ -23,7 +23,6 @@ import 'dart:io';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -88,16 +87,8 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
     timer?.cancel();
     timer = Timer.periodic(settings.kLayoutCyclePeriod.value, (timer) {
       if (!mounted) return;
-
-      final view = DesktopViewProvider.instance;
-
       if (settings.kLayoutCycleEnabled.value) {
-        final currentIsLast =
-            view.currentLayoutIndex == view.layouts.length - 1;
-
-        view.updateCurrentLayout(
-          currentIsLast ? 0 : view.currentLayoutIndex + 1,
-        );
+        DesktopViewProvider.instance.switchToNextLayout();
       }
     });
   }
@@ -141,7 +132,6 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                 SquaredIconButton(
                   icon: Icon(
                     Icons.cyclone,
-                    size: 18.0,
                     color: settings.kLayoutCycleEnabled.value
                         ? theme.colorScheme.primary
                         : IconTheme.of(context).color,
@@ -150,11 +140,13 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                   onPressed: settings.toggleCycling,
                 ),
                 SquaredIconButton(
-                  icon: Icon(
-                    Icons.add,
-                    size: 18.0,
-                    color: IconTheme.of(context).color,
-                  ),
+                  icon: const Icon(Icons.next_plan_outlined),
+                  tooltip: loc.switchToNext,
+                  onPressed:
+                      view.layouts.length > 1 ? view.switchToNextLayout : null,
+                ),
+                SquaredIconButton(
+                  icon: const Icon(Icons.add),
                   tooltip: loc.newLayout,
                   onPressed: () {
                     showDialog(
@@ -323,10 +315,7 @@ class _LayoutTileState extends State<LayoutTile> {
           PopupMenuItem(
             child: Text(loc.clearLayout(widget.layout.devices.length)),
             onTap: () {
-              DesktopViewProvider.instance.updateLayout(
-                widget.layout,
-                widget.layout.copyWith(devices: []),
-              );
+              DesktopViewProvider.instance.clearLayout(layout: widget.layout);
             },
           ),
           const PopupMenuDivider(),
@@ -340,7 +329,7 @@ class _LayoutTileState extends State<LayoutTile> {
             );
           },
         ),
-        if (isDesktopPlatform)
+        if (canOpenNewWindow)
           PopupMenuItem(
             onTap: widget.layout.openInANewWindow,
             child: Text(loc.openInANewWindow),
@@ -587,13 +576,8 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
         Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
         if (view.layouts.length > 1)
           SquaredIconButton(
-            icon: Icon(
-              Icons.delete,
-              color: theme.colorScheme.error,
-              size: 18.0,
-            ),
+            icon: Icon(Icons.delete, color: theme.colorScheme.error),
             tooltip: loc.delete,
-            // iconSize: 18.0,
             onPressed: () {
               view.removeLayout(widget.layout);
               Navigator.of(context).pop();

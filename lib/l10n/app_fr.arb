@@ -122,7 +122,7 @@
   "eventsTimeline": "Ligne du temps",
   "server": "Serveur",
   "device": "Appareil",
-  "deviceInfo": "Info d'apparail",
+  "viewDeviceDetails": "Info d'apparail",
   "event": "Évènement",
   "duration": "Durée",
   "priority": "Priorité",
@@ -254,6 +254,7 @@
       }
     }
   },
+  "switchToNext": "Switch to next",
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",

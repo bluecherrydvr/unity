@@ -1,6 +1,28 @@
+/*
+ * This file is a part of Bluecherry Client (https://github.com/bluecherrydvr/unity).
+ *
+ * Copyright 2022 Bluecherry, LLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 Set<String> _loggedErrorredDates = {};
 
@@ -99,5 +121,38 @@ extension DateSettingsExtension on SettingsProvider {
     final date = formatDate(DateTime.parse(rawDateTime));
     final time = formatRawTime(rawDateTime).toUpperCase();
     return '$date $time';
+  }
+}
+
+extension DateTimeExtension on DateTime? {
+  /// Formats the date and time string.
+  String formatDecoratedDateTime(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final settings = context.read<SettingsProvider>();
+
+    var date = this;
+    if (settings.kConvertTimeToLocalTimezone.value) date = date?.toLocal();
+    var dateString = () {
+      if (date == null) {
+        return loc.mostRecent;
+      } else if (DateUtils.isSameDay(date, DateTime.now())) {
+        return loc.today;
+      } else if (DateUtils.isSameDay(
+        date,
+        DateTime.now().subtract(const Duration(days: 1)),
+      )) {
+        return loc.yesterday;
+      } else {
+        return settings.kDateFormat.value.format(date!);
+      }
+    }();
+
+    if (this == null) {
+      return dateString;
+    }
+
+    final timeFormatter = settings.kTimeFormat.value;
+
+    return '$dateString ${timeFormatter.format(this!)}';
   }
 }

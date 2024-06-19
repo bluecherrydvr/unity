@@ -20,6 +20,8 @@
 import 'dart:async';
 
 import 'package:bluecherry_client/providers/events_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -35,11 +37,62 @@ class EventsDateTimeFilter extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final eventsProvider = context.watch<EventsProvider>();
 
+    return ExpansionTile(
+      title: Text(
+        loc.filter,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(loc.fromToDate(
+        eventsProvider.startDate.formatDecoratedDateTime(context),
+        eventsProvider.endDate.formatDecoratedDateTime(context),
+      )),
+      children: [
+        _FilterTile(
+          title: loc.fromDate,
+          date: eventsProvider.startDate,
+          isFrom: true,
+          onDateChanged: (date) {
+            context.read<EventsProvider>().startDate = date;
+            onSelect?.call();
+          },
+        ),
+        _FilterTile(
+          title: loc.toDate,
+          date: eventsProvider.endDate,
+          onDateChanged: (date) {
+            context.read<EventsProvider>().endDate = date;
+            onSelect?.call();
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _FilterTile extends StatelessWidget {
+  final String title;
+
+  final DateTime? date;
+  final bool isFrom;
+  final ValueChanged<DateTime> onDateChanged;
+
+  const _FilterTile({
+    required this.onDateChanged,
+    required this.date,
+    this.isFrom = false,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+
     return ListTile(
       dense: true,
       isThreeLine: true,
       title: Text(
-        loc.period,
+        title,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Padding(
@@ -50,21 +103,19 @@ class EventsDateTimeFilter extends StatelessWidget {
               child: _FilterCard(
                 title: loc.dateFilter,
                 value: () {
-                  final formatter = DateFormat.MEd();
-                  if (eventsProvider.startDate == null ||
-                      eventsProvider.endDate == null) {
+                  if (date == null) {
                     return loc.mostRecent;
+                  } else if (DateUtils.isSameDay(date, DateTime.now())) {
+                    return loc.today;
                   } else if (DateUtils.isSameDay(
-                    eventsProvider.startDate,
-                    eventsProvider.endDate,
+                    date,
+                    DateTime.now().subtract(const Duration(days: 1)),
                   )) {
-                    return formatter.format(eventsProvider.startDate!);
-                  } else {
-                    return loc.fromToDate(
-                      formatter.format(eventsProvider.startDate!),
-                      formatter.format(eventsProvider.endDate!),
-                    );
+                    return loc.yesterday;
                   }
+
+                  final formatter = DateFormat.MEd();
+                  return formatter.format(date!);
                 }(),
                 onPressed: () => _openDatePicker(context),
               ),
@@ -74,25 +125,12 @@ class EventsDateTimeFilter extends StatelessWidget {
               child: _FilterCard(
                 title: loc.timeFilter,
                 value: () {
-                  final formatter = DateFormat.Hm();
-                  if (eventsProvider.startDate == null ||
-                      eventsProvider.endDate == null) {
+                  if (date == null) {
                     return loc.mostRecent;
-                  } else if (DateUtils.isSameDay(
-                    eventsProvider.startDate,
-                    eventsProvider.endDate,
-                  )) {
-                    return formatter.format(eventsProvider.startDate!);
-                  } else {
-                    return loc.fromToTime(
-                      formatter.format(eventsProvider.startDate!),
-                      formatter.format(eventsProvider.endDate!),
-                    );
                   }
+                  return settings.kTimeFormat.value.format(date!);
                 }(),
-                onPressed: eventsProvider.isDateSet
-                    ? () => _openTimePicker(context)
-                    : null,
+                onPressed: date != null ? () => _openTimePicker(context) : null,
               ),
             ),
           ]),
@@ -102,46 +140,39 @@ class EventsDateTimeFilter extends StatelessWidget {
   }
 
   Future<void> _openDatePicker(BuildContext context) async {
-    final eventsProvider = context.read<EventsProvider>();
-
-    final range = await showDateRangePicker(
+    final date = this.date ?? DateTime.now();
+    final selectedDate = await showDatePicker(
       context: context,
       firstDate: DateTime(1970),
       lastDate: DateTime.now(),
+      initialDate: date,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
-      initialDateRange:
-          eventsProvider.startDate == null || eventsProvider.endDate == null
-              ? null
-              : DateTimeRange(
-                  start: eventsProvider.startDate!,
-                  end: eventsProvider.endDate!,
-                ),
     );
-    if (range != null) {
-      eventsProvider
-        ..startDate = range.start
-        ..endDate = range.end;
-      onSelect?.call();
+    if (selectedDate != null) {
+      onDateChanged(date.copyWith(
+        year: selectedDate.year,
+        month: selectedDate.month,
+        day: selectedDate.day,
+      ));
     }
   }
 
   Future<void> _openTimePicker(BuildContext context) async {
-    final eventsProvider = context.read<EventsProvider>();
+    assert(date != null);
 
     final time = await showTimePicker(
       context: context,
-      initialTime:
-          TimeOfDay.fromDateTime(eventsProvider.startDate ?? DateTime.now()),
+      initialTime: TimeOfDay.fromDateTime(date!),
+      initialEntryMode: TimePickerEntryMode.dialOnly,
     );
     if (time != null) {
-      eventsProvider.startDate = DateTime(
-        eventsProvider.startDate!.year,
-        eventsProvider.startDate!.month,
-        eventsProvider.startDate!.day,
+      onDateChanged(DateTime(
+        date!.year,
+        date!.month,
+        date!.day,
         time.hour,
         time.minute,
-      );
-      onSelect?.call();
+      ));
     }
   }
 }
@@ -152,7 +183,6 @@ class _FilterCard extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const _FilterCard({
-    super.key,
     required this.title,
     required this.value,
     required this.onPressed,

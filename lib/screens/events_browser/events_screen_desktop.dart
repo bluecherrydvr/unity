@@ -107,7 +107,8 @@ class EventsScreenDesktop extends StatelessWidget {
                   ),
                   _buildTilePart(
                     child: Text(
-                      settings.formatRawDateAndTime(event.publishedRaw),
+                      // settings.formatRawDateAndTime(event.publishedRaw),
+                      event.published.formatDecoratedDateTime(context),
                     ),
                     flex: 2,
                   ),

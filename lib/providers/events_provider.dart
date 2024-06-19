@@ -79,8 +79,20 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
-  DateTime? startDate, endDate;
-  bool get isDateSet => startDate != null && endDate != null;
+  DateTime? _startDate;
+  DateTime get startDate =>
+      _startDate ?? DateTime.now().subtract(const Duration(hours: 24));
+  set startDate(DateTime? value) {
+    _startDate = value;
+    notifyListeners();
+  }
+
+  DateTime? _endDate;
+  DateTime get endDate => _endDate ?? DateTime.now();
+  set endDate(DateTime? value) {
+    _endDate = value;
+    notifyListeners();
+  }
 
   EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
   EventsMinLevelFilter get levelFilter => _levelFilter;

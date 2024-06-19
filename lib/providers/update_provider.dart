@@ -470,7 +470,8 @@ class UpdateManager extends UnityProvider {
       if (versions != this.versions) this.versions = versions;
 
       loading = false;
-      lastCheck = DateTime.now(); // this updates the screen already
+      // this updates the screen already because "lastCheck" is a setter. No need to trigger the update again
+      lastCheck = DateTime.now();
     } catch (error, stackTrace) {
       debugPrint(error.toString());
       debugPrint(stackTrace.toString());

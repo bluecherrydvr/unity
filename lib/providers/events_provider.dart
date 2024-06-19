@@ -81,14 +81,14 @@ class EventsProvider extends UnityProvider {
 
   DateTime? _startDate;
   DateTime get startDate =>
-      _startDate ?? DateTime.now().subtract(const Duration(hours: 24));
+      _startDate ?? DateTime.timestamp().subtract(const Duration(hours: 24));
   set startDate(DateTime? value) {
     _startDate = value;
     notifyListeners();
   }
 
   DateTime? _endDate;
-  DateTime get endDate => _endDate ?? DateTime.now();
+  DateTime get endDate => _endDate ?? DateTime.timestamp();
   set endDate(DateTime? value) {
     _endDate = value;
     notifyListeners();

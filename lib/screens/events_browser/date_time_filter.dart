@@ -43,7 +43,7 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && DateTime.now().second % 5 == 0) {
+      if (mounted && DateTime.timestamp().second % 5 == 0) {
         setState(() {});
       }
     });
@@ -128,11 +128,11 @@ class _FilterTile extends StatelessWidget {
                 value: () {
                   if (date == null) {
                     return loc.mostRecent;
-                  } else if (DateUtils.isSameDay(date, DateTime.now())) {
+                  } else if (DateUtils.isSameDay(date, DateTime.timestamp())) {
                     return loc.today;
                   } else if (DateUtils.isSameDay(
                     date,
-                    DateTime.now().subtract(const Duration(days: 1)),
+                    DateTime.timestamp().subtract(const Duration(days: 1)),
                   )) {
                     return loc.yesterday;
                   }
@@ -163,11 +163,11 @@ class _FilterTile extends StatelessWidget {
   }
 
   Future<void> _openDatePicker(BuildContext context) async {
-    final date = this.date ?? DateTime.now();
+    final date = this.date ?? DateTime.timestamp();
     final selectedDate = await showDatePicker(
       context: context,
       firstDate: DateTime(1970),
-      lastDate: DateTime.now(),
+      lastDate: DateTime.timestamp(),
       initialDate: date,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );

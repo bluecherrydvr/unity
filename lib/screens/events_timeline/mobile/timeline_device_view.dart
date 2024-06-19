@@ -28,6 +28,7 @@ import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/device_selector.dart';
@@ -540,7 +541,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
                     context: context,
                     initialDate: widget.timeline.currentDate,
                     firstDate: DateTime.utc(1970),
-                    lastDate: DateTime.now(),
+                    lastDate: DateTimeExtension.now(),
                     initialEntryMode: DatePickerEntryMode.calendarOnly,
                   );
                   if (result != null) {

@@ -125,6 +125,33 @@ extension DateSettingsExtension on SettingsProvider {
 }
 
 extension DateTimeExtension on DateTime? {
+  /// Returns true if this date is between [first] and [second]
+  ///
+  /// If [allowSameMoment] is true, then the date can be equal to [first] or
+  /// [second].
+  bool isInBetween(
+    DateTime first,
+    DateTime second, {
+    bool allowSameMoment = false,
+  }) {
+    assert(this != null);
+    final isBetween = this!.toLocal().isAfter(first.toLocal()) &&
+        this!.toLocal().isBefore(second.toLocal());
+
+    if (allowSameMoment) return isBetween;
+    return isBetween ||
+        this!.isAtSameMomentAs(first) ||
+        this!.isAtSameMomentAs(second);
+  }
+
+  static DateTime now() {
+    if (SettingsProvider.instance.kConvertTimeToLocalTimezone.value) {
+      return DateTime.timestamp().toLocal();
+    }
+
+    return DateTime.timestamp();
+  }
+
   /// Formats the date and time string.
   String formatDecoratedDateTime(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -153,6 +180,6 @@ extension DateTimeExtension on DateTime? {
 
     final timeFormatter = settings.kTimeFormat.value;
 
-    return '$dateString ${timeFormatter.format(this!)}';
+    return '$dateString ${timeFormatter.format(date!)}';
   }
 }

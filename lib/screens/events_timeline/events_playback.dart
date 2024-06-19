@@ -28,7 +28,7 @@ import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,9 +63,9 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   }
 
   DateTime date = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
+    DateTimeExtension.now().year,
+    DateTimeExtension.now().month,
+    DateTimeExtension.now().day,
   ).toLocal();
 
   bool hasEverFetched = false;
@@ -146,7 +146,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
                 );
               }(),
             TimelineInitialPoint.hourAgo => Duration(
-                hours: DateTime.now().hour - 1,
+                hours: DateTimeExtension.now().hour - 1,
               ),
           },
         );

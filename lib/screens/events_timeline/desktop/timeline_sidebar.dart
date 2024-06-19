@@ -20,6 +20,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -113,7 +114,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                   context: context,
                   initialDate: widget.date,
                   firstDate: DateTime.utc(1970),
-                  lastDate: DateTime.now(),
+                  lastDate: DateTimeExtension.now(),
                   initialEntryMode: DatePickerEntryMode.calendarOnly,
                   currentDate: widget.date,
                 );

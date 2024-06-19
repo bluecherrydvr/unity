@@ -230,7 +230,6 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             sidebar: TimelineSidebar(
               date: date,
               onDateChanged: (date) => setState(() => this.date = date),
-              onFetch: fetch,
             ),
             onFetch: fetch,
           ),

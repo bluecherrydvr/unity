@@ -152,8 +152,8 @@ extension DateTimeExtension on DateTime? {
     return DateTime.timestamp();
   }
 
-  /// Formats the date and time string.
-  String formatDecoratedDateTime(BuildContext context) {
+  /// Formats the date string.
+  String formatDecoratedDate(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final settings = context.read<SettingsProvider>();
 
@@ -174,9 +174,17 @@ extension DateTimeExtension on DateTime? {
       }
     }();
 
-    if (this == null) {
-      return dateString;
-    }
+    return dateString;
+  }
+
+  /// Formats the date and time string.
+  String formatDecoratedDateTime(BuildContext context) {
+    var dateString = formatDecoratedDate(context);
+    if (this == null) return dateString;
+
+    final settings = context.read<SettingsProvider>();
+    var date = this;
+    if (settings.kConvertTimeToLocalTimezone.value) date = date?.toLocal();
 
     final timeFormatter = settings.kTimeFormat.value;
 

@@ -119,7 +119,11 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
       setState(() {});
     });
-    setEvent(currentEvent);
+    if (widget.player == null) {
+      setEvent(currentEvent);
+    } else {
+      videoController.start();
+    }
   }
 
   @override
@@ -157,7 +161,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     }
     videoController
       ..setVolume(volume)
-      ..setSpeed(speed);
+      ..setSpeed(speed)
+      ..start();
     setState(() {});
   }
 

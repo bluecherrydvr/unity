@@ -124,7 +124,7 @@ class UpdatesSettings extends StatelessWidget {
         ),
         const Divider(),
       ],
-      // TODO(bdlukaa): Show option to downlaod the native client when running
+      // TODO(bdlukaa): Show option to download the native client when running
       //                on the web.
       const About(),
     ]);

@@ -135,6 +135,7 @@
   "lastImageUpdate": "Ostatnia aktualizacja obrazu",
   "fps": "FPS",
   "date": "Data",
+  "time": "Time",
   "lastUpdate": "Ostatnia aktualizacja",
   "screens": "Ekrany",
   "directCamera": "Kamera bezpośrednia",
@@ -332,6 +333,9 @@
       }
     }
   },
+  "period": "Period",
+  "dateTimeFilter": "Date Time Filter",
+  "dateFilter": "Date Filter",
   "timeFilter": "Filtr czasu",
   "fromDate": "Od",
   "toDate": "Do",
@@ -349,6 +353,17 @@
       }
     }
   },
+  "@fromToTime": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRecent": "Most recent",
   "allowAlarms": "Zezwól na alarmy",
   "nextEvents": "Następne zdarzenia",
   "nEvents": "{n, plural, =0{Brak zdarzeń} =1{1 zdarzenie} other{{n} zdarzeń}}",

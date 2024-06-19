@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io' show File;
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:duration/duration.dart';
@@ -129,24 +131,6 @@ extension ServerExtension on List<Server> {
   }
 }
 
-extension DateTimeExtension on DateTime {
-  /// Returns true if this date is between [first] and [second]
-  ///
-  /// If [allowSameMoment] is true, then the date can be equal to [first] or
-  /// [second].
-  bool isInBetween(
-    DateTime first,
-    DateTime second, {
-    bool allowSameMoment = false,
-  }) {
-    final isBetween = toLocal().isAfter(first.toLocal()) &&
-        toLocal().isBefore(second.toLocal());
-
-    if (allowSameMoment) return isBetween;
-    return isBetween || isAtSameMomentAs(first) || isAtSameMomentAs(second);
-  }
-}
-
 extension DeviceListExtension on Iterable<Device> {
   /// Returns this device list sorted properly
   List<Device> sorted({
@@ -164,5 +148,12 @@ extension DeviceListExtension on Iterable<Device> {
     list.sort((a, b) => a.status ? 0 : 1);
 
     return list;
+  }
+}
+
+extension FileExtension on File {
+  double get mbSize {
+    if (!existsSync()) return 0.0;
+    return lengthSync() / (1024 * 1024);
   }
 }

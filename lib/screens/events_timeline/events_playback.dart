@@ -28,7 +28,7 @@ import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,29 +63,30 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   }
 
   DateTime date = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
+    DateTimeExtension.now().year,
+    DateTimeExtension.now().month,
+    DateTimeExtension.now().day,
   ).toLocal();
 
   bool hasEverFetched = false;
 
   @override
-  Future<void> fetch() async {
+  Future<void> fetch({DateTime? startDate, DateTime? endDate}) async {
     if (!context.mounted) return;
     final eventsProvider = context.read<EventsProvider>();
     final settings = context.read<SettingsProvider>();
     setState(() {
       hasEverFetched = true;
       date = date.toLocal();
-      eventsProvider
-        ..startTime = DateTime(date.year, date.month, date.day).toLocal()
-        ..endTime =
-            DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      startDate = DateTime(date.year, date.month, date.day).toLocal();
+      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
-    await super.fetch();
+    await super.fetch(
+      startDate: startDate,
+      endDate: endDate,
+    );
 
     final devices = <Device, List<Event>>{};
 
@@ -146,7 +147,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
                 );
               }(),
             TimelineInitialPoint.hourAgo => Duration(
-                hours: DateTime.now().hour - 1,
+                hours: DateTimeExtension.now().hour - 1,
               ),
           },
         );
@@ -230,7 +231,6 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             sidebar: TimelineSidebar(
               date: date,
               onDateChanged: (date) => setState(() => this.date = date),
-              onFetch: fetch,
             ),
             onFetch: fetch,
           ),

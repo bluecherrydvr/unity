@@ -19,6 +19,7 @@
 
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -64,10 +65,11 @@ class Event {
     this.mediaID,
     this.mediaURL,
   })  : server = server ?? ServersProvider.instance.servers.first,
-        publishedRaw = publishedRaw ?? DateTime.now().toIso8601String(),
-        published = published ?? DateTime.now(),
-        updatedRaw = updatedRaw ?? DateTime.now().toIso8601String(),
-        updated = updated ?? DateTime.now();
+        publishedRaw =
+            publishedRaw ?? DateTimeExtension.now().toIso8601String(),
+        published = published ?? DateTimeExtension.now(),
+        updatedRaw = updatedRaw ?? DateTimeExtension.now().toIso8601String(),
+        updated = updated ?? DateTimeExtension.now();
 
   String get deviceName {
     return title

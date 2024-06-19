@@ -135,6 +135,7 @@
   "lastImageUpdate": "Last Image Update",
   "fps": "FPS",
   "date": "Date",
+  "time": "Time",
   "lastUpdate": "Last Update",
   "screens": "Screens",
   "directCamera": "Direct Camera",
@@ -332,13 +333,16 @@
       }
     }
   },
-  "timeFilter": "Time filter",
+  "period": "Period",
+  "dateTimeFilter": "Date and Time Filter",
+  "dateFilter": "Date Filter",
+  "timeFilter": "Time Filter",
   "fromDate": "From",
   "toDate": "To",
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "never",
-  "fromToDate": "{from} to {to}",
+  "fromToDate": "From {from} to {to}",
   "@fromToDate": {
     "placeholders": {
       "from": {
@@ -349,6 +353,17 @@
       }
     }
   },
+  "@fromToTime": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRecent": "Most recent",
   "allowAlarms": "Allow alarms",
   "nextEvents": "Next events",
   "nEvents": "{n, plural, =0{No events} =1{1 event} other{{n} events}}",

@@ -79,7 +79,22 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
-  DateTime? startTime, endTime;
+  DateTime? _startDate;
+  DateTime? get startDate => _startDate;
+  set startDate(DateTime? value) {
+    _startDate = value;
+    notifyListeners();
+  }
+
+  DateTime? _endDate;
+  DateTime? get endDate => _endDate;
+  set endDate(DateTime? value) {
+    _endDate = value;
+    notifyListeners();
+  }
+
+  bool get isDateSet => _startDate != null && _endDate != null;
+
   EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
   EventsMinLevelFilter get levelFilter => _levelFilter;
   set levelFilter(EventsMinLevelFilter value) {
@@ -122,7 +137,10 @@ class EventsProvider extends UnityProvider {
 }
 
 extension EventsScreenProvider on EventsProvider {
-  Future<void> loadEvents() async {
+  Future<void> loadEvents({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     loadedEvents = LoadedEvents();
     _notify();
 
@@ -140,8 +158,8 @@ extension EventsScreenProvider on EventsProvider {
         await Future.wait(allowedDevices.map((device) async {
           final iterable = (await API.instance.getEvents(
             server,
-            startTime: startTime,
-            endTime: endTime,
+            startTime: startDate ?? this.startDate,
+            endTime: endDate ?? this.startDate,
             device: device,
           ))
               .toList()
@@ -157,7 +175,15 @@ extension EventsScreenProvider on EventsProvider {
                   break;
               }
               return false;
-            });
+            })
+            ..removeWhere((event) {
+              if (!isDateSet) return false;
+
+              return event.published.toUtc().isBefore(startDate!.toUtc()) ||
+                  event.updated.toUtc().isAfter(endDate!.toUtc());
+            })
+            ..sort(
+                (a, b) => b.published.toUtc().compareTo(a.published.toUtc()));
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);

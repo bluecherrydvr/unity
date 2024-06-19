@@ -131,6 +131,7 @@
   "lastImageUpdate": "Dernier rafraîchissemente",
   "fps": "FPS",
   "date": "Date",
+  "time": "Time",
   "lastUpdate": "Dernière mise à jour",
   "screens": "Écrans",
   "directCamera": "Caméra direct",
@@ -310,6 +311,9 @@
       }
     }
   },
+  "period": "Period",
+  "dateTimeFilter": "Date Time Filter",
+  "dateFilter": "Date Filter",
   "timeFilter": "Filtre par période",
   "fromDate": "De",
   "toDate": "À",
@@ -327,6 +331,17 @@
       }
     }
   },
+  "@fromToTime": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRecent": "Most recent",
   "allowAlarms": "Permettre les alarmes",
   "nextEvents": "Prochains évènements",
   "nEvents": "{n, plural, =0{Aucun évènement} =1{1 évènement} other{{n} évènements}}",

@@ -5,6 +5,7 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml2json/xml2json.dart';
@@ -45,8 +46,8 @@ extension EventsExtension on API {
       return [];
     }
 
-    var startTime = data['startTime'] as DateTime?;
-    final endTime = data['endTime'] as DateTime?;
+    var startTime = (data['startTime'] as DateTime?)?.toLocal();
+    final endTime = (data['endTime'] as DateTime?)?.toLocal();
     final deviceId = data['device_id'] as int?;
     final limit = (data['limit'] as int?) ?? -1;
 
@@ -151,11 +152,11 @@ extension EventsExtension on API {
             title: e['title']['\$t'],
             publishedRaw: e['published']['\$t'],
             published: e['published'] == null || e['published']['\$t'] == null
-                ? DateTime.now()
+                ? DateTimeExtension.now()
                 : DateTime.parse(e['published']['\$t']),
             updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
             updated: e['updated'] == null || e['updated']['\$t'] == null
-                ? DateTime.now()
+                ? DateTimeExtension.now()
                 : DateTime.parse(e['updated']['\$t']),
             category: e['category']['term'],
             mediaID: !e.containsKey('content')

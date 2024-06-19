@@ -317,6 +317,11 @@ class _DeviceVideoInfo extends StatelessWidget {
         ),
         _buildTextSpan(
           context,
+          title: loc.time,
+          data: SettingsProvider.instance.formatTimeRaw(event!.publishedRaw),
+        ),
+        _buildTextSpan(
+          context,
           title: loc.eventType,
           data: event!.type.locale(context),
         ),

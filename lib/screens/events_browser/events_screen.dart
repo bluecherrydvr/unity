@@ -28,6 +28,7 @@ import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
+import 'package:bluecherry_client/screens/events_browser/date_time_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/screens/events_browser/sidebar.dart';
 import 'package:bluecherry_client/screens/players/event_player_desktop.dart';
@@ -43,7 +44,6 @@ import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -62,11 +62,17 @@ class EventsScreen extends StatefulWidget {
 
 class EventsScreenState<T extends StatefulWidget> extends State<T> {
   /// Fetches the events from the servers.
-  Future<void> fetch() async {
+  Future<void> fetch({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
 
-    await context.read<EventsProvider>().loadEvents();
+    await context.read<EventsProvider>().loadEvents(
+          startDate: startDate,
+          endDate: endDate,
+        );
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
   }
@@ -87,14 +93,12 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
           loadedServers: eventsProvider.loadedEvents?.events.keys ?? [],
           refresh: fetch,
           invalid: eventsProvider.loadedEvents?.invalidResponses ?? [],
-          buildTimeFilterTile: buildTimeFilterTile,
         );
       }
 
       return Material(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           EventsScreenSidebar(
-            buildTimeFilterTile: (context) => buildTimeFilterTile(),
             fetch: fetch,
           ),
           Expanded(
@@ -112,59 +116,6 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
             ),
           ),
         ]),
-      );
-    });
-  }
-
-  Widget buildTimeFilterTile({VoidCallback? onSelect}) {
-    return Builder(builder: (context) {
-      final loc = AppLocalizations.of(context);
-      final eventsProvider = context.watch<EventsProvider>();
-      return ListTile(
-        dense: true,
-        title: Text(
-          loc.timeFilter,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(() {
-          final formatter = DateFormat.MEd();
-          if (eventsProvider.startTime == null ||
-              eventsProvider.endTime == null) {
-            return loc.today;
-          } else if (DateUtils.isSameDay(
-            eventsProvider.startTime,
-            eventsProvider.endTime,
-          )) {
-            return formatter.format(eventsProvider.startTime!);
-          } else {
-            return loc.fromToDate(
-              formatter.format(eventsProvider.startTime!),
-              formatter.format(eventsProvider.endTime!),
-            );
-          }
-        }()),
-        onTap: () async {
-          final range = await showDateRangePicker(
-            context: context,
-            firstDate: DateTime(1970),
-            lastDate: DateTime.now(),
-            initialEntryMode: DatePickerEntryMode.calendarOnly,
-            initialDateRange: eventsProvider.startTime == null ||
-                    eventsProvider.endTime == null
-                ? null
-                : DateTimeRange(
-                    start: eventsProvider.startTime!,
-                    end: eventsProvider.endTime!),
-          );
-          if (range != null) {
-            setState(() {
-              eventsProvider
-                ..startTime = range.start
-                ..endTime = range.end;
-            });
-            onSelect?.call();
-          }
-        },
       );
     });
   }

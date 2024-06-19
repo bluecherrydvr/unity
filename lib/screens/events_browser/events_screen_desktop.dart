@@ -44,8 +44,6 @@ class EventsScreenDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
-
     if (events.isEmpty) {
       return NoEventsLoaded(
         isLoading: context
@@ -107,7 +105,8 @@ class EventsScreenDesktop extends StatelessWidget {
                   ),
                   _buildTilePart(
                     child: Text(
-                      settings.formatRawDateAndTime(event.publishedRaw),
+                      // settings.formatRawDateAndTime(event.publishedRaw),
+                      event.published.formatDecoratedDateTime(context),
                     ),
                     flex: 2,
                   ),

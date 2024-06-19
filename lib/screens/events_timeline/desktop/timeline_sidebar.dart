@@ -20,13 +20,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
@@ -34,13 +34,10 @@ class TimelineSidebar extends StatefulWidget {
     super.key,
     required this.date,
     required this.onDateChanged,
-    required this.onFetch,
   });
 
   final DateTime date;
   final ValueChanged<DateTime> onDateChanged;
-
-  final VoidCallback onFetch;
 
   @override
   State<TimelineSidebar> createState() => _TimelineSidebarState();
@@ -85,27 +82,16 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
               padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
             ),
             ToggleSearchBar(searchable: this),
-            Expanded(
-              child: EventsDevicesPicker(
-                searchQuery: searchQuery,
-              ),
-            ),
+            Expanded(child: EventsDevicesPicker(searchQuery: searchQuery)),
             const Divider(),
             ListTile(
               dense: true,
               title: Text(
-                loc.timeFilter,
+                loc.dateFilter,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: AutoSizeText(
-                () {
-                  final formatter = DateFormat.MEd();
-                  if (DateUtils.isSameDay(widget.date, DateTime.now())) {
-                    return loc.today;
-                  } else {
-                    return formatter.format(widget.date);
-                  }
-                }(),
+                widget.date.formatDecoratedDate(context),
                 maxLines: 1,
               ),
               onTap: () async {
@@ -113,7 +99,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                   context: context,
                   initialDate: widget.date,
                   firstDate: DateTime.utc(1970),
-                  lastDate: DateTime.now(),
+                  lastDate: DateTimeExtension.now(),
                   initialEntryMode: DatePickerEntryMode.calendarOnly,
                   currentDate: widget.date,
                 );

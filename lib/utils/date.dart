@@ -150,7 +150,7 @@ extension DateTimeExtension on DateTime? {
 
   static DateTime now() {
     if (SettingsProvider.instance.kConvertTimeToLocalTimezone.value) {
-      return DateTime.timestamp().toLocal();
+      return DateTime.now();
     }
 
     return DateTime.timestamp();

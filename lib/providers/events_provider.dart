@@ -172,7 +172,12 @@ extension EventsScreenProvider on EventsProvider {
                   break;
               }
               return false;
-            });
+            })
+            ..removeWhere((event) {
+              return event.published.toUtc().isBefore(startDate.toUtc()) ||
+                  event.updated.toUtc().isAfter(endDate.toUtc());
+            })
+            ..sort((a, b) => a.published.toUtc().compareTo(b.updated.toUtc()));
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);

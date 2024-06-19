@@ -128,11 +128,14 @@ class _FilterTile extends StatelessWidget {
                 value: () {
                   if (date == null) {
                     return loc.mostRecent;
-                  } else if (DateUtils.isSameDay(date, DateTime.timestamp())) {
+                  } else if (DateUtils.isSameDay(
+                    date,
+                    DateTimeExtension.now(),
+                  )) {
                     return loc.today;
                   } else if (DateUtils.isSameDay(
                     date,
-                    DateTime.timestamp().subtract(const Duration(days: 1)),
+                    DateTimeExtension.now().subtract(const Duration(days: 1)),
                   )) {
                     return loc.yesterday;
                   }
@@ -163,11 +166,11 @@ class _FilterTile extends StatelessWidget {
   }
 
   Future<void> _openDatePicker(BuildContext context) async {
-    final date = this.date ?? DateTime.timestamp();
+    final date = this.date ?? DateTimeExtension.now();
     final selectedDate = await showDatePicker(
       context: context,
       firstDate: DateTime(1970),
-      lastDate: DateTime.timestamp(),
+      lastDate: DateTimeExtension.now(),
       initialDate: date,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -81,14 +82,14 @@ class EventsProvider extends UnityProvider {
 
   DateTime? _startDate;
   DateTime get startDate =>
-      _startDate ?? DateTime.timestamp().subtract(const Duration(hours: 24));
+      _startDate ?? DateTimeExtension.now().subtract(const Duration(hours: 24));
   set startDate(DateTime? value) {
     _startDate = value;
     notifyListeners();
   }
 
   DateTime? _endDate;
-  DateTime get endDate => _endDate ?? DateTime.timestamp();
+  DateTime get endDate => _endDate ?? DateTimeExtension.now();
   set endDate(DateTime? value) {
     _endDate = value;
     notifyListeners();

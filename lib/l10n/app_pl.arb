@@ -333,6 +333,7 @@
     }
   },
   "period": "Period",
+  "dateTimeFilter": "Date Time Filter",
   "dateFilter": "Date Filter",
   "timeFilter": "Filtr czasu",
   "fromDate": "Od",
@@ -351,7 +352,6 @@
       }
     }
   },
-  "fromToTime": "{from} to {to}",
   "@fromToTime": {
     "placeholders": {
       "from": {

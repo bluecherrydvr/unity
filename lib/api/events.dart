@@ -45,8 +45,8 @@ extension EventsExtension on API {
       return [];
     }
 
-    var startTime = data['startTime'] as DateTime?;
-    final endTime = data['endTime'] as DateTime?;
+    var startTime = (data['startTime'] as DateTime?)?.toLocal();
+    final endTime = (data['endTime'] as DateTime?)?.toLocal();
     final deviceId = data['device_id'] as int?;
     final limit = (data['limit'] as int?) ?? -1;
 

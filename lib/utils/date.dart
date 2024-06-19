@@ -143,7 +143,7 @@ extension DateTimeExtension on DateTime? {
       )) {
         return loc.yesterday;
       } else {
-        return settings.kDateFormat.value.format(date!);
+        return settings.kDateFormat.value.format(date);
       }
     }();
 

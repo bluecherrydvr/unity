@@ -27,10 +27,33 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class EventsDateTimeFilter extends StatelessWidget {
+class EventsDateTimeFilter extends StatefulWidget {
   final VoidCallback? onSelect;
 
   const EventsDateTimeFilter({super.key, this.onSelect});
+
+  @override
+  State<EventsDateTimeFilter> createState() => _EventsDateTimeFilterState();
+}
+
+class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && DateTime.now().second % 5 == 0) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +62,7 @@ class EventsDateTimeFilter extends StatelessWidget {
 
     return ExpansionTile(
       title: Text(
-        loc.filter,
+        loc.dateTimeFilter,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Text(loc.fromToDate(
@@ -52,16 +75,16 @@ class EventsDateTimeFilter extends StatelessWidget {
           date: eventsProvider.startDate,
           isFrom: true,
           onDateChanged: (date) {
-            context.read<EventsProvider>().startDate = date;
-            onSelect?.call();
+            eventsProvider.startDate = date;
+            widget.onSelect?.call();
           },
         ),
         _FilterTile(
           title: loc.toDate,
           date: eventsProvider.endDate,
           onDateChanged: (date) {
-            context.read<EventsProvider>().endDate = date;
-            onSelect?.call();
+            eventsProvider.endDate = date;
+            widget.onSelect?.call();
           },
         ),
       ],

@@ -333,6 +333,7 @@
     }
   },
   "period": "Period",
+  "dateTimeFilter": "Date and Time Filter",
   "dateFilter": "Date Filter",
   "timeFilter": "Time Filter",
   "fromDate": "From",
@@ -340,7 +341,7 @@
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "never",
-  "fromToDate": "{from} to {to}",
+  "fromToDate": "From {from} to {to}",
   "@fromToDate": {
     "placeholders": {
       "from": {
@@ -351,7 +352,6 @@
       }
     }
   },
-  "fromToTime": "{from} to {to}",
   "@fromToTime": {
     "placeholders": {
       "from": {

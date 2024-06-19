@@ -332,7 +332,8 @@
       }
     }
   },
-  "period": "Period",
+  "period": "Período",
+  "dateTimeFilter": "Filtro de Data e Hora",
   "dateFilter": "Periodo",
   "timeFilter": "Filtro de Tempo",
   "fromDate": "De",
@@ -340,7 +341,7 @@
   "today": "Hoje",
   "yesterday": "Ontem",
   "never": "Nunca",
-  "fromToDate": "{from} à {to}",
+  "fromToDate": "De {from} à {to}",
   "@fromToDate": {
     "placeholders": {
       "from": {
@@ -351,7 +352,6 @@
       }
     }
   },
-  "fromToTime": "De {from} às {to}",
   "@fromToTime": {
     "placeholders": {
       "from": {

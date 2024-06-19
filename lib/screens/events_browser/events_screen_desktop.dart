@@ -44,8 +44,6 @@ class EventsScreenDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
-
     if (events.isEmpty) {
       return NoEventsLoaded(
         isLoading: context

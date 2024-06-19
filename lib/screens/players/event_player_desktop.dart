@@ -119,7 +119,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
 
       setState(() {});
     });
-    setEvent(currentEvent);
+    if (widget.player == null) setEvent(currentEvent);
   }
 
   @override

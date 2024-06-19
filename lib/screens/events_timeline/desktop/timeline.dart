@@ -161,12 +161,12 @@ class TimelineEvent {
   DateTime get endTime => startTime.add(duration);
 
   bool isPlaying(DateTime currentDate) {
-    return currentDate.isInBetween(startTime, endTime);
+    return currentDate.toUtc().isInBetween(startTime.toUtc(), endTime.toUtc());
   }
 
   /// The position of the video at the [currentDate]
   Duration position(DateTime currentDate) {
-    return currentDate.difference(startTime);
+    return currentDate.toUtc().difference(startTime.toUtc());
   }
 }
 

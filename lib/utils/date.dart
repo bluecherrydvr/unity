@@ -26,20 +26,14 @@ import 'package:provider/provider.dart';
 
 Set<String> _loggedErrorredDates = {};
 
-/// Convert a date string to a DateTime object, considering the timezone offset.
-DateTime timezoneAwareDate(String originalDateString) {
-  final originalDateTime = DateTime.parse(originalDateString);
-
+/// Returns the timezone offset in hours from a date string.
+Duration dateTimezoneOffset(String originalDateString) {
   try {
-    // Get the offset sign and factors from the date string.
-    //
-    // If the timezone is positive (e.g. +02:00), the offset sign is positive.
-    // Otherwise (e.g. -02:00), the offset sign is negative.
     var offsetSign = 1.0;
     var offsetFactors = originalDateString.split('+');
     if (offsetFactors.isEmpty) {
       offsetFactors = originalDateString.split('-');
-      if (offsetFactors.length <= 2) return originalDateTime;
+      if (offsetFactors.length <= 2) return Duration.zero;
       offsetSign = -1.0;
     }
     final offsetString = offsetFactors.last;
@@ -55,7 +49,17 @@ DateTime timezoneAwareDate(String originalDateString) {
       minutes: (minutes * offsetSign).toInt(),
     );
 
-    return originalDateTime.add(offset);
+    return offset;
+  } catch (_) {
+    return Duration.zero;
+  }
+}
+
+/// Convert a date string to a DateTime object, considering the timezone offset.
+DateTime timezoneAwareDate(String originalDateString) {
+  final originalDateTime = DateTime.parse(originalDateString);
+  try {
+    return originalDateTime.add(dateTimezoneOffset(originalDateString));
   } catch (e) {
     if (!_loggedErrorredDates.contains(originalDateString)) {
       writeLogToFile(

@@ -166,11 +166,13 @@ class _FilterTile extends StatelessWidget {
   }
 
   Future<void> _openDatePicker(BuildContext context) async {
-    final date = this.date ?? DateTimeExtension.now();
+    final defaultDate =
+        isFrom ? DateTimeExtension.today() : DateTimeExtension.now();
+    final date = this.date ?? defaultDate;
     final selectedDate = await showDatePicker(
       context: context,
       firstDate: DateTime(1970),
-      lastDate: DateTimeExtension.now(),
+      lastDate: defaultDate,
       initialDate: date,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );

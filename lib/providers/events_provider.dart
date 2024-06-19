@@ -24,7 +24,6 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/constants.dart';
-import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -81,19 +80,20 @@ class EventsProvider extends UnityProvider {
   }
 
   DateTime? _startDate;
-  DateTime get startDate =>
-      _startDate ?? DateTimeExtension.now().subtract(const Duration(hours: 24));
+  DateTime? get startDate => _startDate;
   set startDate(DateTime? value) {
     _startDate = value;
     notifyListeners();
   }
 
   DateTime? _endDate;
-  DateTime get endDate => _endDate ?? DateTimeExtension.now();
+  DateTime? get endDate => _endDate;
   set endDate(DateTime? value) {
     _endDate = value;
     notifyListeners();
   }
+
+  bool get isDateSet => _startDate != null && _endDate != null;
 
   EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
   EventsMinLevelFilter get levelFilter => _levelFilter;
@@ -174,10 +174,13 @@ extension EventsScreenProvider on EventsProvider {
               return false;
             })
             ..removeWhere((event) {
-              return event.published.toUtc().isBefore(startDate.toUtc()) ||
-                  event.updated.toUtc().isAfter(endDate.toUtc());
+              if (!isDateSet) return false;
+
+              return event.published.toUtc().isBefore(startDate!.toUtc()) ||
+                  event.updated.toUtc().isAfter(endDate!.toUtc());
             })
-            ..sort((a, b) => a.published.toUtc().compareTo(b.updated.toUtc()));
+            ..sort(
+                (a, b) => b.published.toUtc().compareTo(a.published.toUtc()));
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);

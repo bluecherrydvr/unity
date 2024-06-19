@@ -156,6 +156,10 @@ extension DateTimeExtension on DateTime? {
     return DateTime.timestamp();
   }
 
+  static DateTime today() {
+    return now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+  }
+
   /// Formats the date string.
   String formatDecoratedDate(BuildContext context) {
     final loc = AppLocalizations.of(context);

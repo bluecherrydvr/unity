@@ -71,21 +71,22 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
   bool hasEverFetched = false;
 
   @override
-  Future<void> fetch() async {
+  Future<void> fetch({DateTime? startDate, DateTime? endDate}) async {
     if (!context.mounted) return;
     final eventsProvider = context.read<EventsProvider>();
     final settings = context.read<SettingsProvider>();
     setState(() {
       hasEverFetched = true;
       date = date.toLocal();
-      eventsProvider
-        ..startDate = DateTime(date.year, date.month, date.day).toLocal()
-        ..endDate =
-            DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      startDate = DateTime(date.year, date.month, date.day).toLocal();
+      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
       timeline?.dispose();
       timeline = null;
     });
-    await super.fetch();
+    await super.fetch(
+      startDate: startDate,
+      endDate: endDate,
+    );
 
     final devices = <Device, List<Event>>{};
 

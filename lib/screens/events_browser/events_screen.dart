@@ -62,11 +62,17 @@ class EventsScreen extends StatefulWidget {
 
 class EventsScreenState<T extends StatefulWidget> extends State<T> {
   /// Fetches the events from the servers.
-  Future<void> fetch() async {
+  Future<void> fetch({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     final home = context.read<HomeProvider>()
       ..loading(UnityLoadingReason.fetchingEventsHistory);
 
-    await context.read<EventsProvider>().loadEvents();
+    await context.read<EventsProvider>().loadEvents(
+          startDate: startDate,
+          endDate: endDate,
+        );
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
   }

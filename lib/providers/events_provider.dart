@@ -137,7 +137,10 @@ class EventsProvider extends UnityProvider {
 }
 
 extension EventsScreenProvider on EventsProvider {
-  Future<void> loadEvents() async {
+  Future<void> loadEvents({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     loadedEvents = LoadedEvents();
     _notify();
 
@@ -155,8 +158,8 @@ extension EventsScreenProvider on EventsProvider {
         await Future.wait(allowedDevices.map((device) async {
           final iterable = (await API.instance.getEvents(
             server,
-            startTime: startDate,
-            endTime: endDate,
+            startTime: startDate ?? this.startDate,
+            endTime: endDate ?? this.startDate,
             device: device,
           ))
               .toList()

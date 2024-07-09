@@ -58,7 +58,7 @@ jobs:
             bluecherry-android-armeabi-v7a-release.apk
             bluecherry-android-x86_64-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
         if: startsWith(github.ref, 'refs/tags/')
@@ -84,7 +84,7 @@ jobs:
           channel: "stable"
           architecture: x64
           # cache: true
-          
+
       - run: flutter gen-l10n
       - run: flutter pub get
       - run: flutter build ios --verbose --no-codesign
@@ -126,7 +126,7 @@ jobs:
           channel: "stable"
           architecture: x64
           # cache: true
-          
+
       - run: flutter gen-l10n
       - run: flutter pub get
       - run: flutter build macos --verbose
@@ -170,6 +170,20 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter pub get
       - run: flutter build windows --verbose
+
+      - name: Copy VSCode redistribution libs over
+        shell: powershell
+        working-directory: .\build\windows\x64\runner\Release
+        # Copy the latest vscode redistribution .dll files into the folder as per
+        # https://docs.flutter.dev/platform-integration/windows/building#distributing-windows-apps
+        # to fix crash issues like:
+        # https://github.com/media-kit/media-kit/issues/842
+        run: |
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140_1.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140_2.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\vcruntime140.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\vcruntime140_1.dll') -Force .
 
       - name: Building the installer
         run: |
@@ -220,7 +234,7 @@ jobs:
         with:
           channel: "stable"
           # cache: true
-      
+
       - name: Initiate Flutter
         run: |
           flutter gen-l10n
@@ -236,7 +250,7 @@ jobs:
           mkdir -p linux/debian/usr/bin
           cp -fr build/linux/x64/release/bundle linux/debian/usr/share/bluecherry_client
           ln -sr linux/debian/usr/share/bluecherry_client/bluecherry_client linux/debian/usr/bin/bluecherry_client
-          
+
           sed -i "s:cp -rf :cp -rf $(pwd)/:" linux/rpm/bluecherry.spec
           cd linux/debian
           sed -i "s:FILES_HERE:$(find usr \( -type l -o -type f \) -follow -print | awk '{printf "/%s\\n", $0}'):" ../rpm/bluecherry.spec
@@ -342,7 +356,7 @@ jobs:
         with:
           channel: "stable"
           cache: false
-      
+
       - name: Initiate Flutter
         run: |
           flutter gen-l10n
@@ -368,13 +382,12 @@ jobs:
         with:
           channel: "stable"
           cache: false
-      
+
       - name: Initiate Flutter
         run: |
           flutter gen-l10n
           flutter pub get
-        
+
       - name: Build
         run: |
           flutter build web --verbose --dart-define=FLUTTER_WEB_USE_SKIA=true --dart-define=FLUTTER_WEB_AUTO_DETECT=true
-

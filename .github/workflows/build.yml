@@ -171,6 +171,20 @@ jobs:
       - run: flutter pub get
       - run: flutter build windows --verbose
 
+      - name: Copy VSCode redistribution libs over
+        shell: powershell
+        working-directory: .\build\windows\x64\runner\Release
+        # Copy the latest vscode redistribution .dll files into the folder as per
+        # https://docs.flutter.dev/platform-integration/windows/building#distributing-windows-apps
+        # to fix crash issues like:
+        # https://github.com/media-kit/media-kit/issues/842
+        run:
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140_1.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\msvcp140_2.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\vcruntime140.dll') -Force .
+          Copy-Item (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find 'VC\Redist\MSVC\*\x64\*\vcruntime140_1.dll') -Force .
+
       - name: Building the installer
         run: |
           "%programfiles(x86)%\Inno Setup 6\iscc.exe" "installer/windows-installer.iss"

@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta18</title>
+            <description>Time Filter for Events; Fixed crash on newer versions of Windows.</description>
+            <pubDate>Wed, 10 Jul 2024</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta17</title>
             <description>Fixed Secondary Windows; Improved logging; and Addressed memory leaks and stream continuity.</description>
             <pubDate>Fri, 07 Jun 2024</pubDate>

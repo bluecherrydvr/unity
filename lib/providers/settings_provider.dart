@@ -278,7 +278,6 @@ class SettingsProvider extends UnityProvider {
       try {
         return (await DownloadsManager.kDefaultDownloadsDirectory).path;
       } catch (e) {
-        debugPrint('Error getting default downloads directory: $e');
         return '';
       }
     },

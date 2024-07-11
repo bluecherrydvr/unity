@@ -122,10 +122,15 @@ class DownloadsManager extends UnityProvider {
         final docsDir = await getApplicationSupportDirectory();
         dir = Directory(path.join(docsDir.path, 'downloads'));
       }
+    } on StateError catch (e) {
+      debugPrint('Failed to get default downloads directory: $e');
     } catch (error, stack) {
-      debugPrint('Failed to get default downloads directory: $error\n$stack');
-      final docsDir = await getApplicationSupportDirectory();
-      dir = Directory(path.join(docsDir.path, 'downloads'));
+      debugPrint('Failed to get default downloads directory:$error\n$stack');
+    } finally {
+      if (dir == null) {
+        final docsDir = await getApplicationSupportDirectory();
+        dir = Directory(path.join(docsDir.path, 'downloads'));
+      }
     }
 
     debugPrint('The default downloads is ${dir.path}');

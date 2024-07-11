@@ -144,6 +144,9 @@ extension EventsScreenProvider on EventsProvider {
     loadedEvents = LoadedEvents();
     _notify();
 
+    startDate ??= this.startDate;
+    endDate ??= this.endDate;
+
     // Load the events at the same time
     await Future.wait(ServersProvider.instance.servers.map((server) async {
       if (!server.online || server.devices.isEmpty) return;
@@ -158,8 +161,8 @@ extension EventsScreenProvider on EventsProvider {
         await Future.wait(allowedDevices.map((device) async {
           final iterable = (await API.instance.getEvents(
             server,
-            startTime: startDate ?? this.startDate,
-            endTime: endDate ?? this.startDate,
+            startTime: startDate?.toUtc(),
+            endTime: endDate?.toUtc(),
             device: device,
           ))
               .toList()

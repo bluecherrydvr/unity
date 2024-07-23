@@ -140,11 +140,12 @@ class Device {
     this.resolutionY = 480,
     this.hasPTZ = false,
     this.url,
-    this.matrixType = MatrixType.t16,
+    MatrixType? matrixType,
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
-  }) : server = Server.dump();
+  })  : server = Server.dump(),
+        matrixType = matrixType ?? SettingsProvider.instance.kMatrixSize.value;
 
   String get uri => 'live/$id';
 

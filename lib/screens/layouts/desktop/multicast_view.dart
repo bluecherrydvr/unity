@@ -94,7 +94,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
 
     if (view == null ||
         view.lastImageUpdate == null ||
-        !settings.kDefaultBetaMatrixedZoomEnabled.value) {
+        !settings.kMatrixedZoomEnabled.value) {
       return const SizedBox.shrink();
     }
 

@@ -387,7 +387,7 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Other
-  final kDefaultBetaMatrixedZoomEnabled = _SettingsOption(
+  final kMatrixedZoomEnabled = _SettingsOption(
     def: false,
     key: 'other.matrixed_zoom_enabled',
   );
@@ -410,6 +410,10 @@ class SettingsProvider extends UnityProvider {
     valueOverrider: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded
         ? () => true
         : null,
+  );
+  final kEventsMatrixedZoom = _SettingsOption(
+    def: true,
+    key: 'other.zoom_matrixed_zoom_enabled',
   );
   final kShowDebugInfo = _SettingsOption(
     def: kDebugMode,
@@ -477,9 +481,10 @@ class SettingsProvider extends UnityProvider {
       kAllowCrashReports.loadData(data),
       kAutoUpdate.loadData(data),
       kShowReleaseNotes.loadData(data),
-      kDefaultBetaMatrixedZoomEnabled.loadData(data),
+      kMatrixedZoomEnabled.loadData(data),
       kMatrixSize.loadData(data),
       kSoftwareZooming.loadData(data),
+      kEventsMatrixedZoom.loadData(data),
       kShowDebugInfo.loadData(data),
       kShowNetworkUsage.loadData(data),
     ]);
@@ -559,10 +564,12 @@ class SettingsProvider extends UnityProvider {
         kAutoUpdate.key: kAutoUpdate.saveAs(kAutoUpdate.value),
         kShowReleaseNotes.key:
             kShowReleaseNotes.saveAs(kShowReleaseNotes.value),
-        kDefaultBetaMatrixedZoomEnabled.key: kDefaultBetaMatrixedZoomEnabled
-            .saveAs(kDefaultBetaMatrixedZoomEnabled.value),
+        kMatrixedZoomEnabled.key:
+            kMatrixedZoomEnabled.saveAs(kMatrixedZoomEnabled.value),
         kMatrixSize.key: kMatrixSize.saveAs(kMatrixSize.value),
         kSoftwareZooming.key: kSoftwareZooming.saveAs(kSoftwareZooming.value),
+        kEventsMatrixedZoom.key:
+            kEventsMatrixedZoom.saveAs(kEventsMatrixedZoom.value),
         kShowDebugInfo.key: kShowDebugInfo.saveAs(kShowDebugInfo.value),
         kShowNetworkUsage.key:
             kShowNetworkUsage.saveAs(kShowNetworkUsage.value),

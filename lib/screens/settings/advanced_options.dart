@@ -84,10 +84,10 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
         contentPadding: DesktopSettings.horizontalPadding,
         title: Text(loc.matrixedViewZoom),
         subtitle: Text(loc.matrixedViewZoomDescription),
-        value: settings.kDefaultBetaMatrixedZoomEnabled.value,
+        value: settings.kMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
+            settings.kMatrixedZoomEnabled.value = value;
           }
         },
       ),

@@ -41,8 +41,7 @@ class MulticastViewport extends StatefulWidget {
 }
 
 class _MulticastViewportState extends State<MulticastViewport> {
-  var _placeholderDevice = Device.dump();
-  Device get device => widget.device ?? _placeholderDevice;
+  late Device device = widget.device ?? Device.dump();
 
   Timer? _gap;
 
@@ -163,17 +162,17 @@ class _MulticastViewportState extends State<MulticastViewport> {
                     return HoverButton(
                       onDoubleTap: () {
                         if (widget.device != null) {
-                          views.updateDevice(
+                          device = views.updateDevice(
                             device,
                             device.copyWith(matrixType: matrixType.next),
                           );
+                          setState(() {});
                         } else {
                           setState(() {
-                            _placeholderDevice = _placeholderDevice.copyWith(
+                            device = device.copyWith(
                               matrixType: matrixType.next,
                             );
-                            view.player.zoom.matrixType =
-                                _placeholderDevice.matrixType!;
+                            view.player.zoom.matrixType = device.matrixType!;
                           });
                         }
                       },

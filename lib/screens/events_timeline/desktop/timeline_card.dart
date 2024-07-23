@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/multicast_view.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
@@ -168,6 +169,9 @@ class _TimelineCardState extends State<TimelineCard> {
                     textAlign: TextAlign.end,
                   ),
                 ),
+              const Positioned.fill(
+                child: MulticastViewport(),
+              ),
               PositionedDirectional(
                 end: 0,
                 top: 0,

@@ -73,6 +73,8 @@ class TimelineTile {
       quality: UnityVideoQuality.p480,
       enableCache: true,
       title: device.fullName,
+      softwareZoom: SettingsProvider.instance.kSoftwareZooming.value,
+      matrixType: SettingsProvider.instance.kMatrixSize.value,
     );
     videoController.setMultipleDataSource(
       events.map((event) => event.videoUrl),

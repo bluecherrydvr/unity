@@ -218,14 +218,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                     ),
                                   ),
                                 ),
-                              Positioned.fill(
-                                child: Center(
-                                  child: Container(
-                                    // color: Colors.amber,
-                                    child: const MulticastViewport(),
-                                  ),
-                                ),
-                              ),
+                              const Positioned.fill(child: MulticastViewport()),
                               PositionedDirectional(
                                 bottom: 8.0,
                                 end: 8.0,

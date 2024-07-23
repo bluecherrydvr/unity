@@ -100,7 +100,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
       return const SizedBox.shrink();
     }
 
-    if (view.player.isRecorded && !settings.kMatrixedZoomEnabled.value) {
+    if (view.player.isRecorded && !settings.kEventsMatrixedZoom.value) {
       return const SizedBox.shrink();
     }
 

@@ -30,6 +30,7 @@ import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sideb
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -83,6 +84,12 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       timeline?.dispose();
       timeline = null;
     });
+
+    // if (kDebugMode && true) {
+    //   setState(() => timeline = Timeline.dump());
+    //   return;
+    // }
+
     await super.fetch(
       startDate: startDate,
       endDate: endDate,

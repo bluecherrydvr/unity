@@ -66,7 +66,7 @@ class _TimelineCardState extends State<TimelineCard> {
       color: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       child: UnityVideoView(
-        heroTag: device.streamURL,
+        // heroTag: device.streamURL,
         player: widget.tile.videoController,
         color: Colors.transparent,
         fit: _fit ??
@@ -110,54 +110,58 @@ class _TimelineCardState extends State<TimelineCard> {
 
           final video = UnityVideoView.of(context);
 
+          const paddingSize = 12.0;
+
           return HoverButton(
             forceEnabled: true,
-            margin: const EdgeInsetsDirectional.all(16.0),
             builder: (_, states) => Stack(clipBehavior: Clip.none, children: [
-              RichText(
-                text: TextSpan(
-                  text: '',
-                  style: theme.textTheme.labelLarge!.copyWith(
-                    color: Colors.white,
-                    shadows: outlinedText(strokeWidth: 0.75),
-                  ),
-                  children: [
-                    TextSpan(
-                      text: device.name,
-                      style: theme.textTheme.titleMedium!.copyWith(
-                        color: Colors.white,
-                        shadows: outlinedText(strokeWidth: 0.75),
-                      ),
+              Padding(
+                padding: const EdgeInsetsDirectional.all(paddingSize),
+                child: RichText(
+                  text: TextSpan(
+                    text: '',
+                    style: theme.textTheme.labelLarge!.copyWith(
+                      color: Colors.white,
+                      shadows: outlinedText(strokeWidth: 0.75),
                     ),
-                    const TextSpan(text: '\n'),
-                    if (states.isHovering)
+                    children: [
                       TextSpan(
-                        text: settings.kShowDebugInfo.value
-                            ? currentEvent
-                                .position(widget.timeline.currentDate)
-                                .toString()
-                            : currentEvent
-                                .position(widget.timeline.currentDate)
-                                .humanReadableCompact(context),
+                        text: device.name,
+                        style: theme.textTheme.titleMedium!.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(strokeWidth: 0.75),
+                        ),
                       ),
-                    if (settings.kShowDebugInfo.value) ...[
-                      const TextSpan(text: '\ndebug: '),
-                      TextSpan(text: controller.currentPos.toString()),
-                      TextSpan(
-                        text:
-                            '\ndiff: ${currentEvent.position(widget.timeline.currentDate) - controller.currentPos}',
-                      ),
-                      TextSpan(
-                        text: '\nindex: ${events.indexOf(currentEvent)}',
-                      ),
+                      const TextSpan(text: '\n'),
+                      if (states.isHovering)
+                        TextSpan(
+                          text: settings.kShowDebugInfo.value
+                              ? currentEvent
+                                  .position(widget.timeline.currentDate)
+                                  .toString()
+                              : currentEvent
+                                  .position(widget.timeline.currentDate)
+                                  .humanReadableCompact(context),
+                        ),
+                      if (settings.kShowDebugInfo.value) ...[
+                        const TextSpan(text: '\ndebug: '),
+                        TextSpan(text: controller.currentPos.toString()),
+                        TextSpan(
+                          text:
+                              '\ndiff: ${currentEvent.position(widget.timeline.currentDate) - controller.currentPos}',
+                        ),
+                        TextSpan(
+                          text: '\nindex: ${events.indexOf(currentEvent)}',
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               if (settings.kShowDebugInfo.value)
                 Positioned(
                   top: 36.0,
-                  right: 0.0,
+                  right: paddingSize,
                   child: Text(
                     'buffer: '
                     '${(widget.tile.videoController.currentBuffer.inMilliseconds / widget.tile.videoController.duration.inMilliseconds).toStringAsPrecision(2)}'
@@ -173,8 +177,8 @@ class _TimelineCardState extends State<TimelineCard> {
                 child: MulticastViewport(),
               ),
               PositionedDirectional(
-                end: 0,
-                top: 0,
+                end: paddingSize,
+                top: paddingSize,
                 height: 24.0,
                 width: 24.0,
                 child: () {
@@ -194,7 +198,8 @@ class _TimelineCardState extends State<TimelineCard> {
                 }(),
               ),
               if (states.isHovering)
-                Align(
+                Container(
+                  margin: const EdgeInsetsDirectional.all(paddingSize),
                   alignment: AlignmentDirectional.bottomStart,
                   child: RichText(
                     text: TextSpan(
@@ -216,7 +221,8 @@ class _TimelineCardState extends State<TimelineCard> {
                     ),
                   ),
                 ),
-              Align(
+              Container(
+                margin: const EdgeInsetsDirectional.all(paddingSize),
                 alignment: AlignmentDirectional.bottomEnd,
                 child: SizedBox(
                   height: 24.0,

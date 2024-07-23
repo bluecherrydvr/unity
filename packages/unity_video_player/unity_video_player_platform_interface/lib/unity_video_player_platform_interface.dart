@@ -334,6 +334,8 @@ abstract class UnityVideoPlayer with ChangeNotifier {
     return source.contains('media/mjpeg') || source.contains('.m3u8');
   }
 
+  bool get isRecorded => !isLive;
+
   void _handleLateVideo() {
     switch (lateVideoBehavior) {
       case LateVideoBehavior.automatic:

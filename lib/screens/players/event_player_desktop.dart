@@ -26,9 +26,11 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/multicast_view.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
@@ -101,12 +103,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   void initState() {
     super.initState();
     currentEvent = widget.event;
-    videoController = widget.player ??
-        UnityVideoPlayer.create(
-          quality: UnityVideoQuality.p480,
-          enableCache: true,
-          title: title,
-        );
+    videoController = widget.player ?? UnityPlayers.forEvent(widget.event);
     fit = device?.server.additionalSettings.videoFit ??
         SettingsProvider.instance.kVideoFit.value;
     playingSubscription =
@@ -199,10 +196,10 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                           heroTag: currentEvent.mediaURL,
                           player: videoController,
                           fit: fit,
-                          paneBuilder: (context, controller) {
+                          paneBuilder: (context, player) {
                             final video = UnityVideoView.of(context);
 
-                            return Stack(children: [
+                            return Stack(clipBehavior: Clip.none, children: [
                               if (video.error != null)
                                 Center(
                                   child: ErrorWarning(message: video.error!),
@@ -211,16 +208,24 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    'source: ${controller.dataSource}'
-                                    '\nposition: ${controller.currentPos}'
-                                    '\nduration ${controller.duration}'
-                                    '\nbuffer ${controller.currentBuffer}',
+                                    'source: ${player.dataSource}'
+                                    '\nposition: ${player.currentPos}'
+                                    '\nduration ${player.duration}'
+                                    '\nbuffer ${player.currentBuffer}',
                                     style: theme.textTheme.labelSmall?.copyWith(
                                       color: Colors.white,
                                       shadows: outlinedText(),
                                     ),
                                   ),
                                 ),
+                              Positioned.fill(
+                                child: Center(
+                                  child: Container(
+                                    // color: Colors.amber,
+                                    child: const MulticastViewport(),
+                                  ),
+                                ),
+                              ),
                               PositionedDirectional(
                                 bottom: 8.0,
                                 end: 8.0,

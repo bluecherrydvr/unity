@@ -171,7 +171,15 @@ class UnityVideoViewState extends State<UnityVideoView> {
             });
           }
 
-          return widget.videoBuilder?.call(context, output) ?? output;
+          return Center(
+            child: AspectRatio(
+              aspectRatio: widget.player.aspectRatio == 0 ||
+                      widget.player.aspectRatio == double.infinity
+                  ? 16 / 9
+                  : widget.player.aspectRatio,
+              child: widget.videoBuilder?.call(context, output) ?? output,
+            ),
+          );
         },
         paneBuilder: widget.paneBuilder,
       ),

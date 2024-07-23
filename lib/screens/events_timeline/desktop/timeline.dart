@@ -546,6 +546,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
   final verticalScrollController = ScrollController();
 
+  bool _isCollapsed = false;
+
   @override
   void initState() {
     super.initState();
@@ -632,6 +634,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               end: 8.0,
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SquaredIconButton(
+                icon:
+                    Icon(_isCollapsed ? Icons.expand_more : Icons.expand_less),
+                onPressed: () {
+                  setState(() {
+                    _isCollapsed = !_isCollapsed;
+                  });
+                },
+                tooltip: _isCollapsed ? loc.expand : loc.collapse,
+              ),
               Expanded(
                 child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   if (timeline.pausedToBuffer.isNotEmpty)
@@ -731,11 +743,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.kDateFormat.value.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: _kTimelineTileHeight * 5.0,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            constraints: BoxConstraints(
+              maxHeight: _isCollapsed ? 0.0 : _kTimelineTileHeight * 5.0,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
+              if (constraints.maxHeight < _kTimelineTileHeight / 1.9) {
+                return const SizedBox.shrink();
+              }
+
               final tileWidth =
                   (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
               final hourWidth = tileWidth / 24;

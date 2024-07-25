@@ -20,6 +20,7 @@
 import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/foundation.dart';
@@ -129,6 +130,36 @@ class UnityPlayers with ChangeNotifier {
       ..setSpeed(1.0);
 
     setSource();
+
+    controller.onError.listen((event) {
+      writeLogToFile(
+        'An error ocurred when playing a video (${controller.dataSource}): $event\n',
+      );
+    });
+
+    return controller;
+  }
+
+  static UnityVideoPlayer forEvent(Event event) {
+    SettingsProvider settings() => SettingsProvider.instance;
+
+    final controller = UnityVideoPlayer.create(
+      // quality: settings().kRenderingQuality.value.playerQuality,
+      quality: UnityVideoQuality.p480,
+      enableCache: true,
+      title: event.title,
+      matrixType: settings().kMatrixSize.value,
+      softwareZoom: settings().kSoftwareZooming.value,
+      onLog: (message) {
+        logStreamToFile(
+          event.mediaURL?.toString() ?? 'Event ${event.title} (${event.id})',
+          message,
+        );
+      },
+    )
+      ..setDataSource(event.mediaURL!.toString())
+      ..setVolume(1.0)
+      ..setSpeed(1.0);
 
     controller.onError.listen((event) {
       writeLogToFile(

@@ -83,6 +83,12 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       timeline?.dispose();
       timeline = null;
     });
+
+    // if (kDebugMode && true) {
+    //   setState(() => timeline = Timeline.dump());
+    //   return;
+    // }
+
     await super.fetch(
       startDate: startDate,
       endDate: endDate,

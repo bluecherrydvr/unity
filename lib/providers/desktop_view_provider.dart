@@ -320,7 +320,9 @@ class DesktopViewProvider extends UnityProvider {
   /// Updates a device in all the layouts.
   ///
   /// If [reload] is `true`, the device player will be reloaded.
-  Future<void> updateDevice(
+  ///
+  /// Return the new device.
+  Device updateDevice(
     Device previousDevice,
     Device device, {
     bool reload = false,
@@ -343,6 +345,8 @@ class DesktopViewProvider extends UnityProvider {
     }
 
     notifyListeners();
-    return save(notifyListeners: false);
+    save(notifyListeners: false);
+
+    return device;
   }
 }

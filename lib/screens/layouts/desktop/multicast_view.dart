@@ -32,15 +32,17 @@ import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class MulticastViewport extends StatefulWidget {
-  final Device device;
+  final Device? device;
 
-  const MulticastViewport({super.key, required this.device});
+  const MulticastViewport({super.key, this.device});
 
   @override
   State<MulticastViewport> createState() => _MulticastViewportState();
 }
 
 class _MulticastViewportState extends State<MulticastViewport> {
+  late Device device = widget.device ?? Device.dump();
+
   Timer? _gap;
 
   (int row, int column)? currentZoom;
@@ -94,11 +96,15 @@ class _MulticastViewportState extends State<MulticastViewport> {
 
     if (view == null ||
         view.lastImageUpdate == null ||
-        !settings.kDefaultBetaMatrixedZoomEnabled.value) {
+        !settings.kMatrixedZoomEnabled.value) {
       return const SizedBox.shrink();
     }
 
-    final matrixType = widget.device.matrixType ?? settings.kMatrixSize.value;
+    if (view.player.isRecorded && !settings.kEventsMatrixedZoom.value) {
+      return const SizedBox.shrink();
+    }
+
+    final matrixType = device.matrixType ?? settings.kMatrixSize.value;
     final size = matrixType.size;
     if (view.player.isCropped) {
       return Listener(
@@ -155,10 +161,20 @@ class _MulticastViewportState extends State<MulticastViewport> {
 
                     return HoverButton(
                       onDoubleTap: () {
-                        views.updateDevice(
-                          widget.device,
-                          widget.device.copyWith(matrixType: matrixType.next),
-                        );
+                        if (widget.device != null) {
+                          device = views.updateDevice(
+                            device,
+                            device.copyWith(matrixType: matrixType.next),
+                          );
+                          setState(() {});
+                        } else {
+                          setState(() {
+                            device = device.copyWith(
+                              matrixType: matrixType.next,
+                            );
+                            view.player.zoom.matrixType = device.matrixType!;
+                          });
+                        }
                       },
                       onPressed: () {
                         view.player.crop(row, col);
@@ -184,7 +200,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
               ),
             ),
           ),
-        for (final overlay in widget.device.overlays)
+        for (final overlay in device.overlays)
           if (overlay.visible)
             Positioned(
               left: constraints.maxWidth * (overlay.position.dx / 100),

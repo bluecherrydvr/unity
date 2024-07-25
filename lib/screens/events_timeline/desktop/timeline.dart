@@ -73,6 +73,8 @@ class TimelineTile {
       quality: UnityVideoQuality.p480,
       enableCache: true,
       title: device.fullName,
+      softwareZoom: SettingsProvider.instance.kSoftwareZooming.value,
+      matrixType: SettingsProvider.instance.kMatrixSize.value,
     );
     videoController.setMultipleDataSource(
       events.map((event) => event.videoUrl),
@@ -110,49 +112,58 @@ class TimelineEvent {
     return [
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime(2023).add(
-          Duration(hours: Random().nextInt(4), minutes: Random().nextInt(60)),
-        ),
+        startTime: DateTime.now()
+            .add(
+              Duration(
+                  hours: Random().nextInt(4), minutes: Random().nextInt(60)),
+            )
+            .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(hours: 1),
-        startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 5)),
+        startTime: DateTime.now()
+            .add(Duration(hours: Random().nextInt(4) + 5))
+            .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime(2023).add(Duration(hours: Random().nextInt(4) + 9)),
+        startTime: DateTime.now()
+            .add(Duration(hours: Random().nextInt(4) + 9))
+            .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime(2023).add(
-          Duration(
-            hours: Random().nextInt(4) + 13,
-            minutes: Random().nextInt(60),
-          ),
-        ),
+        startTime: DateTime.now()
+            .add(
+              Duration(
+                hours: Random().nextInt(4) + 13,
+                minutes: Random().nextInt(60),
+              ),
+            )
+            .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime(2023).add(
-          Duration(
-            hours: Random().nextInt(4) + 14,
-            minutes: Random().nextInt(60),
-          ),
-        ),
+        startTime: DateTime.now()
+            .add(Duration(
+              hours: Random().nextInt(4) + 14,
+              minutes: Random().nextInt(60),
+            ))
+            .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime(2023).add(
-          Duration(
-            hours: Random().nextInt(4) + 20,
-            minutes: Random().nextInt(60),
-          ),
-        ),
+        startTime: DateTime.now()
+            .add(Duration(
+              hours: Random().nextInt(4) + 20,
+              minutes: Random().nextInt(60),
+            ))
+            .toUtc(),
         event: Event.dump(),
       ),
     ];
@@ -179,13 +190,14 @@ class Timeline extends ChangeNotifier {
   final List<TimelineTile> tiles = [];
 
   /// All the events must have happened in the same day
-  final DateTime date;
+  late final DateTime date;
 
   Timeline({
     required List<TimelineTile> tiles,
-    required this.date,
+    required DateTime date,
     Duration initialPosition = Duration.zero,
   }) {
+    this.date = DateTime(date.year, date.month, date.day).toLocal();
     currentPosition = initialPosition;
 
     add(tiles.where((tile) => tile.events.isNotEmpty));
@@ -200,6 +212,29 @@ class Timeline extends ChangeNotifier {
 
     zoomController.addListener(notifyListeners);
   }
+
+  Timeline.dump()
+      : this(
+          tiles: [
+            TimelineTile(
+              device: Device.dump(name: 'device1'),
+              events: TimelineEvent.fakeData,
+            ),
+            TimelineTile(
+              device: Device.dump(name: 'device2'),
+              events: TimelineEvent.fakeData,
+            ),
+            TimelineTile(
+              device: Device.dump(name: 'device3'),
+              events: TimelineEvent.fakeData,
+            ),
+            TimelineTile(
+              device: Device.dump(name: 'device4'),
+              events: TimelineEvent.fakeData,
+            ),
+          ],
+          date: DateTime.now(),
+        );
 
   void _eventCallback(TimelineTile tile, {bool notify = true}) {
     if (tile.videoController.duration <= Duration.zero) return;
@@ -511,6 +546,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
 
   final verticalScrollController = ScrollController();
 
+  bool _isCollapsed = false;
+
   @override
   void initState() {
     super.initState();
@@ -597,6 +634,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               end: 8.0,
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SquaredIconButton(
+                icon:
+                    Icon(_isCollapsed ? Icons.expand_more : Icons.expand_less),
+                onPressed: () {
+                  setState(() {
+                    _isCollapsed = !_isCollapsed;
+                  });
+                },
+                tooltip: _isCollapsed ? loc.expand : loc.collapse,
+              ),
               Expanded(
                 child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   if (timeline.pausedToBuffer.isNotEmpty)
@@ -696,11 +743,16 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             '${settings.kDateFormat.value.format(timeline.currentDate)} '
             '${timelineTimeFormat.format(timeline.currentDate)}',
           ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: _kTimelineTileHeight * 5.0,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            constraints: BoxConstraints(
+              maxHeight: _isCollapsed ? 0.0 : _kTimelineTileHeight * 5.0,
             ),
             child: LayoutBuilder(builder: (context, constraints) {
+              if (constraints.maxHeight < _kTimelineTileHeight / 1.9) {
+                return const SizedBox.shrink();
+              }
+
               final tileWidth =
                   (constraints.maxWidth - _kDeviceNameWidth) * timeline.zoom;
               final hourWidth = tileWidth / 24;

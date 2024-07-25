@@ -278,7 +278,7 @@ class _StreamDataState extends State<StreamData> {
                     },
                   ),
                 ],
-                if (settings.kDefaultBetaMatrixedZoomEnabled.value) ...[
+                if (settings.kMatrixedZoomEnabled.value) ...[
                   const SizedBox(height: 16.0),
                   Text(loc.matrixType, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 6.0),

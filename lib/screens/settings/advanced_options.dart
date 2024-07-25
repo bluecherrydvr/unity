@@ -74,7 +74,7 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
     final settings = context.watch<SettingsProvider>();
 
     return ListView(children: [
-      SubHeader(loc.matrixZoom),
+      SubHeader(loc.matrixMagnification),
       CheckboxListTile.adaptive(
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -82,12 +82,12 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
           child: const Icon(Icons.crop),
         ),
         contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.matrixedViewZoom),
-        subtitle: Text(loc.matrixedViewZoomDescription),
-        value: settings.kDefaultBetaMatrixedZoomEnabled.value,
+        title: Text(loc.matrixedViewMagnification),
+        subtitle: Text(loc.matrixedViewMagnificationDescription),
+        value: settings.kMatrixedZoomEnabled.value,
         onChanged: (value) {
           if (value != null) {
-            settings.kDefaultBetaMatrixedZoomEnabled.value = value;
+            settings.kMatrixedZoomEnabled.value = value;
           }
         },
       ),
@@ -110,15 +110,15 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
         secondary: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.center_focus_strong),
+          child: const Icon(Icons.zoom_in_map),
         ),
-        title: Text(loc.softwareZoom),
+        title: Text(loc.softwareMagnification),
         subtitle: Text(
           Platform.isMacOS
-              ? loc.softwareZoomDescriptionMacOS
-              : loc.softwareZoomDescription,
+              ? loc.softwareMagnificationDescriptionMacOS
+              : loc.softwareMagnificationDescription,
         ),
-        value: Platform.isMacOS ? true : settings.kSoftwareZooming.value,
+        value: settings.kSoftwareZooming.value,
         onChanged: Platform.isMacOS
             ? null
             : (v) {
@@ -126,6 +126,23 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
                   settings.kSoftwareZooming.value = v;
                 }
               },
+        dense: false,
+      ),
+      CheckboxListTile.adaptive(
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.center_focus_weak),
+        ),
+        title: Text(loc.eventMagnification),
+        subtitle: Text(loc.eventMagnificationDescription),
+        value: settings.kEventsMatrixedZoom.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kEventsMatrixedZoom.value = v;
+          }
+        },
         dense: false,
       ),
       SubHeader(loc.developerOptions),

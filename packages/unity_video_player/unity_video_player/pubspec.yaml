@@ -16,6 +16,8 @@ dependencies:
     path: ../unity_video_player_main
   unity_video_player_flutter:
     path: ../unity_video_player_flutter
+  unity_video_player_fvp:
+    path: ../unity_video_player_fvp
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,6 @@ flutter:
       linux:
         default_package: unity_video_player_flutter
       windows:
-        default_package: unity_video_player_main
+        default_package: unity_video_player_fvp
       web:
         default_package: unity_video_player_main

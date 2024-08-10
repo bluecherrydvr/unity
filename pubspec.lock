@@ -365,6 +365,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1+1"
+  fvp:
+    dependency: transitive
+    description:
+      name: fvp
+      sha256: "19a605fb32c2ee7a0b594ed51a2dd5fd5e8326bfa287ffd88c3e1ef0289d9afc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.23.0"
   get_it:
     dependency: transitive
     description:
@@ -981,6 +989,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  unity_video_player_fvp:
+    dependency: transitive
+    description:
+      path: "packages/unity_video_player/unity_video_player_fvp"
+      relative: true
+    source: path
+    version: "0.0.1"
   unity_video_player_main:
     dependency: transitive
     description:
@@ -1236,5 +1251,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.4.0 <4.0.0"
+  dart: ">=3.4.1 <4.0.0"
   flutter: ">=3.19.0"

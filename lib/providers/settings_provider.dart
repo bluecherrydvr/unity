@@ -336,7 +336,7 @@ class SettingsProvider extends UnityProvider {
     key: 'application.time_format',
   );
 
-  // TODO: remove this in future releases
+  // TODO(bdlukaa): remove this in future releases
   var _hasMigratedTimezone = false;
   late final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
     def: true,

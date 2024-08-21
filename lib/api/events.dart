@@ -30,11 +30,23 @@ extension EventsExtension on API {
       'The device must be present on the server',
     );
 
+    if (startTime != null && endTime != null) {
+      if (startTime == endTime) {
+        startTime = startTime.subtract(const Duration(
+          hours: 23,
+          minutes: 59,
+          seconds: 59,
+        ));
+      }
+    }
+    final startTimeString = startTime?.toIso8601StringWithTimezoneOffset();
+    final endTimeString = endTime?.toIso8601StringWithTimezoneOffset();
+
     return compute(_getEvents, {
       'server': server,
       'limit': (startTime != null && endTime != null) ? -1 : await eventsLimit,
-      'startTime': startTime,
-      'endTime': endTime,
+      'startTime': startTimeString,
+      'endTime': endTimeString,
       'device_id': device?.id,
     });
   }
@@ -46,27 +58,17 @@ extension EventsExtension on API {
       return [];
     }
 
-    var startTime = (data['startTime'] as DateTime?)?.toLocal();
-    final endTime = (data['endTime'] as DateTime?)?.toLocal();
+    var startTime = data['startTime'] as String?;
+    final endTime = data['endTime'] as String?;
     final deviceId = data['device_id'] as int?;
     final limit = (data['limit'] as int?) ?? -1;
-
-    if (startTime != null && endTime != null) {
-      if (startTime == endTime) {
-        startTime = startTime.subtract(const Duration(
-          hours: 23,
-          minutes: 59,
-          seconds: 59,
-        ));
-      }
-    }
 
     DevHttpOverrides.configureCertificates();
 
     debugPrint(
       'Getting events for server ${server.name} with limit $limit '
-      '${startTime != null ? 'from ${startTime.toIso8601String()} ' : ''}'
-      '${endTime != null ? 'to ${endTime.toIso8601String()} ' : ''}'
+      '${startTime != null ? 'from $startTime ' : ''}'
+      '${endTime != null ? 'to $endTime ' : ''}'
       '${deviceId != null ? 'for device $deviceId' : ''}',
     );
 
@@ -78,8 +80,8 @@ extension EventsExtension on API {
         {
           'XML': '1',
           'limit': '$limit',
-          if (startTime != null) 'startTime': startTime.toIso8601String(),
-          if (endTime != null) 'endTime': endTime.toIso8601String(),
+          if (startTime != null) 'startTime': startTime,
+          if (endTime != null) 'endTime': endTime,
           if (deviceId != null) 'device_id': '$deviceId',
         },
       ),

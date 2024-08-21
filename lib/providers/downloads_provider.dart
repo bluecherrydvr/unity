@@ -310,6 +310,11 @@ class DownloadsManager extends UnityProvider {
     final fileName =
         'event_${event.id}_${event.deviceID}_${event.server.name}.mp4';
     final downloadPath = path.join(dir, fileName);
+    final downloadFile = File(downloadPath);
+    if (!(await downloadFile.exists())) {
+      await downloadFile.create(recursive: true);
+    }
+
     await Dio().downloadUri(
       event.mediaURL!,
       downloadPath,

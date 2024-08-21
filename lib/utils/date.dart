@@ -198,4 +198,25 @@ extension DateTimeExtension on DateTime? {
 
     return '$dateString ${timeFormatter.format(date!)}';
   }
+
+  String toIso8601StringWithTimezoneOffset() {
+    if (this == null) return '${null}';
+
+    late final DateTime date;
+    if (SettingsProvider.instance.kConvertTimeToLocalTimezone.value) {
+      date = this!.toLocal();
+    } else {
+      date = this!;
+    }
+
+    final offset = date.timeZoneOffset;
+    final isoString = date.toIso8601String();
+    if (offset == Duration.zero) return isoString;
+
+    final offsetString = '${offset.isNegative ? '-' : '+'}'
+        '${offset.inHours.toString().replaceAll('-', '').replaceAll('+', '').padLeft(2, '0')}:'
+        '${offset.inMinutes.remainder(60).toString().padLeft(2, '0')}';
+
+    return '$isoString$offsetString';
+  }
 }

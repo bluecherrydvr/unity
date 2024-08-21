@@ -335,9 +335,19 @@ class SettingsProvider extends UnityProvider {
     def: DateFormat('hh:mm a'),
     key: 'application.time_format',
   );
-  final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
-    def: false,
+
+  // TODO(bdlukaa): remove this in future releases
+  var _hasMigratedTimezone = false;
+  late final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
+    def: true,
     key: 'application.convert_time_to_local_timezone',
+    loadFrom: (value) {
+      if (!_hasMigratedTimezone) {
+        _hasMigratedTimezone = true;
+        return true;
+      }
+      return bool.tryParse(value) ?? true;
+    },
   );
 
   // Window
@@ -436,6 +446,8 @@ class SettingsProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     final data = await tryReadStorage(() => settings.read());
+
+    _hasMigratedTimezone = data['hasMigratedTimezone'] == 'true';
 
     await Future.wait([
       kLayoutCyclePeriod.loadData(data),
@@ -550,6 +562,7 @@ class SettingsProvider extends UnityProvider {
         kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
         kConvertTimeToLocalTimezone.key: kConvertTimeToLocalTimezone
             .saveAs(kConvertTimeToLocalTimezone.value),
+        'hasMigratedTimezone': _hasMigratedTimezone.toString(),
         kLaunchAppOnStartup.key:
             kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
         kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),

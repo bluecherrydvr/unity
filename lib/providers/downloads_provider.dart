@@ -198,8 +198,7 @@ class DownloadsManager extends UnityProvider {
   Future<void> save({bool notifyListeners = true}) async {
     try {
       await downloads.write({
-        kStorageDownloads:
-            jsonEncode(downloadedEvents.map((de) => de.toJson()).toList()),
+        kStorageDownloads: downloadedEvents.map((de) => de.toJson()).toList(),
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -212,15 +211,26 @@ class DownloadsManager extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => downloads.read());
 
-    downloadedEvents = data[kStorageDownloads] == null
-        ? <DownloadedEvent>{}
-        : ((await compute(jsonDecode, data[kStorageDownloads] as String) ?? [])
-                as List)
-            .map<DownloadedEvent>((item) {
-            return DownloadedEvent.fromJson(
-              (item as Map).cast<String, dynamic>(),
-            );
-          }).toSet();
+    // TODO(bdlukaa): Remove this migration in the future.
+    //                Previously, we were unecessarily encoding the downloads
+    //                data as a string. This is no longer necessary.
+    //
+    //                This migration is to ensure the downloads made on previous
+    //                versions are not lost.
+    List downloadsData;
+    if (data[kStorageDownloads] == null) {
+      downloadsData = [];
+    } else if (data[kStorageDownloads] is String) {
+      downloadsData = jsonDecode(data[kStorageDownloads]);
+    } else {
+      downloadsData = data[kStorageDownloads];
+    }
+
+    downloadedEvents = downloadsData.map<DownloadedEvent>((item) {
+      return DownloadedEvent.fromJson(
+        (item as Map).cast<String, dynamic>(),
+      );
+    }).toSet();
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -331,10 +341,7 @@ class DownloadsManager extends UnityProvider {
       onReceiveProgress: (received, total) {
         if (total != -1) {
           downloading[event] = (received / total, fileName);
-          writeLogToFile(
-            'downloads(${event.id}): ${received / total}',
-            print: true,
-          );
+          writeLogToFile('downloads(${event.id}): ${received / total}');
           notifyListeners();
         }
       },

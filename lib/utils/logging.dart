@@ -64,7 +64,7 @@ Future<void> writeLogToFile(String text, {bool print = false}) async {
     final file = await getLogFile();
 
     await file.writeAsString('\n[$time] $text', mode: FileMode.append);
-    Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
+    if (print) Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
   }
   if (print) debugPrint(text);
 }

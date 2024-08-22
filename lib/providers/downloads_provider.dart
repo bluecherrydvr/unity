@@ -296,7 +296,10 @@ class DownloadsManager extends UnityProvider {
           .value
           .$2;
     }
-    debugPrint('Downloading event: $event to $dir');
+    writeLogToFile(
+      'downloads(${event.id}): $dir at ${event.mediaURL!}',
+      print: true,
+    );
     final home = HomeProvider.instance
       ..loading(UnityLoadingReason.downloadEvent);
 
@@ -313,6 +316,10 @@ class DownloadsManager extends UnityProvider {
     final downloadFile = File(downloadPath);
     if (!(await downloadFile.exists())) {
       await downloadFile.create(recursive: true);
+      writeLogToFile(
+        'downloads(${event.id}): Created file: $downloadPath',
+        print: true,
+      );
     }
 
     await Dio().downloadUri(
@@ -324,6 +331,10 @@ class DownloadsManager extends UnityProvider {
       onReceiveProgress: (received, total) {
         if (total != -1) {
           downloading[event] = (received / total, fileName);
+          writeLogToFile(
+            'downloads(${event.id}): ${received / total}',
+            print: true,
+          );
           notifyListeners();
         }
       },

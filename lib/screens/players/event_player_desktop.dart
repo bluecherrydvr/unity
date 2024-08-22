@@ -430,13 +430,16 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                               EventTile(
                                 key: ValueKey(currentEvent),
                                 event: currentEvent,
+                                highlight: true,
                               ),
                               ...upcomingEvents.map((event) {
                                 return Padding(
                                   padding: const EdgeInsetsDirectional.only(
-                                      top: 6.0),
+                                    top: 6.0,
+                                  ),
                                   child: EventTile(
                                     event: event,
+                                    highlight: event.id == currentEvent.id,
                                     onPlay: () => setEvent(event),
                                   ),
                                 );
@@ -491,11 +494,13 @@ class _CustomTrackShape extends RoundedRectSliderTrackShape {
 class EventTile extends StatelessWidget {
   final Event event;
   final VoidCallback? onPlay;
+  final bool highlight;
 
   const EventTile({
     super.key,
     required this.event,
     this.onPlay,
+    this.highlight = false,
   });
 
   static Widget buildContent(BuildContext context, Event event) {
@@ -551,10 +556,15 @@ class EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
+      side: BorderSide(
+        color: highlight ? theme.colorScheme.primary : Colors.transparent,
+        width: 2.0,
+      ),
     );
 
     return ClipPath.shape(

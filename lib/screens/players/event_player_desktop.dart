@@ -564,41 +564,38 @@ class EventTile extends StatelessWidget {
       side: BorderSide(
         color: highlight ? theme.colorScheme.primary : Colors.transparent,
         width: 2.0,
+        style: highlight ? BorderStyle.solid : BorderStyle.none,
       ),
     );
 
-    return ClipPath.shape(
+    return Card(
+      margin: EdgeInsetsDirectional.zero,
       shape: shape,
-      child: Card(
-        margin: EdgeInsetsDirectional.zero,
-        shape: shape,
-        child: ExpansionTile(
-          clipBehavior: Clip.hardEdge,
-          shape: shape,
-          collapsedShape: shape,
-          tilePadding: const EdgeInsetsDirectional.only(start: 12.0, end: 10.0),
-          initiallyExpanded: key != null,
-          title: Row(children: [
-            Expanded(
-              child: Text(
-                '${event.deviceName} (${event.server.name})',
-              ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: ExpansionTile(
+        clipBehavior: Clip.hardEdge,
+        tilePadding: const EdgeInsetsDirectional.only(start: 12.0, end: 10.0),
+        initiallyExpanded: key != null,
+        title: Row(children: [
+          Expanded(
+            child: Text(
+              '${event.deviceName} (${event.server.name})',
             ),
-          ]),
-          childrenPadding: const EdgeInsetsDirectional.symmetric(
-            vertical: 12.0,
-            horizontal: 16.0,
           ),
-          expandedCrossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            buildContent(context, event),
-            if (onPlay != null)
-              TextButton(
-                onPressed: onPlay,
-                child: Text(loc.play),
-              ),
-          ],
+        ]),
+        childrenPadding: const EdgeInsetsDirectional.symmetric(
+          vertical: 12.0,
+          horizontal: 16.0,
         ),
+        expandedCrossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          buildContent(context, event),
+          if (onPlay != null)
+            TextButton(
+              onPressed: onPlay,
+              child: Text(loc.play),
+            ),
+        ],
       ),
     );
   }

@@ -84,7 +84,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
 
     return PopScope(
       canPop: widget.isEditing,
-      onPopInvoked: (didPop) => widget.onBack(),
+      onPopInvokedWithResult: (_, __) => widget.onBack(),
       child: IntrinsicWidth(
         child: Container(
           margin: const EdgeInsetsDirectional.all(16.0),

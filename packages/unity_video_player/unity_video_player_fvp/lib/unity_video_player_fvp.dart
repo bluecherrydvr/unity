@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 import 'package:fvp/mdk.dart';
+import 'package:fvp/fvp.dart' as fvp;
 
 class UnityVideoPlayerFvpInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
@@ -16,9 +17,15 @@ class UnityVideoPlayerFvpInterface extends UnityVideoPlayerInterface {
 
   @override
   Future<void> initialize() async {
-    // fvp.registerWith(options: {
-    //   'platforms': ['windows']
-    // });
+    fvp.registerWith(options: {
+      'player': {
+        'avformat.analyzeduration': '10000',
+        'avformat.probesize': '1000',
+        'avformat.fpsprobesize': '0',
+        'avformat.fflags': '+nobuffer',
+        'avformat.avioflags': 'direct',
+      }
+    });
   }
 
   @override
@@ -112,7 +119,13 @@ class _MKVideoState extends State<_MKVideo> {
   @override
   void initState() {
     super.initState();
-    widget.mdkPlayer.mdkPlayer.updateTexture();
+    final player = widget.mdkPlayer.mdkPlayer;
+    player.setProperty("avformat.fflags", "+nobuffer");
+    player.setProperty("avformat.analyzeduration", "10000");
+    player.setProperty("avformat.probesize", "1000");
+    player.setProperty("avformat.fpsprobesize", "0");
+    player.setProperty("avformat.avioflags", "direct");
+    player.updateTexture();
   }
 
   @override

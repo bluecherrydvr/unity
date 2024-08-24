@@ -9,6 +9,7 @@ void main() async {
   print('Resolving dependencies');
 
   final packagePaths = <String>[
+    '.',
     'packages/unity_multi_window',
     'packages/unity_video_player/unity_video_player',
     'packages/unity_video_player/unity_video_player_flutter',

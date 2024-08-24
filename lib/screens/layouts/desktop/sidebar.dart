@@ -51,9 +51,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       final devices = server.devices.sorted(
         searchQuery: searchQuery,
       );
-      if (devices.isNotEmpty) {
-        _servers[server] = devices;
-      }
+      _servers[server] = devices;
     }
   }
 

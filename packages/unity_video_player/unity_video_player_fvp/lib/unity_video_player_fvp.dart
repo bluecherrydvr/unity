@@ -144,6 +144,7 @@ class UnityVideoPlayerFvp extends UnityVideoPlayer {
   double _fps = 0;
   @override
   double get fps => _fps;
+
   final _fpsStreamController = StreamController<double>.broadcast();
   @override
   Stream<double> get fpsStream => _fpsStreamController.stream;
@@ -218,6 +219,27 @@ class UnityVideoPlayerFvp extends UnityVideoPlayer {
     // late streams.
     // platform.setProperty('force-seekable', 'yes');
     // }
+
+    mdkPlayer
+      ..onStateChanged((previous, state) {
+        _playingStateStreamController.add(state == PlaybackState.playing);
+      })
+      ..onMediaStatus((previous, status) {
+        _bufferStateStreamController.add(
+          status.rawValue == MediaStatus.buffering,
+        );
+
+        return false;
+      })
+      ..onEvent((_) {
+        // we will add the current value to the stream
+        _positionStreamController.add(currentPos);
+        _bufferStreamController.add(currentBuffer);
+        _durationStreamController.add(duration);
+        _fpsStreamController.add(fps);
+        _playingStateStreamController.add(isPlaying);
+        _bufferStateStreamController.add(isBuffering);
+      });
   }
 
   @override
@@ -232,15 +254,16 @@ class UnityVideoPlayerFvp extends UnityVideoPlayer {
   @override
   Duration get duration => Duration(milliseconds: mdkPlayer.mediaInfo.duration);
 
+  final _durationStreamController = StreamController<Duration>.broadcast();
   @override
-  Stream<Duration> get onDurationUpdate => const Stream.empty(broadcast: false);
+  Stream<Duration> get onDurationUpdate => _durationStreamController.stream;
 
   @override
   Duration get currentPos => Duration(milliseconds: mdkPlayer.position);
 
+  final _positionStreamController = StreamController<Duration>.broadcast();
   @override
-  Stream<Duration> get onCurrentPosUpdate =>
-      const Stream.empty(broadcast: false);
+  Stream<Duration> get onCurrentPosUpdate => _positionStreamController.stream;
 
   @override
   bool get isBuffering =>
@@ -249,20 +272,23 @@ class UnityVideoPlayerFvp extends UnityVideoPlayer {
   @override
   Duration get currentBuffer => Duration(milliseconds: mdkPlayer.buffered());
 
+  final _bufferStreamController = StreamController<Duration>.broadcast();
   @override
-  Stream<Duration> get onBufferUpdate => const Stream.empty(broadcast: false);
+  Stream<Duration> get onBufferUpdate => _bufferStreamController.stream;
 
   @override
   bool get isSeekable => duration > Duration.zero;
 
+  final _bufferStateStreamController = StreamController<bool>.broadcast();
   @override
-  Stream<bool> get onBufferStateUpdate => const Stream.empty(broadcast: false);
+  Stream<bool> get onBufferStateUpdate => _bufferStateStreamController.stream;
 
   @override
   bool get isPlaying => mdkPlayer.state == PlaybackState.playing;
 
+  final _playingStateStreamController = StreamController<bool>.broadcast();
   @override
-  Stream<bool> get onPlayingStateUpdate => const Stream.empty(broadcast: false);
+  Stream<bool> get onPlayingStateUpdate => _playingStateStreamController.stream;
 
   /// Gets a property from the media kit player.
   ///

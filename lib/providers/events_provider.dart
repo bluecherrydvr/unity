@@ -161,8 +161,8 @@ extension EventsScreenProvider on EventsProvider {
         await Future.wait(allowedDevices.map((device) async {
           final iterable = (await API.instance.getEvents(
             server,
-            startTime: startDate?.toUtc(),
-            endTime: endDate?.toUtc(),
+            startTime: startDate,
+            endTime: endDate,
             device: device,
           ))
               .toList()

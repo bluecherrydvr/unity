@@ -249,7 +249,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (_, __) async {
         if (widget.server == null) {
           widget.onBack();
         }

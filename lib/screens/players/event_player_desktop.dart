@@ -148,13 +148,13 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
           }()
         : event.mediaURL.toString();
 
-    debugPrint(mediaUrl);
-
     if (mediaUrl != videoController.dataSource) {
       debugPrint(
         'Setting data source from ${videoController.dataSource} to $mediaUrl',
       );
       videoController.setDataSource(mediaUrl);
+    } else {
+      debugPrint(mediaUrl);
     }
     videoController
       ..setVolume(volume)
@@ -430,13 +430,16 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                               EventTile(
                                 key: ValueKey(currentEvent),
                                 event: currentEvent,
+                                highlight: true,
                               ),
                               ...upcomingEvents.map((event) {
                                 return Padding(
                                   padding: const EdgeInsetsDirectional.only(
-                                      top: 6.0),
+                                    top: 6.0,
+                                  ),
                                   child: EventTile(
                                     event: event,
+                                    highlight: event.id == currentEvent.id,
                                     onPlay: () => setEvent(event),
                                   ),
                                 );
@@ -491,11 +494,13 @@ class _CustomTrackShape extends RoundedRectSliderTrackShape {
 class EventTile extends StatelessWidget {
   final Event event;
   final VoidCallback? onPlay;
+  final bool highlight;
 
   const EventTile({
     super.key,
     required this.event,
     this.onPlay,
+    this.highlight = false,
   });
 
   static Widget buildContent(BuildContext context, Event event) {
@@ -551,44 +556,46 @@ class EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8.0),
+      side: BorderSide(
+        color: highlight ? theme.colorScheme.primary : Colors.transparent,
+        width: 2.0,
+        style: highlight ? BorderStyle.solid : BorderStyle.none,
+      ),
     );
 
-    return ClipPath.shape(
+    return Card(
+      margin: EdgeInsetsDirectional.zero,
       shape: shape,
-      child: Card(
-        margin: EdgeInsetsDirectional.zero,
-        shape: shape,
-        child: ExpansionTile(
-          clipBehavior: Clip.hardEdge,
-          shape: shape,
-          collapsedShape: shape,
-          tilePadding: const EdgeInsetsDirectional.only(start: 12.0, end: 10.0),
-          initiallyExpanded: key != null,
-          title: Row(children: [
-            Expanded(
-              child: Text(
-                '${event.deviceName} (${event.server.name})',
-              ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: ExpansionTile(
+        clipBehavior: Clip.hardEdge,
+        tilePadding: const EdgeInsetsDirectional.only(start: 12.0, end: 10.0),
+        initiallyExpanded: key != null,
+        title: Row(children: [
+          Expanded(
+            child: Text(
+              '${event.deviceName} (${event.server.name})',
             ),
-          ]),
-          childrenPadding: const EdgeInsetsDirectional.symmetric(
-            vertical: 12.0,
-            horizontal: 16.0,
           ),
-          expandedCrossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            buildContent(context, event),
-            if (onPlay != null)
-              TextButton(
-                onPressed: onPlay,
-                child: Text(loc.play),
-              ),
-          ],
+        ]),
+        childrenPadding: const EdgeInsetsDirectional.symmetric(
+          vertical: 12.0,
+          horizontal: 16.0,
         ),
+        expandedCrossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          buildContent(context, event),
+          if (onPlay != null)
+            TextButton(
+              onPressed: onPlay,
+              child: Text(loc.play),
+            ),
+        ],
       ),
     );
   }

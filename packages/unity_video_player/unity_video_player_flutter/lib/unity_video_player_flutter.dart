@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterpi_gstreamer_video_player/flutterpi_gstreamer_video_player.dart';
 import 'package:video_player/video_player.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
+import 'package:fvp/fvp.dart' as fvp;
 
 class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
@@ -21,7 +22,19 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
   @override
   Future<void> initialize() async {
-    FlutterpiVideoPlayer.registerWith();
+    if ('pi' case const String.fromEnvironment('linux_environment')) {
+      FlutterpiVideoPlayer.registerWith();
+    } else {
+      fvp.registerWith(options: {
+        'player': {
+          'avformat.analyzeduration': '10000',
+          'avformat.probesize': '1000',
+          'avformat.fpsprobesize': '0',
+          'avformat.fflags': '+nobuffer',
+          'avformat.avioflags': 'direct',
+        }
+      });
+    }
   }
 
   @override

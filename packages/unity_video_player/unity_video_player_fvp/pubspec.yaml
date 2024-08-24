@@ -1,5 +1,5 @@
 name: unity_video_player_fvp
-description: "A new Flutter package project."
+description: "Implements MDK Unity Video Player for Flutter"
 version: 0.0.1
 homepage:
 
@@ -28,8 +28,8 @@ flutter:
     platforms:
       windows:
         dartPluginClass: UnityVideoPlayerFvpInterface
-      # linux:
-      #   dartPluginClass: UnityVideoPlayerFvpInterface
+      linux:
+        dartPluginClass: UnityVideoPlayerFvpInterface
       # macos:
       #   dartPluginClass: UnityVideoPlayerFvpInterface
       # ios:

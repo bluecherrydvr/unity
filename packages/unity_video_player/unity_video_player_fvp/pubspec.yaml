@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
-  fvp: ^0.23.0
+  fvp: ^0.24.1
 
 dev_dependencies:
   flutter_test:

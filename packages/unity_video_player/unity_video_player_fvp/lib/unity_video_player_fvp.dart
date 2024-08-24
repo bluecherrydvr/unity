@@ -322,6 +322,8 @@ class UnityVideoPlayerFvp extends UnityVideoPlayer {
     //     height: size.height.toInt(),
     //   );
     // });
+
+    mdkPlayer.setVideoSurfaceSize(size.width.toInt(), size.height.toInt());
   }
 
   @override

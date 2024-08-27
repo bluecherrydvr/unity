@@ -131,8 +131,11 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       _videoStream.stream.map((value) => value.position);
 
   @override
-  Duration get currentBuffer =>
-      player?.value.buffered.last.end ?? Duration.zero;
+  Duration get currentBuffer {
+    if (player == null) return Duration.zero;
+    if (player!.value.buffered.isEmpty) return Duration.zero;
+    return player!.value.buffered.last.end;
+  }
 
   @override
   Stream<Duration> get onBufferUpdate => _videoStream.stream
@@ -176,6 +179,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     try {
       await player!.initialize();
       player!.addListener(() {
+        if (_videoStream.isClosed) return;
         _videoStream.add(player!.value);
       });
       onReady();
@@ -266,6 +270,9 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     await release();
     await super.dispose();
     await _videoStream.close();
+    player
+      ?..pause()
+      ..dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

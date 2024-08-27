@@ -438,11 +438,15 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   @mustCallSuper
   @override
   Future<void> dispose() async {
-    _onDurationUpdateSubscription.cancel();
-    _onErrorSubscription.cancel();
-    _onPositionUpdateSubscription.cancel();
-    _fpsSubscription.cancel();
-    _oldImageTimer?.cancel();
+    try {
+      _onDurationUpdateSubscription.cancel();
+      _onErrorSubscription.cancel();
+      _onPositionUpdateSubscription.cancel();
+      _fpsSubscription.cancel();
+      _oldImageTimer?.cancel();
+    } catch (error, stack) {
+      debugPrint('Tried to cancel subscriptions but failed: $error, $stack');
+    }
     _lastImageTime = null;
     _isImageOld = false;
 

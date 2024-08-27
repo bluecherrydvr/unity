@@ -26,3 +26,10 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
+  plugin:
+    implements: unity_video_player
+    platforms:
+      windows:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      linux:
+        dartPluginClass: UnityVideoPlayerFlutterInterface

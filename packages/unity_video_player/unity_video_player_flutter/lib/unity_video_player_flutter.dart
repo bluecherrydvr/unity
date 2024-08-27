@@ -119,40 +119,41 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Duration get duration => player?.value.duration ?? Duration.zero;
 
   @override
-  Stream<Duration> get onDurationUpdate =>
-      _videoStream.stream.map((_) => duration);
+  Stream<Duration> get onDurationUpdate => _videoStream.stream
+      .where((value) => value.duration != Duration.zero)
+      .map((value) => value.duration);
 
   @override
   Duration get currentPos => player?.value.position ?? Duration.zero;
 
   @override
   Stream<Duration> get onCurrentPosUpdate =>
-      _videoStream.stream.map((_) => currentPos);
-
-  @override
-  bool get isBuffering => player?.value.isBuffering ?? false;
+      _videoStream.stream.map((value) => value.position);
 
   @override
   Duration get currentBuffer =>
       player?.value.buffered.last.end ?? Duration.zero;
 
   @override
-  Stream<Duration> get onBufferUpdate =>
-      _videoStream.stream.map((_) => currentBuffer);
+  Stream<Duration> get onBufferUpdate => _videoStream.stream
+      .where((value) => value.buffered.isNotEmpty)
+      .map((value) => value.buffered.last.end);
 
   @override
   bool get isSeekable => duration > Duration.zero;
 
   @override
+  bool get isBuffering => player?.value.isBuffering ?? false;
+  @override
   Stream<bool> get onBufferStateUpdate =>
-      _videoStream.stream.map((_) => isBuffering);
+      _videoStream.stream.map((value) => value.isBuffering);
 
   @override
   bool get isPlaying => player?.value.isPlaying ?? false;
 
   @override
   Stream<bool> get onPlayingStateUpdate =>
-      _videoStream.stream.map((_) => isPlaying);
+      _videoStream.stream.map((value) => value.isPlaying);
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
@@ -163,7 +164,15 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       await player?.dispose();
     }
 
-    player = VideoPlayerController.networkUrl(Uri.parse(url));
+    final uri = Uri.parse(url);
+
+    // check if the url is a file
+    if (uri.scheme == 'file') {
+      player = VideoPlayerController.file(File.fromUri(uri));
+    } else {
+      player = VideoPlayerController.networkUrl(uri);
+    }
+
     await player!.initialize();
     notifyListeners();
     player!.addListener(() {

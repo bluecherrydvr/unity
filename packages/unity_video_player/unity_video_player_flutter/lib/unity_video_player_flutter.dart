@@ -173,13 +173,20 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       player = VideoPlayerController.networkUrl(uri);
     }
 
-    await player!.initialize();
-    notifyListeners();
-    player!.addListener(() {
-      _videoStream.add(player!.value);
-    });
-    if (autoPlay) {
-      await player!.play();
+    try {
+      await player!.initialize();
+      player!.addListener(() {
+        _videoStream.add(player!.value);
+      });
+      onReady();
+      if (autoPlay) {
+        await player!.play();
+      }
+    } catch (e, _) {
+      error = e.toString();
+      notifyListeners();
+
+      rethrow;
     }
   }
 

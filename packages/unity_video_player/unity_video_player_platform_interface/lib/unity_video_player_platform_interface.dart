@@ -230,6 +230,10 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   UnityVideoQuality? quality;
   VideoZoom zoom = VideoZoom();
 
+  /// Called when the video source is ready to be listened to.
+  ///
+  /// Implementations must call this when the video source is ready to be
+  /// listened to.
   late final VoidCallback onReady;
 
   UnityVideoPlayer({this.width, this.height}) {

@@ -219,8 +219,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   @override
   double get fps => 0.0;
   @override
-  Stream<double> get fpsStream =>
-      throw UnsupportedError('Fps is not implemented on this platform');
+  Stream<double> get fpsStream => Stream.value(fps);
 
   @override
   double get aspectRatio => player?.value.aspectRatio ?? 1.0;

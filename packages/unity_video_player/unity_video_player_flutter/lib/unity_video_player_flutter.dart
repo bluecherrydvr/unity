@@ -71,6 +71,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
     return Builder(builder: (context) {
       return Stack(children: [
+        const SizedBox.expand(),
         Positioned.fill(
           child: videoBuilder!(
             context,
@@ -238,7 +239,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Stream<double> get fpsStream => Stream.value(fps);
 
   @override
-  double get aspectRatio => player?.value.aspectRatio ?? 1.0;
+  double get aspectRatio => player?.value.aspectRatio ?? 0;
 
   @override
   Future<String> getProperty(String propertyName) {

@@ -38,4 +38,4 @@ flutter:
       windows:
         default_package: unity_video_player_flutter
       web:
-        default_package: unity_video_player_main
+        default_package: unity_video_player_flutter

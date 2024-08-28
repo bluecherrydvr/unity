@@ -99,13 +99,17 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   final _videoStream = StreamController<VideoPlayerValue>.broadcast();
 
+  RTSPProtocol? rtspProtocol;
+
   UnityVideoPlayerFlutter({
     super.width,
     super.height,
     bool enableCache = false,
-    RTSPProtocol? rtspProtocol,
+    this.rtspProtocol,
     String? title,
-  });
+  }) {
+    if (title != null) this.title = title;
+  }
 
   @override
   String? get dataSource => player?.dataSource;
@@ -165,6 +169,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
     if (player != null) {
       await player?.dispose();
+      player = null;
     }
 
     final uri = Uri.parse(url);

@@ -194,19 +194,25 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     }
   }
 
+  var _multipleDataSources = <String>[];
+
   @override
-  Future<void> setMultipleDataSource(Iterable<String> url,
-      {bool autoPlay = true}) {
-    throw UnsupportedError(
-      'setMultipleDataSource is not supported on this platform',
-    );
+  Future<void> setMultipleDataSource(
+    Iterable<String> url, {
+    bool autoPlay = true,
+    int startIndex = 0,
+  }) {
+    _multipleDataSources = url.toList();
+    return setDataSource(url.elementAt(startIndex), autoPlay: autoPlay);
   }
 
   @override
   Future<void> jumpToIndex(int index) {
-    throw UnsupportedError(
-      'jumpToIndex is not supported on this platform',
-    );
+    if (index < 0 || index >= _multipleDataSources.length) {
+      return Future.error('Index out of range');
+    }
+
+    return setDataSource(_multipleDataSources[index]);
   }
 
   // Volume in media kit goes from 0 to 100

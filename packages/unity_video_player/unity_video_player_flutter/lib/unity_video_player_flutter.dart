@@ -165,12 +165,13 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     if (url == dataSource) return Future.value();
-    debugPrint('Playing $url');
 
     if (player != null) {
+      debugPrint('Disposing player for $dataSource');
       await player?.dispose();
       player = null;
     }
+    debugPrint('Playing $url');
 
     final uri = Uri.parse(url);
 
@@ -278,6 +279,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   Future<void> dispose() async {
+    debugPrint('Disposing player for $dataSource');
     await release();
     await super.dispose();
     await _videoStream.close();

@@ -310,9 +310,14 @@ class Server {
         port: json['port'],
         login: json['login'],
         password: json['password'],
-        devices: List<Map<String, dynamic>>.from(json['devices'] as List)
-            .map<Device>(Device.fromJson)
-            .toList(),
+        devices: () {
+          if (json['devices'] == null) return <Device>[];
+          if ((json['devices'] as List).isEmpty) return <Device>[];
+          return List<Map<String, dynamic>?>.from(json['devices'] as List)
+              .where((element) => element != null)
+              .map<Device>((device) => Device.fromJson(device!))
+              .toList();
+        }(),
         rtspPort: json['rtspPort'],
         serverUUID: json['serverUUID'],
         cookie: json['cookie'],

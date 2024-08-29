@@ -85,13 +85,13 @@ Future<void> main(List<String> args) async {
     DevHttpOverrides.configureCertificates();
     API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
-    if (isDesktopPlatform && Platform.isLinux) {
-      if (isEmbedded) {
-        UnityVideoPlayerFlutterInterface.registerWith();
-      } else {
-        UnityVideoPlayerMediaKitInterface.registerWith();
-      }
-    }
+    // if (isDesktopPlatform && Platform.isLinux) {
+    //   if (isEmbedded) {
+    //     UnityVideoPlayerFlutterInterface.registerWith();
+    //   } else {
+    //     UnityVideoPlayerMediaKitInterface.registerWith();
+    //   }
+    // }
     debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
     await configureStorage();
 

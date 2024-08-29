@@ -33,3 +33,5 @@ flutter:
         dartPluginClass: UnityVideoPlayerFlutterInterface
       linux:
         dartPluginClass: UnityVideoPlayerFlutterInterface
+      web:
+        dartPluginClass: UnityVideoPlayerFlutterInterface

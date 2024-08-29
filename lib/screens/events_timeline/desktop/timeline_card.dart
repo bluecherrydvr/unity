@@ -72,12 +72,12 @@ class _TimelineCardState extends State<TimelineCard> {
         fit: _fit ??
             device.server.additionalSettings.videoFit ??
             settings.kVideoFit.value,
-        videoBuilder: (context, video) {
-          return AspectRatio(
-            aspectRatio: 16 / 9,
-            child: video,
-          );
-        },
+        // videoBuilder: (context, video) {
+        //   return AspectRatio(
+        //     aspectRatio: 16 / 9,
+        //     child: video,
+        //   );
+        // },
         paneBuilder: (context, controller) {
           if (currentEvent == null) {
             return RepaintBoundary(

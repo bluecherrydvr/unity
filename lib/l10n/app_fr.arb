@@ -323,20 +323,20 @@
   "fromToDate": "{from} à {to}",
   "@fromToDate": {
     "placeholders": {
-      "de": {
+      "from": {
         "type": "String"
       },
-      "à": {
+      "to": {
         "type": "String"
       }
     }
   },
   "@fromToTime": {
     "placeholders": {
-      "de": {
+      "from": {
         "type": "String"
       },
-      "à": {
+      "to": {
         "type": "String"
       }
     }

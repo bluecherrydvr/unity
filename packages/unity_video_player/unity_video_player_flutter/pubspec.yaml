@@ -29,9 +29,16 @@ flutter:
   plugin:
     implements: unity_video_player
     platforms:
+      android:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      ios:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
       windows:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      macos:
         dartPluginClass: UnityVideoPlayerFlutterInterface
       linux:
         dartPluginClass: UnityVideoPlayerFlutterInterface
       web:
-        dartPluginClass: UnityVideoPlayerFlutterInterface
+        pluginClass: UnityVideoPlayerMediaKitInterface
+        fileName: unity_video_player_flutter.dart

@@ -27,10 +27,8 @@ import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-final timelineTimeFormat = DateFormat('hh:mm:ss a');
 final secondsInADay = const Duration(days: 1).inSeconds;
 
 /// The initial point of the timeline.

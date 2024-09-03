@@ -328,14 +328,26 @@ class SettingsProvider extends UnityProvider {
     def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
     key: 'application.language_code',
   );
+
   final kDateFormat = _SettingsOption(
     def: DateFormat('EEEE, dd MMMM yyyy'),
     key: 'application.date_format',
   );
+
+  static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
   final kTimeFormat = _SettingsOption(
     def: DateFormat('hh:mm a'),
     key: 'application.time_format',
   );
+
+  /// The extended time format adds the second to the time format.
+  DateFormat get extendedTimeFormat {
+    return switch (kTimeFormat.value.pattern!) {
+      'HH:mm' => DateFormat('HH:mm:ss'),
+      'hh:mm a' => DateFormat('hh:mm:ss a'),
+      _ => DateFormat(kTimeFormat.value.pattern),
+    };
+  }
 
   // TODO(bdlukaa): remove this in future releases
   var _hasMigratedTimezone = false;

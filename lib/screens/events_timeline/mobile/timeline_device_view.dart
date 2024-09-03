@@ -395,7 +395,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
               : Text(
                   '${settings.kDateFormat.value.format(currentDate!)}'
                   ' '
-                  '${timelineTimeFormat.format(currentDate!)}',
+                  '${settings.extendedTimeFormat.format(currentDate!)}',
                   style: theme.textTheme.labelMedium,
                 ),
         ),

@@ -260,7 +260,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
           ),
           Text(
             '${settings.kDateFormat.value.format(timeline.currentDate)} '
-            '${timelineTimeFormat.format(timeline.currentDate)}',
+            '${settings.extendedTimeFormat.format(timeline.currentDate)}',
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),

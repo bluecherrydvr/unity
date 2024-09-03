@@ -335,10 +335,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "9d98bd47ef9d34e803d438f17fd32b116d31009f534a6fa5ce3a1167f189a6de"
+      sha256: "9ee02950848f61c4129af3d6ec84a1cfc0e47931abc746b03e7a3bc3e8ff6eda"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.21"
+    version: "2.0.22"
   flutter_simple_treeview:
     dependency: "direct main"
     description:
@@ -373,6 +373,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1+1"
+  fvp:
+    dependency: transitive
+    description:
+      name: fvp
+      sha256: "6462fd078de4478a0990d437463897036cff98aff3f0ac9efbbf817c99654c87"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.24.1"
   get_it:
     dependency: transitive
     description:
@@ -989,6 +997,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  unity_video_player_fvp:
+    dependency: transitive
+    description:
+      path: "packages/unity_video_player/unity_video_player_fvp"
+      relative: true
+    source: path
+    version: "0.0.1"
   unity_video_player_main:
     dependency: transitive
     description:
@@ -1119,10 +1134,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_android
-      sha256: "4de50df9ee786f5891d3281e1e633d7b142ef1acf47392592eb91cba5d355849"
+      sha256: "101028b643a3b43ced72107aacdbc4d30d55365487751de001a36cf0d86038d1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.2"
   video_player_avfoundation:
     dependency: transitive
     description:

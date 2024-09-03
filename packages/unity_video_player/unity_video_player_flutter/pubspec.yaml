@@ -18,6 +18,7 @@ dependencies:
     path: ../unity_video_player_main
   video_player: ^2.8.1
   flutterpi_gstreamer_video_player: ^0.1.1+1
+  fvp: ^0.24.1
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +26,19 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
+  plugin:
+    implements: unity_video_player
+    platforms:
+      android:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      ios:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      windows:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      macos:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      linux:
+        dartPluginClass: UnityVideoPlayerFlutterInterface
+      web:
+        pluginClass: UnityVideoPlayerMediaKitInterface
+        fileName: unity_video_player_flutter.dart

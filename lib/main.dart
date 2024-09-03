@@ -62,8 +62,8 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-import 'package:unity_video_player_flutter/unity_video_player_flutter.dart';
-import 'package:unity_video_player_main/unity_video_player_main.dart';
+// import 'package:unity_video_player_flutter/unity_video_player_flutter.dart';
+// import 'package:unity_video_player_main/unity_video_player_main.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -85,13 +85,13 @@ Future<void> main(List<String> args) async {
     DevHttpOverrides.configureCertificates();
     API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
-    if (isDesktopPlatform && Platform.isLinux) {
-      if (isEmbedded) {
-        UnityVideoPlayerFlutterInterface.registerWith();
-      } else {
-        UnityVideoPlayerMediaKitInterface.registerWith();
-      }
-    }
+    // if (isDesktopPlatform && Platform.isLinux) {
+    //   if (isEmbedded) {
+    //     UnityVideoPlayerFlutterInterface.registerWith();
+    //   } else {
+    //     UnityVideoPlayerMediaKitInterface.registerWith();
+    //   }
+    // }
     debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
     await configureStorage();
 

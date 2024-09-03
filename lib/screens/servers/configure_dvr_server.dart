@@ -68,7 +68,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
   final finishFocusNode = FocusNode();
 
   String getServerHostname(String text) {
-    if (Uri.parse(text).scheme.isEmpty) text = 'https://$text';
+    try {
+      if (Uri.parse(text).scheme.isEmpty) text = 'https://$text';
+    } catch (e) {
+      text = 'https://$text';
+    }
     return Uri.parse(text).host;
   }
 

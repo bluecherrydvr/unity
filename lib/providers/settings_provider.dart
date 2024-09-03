@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:unity_video_player_main/unity_video_player_main.dart';
 
 enum NetworkUsage {
   auto,
@@ -407,8 +408,23 @@ class SettingsProvider extends UnityProvider {
     loadFrom: (value) => MatrixType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
+  static bool get isHardwareZoomSupported {
+    if (Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded) {
+      return false;
+    }
+
+    try {
+      if (UnityVideoPlayerInterface.instance.runtimeType !=
+          UnityVideoPlayerMediaKitInterface) {
+        return false;
+      }
+    } catch (_) {}
+
+    return true;
+  }
+
   final kSoftwareZooming = _SettingsOption<bool>(
-    def: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded ? true : false,
+    def: isHardwareZoomSupported ? true : false,
     key: 'other.software_zoom',
     onChanged: (value) {
       for (final player in UnityPlayers.players.values) {
@@ -417,9 +433,7 @@ class SettingsProvider extends UnityProvider {
           ..zoom.softwareZoom = value;
       }
     },
-    valueOverrider: Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded
-        ? () => true
-        : null,
+    valueOverrider: isHardwareZoomSupported ? () => true : null,
   );
   final kEventsMatrixedZoom = _SettingsOption(
     def: true,

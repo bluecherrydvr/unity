@@ -35,7 +35,7 @@ class DesktopSidebar extends StatefulWidget {
 class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
-  final _servers = <Server, Iterable<Device>>{};
+  var _servers = <Server, Iterable<Device>>{};
 
   @override
   void didChangeDependencies() {
@@ -46,14 +46,12 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   void _updateServers() {
     final servers = context.read<ServersProvider>();
 
-    _servers.clear();
+    _servers = {};
     for (final server in servers.servers) {
       final devices = server.devices.sorted(
         searchQuery: searchQuery,
       );
-      if (devices.isNotEmpty) {
-        _servers[server] = devices;
-      }
+      _servers[server] = devices;
     }
   }
 
@@ -92,145 +90,142 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    for (final entry in _servers.entries)
-                      () {
-                        final server = entry.key;
-                        final devices = entry.value;
-                        final isLoading = servers.isServerLoading(server);
-                        if (!isLoading &&
-                            devices.isEmpty &&
-                            searchQuery.isNotEmpty) {
-                          return const SliverToBoxAdapter(
-                            child: SizedBox.shrink(),
-                          );
-                        }
+                    ..._servers.entries.map((entry) {
+                      final server = entry.key;
+                      final devices = entry.value;
+                      final isLoading = servers.isServerLoading(server);
+                      if (!isLoading &&
+                          devices.isEmpty &&
+                          searchQuery.isNotEmpty) {
+                        return const SliverToBoxAdapter(
+                          child: SizedBox.shrink(),
+                        );
+                      }
 
-                        /// Whether all the online devices are in the current view.
-                        final isAllInView = devices
-                            .where((d) => d.status)
-                            .every(
-                                (d) => view.currentLayout.devices.contains(d));
+                      /// Whether all the online devices are in the current view.
+                      final isAllInView = devices
+                          .where((d) => d.status)
+                          .every((d) => view.currentLayout.devices.contains(d));
 
-                        return MultiSliver(pushPinnedChildren: true, children: [
-                          SliverPinnedHeader(
-                            child: SubHeader(
-                              server.name,
-                              materialType: MaterialType.canvas,
-                              subtext: () {
-                                if (!settings.checkServerCertificates(server)) {
-                                  return loc.certificateNotPassed;
-                                } else if (server.online) {
-                                  return loc.nDevices(devices.length);
-                                } else {
-                                  return loc.offline;
-                                }
-                              }(),
-                              subtextStyle: TextStyle(
-                                color: !server.online
-                                    ? theme.colorScheme.error
-                                    : null,
-                              ),
-                              trailing: Builder(builder: (context) {
-                                if (isLoading) {
-                                  // wrap in an icon button to ensure ui consistency
-                                  return const SquaredIconButton(
-                                    onPressed: null,
-                                    icon: SizedBox(
-                                      height: 16.0,
-                                      width: 16.0,
-                                      child: CircularProgressIndicator.adaptive(
-                                        strokeWidth: 1.5,
-                                      ),
-                                    ),
-                                  );
-                                } else if (!server.online &&
-                                    isSidebarHovering) {
-                                  return SquaredIconButton(
-                                    icon: const Icon(Icons.refresh),
-                                    tooltip: loc.refreshServer,
-                                    onPressed: () => servers
-                                        .refreshDevices(ids: [server.id]),
-                                  );
-                                } else if (isSidebarHovering &&
-                                    devices.isNotEmpty) {
-                                  return SquaredIconButton(
-                                    icon: Icon(
-                                      isAllInView
-                                          ? Icons.playlist_remove
-                                          : Icons.playlist_add,
-                                    ),
-                                    tooltip: isAllInView
-                                        ? loc.removeAllFromView
-                                        : loc.addAllToView,
-                                    onPressed: () {
-                                      if (isAllInView) {
-                                        view.removeDevicesFromCurrentLayout(
-                                          devices,
-                                        );
-                                      } else {
-                                        for (final device in devices) {
-                                          if (device.status &&
-                                              !view.currentLayout.devices
-                                                  .contains(device)) {
-                                            view.add(device);
-                                          }
-                                        }
-                                      }
-                                    },
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              }),
+                      return MultiSliver(pushPinnedChildren: true, children: [
+                        SliverPinnedHeader(
+                          child: SubHeader(
+                            server.name,
+                            materialType: MaterialType.canvas,
+                            subtext: () {
+                              if (!settings.checkServerCertificates(server)) {
+                                return loc.certificateNotPassed;
+                              } else if (server.online) {
+                                return loc.nDevices(devices.length);
+                              } else {
+                                return loc.offline;
+                              }
+                            }(),
+                            subtextStyle: TextStyle(
+                              color: !server.online
+                                  ? theme.colorScheme.error
+                                  : null,
                             ),
-                          ),
-                          if (server.online && !isLoading)
-                            SliverList.builder(
-                              itemCount: devices.length,
-                              itemBuilder: (context, index) {
-                                final device = devices.elementAt(index);
-                                final selected =
-                                    view.currentLayout.devices.contains(device);
-
-                                final tile = DeviceSelectorTile(
-                                  device: device,
-                                  selected: selected,
-                                );
-
-                                if (!device.status &&
-                                    !settings.kListOfflineDevices.value) {
-                                  return const SizedBox.shrink();
-                                }
-                                if (selected || !device.status) return tile;
-
-                                final isBlocked = view.currentLayout.type ==
-                                        DesktopLayoutType.singleView &&
-                                    view.currentLayout.devices.isNotEmpty;
-
-                                return Draggable<Device>(
-                                  data: device,
-                                  feedback: Card(
-                                    child: SizedBox(
-                                      height: kDeviceSelectorTileHeight,
-                                      width: kSidebarConstraints.maxWidth,
-                                      child: Row(children: [
-                                        Expanded(child: tile),
-                                        if (isBlocked)
-                                          Icon(
-                                            Icons.block,
-                                            color: theme.colorScheme.error,
-                                            size: 18.0,
-                                          ),
-                                        const SizedBox(width: 16.0),
-                                      ]),
+                            trailing: Builder(builder: (context) {
+                              if (isLoading) {
+                                // wrap in an icon button to ensure ui consistency
+                                return const SquaredIconButton(
+                                  onPressed: null,
+                                  icon: SizedBox(
+                                    height: 16.0,
+                                    width: 16.0,
+                                    child: CircularProgressIndicator.adaptive(
+                                      strokeWidth: 1.5,
                                     ),
                                   ),
-                                  child: tile,
                                 );
-                              },
-                            ),
-                        ]);
-                      }(),
+                              } else if (!server.online && isSidebarHovering) {
+                                return SquaredIconButton(
+                                  icon: const Icon(Icons.refresh),
+                                  tooltip: loc.refreshServer,
+                                  onPressed: () =>
+                                      servers.refreshDevices(ids: [server.id]),
+                                );
+                              } else if (isSidebarHovering &&
+                                  devices.isNotEmpty) {
+                                return SquaredIconButton(
+                                  icon: Icon(
+                                    isAllInView
+                                        ? Icons.playlist_remove
+                                        : Icons.playlist_add,
+                                  ),
+                                  tooltip: isAllInView
+                                      ? loc.removeAllFromView
+                                      : loc.addAllToView,
+                                  onPressed: () {
+                                    if (isAllInView) {
+                                      view.removeDevicesFromCurrentLayout(
+                                        devices,
+                                      );
+                                    } else {
+                                      for (final device in devices) {
+                                        if (device.status &&
+                                            !view.currentLayout.devices
+                                                .contains(device)) {
+                                          view.add(device);
+                                        }
+                                      }
+                                    }
+                                  },
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            }),
+                          ),
+                        ),
+                        if (server.online && !isLoading)
+                          SliverList.builder(
+                            itemCount: devices.length,
+                            itemBuilder: (context, index) {
+                              final device = devices.elementAt(index);
+                              final selected =
+                                  view.currentLayout.devices.contains(device);
+
+                              final tile = DeviceSelectorTile(
+                                device: device,
+                                selected: selected,
+                              );
+
+                              if (!device.status &&
+                                  !settings.kListOfflineDevices.value) {
+                                return const SizedBox.shrink();
+                              }
+                              if (selected || !device.status) return tile;
+
+                              final isBlocked = view.currentLayout.type ==
+                                      DesktopLayoutType.singleView &&
+                                  view.currentLayout.devices.isNotEmpty;
+
+                              return Draggable<Device>(
+                                data: device,
+                                feedback: Card(
+                                  child: SizedBox(
+                                    height: kDeviceSelectorTileHeight,
+                                    width: kSidebarConstraints.maxWidth,
+                                    child: Row(children: [
+                                      Expanded(child: tile),
+                                      if (isBlocked)
+                                        Icon(
+                                          Icons.block,
+                                          color: theme.colorScheme.error,
+                                          size: 18.0,
+                                        ),
+                                      const SizedBox(width: 16.0),
+                                    ]),
+                                  ),
+                                ),
+                                child: tile,
+                              );
+                            },
+                          ),
+                      ]);
+                    }),
                   ]),
                 ),
               ),

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterpi_gstreamer_video_player/flutterpi_gstreamer_video_player.dart';
 import 'package:video_player/video_player.dart';
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
+import 'package:fvp/fvp.dart' as fvp;
 
 class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
@@ -21,7 +22,19 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
   @override
   Future<void> initialize() async {
-    FlutterpiVideoPlayer.registerWith();
+    if ('pi' case const String.fromEnvironment('linux_environment')) {
+      FlutterpiVideoPlayer.registerWith();
+    } else {
+      fvp.registerWith(options: {
+        'player': {
+          'avformat.analyzeduration': '10000',
+          'avformat.probesize': '1000',
+          'avformat.fpsprobesize': '0',
+          'avformat.fflags': '+nobuffer',
+          'avformat.avioflags': 'direct',
+        }
+      });
+    }
   }
 
   @override
@@ -58,6 +71,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
     return Builder(builder: (context) {
       return Stack(children: [
+        const SizedBox.expand(),
         Positioned.fill(
           child: videoBuilder!(
             context,
@@ -86,13 +100,17 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   final _videoStream = StreamController<VideoPlayerValue>.broadcast();
 
+  RTSPProtocol? rtspProtocol;
+
   UnityVideoPlayerFlutter({
     super.width,
     super.height,
     bool enableCache = false,
-    RTSPProtocol? rtspProtocol,
+    this.rtspProtocol,
     String? title,
-  });
+  }) {
+    if (title != null) this.title = title;
+  }
 
   @override
   String? get dataSource => player?.dataSource;
@@ -106,74 +124,102 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Duration get duration => player?.value.duration ?? Duration.zero;
 
   @override
-  Stream<Duration> get onDurationUpdate =>
-      _videoStream.stream.map((_) => duration);
+  Stream<Duration> get onDurationUpdate => _videoStream.stream
+      .where((value) => value.duration != Duration.zero)
+      .map((value) => value.duration);
 
   @override
   Duration get currentPos => player?.value.position ?? Duration.zero;
 
   @override
   Stream<Duration> get onCurrentPosUpdate =>
-      _videoStream.stream.map((_) => currentPos);
+      _videoStream.stream.map((value) => value.position);
 
   @override
-  bool get isBuffering => player?.value.isBuffering ?? false;
+  Duration get currentBuffer {
+    if (player == null) return Duration.zero;
+    if (player!.value.buffered.isEmpty) return Duration.zero;
+    return player!.value.buffered.last.end;
+  }
 
   @override
-  Duration get currentBuffer =>
-      player?.value.buffered.last.end ?? Duration.zero;
-
-  @override
-  Stream<Duration> get onBufferUpdate =>
-      _videoStream.stream.map((_) => currentBuffer);
+  Stream<Duration> get onBufferUpdate => _videoStream.stream
+      .where((value) => value.buffered.isNotEmpty)
+      .map((value) => value.buffered.last.end);
 
   @override
   bool get isSeekable => duration > Duration.zero;
 
   @override
+  bool get isBuffering => player?.value.isBuffering ?? false;
+  @override
   Stream<bool> get onBufferStateUpdate =>
-      _videoStream.stream.map((_) => isBuffering);
+      _videoStream.stream.map((value) => value.isBuffering);
 
   @override
   bool get isPlaying => player?.value.isPlaying ?? false;
 
   @override
   Stream<bool> get onPlayingStateUpdate =>
-      _videoStream.stream.map((_) => isPlaying);
+      _videoStream.stream.map((value) => value.isPlaying);
 
   @override
   Future<void> setDataSource(String url, {bool autoPlay = true}) async {
     if (url == dataSource) return Future.value();
-    debugPrint('Playing $url');
 
     if (player != null) {
+      debugPrint('Disposing player for $dataSource');
       await player?.dispose();
+      player = null;
+    }
+    debugPrint('Playing $url');
+
+    final uri = Uri.parse(url);
+
+    // check if the url is a file
+    if (uri.scheme == 'file') {
+      player = VideoPlayerController.file(File.fromUri(uri));
+    } else {
+      player = VideoPlayerController.networkUrl(uri);
     }
 
-    player = VideoPlayerController.networkUrl(Uri.parse(url));
-    await player!.initialize();
-    notifyListeners();
-    player!.addListener(() {
-      _videoStream.add(player!.value);
-    });
-    if (autoPlay) {
-      await player!.play();
+    try {
+      await player!.initialize();
+      player!.addListener(() {
+        if (_videoStream.isClosed) return;
+        _videoStream.add(player!.value);
+      });
+      onReady();
+      if (autoPlay) {
+        await player!.play();
+      }
+    } catch (e, _) {
+      error = e.toString();
+      notifyListeners();
+
+      rethrow;
     }
   }
 
+  var _multipleDataSources = <String>[];
+
   @override
-  Future<void> setMultipleDataSource(Iterable<String> url,
-      {bool autoPlay = true}) {
-    throw UnsupportedError(
-      'setMultipleDataSource is not supported on this platform',
-    );
+  Future<void> setMultipleDataSource(
+    Iterable<String> url, {
+    bool autoPlay = true,
+    int startIndex = 0,
+  }) {
+    _multipleDataSources = url.toList();
+    return setDataSource(url.elementAt(startIndex), autoPlay: autoPlay);
   }
 
   @override
   Future<void> jumpToIndex(int index) {
-    throw UnsupportedError(
-      'jumpToIndex is not supported on this platform',
-    );
+    if (index < 0 || index >= _multipleDataSources.length) {
+      return Future.error('Index out of range');
+    }
+
+    return setDataSource(_multipleDataSources[index]);
   }
 
   // Volume in media kit goes from 0 to 100
@@ -190,11 +236,10 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   @override
   double get fps => 0.0;
   @override
-  Stream<double> get fpsStream =>
-      throw UnsupportedError('Fps is not implemented on this platform');
+  Stream<double> get fpsStream => Stream.value(fps);
 
   @override
-  double get aspectRatio => player?.value.aspectRatio ?? 1.0;
+  double get aspectRatio => player?.value.aspectRatio ?? 0;
 
   @override
   Future<String> getProperty(String propertyName) {
@@ -235,9 +280,13 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   Future<void> dispose() async {
+    debugPrint('Disposing player for $dataSource');
     await release();
     await super.dispose();
     await _videoStream.close();
+    player
+      ?..pause()
+      ..dispose();
     UnityVideoPlayerInterface.unregisterPlayer(this);
   }
 }

@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
+  fvp
   gtk
   media_kit_libs_linux
   media_kit_video

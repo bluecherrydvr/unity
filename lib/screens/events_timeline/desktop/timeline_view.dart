@@ -597,7 +597,10 @@ class _TimelineTileState extends State<_TimelineTile> {
                       color: settings.kShowDebugInfo.value ||
                               settings.kShowDifferentColorsForEvents.value
                           ? colors[event.event] ?? theme.colorScheme.primary
-                          : theme.colorScheme.primary,
+                          : switch (event.event.type) {
+                              EventType.motion => theme.colorScheme.secondary,
+                              _ => theme.colorScheme.primary,
+                            },
                       // color: theme.colorScheme.primary,
                       child: settings.kShowDebugInfo.value
                           ? Align(

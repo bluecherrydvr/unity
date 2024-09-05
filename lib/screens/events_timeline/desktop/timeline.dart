@@ -67,10 +67,23 @@ class TimelineTile {
     );
   }
 
+  /// Returns the current event in the tile.
+  ///
+  /// If there are more than one event that happened at the same time, the
+  /// continuous event will have preference. If there is no continuous event,
+  /// the first event will be returned.
+  ///
+  /// If there are no events playing, `null` will be returned.
   Event? currentEvent(DateTime currentDate) {
-    return events
-        .firstWhereOrNull((event) => event.isPlaying(currentDate))
-        ?.event;
+    final playingEvents = events.where((event) => event.isPlaying(currentDate));
+    if (playingEvents.isEmpty) return null;
+    if (playingEvents.length == 1) return playingEvents.first.event;
+
+    final continuousEvent = playingEvents
+        .firstWhereOrNull((event) => event.event.type == EventType.continuous);
+    if (continuousEvent != null) return continuousEvent.event;
+
+    return playingEvents.first.event;
   }
 }
 
@@ -287,6 +300,7 @@ class Timeline extends ChangeNotifier {
     //   });
     // }), 'All events must have happened in the same day');
     this.tiles.addAll(tiles.where((tile) {
+      // add the events in the same day
       return tile.events.any((event) {
         return DateUtils.isSameDay(
           event.startTime.toLocal(),

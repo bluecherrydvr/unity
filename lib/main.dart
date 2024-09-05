@@ -58,6 +58,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -81,6 +83,8 @@ Future<void> main(List<String> args) async {
       await configureWindow();
       runApp(const SplashScreen());
     }
+
+    await initializeDateFormatting();
 
     DevHttpOverrides.configureCertificates();
     API.initialize();
@@ -425,6 +429,11 @@ class _UnityAppState extends State<UnityApp>
             }
 
             return null;
+          },
+          builder: (context, child) {
+            Intl.defaultLocale = Localizations.localeOf(context).languageCode;
+
+            return child!;
           },
         );
       }),

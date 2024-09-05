@@ -58,11 +58,11 @@ class _SettingsOption<T> {
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
   final ValueChanged<T>? onChanged;
-  final T Function()? valueOverrider;
+  final T Function(T value)? valueOverrider;
 
   late T _value;
 
-  T get value => valueOverrider?.call() ?? _value;
+  T get value => valueOverrider?.call(_value) ?? _value;
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() {
       _value = newValue;
@@ -329,23 +329,38 @@ class SettingsProvider extends UnityProvider {
     key: 'application.language_code',
   );
 
-  final kDateFormat = _SettingsOption(
-    def: DateFormat('EEEE, dd MMMM yyyy'),
+  late final kDateFormat = _SettingsOption(
+    def: DateFormat(
+      'EEEE, dd MMMM yyyy',
+      kLanguageCode.value.toLanguageTag(),
+    ),
     key: 'application.date_format',
+    valueOverrider: (value) {
+      return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
+    },
   );
 
   static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
-  final kTimeFormat = _SettingsOption(
-    def: DateFormat('hh:mm a'),
+  late final kTimeFormat = _SettingsOption(
+    def: DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag()),
     key: 'application.time_format',
+    valueOverrider: (value) {
+      return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
+    },
   );
 
   /// The extended time format adds the second to the time format.
   DateFormat get extendedTimeFormat {
     return switch (kTimeFormat.value.pattern!) {
-      'HH:mm' => DateFormat('HH:mm:ss'),
-      'hh:mm a' => DateFormat('hh:mm:ss a'),
-      _ => DateFormat(kTimeFormat.value.pattern),
+      'HH:mm' => DateFormat('HH:mm:ss', kLanguageCode.value.toLanguageTag()),
+      'hh:mm a' => DateFormat(
+          'hh:mm:ss a',
+          kLanguageCode.value.toLanguageTag(),
+        ),
+      _ => DateFormat(
+          kTimeFormat.value.pattern,
+          kLanguageCode.value.toLanguageTag(),
+        ),
     };
   }
 
@@ -445,7 +460,7 @@ class SettingsProvider extends UnityProvider {
           ..zoom.softwareZoom = value;
       }
     },
-    valueOverrider: isHardwareZoomSupported ? () => true : null,
+    valueOverrider: isHardwareZoomSupported ? (_) => true : null,
   );
   final kEventsMatrixedZoom = _SettingsOption(
     def: true,

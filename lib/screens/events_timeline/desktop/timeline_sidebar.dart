@@ -27,6 +27,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
@@ -90,8 +91,11 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                 loc.dateFilter,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: AutoSizeText(
-                widget.date.formatDecoratedDate(context),
+              trailing: AutoSizeText(
+                widget.date.formatDecoratedDate(
+                  context,
+                  DateFormat('EEE, dd MMM yyyy'),
+                ),
                 maxLines: 1,
               ),
               onTap: () async {

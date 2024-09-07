@@ -187,6 +187,7 @@
   "noDevices": "No devices",
   "noEventsLoaded": "NO EVENTS LOADED",
   "noEventsLoadedTips": "•  Select the cameras you want to see the events\n•  Use the calendar to select a specific date or a date range \n•  Use the \"Filter\" button to perform the search",
+  "timelineKeyboardShortcutsTips": "•  Use the space bar to play/pause the timeline\n•  Use the left and right arrow keys to move the timeline\n•  Use the M key to mute/unmute the timeline\n•  Use the mouse wheel to zoom in/out the timeline",
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
   "showFullscreenCamera": "Show in fullscreen",

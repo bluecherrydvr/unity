@@ -119,6 +119,9 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                     isLoading: context.watch<HomeProvider>().isLoadingFor(
                           UnityLoadingReason.fetchingEventsHistory,
                         ),
+                    text: '${loc.noEventsLoadedTips}'
+                        '\n'
+                        '\n${loc.timelineKeyboardShortcutsTips}',
                   ),
                   children: timeline.tiles.map((tile) {
                     return TimelineCard(tile: tile, timeline: timeline);
@@ -155,12 +158,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SquaredIconButton(
                 icon:
-                    Icon(!_isCollapsed ? Icons.expand_more : Icons.expand_less),
-                onPressed: () {
-                  setState(() {
-                    _isCollapsed = !_isCollapsed;
-                  });
-                },
+                    Icon(_isCollapsed ? Icons.expand_less : Icons.expand_more),
+                onPressed: () => setState(() => _isCollapsed = !_isCollapsed),
                 tooltip: _isCollapsed ? loc.expand : loc.collapse,
               ),
               Expanded(

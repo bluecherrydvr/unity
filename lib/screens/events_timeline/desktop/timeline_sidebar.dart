@@ -18,8 +18,8 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
+import 'package:bluecherry_client/screens/events_browser/event_type_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -46,14 +46,10 @@ class TimelineSidebar extends StatefulWidget {
 }
 
 class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
-  final _eventTypeFilterTileKey = GlobalKey();
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final eventsProvider = context.watch<EventsProvider>();
-    final theme = Theme.of(context);
-
     return Card(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadiusDirectional.vertical(
@@ -119,98 +115,9 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                 }
               },
             ),
-            ListTile(
-              key: _eventTypeFilterTileKey,
-              dense: true,
-              title: Text(
-                loc.eventType,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              trailing: AutoSizeText(
-                () {
-                  final type = eventsProvider.eventTypeFilter;
-                  // For some reason I can not use a switch here
-                  if (type == EventType.motion.index) {
-                    return loc.motion;
-                  } else if (type == EventType.continuous.index) {
-                    return loc.continuous;
-                  } else {
-                    return 'All';
-                  }
-                }(),
-                maxLines: 1,
-              ),
-              onTap: () async {
-                final box = _eventTypeFilterTileKey.currentContext!
-                    .findRenderObject() as RenderBox;
-
-                showMenu(
-                  context: context,
-                  position: RelativeRect.fromRect(
-                    box.localToGlobal(
-                          Offset.zero,
-                          ancestor:
-                              Navigator.of(context).context.findRenderObject(),
-                        ) &
-                        box.size,
-                    Offset.zero & MediaQuery.of(context).size,
-                  ),
-                  constraints: BoxConstraints(
-                    minWidth: box.size.width - 8,
-                    maxWidth: box.size.width - 8,
-                  ),
-                  items: <PopupMenuEntry>[
-                    PopupMenuLabel(
-                      label: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 6.0,
-                        ),
-                        child: Text(
-                          loc.eventType,
-                          maxLines: 1,
-                          style: theme.textTheme.labelSmall,
-                        ),
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    _buildMenuItem(
-                      value: -1,
-                      child: const Text('All'),
-                    ),
-                    _buildMenuItem(
-                      value: EventType.motion.index,
-                      child: Text(loc.motion),
-                    ),
-                    _buildMenuItem(
-                      value: EventType.continuous.index,
-                      child: Text(loc.continuous),
-                    ),
-                  ],
-                );
-              },
-            ),
+            const EventTypeFilterTile(),
           ]);
         },
-      ),
-    );
-  }
-
-  PopupMenuItem _buildMenuItem({required Widget child, required int value}) {
-    final eventsProvider = context.read<EventsProvider>();
-    final selected = eventsProvider.eventTypeFilter == value;
-
-    return CheckedPopupMenuItem(
-      value: value,
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      checked: selected,
-      // enabled: !selected,
-      onTap: () {
-        eventsProvider.eventTypeFilter = value;
-      },
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: child,
       ),
     );
   }

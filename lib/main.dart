@@ -369,8 +369,8 @@ class _UnityAppState extends State<UnityApp>
             if (settings.name == '/events') {
               final data = settings.arguments! as Map;
               final event = data['event'] as Event;
-              final upcomingEvents =
-                  (data['upcoming'] as Iterable<Event>?) ?? [];
+              final upcomingEvents = (data['upcoming'] as Iterable<Event>?) ??
+                  List.empty(growable: true);
               final videoPlayer = data['videoPlayer'] as UnityVideoPlayer?;
 
               return MaterialPageRoute(

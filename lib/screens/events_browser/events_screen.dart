@@ -87,20 +87,27 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     final hasDrawer = Scaffold.hasDrawer(context);
 
     return LayoutBuilder(builder: (context, consts) {
+      final events =
+          (eventsProvider.loadedEvents?.filteredEvents ?? List.empty())
+              .where((event) {
+        final typeFilter = eventsProvider.eventTypeFilter;
+        if (typeFilter == -1) return true;
+        return event.type.index == typeFilter;
+      });
       if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
         return EventsScreenMobile(
-          events: eventsProvider.loadedEvents?.filteredEvents ?? [],
-          loadedServers: eventsProvider.loadedEvents?.events.keys ?? [],
+          events: events,
+          loadedServers:
+              eventsProvider.loadedEvents?.events.keys ?? List.empty(),
           refresh: fetch,
-          invalid: eventsProvider.loadedEvents?.invalidResponses ?? [],
+          invalid:
+              eventsProvider.loadedEvents?.invalidResponses ?? List.empty(),
         );
       }
 
       return Material(
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          EventsScreenSidebar(
-            fetch: fetch,
-          ),
+          EventsScreenSidebar(fetch: fetch),
           Expanded(
             child: Card(
               margin: EdgeInsets.zero,
@@ -109,10 +116,7 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
                   topStart: Radius.circular(12.0),
                 ),
               ),
-              child: EventsScreenDesktop(
-                events:
-                    eventsProvider.loadedEvents?.filteredEvents ?? List.empty(),
-              ),
+              child: EventsScreenDesktop(events: events),
             ),
           ),
         ]),

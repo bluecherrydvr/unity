@@ -21,6 +21,7 @@ import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/date_time_filter.dart';
+import 'package:bluecherry_client/screens/events_browser/event_type_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -76,20 +77,7 @@ class _EventsScreenSidebarState extends State<EventsScreenSidebar>
             ),
             const Divider(),
             const EventsDateTimeFilter(),
-            // const SubHeader('Minimum level', height: 24.0),
-            // DropdownButton<EventsMinLevelFilter>(
-            //   isExpanded: true,
-            //   value: levelFilter,
-            //   items: EventsMinLevelFilter.values.map((level) {
-            //     return DropdownMenuItem(
-            //       value: level,
-            //       child: Text(level.name.uppercaseFirst),
-            //     );
-            //   }).toList(),
-            //   onChanged: (v) => setState(
-            //     () => levelFilter = v ?? levelFilter,
-            //   ),
-            // ),
+            const EventTypeFilterTile(),
             const SizedBox(height: 8.0),
             FilledButton(
               onPressed: isLoading ? null : widget.fetch,

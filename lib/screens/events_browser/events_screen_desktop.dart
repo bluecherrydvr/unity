@@ -201,8 +201,15 @@ class _TableHeader extends SliverPersistentHeaderDelegate {
 
 class NoEventsLoaded extends StatelessWidget {
   final bool isLoading;
+  final String? text;
+  final List<Widget>? children;
 
-  const NoEventsLoaded({super.key, this.isLoading = false});
+  const NoEventsLoaded({
+    super.key,
+    this.isLoading = false,
+    this.text,
+    this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -228,9 +235,10 @@ class NoEventsLoaded extends StatelessWidget {
       const Divider(),
       const SizedBox(height: 6.0),
       Text(
-        loc.noEventsLoadedTips,
+        text ?? loc.noEventsLoadedTips,
         style: theme.textTheme.bodySmall,
       ),
+      if (children != null) ...children!,
     ]);
   }
 }

@@ -161,9 +161,10 @@ extension DateTimeExtension on DateTime? {
   }
 
   /// Formats the date string.
-  String formatDecoratedDate(BuildContext context) {
+  String formatDecoratedDate(BuildContext context, [DateFormat? format]) {
     final loc = AppLocalizations.of(context);
     final settings = context.read<SettingsProvider>();
+    format ??= settings.kDateFormat.value;
 
     var date = this;
     if (settings.kConvertTimeToLocalTimezone.value) date = date?.toLocal();
@@ -178,7 +179,7 @@ extension DateTimeExtension on DateTime? {
       )) {
         return loc.yesterday;
       } else {
-        return settings.kDateFormat.value.format(date);
+        return format!.format(date);
       }
     }();
 

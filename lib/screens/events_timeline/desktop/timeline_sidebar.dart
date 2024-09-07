@@ -19,6 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
+import 'package:bluecherry_client/screens/events_browser/event_type_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -27,6 +28,7 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TimelineSidebar extends StatefulWidget {
@@ -48,7 +50,6 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final eventsProvider = context.watch<EventsProvider>();
-
     return Card(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadiusDirectional.vertical(
@@ -57,6 +58,8 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
       ),
       margin: const EdgeInsetsDirectional.only(end: 4.0, top: 4.0, start: 4.0),
       child: CollapsableSidebar(
+        // TODO(bdlukaa): This is not working because offline devices are being
+        //                marked as selected.
         initiallyClosed:
             eventsProvider.selectedDevices.isNotEmpty || isEmbedded,
         left: false,
@@ -90,8 +93,11 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                 loc.dateFilter,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: AutoSizeText(
-                widget.date.formatDecoratedDate(context),
+              trailing: AutoSizeText(
+                widget.date.formatDecoratedDate(
+                  context,
+                  DateFormat('EEE, dd MMM yyyy'),
+                ),
                 maxLines: 1,
               ),
               onTap: () async {
@@ -109,6 +115,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                 }
               },
             ),
+            const EventTypeFilterTile(),
           ]);
         },
       ),

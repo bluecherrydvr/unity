@@ -102,6 +102,13 @@ class EventsProvider extends UnityProvider {
     notifyListeners();
   }
 
+  int _eventTypeFilter = -1;
+  int get eventTypeFilter => _eventTypeFilter;
+  set eventTypeFilter(int value) {
+    _eventTypeFilter = value;
+    notifyListeners();
+  }
+
   LoadedEvents? loadedEvents;
 
   @override

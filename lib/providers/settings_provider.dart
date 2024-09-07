@@ -58,11 +58,11 @@ class _SettingsOption<T> {
   late final String Function(T value) saveAs;
   late final T Function(String value) loadFrom;
   final ValueChanged<T>? onChanged;
-  final T Function()? valueOverrider;
+  final T Function(T value)? valueOverrider;
 
   late T _value;
 
-  T get value => valueOverrider?.call() ?? _value;
+  T get value => valueOverrider?.call(_value) ?? _value;
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() {
       _value = newValue;
@@ -302,19 +302,23 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Timeline of Events
-  final kShowDifferentColorsForEvents = _SettingsOption(
+  final kShowDifferentColorsForEvents = _SettingsOption<bool>(
     def: false,
     key: 'timeline.show_different_colors_for_events',
   );
-  final kPauseToBuffer = _SettingsOption(
+  final kPauseToBuffer = _SettingsOption<bool>(
     def: false,
     key: 'timeline.pause_to_buffer',
   );
-  final kTimelineInitialPoint = _SettingsOption(
+  final kTimelineInitialPoint = _SettingsOption<TimelineInitialPoint>(
     def: TimelineInitialPoint.beginning,
     key: 'timeline.initial_point',
     loadFrom: (value) => TimelineInitialPoint.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
+  );
+  final kAutomaticallySkipEmptyPeriods = _SettingsOption<bool>(
+    def: false,
+    key: 'timeline.automatically_skip_empty_periods',
   );
 
   // Application
@@ -328,14 +332,41 @@ class SettingsProvider extends UnityProvider {
     def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
     key: 'application.language_code',
   );
-  final kDateFormat = _SettingsOption(
-    def: DateFormat('EEEE, dd MMMM yyyy'),
+
+  late final kDateFormat = _SettingsOption(
+    def: DateFormat(
+      'EEEE, dd MMMM yyyy',
+      kLanguageCode.value.toLanguageTag(),
+    ),
     key: 'application.date_format',
+    valueOverrider: (value) {
+      return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
+    },
   );
-  final kTimeFormat = _SettingsOption(
-    def: DateFormat('hh:mm a'),
+
+  static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
+  late final kTimeFormat = _SettingsOption(
+    def: DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag()),
     key: 'application.time_format',
+    valueOverrider: (value) {
+      return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
+    },
   );
+
+  /// The extended time format adds the second to the time format.
+  DateFormat get extendedTimeFormat {
+    return switch (kTimeFormat.value.pattern!) {
+      'HH:mm' => DateFormat('HH:mm:ss', kLanguageCode.value.toLanguageTag()),
+      'hh:mm a' => DateFormat(
+          'hh:mm:ss a',
+          kLanguageCode.value.toLanguageTag(),
+        ),
+      _ => DateFormat(
+          kTimeFormat.value.pattern,
+          kLanguageCode.value.toLanguageTag(),
+        ),
+    };
+  }
 
   // TODO(bdlukaa): remove this in future releases
   var _hasMigratedTimezone = false;
@@ -433,7 +464,7 @@ class SettingsProvider extends UnityProvider {
           ..zoom.softwareZoom = value;
       }
     },
-    valueOverrider: isHardwareZoomSupported ? () => true : null,
+    valueOverrider: isHardwareZoomSupported ? (_) => true : null,
   );
   final kEventsMatrixedZoom = _SettingsOption(
     def: true,
@@ -493,6 +524,7 @@ class SettingsProvider extends UnityProvider {
       kShowDifferentColorsForEvents.loadData(data),
       kPauseToBuffer.loadData(data),
       kTimelineInitialPoint.loadData(data),
+      kAutomaticallySkipEmptyPeriods.loadData(data),
       kThemeMode.loadData(data),
       kLanguageCode.loadData(data),
       kDateFormat.loadData(data),
@@ -570,6 +602,8 @@ class SettingsProvider extends UnityProvider {
         kPauseToBuffer.key: kPauseToBuffer.saveAs(kPauseToBuffer.value),
         kTimelineInitialPoint.key:
             kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
+        kAutomaticallySkipEmptyPeriods.key: kAutomaticallySkipEmptyPeriods
+            .saveAs(kAutomaticallySkipEmptyPeriods.value),
         kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
         kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
         kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),

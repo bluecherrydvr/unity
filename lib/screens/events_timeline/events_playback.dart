@@ -27,6 +27,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sidebar.dart';
+import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_view.dart';
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -96,7 +97,19 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
     final devices = <Device, List<Event>>{};
 
-    for (final event in eventsProvider.loadedEvents!.filteredEvents) {
+    final events = eventsProvider.loadedEvents!.filteredEvents
+      ..sort((a, b) {
+        // Sort the events in a way that the continuous events are displayed first
+        // Ideally, in the Timeline, the motion events should be displayed on
+        // top of the continuous events. We need to sort the continuous events
+        // so that the continuous events don't get on top of the motion events.
+        final aIsContinuous = a.type == EventType.continuous;
+        final bIsContinuous = b.type == EventType.continuous;
+        if (aIsContinuous && !bIsContinuous) return -1;
+        if (!aIsContinuous && bIsContinuous) return 1;
+        return 0;
+      });
+    for (final event in events) {
       if (event.isAlarm || event.mediaURL == null) continue;
 
       if (!DateUtils.isSameDay(event.published, date) ||
@@ -113,16 +126,19 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       );
       devices[device] ??= [];
 
-      if (devices[device]!.any((e) {
-        return e.published.isInBetween(event.published, event.updated,
-                allowSameMoment: true) ||
-            e.updated.isInBetween(event.published, event.updated,
-                allowSameMoment: true) ||
-            event.published
-                .isInBetween(e.published, e.updated, allowSameMoment: true) ||
-            event.updated
-                .isInBetween(e.published, e.updated, allowSameMoment: true);
-      })) continue;
+      // This ensures that events that happened at the same time are not
+      // displayed on the same device.
+      //
+      // if (devices[device]!.any((e) {
+      //   return e.published.isInBetween(event.published, event.updated,
+      //           allowSameMoment: true) ||
+      //       e.updated.isInBetween(event.published, event.updated,
+      //           allowSameMoment: true) ||
+      //       event.published
+      //           .isInBetween(e.published, e.updated, allowSameMoment: true) ||
+      //       event.updated
+      //           .isInBetween(e.published, e.updated, allowSameMoment: true);
+      // })) continue;
 
       devices[device]!.add(event);
     }
@@ -172,33 +188,121 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           return KeyEventResult.ignored;
         }
 
-        debugPrint(event.logicalKey.debugName);
-        if (event.logicalKey == LogicalKeyboardKey.space) {
-          if (timeline!.isPlaying) {
-            timeline!.stop();
-          } else {
-            timeline!.play();
-          }
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
-          if (timeline!.isMuted) {
-            timeline!.volume = 1.0;
-          } else {
-            timeline!.volume = 0.0;
-          }
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.f5) {
-          fetch();
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          timeline!.seekForward();
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          timeline!.seekBackward();
-          return KeyEventResult.handled;
-        }
+        debugPrint(
+          '${event.logicalKey}${event.logicalKey.debugName}'
+          ' - '
+          '${event.physicalKey}${event.physicalKey.debugName}',
+        );
 
-        return KeyEventResult.ignored;
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.arrowRight:
+            timeline!.seekForward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowLeft:
+            timeline!.seekBackward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.space:
+          case LogicalKeyboardKey.mediaPlayPause:
+            if (timeline!.isPlaying) {
+              timeline!.stop();
+            } else {
+              timeline!.play();
+            }
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaPlay:
+          case LogicalKeyboardKey.play:
+            if (!timeline!.isPlaying) {
+              timeline!.play();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          case LogicalKeyboardKey.mediaPause:
+          case LogicalKeyboardKey.pause:
+          case LogicalKeyboardKey.mediaStop:
+            if (timeline!.isPlaying) {
+              timeline!.stop();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          case LogicalKeyboardKey.f5:
+            fetch();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaSkipForward:
+          case LogicalKeyboardKey.mediaTrackNext:
+            timeline!.seekToNextEvent();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaSkipBackward:
+          case LogicalKeyboardKey.mediaTrackPrevious:
+            timeline!.seekToPreviousEvent();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaStepForward:
+            timeline!.stepForward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaStepBackward:
+            timeline!.stepBackward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.home:
+          case LogicalKeyboardKey.numpad0:
+          case LogicalKeyboardKey.digit0:
+            timeline!.seekTo(Duration.zero);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.end:
+            timeline!.seekTo(timeline!.endPosition);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.keyM:
+            if (timeline!.isMuted) {
+              timeline!.volume = 1.0;
+            } else {
+              timeline!.volume = 0.0;
+            }
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowUp:
+            timeline!.volume += 0.1;
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowDown:
+            timeline!.volume -= 0.1;
+            return KeyEventResult.handled;
+
+          case LogicalKeyboardKey.numpad1:
+          case LogicalKeyboardKey.digit1:
+            timeline!.seekTo(timeline!.endPosition * 0.1);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad2:
+          case LogicalKeyboardKey.digit2:
+            timeline!.seekTo(timeline!.endPosition * 0.2);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad3:
+          case LogicalKeyboardKey.digit3:
+            timeline!.seekTo(timeline!.endPosition * 0.3);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad4:
+          case LogicalKeyboardKey.digit4:
+            timeline!.seekTo(timeline!.endPosition * 0.4);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad5:
+          case LogicalKeyboardKey.digit5:
+            timeline!.seekTo(timeline!.endPosition * 0.5);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad6:
+          case LogicalKeyboardKey.digit6:
+            timeline!.seekTo(timeline!.endPosition * 0.6);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad7:
+          case LogicalKeyboardKey.digit7:
+            timeline!.seekTo(timeline!.endPosition * 0.7);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad8:
+          case LogicalKeyboardKey.digit8:
+            timeline!.seekTo(timeline!.endPosition * 0.8);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad9:
+          case LogicalKeyboardKey.digit9:
+            timeline!.seekTo(timeline!.endPosition * 0.9);
+            return KeyEventResult.handled;
+
+          default:
+            return KeyEventResult.ignored;
+        }
       },
       child: LayoutBuilder(builder: (context, constraints) {
         final hasDrawer = Scaffold.hasDrawer(context);

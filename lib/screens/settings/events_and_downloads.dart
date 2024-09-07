@@ -158,42 +158,6 @@ class EventsAndDownloadsSettings extends StatelessWidget {
       ),
       const SizedBox(height: 20.0),
       SubHeader(loc.eventsTimeline),
-      CheckboxListTile.adaptive(
-        value: settings.kShowDifferentColorsForEvents.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kShowDifferentColorsForEvents.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.color_lens),
-        ),
-        title: Text(loc.differentEventColors),
-        subtitle: Text(loc.differentEventColorsDescription),
-      ),
-      if (settings.kShowDebugInfo.value) ...[
-        CheckboxListTile.adaptive(
-          value: settings.kPauseToBuffer.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kPauseToBuffer.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.pause_presentation),
-          ),
-          title: const Text('Pause to buffer'),
-          subtitle: const Text(
-            'Whether the entire timeline should pause to buffer the events.',
-          ),
-        ),
-      ],
       OptionsChooserTile<TimelineInitialPoint>(
         title: loc.initialTimelinePoint,
         description: loc.initialTimelinePointDescription,
@@ -216,10 +180,59 @@ class EventsAndDownloadsSettings extends StatelessWidget {
             text: loc.hourAgoInitialPoint,
           ),
         ],
-        onChanged: (v) {
-          settings.kTimelineInitialPoint.value = v;
-        },
+        onChanged: (v) => settings.kTimelineInitialPoint.value = v,
       ),
+      CheckboxListTile.adaptive(
+        value: settings.kShowDifferentColorsForEvents.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kShowDifferentColorsForEvents.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.color_lens),
+        ),
+        title: Text(loc.differentEventColors),
+        subtitle: Text(loc.differentEventColorsDescription),
+      ),
+      CheckboxListTile.adaptive(
+        value: settings.kAutomaticallySkipEmptyPeriods.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kAutomaticallySkipEmptyPeriods.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.hourglass_empty),
+        ),
+        title: Text(loc.automaticallySkipEmptyPeriods),
+      ),
+      if (settings.kShowDebugInfo.value) ...[
+        CheckboxListTile.adaptive(
+          value: settings.kPauseToBuffer.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kPauseToBuffer.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.pause_presentation),
+          ),
+          title: const Text('Pause to buffer'),
+          subtitle: const Text(
+            'Whether the entire timeline should pause to buffer the events.',
+          ),
+        ),
+      ],
     ]);
   }
 }

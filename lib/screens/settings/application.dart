@@ -298,7 +298,8 @@ class TimeFormatSection extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final locale = Localizations.localeOf(context).toLanguageTag();
 
-    final patterns = ['HH:mm', 'hh:mm a'].map((e) => DateFormat(e, locale));
+    final patterns =
+        SettingsProvider.availableTimeFormats.map((e) => DateFormat(e, locale));
     final date = DateTime.utc(1969, 7, 20, 14, 18, 04);
     return OptionsChooserTile(
       title: loc.timeFormat,

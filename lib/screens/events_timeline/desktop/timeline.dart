@@ -354,6 +354,7 @@ class Timeline extends ChangeNotifier {
 
   /// The current position of the timeline
   var currentPosition = const Duration();
+  Duration get endPosition => const Duration(days: 1);
 
   DateTime get currentDate => date.add(currentPosition);
 
@@ -381,6 +382,9 @@ class Timeline extends ChangeNotifier {
   /// Seeks backward by [duration]
   void seekBackward([Duration duration = const Duration(seconds: 15)]) =>
       seekTo(currentPosition - duration);
+
+  void stepForward() => seekTo(currentPosition + period);
+  void stepBackward() => seekTo(currentPosition - period);
 
   void seekToEvent(TimelineEvent event) {
     final tile = tiles.firstWhereOrNull((tile) => tile.events.contains(event));
@@ -438,6 +442,8 @@ class Timeline extends ChangeNotifier {
   bool get isMuted => volume == 0;
   double get volume => _volume;
   set volume(double value) {
+    if (value < 0.0 || value > 1.0) return;
+
     _volume = value;
     notifyListeners();
 

@@ -193,32 +193,116 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           ' - '
           '${event.physicalKey}${event.physicalKey.debugName}',
         );
-        if (event.logicalKey == LogicalKeyboardKey.space) {
-          if (timeline!.isPlaying) {
-            timeline!.stop();
-          } else {
-            timeline!.play();
-          }
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.keyM) {
-          if (timeline!.isMuted) {
-            timeline!.volume = 1.0;
-          } else {
-            timeline!.volume = 0.0;
-          }
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.f5) {
-          fetch();
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          timeline!.seekForward();
-          return KeyEventResult.handled;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          timeline!.seekBackward();
-          return KeyEventResult.handled;
-        }
 
-        return KeyEventResult.ignored;
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.arrowRight:
+            timeline!.seekForward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowLeft:
+            timeline!.seekBackward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.space:
+          case LogicalKeyboardKey.mediaPlayPause:
+            if (timeline!.isPlaying) {
+              timeline!.stop();
+            } else {
+              timeline!.play();
+            }
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaPlay:
+          case LogicalKeyboardKey.play:
+            if (!timeline!.isPlaying) {
+              timeline!.play();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          case LogicalKeyboardKey.mediaPause:
+          case LogicalKeyboardKey.pause:
+          case LogicalKeyboardKey.mediaStop:
+            if (timeline!.isPlaying) {
+              timeline!.stop();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          case LogicalKeyboardKey.f5:
+            fetch();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaSkipForward:
+          case LogicalKeyboardKey.mediaTrackNext:
+            timeline!.seekToNextEvent();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaSkipBackward:
+          case LogicalKeyboardKey.mediaTrackPrevious:
+            timeline!.seekToPreviousEvent();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaStepForward:
+            timeline!.stepForward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.mediaStepBackward:
+            timeline!.stepBackward();
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.home:
+          case LogicalKeyboardKey.numpad0:
+          case LogicalKeyboardKey.digit0:
+            timeline!.seekTo(Duration.zero);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.end:
+            timeline!.seekTo(timeline!.endPosition);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.keyM:
+            if (timeline!.isMuted) {
+              timeline!.volume = 1.0;
+            } else {
+              timeline!.volume = 0.0;
+            }
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowUp:
+            timeline!.volume += 0.1;
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.arrowDown:
+            timeline!.volume -= 0.1;
+            return KeyEventResult.handled;
+
+          case LogicalKeyboardKey.numpad1:
+          case LogicalKeyboardKey.digit1:
+            timeline!.seekTo(timeline!.endPosition * 0.1);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad2:
+          case LogicalKeyboardKey.digit2:
+            timeline!.seekTo(timeline!.endPosition * 0.2);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad3:
+          case LogicalKeyboardKey.digit3:
+            timeline!.seekTo(timeline!.endPosition * 0.3);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad4:
+          case LogicalKeyboardKey.digit4:
+            timeline!.seekTo(timeline!.endPosition * 0.4);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad5:
+          case LogicalKeyboardKey.digit5:
+            timeline!.seekTo(timeline!.endPosition * 0.5);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad6:
+          case LogicalKeyboardKey.digit6:
+            timeline!.seekTo(timeline!.endPosition * 0.6);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad7:
+          case LogicalKeyboardKey.digit7:
+            timeline!.seekTo(timeline!.endPosition * 0.7);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad8:
+          case LogicalKeyboardKey.digit8:
+            timeline!.seekTo(timeline!.endPosition * 0.8);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.numpad9:
+          case LogicalKeyboardKey.digit9:
+            timeline!.seekTo(timeline!.endPosition * 0.9);
+            return KeyEventResult.handled;
+
+          default:
+            return KeyEventResult.ignored;
+        }
       },
       child: LayoutBuilder(builder: (context, constraints) {
         final hasDrawer = Scaffold.hasDrawer(context);

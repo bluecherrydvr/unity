@@ -203,7 +203,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               ),
               SquaredIconButton(
                 tooltip: timeline.isPlaying ? loc.pause : loc.play,
-                icon: PlayPauseIcon(isPlaying: timeline.isPlaying),
+                icon: PlayPauseIcon(isPlaying: timeline.isPlaying, size: 24.0),
                 onPressed: () {
                   setState(() {
                     if (timeline.isPlaying) {

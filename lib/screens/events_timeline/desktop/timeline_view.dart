@@ -195,6 +195,13 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               ),
               const SizedBox(width: 20.0),
               SquaredIconButton(
+                tooltip: loc.previous,
+                icon: const Icon(Icons.skip_previous),
+                onPressed: () {
+                  timeline.seekToPreviousEvent();
+                },
+              ),
+              SquaredIconButton(
                 tooltip: timeline.isPlaying ? loc.pause : loc.play,
                 icon: PlayPauseIcon(isPlaying: timeline.isPlaying),
                 onPressed: () {
@@ -205,6 +212,13 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
                       timeline.play();
                     }
                   });
+                },
+              ),
+              SquaredIconButton(
+                tooltip: loc.next,
+                icon: const Icon(Icons.skip_next),
+                onPressed: () {
+                  timeline.seekToNextEvent();
                 },
               ),
               const SizedBox(width: 20.0),

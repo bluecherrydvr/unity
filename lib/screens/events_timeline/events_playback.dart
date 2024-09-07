@@ -188,7 +188,11 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           return KeyEventResult.ignored;
         }
 
-        debugPrint(event.logicalKey.debugName);
+        debugPrint(
+          '${event.logicalKey}${event.logicalKey.debugName}'
+          ' - '
+          '${event.physicalKey}${event.physicalKey.debugName}',
+        );
         if (event.logicalKey == LogicalKeyboardKey.space) {
           if (timeline!.isPlaying) {
             timeline!.stop();

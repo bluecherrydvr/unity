@@ -395,7 +395,43 @@ class Timeline extends ChangeNotifier {
     tile.videoController.seekTo(position);
     if (!isPlaying) tile.videoController.pause();
 
+    updateScrollPosition();
+
     debugPrint('Seeking ${tile.device} to $position');
+  }
+
+  TimelineEvent? seekToPreviousEvent() {
+    final events = allEvents.sortedBy((e) => e.startTime);
+
+    // There can be more than one event that is playing at the same time (e.g.
+    // continuous and motion events). We need to get the last one, the top one
+    // in the list. It is usually the motion event, since they are shorter.
+    // This way, the user will be able to traverse the events in the correct
+    // order.
+    final currentEvent = events.lastWhereOrNull(
+      (e) => e.isPlaying(currentDate),
+    );
+    final previousEvent = events.lastWhereOrNull(
+      (e) => e.startTime.isBefore(currentEvent?.startTime ?? currentDate),
+    );
+
+    if (previousEvent != null) {
+      currentPosition = previousEvent.startTime.difference(date);
+      seekToEvent(previousEvent);
+    }
+    return previousEvent;
+  }
+
+  TimelineEvent? seekToNextEvent() {
+    final nextEvent = allEvents
+        .sortedBy((e) => e.startTime)
+        .firstWhereOrNull((e) => e.startTime.isAfter(currentDate));
+
+    if (nextEvent != null) {
+      currentPosition = nextEvent.startTime.difference(date);
+      seekToEvent(nextEvent);
+    }
+    return nextEvent;
   }
 
   double _volume = 1.0;
@@ -445,7 +481,11 @@ class Timeline extends ChangeNotifier {
   double get zoom => _zoom;
   set zoom(double value) {
     value = _zoom = clampDouble(value, 1.0, maxZoom);
+    updateScrollPosition();
+    notifyListeners();
+  }
 
+  void updateScrollPosition() {
     if (_zoom == 1.0) {
       scrollTo(0.0);
     } else if (_zoom > 1.0) {
@@ -470,7 +510,6 @@ class Timeline extends ChangeNotifier {
         scrollTo(to - visibilityFactor);
       }
     }
-    notifyListeners();
   }
 
   static const maxZoom = 100.0;
@@ -510,22 +549,10 @@ class Timeline extends ChangeNotifier {
         if (SettingsProvider.instance.kAutomaticallySkipEmptyPeriods.value) {
           final isPlaying = allEvents.any((e) => e.isPlaying(currentDate));
           if (!isPlaying) {
-            final nextEvent = allEvents
-                // It is important to sort the events by start time, so we can
-                // get the next event that will happen after the current date.
-                // If the sorting is not done, any upcoming event may be
-                // selected, but we want strictly the next event.
-                .sortedBy((e) => e.startTime)
-                .firstWhereOrNull((e) => e.startTime.isAfter(currentDate));
-
-            if (nextEvent != null) {
-              currentPosition = nextEvent.startTime.difference(date);
-
-              if (nextEvent.isPlaying(currentDate)) {
-                seekToEvent(nextEvent);
-              }
-            } else {
+            final nextEvent = seekToNextEvent();
+            if (nextEvent == null) {
               stop();
+              return;
             }
           }
         }

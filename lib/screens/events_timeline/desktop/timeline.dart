@@ -22,6 +22,7 @@ import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -46,14 +47,15 @@ enum TimelineInitialPoint {
 
 class TimelineTile {
   final Device device;
-  final List<TimelineEvent> events;
+  late final List<TimelineEvent> _events;
 
   late final UnityVideoPlayer videoController;
 
   TimelineTile({
     required this.device,
-    required this.events,
+    required List<TimelineEvent> events,
   }) {
+    _events = events;
     videoController = UnityVideoPlayer.create(
       quality: UnityVideoQuality.p480,
       enableCache: true,
@@ -62,9 +64,27 @@ class TimelineTile {
       matrixType: SettingsProvider.instance.kMatrixSize.value,
     );
     videoController.setMultipleDataSource(
-      events.map((event) => event.videoUrl),
+      _events.map((event) => event.videoUrl),
       autoPlay: false,
     );
+  }
+
+  List<TimelineEvent> get events {
+    final eventsProvider = EventsProvider.instance;
+    return _events.where((event) {
+      var typeFilterPasses = false;
+
+      final eventFilter = eventsProvider.eventTypeFilter;
+      if (eventFilter == -1) {
+        typeFilterPasses = true;
+      } else {
+        typeFilterPasses = eventFilter == event.event.type.index;
+      }
+
+      // TODO(bdlukaa): Add selected device filter
+
+      return typeFilterPasses;
+    }).toList();
   }
 
   /// Returns the current event in the tile.

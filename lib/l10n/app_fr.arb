@@ -501,6 +501,7 @@
   "beginningInitialPoint": "Commencement",
   "firstEventInitialPoint": "Premier évènement",
   "hourAgoInitialPoint": "Il y a 1 heure",
+  "automaticallySkipEmptyPeriods": "Automatically skip empty periods",
   "@@APPLICATION": {},
   "appearance": "Apparence",
   "theme": "Thème",

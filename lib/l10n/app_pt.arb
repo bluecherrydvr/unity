@@ -525,6 +525,7 @@
   "beginningInitialPoint": "Início",
   "firstEventInitialPoint": "Primeiro evento",
   "hourAgoInitialPoint": "1 hora atrás",
+  "automaticallySkipEmptyPeriods": "Pular períodos vazios automaticamente",
   "@@APPLICATION": {},
   "appearance": "Visualização",
   "theme": "Aparência",

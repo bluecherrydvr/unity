@@ -302,19 +302,23 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Timeline of Events
-  final kShowDifferentColorsForEvents = _SettingsOption(
+  final kShowDifferentColorsForEvents = _SettingsOption<bool>(
     def: false,
     key: 'timeline.show_different_colors_for_events',
   );
-  final kPauseToBuffer = _SettingsOption(
+  final kPauseToBuffer = _SettingsOption<bool>(
     def: false,
     key: 'timeline.pause_to_buffer',
   );
-  final kTimelineInitialPoint = _SettingsOption(
+  final kTimelineInitialPoint = _SettingsOption<TimelineInitialPoint>(
     def: TimelineInitialPoint.beginning,
     key: 'timeline.initial_point',
     loadFrom: (value) => TimelineInitialPoint.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
+  );
+  final kAutomaticallySkipEmptyPeriods = _SettingsOption<bool>(
+    def: false,
+    key: 'timeline.automatically_skip_empty_periods',
   );
 
   // Application
@@ -520,6 +524,7 @@ class SettingsProvider extends UnityProvider {
       kShowDifferentColorsForEvents.loadData(data),
       kPauseToBuffer.loadData(data),
       kTimelineInitialPoint.loadData(data),
+      kAutomaticallySkipEmptyPeriods.loadData(data),
       kThemeMode.loadData(data),
       kLanguageCode.loadData(data),
       kDateFormat.loadData(data),
@@ -597,6 +602,8 @@ class SettingsProvider extends UnityProvider {
         kPauseToBuffer.key: kPauseToBuffer.saveAs(kPauseToBuffer.value),
         kTimelineInitialPoint.key:
             kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
+        kAutomaticallySkipEmptyPeriods.key: kAutomaticallySkipEmptyPeriods
+            .saveAs(kAutomaticallySkipEmptyPeriods.value),
         kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
         kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
         kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),

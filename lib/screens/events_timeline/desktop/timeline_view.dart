@@ -155,7 +155,7 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SquaredIconButton(
                 icon:
-                    Icon(_isCollapsed ? Icons.expand_more : Icons.expand_less),
+                    Icon(!_isCollapsed ? Icons.expand_more : Icons.expand_less),
                 onPressed: () {
                   setState(() {
                     _isCollapsed = !_isCollapsed;

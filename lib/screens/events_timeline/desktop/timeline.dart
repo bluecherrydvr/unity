@@ -310,6 +310,9 @@ class Timeline extends ChangeNotifier {
     );
   }
 
+  List<TimelineEvent> get allEvents =>
+      tiles.expand((tile) => tile.events).toList();
+
   void add(Iterable<TimelineTile> tiles) {
     // assert(tiles.every((tile) {
     //   return tile.events.every((event) {
@@ -378,6 +381,22 @@ class Timeline extends ChangeNotifier {
   /// Seeks backward by [duration]
   void seekBackward([Duration duration = const Duration(seconds: 15)]) =>
       seekTo(currentPosition - duration);
+
+  void seekToEvent(TimelineEvent event) {
+    final tile = tiles.firstWhereOrNull((tile) => tile.events.contains(event));
+    if (tile == null) {
+      debugPrint('Event ${event.event.id} not found in any tile');
+      return;
+    }
+    final eventIndex = tile.events.indexOf(event);
+    tile.videoController.jumpToIndex(eventIndex);
+
+    final position = event.position(currentDate);
+    tile.videoController.seekTo(position);
+    if (!isPlaying) tile.videoController.pause();
+
+    debugPrint('Seeking ${tile.device} to $position');
+  }
 
   double _volume = 1.0;
   bool get isMuted => volume == 0;
@@ -487,6 +506,30 @@ class Timeline extends ChangeNotifier {
     timer ??= Timer.periodic(period, (timer) {
       if (event == null) {
         currentPosition += period;
+
+        if (SettingsProvider.instance.kAutomaticallySkipEmptyPeriods.value) {
+          final isPlaying = allEvents.any((e) => e.isPlaying(currentDate));
+          if (!isPlaying) {
+            final nextEvent = allEvents
+                // It is important to sort the events by start time, so we can
+                // get the next event that will happen after the current date.
+                // If the sorting is not done, any upcoming event may be
+                // selected, but we want strictly the next event.
+                .sortedBy((e) => e.startTime)
+                .firstWhereOrNull((e) => e.startTime.isAfter(currentDate));
+
+            if (nextEvent != null) {
+              currentPosition = nextEvent.startTime.difference(date);
+
+              if (nextEvent.isPlaying(currentDate)) {
+                seekToEvent(nextEvent);
+              }
+            } else {
+              stop();
+            }
+          }
+        }
+
         notifyListeners();
       }
 

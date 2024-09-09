@@ -18,10 +18,12 @@
  */
 
 import 'package:bluecherry_client/main.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -91,17 +93,49 @@ class HomeProvider extends ChangeNotifier {
 
   List<UnityLoadingReason> loadReasons = [];
 
+  /// Stores the volume of each device.
+  ///
+  /// These are filled when the user leaves the Devices tab and cleared when
+  /// they come back.
+  Map<String, double> volumes = {};
+
   Future<void> setTab(UnityTab tab, BuildContext context) async {
     if (tab == this.tab) return;
 
+    final currentTab = this.tab;
+    final nextTab = tab;
+
     this.tab = tab;
 
-    if (tab != UnityTab.downloads) {
-      initiallyExpandedDownloadEventId = null;
+    if (nextTab != UnityTab.downloads) initiallyExpandedDownloadEventId = null;
+
+    if (nextTab != UnityTab.addServer) {
+      automaticallyGoToAddServersScreen = false;
     }
 
-    if (tab != UnityTab.addServer) {
-      automaticallyGoToAddServersScreen = false;
+    if (currentTab == UnityTab.deviceGrid) {
+      // If we're moving out of the device grid tab, we should not be able to
+      // hear the live feed anymore.
+
+      final devices = DesktopViewProvider.instance.allDevices;
+      final players = UnityPlayers.players.entries
+          .where((entry) => devices.any((device) => device.uuid == entry.key))
+          .toList();
+
+      for (final player in players) {
+        volumes[player.key] = player.value.volume;
+        player.value.setVolume(0.0);
+      }
+    } else if (nextTab == UnityTab.deviceGrid) {
+      // When the user comes back to the device grid, we should restore the
+      // volume of the devices.
+
+      for (final entry in volumes.entries) {
+        final player = UnityPlayers.players[entry.key];
+        if (player != null) player.setVolume(entry.value);
+      }
+
+      volumes.clear();
     }
 
     refreshDeviceOrientation(context);

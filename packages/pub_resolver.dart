@@ -9,11 +9,9 @@ void main() async {
   print('Resolving dependencies');
 
   final packagePaths = <String>[
-    '.',
     'packages/unity_multi_window',
     'packages/unity_video_player/unity_video_player',
     'packages/unity_video_player/unity_video_player_flutter',
-    'packages/unity_video_player/unity_video_player_fvp',
     'packages/unity_video_player/unity_video_player_main',
     'packages/unity_video_player/unity_video_player_platform_interface',
   ];
@@ -23,6 +21,9 @@ void main() async {
 
   print('Running pub upgrade in all packages:');
   await Future.wait(packagePaths.map(_runPubUpgrade));
+
+  await _runPubGet('.');
+  await _runPubUpgrade('.');
 
   print('All done');
 }

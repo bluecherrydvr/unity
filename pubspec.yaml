@@ -31,31 +31,31 @@ dependencies:
 
   intl: ^0.18.1
   flutter_localized_locales: ^2.0.5
-  duration: ^3.0.13
-  firebase_core: 2.10.0
+  duration: ^4.0.3
+  firebase_core: ^2.24.2
   firebase_messaging: ^14.4.1
   awesome_notifications: ^0.9.3
   wakelock_plus: ^1.1.4
-  app_links: ^3.5.0
+  app_links: ^6.3.2
   win32_registry: ^1.1.2
   
-  system_date_time_format: ^0.7.0
-  device_info_plus: ^9.1.2
-  package_info_plus: ^5.0.1
-  connectivity_plus: ^5.0.2
+  # system_date_time_format: ^0.7.0
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.0.2
+  connectivity_plus: ^6.0.5
   version: ^3.0.2
   url_launcher: ^6.2.4
   logging: ^1.2.0
 
   path_provider: ^2.1.2
-  file_picker: ^6.1.1
+  file_picker: ^8.1.2
   safe_local_storage: ^1.0.0
   
   permission_handler: ^11.1.0
   uuid: ^4.3.3
 
   # Desktop
-  window_manager: ^0.3.8
+  window_manager: ^0.4.2
   titlebar_buttons: ^1.0.0
   unity_multi_window:
     path: packages/unity_multi_window/
@@ -63,7 +63,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
   msix: ^3.7.0
   flutter_launcher_icons: ^0.13.0
 

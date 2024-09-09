@@ -6,13 +6,13 @@ list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   awesome_notifications
   connectivity_plus
+  firebase_core
   fvp
   media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows
   screen_brightness_windows
   screen_retriever
-  system_date_time_format
   url_launcher_windows
   window_manager
 )

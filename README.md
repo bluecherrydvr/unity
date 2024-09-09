@@ -56,12 +56,6 @@ Most platforms will not require any extra steps to install the app.
 
 #### Linux
 
-You need mpv & libmpv-dev installed:
-
-```bash
-sudo apt install mpv libmpv-dev
-```
-
 To install the `.deb` file, run:
 
 ```bash

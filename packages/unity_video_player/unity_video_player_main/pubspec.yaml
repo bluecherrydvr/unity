@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  media_kit: ^1.1.10                             # Primary package.
-  media_kit_video: ^1.2.4                        # For video rendering.
+  media_kit: ^1.1.11                             # Primary package.
+  media_kit_video: ^1.2.5                        # For video rendering.
   #media_kit_libs_video: ^1.0.4                   # Native video dependencies.
   unity_video_player_platform_interface:
     path: ../unity_video_player_platform_interface/
@@ -38,10 +38,10 @@ dependencies:
     git:
       url: https://github.com/media-kit/media-kit/
       path: libs/ios/media_kit_libs_ios_video
-  media_kit_libs_linux:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: libs/linux/media_kit_libs_linux
+  # media_kit_libs_linux:
+  #   git:
+  #     url: https://github.com/media-kit/media-kit/
+  #     path: libs/linux/media_kit_libs_linux
   media_kit_libs_macos_video:
     git:
       url: https://github.com/media-kit/media-kit/

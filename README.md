@@ -153,7 +153,7 @@ lib
 
 packages
 │
-├───unity_multi_window                                 [multi-window support for desktop platforms.]                  
+├───unity_multi_window                                 [multi-window support for desktop platforms.]
 │
 ├───unity_video_player
 │   ├───unity_video_player                             [the core video player logic.]
@@ -164,6 +164,22 @@ packages
 ```
 
 Feel free to send any pull-requests to add any features you wish or fix any bugs you notice.
+
+### Video Rendering
+
+We support multiple platforms and each platform uses its own rendering backend.
+
+| Platform     | Rendering Backend | Flutter Package |
+| ------------ | ----------------- | --------------- |
+| Android      | MPV               | media_kit       |
+| iOS          | MPV               | media_kit       |
+| Windows      | MPV               | media_kit       |
+| MacOS        | MPV               | media_kit       |
+| Web          | HTML5             | fvp             |
+| Linux        | MDK               | fvp             |
+| Raspberry Pi | MDK               | fvp             |
+
+MDK is used for Linux and Raspberry Pi because MPV has shown to be unstable on these platforms, causing crashes. Additionally, `fvp` doesn't require the user to install any additional dependencies.
 
 ### Build
 

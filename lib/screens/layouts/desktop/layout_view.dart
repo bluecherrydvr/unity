@@ -246,17 +246,22 @@ class LayoutView extends StatelessWidget {
           );
         }
 
+        final isAlternativeWindow = AlternativeWindow.maybeOf(context) != null;
+        final parent = context.findAncestorWidgetOfExactType<LargeDeviceGrid>();
         final isReversed =
-            context.findAncestorWidgetOfExactType<LargeDeviceGrid>()!.width <=
-                _kReverseBreakpoint;
+            parent == null ? false : parent.width <= _kReverseBreakpoint;
 
         return Material(
           color: Colors.black,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusDirectional.only(
-              topStart: isReversed ? Radius.zero : const Radius.circular(8.0),
-              topEnd: isReversed ? const Radius.circular(8.0) : Radius.zero,
-            ),
+            borderRadius: isAlternativeWindow
+                ? BorderRadius.zero
+                : BorderRadiusDirectional.only(
+                    topStart:
+                        isReversed ? Radius.zero : const Radius.circular(8.0),
+                    topEnd:
+                        isReversed ? const Radius.circular(8.0) : Radius.zero,
+                  ),
           ),
           child: SafeArea(
             child: Column(

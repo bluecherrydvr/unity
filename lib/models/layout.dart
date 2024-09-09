@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
@@ -106,10 +105,6 @@ class Layout {
       type: DesktopLayoutType.values[map['layoutType'] as int],
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory Layout.fromJson(String source) => Layout.fromMap(json.decode(source));
 
   Layout copyWith({
     String? name,

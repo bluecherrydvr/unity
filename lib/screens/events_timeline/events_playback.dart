@@ -154,6 +154,8 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           initialPosition: switch (settings.kTimelineInitialPoint.value) {
             TimelineInitialPoint.beginning => Duration.zero,
             TimelineInitialPoint.firstEvent => () {
+                if (parsedTiles.isEmpty) return Duration.zero;
+
                 final firstEvent = parsedTiles
                     .map((e) {
                       final earliestEvent = e.events.reduce(

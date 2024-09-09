@@ -18,6 +18,15 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+      # We need to enforce java 17 because newer Flutter packages are
+      # requiring this Java Version.
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+          check-latest: true
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"

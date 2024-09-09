@@ -169,6 +169,8 @@ class DesktopViewProvider extends UnityProvider {
     return save(notifyListeners: false);
   }
 
+  Iterable<Device> get allDevices => layouts.expand((layout) => layout.devices);
+
   /// Removes all the [devices] provided
   ///
   /// This is usually used when a server is deleted

@@ -66,7 +66,7 @@ void listen() {
   // See https://github.com/llfbandit/app_links/issues/20 for more info.
   if (isDesktopPlatform && !Platform.isLinux) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      instance.allUriLinkStream.listen((uri) async {
+      instance.uriLinkStream.listen((uri) async {
         debugPrint('Received URI: $uri');
         await writeLogToFile('Received URI $uri');
         final handleType = await _handleUri(uri);

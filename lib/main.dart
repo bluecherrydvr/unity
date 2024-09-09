@@ -268,10 +268,11 @@ class _UnityAppState extends State<UnityApp>
             case NetworkUsage.wifiOnly:
               debugPrint('Pausing all streams');
               final connectionType = await Connectivity().checkConnectivity();
-              if (connectionType == ConnectivityResult.mobile ||
-                  connectionType == ConnectivityResult.bluetooth) {
-                UnityPlayers.pauseAll();
-              }
+              if ([
+                ConnectivityResult.bluetooth,
+                ConnectivityResult.mobile,
+              ].any(connectionType.contains)) UnityPlayers.pauseAll();
+
               break;
             case NetworkUsage.never:
               break;

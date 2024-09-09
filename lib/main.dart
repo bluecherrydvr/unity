@@ -18,7 +18,6 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
@@ -117,12 +116,12 @@ Future<void> main(List<String> args) async {
           await SettingsProvider.ensureInitialized();
           await DesktopViewProvider.ensureInitialized();
 
-          final windowType = MultiWindowType.values[int.tryParse(args[1]) ?? 0];
-          final themeMode = ThemeMode.values[int.tryParse(args[3]) ?? 0];
+          final (windowType, themeMode, map) =
+              LayoutWindowExtension.fromArgs(args);
 
           switch (windowType) {
             case MultiWindowType.device:
-              final device = Device.fromJson(json.decode(args[2]));
+              final device = Device.fromJson(map);
               configureWindowTitle(device.fullName);
 
               runApp(AlternativeWindow(
@@ -131,7 +130,7 @@ Future<void> main(List<String> args) async {
               ));
               break;
             case MultiWindowType.layout:
-              final layout = Layout.fromJson(args[2]);
+              final layout = Layout.fromMap(map);
               configureWindowTitle(layout.name);
 
               runApp(AlternativeWindow(

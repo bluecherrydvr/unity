@@ -96,10 +96,9 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      'multi_window',
       '${MultiWindowType.device.index}',
-      json.encode(toJson()),
       '${SettingsProvider.instance.kThemeMode.value.index}',
+      json.encode(toJson()),
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');
@@ -107,6 +106,15 @@ extension DeviceWindowExtension on Device {
 }
 
 extension LayoutWindowExtension on Layout {
+  static (MultiWindowType, ThemeMode, Map<String, dynamic>) fromArgs(
+    List<String> args,
+  ) {
+    final type = MultiWindowType.values[int.parse(args[0])];
+    final themeMode = ThemeMode.values[int.parse(args[1])];
+    final map = json.decode(args[2]);
+    return (type, themeMode, map);
+  }
+
   Future<void> openInANewWindow() async {
     assert(
       isDesktopPlatform,
@@ -118,8 +126,8 @@ extension LayoutWindowExtension on Layout {
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
       '${MultiWindowType.layout.index}',
-      json.encode(toMap()),
       '${SettingsProvider.instance.kThemeMode.value.index}',
+      json.encode(toMap()),
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');

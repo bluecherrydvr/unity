@@ -35,6 +35,7 @@ import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/layout_manager.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/screens/layouts/mobile/device_view.dart';
+import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';

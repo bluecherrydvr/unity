@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta19</title>
+            <description>Linux and Timeline enhancements.</description>
+            <pubDate>Mon, 09 Sep 2024</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta18</title>
             <description>Time Filter for Events; Fixed crash on newer versions of Windows.</description>
             <pubDate>Wed, 10 Jul 2024</pubDate>

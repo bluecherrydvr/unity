@@ -90,12 +90,14 @@ class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
   final ValueChanged<UnityVideoFit> onFitChanged;
+  final bool? showDebugInfo;
 
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
     required this.onFitChanged,
+    this.showDebugInfo,
   });
 
   @override
@@ -134,6 +136,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final video = UnityVideoView.maybeOf(context);
     final isSubView = AlternativeWindow.maybeOf(context) != null;
     final isMuted = volume == 0.0;
+    final showDebugInfo = widget.showDebugInfo ?? settings.kShowDebugInfo.value;
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -187,7 +190,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           shadows: outlinedText(),
                         ),
                       ),
-                    if (states.isHovering && settings.kShowDebugInfo.value)
+                    if (states.isHovering && showDebugInfo)
                       TextSpan(
                         text: '\nsource: ${video?.player.dataSource}'
                             '\nposition: ${video?.player.currentPos}'

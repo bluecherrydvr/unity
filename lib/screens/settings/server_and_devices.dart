@@ -24,6 +24,7 @@ import 'package:bluecherry_client/screens/settings/settings_mobile.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/video_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -309,13 +310,6 @@ class StreamingSettings extends StatelessWidget {
           },
         ),
         */
-        const SizedBox(height: 8.0),
-        ListTile(
-          title: const Text('Run a video test'),
-          trailing: const Icon(Icons.play_arrow),
-          contentPadding: DesktopSettings.horizontalPadding,
-          onTap: () {},
-        ),
       ],
     ]);
   }
@@ -348,6 +342,31 @@ class DevicesSettings extends StatelessWidget {
         },
       ),
       const SizedBox(height: 8.0),
+      ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.ondemand_video),
+        ),
+        title: const Text('Run a video test'),
+        subtitle: const Text(
+          'Run a video test to check the state of video playback',
+        ),
+        trailing: const Icon(Icons.play_arrow),
+        contentPadding: DesktopSettings.horizontalPadding,
+        onTap: () => _runVideoTest(context),
+      ),
     ]);
+  }
+
+  void _runVideoTest(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return const VideoTest();
+      },
+    );
   }
 }

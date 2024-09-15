@@ -122,9 +122,13 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
             ? position.dy - height - padding
             : position.dy + boxSize.height + padding;
 
+        final overflowsRight = left + width > constraints.maxWidth;
+        final right = constraints.maxWidth - position.dx - boxSize.width;
+
         return Stack(children: [
           Positioned(
-            left: left,
+            left: overflowsRight ? null : left,
+            right: overflowsRight ? right : null,
             top: top,
             height: height,
             width: width,

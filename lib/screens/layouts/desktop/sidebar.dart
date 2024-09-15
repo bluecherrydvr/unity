@@ -520,8 +520,9 @@ class CollapsedSidebar extends StatelessWidget {
     return Column(children: [
       collapseButton,
       SquaredIconButton(
-        icon: Icon(
-          view.currentLayout.type.icon,
+        icon: const Icon(
+          // view.currentLayout.type.icon,
+          Icons.next_plan_outlined,
           size: 20.0,
         ),
         tooltip: loc.switchToNext,

@@ -134,6 +134,13 @@
   "time": "Time",
   "lastUpdate": "Dernière mise à jour",
   "screens": "Écrans",
+  "@screens": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
   "directCamera": "Caméra direct",
   "addServer": "Ajouter serveur",
   "settings": "Paramètres",

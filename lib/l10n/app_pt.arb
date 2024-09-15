@@ -138,6 +138,13 @@
   "time": "Hora",
   "lastUpdate": "Última atualização",
   "screens": "Câmeras",
+  "@screens": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
   "directCamera": "Câmera específica",
   "addServer": "Adicionar servidor",
   "settings": "Configurações",

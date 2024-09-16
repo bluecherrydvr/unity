@@ -555,7 +555,7 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await settings.write({
+    await write({
       kLayoutCyclePeriod.key:
           kLayoutCyclePeriod.saveAs(kLayoutCyclePeriod.value),
       kLayoutCycleEnabled.key:

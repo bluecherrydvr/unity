@@ -191,7 +191,7 @@ class MobileViewProvider extends UnityProvider {
       ),
     );
 
-    await mobileView.write({
+    await write({
       kStorageMobileView: jsonEncode(data),
       kStorageMobileViewTab: tab,
     });

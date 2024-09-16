@@ -187,10 +187,9 @@ class ServersProvider extends UnityProvider {
     return servers;
   }
 
-  /// Save currently added [Server]s to `package:hive` cache.
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await serversStorage.write({
+    await write({
       kStorageServers: servers.map((server) => server.toJson()).toList(),
     });
     super.save(notifyListeners: notifyListeners);

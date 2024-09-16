@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/widgets.dart';
 import 'package:safe_local_storage/safe_local_storage.dart';
@@ -25,8 +26,11 @@ abstract class UnityProvider extends ChangeNotifier {
   Future<void> initialize();
   Future<void> reloadInterface() => initialize();
 
+  late SafeLocalStorage storage;
+
   @protected
   Future<void> initializeStorage(SafeLocalStorage storage, String key) async {
+    this.storage = storage;
     try {
       final hive = await tryReadStorage(() => storage.read());
       if (!hive.containsKey(key)) {
@@ -52,6 +56,15 @@ abstract class UnityProvider extends ChangeNotifier {
   Future<void> restore({bool notifyListeners = true}) async {
     if (notifyListeners) {
       this.notifyListeners();
+    }
+  }
+
+  Future<void> write(dynamic data) {
+    try {
+      return storage.write(data);
+    } catch (error, stack) {
+      handleError(error, stack);
+      return Future.value();
     }
   }
 }

@@ -119,7 +119,7 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await events.write({
+    await write({
       kStorageEvents: kStorageEvents,
       'selectedDevices': selectedDevices.toList(),
     });

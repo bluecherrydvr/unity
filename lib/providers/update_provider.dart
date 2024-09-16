@@ -171,7 +171,7 @@ class UpdateManager extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await updates.write({
+    await write({
       kStorageAutomaticUpdates: automaticDownloads,
       kStorageLastCheck: lastCheck?.toIso8601String(),
     });

@@ -196,7 +196,7 @@ class DownloadsManager extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await downloads.write({
+    await write({
       kStorageDownloads: downloadedEvents.map((de) => de.toJson()).toList(),
     });
 

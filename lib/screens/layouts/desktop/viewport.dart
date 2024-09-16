@@ -131,10 +131,22 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final settings = context.watch<SettingsProvider>();
-    final video = UnityVideoView.maybeOf(context);
+    var video = UnityVideoView.maybeOf(context);
     final isSubView = AlternativeWindow.maybeOf(context) != null;
     final isMuted = volume == 0.0;
     final showDebugInfo = widget.showDebugInfo ?? settings.kShowDebugInfo.value;
+
+    if (showDebugInfo && widget.controller != null) {
+      video ??= VideoViewInheritance(
+        error: null,
+        position: Duration.zero,
+        duration: Duration.zero,
+        lastImageUpdate: DateTime.now(),
+        fps: 0,
+        player: widget.controller!,
+        child: const SizedBox.shrink(),
+      );
+    }
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -190,7 +202,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       ),
                     if (states.isHovering && showDebugInfo)
                       TextSpan(
-                        text: '\nsource: ${video?.player.dataSource}'
+                        text:
+                            '\nsource: ${video?.player.dataSource ?? loc.unknown}'
                             '\nposition: ${video?.player.currentPos}'
                             '\nduration ${video?.player.duration}',
                         style: theme.textTheme.labelSmall?.copyWith(

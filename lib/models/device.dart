@@ -139,7 +139,7 @@ class Device {
     this.status = true,
     this.resolutionX = 640,
     this.resolutionY = 480,
-    this.hasPTZ = false,
+    this.hasPTZ = true,
     this.url,
     MatrixType? matrixType,
     this.overlays = const [],

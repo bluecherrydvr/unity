@@ -155,6 +155,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -267,7 +268,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'source: ${controller.dataSource}'
+                            'source: ${controller.dataSource ?? loc.unknown}'
                             '\nposition: ${controller.currentPos}'
                             '\nduration ${controller.duration}',
                             style: theme.textTheme.labelSmall?.copyWith(
@@ -430,7 +431,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'source: ${player.dataSource}'
+                        'source: ${player.dataSource ?? loc.unknown}'
                         '\nposition: ${player.currentPos}'
                         '\nduration ${player.duration}',
                         style: theme.textTheme.labelSmall?.copyWith(

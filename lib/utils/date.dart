@@ -60,11 +60,13 @@ DateTime timezoneAwareDate(String originalDateString) {
   final originalDateTime = DateTime.parse(originalDateString);
   try {
     return originalDateTime.add(dateTimezoneOffset(originalDateString));
-  } catch (e) {
+  } catch (error, stack) {
+    // Ensure we don't log the same error multiple times
     if (!_loggedErrorredDates.contains(originalDateString)) {
-      writeLogToFile(
+      handleError(
+        error,
+        stack,
         'Failed to parse date string: $originalDateString',
-        print: true,
       );
       _loggedErrorredDates.add(originalDateString);
     }

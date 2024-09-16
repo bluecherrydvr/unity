@@ -31,12 +31,16 @@ void setupLogging() {
   });
 }
 
-void handleError(dynamic error, dynamic stackTrace) {
-  debugPrint('Uncaught error: $error');
-  debugPrint('Stack trace: $stackTrace');
+void handleError(
+  dynamic error,
+  dynamic stackTrace, [
+  String context = 'Uncaught error',
+]) {
+  debugPrint('$context: $error');
+  debugPrintStack(stackTrace: stackTrace, label: context);
 
   // Write the error information to a log file.
-  writeErrorToFile(error, stackTrace);
+  writeErrorToFile(error, stackTrace, context);
 }
 
 Future<File> getLogFile() async {
@@ -46,16 +50,23 @@ Future<File> getLogFile() async {
   return file;
 }
 
-Future<void> writeErrorToFile(dynamic error, dynamic stackTrace) async {
+Future<void> writeErrorToFile(
+  dynamic error,
+  dynamic stackTrace, [
+  String context = '',
+]) async {
   if (kIsWeb) return;
 
   final time = DateTime.now().toIso8601String();
-  final errorLog = '\n[$time]Error: $error\n[$time]Stack trace: $stackTrace';
+  final errorLog = '\n[$time]$context'
+      '\n[$time]Error: $error\n'
+      '[$time]Stack trace: $stackTrace';
 
   final file = await getLogFile();
 
   await file.writeAsString(errorLog, mode: FileMode.append);
   Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
+  Logger.root.log(Level.SEVERE, errorLog);
 }
 
 Future<void> writeLogToFile(String text, {bool print = false}) async {

@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/foundation.dart';
 
 class ExternalDeviceData {
@@ -280,8 +281,8 @@ class Device {
       } else {
         debugPrint('Request failed with status: ${response.statusCode}');
       }
-    } catch (error, stacktrace) {
-      debugPrint('Failed to get HLS url($uri): $error, $stacktrace');
+    } catch (error, stack) {
+      handleError(error, stack, 'Failed to get HLS URL on $uri');
     }
 
     return hlsURL;

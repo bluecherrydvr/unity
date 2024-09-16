@@ -262,4 +262,8 @@ class DeviceServerNotFound extends Error {
     required this.layoutName,
     required this.server,
   });
+
+  @override
+  String toString() =>
+      'DeviceServerNotFound(layoutName: $layoutName, server: $server)';
 }

@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -416,33 +417,44 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         final Layout layout;
         try {
           layout = Layout.fromXML(xml, fallbackName: fallbackName);
-        } on ArgumentError catch (e) {
+        } on ArgumentError catch (error, stack) {
           if (context.mounted) {
             showImportFailedMessage(
               context,
-              loc.layoutImportFileCorruptedWithMessage(e.message),
+              loc.layoutImportFileCorruptedWithMessage(error.message),
             );
           }
+          handleError(
+            error,
+            stack,
+            'Failed to import layout that is corrupted: ${error.message}',
+          );
           return;
-        } on DeviceServerNotFound catch (e) {
+        } on DeviceServerNotFound catch (error, stack) {
           if (context.mounted) {
             showImportFailedMessage(
               context,
               loc.failedToImportMessage(
-                e.layoutName,
-                e.server.ip,
-                e.server.port,
+                error.layoutName,
+                error.server.ip,
+                error.server.port,
               ),
             );
           }
+          handleError(
+            error,
+            stack,
+            'Failed to import layout that contains a device with an invalid server',
+          );
           return;
-        } catch (e) {
+        } catch (error, stack) {
           if (context.mounted) {
             showImportFailedMessage(
               context,
               loc.layoutImportFileCorrupted,
             );
           }
+          handleError(error, stack, 'Failed to import layout');
           return;
         }
 

@@ -171,15 +171,10 @@ class UpdateManager extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    try {
-      await updates.write({
-        kStorageAutomaticUpdates: automaticDownloads,
-        kStorageLastCheck: lastCheck?.toIso8601String(),
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-
+    await updates.write({
+      kStorageAutomaticUpdates: automaticDownloads,
+      kStorageLastCheck: lastCheck?.toIso8601String(),
+    });
     super.save(notifyListeners: notifyListeners);
   }
 
@@ -473,9 +468,7 @@ class UpdateManager extends UnityProvider {
       // this updates the screen already because "lastCheck" is a setter. No need to trigger the update again
       lastCheck = DateTime.now();
     } catch (error, stackTrace) {
-      debugPrint(error.toString());
-      debugPrint(stackTrace.toString());
-      writeErrorToFile(error, stackTrace);
+      handleError(error, stackTrace, 'Failed to check for updates');
     }
   }
 }

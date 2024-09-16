@@ -190,14 +190,11 @@ class MobileViewProvider extends UnityProvider {
         value.map<Map<String, dynamic>?>((e) => e?.toJson()),
       ),
     );
-    try {
-      await mobileView.write({
-        kStorageMobileView: jsonEncode(data),
-        kStorageMobileViewTab: tab,
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+
+    await mobileView.write({
+      kStorageMobileView: jsonEncode(data),
+      kStorageMobileViewTab: tab,
+    });
 
     super.save(notifyListeners: notifyListeners);
   }

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -118,14 +119,10 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    try {
-      await events.write({
-        kStorageEvents: kStorageEvents,
-        'selectedDevices': selectedDevices.toList(),
-      });
-    } catch (error, stackTrace) {
-      debugPrint('Failed to save events:\n $error\n$stackTrace');
-    }
+    await events.write({
+      kStorageEvents: kStorageEvents,
+      'selectedDevices': selectedDevices.toList(),
+    });
 
     super.save(notifyListeners: notifyListeners);
   }
@@ -199,9 +196,8 @@ extension EventsScreenProvider on EventsProvider {
           loadedEvents!.events[server]!.addAll(iterable);
           _notify();
         }));
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
+      } catch (error, stack) {
+        handleError(error, stack, 'Error loading events for $server');
         loadedEvents!.invalidResponses.add(server);
       }
     }));

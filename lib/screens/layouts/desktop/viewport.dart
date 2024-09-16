@@ -113,10 +113,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   void initState() {
     super.initState();
     if (widget.controller != null) {
-      volumeSubscription = widget.controller!.volumeStream.listen((event) {
-        if (mounted) {
-          setState(() {});
-        }
+      volumeSubscription = widget.controller!.volumeStream.listen((_) {
+        if (mounted) setState(() {});
       });
     }
   }
@@ -159,7 +157,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           tooltip: loc.reloadCamera,
           onPressed: () async {
             await UnityPlayers.reloadDevice(widget.device);
-            setState(() {});
+            if (mounted) setState(() {});
           },
         );
 

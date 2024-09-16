@@ -160,7 +160,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
       ..setVolume(volume)
       ..setSpeed(speed)
       ..start();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override

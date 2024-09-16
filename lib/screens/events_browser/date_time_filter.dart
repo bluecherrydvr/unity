@@ -44,7 +44,7 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted && DateTime.timestamp().second % 5 == 0) {
-        setState(() {});
+        if (mounted) setState(() {});
       }
     });
   }

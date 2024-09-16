@@ -125,7 +125,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
   }
 
   void _onPlayerUpdate() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override

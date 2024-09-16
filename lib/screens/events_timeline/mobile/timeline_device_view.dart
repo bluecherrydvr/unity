@@ -99,18 +99,22 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         },
       ),
     );
-    if (device != null) {
+    if (device != null && mounted) {
       // If there is already a selected device, dispose it
       setState(() {
         positionSubscription = tile!.videoController.onCurrentPosUpdate
             .listen(_tilePositionListener);
-        bufferingSubscription = tile!.videoController.onBufferStateUpdate
-            .listen((v) => setState(() => isBuffering = v));
+        bufferingSubscription =
+            tile!.videoController.onBufferStateUpdate.listen((v) {
+          if (mounted) setState(() => isBuffering = v);
+        });
         tile!.videoController.onBufferUpdate.listen((_) => _updateScreen());
-        currentDate = tile!.events.first.event.published;
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
         tile!.videoController.onPlayingStateUpdate
             .listen((_) => _updateScreen());
+
+        currentDate = tile!.events.first.event.published;
+
         ensureScrollPosition();
         setEvent(tile!.events.first);
       });
@@ -511,12 +515,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           onPressed: tile == null
               ? null
               : () {
-                  if (widget.timeline.isPlaying) {
-                    widget.timeline.stop();
-                  } else {
-                    widget.timeline.play(currentEvent);
-                  }
-                  setState(() {});
+                  setState(() {
+                    if (widget.timeline.isPlaying) {
+                      widget.timeline.stop();
+                    } else {
+                      widget.timeline.play(currentEvent);
+                    }
+                  });
                 },
         ),
         const SizedBox(width: 6.0),

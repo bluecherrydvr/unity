@@ -42,8 +42,6 @@ class UpdatesSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final update = context.watch<UpdateManager>();
 
-    final isMacOs = isDesktopPlatform && Platform.isMacOS;
-
     return ListView(children: [
       if (!kIsWeb) ...[
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -63,7 +61,7 @@ class UpdatesSettings extends StatelessWidget {
           ),
         ]),
         const AppUpdateCard(),
-        if (!isMacOs)
+        if (!isMacOS)
           CheckboxListTile.adaptive(
             onChanged: (v) {
               if (v != null) {
@@ -98,7 +96,7 @@ class UpdatesSettings extends StatelessWidget {
             ),
             isThreeLine: true,
           ),
-        if (kDebugMode && !isMacOs)
+        if (kDebugMode && !isMacOS)
           CheckboxListTile.adaptive(
             secondary: CircleAvatar(
               backgroundColor: Colors.transparent,

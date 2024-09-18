@@ -70,7 +70,10 @@ class DesktopViewProvider extends UnityProvider {
           UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(
             device,
             () async {
-              if (Platform.isAndroid || Platform.isLinux || Platform.isMacOS) {
+              if (!kIsWeb &&
+                  (Platform.isAndroid ||
+                      Platform.isLinux ||
+                      Platform.isMacOS)) {
                 await Future.delayed(const Duration(milliseconds: 350));
               }
               completer.complete(UnityPlayers.players[device.uuid]);

@@ -132,6 +132,10 @@ bool get isCupertino {
   return cupertinoPlatforms.contains(defaultTargetPlatform);
 }
 
+bool get isMacOS {
+  return isDesktopPlatform && isCupertino;
+}
+
 bool get isEmbedded {
   if (kIsWeb) return false;
 

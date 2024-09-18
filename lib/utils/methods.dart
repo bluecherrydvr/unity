@@ -133,6 +133,8 @@ bool get isCupertino {
 }
 
 bool get isEmbedded {
+  if (kIsWeb) return false;
+
   if (Platform.isLinux) {
     return UpdateManager.linuxEnvironment == LinuxPlatform.embedded;
   }

@@ -18,7 +18,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
   @override
   Future<void> initialize() async {
     MediaKit.ensureInitialized();
-    if (Platform.isMacOS || Platform.isLinux) {
+    if (!kIsWeb && (Platform.isMacOS || Platform.isLinux)) {
       await Future.delayed(const Duration(seconds: 1));
     }
   }

@@ -272,11 +272,11 @@ class SettingsProvider extends UnityProvider {
     def: false,
     key: 'downloads.allow_app_close_when_downloading',
   );
-  final kDownloadsDirectory = _SettingsOption(
+  final kDownloadsDirectory = _SettingsOption<String>(
     def: '',
     getDefault: () async {
       try {
-        return (await DownloadsManager.kDefaultDownloadsDirectory).path;
+        return (await DownloadsManager.kDefaultDownloadsDirectory)?.path ?? '';
       } catch (e) {
         return '';
       }
@@ -439,7 +439,7 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
   static bool get isHardwareZoomSupported {
-    if (Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded) {
+    if (kIsWeb || Platform.isMacOS || UpdateManager.isEmbedded) {
       return false;
     }
 

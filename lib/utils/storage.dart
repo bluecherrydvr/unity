@@ -95,7 +95,7 @@ Future<File> errorLog(LogType type, String message) async {
 
 // TODO(bdlukaa): support for web. Maybe by no longer using safe_local_storage
 //                and using other storage methods instead, like shared_preferences.
-Future<Map> tryReadStorage(Future Function() callback) async {
+Future<Map> tryReadStorage(Future? Function() callback) async {
   try {
     return (await callback()) as Map;
   } catch (e) {

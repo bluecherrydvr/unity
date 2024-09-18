@@ -258,6 +258,12 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'devices.list_offline',
   );
+  final kInitialDevicesVolume = _SettingsOption<double>(
+    min: 0.0,
+    max: 1.0,
+    def: 0.0,
+    key: 'devices.volume',
+  );
 
   // Downloads
   final kDownloadOnMobileData = _SettingsOption(
@@ -517,6 +523,7 @@ class SettingsProvider extends UnityProvider {
       kReloadTimedOutStreams.loadData(data),
       kUseHardwareDecoding.loadData(data),
       kListOfflineDevices.loadData(data),
+      kInitialDevicesVolume.loadData(data),
       kDownloadOnMobileData.loadData(data),
       kChooseLocationEveryTime.loadData(data),
       kDownloadsDirectory.loadData(data),
@@ -588,6 +595,8 @@ class SettingsProvider extends UnityProvider {
           kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
       kListOfflineDevices.key:
           kListOfflineDevices.saveAs(kListOfflineDevices.value),
+      kInitialDevicesVolume.key:
+          kInitialDevicesVolume.saveAs(kInitialDevicesVolume.value),
       kDownloadOnMobileData.key:
           kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
       kChooseLocationEveryTime.key:

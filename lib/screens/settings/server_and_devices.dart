@@ -365,12 +365,37 @@ class _DevicesSettingsState extends State<DevicesSettings> {
           leading: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.equalizer),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.initialDeviceVolume),
+          subtitle: Text(
+            '${(settings.kInitialDevicesVolume.value * 100).toInt()}%',
+          ),
+          trailing: SizedBox(
+            width: 160.0,
+            child: Slider(
+              value: settings.kInitialDevicesVolume.value.clamp(
+                settings.kInitialDevicesVolume.min!,
+                settings.kInitialDevicesVolume.max!,
+              ),
+              min: settings.kInitialDevicesVolume.min!,
+              max: settings.kInitialDevicesVolume.max!,
+              onChanged: (v) {
+                settings.kInitialDevicesVolume.value = v;
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.ondemand_video),
           ),
-          title: const Text('Run a video test'),
-          subtitle: const Text(
-            'Run a video test to check the state of video playback',
-          ),
+          title: Text(loc.runVideoTest),
+          subtitle: Text(loc.runVideoTestDescription),
           trailing: const Icon(Icons.play_arrow),
           contentPadding: DesktopSettings.horizontalPadding,
           onTap: () => _runVideoTest(context),

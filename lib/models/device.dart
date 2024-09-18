@@ -120,9 +120,9 @@ class Device {
   ///
   /// This volume is restored every time the app opens and is applied to the
   /// respective video player.
-  double volume;
-
-  static const defaultDeviceVolume = 0.0;
+  double volume = defaultVolume;
+  static double get defaultVolume =>
+      SettingsProvider.instance.kInitialDevicesVolume.value;
 
   /// Creates a device.
   Device({
@@ -138,7 +138,6 @@ class Device {
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
-    this.volume = defaultDeviceVolume,
   });
 
   /// Creates a device with fake values.
@@ -154,7 +153,6 @@ class Device {
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
-    this.volume = defaultDeviceVolume,
   })  : server = Server.dump(),
         matrixType = matrixType ?? SettingsProvider.instance.kMatrixSize.value;
 
@@ -375,8 +373,7 @@ class Device {
       preferredStreamingType:
           preferredStreamingType ?? this.preferredStreamingType,
       externalData: externalData ?? this.externalData,
-      volume: volume ?? this.volume,
-    );
+    )..volume = volume ?? this.volume;
   }
 
   Map<String, dynamic> toJson() {
@@ -422,7 +419,26 @@ class Device {
       externalData: json['externalData'] != null
           ? ExternalDeviceData.fromMap(json['externalData'])
           : null,
-      volume: double.tryParse(json['volume']) ?? defaultDeviceVolume,
+    )..volume = double.tryParse(json['volume']) ?? defaultVolume;
+  }
+
+  Device merge(Device? other) {
+    if (other == null) return this;
+
+    return copyWith(
+      externalData: other.externalData,
+      hasPTZ: hasPTZ,
+      id: other.id,
+      matrixType: other.matrixType,
+      name: other.name,
+      overlays: other.overlays,
+      preferredStreamingType: other.preferredStreamingType,
+      resolutionX: other.resolutionX,
+      resolutionY: other.resolutionY,
+      server: other.server,
+      status: other.status,
+      url: other.url,
+      volume: other.volume,
     );
   }
 }

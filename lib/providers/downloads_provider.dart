@@ -196,13 +196,9 @@ class DownloadsManager extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    try {
-      await downloads.write({
-        kStorageDownloads: downloadedEvents.map((de) => de.toJson()).toList(),
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+    await write({
+      kStorageDownloads: downloadedEvents.map((de) => de.toJson()).toList(),
+    });
 
     super.save(notifyListeners: notifyListeners);
   }
@@ -370,10 +366,11 @@ class DownloadsManager extends UnityProvider {
     try {
       final file = File(downloading[event]!.$2);
       if (file.existsSync()) file.deleteSync();
-    } catch (e, s) {
-      debugPrint('Failed to delete file: $e');
-      writeLogToFile(
-        'Failed to delete file during cancelDownloading: $e, $s',
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to delete file while canceling download',
       );
     }
     downloading.remove(event);

@@ -155,6 +155,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -267,7 +268,7 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'source: ${controller.dataSource}'
+                            'source: ${controller.dataSource ?? loc.unknown}'
                             '\nposition: ${controller.currentPos}'
                             '\nduration ${controller.duration}',
                             style: theme.textTheme.labelSmall?.copyWith(
@@ -319,6 +320,8 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
   late StreamSubscription<double> _volumeStreamSubscription;
   double get volume => widget.player.volume;
 
+  final _videoViewKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -344,6 +347,59 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
       WindowButtons(
         title: widget.device.fullName,
         showNavigator: false,
+        flexible: Row(children: [
+          if (widget.device.hasPTZ)
+            SquaredIconButton(
+              icon: Icon(
+                Icons.videogame_asset,
+                color: ptzEnabled ? Colors.white : null,
+                shadows: outlinedText(),
+              ),
+              tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
+              onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
+            ),
+          () {
+            final isMuted = widget.player.volume == 0.0;
+
+            return SquaredIconButton(
+              icon: Icon(
+                isMuted ? Icons.volume_mute_rounded : Icons.volume_up_rounded,
+                shadows: outlinedText(),
+                color: Colors.white,
+              ),
+              tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
+              onPressed: () async {
+                if (isMuted) {
+                  await widget.player.setVolume(1.0);
+                } else {
+                  await widget.player.setVolume(0.0);
+                }
+              },
+            );
+          }(),
+          if (isDesktopPlatform && !isSubView)
+            SquaredIconButton(
+              icon: Icon(
+                Icons.open_in_new,
+                shadows: outlinedText(),
+                color: Colors.white,
+              ),
+              tooltip: loc.openInANewWindow,
+              onPressed: widget.device.openInANewWindow,
+            ),
+          CameraViewFitButton(
+            fit: fit,
+            onChanged: (newFit) => setState(() => fit = newFit),
+          ),
+          const SizedBox(width: 8.0),
+          if (_videoViewKey.currentContext != null)
+            VideoStatusLabel(
+              device: widget.device,
+              video: UnityVideoView.of(_videoViewKey.currentContext!),
+              position: VideoStatusLabelPosition.top,
+            ),
+          const SizedBox(width: 8.0),
+        ]),
       ),
       Expanded(
         child: PTZController(
@@ -356,7 +412,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
               player: widget.player,
               fit: fit,
               paneBuilder: (context, player) {
-                return Stack(children: [
+                return Stack(key: _videoViewKey, children: [
                   if (commands.isNotEmpty) PTZData(commands: commands),
                   Positioned.fill(
                     child: Center(
@@ -375,7 +431,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'source: ${player.dataSource}'
+                        'source: ${player.dataSource ?? loc.unknown}'
                         '\nposition: ${player.currentPos}'
                         '\nduration ${player.duration}',
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -384,70 +440,6 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                         ),
                       ),
                     ),
-                  PositionedDirectional(
-                    bottom: 8.0,
-                    end: 8.0,
-                    start: 8.0,
-                    child: Row(children: [
-                      if (widget.device.hasPTZ)
-                        SquaredIconButton(
-                          icon: Icon(
-                            Icons.videogame_asset,
-                            color: ptzEnabled ? Colors.white : null,
-                            shadows: outlinedText(),
-                          ),
-                          tooltip:
-                              ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                          onPressed: () =>
-                              setState(() => ptzEnabled = !ptzEnabled),
-                        ),
-                      const Spacer(),
-                      () {
-                        final isMuted = widget.player.volume == 0.0;
-
-                        return SquaredIconButton(
-                          icon: Icon(
-                            isMuted
-                                ? Icons.volume_mute_rounded
-                                : Icons.volume_up_rounded,
-                            shadows: outlinedText(),
-                            color: Colors.white,
-                          ),
-                          tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                          onPressed: () async {
-                            if (isMuted) {
-                              await widget.player.setVolume(1.0);
-                            } else {
-                              await widget.player.setVolume(0.0);
-                            }
-                          },
-                        );
-                      }(),
-                      if (isDesktopPlatform && !isSubView)
-                        SquaredIconButton(
-                          icon: Icon(
-                            Icons.open_in_new,
-                            shadows: outlinedText(),
-                            color: Colors.white,
-                          ),
-                          tooltip: loc.openInANewWindow,
-                          onPressed: () {
-                            widget.device.openInANewWindow();
-                          },
-                        ),
-                      CameraViewFitButton(
-                        fit: fit,
-                        onChanged: (newFit) {
-                          setState(() => fit = newFit);
-                        },
-                      ),
-                      const SizedBox(width: 8.0),
-                      VideoStatusLabel(
-                        device: widget.device,
-                        video: UnityVideoView.of(context),
-                      ),
-                    ]),
-                  ),
                 ]);
               },
             );

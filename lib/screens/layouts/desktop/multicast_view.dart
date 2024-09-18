@@ -161,20 +161,19 @@ class _MulticastViewportState extends State<MulticastViewport> {
 
                     return HoverButton(
                       onDoubleTap: () {
-                        if (widget.device != null) {
-                          device = views.updateDevice(
-                            device,
-                            device.copyWith(matrixType: matrixType.next),
-                          );
-                          setState(() {});
-                        } else {
-                          setState(() {
+                        setState(() {
+                          if (widget.device != null) {
+                            device = views.updateDevice(
+                              device,
+                              device.copyWith(matrixType: matrixType.next),
+                            );
+                          } else {
                             device = device.copyWith(
                               matrixType: matrixType.next,
                             );
                             view.player.zoom.matrixType = device.matrixType!;
-                          });
-                        }
+                          }
+                        });
                       },
                       onPressed: () {
                         view.player.crop(row, col);

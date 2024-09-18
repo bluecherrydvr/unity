@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
@@ -106,9 +107,11 @@ class API {
         debugPrint(body);
         server.online = false;
       }
-    } catch (exception, stack) {
-      debugPrint(
-        'Failed to checkServerCredentials on server $server : $exception\n$stack',
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to check server credentials on server $server',
       );
 
       server.online = false;
@@ -163,10 +166,8 @@ class API {
         ..clear()
         ..addAll(devices);
       return devices;
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to getDevices on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (error, stack) {
+      handleError(error, stack, 'Failed to get devices on server $server');
     }
     return null;
   }
@@ -189,10 +190,12 @@ class API {
       );
       final body = jsonDecode(response.body);
       return body['notification_api_endpoint'];
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to getNotificationAPIEndpoint on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to get notification API endpoint on server $server',
+      );
     }
     return null;
   }
@@ -231,10 +234,12 @@ class API {
       debugPrint(response.statusCode.toString());
       debugPrint(response.body);
       return true;
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to registerNotificationToToken on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to registerNotificationToToken on server $server',
+      );
       return false;
     }
   }
@@ -265,10 +270,12 @@ class API {
       debugPrint(response.statusCode.toString());
       debugPrint(response.body);
       return true;
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to unregisterNotificationToken on server $server');
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to unregisterNotificationToken on server $server',
+      );
       return false;
     }
   }

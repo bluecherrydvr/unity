@@ -59,14 +59,15 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
       final eventsProvider = context.read<EventsProvider>();
       final serversProvider = context.read<ServersProvider>();
 
-      for (var server in serversProvider.servers) {
-        if (server.devices.length < 7 ||
-            eventsProvider.selectedDevices.any(
-                (d) => server.devices.any((device) => device.streamURL == d))) {
-          setState(
-              () => treeViewController.toggleNodeExpanded(ValueKey(server.ip)));
+      setState(() {
+        for (final server in serversProvider.servers) {
+          if (server.devices.length < 7 ||
+              eventsProvider.selectedDevices.any((d) =>
+                  server.devices.any((device) => device.streamURL == d))) {
+            treeViewController.toggleNodeExpanded(ValueKey(server.ip));
+          }
         }
-      }
+      });
     });
   }
 

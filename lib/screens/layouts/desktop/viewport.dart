@@ -90,12 +90,14 @@ class DesktopTileViewport extends StatefulWidget {
   final UnityVideoPlayer? controller;
   final Device device;
   final ValueChanged<UnityVideoFit> onFitChanged;
+  final bool? showDebugInfo;
 
   const DesktopTileViewport({
     super.key,
     required this.controller,
     required this.device,
     required this.onFitChanged,
+    this.showDebugInfo,
   });
 
   @override
@@ -111,10 +113,8 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   void initState() {
     super.initState();
     if (widget.controller != null) {
-      volumeSubscription = widget.controller!.volumeStream.listen((event) {
-        if (mounted) {
-          setState(() {});
-        }
+      volumeSubscription = widget.controller!.volumeStream.listen((_) {
+        if (mounted) setState(() {});
       });
     }
   }
@@ -131,9 +131,22 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final settings = context.watch<SettingsProvider>();
-    final video = UnityVideoView.maybeOf(context);
+    var video = UnityVideoView.maybeOf(context);
     final isSubView = AlternativeWindow.maybeOf(context) != null;
     final isMuted = volume == 0.0;
+    final showDebugInfo = widget.showDebugInfo ?? settings.kShowDebugInfo.value;
+
+    if (showDebugInfo && widget.controller != null) {
+      video ??= VideoViewInheritance(
+        error: null,
+        position: Duration.zero,
+        duration: Duration.zero,
+        lastImageUpdate: DateTime.now(),
+        fps: 0,
+        player: widget.controller!,
+        child: const SizedBox.shrink(),
+      );
+    }
 
     Widget foreground = PTZController(
       enabled: ptzEnabled,
@@ -156,7 +169,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
           tooltip: loc.reloadCamera,
           onPressed: () async {
             await UnityPlayers.reloadDevice(widget.device);
-            setState(() {});
+            if (mounted) setState(() {});
           },
         );
 
@@ -187,9 +200,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           shadows: outlinedText(),
                         ),
                       ),
-                    if (states.isHovering && settings.kShowDebugInfo.value)
+                    if (states.isHovering && showDebugInfo)
                       TextSpan(
-                        text: '\nsource: ${video?.player.dataSource}'
+                        text:
+                            '\nsource: ${video?.player.dataSource ?? loc.unknown}'
                             '\nposition: ${video?.player.currentPos}'
                             '\nduration ${video?.player.duration}',
                         style: theme.textTheme.labelSmall?.copyWith(

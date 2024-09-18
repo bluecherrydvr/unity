@@ -17,13 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/settings_mobile.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
+import 'package:bluecherry_client/widgets/video_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -309,20 +313,26 @@ class StreamingSettings extends StatelessWidget {
           },
         ),
         */
-        const SizedBox(height: 8.0),
-        ListTile(
-          title: const Text('Run a video test'),
-          trailing: const Icon(Icons.play_arrow),
-          contentPadding: DesktopSettings.horizontalPadding,
-          onTap: () {},
-        ),
       ],
     ]);
   }
 }
 
-class DevicesSettings extends StatelessWidget {
+class DevicesSettings extends StatefulWidget {
   const DevicesSettings({super.key});
+
+  @override
+  State<DevicesSettings> createState() => _DevicesSettingsState();
+}
+
+class _DevicesSettingsState extends State<DevicesSettings> {
+  final _testPlayer = UnityVideoPlayer.create();
+
+  @override
+  void dispose() {
+    _testPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,24 +340,71 @@ class DevicesSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final theme = Theme.of(context);
 
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.colorScheme.error,
-          child: const Icon(Icons.videocam_off),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.colorScheme.error,
+            child: const Icon(Icons.videocam_off),
+          ),
+          title: Text(loc.listOfflineDevices),
+          subtitle: Text(loc.listOfflineDevicesDescriptions),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: settings.kListOfflineDevices.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kListOfflineDevices.value = v;
+            }
+          },
         ),
-        title: Text(loc.listOfflineDevices),
-        subtitle: Text(loc.listOfflineDevicesDescriptions),
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: settings.kListOfflineDevices.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kListOfflineDevices.value = v;
-          }
-        },
-      ),
-      const SizedBox(height: 8.0),
-    ]);
+        const SizedBox(height: 8.0),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.ondemand_video),
+          ),
+          title: const Text('Run a video test'),
+          subtitle: const Text(
+            'Run a video test to check the state of video playback',
+          ),
+          trailing: const Icon(Icons.play_arrow),
+          contentPadding: DesktopSettings.horizontalPadding,
+          onTap: () => _runVideoTest(context),
+        ),
+        if (isDesktop) ...[
+          const SizedBox(height: 8.0),
+          Card(
+            margin: DesktopSettings.horizontalPadding,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: DesktopTileViewport(
+                controller: _testPlayer,
+                device: Device.dump(
+                  name: 'Camera Viewport',
+                ),
+                onFitChanged: (_) {},
+                showDebugInfo: true,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20.0),
+        ],
+      ],
+    );
+  }
+
+  void _runVideoTest(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return const VideoTest();
+      },
+    );
   }
 }

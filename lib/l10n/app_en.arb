@@ -137,7 +137,14 @@
   "date": "Date",
   "time": "Time",
   "lastUpdate": "Last Update",
-  "screens": "Screens",
+  "screens": "Screens • {layout}",
+  "@screens": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
   "directCamera": "Direct Camera",
   "addServer": "Add Server",
   "settings": "Settings",

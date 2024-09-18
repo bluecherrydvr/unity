@@ -134,11 +134,10 @@ class _SettingsOption<T> {
   String get defAsString => saveAs(def);
 
   Future<void> loadData(Map data) async {
-    String? serializedData = data[key];
-    if (getDefault != null) serializedData ??= saveAs(await getDefault!());
-    serializedData ??= defAsString;
-
     try {
+      String? serializedData = data[key];
+      if (getDefault != null) serializedData ??= saveAs(await getDefault!());
+      serializedData ??= defAsString;
       _value = loadFrom(serializedData);
     } catch (e) {
       debugPrint('Error loading data for $key: $e\nFallback to default');
@@ -444,12 +443,16 @@ class SettingsProvider extends UnityProvider {
       return false;
     }
 
+    // In case the UnityVideoPlayerInterface is not available, such as in secondary
+    // entrypoints, we assume that the hardware zoom is not supported.
     try {
       if (UnityVideoPlayerInterface.instance.runtimeType !=
           UnityVideoPlayerMediaKitInterface) {
         return false;
       }
-    } catch (_) {}
+    } catch (_) {
+      return false;
+    }
 
     return true;
   }
@@ -552,92 +555,84 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    try {
-      await settings.write({
-        kLayoutCyclePeriod.key:
-            kLayoutCyclePeriod.saveAs(kLayoutCyclePeriod.value),
-        kLayoutCycleEnabled.key:
-            kLayoutCycleEnabled.saveAs(kLayoutCycleEnabled.value),
-        kWakelock.key: kWakelock.saveAs(kWakelock.value),
-        kNotificationsEnabled.key:
-            kNotificationsEnabled.saveAs(kNotificationsEnabled.value),
-        kSnoozeNotificationsUntil.key:
-            kSnoozeNotificationsUntil.saveAs(kSnoozeNotificationsUntil.value),
-        kNotificationClickBehavior.key:
-            kNotificationClickBehavior.saveAs(kNotificationClickBehavior.value),
-        kAutomaticStreaming.key:
-            kAutomaticStreaming.saveAs(kAutomaticStreaming.value),
-        kStreamOnBackground.key:
-            kStreamOnBackground.saveAs(kStreamOnBackground.value),
-        kConnectAutomaticallyAtStartup.key: kConnectAutomaticallyAtStartup
-            .saveAs(kConnectAutomaticallyAtStartup.value),
-        kAllowUntrustedCertificates.key: kAllowUntrustedCertificates
-            .saveAs(kAllowUntrustedCertificates.value),
-        kStreamingType.key: kStreamingType.saveAs(kStreamingType.value),
-        kRTSPProtocol.key: kRTSPProtocol.saveAs(kRTSPProtocol.value),
-        kRenderingQuality.key:
-            kRenderingQuality.saveAs(kRenderingQuality.value),
-        kVideoFit.key: kVideoFit.saveAs(kVideoFit.value),
-        kRefreshRate.key: kRefreshRate.saveAs(kRefreshRate.value),
-        kLateStreamBehavior.key:
-            kLateStreamBehavior.saveAs(kLateStreamBehavior.value),
-        kReloadTimedOutStreams.key:
-            kReloadTimedOutStreams.saveAs(kReloadTimedOutStreams.value),
-        kUseHardwareDecoding.key:
-            kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
-        kListOfflineDevices.key:
-            kListOfflineDevices.saveAs(kListOfflineDevices.value),
-        kDownloadOnMobileData.key:
-            kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
-        kChooseLocationEveryTime.key:
-            kChooseLocationEveryTime.saveAs(kChooseLocationEveryTime.value),
-        kAllowAppCloseWhenDownloading.key: kAllowAppCloseWhenDownloading
-            .saveAs(kAllowAppCloseWhenDownloading.value),
-        kPictureInPicture.key:
-            kPictureInPicture.saveAs(kPictureInPicture.value),
-        kEventsSpeed.key: kEventsSpeed.saveAs(kEventsSpeed.value),
-        kEventsVolume.key: kEventsVolume.saveAs(kEventsVolume.value),
-        kShowDifferentColorsForEvents.key: kShowDifferentColorsForEvents
-            .saveAs(kShowDifferentColorsForEvents.value),
-        kPauseToBuffer.key: kPauseToBuffer.saveAs(kPauseToBuffer.value),
-        kTimelineInitialPoint.key:
-            kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
-        kAutomaticallySkipEmptyPeriods.key: kAutomaticallySkipEmptyPeriods
-            .saveAs(kAutomaticallySkipEmptyPeriods.value),
-        kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
-        kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
-        kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),
-        kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
-        kConvertTimeToLocalTimezone.key: kConvertTimeToLocalTimezone
-            .saveAs(kConvertTimeToLocalTimezone.value),
-        'hasMigratedTimezone': _hasMigratedTimezone.toString(),
-        kLaunchAppOnStartup.key:
-            kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
-        kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),
-        kAnimationsEnabled.key:
-            kAnimationsEnabled.saveAs(kAnimationsEnabled.value),
-        kHighContrast.key: kHighContrast.saveAs(kHighContrast.value),
-        kLargeFont.key: kLargeFont.saveAs(kLargeFont.value),
-        kAllowDataCollection.key:
-            kAllowDataCollection.saveAs(kAllowDataCollection.value),
-        kAllowCrashReports.key:
-            kAllowCrashReports.saveAs(kAllowCrashReports.value),
-        kAutoUpdate.key: kAutoUpdate.saveAs(kAutoUpdate.value),
-        kShowReleaseNotes.key:
-            kShowReleaseNotes.saveAs(kShowReleaseNotes.value),
-        kMatrixedZoomEnabled.key:
-            kMatrixedZoomEnabled.saveAs(kMatrixedZoomEnabled.value),
-        kMatrixSize.key: kMatrixSize.saveAs(kMatrixSize.value),
-        kSoftwareZooming.key: kSoftwareZooming.saveAs(kSoftwareZooming.value),
-        kEventsMatrixedZoom.key:
-            kEventsMatrixedZoom.saveAs(kEventsMatrixedZoom.value),
-        kShowDebugInfo.key: kShowDebugInfo.saveAs(kShowDebugInfo.value),
-        kShowNetworkUsage.key:
-            kShowNetworkUsage.saveAs(kShowNetworkUsage.value),
-      });
-    } catch (e) {
-      debugPrint('Error saving settings: $e');
-    }
+    await write({
+      kLayoutCyclePeriod.key:
+          kLayoutCyclePeriod.saveAs(kLayoutCyclePeriod.value),
+      kLayoutCycleEnabled.key:
+          kLayoutCycleEnabled.saveAs(kLayoutCycleEnabled.value),
+      kWakelock.key: kWakelock.saveAs(kWakelock.value),
+      kNotificationsEnabled.key:
+          kNotificationsEnabled.saveAs(kNotificationsEnabled.value),
+      kSnoozeNotificationsUntil.key:
+          kSnoozeNotificationsUntil.saveAs(kSnoozeNotificationsUntil.value),
+      kNotificationClickBehavior.key:
+          kNotificationClickBehavior.saveAs(kNotificationClickBehavior.value),
+      kAutomaticStreaming.key:
+          kAutomaticStreaming.saveAs(kAutomaticStreaming.value),
+      kStreamOnBackground.key:
+          kStreamOnBackground.saveAs(kStreamOnBackground.value),
+      kConnectAutomaticallyAtStartup.key: kConnectAutomaticallyAtStartup
+          .saveAs(kConnectAutomaticallyAtStartup.value),
+      kAllowUntrustedCertificates.key:
+          kAllowUntrustedCertificates.saveAs(kAllowUntrustedCertificates.value),
+      kStreamingType.key: kStreamingType.saveAs(kStreamingType.value),
+      kRTSPProtocol.key: kRTSPProtocol.saveAs(kRTSPProtocol.value),
+      kRenderingQuality.key: kRenderingQuality.saveAs(kRenderingQuality.value),
+      kVideoFit.key: kVideoFit.saveAs(kVideoFit.value),
+      kRefreshRate.key: kRefreshRate.saveAs(kRefreshRate.value),
+      kLateStreamBehavior.key:
+          kLateStreamBehavior.saveAs(kLateStreamBehavior.value),
+      kReloadTimedOutStreams.key:
+          kReloadTimedOutStreams.saveAs(kReloadTimedOutStreams.value),
+      kUseHardwareDecoding.key:
+          kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
+      kListOfflineDevices.key:
+          kListOfflineDevices.saveAs(kListOfflineDevices.value),
+      kDownloadOnMobileData.key:
+          kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
+      kChooseLocationEveryTime.key:
+          kChooseLocationEveryTime.saveAs(kChooseLocationEveryTime.value),
+      kAllowAppCloseWhenDownloading.key: kAllowAppCloseWhenDownloading
+          .saveAs(kAllowAppCloseWhenDownloading.value),
+      kPictureInPicture.key: kPictureInPicture.saveAs(kPictureInPicture.value),
+      kEventsSpeed.key: kEventsSpeed.saveAs(kEventsSpeed.value),
+      kEventsVolume.key: kEventsVolume.saveAs(kEventsVolume.value),
+      kShowDifferentColorsForEvents.key: kShowDifferentColorsForEvents
+          .saveAs(kShowDifferentColorsForEvents.value),
+      kPauseToBuffer.key: kPauseToBuffer.saveAs(kPauseToBuffer.value),
+      kTimelineInitialPoint.key:
+          kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
+      kAutomaticallySkipEmptyPeriods.key: kAutomaticallySkipEmptyPeriods
+          .saveAs(kAutomaticallySkipEmptyPeriods.value),
+      kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
+      kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
+      kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),
+      kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
+      kConvertTimeToLocalTimezone.key:
+          kConvertTimeToLocalTimezone.saveAs(kConvertTimeToLocalTimezone.value),
+      'hasMigratedTimezone': _hasMigratedTimezone.toString(),
+      kLaunchAppOnStartup.key:
+          kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
+      kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),
+      kAnimationsEnabled.key:
+          kAnimationsEnabled.saveAs(kAnimationsEnabled.value),
+      kHighContrast.key: kHighContrast.saveAs(kHighContrast.value),
+      kLargeFont.key: kLargeFont.saveAs(kLargeFont.value),
+      kAllowDataCollection.key:
+          kAllowDataCollection.saveAs(kAllowDataCollection.value),
+      kAllowCrashReports.key:
+          kAllowCrashReports.saveAs(kAllowCrashReports.value),
+      kAutoUpdate.key: kAutoUpdate.saveAs(kAutoUpdate.value),
+      kShowReleaseNotes.key: kShowReleaseNotes.saveAs(kShowReleaseNotes.value),
+      kMatrixedZoomEnabled.key:
+          kMatrixedZoomEnabled.saveAs(kMatrixedZoomEnabled.value),
+      kMatrixSize.key: kMatrixSize.saveAs(kMatrixSize.value),
+      kSoftwareZooming.key: kSoftwareZooming.saveAs(kSoftwareZooming.value),
+      kEventsMatrixedZoom.key:
+          kEventsMatrixedZoom.saveAs(kEventsMatrixedZoom.value),
+      kShowDebugInfo.key: kShowDebugInfo.saveAs(kShowDebugInfo.value),
+      kShowNetworkUsage.key: kShowNetworkUsage.saveAs(kShowNetworkUsage.value),
+    });
     super.save(notifyListeners: notifyListeners);
   }
 

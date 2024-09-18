@@ -160,7 +160,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
       ..setVolume(volume)
       ..setSpeed(speed)
       ..start();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -208,7 +208,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    'source: ${player.dataSource}'
+                                    'source: ${player.dataSource ?? loc.unknown}'
                                     '\nposition: ${player.currentPos}'
                                     '\nduration ${player.duration}'
                                     '\nbuffer ${player.currentBuffer}',

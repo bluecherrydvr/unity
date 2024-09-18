@@ -6,6 +6,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/utils/date.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml2json/xml2json.dart';
@@ -73,20 +74,19 @@ extension EventsExtension on API {
     );
 
     assert(server.serverUUID != null && server.hasCookies);
-    final response = await API.client.get(
-      Uri.https(
-        '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-        '/events/',
-        {
-          'XML': '1',
-          'limit': '$limit',
-          if (startTime != null) 'startTime': startTime,
-          if (endTime != null) 'endTime': endTime,
-          if (deviceId != null) 'device_id': '$deviceId',
-        },
-      ),
-      headers: {'Cookie': server.cookie!},
+    final uri = Uri.https(
+      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '/events/',
+      {
+        'XML': '1',
+        'limit': '$limit',
+        if (startTime != null) 'startTime': startTime,
+        if (endTime != null) 'endTime': endTime,
+        if (deviceId != null) 'device_id': '$deviceId',
+      },
     );
+    final response =
+        await API.client.get(uri, headers: {'Cookie': server.cookie!});
 
     var events = const Iterable<Event>.empty();
 
@@ -175,11 +175,12 @@ extension EventsExtension on API {
           );
         });
       }
-    } catch (exception, stacktrace) {
-      debugPrint('Failed to getEvents on server ${server.name}');
-      debugPrint(response.body);
-      debugPrint(exception.toString());
-      debugPrint(stacktrace.toString());
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to getEvents on server ${server.name} $uri ${response.body}',
+      );
     }
 
     debugPrint(

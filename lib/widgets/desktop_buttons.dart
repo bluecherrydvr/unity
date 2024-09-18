@@ -86,6 +86,7 @@ class WindowButtons extends StatelessWidget {
     this.title,
     this.showNavigator = true,
     this.onBack,
+    this.flexible,
   });
 
   /// The current window title.
@@ -103,6 +104,9 @@ class WindowButtons extends StatelessWidget {
 
   /// Called when the back button is pressed.
   final Future<void> Function()? onBack;
+
+  /// The widget displayed in the remaining space.
+  final Widget? flexible;
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +244,8 @@ class WindowButtons extends StatelessWidget {
                       icon: const Icon(Icons.refresh, size: 20.0),
                       tooltip: loc.refresh,
                     ),
+                  if (flexible != null) flexible!,
+
                   // Do not render the Window Buttons on web nor macOS. macOS
                   // render the buttons natively.
                   if (!kIsWeb && !isMacOSPlatform && !UpdateManager.isEmbedded)

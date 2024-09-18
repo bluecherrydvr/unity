@@ -183,6 +183,7 @@ class _VideoViewportState extends State<VideoViewport> {
     final settings = context.watch<SettingsProvider>();
     final player = UnityVideoView.of(context);
     final error = player.error;
+    final loc = AppLocalizations.of(context);
 
     return DefaultTextStyle(
       style: const TextStyle(color: Colors.white),
@@ -298,7 +299,7 @@ class _VideoViewportState extends State<VideoViewport> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'source: ${player.player.dataSource}'
+                          'source: ${player.player.dataSource ?? loc.unknown}'
                           '\nposition: ${player.player.currentPos}'
                           '\nduration ${player.player.duration}'
                           '\nbuffer ${player.player.currentBuffer}',

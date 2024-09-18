@@ -87,7 +87,7 @@ class _PTZControllerState extends State<PTZController> {
           movement: Movement.noMovement,
           command: PTZCommand.stop,
         );
-        setState(() => commands.remove(cmd));
+        if (mounted) setState(() => commands.remove(cmd));
       },
       onVerticalDragUpdate: (d) async {
         if (lock) return;
@@ -102,7 +102,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveNorth,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         } else {
           debugPrint('moving down ${d.delta.dy}');
           const cmd = PTZControllerCommand(movement: Movement.moveSouth);
@@ -111,7 +111,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveSouth,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         }
       },
       onVerticalDragEnd: (_) => lock = false,
@@ -127,7 +127,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveWest,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         } else {
           debugPrint('moving right ${d.delta.dx}');
           const cmd = PTZControllerCommand(movement: Movement.moveEast);
@@ -136,7 +136,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveEast,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         }
       },
       onHorizontalDragEnd: (_) => lock = false,
@@ -154,7 +154,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveTele,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         } else {
           debugPrint('zooming down');
           const cmd = PTZControllerCommand(movement: Movement.moveWide);
@@ -163,7 +163,7 @@ class _PTZControllerState extends State<PTZController> {
             device: widget.device,
             movement: Movement.moveWide,
           );
-          setState(() => commands.remove(cmd));
+          if (mounted) setState(() => commands.remove(cmd));
         }
       },
       onScaleEnd: (_) => lock = false,

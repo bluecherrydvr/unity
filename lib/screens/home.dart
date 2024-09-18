@@ -18,6 +18,7 @@
  */
 
 import 'package:animations/animations.dart';
+import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/screens/direct_camera.dart';
 import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
@@ -52,13 +53,14 @@ class NavigatorData {
   static List<NavigatorData> of(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final screenSize = MediaQuery.sizeOf(context);
+    final layout = context.watch<DesktopViewProvider>().currentLayout;
 
     return [
       NavigatorData(
         tab: UnityTab.deviceGrid,
         icon: Icons.window_outlined,
         selectedIcon: Icons.window,
-        text: loc.screens,
+        text: loc.screens(layout.name),
       ),
       NavigatorData(
         tab: UnityTab.eventsTimeline,
@@ -107,10 +109,10 @@ class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
-  State<Home> createState() => _MobileHomeState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MobileHomeState extends State<Home> {
+class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();

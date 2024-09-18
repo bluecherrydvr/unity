@@ -176,8 +176,8 @@ class UnityPlayers with ChangeNotifier {
     _reloadable.remove(deviceUUID);
     try {
       await players[deviceUUID]?.dispose();
-    } catch (e) {
-      debugPrint('Error disposing player: $e');
+    } catch (error, stack) {
+      handleError(error, stack, 'Error releasing video player');
     }
     players.remove(deviceUUID);
     instance.notifyListeners();

@@ -23,6 +23,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -118,9 +119,12 @@ abstract class APIHelpers {
             return 'file://$filePath';
           }
         }
-      } catch (exception, stacktrace) {
-        debugPrint(exception.toString());
-        debugPrint(stacktrace.toString());
+      } catch (error, stack) {
+        handleError(
+          error,
+          stack,
+          'Failed to get thumbnail for media ID $mediaID',
+        );
       }
       return null;
     }

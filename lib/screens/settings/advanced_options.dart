@@ -19,20 +19,16 @@
 
 import 'dart:io';
 
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/config.dart';
-import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:bluecherry_client/widgets/squared_icon_button.dart';
+import 'package:bluecherry_client/widgets/video_test.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -315,70 +311,10 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
             final uuid = instance.key;
             final player = instance.value;
 
-            Widget buildCardProp(String title, String value) {
-              return Row(children: [
-                Text('$title:', style: theme.textTheme.labelMedium),
-                const SizedBox(width: 4.0),
-                Text(value, style: theme.textTheme.bodySmall),
-              ]);
-            }
-
-            return Card(
-              clipBehavior: Clip.antiAlias,
-              child: ListenableBuilder(
-                listenable: player,
-                builder: (context, _) {
-                  return ListView(
-                    padding: const EdgeInsets.all(12.0),
-                    children: [
-                      Row(children: [
-                        Expanded(
-                          child: AutoSizeText(
-                            'Player ${index + 1} - ${player.title}',
-                            style: theme.textTheme.titleMedium,
-                            maxLines: 1,
-                          ),
-                        ),
-                        SquaredIconButton(
-                          icon: Icon(
-                            Icons.close,
-                            color: theme.colorScheme.error,
-                          ),
-                          tooltip: loc.removePlayer,
-                          onPressed: () {
-                            final view = context.read<DesktopViewProvider>();
-                            final device = view.layouts
-                                .map<List<Device>>((l) => l.devices)
-                                .reduce((a, b) => a + b)
-                                .firstWhereOrNull((d) => d.uuid == uuid);
-                            if (device != null) view.removeDevices([device]);
-                          },
-                        ),
-                      ]),
-                      AutoSizeText(
-                        uuid,
-                        style: theme.textTheme.bodySmall,
-                        maxLines: 1,
-                      ),
-                      const Divider(),
-                      buildCardProp('Position', player.currentPos.toString()),
-                      buildCardProp('Duration', player.duration.toString()),
-                      buildCardProp('Buffer', player.currentBuffer.toString()),
-                      buildCardProp('FPS', player.fps.toString()),
-                      buildCardProp('LIU', player.lastImageUpdate.toString()),
-                      buildCardProp(
-                        'Resolution',
-                        '${player.resolution?.width ?? '${loc.unknown} '}'
-                            'x'
-                            '${player.resolution?.height ?? ' ${loc.unknown}'}',
-                      ),
-                      buildCardProp(
-                          'Quality', player.quality?.name ?? loc.unknown),
-                      buildCardProp('Volume', player.volume.toString()),
-                    ],
-                  );
-                },
-              ),
+            return VideoInfoCard(
+              player: player,
+              uuid: uuid,
+              title: 'Player ${index + 1} - ${player.title}',
             );
           },
         ),

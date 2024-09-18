@@ -86,15 +86,11 @@ class DesktopViewProvider extends UnityProvider {
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    try {
-      await desktopView.write({
-        kStorageDesktopLayouts:
-            jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
-        kStorageDesktopCurrentLayout: _currentLayout,
-      });
-    } catch (error, stackTrace) {
-      debugPrint('Failed to save desktop view:\n $error\n$stackTrace');
-    }
+    await write({
+      kStorageDesktopLayouts:
+          jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
+      kStorageDesktopCurrentLayout: _currentLayout,
+    });
 
     super.save(notifyListeners: notifyListeners);
   }

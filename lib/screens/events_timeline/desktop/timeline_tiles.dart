@@ -24,7 +24,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +42,7 @@ class TimelineTiles extends StatefulWidget {
 
 class _TimelineTilesState extends State<TimelineTiles> {
   final verticalScrollController = ScrollController();
+  final reorderableViewKey = GlobalKey();
 
   Timeline get timeline => widget.timeline;
 
@@ -63,6 +63,9 @@ class _TimelineTilesState extends State<TimelineTiles> {
           (constraints.maxWidth - kDeviceNameWidth) * timeline.zoom;
       final hourWidth = tileWidth / 24;
       final secondsWidth = tileWidth / secondsInADay;
+      final zoomOffset = timeline.zoomController.hasClients
+          ? timeline.zoomController.positions.last.pixels
+          : 0.0;
 
       return Stack(
         fit: StackFit.passthrough,
@@ -78,9 +81,8 @@ class _TimelineTilesState extends State<TimelineTiles> {
               child: AnimatedBuilder(
                 animation: Listenable.merge([timeline.zoomController]),
                 builder: (context, _) {
-                  final offset = timeline.zoomController.hasClients
-                      ? timeline.zoomController.offset
-                      : 0.0;
+                  final offset =
+                      timeline.zoomController.hasClients ? zoomOffset : 0.0;
                   return SingleChildScrollView(
                     key: ValueKey(offset),
                     scrollDirection: Axis.horizontal,
@@ -97,73 +99,81 @@ class _TimelineTilesState extends State<TimelineTiles> {
               child: EnforceScrollbarScroll(
                 controller: verticalScrollController,
                 onPointerSignal: _receivedPointerSignal,
-                child: SingleChildScrollView(
-                  controller: verticalScrollController,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        width: kDeviceNameWidth,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ...timeline.tiles.map((tile) {
-                              return _TimelineTile.name(tile: tile);
-                            }),
-                          ],
+                child: ReorderableListView.builder(
+                  key: reorderableViewKey,
+                  scrollController: verticalScrollController,
+                  itemCount: timeline.tiles.length,
+                  buildDefaultDragHandles: false,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      final item = timeline.tiles.removeAt(oldIndex);
+                      timeline.tiles.insert(newIndex, item);
+                      timeline.notify();
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    final tile = timeline.tiles[index];
+
+                    return Row(
+                      key: ValueKey(tile.device.uuid),
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: kDeviceNameWidth,
+                          child: ReorderableDragStartListener(
+                            index: index,
+                            child: _TimelineTile.name(tile: tile),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTapUp: (details) {
-                            _onMove(
-                              details.localPosition,
-                              constraints,
-                              tileWidth,
-                            );
-                          },
-                          onHorizontalDragUpdate: (details) {
-                            _onMove(
-                              details.localPosition,
-                              constraints,
-                              tileWidth,
-                            );
-                          },
-                          child: Builder(builder: (context) {
-                            return ScrollConfiguration(
-                              behavior:
-                                  ScrollConfiguration.of(context).copyWith(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                              ),
-                              child: Scrollbar(
-                                controller: timeline.zoomController,
-                                thumbVisibility: isMobilePlatform || kIsWeb,
-                                child: SingleChildScrollView(
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTapUp: (details) {
+                              _onMove(
+                                details.localPosition,
+                                constraints,
+                                tileWidth,
+                              );
+                            },
+                            onHorizontalDragUpdate: (details) {
+                              _onMove(
+                                details.localPosition,
+                                constraints,
+                                tileWidth,
+                              );
+                            },
+                            child: Builder(builder: (context) {
+                              return ScrollConfiguration(
+                                behavior:
+                                    ScrollConfiguration.of(context).copyWith(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                ),
+                                child: Scrollbar(
                                   controller: timeline.zoomController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: SizedBox(
-                                    width: tileWidth,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ...timeline.tiles.map((tile) {
-                                          return _TimelineTile(
-                                            key: ValueKey(tile),
-                                            tile: tile,
-                                          );
-                                        }),
-                                      ],
+                                  thumbVisibility: isMobilePlatform,
+                                  child: SingleChildScrollView(
+                                    controller: timeline.zoomController,
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                      width: tileWidth,
+                                      child: _TimelineTile(
+                                        key: ValueKey(tile),
+                                        tile: tile,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }),
+                              );
+                            }),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -171,7 +181,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
           if (timeline.zoomController.hasClients)
             Builder(builder: (context) {
               final left = (timeline.currentPosition.inSeconds * secondsWidth) -
-                  timeline.zoomController.offset -
+                  zoomOffset -
                   (/* the width of half of the triangle */
                       8 / 2);
               if (left < -8.0) return const SizedBox.shrink();
@@ -208,7 +218,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
     });
   }
 
-// Handle mousewheel and web trackpad scroll events.
+  // Handle mousewheel and web trackpad scroll events.
   void _receivedPointerSignal(PointerSignalEvent event) {
     if (widget.timeline.tiles.isEmpty) return;
     final double scaleChange;
@@ -242,8 +252,8 @@ class _TimelineTilesState extends State<TimelineTiles> {
         localPosition.dx >= (constraints.maxWidth - kDeviceNameWidth)) {
       return;
     }
-    final pointerPosition =
-        (localPosition.dx + timeline.zoomController.offset) / tileWidth;
+    final zoomOffset = timeline.zoomController.positions.last.pixels;
+    final pointerPosition = (localPosition.dx + zoomOffset) / tileWidth;
     if (pointerPosition < 0 || pointerPosition > 1) {
       return;
     }
@@ -257,13 +267,9 @@ class _TimelineTilesState extends State<TimelineTiles> {
       // 100. removes it from the border
       final endPosition = constraints.maxWidth - kDeviceNameWidth - 100.0;
       if (localPosition.dx >= endPosition) {
-        timeline.scrollTo(
-          timeline.zoomController.offset + 25.0,
-        );
+        timeline.scrollTo(zoomOffset + 25.0);
       } else if (localPosition.dx <= 100.0) {
-        timeline.scrollTo(
-          timeline.zoomController.offset - 25.0,
-        );
+        timeline.scrollTo(zoomOffset - 25.0);
       }
     }
   }
@@ -282,35 +288,43 @@ class _TimelineTile extends StatefulWidget {
         top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
       );
 
-      return Tooltip(
-        message:
-            '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
-        preferBelow: false,
-        textStyle: theme.textTheme.labelMedium?.copyWith(
-          color: theme.colorScheme.onInverseSurface,
+      return
+          // Tooltip(
+          //   message:
+          //       '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
+          //   preferBelow: false,
+          //   textStyle: theme.textTheme.labelMedium?.copyWith(
+          //     color: theme.colorScheme.onInverseSurface,
+          //   ),
+          // child:
+          Container(
+        width: kDeviceNameWidth,
+        height: kTimelineTileHeight,
+        padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
+        decoration: BoxDecoration(
+          color: theme.dialogBackgroundColor,
+          border: border,
         ),
-        verticalOffset: 12.0,
-        child: Container(
-          width: kDeviceNameWidth,
-          height: kTimelineTileHeight,
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
-          decoration: BoxDecoration(
-            color: theme.dialogBackgroundColor,
-            border: border,
-          ),
-          alignment: AlignmentDirectional.centerStart,
-          child: DefaultTextStyle(
-            style: theme.textTheme.labelMedium!,
-            child: Row(children: [
-              Flexible(child: Text(tile.device.name, maxLines: 1)),
-              Text(
-                ' (${tile.events.length})',
-                style: const TextStyle(fontSize: 10),
+        alignment: AlignmentDirectional.centerStart,
+        child: DefaultTextStyle(
+          style: theme.textTheme.labelMedium!,
+          child: Row(children: [
+            Flexible(
+              child: Text(
+                tile.device.name,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
               ),
-            ]),
-          ),
+            ),
+            Text(
+              ' (${tile.events.length})',
+              style: const TextStyle(fontSize: 10),
+            ),
+          ]),
         ),
       );
+      // ,
+      // );
     });
   }
 

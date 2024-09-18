@@ -85,7 +85,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       timeline = null;
     });
 
-    // if (kDebugMode && true) {
+    // if (true) {
     //   setState(() => timeline = Timeline.dump());
     //   return;
     // }

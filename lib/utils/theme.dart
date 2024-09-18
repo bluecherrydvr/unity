@@ -132,13 +132,14 @@ ThemeData createTheme({required Brightness brightness}) {
   }
 
   final colorScheme = ColorScheme.fromSeed(
-    brightness: light ? Brightness.light : Brightness.dark,
+    brightness: brightness,
     seedColor: primary,
     secondary: accent,
     error: Colors.red.shade400,
   );
 
   return ThemeData(
+    brightness: brightness,
     colorScheme: colorScheme,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
@@ -231,6 +232,11 @@ ThemeData createTheme({required Brightness brightness}) {
         warningColor: Colors.amber,
       ),
     ],
+    useMaterial3: true,
+    scaffoldBackgroundColor: light ? Colors.grey.shade100 : null,
+    cardTheme: CardTheme(
+      color: light ? Colors.grey.shade300 : null,
+    ),
   );
 }
 

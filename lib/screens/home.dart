@@ -126,74 +126,81 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      /// Whether there is enough space for a navigation rail to pop off.
-      ///
-      /// The screen must be horizontally wide ([isWide]) and vertically tall ([isTall]), since
-      /// the navigation rail requires space. The environment must not be a desktop environment [!isDesktop].
-      /// On desktop, [WindowButtons] is the responsible to handle navigation-related tasks.
-      ///
-      /// If the conditions are not met, the drawer is displayed instead.
-      ///
-      /// When a navigation item is added, for example, these breakpoints need to be updated
-      /// in order to delight a good user experience
-      final isWide = constraints.biggest.width > 700;
-      final isTall = constraints.biggest.height > 440;
-      final showNavigationRail = (isWide && isTall && !isDesktop) || isEmbedded;
+    return Title(
+      color: theme.colorScheme.primary,
+      title: tab.locale(context),
+      child: LayoutBuilder(builder: (context, constraints) {
+        /// Whether there is enough space for a navigation rail to pop off.
+        ///
+        /// The screen must be horizontally wide ([isWide]) and vertically tall ([isTall]), since
+        /// the navigation rail requires space. The environment must not be a desktop environment [!isDesktop].
+        /// On desktop, [WindowButtons] is the responsible to handle navigation-related tasks.
+        ///
+        /// If the conditions are not met, the drawer is displayed instead.
+        ///
+        /// When a navigation item is added, for example, these breakpoints need to be updated
+        /// in order to delight a good user experience
+        final isWide = constraints.biggest.width > 700;
+        final isTall = constraints.biggest.height > 440;
+        final showNavigationRail =
+            (isWide && isTall && !isDesktop) || isEmbedded;
 
-      return Scaffold(
-        resizeToAvoidBottomInset: false,
-        drawer: isDesktop || showNavigationRail
-            ? null
-            : Builder(builder: buildDrawer),
-        body: Column(children: [
-          WindowButtons(showNavigator: !showNavigationRail),
-          Expanded(
-            child: Row(children: [
-              if (showNavigationRail)
-                SafeArea(
-                  right: Directionality.of(context) == TextDirection.rtl,
-                  child: Builder(builder: buildNavigationRail),
-                ),
-              Expanded(
-                child: ClipRect(
-                  child: PageTransitionSwitcher(
-                    transitionBuilder: (child, animation, secondaryAnimation) {
-                      return SharedAxisTransition(
-                        animation: animation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.vertical,
-                        child: child,
-                      );
-                    },
-                    child: switch (tab) {
-                      UnityTab.deviceGrid => const DeviceGrid(),
-                      UnityTab.directCameraScreen =>
-                        DirectCameraScreen(key: directCameraKey),
-                      UnityTab.eventsTimeline => EventsPlayback(),
-                      UnityTab.eventsHistory =>
-                        EventsScreen(key: eventsScreenKey),
-                      UnityTab.addServer => AddServerWizard(
-                          onFinish: () async =>
-                              home.setTab(UnityTab.deviceGrid, context),
-                        ),
-                      UnityTab.downloads => DownloadsManagerScreen(
-                          initiallyExpandedEventId:
-                              home.initiallyExpandedDownloadEventId,
-                        ),
-                      UnityTab.settings => const Settings(),
-                    },
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          drawer: isDesktop || showNavigationRail
+              ? null
+              : Builder(builder: buildDrawer),
+          body: Column(children: [
+            WindowButtons(showNavigator: !showNavigationRail),
+            Expanded(
+              child: Row(children: [
+                if (showNavigationRail)
+                  SafeArea(
+                    right: Directionality.of(context) == TextDirection.rtl,
+                    child: Builder(builder: buildNavigationRail),
+                  ),
+                Expanded(
+                  child: ClipRect(
+                    child: PageTransitionSwitcher(
+                      transitionBuilder:
+                          (child, animation, secondaryAnimation) {
+                        return SharedAxisTransition(
+                          animation: animation,
+                          secondaryAnimation: secondaryAnimation,
+                          transitionType: SharedAxisTransitionType.vertical,
+                          child: child,
+                        );
+                      },
+                      child: switch (tab) {
+                        UnityTab.deviceGrid => const DeviceGrid(),
+                        UnityTab.directCameraScreen =>
+                          DirectCameraScreen(key: directCameraKey),
+                        UnityTab.eventsTimeline => EventsPlayback(),
+                        UnityTab.eventsHistory =>
+                          EventsScreen(key: eventsScreenKey),
+                        UnityTab.addServer => AddServerWizard(
+                            onFinish: () async =>
+                                home.setTab(UnityTab.deviceGrid, context),
+                          ),
+                        UnityTab.downloads => DownloadsManagerScreen(
+                            initiallyExpandedEventId:
+                                home.initiallyExpandedDownloadEventId,
+                          ),
+                        UnityTab.settings => const Settings(),
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ]),
-          ),
-        ]),
-      );
-    });
+              ]),
+            ),
+          ]),
+        );
+      }),
+    );
   }
 
   Widget buildDrawer(BuildContext context) {

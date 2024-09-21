@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -49,6 +50,21 @@ enum NetworkUsage {
 }
 
 enum EnabledPreference { on, ask, never }
+
+enum DisplayOn {
+  always,
+  onHover,
+  never;
+
+  static Iterable<Option<DisplayOn>> get options {
+    return values.map<Option<DisplayOn>>((value) {
+      return Option(
+        value: value,
+        text: value.name,
+      );
+    });
+  }
+}
 
 class _SettingsOption<T> {
   final String key;
@@ -257,6 +273,18 @@ class SettingsProvider extends UnityProvider {
   final kListOfflineDevices = _SettingsOption<bool>(
     def: true,
     key: 'devices.list_offline',
+  );
+  final kShowCameraNameOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.always,
+    key: 'devices.show_camera_name_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
+  );
+  final kShowServerNameOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.always,
+    key: 'devices.show_server_name_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
   );
 
   // Downloads
@@ -517,6 +545,8 @@ class SettingsProvider extends UnityProvider {
       kReloadTimedOutStreams.loadData(data),
       kUseHardwareDecoding.loadData(data),
       kListOfflineDevices.loadData(data),
+      kShowCameraNameOn.loadData(data),
+      kShowServerNameOn.loadData(data),
       kDownloadOnMobileData.loadData(data),
       kChooseLocationEveryTime.loadData(data),
       kDownloadsDirectory.loadData(data),
@@ -588,6 +618,8 @@ class SettingsProvider extends UnityProvider {
           kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
       kListOfflineDevices.key:
           kListOfflineDevices.saveAs(kListOfflineDevices.value),
+      kShowCameraNameOn.key: kShowCameraNameOn.saveAs(kShowCameraNameOn.value),
+      kShowServerNameOn.key: kShowServerNameOn.saveAs(kShowServerNameOn.value),
       kDownloadOnMobileData.key:
           kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
       kChooseLocationEveryTime.key:

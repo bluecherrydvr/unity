@@ -37,14 +37,11 @@ abstract class UnityProvider extends ChangeNotifier {
       this.storage = storage;
     }
     try {
-      final hive = await tryReadStorage(() => storage.read());
-      if (!hive.isNotEmpty) {
-        await save();
-      } else {
-        await restore();
-      }
-    } catch (e) {
+      await restore();
+    } catch (error, stackTrace) {
       await save();
+
+      handleError(error, stackTrace);
     }
   }
 

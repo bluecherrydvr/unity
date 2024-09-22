@@ -287,38 +287,49 @@ class _LayoutViewState extends State<LayoutView> {
                         ),
                       ),
                     ),
-                    if (_volumeSliderVisible)
-                      SizedBox(
-                        height: 24.0,
-                        child: Slider(
-                          value: widget.layout.devices
-                              .map((e) => e.volume)
-                              .findMaxDuplicatedElementInList()
-                              .toDouble(),
-                          onChanged: (value) async {
-                            for (final device in widget.layout.devices) {
-                              final player = UnityPlayers.players[device.uuid];
-                              if (player != null) {
-                                await player.setVolume(value);
-                                device.volume = value;
-                              }
-                            }
-                            if (mounted) setState(() {});
+                    ...() {
+                      final volume = widget.layout.devices
+                          .map((e) => e.volume)
+                          .findMaxDuplicatedElementInList()
+                          .toDouble();
+                      return <Widget>[
+                        if (_volumeSliderVisible)
+                          SizedBox(
+                            height: 24.0,
+                            child: Slider(
+                              value: widget.layout.devices
+                                  .map((e) => e.volume)
+                                  .findMaxDuplicatedElementInList()
+                                  .toDouble(),
+                              divisions: 100,
+                              label: '${(volume * 100).round()}%',
+                              onChanged: (value) async {
+                                for (final device in widget.layout.devices) {
+                                  final player =
+                                      UnityPlayers.players[device.uuid];
+                                  if (player != null) {
+                                    await player.setVolume(value);
+                                    device.volume = value;
+                                  }
+                                }
+                                if (mounted) setState(() {});
+                              },
+                            ),
+                          ),
+                        SquaredIconButton(
+                          icon: const Icon(
+                            Icons.equalizer,
+                            color: Colors.white,
+                          ),
+                          tooltip: 'Layout Volume • ${(volume * 100).round()}%',
+                          onPressed: () {
+                            setState(() {
+                              _volumeSliderVisible = !_volumeSliderVisible;
+                            });
                           },
                         ),
-                      ),
-                    SquaredIconButton(
-                      icon: const Icon(
-                        Icons.equalizer,
-                        color: Colors.white,
-                      ),
-                      tooltip: 'Layout Volume',
-                      onPressed: () {
-                        setState(() {
-                          _volumeSliderVisible = !_volumeSliderVisible;
-                        });
-                      },
-                    ),
+                      ];
+                    }(),
                     if (widget.layout.devices.isNotEmpty)
                       SquaredIconButton(
                         icon: const Icon(

@@ -84,6 +84,7 @@ Future<void> main(List<String> args) async {
     }
 
     await initializeDateFormatting();
+    await configureStorage();
 
     DevHttpOverrides.configureCertificates();
     API.initialize();
@@ -96,7 +97,6 @@ Future<void> main(List<String> args) async {
     //   }
     // }
     debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
-    await configureStorage();
 
     logging.writeLogToFile('Opening app with $args');
 

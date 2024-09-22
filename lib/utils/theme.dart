@@ -234,9 +234,9 @@ ThemeData createTheme({required Brightness brightness}) {
     ],
     useMaterial3: true,
     scaffoldBackgroundColor: light ? Colors.grey.shade100 : null,
-    cardTheme: CardTheme(
-      color: light ? Colors.grey.shade300 : null,
-    ),
+    // cardTheme: CardTheme(
+    //   color: light ? Colors.grey.shade300 : null,
+    // ),
   );
 }
 

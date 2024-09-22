@@ -54,6 +54,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxHeight < kTimelineTileHeight / 1.9) {
         return const SizedBox.shrink();
@@ -185,6 +186,12 @@ class _TimelineTilesState extends State<TimelineTiles> {
                   (/* the width of half of the triangle */
                       8 / 2);
               if (left < -8.0) return const SizedBox.shrink();
+
+              final pointerColor = switch (theme.brightness) {
+                Brightness.light => theme.colorScheme.onSurface,
+                Brightness.dark => theme.colorScheme.onSurface,
+              };
+
               return Positioned(
                 key: timeline.indicatorKey,
                 left: kDeviceNameWidth + left,
@@ -198,16 +205,11 @@ class _TimelineTilesState extends State<TimelineTiles> {
                       child: Container(
                         width: 8,
                         height: 4,
-                        // color: theme.colorScheme.onSurface,
-                        color: Colors.black,
+                        color: pointerColor,
                       ),
                     ),
                     Expanded(
-                      child: Container(
-                        // color: theme.colorScheme.onSurface,
-                        width: 1.8,
-                        color: Colors.black,
-                      ),
+                      child: Container(width: 1.8, color: pointerColor),
                     ),
                   ]),
                 ),

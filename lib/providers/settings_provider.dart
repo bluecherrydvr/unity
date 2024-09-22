@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -598,6 +599,7 @@ class SettingsProvider extends UnityProvider {
           } catch (error, stackTrace) {
             debugPrint(
                 'Error saving setting ${setting.key}: $error\n$stackTrace');
+            handleError(error, stackTrace);
           }
           return <String, String>{};
         }(),

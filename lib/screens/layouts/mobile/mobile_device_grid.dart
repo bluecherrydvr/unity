@@ -71,92 +71,95 @@ class _SmallDeviceGridState extends State<SmallDeviceGrid> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return Column(children: [
-      SizedBox(height: viewPadding.top),
-      if (view.tab == -1)
-        const Spacer()
-      else
-        Expanded(
-          child: PageTransitionSwitcher(
-            child: view.devices.keys
-                .map((key) => _SmallDeviceGridChild(tab: key))
-                .elementAt(
-                  view.devices.keys
-                      .toList()
-                      .indexOf(view.tab)
-                      .clamp(0, view.devices.length - 1),
-                ),
-            transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-              return FadeThroughTransition(
-                animation: primaryAnimation,
-                secondaryAnimation: secondaryAnimation,
-                fillColor: theme.colorScheme.surface,
-                child: child,
-              );
-            },
-          ),
-        ),
-      DecoratedBox(
-        decoration: const BoxDecoration(boxShadow: [
-          BoxShadow(color: Colors.black45, blurRadius: 8.0),
-        ]),
-        child: Material(
-          child: Container(
-            height: kMobileBottomBarHeight + viewPadding.bottom,
-            padding: EdgeInsetsDirectional.only(
-              start: 16.0 + viewPadding.horizontal,
-              end: 16.0 + viewPadding.horizontal,
-              bottom: viewPadding.bottom,
+    return SafeArea(
+      bottom: false,
+      child: Column(children: [
+        if (view.tab == -1)
+          const Spacer()
+        else
+          Expanded(
+            child: PageTransitionSwitcher(
+              child: view.devices.keys
+                  .map((key) => _SmallDeviceGridChild(tab: key))
+                  .elementAt(
+                    view.devices.keys
+                        .toList()
+                        .indexOf(view.tab)
+                        .clamp(0, view.devices.length - 1),
+                  ),
+              transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
+                return FadeThroughTransition(
+                  animation: primaryAnimation,
+                  secondaryAnimation: secondaryAnimation,
+                  fillColor: theme.colorScheme.surface,
+                  child: child,
+                );
+              },
             ),
-            width: double.infinity,
-            child: Row(children: <Widget>[
-              UnityDrawerButton(
-                iconColor: theme.colorScheme.onSurface,
-                iconSize: 18.0,
-                splashRadius: 24.0,
+          ),
+        DecoratedBox(
+          decoration: const BoxDecoration(boxShadow: [
+            BoxShadow(color: Colors.black45, blurRadius: 8.0),
+          ]),
+          child: Material(
+            child: Container(
+              height: kMobileBottomBarHeight + viewPadding.bottom,
+              padding: EdgeInsetsDirectional.only(
+                start: 16.0 + viewPadding.horizontal,
+                end: 16.0 + viewPadding.horizontal,
+                bottom: viewPadding.bottom,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.cyclone,
-                  size: 18.0,
-                  color: settings.kLayoutCycleEnabled.value
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface,
+              width: double.infinity,
+              child: Row(children: <Widget>[
+                UnityDrawerButton(
+                  iconColor: theme.colorScheme.onSurface,
+                  iconSize: 18.0,
+                  splashRadius: 24.0,
                 ),
-                tooltip: loc.cycle,
-                onPressed: settings.toggleCycling,
-              ),
-              const Spacer(),
-              ...view.devices.keys.map((tab) {
-                return Container(
-                  height: 48.0,
-                  width: 48.0,
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: view.tab == tab ? theme.colorScheme.primary : null,
-                    ),
-                    child: IconButton(
-                      onPressed: () => view.setTab(tab),
-                      icon: Text(
-                        '$tab',
-                        style: TextStyle(
-                          color: view.tab == tab
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onSurface,
-                          fontSize: 18.0,
+                IconButton(
+                  icon: Icon(
+                    Icons.cyclone,
+                    size: 18.0,
+                    color: settings.kLayoutCycleEnabled.value
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface,
+                  ),
+                  tooltip: loc.cycle,
+                  onPressed: settings.toggleCycling,
+                ),
+                const Spacer(),
+                ...view.devices.keys.map((tab) {
+                  return Container(
+                    height: 48.0,
+                    width: 48.0,
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color:
+                            view.tab == tab ? theme.colorScheme.primary : null,
+                      ),
+                      child: IconButton(
+                        onPressed: () => view.setTab(tab),
+                        icon: Text(
+                          '$tab',
+                          style: TextStyle(
+                            color: view.tab == tab
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.onSurface,
+                            fontSize: 18.0,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }),
-            ]),
+                  );
+                }),
+              ]),
+            ),
           ),
         ),
-      ),
-    ]);
+      ]),
+    );
   }
 }
 

@@ -67,17 +67,16 @@ class _SmallDeviceGridState extends State<SmallDeviceGrid> {
   Widget build(BuildContext context) {
     final view = context.watch<MobileViewProvider>();
     final settings = context.watch<SettingsProvider>();
-    final viewPadding = MediaQuery.viewPaddingOf(context);
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return SafeArea(
-      bottom: false,
-      child: Column(children: [
-        if (view.tab == -1)
-          const Spacer()
-        else
-          Expanded(
+    return Column(children: [
+      if (view.tab == -1)
+        const Spacer()
+      else
+        Expanded(
+          child: SafeArea(
+            bottom: false,
             child: PageTransitionSwitcher(
               child: view.devices.keys
                   .map((key) => _SmallDeviceGridChild(tab: key))
@@ -97,69 +96,62 @@ class _SmallDeviceGridState extends State<SmallDeviceGrid> {
               },
             ),
           ),
-        DecoratedBox(
-          decoration: const BoxDecoration(boxShadow: [
-            BoxShadow(color: Colors.black45, blurRadius: 8.0),
-          ]),
-          child: Material(
-            child: Container(
-              height: kMobileBottomBarHeight + viewPadding.bottom,
-              padding: EdgeInsetsDirectional.only(
-                start: 16.0 + viewPadding.horizontal,
-                end: 16.0 + viewPadding.horizontal,
-                bottom: viewPadding.bottom,
+        ),
+      Material(
+        child: SafeArea(
+          top: false,
+          child: Container(
+            height: kMobileBottomBarHeight,
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
+            width: double.infinity,
+            child: Row(children: <Widget>[
+              UnityDrawerButton(
+                iconColor: theme.colorScheme.onSurface,
+                iconSize: 18.0,
+                splashRadius: 24.0,
               ),
-              width: double.infinity,
-              child: Row(children: <Widget>[
-                UnityDrawerButton(
-                  iconColor: theme.colorScheme.onSurface,
-                  iconSize: 18.0,
-                  splashRadius: 24.0,
+              IconButton(
+                icon: Icon(
+                  Icons.cyclone,
+                  size: 18.0,
+                  color: settings.kLayoutCycleEnabled.value
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.cyclone,
-                    size: 18.0,
-                    color: settings.kLayoutCycleEnabled.value
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface,
-                  ),
-                  tooltip: loc.cycle,
-                  onPressed: settings.toggleCycling,
-                ),
-                const Spacer(),
-                ...view.devices.keys.map((tab) {
-                  return Container(
-                    height: 48.0,
-                    width: 48.0,
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color:
-                            view.tab == tab ? theme.colorScheme.primary : null,
-                      ),
-                      child: IconButton(
-                        onPressed: () => view.setTab(tab),
-                        icon: Text(
-                          '$tab',
-                          style: TextStyle(
-                            color: view.tab == tab
-                                ? theme.colorScheme.onPrimary
-                                : theme.colorScheme.onSurface,
-                            fontSize: 18.0,
-                          ),
+                tooltip: loc.cycle,
+                onPressed: settings.toggleCycling,
+              ),
+              const Spacer(),
+              ...view.devices.keys.map((tab) {
+                return Container(
+                  height: 48.0,
+                  width: 48.0,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: view.tab == tab ? theme.colorScheme.primary : null,
+                    ),
+                    child: IconButton(
+                      onPressed: () => view.setTab(tab),
+                      icon: Text(
+                        '$tab',
+                        style: TextStyle(
+                          color: view.tab == tab
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                          fontSize: 18.0,
                         ),
                       ),
                     ),
-                  );
-                }),
-              ]),
-            ),
+                  ),
+                );
+              }),
+            ]),
           ),
         ),
-      ]),
-    );
+      ),
+    ]);
   }
 }
 

@@ -149,7 +149,7 @@
   "addServer": "Add Server",
   "settings": "Settings",
   "noServersAdded": "You haven't added any servers yet :/",
-  "howToAddServer": "Go to the \"Add Server\" screen to add a server.",
+  "howToAddServer": "Go to the \"Add Server\" tab to add a server.",
   "editServerInfo": "Edit server info",
   "editServer": "Edit server {serverName}",
   "@editServer": {
@@ -292,7 +292,7 @@
       }
     }
   },
-  "howToDownload": "Go to the \"Events History\" screen to download events.",
+  "howToDownload": "Go to the \"Events History\" tab to download events.",
   "downloadTitle": "{event} on {device} ({server}) at {date}",
   "@downloadTitle": {
     "placeholders": {

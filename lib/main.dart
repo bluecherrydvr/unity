@@ -178,7 +178,13 @@ Future<void> main(List<String> args) async {
 
     /// Firebase messaging isn't available on windows nor linux
     if (!kIsWeb && isMobilePlatform) {
-      FirebaseConfiguration.ensureInitialized();
+      try {
+        FirebaseConfiguration.ensureInitialized();
+      } catch (error, stackTrace) {
+        debugPrint('Error initializing firebase messaging: $error');
+        debugPrintStack(stackTrace: stackTrace);
+        logging.handleError(error, stackTrace);
+      }
     }
 
     HomeProvider.setDefaultStatusBarStyle();

@@ -24,8 +24,11 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -50,15 +53,52 @@ enum NetworkUsage {
 
 enum EnabledPreference { on, ask, never }
 
+enum DisplayOn {
+  always,
+  onHover,
+  never;
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      DisplayOn.always => loc.always,
+      DisplayOn.onHover => loc.onHover,
+      DisplayOn.never => loc.never,
+    };
+  }
+
+  static Iterable<Option<DisplayOn>> options(BuildContext context) {
+    return values.map<Option<DisplayOn>>((value) {
+      return Option(
+        value: value,
+        text: value.locale(context),
+      );
+    });
+  }
+
+  T build<T>(T child, T never, Set<ButtonStates> states) {
+    if (this == DisplayOn.never) {
+      return never;
+    } else if (this == DisplayOn.always) {
+      return child;
+    } else if (this == DisplayOn.onHover) {
+      if (states.isHovering) return child;
+      return never;
+    } else {
+      throw UnimplementedError('DisplayOn $this not implemented');
+    }
+  }
+}
+
 class _SettingsOption<T> {
   final String key;
   final T def;
   final Future<T> Function()? getDefault;
 
-  late final String Function(T value) saveAs;
+  late final String Function(dynamic value) saveAs;
   late final T Function(String value) loadFrom;
   final ValueChanged<T>? onChanged;
-  final T Function(T value)? valueOverrider;
+  final T Function(dynamic value)? valueOverrider;
 
   late T _value;
 
@@ -81,7 +121,7 @@ class _SettingsOption<T> {
     required this.key,
     required this.def,
     this.getDefault,
-    String Function(T value)? saveAs,
+    String Function(dynamic value)? saveAs,
     T Function(String value)? loadFrom,
     this.min,
     this.max,
@@ -139,8 +179,12 @@ class _SettingsOption<T> {
       if (getDefault != null) serializedData ??= saveAs(await getDefault!());
       serializedData ??= defAsString;
       _value = loadFrom(serializedData);
-    } catch (e) {
-      debugPrint('Error loading data for $key: $e\nFallback to default');
+    } catch (error, stackTrace) {
+      handleError(
+        error,
+        stackTrace,
+        'Error loading data for $key. Fallback to default value',
+      );
       _value = (await getDefault?.call()) ?? def;
     }
   }
@@ -156,21 +200,21 @@ class SettingsProvider extends UnityProvider {
   static late SettingsProvider instance;
 
   // General settings
-  final kLayoutCyclePeriod = _SettingsOption(
+  final kLayoutCyclePeriod = _SettingsOption<Duration>(
     def: const Duration(seconds: 5),
     key: 'general.cycle_period',
   );
-  final kLayoutCycleEnabled = _SettingsOption(
+  final kLayoutCycleEnabled = _SettingsOption<bool>(
     def: true,
     key: 'general.cycle_enabled',
   );
-  final kWakelock = _SettingsOption(
+  final kWakelock = _SettingsOption<bool>(
     def: true,
     key: 'general.wakelock',
   );
 
   // Notifications
-  final kNotificationsEnabled = _SettingsOption(
+  final kNotificationsEnabled = _SettingsOption<bool>(
     def: true,
     key: 'notifications.enabled',
   );
@@ -178,7 +222,7 @@ class SettingsProvider extends UnityProvider {
     def: DateTime.utc(1969, 7, 20, 20, 18, 04),
     key: 'notifications.snooze_until',
   );
-  final kNotificationClickBehavior = _SettingsOption(
+  final kNotificationClickBehavior = _SettingsOption<NotificationClickBehavior>(
     def: NotificationClickBehavior.showEventsScreen,
     key: 'notifications.click_behavior',
     loadFrom: (value) => NotificationClickBehavior.values[int.parse(value)],
@@ -186,13 +230,13 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Data usage
-  final kAutomaticStreaming = _SettingsOption(
+  final kAutomaticStreaming = _SettingsOption<NetworkUsage>(
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.automatic_streaming',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kStreamOnBackground = _SettingsOption(
+  final kStreamOnBackground = _SettingsOption<NetworkUsage>(
     def: NetworkUsage.wifiOnly,
     key: 'data_usage.stream_on_background',
     loadFrom: (value) => NetworkUsage.values[int.parse(value)],
@@ -200,51 +244,51 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Server settings
-  final kConnectAutomaticallyAtStartup = _SettingsOption(
+  final kConnectAutomaticallyAtStartup = _SettingsOption<bool>(
     def: true,
     key: 'server.connect_automatically_at_startup',
   );
-  final kAllowUntrustedCertificates = _SettingsOption(
+  final kAllowUntrustedCertificates = _SettingsOption<bool>(
     def: true,
     key: 'server.allow_untrusted_certificates',
   );
 
   // Streaming settings
-  final kStreamingType = _SettingsOption(
+  final kStreamingType = _SettingsOption<StreamingType>(
     def: kIsWeb ? StreamingType.hls : StreamingType.rtsp,
     key: 'streaming.type',
     loadFrom: (value) => StreamingType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRTSPProtocol = _SettingsOption(
+  final kRTSPProtocol = _SettingsOption<RTSPProtocol>(
     def: RTSPProtocol.tcp,
     key: 'streaming.rtsp_protocol',
     loadFrom: (value) => RTSPProtocol.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRenderingQuality = _SettingsOption(
+  final kRenderingQuality = _SettingsOption<RenderingQuality>(
     def: RenderingQuality.automatic,
     key: 'streaming.rendering_quality',
     loadFrom: (value) => RenderingQuality.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kVideoFit = _SettingsOption(
+  final kVideoFit = _SettingsOption<UnityVideoFit>(
     def: UnityVideoFit.contain,
     key: 'streaming.video_fit',
     loadFrom: (value) => UnityVideoFit.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kRefreshRate = _SettingsOption(
+  final kRefreshRate = _SettingsOption<Duration>(
     def: const Duration(minutes: 5),
     key: 'streaming.refresh_rate',
   );
-  final kLateStreamBehavior = _SettingsOption(
+  final kLateStreamBehavior = _SettingsOption<LateVideoBehavior>(
     def: LateVideoBehavior.automatic,
     key: 'streaming.late_video_behavior',
     loadFrom: (value) => LateVideoBehavior.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kReloadTimedOutStreams = _SettingsOption(
+  final kReloadTimedOutStreams = _SettingsOption<bool>(
     def: true,
     key: 'streaming.reload_timed_out_streams',
   );
@@ -258,25 +302,49 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'devices.list_offline',
   );
+  final kInitialDevicesVolume = _SettingsOption<double>(
+    min: 0.0,
+    max: 1.0,
+    def: 0.0,
+    key: 'devices.volume',
+  );
+  final kShowCameraNameOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.always,
+    key: 'devices.show_camera_name_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
+  );
+  final kShowServerNameOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.onHover,
+    key: 'devices.show_server_name_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
+  );
+  final kShowVideoStatusLabelOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.always,
+    key: 'devices.show_video_status_label_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
+  );
 
   // Downloads
-  final kDownloadOnMobileData = _SettingsOption(
+  final kDownloadOnMobileData = _SettingsOption<bool>(
     def: false,
     key: 'downloads.download_on_mobile_data',
   );
-  final kChooseLocationEveryTime = _SettingsOption(
+  final kChooseLocationEveryTime = _SettingsOption<bool>(
     def: false,
     key: 'downloads.choose_location_every_time',
   );
-  final kAllowAppCloseWhenDownloading = _SettingsOption(
+  final kAllowAppCloseWhenDownloading = _SettingsOption<bool>(
     def: false,
     key: 'downloads.allow_app_close_when_downloading',
   );
-  final kDownloadsDirectory = _SettingsOption(
+  final kDownloadsDirectory = _SettingsOption<String>(
     def: '',
     getDefault: () async {
       try {
-        return (await DownloadsManager.kDefaultDownloadsDirectory).path;
+        return (await DownloadsManager.kDefaultDownloadsDirectory)?.path ?? '';
       } catch (e) {
         return '';
       }
@@ -285,17 +353,17 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Events
-  final kPictureInPicture = _SettingsOption(
+  final kPictureInPicture = _SettingsOption<bool>(
     def: false,
     key: 'events.picture_in_picture',
   );
-  final kEventsSpeed = _SettingsOption(
+  final kEventsSpeed = _SettingsOption<double>(
     min: 0.25,
     max: 6.0,
     def: 1.0,
     key: 'events.speed',
   );
-  final kEventsVolume = _SettingsOption(
+  final kEventsVolume = _SettingsOption<double>(
     def: 1.0,
     key: 'events.volume',
   );
@@ -321,18 +389,18 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Application
-  final kThemeMode = _SettingsOption(
+  final kThemeMode = _SettingsOption<ThemeMode>(
     def: ThemeMode.system,
     key: 'application.theme_mode',
     loadFrom: (value) => ThemeMode.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
-  final kLanguageCode = _SettingsOption(
+  final kLanguageCode = _SettingsOption<Locale>(
     def: Locale.fromSubtags(languageCode: Intl.getCurrentLocale()),
     key: 'application.language_code',
   );
 
-  late final kDateFormat = _SettingsOption(
+  late final kDateFormat = _SettingsOption<DateFormat>(
     def: DateFormat(
       'EEEE, dd MMMM yyyy',
       kLanguageCode.value.toLanguageTag(),
@@ -344,7 +412,7 @@ class SettingsProvider extends UnityProvider {
   );
 
   static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
-  late final kTimeFormat = _SettingsOption(
+  late final kTimeFormat = _SettingsOption<DateFormat>(
     def: DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag()),
     key: 'application.time_format',
     valueOverrider: (value) {
@@ -382,11 +450,11 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Window
-  final kLaunchAppOnStartup = _SettingsOption(
+  final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
   );
-  final kMinimizeToTray = _SettingsOption(
+  final kMinimizeToTray = _SettingsOption<bool>(
     def: false,
     key: 'window.minimize_to_tray',
   );
@@ -396,17 +464,17 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'accessibility.animations_enabled',
   );
-  final kHighContrast = _SettingsOption(
+  final kHighContrast = _SettingsOption<bool>(
     def: false,
     key: 'accessibility.high_contrast',
   );
-  final kLargeFont = _SettingsOption(
+  final kLargeFont = _SettingsOption<bool>(
     def: false,
     key: 'accessibility.large_font',
   );
 
   // Privacy and Security
-  final kAllowDataCollection = _SettingsOption(
+  final kAllowDataCollection = _SettingsOption<bool>(
     def: true,
     key: 'privacy.allow_data_collection',
   );
@@ -418,28 +486,28 @@ class SettingsProvider extends UnityProvider {
   );
 
   // Updates
-  final kAutoUpdate = _SettingsOption(
+  final kAutoUpdate = _SettingsOption<bool>(
     def: true,
     key: 'updates.auto_update',
   );
-  final kShowReleaseNotes = _SettingsOption(
+  final kShowReleaseNotes = _SettingsOption<bool>(
     def: true,
     key: 'updates.show_release_notes',
   );
 
   // Other
-  final kMatrixedZoomEnabled = _SettingsOption(
+  final kMatrixedZoomEnabled = _SettingsOption<bool>(
     def: false,
     key: 'other.matrixed_zoom_enabled',
   );
-  final kMatrixSize = _SettingsOption(
+  final kMatrixSize = _SettingsOption<MatrixType>(
     def: MatrixType.t16,
     key: 'other.matrix_size',
     loadFrom: (value) => MatrixType.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
   static bool get isHardwareZoomSupported {
-    if (Platform.isMacOS || kIsWeb || UpdateManager.isEmbedded) {
+    if (kIsWeb || Platform.isMacOS || UpdateManager.isEmbedded) {
       return false;
     }
 
@@ -469,18 +537,76 @@ class SettingsProvider extends UnityProvider {
     },
     valueOverrider: isHardwareZoomSupported ? (_) => true : null,
   );
-  final kEventsMatrixedZoom = _SettingsOption(
+  final kEventsMatrixedZoom = _SettingsOption<bool>(
     def: true,
     key: 'other.zoom_matrixed_zoom_enabled',
   );
-  final kShowDebugInfo = _SettingsOption(
+  final kShowDebugInfo = _SettingsOption<bool>(
     def: kDebugMode,
     key: 'other.show_debug_info',
   );
-  final kShowNetworkUsage = _SettingsOption(
+  final kShowNetworkUsage = _SettingsOption<bool>(
     def: false,
     key: 'other.show_network_usage',
   );
+
+  /// The list of all settings.
+  late final List<_SettingsOption> _allSettings = [
+    kLayoutCyclePeriod,
+    kLayoutCycleEnabled,
+    kWakelock,
+    kNotificationsEnabled,
+    kSnoozeNotificationsUntil,
+    kNotificationClickBehavior,
+    kAutomaticStreaming,
+    kStreamOnBackground,
+    kConnectAutomaticallyAtStartup,
+    kAllowUntrustedCertificates,
+    kStreamingType,
+    kRTSPProtocol,
+    kRenderingQuality,
+    kVideoFit,
+    kRefreshRate,
+    kLateStreamBehavior,
+    kReloadTimedOutStreams,
+    kUseHardwareDecoding,
+    kListOfflineDevices,
+    kInitialDevicesVolume,
+    kShowCameraNameOn,
+    kShowServerNameOn,
+    kShowVideoStatusLabelOn,
+    kDownloadOnMobileData,
+    kChooseLocationEveryTime,
+    kAllowAppCloseWhenDownloading,
+    kDownloadsDirectory,
+    kPictureInPicture,
+    kEventsSpeed,
+    kEventsVolume,
+    kShowDifferentColorsForEvents,
+    kPauseToBuffer,
+    kTimelineInitialPoint,
+    kAutomaticallySkipEmptyPeriods,
+    kThemeMode,
+    kLanguageCode,
+    kDateFormat,
+    kTimeFormat,
+    kConvertTimeToLocalTimezone,
+    kLaunchAppOnStartup,
+    kMinimizeToTray,
+    kAnimationsEnabled,
+    kHighContrast,
+    kLargeFont,
+    kAllowDataCollection,
+    kAllowCrashReports,
+    kAutoUpdate,
+    kShowReleaseNotes,
+    kMatrixedZoomEnabled,
+    kMatrixSize,
+    kSoftwareZooming,
+    kEventsMatrixedZoom,
+    kShowDebugInfo,
+    kShowNetworkUsage,
+  ];
 
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
@@ -493,146 +619,43 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
+    try {
+      await initializeStorage(settings, 'settings');
+    } catch (error, stackTrace) {
+      handleError(
+        error,
+        stackTrace,
+        'Error initializing settings storage. Fallback to memory',
+      );
+    }
     final data = await tryReadStorage(() => settings.read());
 
     _hasMigratedTimezone = data['hasMigratedTimezone'] == 'true';
 
-    await Future.wait([
-      kLayoutCyclePeriod.loadData(data),
-      kLayoutCycleEnabled.loadData(data),
-      kWakelock.loadData(data),
-      kNotificationsEnabled.loadData(data),
-      kSnoozeNotificationsUntil.loadData(data),
-      kNotificationClickBehavior.loadData(data),
-      kAutomaticStreaming.loadData(data),
-      kStreamOnBackground.loadData(data),
-      kConnectAutomaticallyAtStartup.loadData(data),
-      kAllowUntrustedCertificates.loadData(data),
-      kStreamingType.loadData(data),
-      kRTSPProtocol.loadData(data),
-      kRenderingQuality.loadData(data),
-      kVideoFit.loadData(data),
-      kRefreshRate.loadData(data),
-      kLateStreamBehavior.loadData(data),
-      kReloadTimedOutStreams.loadData(data),
-      kUseHardwareDecoding.loadData(data),
-      kListOfflineDevices.loadData(data),
-      kDownloadOnMobileData.loadData(data),
-      kChooseLocationEveryTime.loadData(data),
-      kDownloadsDirectory.loadData(data),
-      kAllowAppCloseWhenDownloading.loadData(data),
-      kPictureInPicture.loadData(data),
-      kEventsSpeed.loadData(data),
-      kEventsVolume.loadData(data),
-      kShowDifferentColorsForEvents.loadData(data),
-      kPauseToBuffer.loadData(data),
-      kTimelineInitialPoint.loadData(data),
-      kAutomaticallySkipEmptyPeriods.loadData(data),
-      kThemeMode.loadData(data),
-      kLanguageCode.loadData(data),
-      kDateFormat.loadData(data),
-      kTimeFormat.loadData(data),
-      kConvertTimeToLocalTimezone.loadData(data),
-      kLaunchAppOnStartup.loadData(data),
-      kMinimizeToTray.loadData(data),
-      kAnimationsEnabled.loadData(data),
-      kHighContrast.loadData(data),
-      kLargeFont.loadData(data),
-      kAllowDataCollection.loadData(data),
-      kAllowCrashReports.loadData(data),
-      kAutoUpdate.loadData(data),
-      kShowReleaseNotes.loadData(data),
-      kMatrixedZoomEnabled.loadData(data),
-      kMatrixSize.loadData(data),
-      kSoftwareZooming.loadData(data),
-      kEventsMatrixedZoom.loadData(data),
-      kShowDebugInfo.loadData(data),
-      kShowNetworkUsage.loadData(data),
-    ]);
+    await Future.wait(_allSettings.map((setting) => setting.loadData(data)));
 
     notifyListeners();
   }
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await write({
-      kLayoutCyclePeriod.key:
-          kLayoutCyclePeriod.saveAs(kLayoutCyclePeriod.value),
-      kLayoutCycleEnabled.key:
-          kLayoutCycleEnabled.saveAs(kLayoutCycleEnabled.value),
-      kWakelock.key: kWakelock.saveAs(kWakelock.value),
-      kNotificationsEnabled.key:
-          kNotificationsEnabled.saveAs(kNotificationsEnabled.value),
-      kSnoozeNotificationsUntil.key:
-          kSnoozeNotificationsUntil.saveAs(kSnoozeNotificationsUntil.value),
-      kNotificationClickBehavior.key:
-          kNotificationClickBehavior.saveAs(kNotificationClickBehavior.value),
-      kAutomaticStreaming.key:
-          kAutomaticStreaming.saveAs(kAutomaticStreaming.value),
-      kStreamOnBackground.key:
-          kStreamOnBackground.saveAs(kStreamOnBackground.value),
-      kConnectAutomaticallyAtStartup.key: kConnectAutomaticallyAtStartup
-          .saveAs(kConnectAutomaticallyAtStartup.value),
-      kAllowUntrustedCertificates.key:
-          kAllowUntrustedCertificates.saveAs(kAllowUntrustedCertificates.value),
-      kStreamingType.key: kStreamingType.saveAs(kStreamingType.value),
-      kRTSPProtocol.key: kRTSPProtocol.saveAs(kRTSPProtocol.value),
-      kRenderingQuality.key: kRenderingQuality.saveAs(kRenderingQuality.value),
-      kVideoFit.key: kVideoFit.saveAs(kVideoFit.value),
-      kRefreshRate.key: kRefreshRate.saveAs(kRefreshRate.value),
-      kLateStreamBehavior.key:
-          kLateStreamBehavior.saveAs(kLateStreamBehavior.value),
-      kReloadTimedOutStreams.key:
-          kReloadTimedOutStreams.saveAs(kReloadTimedOutStreams.value),
-      kUseHardwareDecoding.key:
-          kUseHardwareDecoding.saveAs(kUseHardwareDecoding.value),
-      kListOfflineDevices.key:
-          kListOfflineDevices.saveAs(kListOfflineDevices.value),
-      kDownloadOnMobileData.key:
-          kDownloadOnMobileData.saveAs(kDownloadOnMobileData.value),
-      kChooseLocationEveryTime.key:
-          kChooseLocationEveryTime.saveAs(kChooseLocationEveryTime.value),
-      kAllowAppCloseWhenDownloading.key: kAllowAppCloseWhenDownloading
-          .saveAs(kAllowAppCloseWhenDownloading.value),
-      kPictureInPicture.key: kPictureInPicture.saveAs(kPictureInPicture.value),
-      kEventsSpeed.key: kEventsSpeed.saveAs(kEventsSpeed.value),
-      kEventsVolume.key: kEventsVolume.saveAs(kEventsVolume.value),
-      kShowDifferentColorsForEvents.key: kShowDifferentColorsForEvents
-          .saveAs(kShowDifferentColorsForEvents.value),
-      kPauseToBuffer.key: kPauseToBuffer.saveAs(kPauseToBuffer.value),
-      kTimelineInitialPoint.key:
-          kTimelineInitialPoint.saveAs(kTimelineInitialPoint.value),
-      kAutomaticallySkipEmptyPeriods.key: kAutomaticallySkipEmptyPeriods
-          .saveAs(kAutomaticallySkipEmptyPeriods.value),
-      kThemeMode.key: kThemeMode.saveAs(kThemeMode.value),
-      kLanguageCode.key: kLanguageCode.saveAs(kLanguageCode.value),
-      kDateFormat.key: kDateFormat.saveAs(kDateFormat.value),
-      kTimeFormat.key: kTimeFormat.saveAs(kTimeFormat.value),
-      kConvertTimeToLocalTimezone.key:
-          kConvertTimeToLocalTimezone.saveAs(kConvertTimeToLocalTimezone.value),
+    await write(<String, dynamic>{
+      for (final setting in _allSettings)
+        ...() {
+          try {
+            return <String, String>{setting.key: setting.saveAs(setting.value)};
+          } catch (error, stackTrace) {
+            handleError(
+              error,
+              stackTrace,
+              'Error saving setting ${setting.key}',
+            );
+          }
+          return <String, String>{};
+        }(),
       'hasMigratedTimezone': _hasMigratedTimezone.toString(),
-      kLaunchAppOnStartup.key:
-          kLaunchAppOnStartup.saveAs(kLaunchAppOnStartup.value),
-      kMinimizeToTray.key: kMinimizeToTray.saveAs(kMinimizeToTray.value),
-      kAnimationsEnabled.key:
-          kAnimationsEnabled.saveAs(kAnimationsEnabled.value),
-      kHighContrast.key: kHighContrast.saveAs(kHighContrast.value),
-      kLargeFont.key: kLargeFont.saveAs(kLargeFont.value),
-      kAllowDataCollection.key:
-          kAllowDataCollection.saveAs(kAllowDataCollection.value),
-      kAllowCrashReports.key:
-          kAllowCrashReports.saveAs(kAllowCrashReports.value),
-      kAutoUpdate.key: kAutoUpdate.saveAs(kAutoUpdate.value),
-      kShowReleaseNotes.key: kShowReleaseNotes.saveAs(kShowReleaseNotes.value),
-      kMatrixedZoomEnabled.key:
-          kMatrixedZoomEnabled.saveAs(kMatrixedZoomEnabled.value),
-      kMatrixSize.key: kMatrixSize.saveAs(kMatrixSize.value),
-      kSoftwareZooming.key: kSoftwareZooming.saveAs(kSoftwareZooming.value),
-      kEventsMatrixedZoom.key:
-          kEventsMatrixedZoom.saveAs(kEventsMatrixedZoom.value),
-      kShowDebugInfo.key: kShowDebugInfo.saveAs(kShowDebugInfo.value),
-      kShowNetworkUsage.key: kShowNetworkUsage.saveAs(kShowNetworkUsage.value),
     });
+
     super.save(notifyListeners: notifyListeners);
   }
 

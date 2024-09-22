@@ -185,13 +185,17 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               ),
               child: RichText(
                 text: TextSpan(
-                  text: widget.device.name,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: Colors.white,
                     shadows: outlinedText(),
                   ),
                   children: [
-                    if (states.isHovering)
+                    settings.kShowCameraNameOn.value.build(
+                      TextSpan(text: widget.device.name),
+                      const TextSpan(),
+                      states,
+                    ),
+                    settings.kShowServerNameOn.value.build(
                       TextSpan(
                         text: '\n'
                             '${widget.device.externalData?.rackName ?? widget.device.server.name}',
@@ -200,6 +204,9 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                           shadows: outlinedText(),
                         ),
                       ),
+                      const TextSpan(),
+                      states,
+                    ),
                     if (states.isHovering && showDebugInfo)
                       TextSpan(
                         text:
@@ -307,13 +314,20 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                   const Spacer(),
                   if (states.isHovering) reloadButton,
                 ],
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(
-                    start: 6.0,
-                    end: 6.0,
-                    bottom: 6.0,
+                settings.kShowVideoStatusLabelOn.value.build(
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 6.0,
+                      end: 6.0,
+                      bottom: 6.0,
+                    ),
+                    child: VideoStatusLabel(
+                      video: video,
+                      device: widget.device,
+                    ),
                   ),
-                  child: VideoStatusLabel(video: video, device: widget.device),
+                  const SizedBox.shrink(),
+                  states,
                 ),
               ]),
             ),

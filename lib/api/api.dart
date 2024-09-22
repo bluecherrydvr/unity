@@ -162,9 +162,31 @@ class API {
         );
       }
 
-      server.devices
-        ..clear()
-        ..addAll(devices);
+      for (final device in devices) {
+        // If the device is repeated, do noting.
+        if (server.devices.contains(device)) {
+          continue;
+        } else
+        // If there is already a device with the same id, merge the two devices.
+        // Merging is made to ensure that some properties, such as volume and
+        // matrix type, for example, are restored properly for each device.
+        if (server.devices.any((d) => d.id == device.id)) {
+          final index = server.devices.indexWhere((d) => d.id == device.id);
+          server.devices[index] = server.devices[index].merge(device);
+        }
+        // If the device has never been seen, add it
+        else {
+          server.devices.add(device);
+        }
+      }
+
+      // If a device which id is not in the devices list, remove it.
+      server.devices.removeWhere((device) {
+        return !devices.any((d) {
+          return d.id == device.id;
+        });
+      });
+
       return devices;
     } catch (error, stack) {
       handleError(error, stack, 'Failed to get devices on server $server');

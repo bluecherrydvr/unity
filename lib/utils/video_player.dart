@@ -126,8 +126,11 @@ class UnityPlayers with ChangeNotifier {
         );
       },
     )
-      ..setVolume(0.0)
-      ..setSpeed(1.0);
+      ..setVolume(device.volume)
+      ..setSpeed(1.0)
+      ..volumeStream.listen((volume) {
+        device.volume = volume;
+      });
 
     setSource();
 

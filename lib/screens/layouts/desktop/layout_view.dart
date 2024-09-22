@@ -89,7 +89,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid> {
   }
 }
 
-class LayoutView extends StatelessWidget {
+class LayoutView extends StatefulWidget {
   const LayoutView({
     super.key,
     required this.layout,
@@ -105,21 +105,28 @@ class LayoutView extends StatelessWidget {
   final ReorderCallback? onReorder;
 
   @override
+  State<LayoutView> createState() => _LayoutViewState();
+}
+
+class _LayoutViewState extends State<LayoutView> {
+  var _volumeSliderVisible = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
 
     return DragTarget<Device>(
-      onWillAcceptWithDetails: onWillAccept == null
+      onWillAcceptWithDetails: widget.onWillAccept == null
           ? null
-          : (details) => onWillAccept!.call(details.data),
-      onAcceptWithDetails: (details) => onAccept?.call(details.data),
+          : (details) => widget.onWillAccept!.call(details.data),
+      onAcceptWithDetails: (details) => widget.onAccept?.call(details.data),
       builder: (context, candidateItems, rejectedItems) {
         late Widget child;
 
         final devices = <Device>[
-          ...layout.devices,
+          ...widget.layout.devices,
           ...candidateItems.whereType<Device>(),
         ];
         final dl = devices.length;
@@ -135,27 +142,29 @@ class LayoutView extends StatelessWidget {
               ),
             ),
           );
-        } else if (devices.isEmpty) {
-          child = Center(
-            child: Text(
-              loc.selectACamera,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12.0,
-              ),
-            ),
-          );
+          // }
+          // else if (devices.isEmpty) {
+          // child = Center(
+          //   child: Text(
+          //     loc.selectACamera,
+          //     style: const TextStyle(
+          //       color: Colors.white70,
+          //       fontSize: 12.0,
+          //     ),
+          //   ),
+          // );
         } else if (dl == 1) {
           final device = devices.first;
           child = Padding(
-            key: ValueKey(layout.hashCode),
+            key: ValueKey(widget.layout.hashCode),
             padding: kGridPadding,
             child: AspectRatio(
               aspectRatio: kHorizontalAspectRatio,
               child: DesktopDeviceTile(device: device),
             ),
           );
-        } else if (layout.type == DesktopLayoutType.compactView && dl >= 4) {
+        } else if (widget.layout.type == DesktopLayoutType.compactView &&
+            dl >= 4) {
           var foldedDevices = devices
               .fold<List<List<Device>>>(
                 [[]],
@@ -197,7 +206,7 @@ class LayoutView extends StatelessWidget {
           child = AbsorbPointer(
             absorbing: candidateItems.isNotEmpty,
             child: GridView.builder(
-              key: ValueKey(layout.hashCode),
+              key: ValueKey(widget.layout.hashCode),
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -233,11 +242,11 @@ class LayoutView extends StatelessWidget {
             child: AbsorbPointer(
               absorbing: candidateItems.isNotEmpty,
               child: StaticGrid(
-                key: ValueKey(layout.hashCode),
+                key: ValueKey(widget.layout.hashCode),
                 crossAxisCount: crossAxisCount.clamp(1, 50),
                 childAspectRatio: kHorizontalAspectRatio,
-                reorderable: onReorder != null,
-                onReorder: onReorder ?? (a, b) {},
+                reorderable: widget.onReorder != null,
+                onReorder: widget.onReorder ?? (a, b) {},
                 children: devices.map((device) {
                   return DesktopDeviceTile(device: device);
                 }).toList(),
@@ -264,53 +273,110 @@ class LayoutView extends StatelessWidget {
                   ),
           ),
           child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IntrinsicHeight(
                   child: Row(children: [
                     Expanded(
                       child: Text(
-                        layout.name,
-                        style: theme.textTheme.titleSmall,
+                        widget.layout.name,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    if (layout.devices.isNotEmpty)
-                      SquaredIconButton(
-                        icon: const Icon(Icons.clear),
-                        tooltip: loc.clearLayout(layout.devices.length),
-                        onPressed: view.clearLayout,
-                      ),
+                    if (widget.layout.devices.isNotEmpty)
+                      ...() {
+                        final volume = widget.layout.devices
+                            .map((e) => e.volume)
+                            .findMaxDuplicatedElementInList()
+                            .toDouble();
+                        return <Widget>[
+                          if (_volumeSliderVisible)
+                            SizedBox(
+                              height: 24.0,
+                              child: Slider(
+                                value: widget.layout.devices
+                                    .map((e) => e.volume)
+                                    .findMaxDuplicatedElementInList()
+                                    .toDouble(),
+                                divisions: 100,
+                                label: '${(volume * 100).round()}%',
+                                onChanged: (value) async {
+                                  for (final device in widget.layout.devices) {
+                                    final player =
+                                        UnityPlayers.players[device.uuid];
+                                    if (player != null) {
+                                      await player.setVolume(value);
+                                      device.volume = value;
+                                    }
+                                  }
+                                  if (mounted) setState(() {});
+                                },
+                              ),
+                            ),
+                          SquaredIconButton(
+                            icon: const Icon(
+                              Icons.equalizer,
+                              color: Colors.white,
+                            ),
+                            tooltip:
+                                'Layout Volume • ${(volume * 100).round()}%',
+                            onPressed: () {
+                              setState(() {
+                                _volumeSliderVisible = !_volumeSliderVisible;
+                              });
+                            },
+                          ),
+                        ];
+                      }(),
                     if (canOpenNewWindow)
                       SquaredIconButton(
-                        icon: const Icon(Icons.open_in_new),
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          color: Colors.white,
+                        ),
                         tooltip: loc.openInANewWindow,
-                        onPressed: layout.openInANewWindow,
+                        onPressed: widget.layout.openInANewWindow,
                       ),
                     SquaredIconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: const Icon(Icons.edit, color: Colors.white),
                       tooltip: loc.editLayout,
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              EditLayoutDialog(layout: layout),
+                              EditLayoutDialog(layout: widget.layout),
                         );
                       },
                     ),
                     SquaredIconButton(
-                      icon: const Icon(Icons.import_export),
+                      icon: const Icon(
+                        Icons.import_export,
+                        color: Colors.white,
+                      ),
                       tooltip: loc.exportLayout,
                       onPressed: () {
-                        layout.export(dialogTitle: loc.exportLayout);
+                        widget.layout.export(dialogTitle: loc.exportLayout);
                       },
                     ),
+                    if (widget.layout.devices.isNotEmpty) ...[
+                      const VerticalDivider(),
+                      SquaredIconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: theme.colorScheme.error,
+                        ),
+                        tooltip: loc.clearLayout(widget.layout.devices.length),
+                        onPressed: view.clearLayout,
+                      ),
+                    ],
                   ]),
                 ),
-                Expanded(child: Center(child: child)),
-              ],
-            ),
+              ),
+              Expanded(child: Center(child: child)),
+            ]),
           ),
         );
       },

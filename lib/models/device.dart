@@ -116,6 +116,14 @@ class Device {
   /// The external device data.
   final ExternalDeviceData? externalData;
 
+  /// The volume of this device.
+  ///
+  /// This volume is restored every time the app opens and is applied to the
+  /// respective video player.
+  double volume = defaultVolume;
+  static double get defaultVolume =>
+      SettingsProvider.instance.kInitialDevicesVolume.value;
+
   /// Creates a device.
   Device({
     required this.name,
@@ -332,7 +340,8 @@ class Device {
         matrixType.hashCode ^
         overlays.hashCode ^
         preferredStreamingType.hashCode ^
-        externalData.hashCode;
+        externalData.hashCode ^
+        volume.hashCode;
   }
 
   Device copyWith({
@@ -348,22 +357,24 @@ class Device {
     Iterable<VideoOverlay>? overlays,
     StreamingType? preferredStreamingType,
     ExternalDeviceData? externalData,
-  }) =>
-      Device(
-        name: name ?? this.name,
-        id: id ?? this.id,
-        status: status ?? this.status,
-        resolutionX: resolutionX ?? this.resolutionX,
-        resolutionY: resolutionY ?? this.resolutionY,
-        server: server ?? this.server,
-        hasPTZ: hasPTZ ?? this.hasPTZ,
-        url: url ?? this.url,
-        matrixType: matrixType ?? this.matrixType,
-        overlays: overlays ?? this.overlays,
-        preferredStreamingType:
-            preferredStreamingType ?? this.preferredStreamingType,
-        externalData: externalData ?? this.externalData,
-      );
+    double? volume,
+  }) {
+    return Device(
+      name: name ?? this.name,
+      id: id ?? this.id,
+      status: status ?? this.status,
+      resolutionX: resolutionX ?? this.resolutionX,
+      resolutionY: resolutionY ?? this.resolutionY,
+      server: server ?? this.server,
+      hasPTZ: hasPTZ ?? this.hasPTZ,
+      url: url ?? this.url,
+      matrixType: matrixType ?? this.matrixType,
+      overlays: overlays ?? this.overlays,
+      preferredStreamingType:
+          preferredStreamingType ?? this.preferredStreamingType,
+      externalData: externalData ?? this.externalData,
+    )..volume = volume ?? this.volume;
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -379,6 +390,7 @@ class Device {
       'overlays': overlays.map((e) => e.toMap()).toList(),
       'preferredStreamingType': preferredStreamingType?.name,
       'externalData': externalData?.toMap(),
+      'volume': volume,
     };
   }
 
@@ -407,6 +419,30 @@ class Device {
       externalData: json['externalData'] != null
           ? ExternalDeviceData.fromMap(json['externalData'])
           : null,
+    )..volume = json['volume'] is double
+        ? json['volume']
+        : json['volume'] is String
+            ? double.tryParse(json['volume']) ?? defaultVolume
+            : defaultVolume;
+  }
+
+  Device merge(Device? other) {
+    if (other == null) return this;
+
+    return copyWith(
+      externalData: other.externalData,
+      hasPTZ: hasPTZ,
+      id: other.id,
+      matrixType: other.matrixType,
+      name: other.name,
+      overlays: other.overlays,
+      preferredStreamingType: other.preferredStreamingType,
+      resolutionX: other.resolutionX,
+      resolutionY: other.resolutionY,
+      server: other.server,
+      status: other.status,
+      url: other.url,
+      volume: other.volume,
     );
   }
 }

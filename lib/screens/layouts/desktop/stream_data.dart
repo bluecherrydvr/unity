@@ -196,6 +196,7 @@ class _StreamDataState extends State<StreamData> {
                   value: widget.video.player.volume,
                   onChanged: (v) {
                     widget.video.player.setVolume(v);
+                    widget.device.volume = v;
                   },
                 ),
                 Text(loc.cameraViewFit, style: theme.textTheme.headlineSmall),

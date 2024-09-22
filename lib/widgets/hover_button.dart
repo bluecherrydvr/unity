@@ -170,6 +170,10 @@ class HoverButton extends StatefulWidget {
   static HoverButtonState of(BuildContext context) {
     return context.findAncestorStateOfType<HoverButtonState>()!;
   }
+
+  static HoverButtonState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<HoverButtonState>();
+  }
 }
 
 class HoverButtonState extends State<HoverButton> {

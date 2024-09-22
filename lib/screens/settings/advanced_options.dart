@@ -25,6 +25,7 @@ import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -110,12 +111,12 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
         ),
         title: Text(loc.softwareMagnification),
         subtitle: Text(
-          Platform.isMacOS
+          isMacOS
               ? loc.softwareMagnificationDescriptionMacOS
               : loc.softwareMagnificationDescription,
         ),
         value: settings.kSoftwareZooming.value,
-        onChanged: Platform.isMacOS
+        onChanged: isMacOS
             ? null
             : (v) {
                 if (v != null) {

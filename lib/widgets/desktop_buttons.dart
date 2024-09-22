@@ -157,7 +157,7 @@ class WindowButtons extends StatelessWidget {
               return title ?? 'Bluecherry';
             }
 
-            if (!isMacOSPlatform) {
+            if (!(isMacOSPlatform || kIsWeb)) {
               return navData
                   .firstWhere((d) => d.tab == tab, orElse: () => navData.first)
                   .text;

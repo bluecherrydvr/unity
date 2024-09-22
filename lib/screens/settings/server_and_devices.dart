@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
@@ -365,12 +366,37 @@ class _DevicesSettingsState extends State<DevicesSettings> {
           leading: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.equalizer),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.initialDeviceVolume),
+          subtitle: Text(
+            '${(settings.kInitialDevicesVolume.value * 100).toInt()}%',
+          ),
+          trailing: SizedBox(
+            width: 160.0,
+            child: Slider(
+              value: settings.kInitialDevicesVolume.value.clamp(
+                settings.kInitialDevicesVolume.min!,
+                settings.kInitialDevicesVolume.max!,
+              ),
+              min: settings.kInitialDevicesVolume.min!,
+              max: settings.kInitialDevicesVolume.max!,
+              onChanged: (v) {
+                settings.kInitialDevicesVolume.value = v;
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.ondemand_video),
           ),
-          title: const Text('Run a video test'),
-          subtitle: const Text(
-            'Run a video test to check the state of video playback',
-          ),
+          title: Text(loc.runVideoTest),
+          subtitle: Text(loc.runVideoTestDescription),
           trailing: const Icon(Icons.play_arrow),
           contentPadding: DesktopSettings.horizontalPadding,
           onTap: () => _runVideoTest(context),
@@ -385,11 +411,34 @@ class _DevicesSettingsState extends State<DevicesSettings> {
                 controller: _testPlayer,
                 device: Device.dump(
                   name: 'Camera Viewport',
-                ),
+                  id: 1,
+                )..server = Server.dump(name: 'Server Name'),
                 onFitChanged: (_) {},
                 showDebugInfo: true,
               ),
             ),
+          ),
+          const SizedBox(height: 8.0),
+          OptionsChooserTile<DisplayOn>(
+            title: 'Show Camera Name',
+            icon: Icons.camera_outlined,
+            value: settings.kShowCameraNameOn.value,
+            values: DisplayOn.options(context),
+            onChanged: (v) => settings.kShowCameraNameOn.value = v,
+          ),
+          OptionsChooserTile<DisplayOn>(
+            title: 'Show Server Name',
+            icon: Icons.dvr,
+            value: settings.kShowServerNameOn.value,
+            values: DisplayOn.options(context),
+            onChanged: (v) => settings.kShowServerNameOn.value = v,
+          ),
+          OptionsChooserTile<DisplayOn>(
+            title: 'Show Video Status Label',
+            icon: Icons.dvr,
+            value: settings.kShowVideoStatusLabelOn.value,
+            values: DisplayOn.options(context),
+            onChanged: (v) => settings.kShowVideoStatusLabelOn.value = v,
           ),
           const SizedBox(height: 20.0),
         ],

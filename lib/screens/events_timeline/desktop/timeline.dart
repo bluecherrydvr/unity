@@ -235,19 +235,19 @@ class Timeline extends ChangeNotifier {
       : this(
           tiles: [
             TimelineTile(
-              device: Device.dump(name: 'device1'),
+              device: Device.dump(id: 0, name: 'device1'),
               events: TimelineEvent.fakeData,
             ),
             TimelineTile(
-              device: Device.dump(name: 'device2'),
+              device: Device.dump(id: 1, name: 'device2'),
               events: TimelineEvent.fakeData,
             ),
             TimelineTile(
-              device: Device.dump(name: 'device3'),
+              device: Device.dump(id: 2, name: 'device3'),
               events: TimelineEvent.fakeData,
             ),
             TimelineTile(
-              device: Device.dump(name: 'device4'),
+              device: Device.dump(id: 3, name: 'device4'),
               events: TimelineEvent.fakeData,
             ),
           ],
@@ -476,10 +476,12 @@ class Timeline extends ChangeNotifier {
     debugLabel: 'Zoom Indicator Controller',
   );
   void scrollTo(double to, [double? max]) {
+    final position =
+        zoomController.hasClients ? zoomController.positions.last : null;
     zoomController.jumpTo(clampDouble(
       to,
       0.0,
-      max ?? zoomController.position.maxScrollExtent,
+      max ?? position?.maxScrollExtent ?? 0.0,
     ));
   }
 
@@ -495,12 +497,15 @@ class Timeline extends ChangeNotifier {
     if (_zoom == 1.0) {
       scrollTo(0.0);
     } else if (_zoom > 1.0) {
-      final visibilityFactor = zoomController.position.viewportDimension / 6.0;
-      final zoomedWidth = zoomController.position.viewportDimension * zoom;
+      final position =
+          zoomController.hasClients ? zoomController.positions.last : null;
+      if (position == null) return;
+      final visibilityFactor = position.viewportDimension / 6.0;
+      final zoomedWidth = position.viewportDimension * zoom;
       final secondWidth = zoomedWidth / secondsInADay;
       final to = currentPosition.inSeconds * secondWidth;
 
-      if (to < zoomController.position.viewportDimension) {
+      if (to < position.viewportDimension) {
         // If the current position is at the beggining of the viewport, jump
         // to 0.0
         scrollTo(0.0);
@@ -508,8 +513,7 @@ class Timeline extends ChangeNotifier {
         // If the current position is at the end of the viewport, jump to the
         // beggining of the end of the viewport
         // scrollTo(zoomedWidth);
-        scrollTo(zoomedWidth - zoomController.position.viewportDimension,
-            zoomedWidth);
+        scrollTo(zoomedWidth - position.viewportDimension, zoomedWidth);
       } else {
         // Otherwise, jump to the current position minus the visibility factor,
         // to ensure that the current position is visible at a viable position
@@ -612,4 +616,6 @@ class Timeline extends ChangeNotifier {
     zoomController.dispose();
     super.dispose();
   }
+
+  void notify() => notifyListeners();
 }

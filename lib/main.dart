@@ -84,21 +84,16 @@ Future<void> main(List<String> args) async {
     }
 
     await initializeDateFormatting();
+    await configureStorage();
 
     DevHttpOverrides.configureCertificates();
     API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
-    // if (isDesktopPlatform && Platform.isLinux) {
-    //   if (isEmbedded) {
-    //     UnityVideoPlayerFlutterInterface.registerWith();
-    //   } else {
-    //     UnityVideoPlayerMediaKitInterface.registerWith();
-    //   }
-    // }
-    debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
-    await configureStorage();
 
     logging.writeLogToFile('Opening app with $args');
+    logging.writeLogToFile(
+      'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
+    );
 
     if (isDesktopPlatform && args.isNotEmpty) {
       debugPrint('FOUND ANOTHER WINDOW: $args');
@@ -140,25 +135,16 @@ Future<void> main(List<String> args) async {
 
               break;
           }
-        } catch (error, stack) {
-          debugPrint('error: $error');
-          debugPrintStack(stackTrace: stack);
+        } catch (error, stackTrace) {
+          logging.handleError(
+            error,
+            stackTrace,
+            'Failed to open a secondary window',
+          );
         }
 
         return;
       }
-    }
-
-    // Request notifications permission for iOS, Android 13+ and Windows.
-    //
-    // permission_handler only supports these platforms
-    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
-      () async {
-        if (await Permission.notification.isDenied) {
-          final state = await Permission.notification.request();
-          debugPrint('Notification permission state $state');
-        }
-      }();
     }
 
     // We use [Future.wait] to decrease startup time.
@@ -176,15 +162,34 @@ Future<void> main(List<String> args) async {
       EventsProvider.ensureInitialized(),
     ]);
 
+    runApp(const UnityApp());
+
+    // Request notifications permission for iOS, Android 13+ and Windows.
+    //
+    // permission_handler only supports these platforms
+    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
+      () async {
+        if (await Permission.notification.isDenied) {
+          final state = await Permission.notification.request();
+          debugPrint('Notification permission state $state');
+        }
+      }();
+    }
+
     /// Firebase messaging isn't available on windows nor linux
     if (!kIsWeb && isMobilePlatform) {
-      FirebaseConfiguration.ensureInitialized();
+      try {
+        FirebaseConfiguration.ensureInitialized();
+      } catch (error, stackTrace) {
+        logging.handleError(
+          error,
+          stackTrace,
+          'Error initializing firebase messaging',
+        );
+      }
     }
 
     HomeProvider.setDefaultStatusBarStyle();
-
-    runApp(const UnityApp());
-
     app_links.register('rtsp');
     app_links.register('bluecherry');
     app_links.listen();
@@ -309,8 +314,12 @@ class _UnityAppState extends State<UnityApp>
           debugPrint('Disposing player ${player.hashCode}');
           try {
             await player.dispose();
-          } catch (e) {
-            debugPrint('Error disposing player: $e');
+          } catch (error, stackTrace) {
+            logging.handleError(
+              error,
+              stackTrace,
+              'Error disposing player $player',
+            );
           }
         }
       });

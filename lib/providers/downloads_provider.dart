@@ -99,10 +99,11 @@ class DownloadsManager extends UnityProvider {
     return instance;
   }
 
-  static Future<Directory> get kDefaultDownloadsDirectory async {
+  static Future<Directory?> get kDefaultDownloadsDirectory async {
+    if (kIsWeb) return null;
     Directory? dir;
     try {
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
         final dirs = await getExternalStorageDirectories(
             type: StorageDirectory.downloads);
         if (dirs?.isNotEmpty ?? false) dir = dirs!.first;

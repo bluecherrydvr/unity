@@ -64,7 +64,9 @@ class Event {
     this.category,
     this.mediaID,
     this.mediaURL,
-  })  : server = server ?? ServersProvider.instance.servers.first,
+  })  : server = server ??
+            ServersProvider.instance.servers.elementAtOrNull(0) ??
+            Server.dump(),
         publishedRaw =
             publishedRaw ?? DateTimeExtension.now().toIso8601String(),
         published = published ?? DateTimeExtension.now(),

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -59,6 +60,26 @@ enum UnityTab {
 
   /// Settings tab.
   settings;
+
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final layout = context.watch<DesktopViewProvider>().currentLayout;
+
+    var title = switch (this) {
+      UnityTab.deviceGrid => loc.screens(layout.name),
+      UnityTab.directCameraScreen => loc.directCamera,
+      UnityTab.eventsHistory => loc.eventBrowser,
+      UnityTab.eventsTimeline => loc.eventsTimeline,
+      UnityTab.addServer => loc.addServer,
+      UnityTab.downloads => loc.downloads,
+      UnityTab.settings => loc.settings,
+    };
+
+    if (kIsWeb) {
+      title = 'Bluecherry • $title';
+    }
+    return title;
+  }
 }
 
 enum UnityLoadingReason {

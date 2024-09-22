@@ -26,20 +26,24 @@ abstract class UnityProvider extends ChangeNotifier {
   Future<void> initialize();
   Future<void> reloadInterface() => initialize();
 
-  late SafeLocalStorage storage;
+  SafeLocalStorage? storage;
+  String? key;
 
   @protected
   Future<void> initializeStorage(SafeLocalStorage storage, String key) async {
-    this.storage = storage;
+    this.key = key;
     try {
-      final hive = await tryReadStorage(() => storage.read());
-      if (!hive.containsKey(key)) {
-        await save();
-      } else {
-        await restore();
-      }
+      this.storage = storage;
     } catch (e) {
+      await configureStorage();
+      this.storage = storage;
+    }
+    try {
+      await restore();
+    } catch (error, stackTrace) {
       await save();
+
+      handleError(error, stackTrace, 'Failed to restore $key');
     }
   }
 
@@ -59,11 +63,11 @@ abstract class UnityProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> write(dynamic data) {
+  Future<void>? write(dynamic data) {
     try {
-      return storage.write(data);
-    } catch (error, stack) {
-      handleError(error, stack);
+      return storage?.write(data);
+    } catch (error, stackTrace) {
+      handleError(error, stackTrace, 'Failed to write data to $key');
       return Future.value();
     }
   }

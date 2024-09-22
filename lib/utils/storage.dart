@@ -24,8 +24,10 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:safe_local_storage/safe_local_storage.dart';
 
+bool _isStorageConfigured = false;
+
 Future<void> configureStorage() async {
-  if (kIsWeb) return;
+  if (kIsWeb || _isStorageConfigured) return;
 
   final dir = (await getApplicationSupportDirectory()).path;
 
@@ -40,6 +42,8 @@ Future<void> configureStorage() async {
   desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
   updates = SafeLocalStorage(path.join(dir, 'updates.json'));
   events = SafeLocalStorage(path.join(dir, 'events.json'));
+
+  _isStorageConfigured = true;
 }
 
 late final SafeLocalStorage storage;
@@ -95,7 +99,7 @@ Future<File> errorLog(LogType type, String message) async {
 
 // TODO(bdlukaa): support for web. Maybe by no longer using safe_local_storage
 //                and using other storage methods instead, like shared_preferences.
-Future<Map> tryReadStorage(Future Function() callback) async {
+Future<Map> tryReadStorage(Future? Function() callback) async {
   try {
     return (await callback()) as Map;
   } catch (e) {

@@ -200,11 +200,14 @@ class ServersProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await tryReadStorage(() => serversStorage.read());
 
-    final serversData = List<Map<String, dynamic>>.from(
-      data[kStorageServers] is String
-          ? (await compute(jsonDecode, data[kStorageServers] as String) as List)
-          : data[kStorageServers] as List,
-    );
+    final serversData = data[kStorageServers] == null
+        ? <Map<String, dynamic>>[]
+        : List<Map<String, dynamic>>.from(
+            data[kStorageServers] is String
+                ? (await compute(jsonDecode, data[kStorageServers] as String)
+                    as List)
+                : data[kStorageServers] as List,
+          );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
   }

@@ -292,16 +292,18 @@ class _LayoutViewState extends State<LayoutView> {
                         height: 24.0,
                         child: Slider(
                           value: widget.layout.devices
-                                  .elementAtOrNull(0)
-                                  ?.volume ??
-                              0.0,
-                          onChanged: (value) {
+                              .map((e) => e.volume)
+                              .findMaxDuplicatedElementInList()
+                              .toDouble(),
+                          onChanged: (value) async {
                             for (final device in widget.layout.devices) {
                               final player = UnityPlayers.players[device.uuid];
                               if (player != null) {
-                                player.setVolume(value);
+                                await player.setVolume(value);
+                                device.volume = value;
                               }
                             }
+                            if (mounted) setState(() {});
                           },
                         ),
                       ),

@@ -89,16 +89,11 @@ Future<void> main(List<String> args) async {
     DevHttpOverrides.configureCertificates();
     API.initialize();
     await UnityVideoPlayerInterface.instance.initialize();
-    // if (isDesktopPlatform && Platform.isLinux) {
-    //   if (isEmbedded) {
-    //     UnityVideoPlayerFlutterInterface.registerWith();
-    //   } else {
-    //     UnityVideoPlayerMediaKitInterface.registerWith();
-    //   }
-    // }
-    debugPrint(UnityVideoPlayerInterface.instance.runtimeType.toString());
 
     logging.writeLogToFile('Opening app with $args');
+    logging.writeLogToFile(
+      'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
+    );
 
     if (isDesktopPlatform && args.isNotEmpty) {
       debugPrint('FOUND ANOTHER WINDOW: $args');
@@ -149,18 +144,6 @@ Future<void> main(List<String> args) async {
       }
     }
 
-    // Request notifications permission for iOS, Android 13+ and Windows.
-    //
-    // permission_handler only supports these platforms
-    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
-      () async {
-        if (await Permission.notification.isDenied) {
-          final state = await Permission.notification.request();
-          debugPrint('Notification permission state $state');
-        }
-      }();
-    }
-
     // We use [Future.wait] to decrease startup time.
     //
     // With it, all these functions will be running at the same time, reducing the
@@ -176,6 +159,20 @@ Future<void> main(List<String> args) async {
       EventsProvider.ensureInitialized(),
     ]);
 
+    runApp(const UnityApp());
+
+    // Request notifications permission for iOS, Android 13+ and Windows.
+    //
+    // permission_handler only supports these platforms
+    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
+      () async {
+        if (await Permission.notification.isDenied) {
+          final state = await Permission.notification.request();
+          debugPrint('Notification permission state $state');
+        }
+      }();
+    }
+
     /// Firebase messaging isn't available on windows nor linux
     if (!kIsWeb && isMobilePlatform) {
       try {
@@ -188,9 +185,6 @@ Future<void> main(List<String> args) async {
     }
 
     HomeProvider.setDefaultStatusBarStyle();
-
-    runApp(const UnityApp());
-
     app_links.register('rtsp');
     app_links.register('bluecherry');
     app_links.listen();

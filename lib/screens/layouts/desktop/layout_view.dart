@@ -273,11 +273,10 @@ class _LayoutViewState extends State<LayoutView> {
                   ),
           ),
           child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IntrinsicHeight(
                   child: Row(children: [
                     Expanded(
                       child: Text(
@@ -287,58 +286,51 @@ class _LayoutViewState extends State<LayoutView> {
                         ),
                       ),
                     ),
-                    ...() {
-                      final volume = widget.layout.devices
-                          .map((e) => e.volume)
-                          .findMaxDuplicatedElementInList()
-                          .toDouble();
-                      return <Widget>[
-                        if (_volumeSliderVisible)
-                          SizedBox(
-                            height: 24.0,
-                            child: Slider(
-                              value: widget.layout.devices
-                                  .map((e) => e.volume)
-                                  .findMaxDuplicatedElementInList()
-                                  .toDouble(),
-                              divisions: 100,
-                              label: '${(volume * 100).round()}%',
-                              onChanged: (value) async {
-                                for (final device in widget.layout.devices) {
-                                  final player =
-                                      UnityPlayers.players[device.uuid];
-                                  if (player != null) {
-                                    await player.setVolume(value);
-                                    device.volume = value;
-                                  }
-                                }
-                                if (mounted) setState(() {});
-                              },
-                            ),
-                          ),
-                        SquaredIconButton(
-                          icon: const Icon(
-                            Icons.equalizer,
-                            color: Colors.white,
-                          ),
-                          tooltip: 'Layout Volume • ${(volume * 100).round()}%',
-                          onPressed: () {
-                            setState(() {
-                              _volumeSliderVisible = !_volumeSliderVisible;
-                            });
-                          },
-                        ),
-                      ];
-                    }(),
                     if (widget.layout.devices.isNotEmpty)
-                      SquaredIconButton(
-                        icon: const Icon(
-                          Icons.clear,
-                          color: Colors.white,
-                        ),
-                        tooltip: loc.clearLayout(widget.layout.devices.length),
-                        onPressed: view.clearLayout,
-                      ),
+                      ...() {
+                        final volume = widget.layout.devices
+                            .map((e) => e.volume)
+                            .findMaxDuplicatedElementInList()
+                            .toDouble();
+                        return <Widget>[
+                          if (_volumeSliderVisible)
+                            SizedBox(
+                              height: 24.0,
+                              child: Slider(
+                                value: widget.layout.devices
+                                    .map((e) => e.volume)
+                                    .findMaxDuplicatedElementInList()
+                                    .toDouble(),
+                                divisions: 100,
+                                label: '${(volume * 100).round()}%',
+                                onChanged: (value) async {
+                                  for (final device in widget.layout.devices) {
+                                    final player =
+                                        UnityPlayers.players[device.uuid];
+                                    if (player != null) {
+                                      await player.setVolume(value);
+                                      device.volume = value;
+                                    }
+                                  }
+                                  if (mounted) setState(() {});
+                                },
+                              ),
+                            ),
+                          SquaredIconButton(
+                            icon: const Icon(
+                              Icons.equalizer,
+                              color: Colors.white,
+                            ),
+                            tooltip:
+                                'Layout Volume • ${(volume * 100).round()}%',
+                            onPressed: () {
+                              setState(() {
+                                _volumeSliderVisible = !_volumeSliderVisible;
+                              });
+                            },
+                          ),
+                        ];
+                      }(),
                     if (canOpenNewWindow)
                       SquaredIconButton(
                         icon: const Icon(
@@ -369,11 +361,22 @@ class _LayoutViewState extends State<LayoutView> {
                         widget.layout.export(dialogTitle: loc.exportLayout);
                       },
                     ),
+                    if (widget.layout.devices.isNotEmpty) ...[
+                      const VerticalDivider(),
+                      SquaredIconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: theme.colorScheme.error,
+                        ),
+                        tooltip: loc.clearLayout(widget.layout.devices.length),
+                        onPressed: view.clearLayout,
+                      ),
+                    ],
                   ]),
                 ),
-                Expanded(child: Center(child: child)),
-              ],
-            ),
+              ),
+              Expanded(child: Center(child: child)),
+            ]),
           ),
         );
       },

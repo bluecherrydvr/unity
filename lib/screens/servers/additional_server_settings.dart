@@ -93,7 +93,7 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
           ),
           child: Card(
             margin: EdgeInsets.zero,
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsetsDirectional.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -241,7 +241,9 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
             ),
         ]),
         trailing: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 175.0),
+          constraints: BoxConstraints(
+            minWidth: isDesktop ? 175.0 : 90.0,
+          ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<T>(
               // isExpanded: true,

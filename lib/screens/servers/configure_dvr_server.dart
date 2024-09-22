@@ -352,57 +352,64 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                       child: passwordField,
                     ),
                     const SizedBox(height: 16.0),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      if (disableFinishButton) ...[
-                        const SizedBox(
-                          height: 16.0,
-                          width: 16.0,
-                          child: CircularProgressIndicator.adaptive(
-                            strokeWidth: 1.5,
+                    SizedBox(
+                      width: double.infinity,
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        runAlignment: WrapAlignment.end,
+                        children: [
+                          if (disableFinishButton) ...[
+                            const SizedBox(
+                              height: 16.0,
+                              width: 16.0,
+                              child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 1.5,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsetsDirectional.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Text(switch (state) {
+                                _ServerAddState.checkingServerCredentials =>
+                                  loc.checkingServerCredentials,
+                                _ServerAddState.gettingDevices =>
+                                  loc.gettingDevices,
+                                _ServerAddState.none => '',
+                              }),
+                            ),
+                          ],
+                          FocusTraversalOrder(
+                            order: const NumericFocusOrder(8),
+                            child: MaterialButton(
+                              onPressed: disableFinishButton
+                                  ? null
+                                  : () {
+                                      widget.onNext();
+                                    },
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.all(8.0),
+                                child: Text(loc.skip.toUpperCase()),
+                              ),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(
-                            horizontal: 8.0,
+                          const SizedBox(width: 6.0),
+                          FocusTraversalOrder(
+                            order: const NumericFocusOrder(7),
+                            child: FilledButton(
+                              onPressed: disableFinishButton
+                                  ? null
+                                  : () => finish(context),
+                              focusNode: finishFocusNode,
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.all(8.0),
+                                child: Text(loc.next.toUpperCase()),
+                              ),
+                            ),
                           ),
-                          child: Text(switch (state) {
-                            _ServerAddState.checkingServerCredentials =>
-                              loc.checkingServerCredentials,
-                            _ServerAddState.gettingDevices =>
-                              loc.gettingDevices,
-                            _ServerAddState.none => '',
-                          }),
-                        ),
-                      ],
-                      FocusTraversalOrder(
-                        order: const NumericFocusOrder(8),
-                        child: MaterialButton(
-                          onPressed: disableFinishButton
-                              ? null
-                              : () {
-                                  widget.onNext();
-                                },
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.all(8.0),
-                            child: Text(loc.skip.toUpperCase()),
-                          ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 6.0),
-                      FocusTraversalOrder(
-                        order: const NumericFocusOrder(7),
-                        child: FilledButton(
-                          onPressed: disableFinishButton
-                              ? null
-                              : () => finish(context),
-                          focusNode: finishFocusNode,
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.all(8.0),
-                            child: Text(loc.next.toUpperCase()),
-                          ),
-                        ),
-                      ),
-                    ]),
+                    ),
                   ]),
                 ),
               ),

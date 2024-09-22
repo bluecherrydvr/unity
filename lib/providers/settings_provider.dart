@@ -578,8 +578,12 @@ class SettingsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await configureStorage();
-    await initializeStorage(settings, 'settings');
+    try {
+      await initializeStorage(settings, 'settings');
+    } catch (_, __) {
+      debugPrint('Error initializing settings storage. Fallback to memory');
+      // handleError(error, stackTrace);
+    }
     final data = await tryReadStorage(() => settings.read());
 
     _hasMigratedTimezone = data['hasMigratedTimezone'] == 'true';
@@ -598,7 +602,8 @@ class SettingsProvider extends UnityProvider {
             return <String, String>{setting.key: setting.saveAs(setting.value)};
           } catch (error, stackTrace) {
             debugPrint(
-                'Error saving setting ${setting.key}: $error\n$stackTrace');
+              'Error saving setting ${setting.key}: $error\n$stackTrace',
+            );
             handleError(error, stackTrace);
           }
           return <String, String>{};

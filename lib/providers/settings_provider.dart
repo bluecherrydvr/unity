@@ -156,8 +156,12 @@ class _SettingsOption<T> {
       if (getDefault != null) serializedData ??= saveAs(await getDefault!());
       serializedData ??= defAsString;
       _value = loadFrom(serializedData);
-    } catch (e) {
-      debugPrint('Error loading data for $key: $e\nFallback to default');
+    } catch (error, stackTrace) {
+      handleError(
+        error,
+        stackTrace,
+        'Error loading data for $key. Fallback to default value',
+      );
       _value = (await getDefault?.call()) ?? def;
     }
   }
@@ -587,9 +591,12 @@ class SettingsProvider extends UnityProvider {
   Future<void> initialize() async {
     try {
       await initializeStorage(settings, 'settings');
-    } catch (_, __) {
-      debugPrint('Error initializing settings storage. Fallback to memory');
-      // handleError(error, stackTrace);
+    } catch (error, stackTrace) {
+      handleError(
+        error,
+        stackTrace,
+        'Error initializing settings storage. Fallback to memory',
+      );
     }
     final data = await tryReadStorage(() => settings.read());
 
@@ -608,10 +615,11 @@ class SettingsProvider extends UnityProvider {
           try {
             return <String, String>{setting.key: setting.saveAs(setting.value)};
           } catch (error, stackTrace) {
-            debugPrint(
-              'Error saving setting ${setting.key}: $error\n$stackTrace',
+            handleError(
+              error,
+              stackTrace,
+              'Error saving setting ${setting.key}',
             );
-            handleError(error, stackTrace);
           }
           return <String, String>{};
         }(),

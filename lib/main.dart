@@ -135,9 +135,12 @@ Future<void> main(List<String> args) async {
 
               break;
           }
-        } catch (error, stack) {
-          debugPrint('error: $error');
-          debugPrintStack(stackTrace: stack);
+        } catch (error, stackTrace) {
+          logging.handleError(
+            error,
+            stackTrace,
+            'Failed to open a secondary window',
+          );
         }
 
         return;
@@ -178,9 +181,11 @@ Future<void> main(List<String> args) async {
       try {
         FirebaseConfiguration.ensureInitialized();
       } catch (error, stackTrace) {
-        debugPrint('Error initializing firebase messaging: $error');
-        debugPrintStack(stackTrace: stackTrace);
-        logging.handleError(error, stackTrace);
+        logging.handleError(
+          error,
+          stackTrace,
+          'Error initializing firebase messaging',
+        );
       }
     }
 
@@ -309,8 +314,12 @@ class _UnityAppState extends State<UnityApp>
           debugPrint('Disposing player ${player.hashCode}');
           try {
             await player.dispose();
-          } catch (e) {
-            debugPrint('Error disposing player: $e');
+          } catch (error, stackTrace) {
+            logging.handleError(
+              error,
+              stackTrace,
+              'Error disposing player $player',
+            );
           }
         }
       });

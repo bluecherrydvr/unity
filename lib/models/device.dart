@@ -419,7 +419,11 @@ class Device {
       externalData: json['externalData'] != null
           ? ExternalDeviceData.fromMap(json['externalData'])
           : null,
-    )..volume = double.tryParse(json['volume']) ?? defaultVolume;
+    )..volume = json['volume'] is double
+        ? json['volume']
+        : json['volume'] is String
+            ? double.tryParse(json['volume']) ?? defaultVolume
+            : defaultVolume;
   }
 
   Device merge(Device? other) {

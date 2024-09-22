@@ -30,10 +30,15 @@ abstract class UnityProvider extends ChangeNotifier {
 
   @protected
   Future<void> initializeStorage(SafeLocalStorage storage, String key) async {
-    this.storage = storage;
+    try {
+      this.storage = storage;
+    } catch (e) {
+      await configureStorage();
+      this.storage = storage;
+    }
     try {
       final hive = await tryReadStorage(() => storage.read());
-      if (!hive.containsKey(key)) {
+      if (!hive.isNotEmpty) {
         await save();
       } else {
         await restore();

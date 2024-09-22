@@ -28,6 +28,7 @@ import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.d
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -57,13 +58,35 @@ enum DisplayOn {
   onHover,
   never;
 
-  static Iterable<Option<DisplayOn>> get options {
+  String locale(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      DisplayOn.always => loc.always,
+      DisplayOn.onHover => loc.onHover,
+      DisplayOn.never => loc.never,
+    };
+  }
+
+  static Iterable<Option<DisplayOn>> options(BuildContext context) {
     return values.map<Option<DisplayOn>>((value) {
       return Option(
         value: value,
-        text: value.name,
+        text: value.locale(context),
       );
     });
+  }
+
+  T build<T>(T child, T never, Set<ButtonStates> states) {
+    if (this == DisplayOn.never) {
+      return never;
+    } else if (this == DisplayOn.always) {
+      return child;
+    } else if (this == DisplayOn.onHover) {
+      if (states.isHovering) return child;
+      return never;
+    } else {
+      throw UnimplementedError('DisplayOn $this not implemented');
+    }
   }
 }
 
@@ -292,8 +315,14 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
   final kShowServerNameOn = _SettingsOption<DisplayOn>(
-    def: DisplayOn.always,
+    def: DisplayOn.onHover,
     key: 'devices.show_server_name_on',
+    loadFrom: (value) => DisplayOn.values[int.parse(value)],
+    saveAs: (value) => value.index.toString(),
+  );
+  final kShowVideoStatusLabelOn = _SettingsOption<DisplayOn>(
+    def: DisplayOn.always,
+    key: 'devices.show_video_status_label_on',
     loadFrom: (value) => DisplayOn.values[int.parse(value)],
     saveAs: (value) => value.index.toString(),
   );
@@ -545,6 +574,7 @@ class SettingsProvider extends UnityProvider {
     kInitialDevicesVolume,
     kShowCameraNameOn,
     kShowServerNameOn,
+    kShowVideoStatusLabelOn,
     kDownloadOnMobileData,
     kChooseLocationEveryTime,
     kAllowAppCloseWhenDownloading,

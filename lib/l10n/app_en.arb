@@ -265,7 +265,7 @@
   "layoutName": "Layout name",
   "layoutNameHint": "First floor",
   "layoutTypeLabel": "Layout type",
-  "clearLayout": "Clear {amount} devices",
+  "clearLayout": "Remove {amount} {amount, plural, =1{device} other{devices}}",
   "@clearLayout": {
     "placeholders": {
       "amount": {
@@ -349,7 +349,7 @@
   "toDate": "To",
   "today": "Today",
   "yesterday": "Yesterday",
-  "never": "never",
+  "never": "Never",
   "fromToDate": "From {from} to {to}",
   "@fromToDate": {
     "placeholders": {
@@ -639,6 +639,9 @@
   "initialDeviceVolume": "Initial Camera Volume",
   "runVideoTest": "Run Video Test",
   "runVideoTestDescription": "Run a video test to check the state of video playback.",
+  "showCameraName": "Show Camera Name",
+  "always": "Always",
+  "onHover": "On hover",
   "@@LOCALIZATION": {},
   "dateLanguage": "Date and Language",
   "language": "Language",

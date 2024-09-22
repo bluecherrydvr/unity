@@ -265,7 +265,7 @@
   "layoutName": "Nome do layout",
   "layoutNameHint": "Primeiro andar",
   "layoutTypeLabel": "Tipo do layout",
-  "clearLayout": "Limpar {amount} câmeras",
+  "clearLayout": "Remover {amount} {amount, plural, =1{câmera} other{câmeras}}",
   "@clearLayout": {
     "placeholders": {
       "amount": {
@@ -639,6 +639,9 @@
   "initialDeviceVolume": "Volume Inicial da Câmera",
   "runVideoTest": "Testar Vídeo",
   "runVideoTestDescription": "Teste o vídeo para verificar o estado da reprodução de vídeo.",
+  "showCameraName": "Show Camera Name",
+  "always": "Always",
+  "onHover": "On hover",
   "@@LOCALIZATION": {},
   "dateLanguage": "Data e Idioma",
   "language": "Idioma",

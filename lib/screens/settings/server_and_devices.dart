@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
@@ -410,7 +411,8 @@ class _DevicesSettingsState extends State<DevicesSettings> {
                 controller: _testPlayer,
                 device: Device.dump(
                   name: 'Camera Viewport',
-                ),
+                  id: 1,
+                )..server = Server.dump(name: 'Server Name'),
                 onFitChanged: (_) {},
                 showDebugInfo: true,
               ),
@@ -421,15 +423,22 @@ class _DevicesSettingsState extends State<DevicesSettings> {
             title: 'Show Camera Name',
             icon: Icons.camera_outlined,
             value: settings.kShowCameraNameOn.value,
-            values: DisplayOn.options,
+            values: DisplayOn.options(context),
             onChanged: (v) => settings.kShowCameraNameOn.value = v,
           ),
           OptionsChooserTile<DisplayOn>(
             title: 'Show Server Name',
             icon: Icons.dvr,
             value: settings.kShowServerNameOn.value,
-            values: DisplayOn.options,
+            values: DisplayOn.options(context),
             onChanged: (v) => settings.kShowServerNameOn.value = v,
+          ),
+          OptionsChooserTile<DisplayOn>(
+            title: 'Show Video Status Label',
+            icon: Icons.dvr,
+            value: settings.kShowVideoStatusLabelOn.value,
+            values: DisplayOn.options(context),
+            onChanged: (v) => settings.kShowVideoStatusLabelOn.value = v,
           ),
           const SizedBox(height: 20.0),
         ],

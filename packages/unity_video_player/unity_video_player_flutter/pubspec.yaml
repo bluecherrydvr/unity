@@ -39,6 +39,3 @@ flutter:
         dartPluginClass: UnityVideoPlayerFlutterInterface
       linux:
         dartPluginClass: UnityVideoPlayerFlutterInterface
-      web:
-        pluginClass: UnityVideoPlayerMediaKitInterface
-        fileName: unity_video_player_flutter.dart

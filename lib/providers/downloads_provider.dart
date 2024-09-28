@@ -337,7 +337,10 @@ class DownloadsManager extends UnityProvider {
         event.mediaPath,
         downloadPath,
         options: Options(
-          headers: {HttpHeaders.acceptEncodingHeader: '*'}, // disable gzip
+          headers: {
+            HttpHeaders.acceptEncodingHeader: '*', // disable gzip
+            HttpHeaders.cookieHeader: event.server.cookie!,
+          },
         ),
         onReceiveProgress: (received, total) {
           if (total != -1) {

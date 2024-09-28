@@ -216,6 +216,7 @@ class Event {
         ':'
         '${mediaURL!.port}'
         '${mediaURL!.path}'
+        '?'
         '${mediaURL!.query}';
   }
 

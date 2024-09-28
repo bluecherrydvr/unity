@@ -1,0 +1,39 @@
+
+[2024-09-27T22:01:39.431131]Error initializing settings storage. Fallback to memory
+[2024-09-27T22:01:39.431131]Error: LateInitializationError: Field 'settings' has not been initialized.
+[2024-09-27T22:01:39.431131]Stack trace: #0      settings (package:bluecherry_client/utils/storage.dart)
+#1      SettingsProvider.initialize (package:bluecherry_client/providers/settings_provider.dart:623:31)
+#2      SettingsProvider.ensureInitialized (package:bluecherry_client/providers/settings_provider.dart:615:20)
+#3      DevHttpOverrides.configureCertificates (package:bluecherry_client/api/api_helpers.dart:156:22)
+#4      EventsExtension._getEvents (package:bluecherry_client/api/events.dart:67:22)
+#5      compute.<anonymous closure> (package:flutter/src/foundation/_isolates_io.dart:19:20)
+#6      _RemoteRunner._run (dart:isolate:1090:47)
+#7      _RemoteRunner._remoteExecute (dart:isolate:1084:12)
+#8      _delayEntrypointInvocation.<anonymous closure> (dart:isolate-patch/isolate_patch.dart:300:17)
+#9      _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:184:12)
+
+[2024-09-27T22:01:39.529196]Error initializing settings storage. Fallback to memory
+[2024-09-27T22:01:39.529196]Error: LateInitializationError: Field 'settings' has not been initialized.
+[2024-09-27T22:01:39.529196]Stack trace: #0      settings (package:bluecherry_client/utils/storage.dart)
+#1      SettingsProvider.initialize (package:bluecherry_client/providers/settings_provider.dart:623:31)
+#2      SettingsProvider.ensureInitialized (package:bluecherry_client/providers/settings_provider.dart:615:20)
+#3      DevHttpOverrides.configureCertificates (package:bluecherry_client/api/api_helpers.dart:156:22)
+#4      EventsExtension._getEvents (package:bluecherry_client/api/events.dart:67:22)
+#5      compute.<anonymous closure> (package:flutter/src/foundation/_isolates_io.dart:19:20)
+#6      _RemoteRunner._run (dart:isolate:1090:47)
+#7      _RemoteRunner._remoteExecute (dart:isolate:1084:12)
+#8      _delayEntrypointInvocation.<anonymous closure> (dart:isolate-patch/isolate_patch.dart:300:17)
+#9      _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:184:12)
+
+[2024-09-27T22:02:34.209596]Error initializing settings storage. Fallback to memory
+[2024-09-27T22:02:34.209596]Error: LateInitializationError: Field 'settings' has not been initialized.
+[2024-09-27T22:02:34.209596]Stack trace: #0      settings (package:bluecherry_client/utils/storage.dart)
+#1      SettingsProvider.initialize (package:bluecherry_client/providers/settings_provider.dart:623:31)
+#2      SettingsProvider.ensureInitialized (package:bluecherry_client/providers/settings_provider.dart:615:20)
+#3      DevHttpOverrides.configureCertificates (package:bluecherry_client/api/api_helpers.dart:156:22)
+#4      EventsExtension._getEvents (package:bluecherry_client/api/events.dart:67:22)
+#5      compute.<anonymous closure> (package:flutter/src/foundation/_isolates_io.dart:19:20)
+#6      _RemoteRunner._run (dart:isolate:1090:47)
+#7      _RemoteRunner._remoteExecute (dart:isolate:1084:12)
+#8      _delayEntrypointInvocation.<anonymous closure> (dart:isolate-patch/isolate_patch.dart:300:17)
+#9      _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:184:12)

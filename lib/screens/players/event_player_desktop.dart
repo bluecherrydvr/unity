@@ -144,9 +144,9 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                 windows: Platform.isWindows,
               ).toString();
             }
-            return event.mediaURL.toString();
+            return event.mediaPath;
           }()
-        : event.mediaURL.toString();
+        : event.mediaPath;
 
     if (mediaUrl != videoController.dataSource) {
       debugPrint(
@@ -193,7 +193,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                     Expanded(
                       child: InteractiveViewer(
                         child: UnityVideoView(
-                          heroTag: currentEvent.mediaURL,
+                          heroTag: currentEvent.mediaPath,
                           player: videoController,
                           fit: fit,
                           paneBuilder: (context, player) {

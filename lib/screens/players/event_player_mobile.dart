@@ -84,7 +84,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
             downloads.getDownloadedPathForEvent(widget.event.id),
             windows: Platform.isWindows,
           ).toString()
-        : widget.event.mediaURL.toString();
+        : widget.event.mediaPath;
 
     debugPrint(mediaUrl);
     if (videoController.dataSource != mediaUrl) {
@@ -120,7 +120,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         Expanded(
           child: SafeArea(
             child: UnityVideoView(
-              heroTag: widget.event.mediaURL,
+              heroTag: widget.event.mediaPath,
               player: videoController,
               fit: settings.kVideoFit.value,
               videoBuilder: (context, video) {

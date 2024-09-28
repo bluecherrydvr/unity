@@ -367,7 +367,7 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
                 downloads.getDownloadedPathForEvent(event.id),
                 windows: isDesktopPlatform && Platform.isWindows,
               ).toString()
-            : event.mediaURL!.toString();
+            : event.mediaPath;
 
         return TimelineEvent(
           startTime: event.published,

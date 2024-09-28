@@ -32,6 +32,7 @@ import 'package:bluecherry_client/utils/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -119,10 +120,9 @@ class DownloadsManager extends UnityProvider {
         }
       }
 
-      if (dir == null) {
-        final docsDir = await getApplicationSupportDirectory();
-        dir = Directory(path.join(docsDir.path, 'downloads'));
-      }
+      dir ??= Directory(
+        path.join((await getApplicationSupportDirectory()).path, 'downloads'),
+      );
     } on StateError catch (e) {
       debugPrint('Failed to get default downloads directory: $e');
     } catch (error, stack) {
@@ -297,6 +297,10 @@ class DownloadsManager extends UnityProvider {
 
   /// Downloads the given [event] and returns the path of the downloaded file
   Future<String> _downloadEventFile(Event event, String dir) async {
+    if (event.mediaURL == null) {
+      throw ArgumentError('The event does not have a mediaURL');
+    }
+
     if (downloading.entries.any((de) => de.key.id == event.id)) {
       return downloading.entries
           .firstWhere((de) => de.key.id == event.id)
@@ -304,7 +308,7 @@ class DownloadsManager extends UnityProvider {
           .$2;
     }
     writeLogToFile(
-      'downloads(${event.id}): $dir at ${event.mediaURL!}',
+      'downloads(${event.id}): $dir at ${event.mediaPath}',
       print: true,
     );
     final home = HomeProvider.instance
@@ -329,22 +333,30 @@ class DownloadsManager extends UnityProvider {
       );
     }
 
-    await Dio().downloadUri(
-      event.mediaURL!,
-      downloadPath,
-      options: Options(
-        headers: {HttpHeaders.acceptEncodingHeader: '*'}, // disable gzip
-      ),
-      onReceiveProgress: (received, total) {
-        if (total != -1) {
-          downloading[event] = (received / total, fileName);
-          writeLogToFile('downloads(${event.id}): ${received / total}');
-          notifyListeners();
-        }
-      },
-    );
-
-    home.notLoading(UnityLoadingReason.downloadEvent);
+    try {
+      await Dio().download(
+        event.mediaPath,
+        downloadPath,
+        options: Options(
+          headers: {HttpHeaders.acceptEncodingHeader: '*'}, // disable gzip
+        ),
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            downloading[event] = (received / total, fileName);
+            writeLogToFile('downloads(${event.id}): ${received / total}');
+            notifyListeners();
+          }
+        },
+      );
+    } catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to download event file',
+      );
+    } finally {
+      home.notLoading(UnityLoadingReason.downloadEvent);
+    }
 
     return downloadPath;
   }

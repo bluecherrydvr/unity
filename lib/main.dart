@@ -270,12 +270,14 @@ class _UnityAppState extends State<UnityApp>
           switch (settings.kStreamOnBackground.value) {
             case NetworkUsage.auto:
             case NetworkUsage.wifiOnly:
-              debugPrint('Pausing all streams');
               final connectionType = await Connectivity().checkConnectivity();
               if ([
                 ConnectivityResult.bluetooth,
                 ConnectivityResult.mobile,
-              ].any(connectionType.contains)) UnityPlayers.pauseAll();
+              ].any(connectionType.contains)) {
+                debugPrint('Pausing all streams');
+                UnityPlayers.pauseAll();
+              }
 
               break;
             case NetworkUsage.never:

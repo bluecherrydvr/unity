@@ -129,12 +129,12 @@ extension EventsExtension on API {
                 ? int.parse(eventObject['content']['media_id'])
                 : null,
             mediaURL: eventObject.containsKey('content')
-                ? Uri.parse(
-                    (eventObject['content']['content'] as String).replaceAll(
-                      'https://',
-                      'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                    ),
-                  )
+                ? Uri.parse(eventObject['content']['content'] as String
+                    // .replaceAll(
+                    //   'https://',
+                    //   'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                    // ),
+                    )
                 : null,
           );
           return event;

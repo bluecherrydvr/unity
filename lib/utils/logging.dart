@@ -24,11 +24,13 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-void setupLogging() {
+late Directory supportDir;
+Future<void> setupLogging() async {
   Logger.root.level = Level.ALL; // You can set the log level as needed.
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
+  supportDir = await getApplicationSupportDirectory();
 }
 
 void handleError(
@@ -44,10 +46,12 @@ void handleError(
 }
 
 Future<File> getLogFile() async {
-  final dir = await getApplicationSupportDirectory();
-  final file = File(path.join(dir.path, 'logs.txt'));
-
-  return file;
+  try {
+    return File(path.join(supportDir.path, 'logs.txt'));
+  } catch (e) {
+    debugPrint('Error getting log file: $e');
+    return File('./logs.txt');
+  }
 }
 
 Future<void> writeErrorToFile(

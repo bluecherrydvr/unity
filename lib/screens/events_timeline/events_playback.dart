@@ -95,58 +95,57 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       endDate: endDate,
     );
 
-    final devices = <Device, List<Event>>{};
+    if (mounted) {
+      final devices = <Device, List<Event>>{};
 
-    final events = eventsProvider.loadedEvents!.filteredEvents
-      ..sort((a, b) {
-        // Sort the events in a way that the continuous events are displayed first
-        // Ideally, in the Timeline, the motion events should be displayed on
-        // top of the continuous events. We need to sort the continuous events
-        // so that the continuous events don't get on top of the motion events.
-        final aIsContinuous = a.type == EventType.continuous;
-        final bIsContinuous = b.type == EventType.continuous;
-        if (aIsContinuous && !bIsContinuous) return -1;
-        if (!aIsContinuous && bIsContinuous) return 1;
-        return 0;
-      });
-    for (final event in events) {
-      if (event.isAlarm || event.mediaURL == null) continue;
+      final events = eventsProvider.loadedEvents!.filteredEvents
+        ..sort((a, b) {
+          // Sort the events in a way that the continuous events are displayed first
+          // Ideally, in the Timeline, the motion events should be displayed on
+          // top of the continuous events. We need to sort the continuous events
+          // so that the continuous events don't get on top of the motion events.
+          final aIsContinuous = a.type == EventType.continuous;
+          final bIsContinuous = b.type == EventType.continuous;
+          if (aIsContinuous && !bIsContinuous) return -1;
+          if (!aIsContinuous && bIsContinuous) return 1;
+          return 0;
+        });
+      for (final event in events) {
+        if (event.isAlarm || event.mediaURL == null) continue;
 
-      if (!DateUtils.isSameDay(event.published, date) ||
-          !DateUtils.isSameDay(event.published.add(event.duration), date)) {
-        continue;
+        if (!DateUtils.isSameDay(event.published, date) ||
+            !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+          continue;
+        }
+
+        final device = event.server.devices.firstWhere(
+          (d) => d.id == event.deviceID,
+          orElse: () => Device.dump(
+            name: event.deviceName,
+            id: event.deviceID,
+          ),
+        );
+        devices[device] ??= [];
+
+        // This ensures that events that happened at the same time are not
+        // displayed on the same device.
+        //
+        // if (devices[device]!.any((e) {
+        //   return e.published.isInBetween(event.published, event.updated,
+        //           allowSameMoment: true) ||
+        //       e.updated.isInBetween(event.published, event.updated,
+        //           allowSameMoment: true) ||
+        //       event.published
+        //           .isInBetween(e.published, e.updated, allowSameMoment: true) ||
+        //       event.updated
+        //           .isInBetween(e.published, e.updated, allowSameMoment: true);
+        // })) continue;
+
+        devices[device]!.add(event);
       }
 
-      final device = event.server.devices.firstWhere(
-        (d) => d.id == event.deviceID,
-        orElse: () => Device.dump(
-          name: event.deviceName,
-          id: event.deviceID,
-        ),
-      );
-      devices[device] ??= [];
-
-      // This ensures that events that happened at the same time are not
-      // displayed on the same device.
-      //
-      // if (devices[device]!.any((e) {
-      //   return e.published.isInBetween(event.published, event.updated,
-      //           allowSameMoment: true) ||
-      //       e.updated.isInBetween(event.published, event.updated,
-      //           allowSameMoment: true) ||
-      //       event.published
-      //           .isInBetween(e.published, e.updated, allowSameMoment: true) ||
-      //       event.updated
-      //           .isInBetween(e.published, e.updated, allowSameMoment: true);
-      // })) continue;
-
-      devices[device]!.add(event);
-    }
-
-    final parsedTiles =
-        devices.entries.map((e) => e.buildTimelineTile(context)).toList();
-
-    if (mounted) {
+      final parsedTiles =
+          devices.entries.map((e) => e.buildTimelineTile(context)).toList();
       setState(() {
         timeline = Timeline(
           tiles: parsedTiles,
@@ -367,7 +366,7 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
                 downloads.getDownloadedPathForEvent(event.id),
                 windows: isDesktopPlatform && Platform.isWindows,
               ).toString()
-            : event.mediaURL!.toString();
+            : event.mediaPath;
 
         return TimelineEvent(
           startTime: event.published,

@@ -160,7 +160,7 @@ class UnityPlayers with ChangeNotifier {
         );
       },
     )
-      ..setDataSource(event.mediaURL!.toString())
+      ..setDataSource(event.mediaPath.toString())
       ..setVolume(1.0)
       ..setSpeed(1.0);
 

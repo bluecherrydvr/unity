@@ -347,6 +347,14 @@ class DownloadsManager extends UnityProvider {
           }
         },
       );
+    } on DioException catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to download event file from ${event.mediaPath}'
+        ' (${error.response?.statusCode}): '
+        '${error.message}. ',
+      );
     } catch (error, stack) {
       handleError(
         error,

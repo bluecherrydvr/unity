@@ -153,11 +153,11 @@ Future<void> main(List<String> args) async {
     // wait time at the splash screen
     // settings provider needs to be initalized alone
     await SettingsProvider.ensureInitialized();
+    await ServersProvider.ensureInitialized();
     await Future.wait([
       DownloadsManager.ensureInitialized(),
       MobileViewProvider.ensureInitialized(),
       DesktopViewProvider.ensureInitialized(),
-      ServersProvider.ensureInitialized(),
       UpdateManager.ensureInitialized(),
       EventsProvider.ensureInitialized(),
     ]);

@@ -45,12 +45,12 @@ void handleError(
   writeErrorToFile(error, stackTrace, context);
 }
 
-Future<File> getLogFile() async {
+Future<File?> getLogFile() async {
   try {
     return File(path.join(supportDir.path, 'logs.txt'));
   } catch (e) {
-    debugPrint('Error getting log file: $e');
-    return File('./logs.txt');
+    // debugPrint('Error getting log file: $e');
+    return null;
   }
 }
 
@@ -67,9 +67,8 @@ Future<void> writeErrorToFile(
       '[$time]Stack trace: $stackTrace';
 
   final file = await getLogFile();
-
-  await file.writeAsString(errorLog, mode: FileMode.append);
-  Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
+  await file?.writeAsString(errorLog, mode: FileMode.append);
+  Logger.root.log(Level.INFO, 'Wrote log file to "${file?.path}"');
   Logger.root.log(Level.SEVERE, errorLog);
 }
 
@@ -78,8 +77,8 @@ Future<void> writeLogToFile(String text, {bool print = false}) async {
     final time = DateTime.now().toIso8601String();
     final file = await getLogFile();
 
-    await file.writeAsString('\n[$time] $text', mode: FileMode.append);
-    if (print) Logger.root.log(Level.INFO, 'Wrote log file to "${file.path}"');
+    await file?.writeAsString('\n[$time] $text', mode: FileMode.append);
+    if (print) Logger.root.log(Level.INFO, 'Wrote log file to "${file?.path}"');
   }
   if (print) debugPrint(text);
 }

@@ -19,6 +19,7 @@
 
 import 'dart:async';
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -100,7 +101,10 @@ class UnityPlayers with ChangeNotifier {
         };
         debugPrint('Initializing $source');
         controller.fallbackUrl = fallback;
-        await controller.setDataSource(source);
+        await controller.setDataSource(source, headers: {
+          if (device.server.cookie != null)
+            API.cookieHeader: device.server.cookie!,
+        });
 
         _reloadable.add(source);
       }
@@ -155,12 +159,20 @@ class UnityPlayers with ChangeNotifier {
       softwareZoom: settings().kSoftwareZooming.value,
       onLog: (message) {
         logStreamToFile(
-          event.mediaURL?.toString() ?? 'Event ${event.title} (${event.id})',
+          event.mediaURL == null
+              ? 'Event ${event.title} (${event.id})'
+              : event.mediaPath,
           message,
         );
       },
     )
-      ..setDataSource(event.mediaPath.toString())
+      ..setDataSource(
+        event.mediaPath,
+        headers: {
+          if (event.server.cookie != null)
+            API.cookieHeader: event.server.cookie!,
+        },
+      )
       ..setVolume(1.0)
       ..setSpeed(1.0);
 

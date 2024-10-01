@@ -164,6 +164,8 @@ Future<void> main(List<String> args) async {
 
     runApp(const UnityApp());
 
+    await setupLaunchAtStartup();
+
     // Request notifications permission for iOS, Android 13+ and Windows.
     //
     // permission_handler only supports these platforms

@@ -27,6 +27,8 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -149,4 +151,19 @@ void launchFileExplorer(String path) {
       '${Platform.operatingSystem} is not a supported platform',
     );
   }
+}
+
+bool get canLaunchAtStartup => isDesktopPlatform;
+
+Future<void> setupLaunchAtStartup() async {
+  final packageInfo = await PackageInfo.fromPlatform();
+
+  launchAtStartup.setup(
+    appName: packageInfo.appName,
+    appPath: Platform.resolvedExecutable,
+    // Set packageName parameter to support MSIX.
+    // This is required to check if the app is running in MSIX container.
+    // We do not support MSIX for now.
+    // packageName: 'dev.leanflutter.examples.launchatstartupexample',
+  );
 }

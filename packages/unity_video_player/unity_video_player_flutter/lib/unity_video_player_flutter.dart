@@ -164,7 +164,11 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       _videoStream.stream.map((value) => value.isPlaying);
 
   @override
-  Future<void> setDataSource(String url, {bool autoPlay = true}) async {
+  Future<void> setDataSource(
+    String url, {
+    bool autoPlay = true,
+    Map<String, String>? headers,
+  }) async {
     if (url == dataSource) return Future.value();
 
     if (player != null) {
@@ -180,7 +184,10 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     if (uri.scheme == 'file') {
       player = VideoPlayerController.file(File.fromUri(uri));
     } else {
-      player = VideoPlayerController.networkUrl(uri);
+      player = VideoPlayerController.networkUrl(
+        uri,
+        httpHeaders: headers ?? const <String, String>{},
+      );
     }
 
     try {

@@ -395,7 +395,11 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   /// Whether the media is seekable
   bool get isSeekable;
 
-  Future<void> setDataSource(String url, {bool autoPlay = true});
+  Future<void> setDataSource(
+    String url, {
+    bool autoPlay = true,
+    Map<String, String>? headers,
+  });
   Future<void> setMultipleDataSource(
     Iterable<String> url, {
     bool autoPlay = true,

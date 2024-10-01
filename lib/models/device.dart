@@ -277,7 +277,10 @@ class Device {
     );
 
     try {
-      var response = await API.client.get(uri);
+      var response = await API.client.get(uri, headers: {
+        if (device.server.cookie != null)
+          API.cookieHeader: device.server.cookie!,
+      });
 
       if (response.statusCode == 200) {
         var ret = json.decode(response.body) as Map;

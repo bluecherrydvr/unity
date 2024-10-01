@@ -18,6 +18,7 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
@@ -51,6 +52,8 @@ class API {
       (client as dynamic).withCredentials = true;
     }
   }
+
+  static String get cookieHeader => HttpHeaders.cookieHeader;
 
   /// Checks details of a [server] entered by the user.
   /// If the attributes present in [Server] are correct, then the
@@ -139,7 +142,7 @@ class API {
           },
         ),
         headers: {
-          if (server.cookie != null) 'Cookie': server.cookie!,
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
         },
       );
       // debugPrint(response.body);
@@ -207,7 +210,7 @@ class API {
           '/mobile-app-config.json',
         ),
         headers: {
-          'Cookie': server.cookie!,
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
         },
       );
       final body = jsonDecode(response.body);
@@ -235,8 +238,8 @@ class API {
       final response = await client.post(
         Uri.parse('${uri!}store-token'),
         headers: {
-          'Cookie': server.cookie!,
-          'Content-Type': 'application/json',
+          API.cookieHeader: server.cookie!,
+          HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(
           {
@@ -279,7 +282,7 @@ class API {
       final response = await client.post(
         Uri.parse('${uri!}remove-token'),
         headers: {
-          'Cookie': server.cookie!,
+          API.cookieHeader: server.cookie!,
           'Content-Type': 'application/json',
         },
         body: jsonEncode(

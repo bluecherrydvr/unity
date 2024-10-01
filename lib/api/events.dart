@@ -85,8 +85,12 @@ extension EventsExtension on API {
         if (deviceId != null) 'device_id': '$deviceId',
       },
     );
-    final response =
-        await API.client.get(uri, headers: {'Cookie': server.cookie!});
+    final response = await API.client.get(
+      uri,
+      headers: {
+        if (server.cookie != null) API.cookieHeader: server.cookie!,
+      },
+    );
 
     var events = const Iterable<Event>.empty();
 

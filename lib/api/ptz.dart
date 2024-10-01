@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:flutter/widgets.dart';
@@ -116,7 +118,7 @@ extension PtzApiExtension on API {
       url,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': server.cookie!,
+        if (server.cookie != null) API.cookieHeader: server.cookie!,
       },
     );
 
@@ -158,8 +160,8 @@ extension PtzApiExtension on API {
     final response = await API.client.get(
       url,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': server.cookie!,
+        HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+        if (server.cookie != null) API.cookieHeader: server.cookie!,
       },
     );
 

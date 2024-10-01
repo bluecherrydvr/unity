@@ -57,6 +57,7 @@ dependencies:
   # Desktop
   window_manager: ^0.4.2
   titlebar_buttons: ^1.0.0
+  launch_at_startup: ^0.3.1
   unity_multi_window:
     path: packages/unity_multi_window/
 

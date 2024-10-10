@@ -36,6 +36,7 @@ import 'package:intl/intl.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:unity_video_player_main/unity_video_player_main.dart';
+import 'package:window_manager/window_manager.dart';
 
 enum NetworkUsage {
   auto,
@@ -454,13 +455,32 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
-    getDefault: launchAtStartup.isEnabled,
+    getDefault: kIsWeb ? null : launchAtStartup.isEnabled,
     onChanged: (value) async {
+      if (kIsWeb) {
+        return;
+      }
       if (value) {
         await launchAtStartup.enable();
       } else {
         await launchAtStartup.disable();
       }
+    },
+  );
+  final kFullscreen = _SettingsOption<bool>(
+    def: false,
+    key: 'window.fullscreen',
+    getDefault: () async {
+      if (kIsWeb) {
+        return false;
+      }
+      return windowManager.isFullScreen();
+    },
+    onChanged: (value) async {
+      if (kIsWeb) {
+        return;
+      }
+      await windowManager.setFullScreen(value);
     },
   );
   final kMinimizeToTray = _SettingsOption<bool>(
@@ -601,6 +621,7 @@ class SettingsProvider extends UnityProvider {
     kTimeFormat,
     kConvertTimeToLocalTimezone,
     kLaunchAppOnStartup,
+    kFullscreen,
     kMinimizeToTray,
     kAnimationsEnabled,
     kHighContrast,

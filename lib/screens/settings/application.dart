@@ -21,6 +21,7 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -93,45 +94,47 @@ class ApplicationSettings extends StatelessWidget {
         subtitle: Text(loc.convertToLocalTimeDescription),
         isThreeLine: true,
       ),
-      const SubHeader('Window'),
-      CheckboxListTile.adaptive(
-        value: settings.kLaunchAppOnStartup.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kLaunchAppOnStartup.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.launch),
+      if (isDesktopPlatform) ...[
+        const SubHeader('Window'),
+        CheckboxListTile.adaptive(
+          value: settings.kLaunchAppOnStartup.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kLaunchAppOnStartup.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.launch),
+          ),
+          title: const Text('Launch app on startup'),
+          subtitle: const Text(
+            'Whether to launchthe app when the system starts',
+          ),
         ),
-        title: const Text('Launch app on startup'),
-        subtitle: const Text(
-          'Whether to launchthe app when the system starts',
-        ),
-      ),
-      CheckboxListTile.adaptive(
-        value: settings.kMinimizeToTray.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kMinimizeToTray.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.sensor_door),
-        ),
-        title: const Text('Minimize to tray'),
-        subtitle: const Text(
-          'Whether to minimize app to the system tray when the window is closed. '
-          'This will keep the app running in the background.',
-        ),
-      ),
+      ],
       if (settings.kShowDebugInfo.value) ...[
+        CheckboxListTile.adaptive(
+          value: settings.kMinimizeToTray.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kMinimizeToTray.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.sensor_door),
+          ),
+          title: const Text('Minimize to tray'),
+          subtitle: const Text(
+            'Whether to minimize app to the system tray when the window is closed. '
+            'This will keep the app running in the background.',
+          ),
+        ),
         const SubHeader('Acessibility'),
         CheckboxListTile.adaptive(
           value: settings.kAnimationsEnabled.value,

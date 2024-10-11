@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
@@ -130,27 +132,28 @@ class ApplicationSettings extends StatelessWidget {
           subtitle: const Text('Whether the app is in fullscreen mode or not.'),
         ),
         _buildImmersiveModeTile(),
+        if (!Platform.isLinux)
+          CheckboxListTile.adaptive(
+            value: settings.kMinimizeToTray.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kMinimizeToTray.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.sensor_door),
+            ),
+            title: const Text('Minimize to tray'),
+            subtitle: const Text(
+              'Whether to minimize app to the system tray when the window is '
+              'closed. This will keep the app running in the background.',
+            ),
+          ),
       ],
       if (settings.kShowDebugInfo.value) ...[
-        CheckboxListTile.adaptive(
-          value: settings.kMinimizeToTray.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kMinimizeToTray.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.sensor_door),
-          ),
-          title: const Text('Minimize to tray'),
-          subtitle: const Text(
-            'Whether to minimize app to the system tray when the window is '
-            'closed. This will keep the app running in the background.',
-          ),
-        ),
         const SubHeader('Acessibility'),
         CheckboxListTile.adaptive(
           value: settings.kAnimationsEnabled.value,

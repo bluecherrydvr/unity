@@ -206,7 +206,7 @@ class UnityTrayListener with TrayListener {
   @override
   void onTrayIconRightMouseDown() {
     debugPrint('Tray icon right mouse down');
-    trayManager.popUpContextMenu();
+    // trayManager.popUpContextMenu();
   }
 
   @override

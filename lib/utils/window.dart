@@ -179,17 +179,17 @@ Future<void> setupSystemTray() async {
   await trayManager.setIcon(
     Platform.isWindows ? 'assets/images/icon.ico' : 'assets/images/icon.png',
   );
-  final menu = Menu(items: [
-    MenuItem(key: 'screens', label: 'Layouts'),
-    MenuItem(key: 'timeline_of_events', label: 'Timeline of Events'),
-    MenuItem(key: 'events_browser', label: 'Events Browser'),
-    MenuItem(key: 'downloads', label: 'Downloads'),
-    MenuItem(key: 'settings', label: 'Settings'),
-    MenuItem.separator(),
-    MenuItem(key: 'quit', label: 'Quit bluecherry'),
-  ]);
+  // final menu = Menu(items: [
+  //   MenuItem(key: 'screens', label: 'Layouts'),
+  //   MenuItem(key: 'timeline_of_events', label: 'Timeline of Events'),
+  //   MenuItem(key: 'events_browser', label: 'Events Browser'),
+  //   MenuItem(key: 'downloads', label: 'Downloads'),
+  //   MenuItem(key: 'settings', label: 'Settings'),
+  //   MenuItem.separator(),
+  //   MenuItem(key: 'quit', label: 'Quit bluecherry'),
+  // ]);
 
-  await trayManager.setContextMenu(menu);
+  // await trayManager.setContextMenu(menu);
   // await trayManager.setTitle('Bluecherry');
   // await trayManager.setToolTip('Bluecherry Client');
 
@@ -216,7 +216,6 @@ class UnityTrayListener with TrayListener {
 
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
-    print(menuItem.key);
     switch (menuItem.key) {
       case 'screens':
         HomeProvider.instance.setTab(UnityTab.deviceGrid);

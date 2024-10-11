@@ -17,13 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -99,24 +98,25 @@ class ApplicationSettings extends StatelessWidget {
       ),
       if (isDesktopPlatform) ...[
         const SubHeader('Window'),
-        CheckboxListTile.adaptive(
-          value: settings.kLaunchAppOnStartup.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kLaunchAppOnStartup.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.launch),
+        if (canLaunchAtStartup)
+          CheckboxListTile.adaptive(
+            value: settings.kLaunchAppOnStartup.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kLaunchAppOnStartup.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.launch),
+            ),
+            title: const Text('Launch app on startup'),
+            subtitle: const Text(
+              'Whether to launch the app when the system starts',
+            ),
           ),
-          title: const Text('Launch app on startup'),
-          subtitle: const Text(
-            'Whether to launch the app when the system starts',
-          ),
-        ),
         CheckboxListTile.adaptive(
           value: settings.kFullscreen.value,
           onChanged: (v) {
@@ -132,7 +132,7 @@ class ApplicationSettings extends StatelessWidget {
           subtitle: const Text('Whether the app is in fullscreen mode or not.'),
         ),
         _buildImmersiveModeTile(),
-        if (!Platform.isLinux)
+        if (canUseSystemTray)
           CheckboxListTile.adaptive(
             value: settings.kMinimizeToTray.value,
             onChanged: (v) {

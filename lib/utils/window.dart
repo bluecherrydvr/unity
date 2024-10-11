@@ -155,7 +155,11 @@ void launchFileExplorer(String path) {
   }
 }
 
-bool get canLaunchAtStartup => isDesktopPlatform;
+/// It is only possible to launch at startup on Desktop Systems.
+///
+/// MacOS is still lacking configuration at this time, so we are not supporting
+/// it for now.
+bool get canLaunchAtStartup => isDesktopPlatform && !Platform.isMacOS;
 
 Future<void> setupLaunchAtStartup() async {
   assert(isDesktopPlatform);
@@ -171,9 +175,10 @@ Future<void> setupLaunchAtStartup() async {
   );
 }
 
+bool get canUseSystemTray => isDesktopPlatform && !Platform.isLinux;
+
 Future<void> setupSystemTray() async {
-  assert(isDesktopPlatform);
-  assert(!Platform.isLinux);
+  assert(canUseSystemTray);
 
   await trayManager.destroy();
   await trayManager.setIcon(

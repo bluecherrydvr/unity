@@ -32,6 +32,7 @@ import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
@@ -483,6 +484,21 @@ class SettingsProvider extends UnityProvider {
   final kImmersiveMode = _SettingsOption<bool>(
     def: false,
     key: 'window.immersive_mode',
+    onChanged: (value) async {
+      if (isMobilePlatform) {
+        if (value) {
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.immersive,
+            overlays: [],
+          );
+        } else {
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: SystemUiOverlay.values,
+          );
+        }
+      }
+    },
   );
   final kMinimizeToTray = _SettingsOption<bool>(
     def: false,

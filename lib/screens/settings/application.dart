@@ -70,6 +70,7 @@ class ApplicationSettings extends StatelessWidget {
           settings.kThemeMode.value = v;
         },
       ),
+      if (isMobilePlatform) _buildImmersiveModeTile(),
       const LanguageSection(),
       SubHeader(
         loc.dateAndTime,
@@ -128,26 +129,7 @@ class ApplicationSettings extends StatelessWidget {
           title: const Text('Fullscreen Mode'),
           subtitle: const Text('Whether the app is in fullscreen mode or not.'),
         ),
-        CheckboxListTile.adaptive(
-          value: settings.kImmersiveMode.value,
-          onChanged: settings.kFullscreen.value
-              ? (v) {
-                  if (v != null) settings.kImmersiveMode.value = v;
-                }
-              : null,
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.web_asset),
-          ),
-          title: const Text('Immersive Mode'),
-          subtitle: const Text(
-            'This will hide the title bar and window controls. '
-            'To show the top bar, hover over the top of the window. '
-            'This only works in fullscreen mode.',
-          ),
-        ),
+        _buildImmersiveModeTile(),
       ],
       if (settings.kShowDebugInfo.value) ...[
         CheckboxListTile.adaptive(
@@ -227,6 +209,41 @@ class ApplicationSettings extends StatelessWidget {
         ),
       ],
     ]);
+  }
+
+  /// Creates the Immersive Mode tile.
+  ///
+  /// On Desktop, this is used alonside the Fullscreen mode tile. When in
+  /// fullscreen, the immersive mode hides the top bar and only shows it when
+  /// the user hovers over the top of the window.
+  ///
+  /// On Mobile, this makes the app full-screen and hides the system UI.
+  Widget _buildImmersiveModeTile() {
+    return Builder(builder: (context) {
+      final theme = Theme.of(context);
+      final settings = context.watch<SettingsProvider>();
+
+      return CheckboxListTile.adaptive(
+        value: settings.kImmersiveMode.value,
+        onChanged: settings.kFullscreen.value || isMobilePlatform
+            ? (v) {
+                if (v != null) settings.kImmersiveMode.value = v;
+              }
+            : null,
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.web_asset),
+        ),
+        title: const Text('Immersive Mode'),
+        subtitle: const Text(
+          'This will hide the title bar and window controls. '
+          'To show the top bar, hover over the top of the window. '
+          'This only works in fullscreen mode.',
+        ),
+      );
+    });
   }
 }
 

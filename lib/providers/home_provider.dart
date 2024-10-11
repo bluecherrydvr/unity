@@ -120,7 +120,7 @@ class HomeProvider extends ChangeNotifier {
   /// they come back.
   Map<String, double> volumes = {};
 
-  Future<void> setTab(UnityTab tab, BuildContext context) async {
+  Future<void> setTab(UnityTab tab, [BuildContext? context]) async {
     if (tab == this.tab) return;
 
     final currentTab = this.tab;
@@ -159,8 +159,10 @@ class HomeProvider extends ChangeNotifier {
       volumes.clear();
     }
 
-    refreshDeviceOrientation(context);
-    updateWakelock(context);
+    if (context != null) {
+      refreshDeviceOrientation(context);
+      updateWakelock(context);
+    }
     notifyListeners();
   }
 

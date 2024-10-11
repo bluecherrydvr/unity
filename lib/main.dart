@@ -80,6 +80,9 @@ Future<void> main(List<String> args) async {
     // can run the [SplashScreen] widget as the app.
     if (isDesktopPlatform) {
       await configureWindow();
+      await setupLaunchAtStartup();
+      if (!Platform.isLinux) setupSystemTray();
+
       runApp(const SplashScreen());
     }
 
@@ -163,8 +166,6 @@ Future<void> main(List<String> args) async {
     ]);
 
     runApp(const UnityApp());
-
-    await setupLaunchAtStartup();
 
     // Request notifications permission for iOS, Android 13+ and Windows.
     //

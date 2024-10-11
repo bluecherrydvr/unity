@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -29,6 +30,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:tray_manager/tray_manager.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -156,6 +158,7 @@ void launchFileExplorer(String path) {
 bool get canLaunchAtStartup => isDesktopPlatform;
 
 Future<void> setupLaunchAtStartup() async {
+  assert(isDesktopPlatform);
   final packageInfo = await PackageInfo.fromPlatform();
 
   launchAtStartup.setup(
@@ -166,4 +169,66 @@ Future<void> setupLaunchAtStartup() async {
     // We do not support MSIX for now.
     // packageName: 'dev.leanflutter.examples.launchatstartupexample',
   );
+}
+
+Future<void> setupSystemTray() async {
+  assert(isDesktopPlatform);
+  assert(!Platform.isLinux);
+
+  await trayManager.setIcon(
+    Platform.isWindows ? 'assets/images/icon.ico' : 'assets/images/icon.png',
+  );
+  final menu = Menu(
+    items: [
+      MenuItem(
+        key: 'screens',
+        label: 'Layouts',
+        onClick: (item) {
+          windowManager.show();
+          HomeProvider.instance.setTab(UnityTab.deviceGrid);
+        },
+      ),
+      MenuItem(
+        key: 'timeline_of_events',
+        label: 'Timeline of Events',
+        onClick: (item) {
+          windowManager.show();
+          HomeProvider.instance.setTab(UnityTab.eventsTimeline);
+        },
+      ),
+      MenuItem(
+        key: 'events_browser',
+        label: 'Events Browser',
+        onClick: (item) {
+          windowManager.show();
+          HomeProvider.instance.setTab(UnityTab.eventsHistory);
+        },
+      ),
+      MenuItem(
+        key: 'downloads',
+        label: 'Downloads',
+        onClick: (item) {
+          windowManager.show();
+          HomeProvider.instance.setTab(UnityTab.downloads);
+        },
+      ),
+      MenuItem(
+        key: 'settings',
+        label: 'Settings',
+        onClick: (item) {
+          windowManager.show();
+          HomeProvider.instance.setTab(UnityTab.settings);
+        },
+      ),
+      MenuItem.separator(),
+      MenuItem(
+        key: 'quit',
+        label: 'Quit bluecherry',
+        onClick: (item) {
+          windowManager.close();
+        },
+      ),
+    ],
+  );
+  await trayManager.setContextMenu(menu);
 }

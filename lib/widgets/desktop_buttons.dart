@@ -153,7 +153,7 @@ class _WindowButtonsState extends State<WindowButtons>
       builder: (context, arguments) {
         final canPop = (navigatorKey.currentState?.canPop() ?? false) &&
             navigatorObserver.poppableRoute;
-        final showNavigator = !canPop && this.widget.showNavigator;
+        final showNavigator = !canPop && widget.showNavigator;
 
         final titleWidget = Text(
           () {
@@ -346,7 +346,7 @@ class _WindowButtonsState extends State<WindowButtons>
       },
     );
 
-    if (settings.kFullscreen.value) {
+    if (settings.kFullscreen.value && settings.kImmersiveMode.value) {
       return MouseRegion(
         onEnter: (_) {
           showOverlayEntry(context, bar);

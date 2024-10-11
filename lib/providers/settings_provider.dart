@@ -26,6 +26,7 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
@@ -471,17 +472,17 @@ class SettingsProvider extends UnityProvider {
     def: false,
     key: 'window.fullscreen',
     getDefault: () async {
-      if (kIsWeb) {
-        return false;
-      }
+      if (!isDesktopPlatform) return false;
       return windowManager.isFullScreen();
     },
     onChanged: (value) async {
-      if (kIsWeb) {
-        return;
-      }
+      if (isDesktopPlatform) return;
       await windowManager.setFullScreen(value);
     },
+  );
+  final kImmersiveMode = _SettingsOption<bool>(
+    def: false,
+    key: 'window.immersive_mode',
   );
   final kMinimizeToTray = _SettingsOption<bool>(
     def: false,
@@ -622,6 +623,7 @@ class SettingsProvider extends UnityProvider {
     kConvertTimeToLocalTimezone,
     kLaunchAppOnStartup,
     kFullscreen,
+    kImmersiveMode,
     kMinimizeToTray,
     kAnimationsEnabled,
     kHighContrast,

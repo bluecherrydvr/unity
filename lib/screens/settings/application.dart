@@ -126,10 +126,26 @@ class ApplicationSettings extends StatelessWidget {
             child: const Icon(Icons.fullscreen),
           ),
           title: const Text('Fullscreen Mode'),
+          subtitle: const Text('Whether the app is in fullscreen mode or not.'),
+        ),
+        CheckboxListTile.adaptive(
+          value: settings.kImmersiveMode.value,
+          onChanged: settings.kFullscreen.value
+              ? (v) {
+                  if (v != null) settings.kImmersiveMode.value = v;
+                }
+              : null,
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.web_asset),
+          ),
+          title: const Text('Immersive Mode'),
           subtitle: const Text(
-            'Whether the app is in fullscreen mode or not. This will hide the '
-            'title bar and window controls. To show the top bar, hover over the '
-            'top of the window.',
+            'This will hide the title bar and window controls. '
+            'To show the top bar, hover over the top of the window. '
+            'This only works in fullscreen mode.',
           ),
         ),
       ],

@@ -476,7 +476,7 @@ class SettingsProvider extends UnityProvider {
       return windowManager.isFullScreen();
     },
     onChanged: (value) async {
-      if (isDesktopPlatform) return;
+      if (!isDesktopPlatform) return;
       await windowManager.setFullScreen(value);
     },
   );

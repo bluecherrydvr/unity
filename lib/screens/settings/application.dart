@@ -147,8 +147,8 @@ class ApplicationSettings extends StatelessWidget {
           ),
           title: const Text('Minimize to tray'),
           subtitle: const Text(
-            'Whether to minimize app to the system tray when the window is closed. '
-            'This will keep the app running in the background.',
+            'Whether to minimize app to the system tray when the window is '
+            'closed. This will keep the app running in the background.',
           ),
         ),
         const SubHeader('Acessibility'),

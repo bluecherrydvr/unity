@@ -439,7 +439,7 @@ class SettingsProvider extends UnityProvider {
     };
   }
 
-  // TODO(bdlukaa): remove this in future releases
+  // TODO(bdlukaa): Remove this migration in future releases
   var _hasMigratedTimezone = false;
   late final kConvertTimeToLocalTimezone = _SettingsOption<bool>(
     def: true,

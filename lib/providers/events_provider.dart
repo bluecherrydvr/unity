@@ -24,6 +24,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
@@ -133,6 +134,19 @@ class EventsProvider extends UnityProvider {
 
     selectedDevices =
         List<String>.from(data['selectedDevices'] as List).toSet();
+    selectedDevices.removeWhere((device) {
+      final server = ServersProvider.instance.servers.firstWhereOrNull(
+        (server) => server.devices.any((d) => d.streamURL == device),
+      );
+      return server == null ||
+          !server.devices.any((d) {
+            if (d.streamURL == device) {
+              return d.status;
+            } else {
+              return false;
+            }
+          });
+    });
 
     super.restore(notifyListeners: notifyListeners);
   }

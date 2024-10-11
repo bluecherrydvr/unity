@@ -290,9 +290,7 @@ class _WindowButtonsState extends State<WindowButtons>
                                   }
                                 },
                               ),
-                              DecoratedCloseButton(
-                                onPressed: windowManager.close,
-                              ),
+                              DecoratedCloseButton(onPressed: close),
                             ].map((button) {
                               return Padding(
                                 padding: const EdgeInsetsDirectional.all(2.0),
@@ -301,10 +299,40 @@ class _WindowButtonsState extends State<WindowButtons>
                             }).toList(),
                           );
                         }
-                        return WindowCaption(
-                          brightness: theme.brightness,
-                          backgroundColor: Colors.transparent,
-                        );
+                        return Row(children: [
+                          WindowCaptionButton.minimize(
+                            brightness: theme.brightness,
+                            onPressed: () async {
+                              final isMinimized =
+                                  await windowManager.isMinimized();
+                              if (isMinimized) {
+                                windowManager.restore();
+                              } else {
+                                windowManager.minimize();
+                              }
+                            },
+                          ),
+                          FutureBuilder<bool>(
+                            future: windowManager.isMaximized(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<bool> snapshot) {
+                              if (snapshot.data == true) {
+                                return WindowCaptionButton.unmaximize(
+                                  brightness: theme.brightness,
+                                  onPressed: windowManager.unmaximize,
+                                );
+                              }
+                              return WindowCaptionButton.maximize(
+                                brightness: theme.brightness,
+                                onPressed: windowManager.maximize,
+                              );
+                            },
+                          ),
+                          WindowCaptionButton.close(
+                            brightness: theme.brightness,
+                            onPressed: close,
+                          ),
+                        ]);
                       }),
                     ),
                 ]),
@@ -406,6 +434,15 @@ class _WindowButtonsState extends State<WindowButtons>
     await _animationController.reverse();
     _overlayEntry?.remove();
     _overlayEntry = null;
+  }
+
+  Future<void> close() {
+    final settings = context.read<SettingsProvider>();
+    if (settings.kMinimizeToTray.value) {
+      return windowManager.hide();
+    } else {
+      return windowManager.close();
+    }
   }
 }
 

@@ -8,4 +8,8 @@ class AppDelegate: FlutterAppDelegate {
     // https://pub.dev/packages/window_manager#macos
     return false
   }
+
+  override func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+    return true
+  }
 }

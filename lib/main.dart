@@ -80,6 +80,9 @@ Future<void> main(List<String> args) async {
     // can run the [SplashScreen] widget as the app.
     if (isDesktopPlatform) {
       await configureWindow();
+      if (canLaunchAtStartup) setupLaunchAtStartup();
+      if (canUseSystemTray) setupSystemTray();
+
       runApp(const SplashScreen());
     }
 

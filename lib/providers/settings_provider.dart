@@ -26,15 +26,19 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 import 'package:unity_video_player_main/unity_video_player_main.dart';
+import 'package:window_manager/window_manager.dart';
 
 enum NetworkUsage {
   auto,
@@ -97,16 +101,16 @@ class _SettingsOption<T> {
 
   late final String Function(dynamic value) saveAs;
   late final T Function(String value) loadFrom;
-  final ValueChanged<T>? onChanged;
+  final Future<void> Function(T)? onChanged;
   final T Function(dynamic value)? valueOverrider;
 
   late T _value;
 
   T get value => valueOverrider?.call(_value) ?? _value;
   set value(T newValue) {
-    SettingsProvider.instance.updateProperty(() {
+    SettingsProvider.instance.updateProperty(() async {
       _value = newValue;
-      onChanged?.call(value);
+      await onChanged?.call(value);
     });
   }
 
@@ -453,6 +457,48 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
+    getDefault: kIsWeb ? null : launchAtStartup.isEnabled,
+    onChanged: (value) async {
+      if (kIsWeb) {
+        return;
+      }
+      if (value) {
+        await launchAtStartup.enable();
+      } else {
+        await launchAtStartup.disable();
+      }
+    },
+  );
+  final kFullscreen = _SettingsOption<bool>(
+    def: false,
+    key: 'window.fullscreen',
+    getDefault: () async {
+      if (!isDesktopPlatform) return false;
+      return windowManager.isFullScreen();
+    },
+    onChanged: (value) async {
+      if (!isDesktopPlatform) return;
+      await windowManager.setFullScreen(value);
+    },
+  );
+  final kImmersiveMode = _SettingsOption<bool>(
+    def: false,
+    key: 'window.immersive_mode',
+    onChanged: (value) async {
+      if (isMobilePlatform) {
+        if (value) {
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.immersive,
+            overlays: [],
+          );
+        } else {
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: SystemUiOverlay.values,
+          );
+        }
+      }
+    },
   );
   final kMinimizeToTray = _SettingsOption<bool>(
     def: false,
@@ -528,7 +574,7 @@ class SettingsProvider extends UnityProvider {
   final kSoftwareZooming = _SettingsOption<bool>(
     def: isHardwareZoomSupported ? true : false,
     key: 'other.software_zoom',
-    onChanged: (value) {
+    onChanged: (value) async {
       for (final player in UnityPlayers.players.values) {
         player
           ..resetCrop()
@@ -592,6 +638,8 @@ class SettingsProvider extends UnityProvider {
     kTimeFormat,
     kConvertTimeToLocalTimezone,
     kLaunchAppOnStartup,
+    kFullscreen,
+    kImmersiveMode,
     kMinimizeToTray,
     kAnimationsEnabled,
     kHighContrast,
@@ -659,8 +707,8 @@ class SettingsProvider extends UnityProvider {
     super.save(notifyListeners: notifyListeners);
   }
 
-  void updateProperty(VoidCallback update) {
-    update();
+  Future<void> updateProperty(Future Function() update) async {
+    await update();
     save();
   }
 

@@ -24,6 +24,7 @@ import 'package:bluecherry_client/main.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
@@ -80,7 +81,7 @@ class NObserver extends NavigatorObserver {
   }
 }
 
-class WindowButtons extends StatelessWidget {
+class WindowButtons extends StatefulWidget {
   const WindowButtons({
     super.key,
     this.title,
@@ -109,12 +110,30 @@ class WindowButtons extends StatelessWidget {
   final Widget? flexible;
 
   @override
+  State<WindowButtons> createState() => _WindowButtonsState();
+}
+
+class _WindowButtonsState extends State<WindowButtons>
+    with SingleTickerProviderStateMixin {
+  late final _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 350),
+  );
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!isDesktop || isMobile) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
+    final settings = context.watch<SettingsProvider>();
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
@@ -127,18 +146,18 @@ class WindowButtons extends StatelessWidget {
     final isLinuxPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
     final centerTitle =
-        (AppBarTheme.of(context).centerTitle ?? false) && !showNavigator;
+        (AppBarTheme.of(context).centerTitle ?? false) && !widget.showNavigator;
 
-    return StreamBuilder(
+    final bar = StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
         final canPop = (navigatorKey.currentState?.canPop() ?? false) &&
             navigatorObserver.poppableRoute;
-        final showNavigator = !canPop && this.showNavigator;
+        final showNavigator = !canPop && widget.showNavigator;
 
         final titleWidget = Text(
           () {
-            if (title != null) return title!;
+            if (widget.title != null) return widget.title!;
 
             if (arguments.data != null) {
               if (arguments.data is Event) {
@@ -154,7 +173,7 @@ class WindowButtons extends StatelessWidget {
 
             // If it is in another screen, show the title or fallback to "Bluecherry"
             if (tab.index >= UnityTab.values.length) {
-              return title ?? 'Bluecherry';
+              return widget.title ?? 'Bluecherry';
             }
 
             if (!(isMacOSPlatform || kIsWeb)) {
@@ -190,7 +209,7 @@ class WindowButtons extends StatelessWidget {
                       padding: const EdgeInsetsDirectional.only(start: 8.0),
                       child: SquaredIconButton(
                         onPressed: () async {
-                          await onBack?.call();
+                          await widget.onBack?.call();
                           await navigatorKey.currentState?.maybePop();
                         },
                         tooltip:
@@ -244,11 +263,14 @@ class WindowButtons extends StatelessWidget {
                       icon: const Icon(Icons.refresh, size: 20.0),
                       tooltip: loc.refresh,
                     ),
-                  if (flexible != null) flexible!,
+                  if (widget.flexible != null) widget.flexible!,
 
-                  // Do not render the Window Buttons on web nor macOS. macOS
-                  // render the buttons natively.
-                  if (!kIsWeb && !isMacOSPlatform && !UpdateManager.isEmbedded)
+                  // Do not render the Window Buttons on web nor macOS nor when
+                  // in fullscreen. macOS render the buttons natively.
+                  if (!kIsWeb &&
+                      !isMacOSPlatform &&
+                      !UpdateManager.isEmbedded &&
+                      !settings.kFullscreen.value)
                     SizedBox(
                       width: 138,
                       child: Builder(builder: (context) {
@@ -268,9 +290,7 @@ class WindowButtons extends StatelessWidget {
                                   }
                                 },
                               ),
-                              DecoratedCloseButton(
-                                onPressed: windowManager.close,
-                              ),
+                              DecoratedCloseButton(onPressed: close),
                             ].map((button) {
                               return Padding(
                                 padding: const EdgeInsetsDirectional.all(2.0),
@@ -279,10 +299,40 @@ class WindowButtons extends StatelessWidget {
                             }).toList(),
                           );
                         }
-                        return WindowCaption(
-                          brightness: theme.brightness,
-                          backgroundColor: Colors.transparent,
-                        );
+                        return Row(children: [
+                          WindowCaptionButton.minimize(
+                            brightness: theme.brightness,
+                            onPressed: () async {
+                              final isMinimized =
+                                  await windowManager.isMinimized();
+                              if (isMinimized) {
+                                windowManager.restore();
+                              } else {
+                                windowManager.minimize();
+                              }
+                            },
+                          ),
+                          FutureBuilder<bool>(
+                            future: windowManager.isMaximized(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<bool> snapshot) {
+                              if (snapshot.data == true) {
+                                return WindowCaptionButton.unmaximize(
+                                  brightness: theme.brightness,
+                                  onPressed: windowManager.unmaximize,
+                                );
+                              }
+                              return WindowCaptionButton.maximize(
+                                brightness: theme.brightness,
+                                onPressed: windowManager.maximize,
+                              );
+                            },
+                          ),
+                          WindowCaptionButton.close(
+                            brightness: theme.brightness,
+                            onPressed: close,
+                          ),
+                        ]);
                       }),
                     ),
                 ]),
@@ -323,6 +373,76 @@ class WindowButtons extends StatelessWidget {
         );
       },
     );
+
+    if (settings.kFullscreen.value && settings.kImmersiveMode.value) {
+      return MouseRegion(
+        onEnter: (_) {
+          showOverlayEntry(context, bar);
+        },
+        child: const SizedBox(
+          height: 4,
+          width: double.infinity,
+        ),
+      );
+    }
+
+    return bar;
+  }
+
+  OverlayEntry? _overlayEntry;
+  void showOverlayEntry(BuildContext context, Widget bar) {
+    _overlayEntry = OverlayEntry(builder: (context) {
+      return AnimatedBuilder(
+        animation: _animationController,
+        child: bar,
+        builder: (context, animation) {
+          return Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              ignoring: _animationController.status == AnimationStatus.forward,
+              child: MouseRegion(
+                onExit: (_) {
+                  dismissOverlayEntry();
+                },
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 8,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, -1),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _animationController,
+                      curve: Curves.easeInOut,
+                    )),
+                    child: animation,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    });
+    Overlay.of(context).insert(_overlayEntry!);
+    _animationController.forward();
+  }
+
+  Future<void> dismissOverlayEntry() async {
+    await _animationController.reverse();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Future<void> close() {
+    final settings = context.read<SettingsProvider>();
+    if (settings.kMinimizeToTray.value) {
+      return windowManager.hide();
+    } else {
+      return windowManager.close();
+    }
   }
 }
 

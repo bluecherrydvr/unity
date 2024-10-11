@@ -21,6 +21,8 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -69,6 +71,7 @@ class ApplicationSettings extends StatelessWidget {
           settings.kThemeMode.value = v;
         },
       ),
+      if (isMobilePlatform) _buildImmersiveModeTile(),
       const LanguageSection(),
       SubHeader(
         loc.dateAndTime,
@@ -93,45 +96,64 @@ class ApplicationSettings extends StatelessWidget {
         subtitle: Text(loc.convertToLocalTimeDescription),
         isThreeLine: true,
       ),
-      if (settings.kShowDebugInfo.value) ...[
+      if (isDesktopPlatform) ...[
         const SubHeader('Window'),
+        if (canLaunchAtStartup)
+          CheckboxListTile.adaptive(
+            value: settings.kLaunchAppOnStartup.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kLaunchAppOnStartup.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.launch),
+            ),
+            title: const Text('Launch app on startup'),
+            subtitle: const Text(
+              'Whether to launch the app when the system starts',
+            ),
+          ),
         CheckboxListTile.adaptive(
-          value: settings.kLaunchAppOnStartup.value,
+          value: settings.kFullscreen.value,
           onChanged: (v) {
-            if (v != null) {
-              settings.kLaunchAppOnStartup.value = v;
-            }
+            if (v != null) settings.kFullscreen.value = v;
           },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.launch),
+            child: const Icon(Icons.fullscreen),
           ),
-          title: const Text('Launch app on startup'),
-          subtitle: const Text(
-            'Whether to launchthe app when the system starts',
-          ),
+          title: const Text('Fullscreen Mode'),
+          subtitle: const Text('Whether the app is in fullscreen mode or not.'),
         ),
-        CheckboxListTile.adaptive(
-          value: settings.kMinimizeToTray.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kMinimizeToTray.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.sensor_door),
+        _buildImmersiveModeTile(),
+        if (canUseSystemTray)
+          CheckboxListTile.adaptive(
+            value: settings.kMinimizeToTray.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kMinimizeToTray.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.sensor_door),
+            ),
+            title: const Text('Minimize to tray'),
+            subtitle: const Text(
+              'Whether to minimize app to the system tray when the window is '
+              'closed. This will keep the app running in the background.',
+            ),
           ),
-          title: const Text('Minimize to tray'),
-          subtitle: const Text(
-            'Whether to minimize app to the system tray when the window is closed. '
-            'This will keep the app running in the background.',
-          ),
-        ),
+      ],
+      if (settings.kShowDebugInfo.value) ...[
         const SubHeader('Acessibility'),
         CheckboxListTile.adaptive(
           value: settings.kAnimationsEnabled.value,
@@ -190,6 +212,41 @@ class ApplicationSettings extends StatelessWidget {
         ),
       ],
     ]);
+  }
+
+  /// Creates the Immersive Mode tile.
+  ///
+  /// On Desktop, this is used alonside the Fullscreen mode tile. When in
+  /// fullscreen, the immersive mode hides the top bar and only shows it when
+  /// the user hovers over the top of the window.
+  ///
+  /// On Mobile, this makes the app full-screen and hides the system UI.
+  Widget _buildImmersiveModeTile() {
+    return Builder(builder: (context) {
+      final theme = Theme.of(context);
+      final settings = context.watch<SettingsProvider>();
+
+      return CheckboxListTile.adaptive(
+        value: settings.kImmersiveMode.value,
+        onChanged: settings.kFullscreen.value || isMobilePlatform
+            ? (v) {
+                if (v != null) settings.kImmersiveMode.value = v;
+              }
+            : null,
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.web_asset),
+        ),
+        title: const Text('Immersive Mode'),
+        subtitle: const Text(
+          'This will hide the title bar and window controls. '
+          'To show the top bar, hover over the top of the window. '
+          'This only works in fullscreen mode.',
+        ),
+      );
+    });
   }
 }
 

@@ -22,7 +22,6 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -30,7 +29,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:tray_manager/tray_manager.dart';
+// import 'package:tray_manager/tray_manager.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -175,15 +174,18 @@ Future<void> setupLaunchAtStartup() async {
   );
 }
 
-bool get canUseSystemTray => isDesktopPlatform && !Platform.isLinux;
+// System tray is temporarily disabled due to issues with the `tray_manager`
+// plugin. It will be re-enabled once the issues are resolved.
+// bool get canUseSystemTray => isDesktopPlatform && !Platform.isLinux;
+bool get canUseSystemTray => false;
 
 Future<void> setupSystemTray() async {
   assert(canUseSystemTray);
 
-  await trayManager.destroy();
-  await trayManager.setIcon(
-    Platform.isWindows ? 'assets/images/icon.ico' : 'assets/images/icon.png',
-  );
+  // await trayManager.destroy();
+  // await trayManager.setIcon(
+  //   Platform.isWindows ? 'assets/images/icon.ico' : 'assets/images/icon.png',
+  // );
   // final menu = Menu(items: [
   //   MenuItem(key: 'screens', label: 'Layouts'),
   //   MenuItem(key: 'timeline_of_events', label: 'Timeline of Events'),
@@ -198,48 +200,48 @@ Future<void> setupSystemTray() async {
   // await trayManager.setTitle('Bluecherry');
   // await trayManager.setToolTip('Bluecherry Client');
 
-  trayManager.addListener(UnityTrayListener());
+  // trayManager.addListener(UnityTrayListener());
 }
 
-class UnityTrayListener with TrayListener {
-  @override
-  void onTrayIconMouseDown() {
-    debugPrint('Tray icon mouse down');
-    windowManager.show();
-  }
+// class UnityTrayListener with TrayListener {
+//   @override
+//   void onTrayIconMouseDown() {
+//     debugPrint('Tray icon mouse down');
+//     windowManager.show();
+//   }
 
-  @override
-  void onTrayIconRightMouseDown() {
-    debugPrint('Tray icon right mouse down');
-    // trayManager.popUpContextMenu();
-  }
+//   @override
+//   void onTrayIconRightMouseDown() {
+//     debugPrint('Tray icon right mouse down');
+//     // trayManager.popUpContextMenu();
+//   }
 
-  @override
-  void onTrayIconRightMouseUp() {
-    debugPrint('Tray icon right mouse up');
-  }
+//   @override
+//   void onTrayIconRightMouseUp() {
+//     debugPrint('Tray icon right mouse up');
+//   }
 
-  @override
-  void onTrayMenuItemClick(MenuItem menuItem) {
-    switch (menuItem.key) {
-      case 'screens':
-        HomeProvider.instance.setTab(UnityTab.deviceGrid);
-        break;
-      case 'timeline_of_events':
-        HomeProvider.instance.setTab(UnityTab.eventsTimeline);
-        break;
-      case 'events_browser':
-        HomeProvider.instance.setTab(UnityTab.eventsHistory);
-        break;
-      case 'downloads':
-        HomeProvider.instance.setTab(UnityTab.downloads);
-        break;
-      case 'settings':
-        HomeProvider.instance.setTab(UnityTab.settings);
-        break;
-      case 'quit':
-        windowManager.close();
-        break;
-    }
-  }
-}
+//   @override
+//   void onTrayMenuItemClick(MenuItem menuItem) {
+//     switch (menuItem.key) {
+//       case 'screens':
+//         HomeProvider.instance.setTab(UnityTab.deviceGrid);
+//         break;
+//       case 'timeline_of_events':
+//         HomeProvider.instance.setTab(UnityTab.eventsTimeline);
+//         break;
+//       case 'events_browser':
+//         HomeProvider.instance.setTab(UnityTab.eventsHistory);
+//         break;
+//       case 'downloads':
+//         HomeProvider.instance.setTab(UnityTab.downloads);
+//         break;
+//       case 'settings':
+//         HomeProvider.instance.setTab(UnityTab.settings);
+//         break;
+//       case 'quit':
+//         windowManager.close();
+//         break;
+//     }
+//   }
+// }

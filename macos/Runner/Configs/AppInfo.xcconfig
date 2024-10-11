@@ -11,4 +11,4 @@ PRODUCT_NAME = unity
 PRODUCT_BUNDLE_IDENTIFIER = com.unity
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 com. All rights reserved.

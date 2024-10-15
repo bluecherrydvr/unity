@@ -1,5 +1,3 @@
-library unity_multi_window;
-
 import 'dart:convert';
 import 'dart:io';
 

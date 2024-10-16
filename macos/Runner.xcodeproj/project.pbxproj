@@ -293,7 +293,6 @@
 			);
 			mainGroup = 33CC10E42044A3C60003C045;
 			packageReferences = (
-				1D7EAE8C2CBEAE3F003EFAE2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 				1D1012F62CC054F7000D4F39 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */,
 			);
 			productRefGroup = 33CC10EE2044A3C60003C045 /* Products */;
@@ -826,14 +825,6 @@
 		1D1012F62CC054F7000D4F39 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Legacy" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Legacy";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		1D7EAE8C2CBEAE3F003EFAE2 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
 			requirement = {
 				branch = main;
 				kind = branch;

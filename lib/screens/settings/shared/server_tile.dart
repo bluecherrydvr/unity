@@ -191,8 +191,10 @@ class ServerTile extends StatelessWidget {
           backgroundColor: Colors.transparent,
           foregroundColor:
               server.online ? theme.iconTheme.color : theme.colorScheme.error,
-          child:
-              Icon(server.online ? Icons.dns : Icons.desktop_access_disabled),
+          child: ServerStatusIcon(
+            server: server,
+            isLoading: isLoading,
+          ),
         ),
         title: Text(
           server.name,
@@ -341,61 +343,7 @@ class ServerCard extends StatelessWidget {
               start: 0,
               end: 0,
               child: Row(children: [
-                if (isLoading)
-                  const Padding(
-                    padding: EdgeInsetsDirectional.only(start: 12.0),
-                    child: SizedBox(
-                      height: 18.0,
-                      width: 18.0,
-                      child:
-                          CircularProgressIndicator.adaptive(strokeWidth: 1.5),
-                    ),
-                  )
-                else if (server.online)
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(start: 12.0),
-                    child: Tooltip(
-                      message: 'Online',
-                      child: Icon(Icons.check, size: 18.0, color: Colors.green),
-                    ),
-                  )
-                else if (server.additionResponse ==
-                    ServerAdditionResponse.wrongCredentials)
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(start: 12.0),
-                    child: Tooltip(
-                      message: 'Wrong credentials',
-                      child: Icon(
-                        Icons.vpn_key,
-                        size: 18.0,
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                  )
-                else ...[
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(start: 12.0),
-                    child: Tooltip(
-                      message: switch (server.additionResponse) {
-                        ServerAdditionResponse.wrongCredentials =>
-                          loc.serverWrongCredentialsShort,
-                        ServerAdditionResponse.versionMismatch =>
-                          loc.serverVersionMismatchShort,
-                        _ => loc.offline,
-                      },
-                      child: Icon(
-                        switch (server.additionResponse) {
-                          ServerAdditionResponse.wrongCredentials =>
-                            Icons.vpn_key,
-                          ServerAdditionResponse.versionMismatch => Icons.rule,
-                          _ => Icons.domain_disabled,
-                        },
-                        size: 18.0,
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                  )
-                ],
+                ServerStatusIcon(isLoading: isLoading, server: server),
                 Spacer(),
                 SquaredIconButton(
                   tooltip: loc.serverOptions,
@@ -520,5 +468,75 @@ class DevicesListDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class ServerStatusIcon extends StatelessWidget {
+  final bool isLoading;
+  final Server server;
+
+  const ServerStatusIcon({
+    super.key,
+    required this.server,
+    required this.isLoading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: SizedBox(
+          height: 18.0,
+          width: 18.0,
+          child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+        ),
+      );
+    } else if (server.online) {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: 'Online',
+          child: Icon(Icons.check, size: 18.0, color: Colors.green),
+        ),
+      );
+    } else if (server.additionResponse ==
+        ServerAdditionResponse.wrongCredentials) {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: 'Wrong credentials',
+          child: Icon(
+            Icons.vpn_key,
+            size: 18.0,
+            color: theme.colorScheme.error,
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: switch (server.additionResponse) {
+            ServerAdditionResponse.wrongCredentials =>
+              loc.serverWrongCredentialsShort,
+            ServerAdditionResponse.versionMismatch =>
+              loc.serverVersionMismatchShort,
+            _ => loc.offline,
+          },
+          child: Icon(
+            switch (server.additionResponse) {
+              ServerAdditionResponse.wrongCredentials => Icons.vpn_key,
+              ServerAdditionResponse.versionMismatch => Icons.rule,
+              _ => Icons.domain_disabled,
+            },
+            size: 18.0,
+            color: theme.colorScheme.error,
+          ),
+        ),
+      );
+    }
   }
 }

@@ -62,7 +62,7 @@ bool get openedFromFile => _openedFromFile ?? false;
 
 /// Listens to any links received while the app is running.
 void listen() {
-  // Deep linking is not supported on Linux.
+  // TODO(bdlukaa): Deep linking is not supported on Linux.
   // See https://github.com/llfbandit/app_links/issues/20 for more info.
   if (isDesktopPlatform && !Platform.isLinux) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

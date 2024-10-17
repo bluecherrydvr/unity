@@ -44,16 +44,18 @@ class ServerAndDevicesSettings extends StatelessWidget {
     return ListView(children: [
       SubHeader(loc.servers, padding: DesktopSettings.horizontalPadding),
       const ServersList(),
-      const SizedBox(height: 8.0),
       SubHeader(loc.serverSettings, padding: DesktopSettings.horizontalPadding),
       const ServerSettings(),
-      const SizedBox(height: 8.0),
       SubHeader(
         loc.streamingSettings,
         padding: DesktopSettings.horizontalPadding,
       ),
       const StreamingSettings(),
-      const SizedBox(height: 12.0),
+      SubHeader(
+        loc.matrixMagnification,
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      AreaMagnificationSettings(),
       SubHeader(
         loc.devicesSettings,
         padding: DesktopSettings.horizontalPadding,
@@ -454,6 +456,94 @@ class _DevicesSettingsState extends State<DevicesSettings> {
       builder: (context) {
         return const VideoTest();
       },
+    );
+  }
+}
+
+class AreaMagnificationSettings extends StatelessWidget {
+  const AreaMagnificationSettings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.crop),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.matrixedViewMagnification),
+          subtitle: Text(loc.matrixedViewMagnificationDescription),
+          value: settings.kMatrixedZoomEnabled.value,
+          onChanged: (value) {
+            if (value != null) {
+              settings.kMatrixedZoomEnabled.value = value;
+            }
+          },
+        ),
+        OptionsChooserTile<MatrixType>(
+          title: loc.defaultMatrixSize,
+          icon: Icons.view_quilt,
+          value: settings.kMatrixSize.value,
+          values: MatrixType.values.map((size) {
+            return Option(
+              value: size,
+              text: size.toString(),
+            );
+          }),
+          onChanged: (v) {
+            settings.kMatrixSize.value = v;
+          },
+        ),
+        CheckboxListTile.adaptive(
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.zoom_in_map),
+          ),
+          title: Text(loc.softwareMagnification),
+          subtitle: Text(
+            isMacOS
+                ? loc.softwareMagnificationDescriptionMacOS
+                : loc.softwareMagnificationDescription,
+          ),
+          value: settings.kSoftwareZooming.value,
+          onChanged: isMacOS
+              ? null
+              : (v) {
+                  if (v != null) {
+                    settings.kSoftwareZooming.value = v;
+                  }
+                },
+          dense: false,
+        ),
+        CheckboxListTile.adaptive(
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.center_focus_weak),
+          ),
+          title: Text(loc.eventMagnification),
+          subtitle: Text(loc.eventMagnificationDescription),
+          value: settings.kEventsMatrixedZoom.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kEventsMatrixedZoom.value = v;
+            }
+          },
+          dense: false,
+        ),
+      ],
     );
   }
 }

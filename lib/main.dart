@@ -74,20 +74,24 @@ Future<void> main(List<String> args) async {
     WidgetsFlutterBinding.ensureInitialized();
     logging.setupLogging();
 
-    // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
-    // On windows, the window is hidden until flutter draws its first frame.
-    // To create a splash screen effect while the dependencies are loading, we
-    // can run the [SplashScreen] widget as the app.
+    await initializeDateFormatting();
+    await configureStorage();
+    await SettingsProvider.ensureInitialized();
+
     if (isDesktopPlatform) {
       await configureWindow();
       if (canLaunchAtStartup) setupLaunchAtStartup();
       if (canUseSystemTray) setupSystemTray();
 
+      // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
+      //
+      // On Windows, the window is hidden until flutter draws its first frame.
+      // To create a splash screen effect while the dependencies are loading, it
+      // is possible to run the [SplashScreen] widget as the app.
+      //
+      // This also creates a splash screen effect on other desktop platforms.
       runApp(const SplashScreen());
     }
-
-    await initializeDateFormatting();
-    await configureStorage();
 
     DevHttpOverrides.configureCertificates();
     API.initialize();
@@ -109,6 +113,7 @@ Future<void> main(List<String> args) async {
         // want to open the [AlternativeWindow] screen.
       } else {
         try {
+          isSubWindow = true;
           // this is just a mock. HomeProvider depends on this, so we mock the instance
           ServersProvider.instance = ServersProvider.dump();
           await SettingsProvider.ensureInitialized();
@@ -155,7 +160,6 @@ Future<void> main(List<String> args) async {
     // With it, all these functions will be running at the same time, reducing the
     // wait time at the splash screen
     // settings provider needs to be initalized alone
-    await SettingsProvider.ensureInitialized();
     await ServersProvider.ensureInitialized();
     await Future.wait([
       DownloadsManager.ensureInitialized(),

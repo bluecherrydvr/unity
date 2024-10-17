@@ -32,8 +32,16 @@ export 'events.dart';
 export 'ptz.dart';
 
 enum ServerAdditionResponse {
+  /// The server is online and the credentials are correct.
   validated,
+
+  /// The server is online, but the version of the server is not supported.
   versionMismatch,
+
+  /// The server is online, but the credentials are incorrect.
+  wrongCredentials,
+
+  /// The server is online, but the response is unknown.
   unknown;
 }
 
@@ -56,13 +64,21 @@ class API {
   static String get cookieHeader => HttpHeaders.cookieHeader;
 
   /// Checks details of a [server] entered by the user.
-  /// If the attributes present in [Server] are correct, then the
-  /// returned object will have [Server.serverUUID] & [Server.cookie]
-  /// present in it otherwise `null`.
-  Future<(ServerAdditionResponse response, Server server)>
-      checkServerCredentials(
-    Server server,
-  ) async {
+  ///
+  /// If the attributes provided are correct, then the returned object will have
+  /// [Server.serverUUID] & [Server.cookie] present in it otherwise `null`.
+  ///
+  /// The [Server.online] attribute is set to `true` if the server is online,
+  /// otherwise is offline.
+  ///
+  /// The response is a tuple of [ServerAdditionResponse] and [Server]. The
+  /// [ServerAdditionResponse] is used to determine the status of the server
+  /// credentials.
+  Future<
+      (
+        ServerAdditionResponse response,
+        Server server,
+      )> checkServerCredentials(Server server) async {
     debugPrint('Checking server credentials for server ${server.id}');
     try {
       final uri = Uri.https(
@@ -86,9 +102,9 @@ class API {
       final response = await request.send();
       final body = await response.stream.bytesToString();
       debugPrint(
-        'checkServerCredentials ${response.statusCode}'
-        '\n:....${response.headers}'
-        '\n:....$body',
+        '${server.ip}:${server.port} with status code ${response.statusCode}'
+        '\nHeaders: ${response.headers}'
+        '\nBody: $body',
       );
 
       if (response.statusCode == 200) {
@@ -96,7 +112,27 @@ class API {
           server.online = false;
           return (ServerAdditionResponse.versionMismatch, server);
         }
+
         final json = await compute(jsonDecode, body);
+
+        if (json['success'] == false) {
+          server.online = false;
+
+          ServerAdditionResponse response;
+          switch (json['message'] as String?) {
+            case 'Wrong login/password combination, please try again.':
+              response = ServerAdditionResponse.wrongCredentials;
+            case 'Route error!':
+              response = ServerAdditionResponse.versionMismatch;
+            default:
+              response = ServerAdditionResponse.unknown;
+          }
+          return (
+            response,
+            server..additionResponse = response,
+          );
+        }
+
         return (
           ServerAdditionResponse.validated,
           server.copyWith(
@@ -107,7 +143,6 @@ class API {
           )
         );
       } else {
-        debugPrint(body);
         server.online = false;
       }
     } catch (error, stack) {

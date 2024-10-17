@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   firebase_core
   fvp
+  local_auth_windows
   media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows

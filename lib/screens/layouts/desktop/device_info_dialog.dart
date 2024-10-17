@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
@@ -78,15 +79,15 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
               Text(
                 _showStreamUrl
                     ? widget.device.streamURL
-                    : List.generate(widget.device.streamURL.length, (index) {
-                        return '•';
-                      }).join(),
+                    : List.generate(
+                        widget.device.streamURL.length ~/ 2,
+                        (index) => '•',
+                      ).join(),
               ),
               const SizedBox(width: 6.0),
               CopyDeviceUrlButton(device: widget.device),
               SquaredIconButton(
-                onPressed: () =>
-                    setState(() => _showStreamUrl = !_showStreamUrl),
+                onPressed: _onToggleStreamUrl,
                 tooltip: _showStreamUrl ? loc.hide : loc.show,
                 icon: Icon(
                   _showStreamUrl ? Icons.visibility_off : Icons.visibility,
@@ -122,6 +123,17 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
       );
     });
   }
+
+  Future<void> _onToggleStreamUrl() async {
+    final canShow = _showStreamUrl || await UnityAuth.ask();
+    if (!mounted) return;
+
+    if (canShow) {
+      setState(() => _showStreamUrl = !_showStreamUrl);
+    } else {
+      UnityAuth.showAccessDeniedMessage(context);
+    }
+  }
 }
 
 class CopyDeviceUrlButton extends StatelessWidget {
@@ -131,26 +143,36 @@ class CopyDeviceUrlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return SquaredIconButton(
       padding: EdgeInsetsDirectional.zero,
       icon: const Icon(Icons.copy),
       tooltip: MaterialLocalizations.of(context).copyButtonLabel,
-      onPressed: () {
-        Clipboard.setData(
-          ClipboardData(text: device.streamURL),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              loc.copiedToClipboard('URL'),
-              textAlign: TextAlign.center,
-            ),
-            behavior: SnackBarBehavior.floating,
-            width: 200.0,
-          ),
-        );
-      },
+      onPressed: () => _onCopy(context),
     );
+  }
+
+  Future<void> _onCopy(BuildContext context) async {
+    final canCopy = await UnityAuth.ask();
+    if (!context.mounted) return;
+
+    final loc = AppLocalizations.of(context);
+
+    if (canCopy) {
+      Clipboard.setData(
+        ClipboardData(text: device.streamURL),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            loc.copiedToClipboard('URL'),
+            textAlign: TextAlign.center,
+          ),
+          behavior: SnackBarBehavior.floating,
+          width: 200.0,
+        ),
+      );
+    } else {
+      UnityAuth.showAccessDeniedMessage(context);
+    }
   }
 }

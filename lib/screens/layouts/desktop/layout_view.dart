@@ -47,45 +47,139 @@ int calculateCrossAxisCount(int deviceAmount) {
   return count;
 }
 
-class _LargeDeviceGridState extends State<LargeDeviceGrid> {
+class _LargeDeviceGridState extends State<LargeDeviceGrid>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
+  Timer? cycleTimer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.watch<SettingsProvider>();
+    cycleTimer?.cancel();
+    cycleTimer = Timer.periodic(settings.kLayoutCyclePeriod.value, (_) {
+      if (!mounted) return;
+      if (settings.kLayoutCycleEnabled.value) {
+        context.read<DesktopViewProvider>().switchToNextLayout();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    cycleTimer?.cancel();
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= _kReverseBreakpoint;
 
-    final children = [
-      CollapsableSidebar(
-        initiallyClosed:
-            app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
-        left: !isReversed,
-        builder: (context, collapsed, collapseButton) {
-          if (collapsed) {
-            return CollapsedSidebar(collapseButton: collapseButton);
+    final sidebar = CollapsableSidebar(
+      initiallyClosed:
+          app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
+      left: !isReversed,
+      builder: (context, collapsed, collapseButton) {
+        if (collapsed) {
+          return CollapsedSidebar(collapseButton: collapseButton);
+        }
+        return DesktopSidebar(collapseButton: collapseButton);
+      },
+    );
+
+    final layoutView = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: LayoutView(
+        key: ValueKey(view.currentLayout.hashCode),
+        layout: view.currentLayout,
+        onAccept: view.add,
+        onReorder: view.reorder,
+        onWillAccept: (device) {
+          if (device == null) return false;
+          if (view.currentLayout.type == DesktopLayoutType.singleView) {
+            return view.currentLayout.devices.isEmpty;
           }
-          return DesktopSidebar(collapseButton: collapseButton);
+          return !view.currentLayout.devices.contains(device);
         },
       ),
-      Expanded(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: LayoutView(
-            key: ValueKey(view.currentLayout.hashCode),
-            layout: view.currentLayout,
-            onAccept: view.add,
-            onReorder: view.reorder,
-            onWillAccept: (device) {
-              if (device == null) return false;
-              if (view.currentLayout.type == DesktopLayoutType.singleView) {
-                return view.currentLayout.devices.isEmpty;
-              }
-              return !view.currentLayout.devices.contains(device);
-            },
+    );
+
+    if (settings.isImmersiveMode) {
+      return Row(children: [
+        MouseRegion(
+          onEnter: (_) {
+            showOverlayEntry(context, sidebar);
+          },
+          child: const SizedBox(
+            height: double.infinity,
+            width: 4.0,
           ),
         ),
-      ),
-    ];
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(
+              end: 4.0,
+              bottom: 4.0,
+            ),
+            child: layoutView,
+          ),
+        ),
+      ]);
+    }
 
+    final children = [sidebar, Expanded(child: layoutView)];
     return Row(children: isReversed ? children.reversed.toList() : children);
+  }
+
+  OverlayEntry? _overlayEntry;
+  void showOverlayEntry(BuildContext context, Widget bar) {
+    _overlayEntry = OverlayEntry(builder: (context) {
+      return AnimatedBuilder(
+        animation: _animationController,
+        child: bar,
+        builder: (context, animation) {
+          return Positioned(
+            top: 0,
+            bottom: 0,
+            left: 0,
+            child: IgnorePointer(
+              ignoring: _animationController.status == AnimationStatus.forward,
+              child: MouseRegion(
+                onExit: (_) => dismissOverlayEntry(),
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 8,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _animationController,
+                      curve: Curves.easeInOut,
+                    )),
+                    child: animation,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    });
+    Overlay.of(context).insert(_overlayEntry!);
+    _animationController.forward();
+  }
+
+  Future<void> dismissOverlayEntry() async {
+    await _animationController.reverse();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 }
 
@@ -116,6 +210,7 @@ class _LayoutViewState extends State<LayoutView> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return DragTarget<Device>(
       onWillAcceptWithDetails: widget.onWillAccept == null
@@ -247,6 +342,8 @@ class _LayoutViewState extends State<LayoutView> {
                 childAspectRatio: kHorizontalAspectRatio,
                 reorderable: widget.onReorder != null,
                 onReorder: widget.onReorder ?? (a, b) {},
+                padding:
+                    settings.isImmersiveMode ? EdgeInsets.zero : kGridPadding,
                 children: devices.map((device) {
                   return DesktopDeviceTile(device: device);
                 }).toList(),
@@ -263,7 +360,7 @@ class _LayoutViewState extends State<LayoutView> {
         return Material(
           color: Colors.black,
           shape: RoundedRectangleBorder(
-            borderRadius: isAlternativeWindow
+            borderRadius: isAlternativeWindow || settings.isImmersiveMode
                 ? BorderRadius.zero
                 : BorderRadiusDirectional.only(
                     topStart:
@@ -274,108 +371,116 @@ class _LayoutViewState extends State<LayoutView> {
           ),
           child: SafeArea(
             child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IntrinsicHeight(
-                  child: Row(children: [
-                    Expanded(
-                      child: Text(
-                        widget.layout.name,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
+              if (!settings.isImmersiveMode)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IntrinsicHeight(
+                    child: Row(children: [
+                      Expanded(
+                        child: Text(
+                          widget.layout.name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    if (widget.layout.devices.isNotEmpty)
-                      ...() {
-                        final volume = widget.layout.devices
-                            .map((e) => e.volume)
-                            .findMaxDuplicatedElementInList()
-                            .toDouble();
-                        return <Widget>[
-                          if (_volumeSliderVisible)
-                            SizedBox(
-                              height: 24.0,
-                              child: Slider(
-                                value: widget.layout.devices
-                                    .map((e) => e.volume)
-                                    .findMaxDuplicatedElementInList()
-                                    .toDouble(),
-                                divisions: 100,
-                                label: '${(volume * 100).round()}%',
-                                onChanged: (value) async {
-                                  for (final device in widget.layout.devices) {
-                                    final player =
-                                        UnityPlayers.players[device.uuid];
-                                    if (player != null) {
-                                      await player.setVolume(value);
-                                      device.volume = value;
+                      if (widget.layout.devices.isNotEmpty)
+                        ...() {
+                          final volume = widget.layout.devices
+                              .map((e) => e.volume)
+                              .findMaxDuplicatedElementInList()
+                              .toDouble();
+                          return <Widget>[
+                            if (_volumeSliderVisible)
+                              SizedBox(
+                                height: 24.0,
+                                child: Slider(
+                                  value: widget.layout.devices
+                                      .map((e) => e.volume)
+                                      .findMaxDuplicatedElementInList()
+                                      .toDouble(),
+                                  divisions: 100,
+                                  label: '${(volume * 100).round()}%',
+                                  onChanged: (value) async {
+                                    for (final device
+                                        in widget.layout.devices) {
+                                      final player =
+                                          UnityPlayers.players[device.uuid];
+                                      if (player != null) {
+                                        await player.setVolume(value);
+                                        device.volume = value;
+                                      }
                                     }
-                                  }
-                                  if (mounted) setState(() {});
-                                },
+                                    if (mounted) setState(() {});
+                                  },
+                                ),
                               ),
+                            SquaredIconButton(
+                              icon: const Icon(
+                                Icons.equalizer,
+                                color: Colors.white,
+                              ),
+                              tooltip:
+                                  'Layout Volume • ${(volume * 100).round()}%',
+                              onPressed: () {
+                                setState(() {
+                                  _volumeSliderVisible = !_volumeSliderVisible;
+                                });
+                              },
                             ),
-                          SquaredIconButton(
-                            icon: const Icon(
-                              Icons.equalizer,
-                              color: Colors.white,
-                            ),
-                            tooltip:
-                                'Layout Volume • ${(volume * 100).round()}%',
-                            onPressed: () {
-                              setState(() {
-                                _volumeSliderVisible = !_volumeSliderVisible;
-                              });
-                            },
+                          ];
+                        }(),
+                      if (canOpenNewWindow)
+                        SquaredIconButton(
+                          icon: const Icon(
+                            Icons.open_in_new,
+                            color: Colors.white,
                           ),
-                        ];
-                      }(),
-                    if (canOpenNewWindow)
+                          tooltip: loc.openInANewWindow,
+                          onPressed: widget.layout.openInANewWindow,
+                        ),
+                      SquaredIconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white),
+                        tooltip: loc.editLayout,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                EditLayoutDialog(layout: widget.layout),
+                          );
+                        },
+                      ),
                       SquaredIconButton(
                         icon: const Icon(
-                          Icons.open_in_new,
+                          Icons.import_export,
                           color: Colors.white,
                         ),
-                        tooltip: loc.openInANewWindow,
-                        onPressed: widget.layout.openInANewWindow,
+                        tooltip: loc.exportLayout,
+                        onPressed: () {
+                          widget.layout.export(dialogTitle: loc.exportLayout);
+                        },
                       ),
-                    SquaredIconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white),
-                      tooltip: loc.editLayout,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) =>
-                              EditLayoutDialog(layout: widget.layout),
-                        );
-                      },
-                    ),
-                    SquaredIconButton(
-                      icon: const Icon(
-                        Icons.import_export,
-                        color: Colors.white,
-                      ),
-                      tooltip: loc.exportLayout,
-                      onPressed: () {
-                        widget.layout.export(dialogTitle: loc.exportLayout);
-                      },
-                    ),
-                    if (widget.layout.devices.isNotEmpty) ...[
-                      const VerticalDivider(),
-                      SquaredIconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: theme.colorScheme.error,
+                      if (widget.layout.devices.isNotEmpty) ...[
+                        const VerticalDivider(),
+                        SquaredIconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: theme.colorScheme.error,
+                          ),
+                          tooltip:
+                              loc.clearLayout(widget.layout.devices.length),
+                          onPressed: view.clearLayout,
                         ),
-                        tooltip: loc.clearLayout(widget.layout.devices.length),
-                        onPressed: view.clearLayout,
-                      ),
-                    ],
-                  ]),
+                      ],
+                    ]),
+                  ),
                 ),
-              ),
-              Expanded(child: Center(child: child)),
+              if (devices.isNotEmpty)
+                Expanded(child: Center(child: child))
+              else
+                Expanded(
+                  child: Center(child: Text('Add a camera')),
+                ),
             ]),
           ),
         );

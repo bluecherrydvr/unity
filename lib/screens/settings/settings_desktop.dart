@@ -21,7 +21,6 @@ import 'package:bluecherry_client/screens/settings/advanced_options.dart';
 import 'package:bluecherry_client/screens/settings/application.dart';
 import 'package:bluecherry_client/screens/settings/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/general.dart';
-import 'package:bluecherry_client/screens/settings/privacy_and_security.dart';
 import 'package:bluecherry_client/screens/settings/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -71,12 +70,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               label: Text(loc.application),
             ),
             NavigationRailDestination(
-              icon: const Icon(Icons.security),
-              label: Text(loc.privacyAndSecurity),
-            ),
-            NavigationRailDestination(
               icon: const Icon(Icons.update),
-              label: Text(loc.updatesAndHelp),
+              label: Text(loc.updatesHelpAndPrivacy),
             ),
             NavigationRailDestination(
               icon: const Icon(Icons.code),
@@ -113,9 +108,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                     1 => const ServerAndDevicesSettings(),
                     2 => const EventsAndDownloadsSettings(),
                     3 => const ApplicationSettings(),
-                    4 => const PrivacySecuritySettings(),
-                    5 => const UpdatesSettings(),
-                    6 => const AdvancedOptionsSettings(),
+                    4 => const UpdatesSettings(),
+                    5 => const AdvancedOptionsSettings(),
                     _ => const GeneralSettings(),
                   },
                 ),

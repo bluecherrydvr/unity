@@ -20,12 +20,9 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
-import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/logging.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
@@ -71,78 +68,10 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
     final settings = context.watch<SettingsProvider>();
 
     return ListView(children: [
-      SubHeader(loc.matrixMagnification),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.crop),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.matrixedViewMagnification),
-        subtitle: Text(loc.matrixedViewMagnificationDescription),
-        value: settings.kMatrixedZoomEnabled.value,
-        onChanged: (value) {
-          if (value != null) {
-            settings.kMatrixedZoomEnabled.value = value;
-          }
-        },
+      SubHeader(
+        loc.developerOptions,
+        padding: DesktopSettings.horizontalPadding,
       ),
-      OptionsChooserTile<MatrixType>(
-        title: loc.defaultMatrixSize,
-        icon: Icons.view_quilt,
-        value: settings.kMatrixSize.value,
-        values: MatrixType.values.map((size) {
-          return Option(
-            value: size,
-            text: size.toString(),
-          );
-        }),
-        onChanged: (v) {
-          settings.kMatrixSize.value = v;
-        },
-      ),
-      CheckboxListTile.adaptive(
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.zoom_in_map),
-        ),
-        title: Text(loc.softwareMagnification),
-        subtitle: Text(
-          isMacOS
-              ? loc.softwareMagnificationDescriptionMacOS
-              : loc.softwareMagnificationDescription,
-        ),
-        value: settings.kSoftwareZooming.value,
-        onChanged: isMacOS
-            ? null
-            : (v) {
-                if (v != null) {
-                  settings.kSoftwareZooming.value = v;
-                }
-              },
-        dense: false,
-      ),
-      CheckboxListTile.adaptive(
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.center_focus_weak),
-        ),
-        title: Text(loc.eventMagnification),
-        subtitle: Text(loc.eventMagnificationDescription),
-        value: settings.kEventsMatrixedZoom.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kEventsMatrixedZoom.value = v;
-          }
-        },
-        dense: false,
-      ),
-      SubHeader(loc.developerOptions),
       if (!kIsWeb) ...[
         FutureBuilder(
           future: getLogFile(),
@@ -290,6 +219,7 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
       SubHeader(
         'Video Instances',
         trailing: Text('${UnityPlayers.players.length}'),
+        padding: DesktopSettings.horizontalPadding,
       ),
       if (UnityPlayers.players.isEmpty)
         const Center(

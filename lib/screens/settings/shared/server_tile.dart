@@ -113,41 +113,42 @@ class ServersList extends StatelessWidget {
         final theme = Theme.of(context);
         final loc = AppLocalizations.of(context);
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 300.0,
-          ),
-          child: AlertDialog(
-            title: Text(loc.remove),
-            content: Text(
+        return AlertDialog(
+          title: Text(loc.areYouSure),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 300.0,
+            ),
+            child: Text(
               loc.removeServerDescription(server.name),
               style: theme.textTheme.headlineMedium,
               textAlign: TextAlign.start,
             ),
-            actions: [
-              MaterialButton(
-                onPressed: Navigator.of(context).maybePop,
-                child: Text(
-                  loc.no.toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  ServersProvider.instance.remove(server);
-                  Navigator.of(context).maybePop();
-                },
-                child: Text(
-                  loc.yes.toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-            ],
           ),
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                ServersProvider.instance.remove(server);
+                Navigator.of(context).maybePop();
+              },
+              child: Text(
+                loc.yes.toUpperCase(),
+                style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: Navigator.of(context).maybePop,
+              autofocus: true,
+              child: Text(
+                loc.no.toUpperCase(),
+                style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -184,16 +185,16 @@ class ServerTile extends StatelessWidget {
     }
 
     return GestureDetector(
-      onSecondaryTapUp: (d) {
-        showMenu(d.globalPosition);
-      },
+      onSecondaryTapUp: (d) => showMenu(d.globalPosition),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.transparent,
           foregroundColor:
               server.online ? theme.iconTheme.color : theme.colorScheme.error,
-          child:
-              Icon(server.online ? Icons.dns : Icons.desktop_access_disabled),
+          child: ServerStatusIcon(
+            server: server,
+            isLoading: isLoading,
+          ),
         ),
         title: Text(
           server.name,
@@ -339,25 +340,18 @@ class ServerCard extends StatelessWidget {
             ),
             PositionedDirectional(
               top: 4,
-              end: 2,
-              child: SquaredIconButton(
-                // iconSize: 20.0,
-                // splashRadius: 16.0,
-                tooltip: loc.serverOptions,
-                icon: Icon(moreIconData, size: 20.0),
-                onPressed: showMenu,
-              ),
-            ),
-            if (isLoading)
-              const PositionedDirectional(
-                start: 10,
-                top: 12,
-                child: SizedBox(
-                  height: 18.0,
-                  width: 18.0,
-                  child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+              start: 0,
+              end: 0,
+              child: Row(children: [
+                ServerStatusIcon(isLoading: isLoading, server: server),
+                Spacer(),
+                SquaredIconButton(
+                  tooltip: loc.serverOptions,
+                  icon: Icon(moreIconData, size: 20.0),
+                  onPressed: showMenu,
                 ),
-              ),
+              ]),
+            ),
           ]),
         ),
       ),
@@ -474,5 +468,75 @@ class DevicesListDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class ServerStatusIcon extends StatelessWidget {
+  final bool isLoading;
+  final Server server;
+
+  const ServerStatusIcon({
+    super.key,
+    required this.server,
+    required this.isLoading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: SizedBox(
+          height: 18.0,
+          width: 18.0,
+          child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+        ),
+      );
+    } else if (server.online) {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: 'Online',
+          child: Icon(Icons.check, size: 18.0, color: Colors.green),
+        ),
+      );
+    } else if (server.additionResponse ==
+        ServerAdditionResponse.wrongCredentials) {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: 'Wrong credentials',
+          child: Icon(
+            Icons.vpn_key,
+            size: 18.0,
+            color: theme.colorScheme.error,
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsetsDirectional.only(start: 12.0),
+        child: Tooltip(
+          message: switch (server.additionResponse) {
+            ServerAdditionResponse.wrongCredentials =>
+              loc.serverWrongCredentialsShort,
+            ServerAdditionResponse.versionMismatch =>
+              loc.serverVersionMismatchShort,
+            _ => loc.offline,
+          },
+          child: Icon(
+            switch (server.additionResponse) {
+              ServerAdditionResponse.wrongCredentials => Icons.vpn_key,
+              ServerAdditionResponse.versionMismatch => Icons.rule,
+              _ => Icons.domain_disabled,
+            },
+            size: 18.0,
+            color: theme.colorScheme.error,
+          ),
+        ),
+      );
+    }
   }
 }

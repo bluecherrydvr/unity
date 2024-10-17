@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -175,6 +176,8 @@ class Server {
   /// Additional settings for this server.
   final AdditionalServerOptions additionalSettings;
 
+  ServerAdditionResponse additionResponse = ServerAdditionResponse.unknown;
+
   /// Creates a new [Server].
   Server({
     required this.name,
@@ -189,6 +192,7 @@ class Server {
     this.online = true,
     this.passedCertificates = true,
     this.additionalSettings = const AdditionalServerOptions(),
+    this.additionResponse = ServerAdditionResponse.unknown,
   });
 
   /// Creates a server with fake values.
@@ -273,6 +277,7 @@ class Server {
     String? cookie,
     bool? online,
     AdditionalServerOptions? additionalSettings,
+    ServerAdditionResponse? additionResponse,
   }) {
     return Server(
       name: name ?? this.name,
@@ -285,6 +290,8 @@ class Server {
       serverUUID: serverUUID ?? this.serverUUID,
       cookie: cookie ?? this.cookie,
       additionalSettings: additionalSettings ?? this.additionalSettings,
+      online: online ?? this.online,
+      additionResponse: additionResponse ?? this.additionResponse,
     );
   }
 

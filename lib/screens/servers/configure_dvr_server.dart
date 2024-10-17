@@ -468,40 +468,40 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       );
       focusScope.unfocus();
 
-      if (server.serverUUID != null &&
-          server.hasCookies &&
-          code == ServerAdditionResponse.validated) {
-        widget.onServerChange(server);
-        state = _ServerAddState.gettingDevices;
-        await ServersProvider.instance.add(server);
-        widget.onNext();
-      } else {
-        state = _ServerAddState.none;
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              final loc = AppLocalizations.of(context);
-              return ServerNotAddedErrorDialog(
-                name: server.name,
-                description: switch (code) {
-                  ServerAdditionResponse.versionMismatch =>
-                    loc.serverVersionMismatch,
-                  ServerAdditionResponse.unknown ||
-                  _ =>
-                    loc.serverNotAddedErrorDescription(
-                      server.port.toString(),
-                      server.rtspPort.toString(),
-                    )
-                },
-                onRetry: () {
-                  Navigator.of(context).maybePop();
-                  if (this.context.mounted) finish(this.context);
-                },
-              );
-            },
-          );
-        }
+      switch (code) {
+        case ServerAdditionResponse.validated:
+          assert(server.serverUUID != null && server.hasCookies);
+          widget.onServerChange(server);
+          state = _ServerAddState.gettingDevices;
+          await ServersProvider.instance.add(server);
+          widget.onNext();
+          break;
+        default:
+          state = _ServerAddState.none;
+          if (context.mounted) {
+            final loc = AppLocalizations.of(context);
+            showServerNotAddedErrorDialog(
+              context: context,
+              name: server.name,
+              description: switch (code) {
+                ServerAdditionResponse.versionMismatch =>
+                  loc.serverVersionMismatch,
+                ServerAdditionResponse.wrongCredentials =>
+                  loc.serverWrongCredentials,
+                ServerAdditionResponse.unknown ||
+                _ =>
+                  loc.serverNotAddedErrorDescription(
+                    server.port.toString(),
+                    server.rtspPort.toString(),
+                  )
+              },
+              onRetry: () {
+                Navigator.of(context).maybePop();
+                if (this.context.mounted) finish(this.context);
+              },
+            );
+          }
+          break;
       }
 
       if (mounted) setState(() => disableFinishButton = false);

@@ -30,6 +30,7 @@ import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/screens/home.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -290,7 +291,9 @@ class _WindowButtonsState extends State<WindowButtons>
                                   }
                                 },
                               ),
-                              DecoratedCloseButton(onPressed: close),
+                              DecoratedCloseButton(
+                                onPressed: () => performWindowClose(context),
+                              ),
                             ].map((button) {
                               return Padding(
                                 padding: const EdgeInsetsDirectional.all(2.0),
@@ -330,7 +333,7 @@ class _WindowButtonsState extends State<WindowButtons>
                           ),
                           WindowCaptionButton.close(
                             brightness: theme.brightness,
-                            onPressed: close,
+                            onPressed: () => performWindowClose(context),
                           ),
                         ]);
                       }),
@@ -374,7 +377,7 @@ class _WindowButtonsState extends State<WindowButtons>
       },
     );
 
-    if (settings.kFullscreen.value && settings.kImmersiveMode.value) {
+    if (settings.isImmersiveMode) {
       return MouseRegion(
         onEnter: (_) {
           showOverlayEntry(context, bar);
@@ -434,15 +437,6 @@ class _WindowButtonsState extends State<WindowButtons>
     await _animationController.reverse();
     _overlayEntry?.remove();
     _overlayEntry = null;
-  }
-
-  Future<void> close() {
-    final settings = context.read<SettingsProvider>();
-    if (settings.kMinimizeToTray.value) {
-      return windowManager.hide();
-    } else {
-      return windowManager.close();
-    }
   }
 }
 

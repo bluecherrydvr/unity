@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+Future<void> showServerNotAddedErrorDialog({
+  required BuildContext context,
+  required String name,
+  required String description,
+  VoidCallback? onRetry,
+}) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return ServerNotAddedErrorDialog(
+        name: name,
+        description: description,
+        onRetry: onRetry,
+      );
+    },
+  );
+}
+
 class ServerNotAddedErrorDialog extends StatelessWidget {
   final String name;
   final String description;
@@ -40,7 +58,7 @@ class ServerNotAddedErrorDialog extends StatelessWidget {
               child: Text(loc.retry.toUpperCase()),
             ),
           ),
-        MaterialButton(
+        ElevatedButton(
           onPressed: Navigator.of(context).maybePop,
           child: Padding(
             padding: const EdgeInsetsDirectional.all(8.0),

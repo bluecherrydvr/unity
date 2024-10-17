@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
@@ -76,6 +77,13 @@ Future<void> writeLogToFile(String text, {bool print = false}) async {
   if (!kIsWeb) {
     final time = DateTime.now().toIso8601String();
     final file = await getLogFile();
+
+    final credentials = ServersProvider.instance.servers.map((server) {
+      return '${server.login}:${server.password}';
+    });
+    for (final credential in credentials) {
+      text = text.replaceAll(credential, '****:****');
+    }
 
     await file?.writeAsString('\n[$time] $text', mode: FileMode.append);
     if (print) Logger.root.log(Level.INFO, 'Wrote log file to "${file?.path}"');

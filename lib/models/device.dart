@@ -292,6 +292,9 @@ class Device {
       } else {
         debugPrint('Request failed with status: ${response.statusCode}');
       }
+    } on FormatException {
+      // Ignore this error
+      return hlsURL;
     } catch (error, stack) {
       handleError(error, stack, 'Failed to get HLS URL on $uri');
     }

@@ -147,10 +147,7 @@ class GeneralSettings extends StatelessWidget {
           settings.kNotificationClickBehavior.value = v;
         },
       ),
-      SubHeader(
-        loc.dataUsage,
-        padding: DesktopSettings.horizontalPadding,
-      ),
+      SubHeader(loc.dataUsage, padding: DesktopSettings.horizontalPadding),
       OptionsChooserTile(
         icon: Icons.cloud_done,
         title: loc.streamsOnBackground,

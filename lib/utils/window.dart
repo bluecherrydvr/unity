@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 // import 'package:tray_manager/tray_manager.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
@@ -50,17 +51,18 @@ bool get canConfigureWindow {
 /// Configures the current window
 Future<void> configureWindow() async {
   if (canConfigureWindow) {
+    final settings = SettingsProvider.instance;
     await WindowManager.instance.ensureInitialized();
     await windowManager.waitUntilReadyToShow(
-      const WindowOptions(
+      WindowOptions(
         minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
-        // minimumSize: kInitialWindowSize,
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.hidden,
         windowButtonVisibility: true,
+        fullScreen: settings.kFullscreen.value,
       ),
       () async {
-        if (kDebugMode) {
+        if (kDebugMode && !settings.kFullscreen.value) {
           await windowManager.setSize(kInitialWindowSize);
         }
         await windowManager.show();
@@ -85,6 +87,31 @@ enum MultiWindowType { device, layout }
 
 bool get canOpenNewWindow {
   return isDesktopPlatform && !isEmbedded;
+}
+
+bool isSubWindow = false;
+ResultWindow get subWindow {
+  assert(isSubWindow);
+  return ResultWindow(pid);
+}
+
+/// Perform a window close operation.
+///
+/// If the window is a sub window, it will be forcefully closed.
+///
+/// If the window is the main window, it will be minimized to the tray if the
+/// setting is enabled, otherwise it will be closed.
+Future<void> performWindowClose(BuildContext context) async {
+  if (isSubWindow) {
+    subWindow.close();
+  } else {
+    final settings = context.read<SettingsProvider>();
+    if (settings.kMinimizeToTray.value) {
+      return windowManager.hide();
+    } else {
+      return windowManager.close();
+    }
+  }
 }
 
 extension DeviceWindowExtension on Device {
@@ -112,6 +139,9 @@ extension LayoutWindowExtension on Layout {
   static (MultiWindowType, ThemeMode, Map<String, dynamic>) fromArgs(
     List<String> args,
   ) {
+    if (args.first == 'sub_window') {
+      args = args.sublist(1);
+    }
     final type = MultiWindowType.values[int.parse(args[0])];
     final themeMode = ThemeMode.values[int.parse(args[1])];
     final map = json.decode(args[2]);

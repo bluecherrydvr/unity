@@ -27,6 +27,9 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:tray_manager/tray_manager.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -150,3 +153,95 @@ void launchFileExplorer(String path) {
     );
   }
 }
+
+/// It is only possible to launch at startup on Desktop Systems.
+///
+/// MacOS is still lacking configuration at this time, so we are not supporting
+/// it for now.
+bool get canLaunchAtStartup => isDesktopPlatform && !Platform.isMacOS;
+
+Future<void> setupLaunchAtStartup() async {
+  assert(isDesktopPlatform);
+  final packageInfo = await PackageInfo.fromPlatform();
+
+  launchAtStartup.setup(
+    appName: packageInfo.appName,
+    appPath: Platform.resolvedExecutable,
+    // Set packageName parameter to support MSIX.
+    // This is required to check if the app is running in MSIX container.
+    // We do not support MSIX for now.
+    // packageName: 'dev.leanflutter.examples.launchatstartupexample',
+  );
+}
+
+// System tray is temporarily disabled due to issues with the `tray_manager`
+// plugin. It will be re-enabled once the issues are resolved.
+// bool get canUseSystemTray => isDesktopPlatform && !Platform.isLinux;
+bool get canUseSystemTray => false;
+
+Future<void> setupSystemTray() async {
+  assert(canUseSystemTray);
+
+  // await trayManager.destroy();
+  // await trayManager.setIcon(
+  //   Platform.isWindows ? 'assets/images/icon.ico' : 'assets/images/icon.png',
+  // );
+  // final menu = Menu(items: [
+  //   MenuItem(key: 'screens', label: 'Layouts'),
+  //   MenuItem(key: 'timeline_of_events', label: 'Timeline of Events'),
+  //   MenuItem(key: 'events_browser', label: 'Events Browser'),
+  //   MenuItem(key: 'downloads', label: 'Downloads'),
+  //   MenuItem(key: 'settings', label: 'Settings'),
+  //   MenuItem.separator(),
+  //   MenuItem(key: 'quit', label: 'Quit bluecherry'),
+  // ]);
+
+  // await trayManager.setContextMenu(menu);
+  // await trayManager.setTitle('Bluecherry');
+  // await trayManager.setToolTip('Bluecherry Client');
+
+  // trayManager.addListener(UnityTrayListener());
+}
+
+// class UnityTrayListener with TrayListener {
+//   @override
+//   void onTrayIconMouseDown() {
+//     debugPrint('Tray icon mouse down');
+//     windowManager.show();
+//   }
+
+//   @override
+//   void onTrayIconRightMouseDown() {
+//     debugPrint('Tray icon right mouse down');
+//     // trayManager.popUpContextMenu();
+//   }
+
+//   @override
+//   void onTrayIconRightMouseUp() {
+//     debugPrint('Tray icon right mouse up');
+//   }
+
+//   @override
+//   void onTrayMenuItemClick(MenuItem menuItem) {
+//     switch (menuItem.key) {
+//       case 'screens':
+//         HomeProvider.instance.setTab(UnityTab.deviceGrid);
+//         break;
+//       case 'timeline_of_events':
+//         HomeProvider.instance.setTab(UnityTab.eventsTimeline);
+//         break;
+//       case 'events_browser':
+//         HomeProvider.instance.setTab(UnityTab.eventsHistory);
+//         break;
+//       case 'downloads':
+//         HomeProvider.instance.setTab(UnityTab.downloads);
+//         break;
+//       case 'settings':
+//         HomeProvider.instance.setTab(UnityTab.settings);
+//         break;
+//       case 'quit':
+//         windowManager.close();
+//         break;
+//     }
+//   }
+// }

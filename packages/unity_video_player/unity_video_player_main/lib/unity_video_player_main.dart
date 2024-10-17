@@ -1,5 +1,3 @@
-library unity_video_player_main;
-
 import 'dart:async';
 import 'dart:io';
 

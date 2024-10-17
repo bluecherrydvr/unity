@@ -1,5 +1,3 @@
-library unity_video_player_platform_interface;
-
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';

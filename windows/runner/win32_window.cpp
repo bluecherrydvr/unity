@@ -123,9 +123,6 @@ Win32Window::~Win32Window() {
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
                          const Size& size) {
-  if (title.substr(0, 12) == L"multi_window") {
-    return false;
-  }
   Destroy();
 
   const wchar_t* window_class =

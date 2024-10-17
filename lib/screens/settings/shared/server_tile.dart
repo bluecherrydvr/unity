@@ -113,41 +113,42 @@ class ServersList extends StatelessWidget {
         final theme = Theme.of(context);
         final loc = AppLocalizations.of(context);
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 300.0,
-          ),
-          child: AlertDialog(
-            title: Text(loc.remove),
-            content: Text(
+        return AlertDialog(
+          title: Text(loc.areYouSure),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 300.0,
+            ),
+            child: Text(
               loc.removeServerDescription(server.name),
               style: theme.textTheme.headlineMedium,
               textAlign: TextAlign.start,
             ),
-            actions: [
-              MaterialButton(
-                onPressed: Navigator.of(context).maybePop,
-                child: Text(
-                  loc.no.toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  ServersProvider.instance.remove(server);
-                  Navigator.of(context).maybePop();
-                },
-                child: Text(
-                  loc.yes.toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-            ],
           ),
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                ServersProvider.instance.remove(server);
+                Navigator.of(context).maybePop();
+              },
+              child: Text(
+                loc.yes.toUpperCase(),
+                style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: Navigator.of(context).maybePop,
+              autofocus: true,
+              child: Text(
+                loc.no.toUpperCase(),
+                style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

@@ -94,7 +94,6 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
                 ),
               ),
             ]),
-            possible: UnityAuth.canAuthenticate,
           ),
         ],
       ),
@@ -105,12 +104,8 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
     return _buildInfoTileWidget(title, Text(value, style: valueStyle));
   }
 
-  Widget _buildInfoTileWidget(
-    String title,
-    Widget value, {
-    Future<bool> Function()? possible,
-  }) {
-    final widget = Builder(builder: (context) {
+  Widget _buildInfoTileWidget(String title, Widget value) {
+    return Builder(builder: (context) {
       final theme = Theme.of(context);
       return IntrinsicHeight(
         child: Row(children: [
@@ -127,25 +122,10 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
         ]),
       );
     });
-
-    if (possible != null) {
-      return FutureBuilder<bool>(
-        future: possible(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return widget;
-          } else {
-            return const SizedBox(height: 0.0);
-          }
-        },
-      );
-    } else {
-      return widget;
-    }
   }
 
   Future<void> _onToggleStreamUrl() async {
-    final canShow = await UnityAuth.ask();
+    final canShow = _showStreamUrl || await UnityAuth.ask();
     if (!mounted) return;
 
     if (canShow) {

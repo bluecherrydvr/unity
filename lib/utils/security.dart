@@ -33,6 +33,10 @@ class UnityAuth {
     }
   }
 
+  /// Asks for device authnetication.
+  ///
+  /// If the feature is not supported, it will fallback to true. It returns
+  /// true because we don't want to block the user from using the app.
   static Future<bool> ask([String? reason]) async {
     if (await canAuthenticate()) {
       try {
@@ -48,7 +52,7 @@ class UnityAuth {
         return false;
       }
     }
-    return false;
+    return true;
   }
 
   static void showAccessDeniedMessage(BuildContext context) {

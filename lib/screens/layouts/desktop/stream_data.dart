@@ -25,6 +25,7 @@ import 'package:bluecherry_client/screens/layouts/desktop/device_info_dialog.dar
 import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/gestures.dart';
@@ -142,7 +143,7 @@ class _StreamDataState extends State<StreamData> {
               text: showUrl
                   ? widget.device.streamURL
                   : List.generate(
-                      widget.device.streamURL.length,
+                      widget.device.streamURL.length ~/ 2,
                       (i) => '*',
                     ).join(),
               style: theme.textTheme.headlineSmall,
@@ -156,8 +157,15 @@ class _StreamDataState extends State<StreamData> {
                     icon: Icon(
                       showUrl ? Icons.visibility_off : Icons.visibility,
                     ),
-                    onPressed: () {
-                      setState(() => showUrl = !showUrl);
+                    onPressed: () async {
+                      final canShow = showUrl || await UnityAuth.ask();
+                      if (!context.mounted) return;
+
+                      if (canShow) {
+                        setState(() => showUrl = !showUrl);
+                      } else {
+                        UnityAuth.showAccessDeniedMessage(context);
+                      }
                     },
                   ),
                 ),

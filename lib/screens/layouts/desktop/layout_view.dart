@@ -47,7 +47,12 @@ int calculateCrossAxisCount(int deviceAmount) {
   return count;
 }
 
-class _LargeDeviceGridState extends State<LargeDeviceGrid> {
+class _LargeDeviceGridState extends State<LargeDeviceGrid>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
   Timer? cycleTimer;
 
   @override
@@ -66,47 +71,107 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid> {
   @override
   void dispose() {
     cycleTimer?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     final view = context.watch<DesktopViewProvider>();
     final isReversed = widget.width <= _kReverseBreakpoint;
 
-    final children = [
-      CollapsableSidebar(
-        initiallyClosed:
-            app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
-        left: !isReversed,
-        builder: (context, collapsed, collapseButton) {
-          if (collapsed) {
-            return CollapsedSidebar(collapseButton: collapseButton);
+    final sidebar = CollapsableSidebar(
+      initiallyClosed:
+          app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
+      left: !isReversed,
+      builder: (context, collapsed, collapseButton) {
+        if (collapsed) {
+          return CollapsedSidebar(collapseButton: collapseButton);
+        }
+        return DesktopSidebar(collapseButton: collapseButton);
+      },
+    );
+
+    final layoutView = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: LayoutView(
+        key: ValueKey(view.currentLayout.hashCode),
+        layout: view.currentLayout,
+        onAccept: view.add,
+        onReorder: view.reorder,
+        onWillAccept: (device) {
+          if (device == null) return false;
+          if (view.currentLayout.type == DesktopLayoutType.singleView) {
+            return view.currentLayout.devices.isEmpty;
           }
-          return DesktopSidebar(collapseButton: collapseButton);
+          return !view.currentLayout.devices.contains(device);
         },
       ),
-      Expanded(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: LayoutView(
-            key: ValueKey(view.currentLayout.hashCode),
-            layout: view.currentLayout,
-            onAccept: view.add,
-            onReorder: view.reorder,
-            onWillAccept: (device) {
-              if (device == null) return false;
-              if (view.currentLayout.type == DesktopLayoutType.singleView) {
-                return view.currentLayout.devices.isEmpty;
-              }
-              return !view.currentLayout.devices.contains(device);
-            },
+    );
+
+    if (settings.isImmersiveMode) {
+      return Row(children: [
+        MouseRegion(
+          onEnter: (_) {
+            showOverlayEntry(context, sidebar);
+          },
+          child: const SizedBox(
+            height: double.infinity,
+            width: 4.0,
           ),
         ),
-      ),
-    ];
+        Expanded(child: layoutView),
+      ]);
+    }
 
+    final children = [sidebar, Expanded(child: layoutView)];
     return Row(children: isReversed ? children.reversed.toList() : children);
+  }
+
+  OverlayEntry? _overlayEntry;
+  void showOverlayEntry(BuildContext context, Widget bar) {
+    _overlayEntry = OverlayEntry(builder: (context) {
+      return AnimatedBuilder(
+        animation: _animationController,
+        child: bar,
+        builder: (context, animation) {
+          return Positioned(
+            top: 0,
+            bottom: 0,
+            left: 0,
+            child: IgnorePointer(
+              ignoring: _animationController.status == AnimationStatus.forward,
+              child: MouseRegion(
+                onExit: (_) => dismissOverlayEntry(),
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 8,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _animationController,
+                      curve: Curves.easeInOut,
+                    )),
+                    child: animation,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    });
+    Overlay.of(context).insert(_overlayEntry!);
+    _animationController.forward();
+  }
+
+  Future<void> dismissOverlayEntry() async {
+    await _animationController.reverse();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 }
 

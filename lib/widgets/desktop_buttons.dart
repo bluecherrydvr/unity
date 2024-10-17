@@ -377,7 +377,7 @@ class _WindowButtonsState extends State<WindowButtons>
       },
     );
 
-    if (settings.kFullscreen.value && settings.kImmersiveMode.value) {
+    if (settings.isImmersiveMode) {
       return MouseRegion(
         onEnter: (_) {
           showOverlayEntry(context, bar);

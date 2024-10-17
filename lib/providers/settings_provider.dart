@@ -757,6 +757,10 @@ class SettingsProvider extends UnityProvider {
 
     return server.passedCertificates;
   }
+
+  bool get isImmersiveMode {
+    return kFullscreen.value && kImmersiveMode.value;
+  }
 }
 
 enum NotificationClickBehavior {

@@ -487,6 +487,8 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             label: Text(loc.layoutName),
           ),
           textInputAction: TextInputAction.none,
+          autofocus: true,
+          onEditingComplete: _onFinish,
         ),
         SubHeader(loc.layoutTypeLabel, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
@@ -516,22 +518,24 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
             child: Text(loc.cancel),
           ),
           const SizedBox(width: 12.0),
-          FilledButton(
-            onPressed: () {
-              view.addLayout(Layout(
-                name: _nameController.text.isNotEmpty
-                    ? _nameController.text
-                    : fallbackName,
-                type: DesktopLayoutType.values[_typeIndex],
-                devices: [],
-              ));
-              Navigator.of(context).pop();
-            },
-            child: Text(loc.finish),
-          ),
+          FilledButton(onPressed: _onFinish, child: Text(loc.finish)),
         ]),
       ],
     );
+  }
+
+  void _onFinish() {
+    final loc = AppLocalizations.of(context);
+    final view = context.read<DesktopViewProvider>();
+    final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
+
+    view.addLayout(Layout(
+      name:
+          _nameController.text.isNotEmpty ? _nameController.text : fallbackName,
+      type: DesktopLayoutType.values[_typeIndex],
+      devices: [],
+    ));
+    Navigator.of(context).pop();
   }
 }
 
@@ -583,6 +587,8 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
             label: Text(loc.layoutName),
           ),
           textInputAction: TextInputAction.none,
+          autofocus: true,
+          onEditingComplete: _onUpdate,
         ),
         SubHeader(loc.layoutName, padding: EdgeInsetsDirectional.zero),
         _LayoutTypeChooser(
@@ -598,21 +604,23 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
           child: Text(loc.cancel),
         ),
         ElevatedButton(
-          onPressed: () {
-            view.updateLayout(
-              widget.layout,
-              widget.layout.copyWith(
-                name: layoutNameController.text.isEmpty
-                    ? null
-                    : layoutNameController.text,
-                type: DesktopLayoutType.values[selected],
-              ),
-            );
-            Navigator.of(context).pop();
-          },
+          onPressed: _onUpdate,
           child: Text(loc.finish),
         ),
       ],
     );
+  }
+
+  void _onUpdate() {
+    context.read<DesktopViewProvider>().updateLayout(
+          widget.layout,
+          widget.layout.copyWith(
+            name: layoutNameController.text.isEmpty
+                ? null
+                : layoutNameController.text,
+            type: DesktopLayoutType.values[selected],
+          ),
+        );
+    Navigator.of(context).pop();
   }
 }

@@ -121,7 +121,15 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
             width: 4.0,
           ),
         ),
-        Expanded(child: layoutView),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(
+              end: 4.0,
+              bottom: 4.0,
+            ),
+            child: layoutView,
+          ),
+        ),
       ]);
     }
 
@@ -202,6 +210,7 @@ class _LayoutViewState extends State<LayoutView> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return DragTarget<Device>(
       onWillAcceptWithDetails: widget.onWillAccept == null
@@ -333,6 +342,8 @@ class _LayoutViewState extends State<LayoutView> {
                 childAspectRatio: kHorizontalAspectRatio,
                 reorderable: widget.onReorder != null,
                 onReorder: widget.onReorder ?? (a, b) {},
+                padding:
+                    settings.isImmersiveMode ? EdgeInsets.zero : kGridPadding,
                 children: devices.map((device) {
                   return DesktopDeviceTile(device: device);
                 }).toList(),
@@ -349,7 +360,7 @@ class _LayoutViewState extends State<LayoutView> {
         return Material(
           color: Colors.black,
           shape: RoundedRectangleBorder(
-            borderRadius: isAlternativeWindow
+            borderRadius: isAlternativeWindow || settings.isImmersiveMode
                 ? BorderRadius.zero
                 : BorderRadiusDirectional.only(
                     topStart:
@@ -360,108 +371,116 @@ class _LayoutViewState extends State<LayoutView> {
           ),
           child: SafeArea(
             child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IntrinsicHeight(
-                  child: Row(children: [
-                    Expanded(
-                      child: Text(
-                        widget.layout.name,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
+              if (!settings.isImmersiveMode)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IntrinsicHeight(
+                    child: Row(children: [
+                      Expanded(
+                        child: Text(
+                          widget.layout.name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    if (widget.layout.devices.isNotEmpty)
-                      ...() {
-                        final volume = widget.layout.devices
-                            .map((e) => e.volume)
-                            .findMaxDuplicatedElementInList()
-                            .toDouble();
-                        return <Widget>[
-                          if (_volumeSliderVisible)
-                            SizedBox(
-                              height: 24.0,
-                              child: Slider(
-                                value: widget.layout.devices
-                                    .map((e) => e.volume)
-                                    .findMaxDuplicatedElementInList()
-                                    .toDouble(),
-                                divisions: 100,
-                                label: '${(volume * 100).round()}%',
-                                onChanged: (value) async {
-                                  for (final device in widget.layout.devices) {
-                                    final player =
-                                        UnityPlayers.players[device.uuid];
-                                    if (player != null) {
-                                      await player.setVolume(value);
-                                      device.volume = value;
+                      if (widget.layout.devices.isNotEmpty)
+                        ...() {
+                          final volume = widget.layout.devices
+                              .map((e) => e.volume)
+                              .findMaxDuplicatedElementInList()
+                              .toDouble();
+                          return <Widget>[
+                            if (_volumeSliderVisible)
+                              SizedBox(
+                                height: 24.0,
+                                child: Slider(
+                                  value: widget.layout.devices
+                                      .map((e) => e.volume)
+                                      .findMaxDuplicatedElementInList()
+                                      .toDouble(),
+                                  divisions: 100,
+                                  label: '${(volume * 100).round()}%',
+                                  onChanged: (value) async {
+                                    for (final device
+                                        in widget.layout.devices) {
+                                      final player =
+                                          UnityPlayers.players[device.uuid];
+                                      if (player != null) {
+                                        await player.setVolume(value);
+                                        device.volume = value;
+                                      }
                                     }
-                                  }
-                                  if (mounted) setState(() {});
-                                },
+                                    if (mounted) setState(() {});
+                                  },
+                                ),
                               ),
+                            SquaredIconButton(
+                              icon: const Icon(
+                                Icons.equalizer,
+                                color: Colors.white,
+                              ),
+                              tooltip:
+                                  'Layout Volume • ${(volume * 100).round()}%',
+                              onPressed: () {
+                                setState(() {
+                                  _volumeSliderVisible = !_volumeSliderVisible;
+                                });
+                              },
                             ),
-                          SquaredIconButton(
-                            icon: const Icon(
-                              Icons.equalizer,
-                              color: Colors.white,
-                            ),
-                            tooltip:
-                                'Layout Volume • ${(volume * 100).round()}%',
-                            onPressed: () {
-                              setState(() {
-                                _volumeSliderVisible = !_volumeSliderVisible;
-                              });
-                            },
+                          ];
+                        }(),
+                      if (canOpenNewWindow)
+                        SquaredIconButton(
+                          icon: const Icon(
+                            Icons.open_in_new,
+                            color: Colors.white,
                           ),
-                        ];
-                      }(),
-                    if (canOpenNewWindow)
+                          tooltip: loc.openInANewWindow,
+                          onPressed: widget.layout.openInANewWindow,
+                        ),
+                      SquaredIconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white),
+                        tooltip: loc.editLayout,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                EditLayoutDialog(layout: widget.layout),
+                          );
+                        },
+                      ),
                       SquaredIconButton(
                         icon: const Icon(
-                          Icons.open_in_new,
+                          Icons.import_export,
                           color: Colors.white,
                         ),
-                        tooltip: loc.openInANewWindow,
-                        onPressed: widget.layout.openInANewWindow,
+                        tooltip: loc.exportLayout,
+                        onPressed: () {
+                          widget.layout.export(dialogTitle: loc.exportLayout);
+                        },
                       ),
-                    SquaredIconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white),
-                      tooltip: loc.editLayout,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) =>
-                              EditLayoutDialog(layout: widget.layout),
-                        );
-                      },
-                    ),
-                    SquaredIconButton(
-                      icon: const Icon(
-                        Icons.import_export,
-                        color: Colors.white,
-                      ),
-                      tooltip: loc.exportLayout,
-                      onPressed: () {
-                        widget.layout.export(dialogTitle: loc.exportLayout);
-                      },
-                    ),
-                    if (widget.layout.devices.isNotEmpty) ...[
-                      const VerticalDivider(),
-                      SquaredIconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: theme.colorScheme.error,
+                      if (widget.layout.devices.isNotEmpty) ...[
+                        const VerticalDivider(),
+                        SquaredIconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: theme.colorScheme.error,
+                          ),
+                          tooltip:
+                              loc.clearLayout(widget.layout.devices.length),
+                          onPressed: view.clearLayout,
                         ),
-                        tooltip: loc.clearLayout(widget.layout.devices.length),
-                        onPressed: view.clearLayout,
-                      ),
-                    ],
-                  ]),
+                      ],
+                    ]),
+                  ),
                 ),
-              ),
-              Expanded(child: Center(child: child)),
+              if (devices.isNotEmpty)
+                Expanded(child: Center(child: child))
+              else
+                Expanded(
+                  child: Center(child: Text('Add a camera')),
+                ),
             ]),
           ),
         );

@@ -56,7 +56,6 @@ Future<void> configureWindow() async {
     await windowManager.waitUntilReadyToShow(
       WindowOptions(
         minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
-        // minimumSize: kInitialWindowSize,
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.hidden,
         windowButtonVisibility: true,

@@ -78,15 +78,18 @@ Future<void> main(List<String> args) async {
     await configureStorage();
     await SettingsProvider.ensureInitialized();
 
-    // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
-    // On windows, the window is hidden until flutter draws its first frame.
-    // To create a splash screen effect while the dependencies are loading, we
-    // can run the [SplashScreen] widget as the app.
     if (isDesktopPlatform) {
       await configureWindow();
       if (canLaunchAtStartup) setupLaunchAtStartup();
       if (canUseSystemTray) setupSystemTray();
 
+      // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
+      //
+      // On Windows, the window is hidden until flutter draws its first frame.
+      // To create a splash screen effect while the dependencies are loading, it
+      // is possible to run the [SplashScreen] widget as the app.
+      //
+      // This also creates a splash screen effect on other desktop platforms.
       runApp(const SplashScreen());
     }
 

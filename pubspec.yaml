@@ -61,6 +61,7 @@ dependencies:
   # tray_manager: ^0.2.4
   unity_multi_window:
     path: packages/unity_multi_window/
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_test:

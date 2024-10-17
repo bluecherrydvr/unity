@@ -22,6 +22,8 @@ import 'dart:io' hide Link;
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
+import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/cupertino.dart';
@@ -41,24 +43,80 @@ class UpdatesSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final update = context.watch<UpdateManager>();
+    final settings = context.watch<SettingsProvider>();
 
     return ListView(children: [
+      SubHeader(
+        loc.privacyAndSecurity,
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      CheckboxListTile.adaptive(
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.analytics),
+        ),
+        contentPadding: DesktopSettings.horizontalPadding,
+        title: Text(loc.allowDataCollection),
+        subtitle: Text(loc.allowDataCollectionDescription),
+        isThreeLine: true,
+        value: settings.kAllowDataCollection.value,
+        onChanged: (value) {
+          if (value != null) {
+            settings.kAllowDataCollection.value = value;
+          }
+        },
+      ),
+      OptionsChooserTile<EnabledPreference>(
+        title: loc.automaticallyReportErrors,
+        description: loc.automaticallyReportErrorsDescription,
+        icon: Icons.error,
+        value: settings.kAllowCrashReports.value,
+        values: EnabledPreference.values.map(
+          (e) => Option(text: e.name.uppercaseFirst, value: e),
+        ),
+        onChanged: (v) {
+          settings.kAllowCrashReports.value = v;
+        },
+      ),
+      if (settings.kShowDebugInfo.value) ...[
+        const Divider(),
+        ListTile(
+          contentPadding: DesktopSettings.horizontalPadding,
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.privacy_tip),
+          ),
+          title: Text(loc.privacyPolicy),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {},
+        ),
+        ListTile(
+          contentPadding: DesktopSettings.horizontalPadding,
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.policy),
+          ),
+          title: Text(loc.termsOfService),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {},
+        ),
+      ],
       if (!kIsWeb) ...[
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SubHeader(
-            loc.updates,
-            subtext: loc.runningOn(() {
-              if (kIsWeb) {
-                return 'WEB';
-              } else if (Platform.isLinux) {
-                return loc.linux(UpdateManager.linuxEnvironment.name);
-              } else if (Platform.isWindows) {
-                return loc.windows;
-              }
+          SubHeader(loc.updates, subtext: loc.runningOn(() {
+            if (kIsWeb) {
+              return 'WEB';
+            } else if (Platform.isLinux) {
+              return loc.linux(UpdateManager.linuxEnvironment.name);
+            } else if (Platform.isWindows) {
+              return loc.windows;
+            }
 
-              return defaultTargetPlatform.name;
-            }()),
-          ),
+            return defaultTargetPlatform.name;
+          }()), padding: DesktopSettings.horizontalPadding),
         ]),
         const AppUpdateCard(),
         if (!isMacOS)
@@ -120,7 +178,7 @@ class UpdatesSettings extends StatelessWidget {
           trailing: const Icon(Icons.navigate_next),
           onTap: () => showUpdateHistory(context),
         ),
-        const Divider(),
+        const Divider(height: 1.0),
       ],
       // TODO(bdlukaa): Show option to download the native client when running
       //                on the web.
@@ -431,61 +489,59 @@ class About extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 8.0),
-        Row(
-          children: [
-            Link(
-              uri: Uri.https('bluecherrydvr.com', '/'),
-              builder: (context, open) {
-                return TextButton(
-                  onPressed: open,
-                  child: Text(
-                    loc.website,
-                    semanticsLabel: 'www.bluecherrydvr.com',
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                    ),
+        Row(children: [
+          Link(
+            uri: Uri.https('bluecherrydvr.com', '/'),
+            builder: (context, open) {
+              return TextButton(
+                onPressed: open,
+                child: Text(
+                  loc.website,
+                  semanticsLabel: 'www.bluecherrydvr.com',
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
                   ),
-                );
-              },
-            ),
-            const SizedBox(width: 8.0),
-            Link(
-              uri: Uri.https('bluecherrydvr.com', '/contact/'),
-              builder: (context, open) {
-                return TextButton(
-                  onPressed: open,
-                  child: Text(
-                    loc.help,
-                    semanticsLabel: 'www.bluecherrydvr.com/contact',
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(width: 8.0),
-            TextButton(
-              onPressed: () {
-                showLicensePage(
-                  context: context,
-                  applicationName: 'Bluecherry Client',
-                  applicationIcon: Image.asset(
-                    'assets/images/icon.png',
-                  ),
-                  applicationVersion: update.packageInfo?.version,
-                  applicationLegalese: '© 2022 Bluecherry, LLC',
-                );
-              },
-              child: Text(
-                loc.licenses,
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
                 ),
+              );
+            },
+          ),
+          const SizedBox(width: 8.0),
+          Link(
+            uri: Uri.https('bluecherrydvr.com', '/contact/'),
+            builder: (context, open) {
+              return TextButton(
+                onPressed: open,
+                child: Text(
+                  loc.help,
+                  semanticsLabel: 'www.bluecherrydvr.com/contact',
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8.0),
+          TextButton(
+            onPressed: () {
+              showLicensePage(
+                context: context,
+                applicationName: 'Bluecherry Client',
+                applicationIcon: Image.asset(
+                  'assets/images/icon.png',
+                ),
+                applicationVersion: update.packageInfo?.version,
+                applicationLegalese: '© 2022 Bluecherry, LLC',
+              );
+            },
+            child: Text(
+              loc.licenses,
+              style: TextStyle(
+                color: theme.colorScheme.primary,
               ),
             ),
-          ],
-        ),
+          ),
+        ]),
       ]),
     );
   }

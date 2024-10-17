@@ -39,10 +39,7 @@ class ApplicationSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
-      SubHeader(
-        loc.appearance,
-        padding: DesktopSettings.horizontalPadding,
-      ),
+      SubHeader(loc.appearance, padding: DesktopSettings.horizontalPadding),
       OptionsChooserTile<ThemeMode>(
         title: loc.theme,
         description: loc.themeDescription,
@@ -73,10 +70,7 @@ class ApplicationSettings extends StatelessWidget {
       ),
       if (isMobilePlatform) _buildImmersiveModeTile(),
       const LanguageSection(),
-      SubHeader(
-        loc.dateAndTime,
-        padding: DesktopSettings.horizontalPadding,
-      ),
+      SubHeader(loc.dateAndTime, padding: DesktopSettings.horizontalPadding),
       const DateFormatSection(),
       const TimeFormatSection(),
       CheckboxListTile.adaptive(
@@ -97,7 +91,7 @@ class ApplicationSettings extends StatelessWidget {
         isThreeLine: true,
       ),
       if (isDesktopPlatform) ...[
-        const SubHeader('Window'),
+        const SubHeader('Window', padding: DesktopSettings.horizontalPadding),
         if (canLaunchAtStartup)
           CheckboxListTile.adaptive(
             value: settings.kLaunchAppOnStartup.value,
@@ -154,7 +148,10 @@ class ApplicationSettings extends StatelessWidget {
           ),
       ],
       if (settings.kShowDebugInfo.value) ...[
-        const SubHeader('Acessibility'),
+        const SubHeader(
+          'Acessibility',
+          padding: DesktopSettings.horizontalPadding,
+        ),
         CheckboxListTile.adaptive(
           value: settings.kAnimationsEnabled.value,
           onChanged: (v) {

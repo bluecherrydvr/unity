@@ -29,7 +29,6 @@ import 'package:bluecherry_client/screens/settings/advanced_options.dart';
 import 'package:bluecherry_client/screens/settings/application.dart';
 import 'package:bluecherry_client/screens/settings/events_and_downloads.dart';
 import 'package:bluecherry_client/screens/settings/general.dart';
-import 'package:bluecherry_client/screens/settings/privacy_and_security.dart';
 import 'package:bluecherry_client/screens/settings/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
@@ -147,25 +146,9 @@ class _MobileSettingsState extends State<MobileSettings> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.security),
-                    title: Text(loc.privacyAndSecurity),
-                    subtitle: Text(loc.privacyAndSecuritySettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const PrivacySecuritySettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
                     leading: const Icon(Icons.update),
-                    title: Text(loc.updatesAndHelp),
-                    subtitle: Text(loc.updatesAndHelpSettingsSuggestion),
+                    title: Text(loc.updatesHelpAndPrivacy),
+                    subtitle: Text(loc.updatesHelpAndPrivacySettingsSuggestion),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       showModalBottomSheet(

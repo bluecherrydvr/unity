@@ -38,61 +38,6 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     return ListView(children: [
-      SubHeader(loc.downloads),
-      CheckboxListTile.adaptive(
-        value: settings.kChooseLocationEveryTime.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kChooseLocationEveryTime.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.create_new_folder),
-        ),
-        title: Text(loc.chooseEveryDownloadsLocation),
-        subtitle: Text(loc.chooseEveryDownloadsLocationDescription),
-      ),
-      ListTile(
-        contentPadding: DesktopSettings.horizontalPadding,
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.notifications_paused),
-        ),
-        title: Text(loc.downloadPath),
-        subtitle: Text(settings.kDownloadsDirectory.value),
-        trailing: const Icon(Icons.navigate_next),
-        onTap: () async {
-          final selectedDirectory = await FilePicker.platform.getDirectoryPath(
-            dialogTitle: loc.downloadPath,
-            initialDirectory: settings.kDownloadsDirectory.value,
-            lockParentWindow: true,
-          );
-
-          if (selectedDirectory != null) {
-            settings.kDownloadsDirectory.value =
-                Directory(selectedDirectory).path;
-          }
-        },
-      ),
-      CheckboxListTile.adaptive(
-        value: settings.kAllowAppCloseWhenDownloading.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kAllowAppCloseWhenDownloading.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.close),
-        ),
-        title: Text(loc.allowCloseWhenDownloading),
-      ),
       SubHeader(loc.events),
       if (settings.kShowDebugInfo.value)
         CheckboxListTile.adaptive(
@@ -156,7 +101,6 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           ),
         ),
       ),
-      const SizedBox(height: 20.0),
       SubHeader(loc.eventsTimeline),
       OptionsChooserTile<TimelineInitialPoint>(
         title: loc.initialTimelinePoint,
@@ -233,6 +177,61 @@ class EventsAndDownloadsSettings extends StatelessWidget {
           ),
         ),
       ],
+      SubHeader(loc.downloads),
+      CheckboxListTile.adaptive(
+        value: settings.kChooseLocationEveryTime.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kChooseLocationEveryTime.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.create_new_folder),
+        ),
+        title: Text(loc.chooseEveryDownloadsLocation),
+        subtitle: Text(loc.chooseEveryDownloadsLocationDescription),
+      ),
+      ListTile(
+        contentPadding: DesktopSettings.horizontalPadding,
+        leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.notifications_paused),
+        ),
+        title: Text(loc.downloadPath),
+        subtitle: Text(settings.kDownloadsDirectory.value),
+        trailing: const Icon(Icons.navigate_next),
+        onTap: () async {
+          final selectedDirectory = await FilePicker.platform.getDirectoryPath(
+            dialogTitle: loc.downloadPath,
+            initialDirectory: settings.kDownloadsDirectory.value,
+            lockParentWindow: true,
+          );
+
+          if (selectedDirectory != null) {
+            settings.kDownloadsDirectory.value =
+                Directory(selectedDirectory).path;
+          }
+        },
+      ),
+      CheckboxListTile.adaptive(
+        value: settings.kAllowAppCloseWhenDownloading.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kAllowAppCloseWhenDownloading.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.close),
+        ),
+        title: Text(loc.allowCloseWhenDownloading),
+      ),
     ]);
   }
 }

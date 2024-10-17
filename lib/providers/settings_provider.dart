@@ -27,8 +27,10 @@ import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart'
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +103,7 @@ class _SettingsOption<T> {
 
   late final String Function(dynamic value) saveAs;
   late final T Function(String value) loadFrom;
-  final Future<void> Function(T)? onChanged;
+  final Future<bool?> Function(T)? onChanged;
   final T Function(dynamic value)? valueOverrider;
 
   late T _value;
@@ -109,8 +111,8 @@ class _SettingsOption<T> {
   T get value => valueOverrider?.call(_value) ?? _value;
   set value(T newValue) {
     SettingsProvider.instance.updateProperty(() async {
-      _value = newValue;
-      await onChanged?.call(value);
+      final allow = (await onChanged?.call(newValue)) ?? true;
+      if (allow) _value = newValue;
     });
   }
 
@@ -467,14 +469,14 @@ class SettingsProvider extends UnityProvider {
             }
           },
     onChanged: (value) async {
-      if (kIsWeb) {
-        return;
-      }
+      if (kIsWeb || !canLaunchAtStartup) return false;
+
       if (value) {
         await launchAtStartup.enable();
       } else {
         await launchAtStartup.disable();
       }
+      return true;
     },
   );
   final kFullscreen = _SettingsOption<bool>(
@@ -485,8 +487,9 @@ class SettingsProvider extends UnityProvider {
       return windowManager.isFullScreen();
     },
     onChanged: (value) async {
-      if (!isDesktopPlatform) return;
+      if (!isDesktopPlatform) return false;
       await windowManager.setFullScreen(value);
+      return true;
     },
   );
   final kImmersiveMode = _SettingsOption<bool>(
@@ -506,6 +509,7 @@ class SettingsProvider extends UnityProvider {
           );
         }
       }
+      return true;
     },
   );
   final kMinimizeToTray = _SettingsOption<bool>(
@@ -588,6 +592,7 @@ class SettingsProvider extends UnityProvider {
           ..resetCrop()
           ..zoom.softwareZoom = value;
       }
+      return true;
     },
     valueOverrider: isHardwareZoomSupported ? (_) => true : null,
   );
@@ -598,6 +603,13 @@ class SettingsProvider extends UnityProvider {
   final kShowDebugInfo = _SettingsOption<bool>(
     def: kDebugMode,
     key: 'other.show_debug_info',
+    onChanged: (value) async {
+      if (value) {
+        final canEnable = await UnityAuth.ask();
+        return canEnable;
+      }
+      return true;
+    },
   );
   final kShowNetworkUsage = _SettingsOption<bool>(
     def: false,
@@ -726,8 +738,12 @@ class SettingsProvider extends UnityProvider {
   }
 
   Future<void> restoreDefaults() async {
-    await settings.delete();
-    await initialize();
+    final canRestoreDefaults = await UnityAuth.ask();
+
+    if (canRestoreDefaults) {
+      await settings.delete();
+      await initialize();
+    }
   }
 
   /// Check if the server certificates passes

@@ -74,6 +74,10 @@ Future<void> main(List<String> args) async {
     WidgetsFlutterBinding.ensureInitialized();
     logging.setupLogging();
 
+    await initializeDateFormatting();
+    await configureStorage();
+    await SettingsProvider.ensureInitialized();
+
     // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
     // On windows, the window is hidden until flutter draws its first frame.
     // To create a splash screen effect while the dependencies are loading, we
@@ -85,9 +89,6 @@ Future<void> main(List<String> args) async {
 
       runApp(const SplashScreen());
     }
-
-    await initializeDateFormatting();
-    await configureStorage();
 
     DevHttpOverrides.configureCertificates();
     API.initialize();
@@ -156,7 +157,6 @@ Future<void> main(List<String> args) async {
     // With it, all these functions will be running at the same time, reducing the
     // wait time at the splash screen
     // settings provider needs to be initalized alone
-    await SettingsProvider.ensureInitialized();
     await ServersProvider.ensureInitialized();
     await Future.wait([
       DownloadsManager.ensureInitialized(),

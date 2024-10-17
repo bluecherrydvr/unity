@@ -109,6 +109,7 @@ Future<void> main(List<String> args) async {
         // want to open the [AlternativeWindow] screen.
       } else {
         try {
+          isSubWindow = true;
           // this is just a mock. HomeProvider depends on this, so we mock the instance
           ServersProvider.instance = ServersProvider.dump();
           await SettingsProvider.ensureInitialized();

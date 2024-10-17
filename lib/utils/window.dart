@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 // import 'package:tray_manager/tray_manager.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
@@ -85,6 +86,31 @@ enum MultiWindowType { device, layout }
 
 bool get canOpenNewWindow {
   return isDesktopPlatform && !isEmbedded;
+}
+
+bool isSubWindow = false;
+ResultWindow get subWindow {
+  assert(isSubWindow);
+  return ResultWindow(pid);
+}
+
+/// Perform a window close operation.
+///
+/// If the window is a sub window, it will be forcefully closed.
+///
+/// If the window is the main window, it will be minimized to the tray if the
+/// setting is enabled, otherwise it will be closed.
+Future<void> performWindowClose(BuildContext context) async {
+  if (isSubWindow) {
+    subWindow.close();
+  } else {
+    final settings = context.read<SettingsProvider>();
+    if (settings.kMinimizeToTray.value) {
+      return windowManager.hide();
+    } else {
+      return windowManager.close();
+    }
+  }
 }
 
 extension DeviceWindowExtension on Device {

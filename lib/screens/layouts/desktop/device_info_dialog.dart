@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
@@ -85,8 +86,7 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
               const SizedBox(width: 6.0),
               CopyDeviceUrlButton(device: widget.device),
               SquaredIconButton(
-                onPressed: () =>
-                    setState(() => _showStreamUrl = !_showStreamUrl),
+                onPressed: _onToggleStreamUrl,
                 tooltip: _showStreamUrl ? loc.hide : loc.show,
                 icon: Icon(
                   _showStreamUrl ? Icons.visibility_off : Icons.visibility,
@@ -121,6 +121,17 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
         ]),
       );
     });
+  }
+
+  Future<void> _onToggleStreamUrl() async {
+    final canShow = await UnityAuth.ask();
+    if (!mounted) return;
+
+    if (canShow) {
+      setState(() => _showStreamUrl = !_showStreamUrl);
+    } else {
+      UnityAuth.showAccessDeniedMessage(context);
+    }
   }
 }
 

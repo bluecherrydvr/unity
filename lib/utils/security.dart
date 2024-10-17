@@ -1,4 +1,5 @@
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 
 class UnityAuth {
@@ -48,5 +49,22 @@ class UnityAuth {
       }
     }
     return false;
+  }
+
+  static void showAccessDeniedMessage(BuildContext context) {
+    final theme = Theme.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Access denied',
+          style: TextStyle(
+            color: theme.colorScheme.onError,
+          ),
+        ),
+        width: 350,
+        backgroundColor: theme.colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }

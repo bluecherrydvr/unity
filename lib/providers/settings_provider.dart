@@ -457,7 +457,15 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
-    getDefault: kIsWeb ? null : launchAtStartup.isEnabled,
+    getDefault: kIsWeb
+        ? null
+        : () async {
+            try {
+              return await launchAtStartup.isEnabled();
+            } catch (_) {
+              return false;
+            }
+          },
     onChanged: (value) async {
       if (kIsWeb) {
         return;

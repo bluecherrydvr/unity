@@ -48,6 +48,27 @@ int calculateCrossAxisCount(int deviceAmount) {
 }
 
 class _LargeDeviceGridState extends State<LargeDeviceGrid> {
+  Timer? cycleTimer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.watch<SettingsProvider>();
+    cycleTimer?.cancel();
+    cycleTimer = Timer.periodic(settings.kLayoutCyclePeriod.value, (_) {
+      if (!mounted) return;
+      if (settings.kLayoutCycleEnabled.value) {
+        context.read<DesktopViewProvider>().switchToNextLayout();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    cycleTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final view = context.watch<DesktopViewProvider>();

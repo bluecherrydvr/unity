@@ -79,27 +79,6 @@ class LayoutManager extends StatefulWidget {
 }
 
 class _LayoutManagerState extends State<LayoutManager> with Searchable {
-  Timer? timer;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final settings = context.watch<SettingsProvider>();
-    timer?.cancel();
-    timer = Timer.periodic(settings.kLayoutCyclePeriod.value, (timer) {
-      if (!mounted) return;
-      if (settings.kLayoutCycleEnabled.value) {
-        DesktopViewProvider.instance.switchToNextLayout();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
   @override
   void onSearchChanged(String text) {
     super.onSearchChanged(text);

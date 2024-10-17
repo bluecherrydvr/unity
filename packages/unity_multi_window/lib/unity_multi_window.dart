@@ -7,7 +7,7 @@ class MultiWindow {
   static Future<ResultWindow> run([List<String> arguments = const []]) async {
     final result = await Process.start(
       Platform.resolvedExecutable,
-      arguments,
+      ['sub_window', ...arguments],
     );
 
     result.stdout

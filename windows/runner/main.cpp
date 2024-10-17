@@ -49,7 +49,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   // "Bluecherry" is the parameter of `window.Create` in this file.
   // You may ignore the result if you need to create another window.
   if (SendAppLinkToInstance(L"Bluecherry")) {
-    return EXIT_SUCCESS;
+    // If the first argument is "sub_window", we need to create another window.
+    std::vector<std::string> command_line_arguments =
+      GetCommandLineArguments();
+    if (command_line_arguments.size() > 1 && command_line_arguments[0] == "sub_window") {
+      // Create another window;
+    } else {
+      return EXIT_SUCCESS;
+    }
+
   }
 
   // Attach to console when present (e.g., 'flutter run') or create a

@@ -112,6 +112,9 @@ extension LayoutWindowExtension on Layout {
   static (MultiWindowType, ThemeMode, Map<String, dynamic>) fromArgs(
     List<String> args,
   ) {
+    if (args.first == 'sub_window') {
+      args = args.sublist(1);
+    }
     final type = MultiWindowType.values[int.parse(args[0])];
     final themeMode = ThemeMode.values[int.parse(args[1])];
     final map = json.decode(args[2]);

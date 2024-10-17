@@ -73,6 +73,7 @@
     }
   },
   "serverVersionMismatch": "O versão do servidor não é suportada. Por favor, atualize seu servidor e tente novamente!",
+  "serverWrongCredentials": "As credenciais do servidor estão erradas. Por favor, verifique o nome de usuário e a senha e tente novamente.",
   "noServersAvailable": "Nenhum servidor disponível.",
   "error": "Erro",
   "videoError": "Ocorreu um erro ao tentar reproduzir o vídeo.",

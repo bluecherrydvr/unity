@@ -185,9 +185,7 @@ class ServerTile extends StatelessWidget {
     }
 
     return GestureDetector(
-      onSecondaryTapUp: (d) {
-        showMenu(d.globalPosition);
-      },
+      onSecondaryTapUp: (d) => showMenu(d.globalPosition),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.transparent,

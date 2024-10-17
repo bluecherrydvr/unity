@@ -73,6 +73,7 @@
     }
   },
   "serverVersionMismatch": "Tried to add a server with an unsupported version. Please upgrade your server and try again!",
+  "serverWrongCredentials": "The credentials for the server are wrong. Please check the username and password and try again.",
   "noServersAvailable": "No servers available",
   "error": "Error",
   "videoError": "An error happened while trying to play the video.",

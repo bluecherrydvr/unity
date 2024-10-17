@@ -142,26 +142,36 @@ class CopyDeviceUrlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return SquaredIconButton(
       padding: EdgeInsetsDirectional.zero,
       icon: const Icon(Icons.copy),
       tooltip: MaterialLocalizations.of(context).copyButtonLabel,
-      onPressed: () {
-        Clipboard.setData(
-          ClipboardData(text: device.streamURL),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              loc.copiedToClipboard('URL'),
-              textAlign: TextAlign.center,
-            ),
-            behavior: SnackBarBehavior.floating,
-            width: 200.0,
-          ),
-        );
-      },
+      onPressed: () => _onCopy(context),
     );
+  }
+
+  Future<void> _onCopy(BuildContext context) async {
+    final canCopy = await UnityAuth.ask();
+    if (!context.mounted) return;
+
+    final loc = AppLocalizations.of(context);
+
+    if (canCopy) {
+      Clipboard.setData(
+        ClipboardData(text: device.streamURL),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            loc.copiedToClipboard('URL'),
+            textAlign: TextAlign.center,
+          ),
+          behavior: SnackBarBehavior.floating,
+          width: 200.0,
+        ),
+      );
+    } else {
+      UnityAuth.showAccessDeniedMessage(context);
+    }
   }
 }

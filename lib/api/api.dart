@@ -32,9 +32,16 @@ export 'events.dart';
 export 'ptz.dart';
 
 enum ServerAdditionResponse {
+  /// The server is online and the credentials are correct.
   validated,
+
+  /// The server is online, but the version of the server is not supported.
   versionMismatch,
+
+  /// The server is online, but the credentials are incorrect.
   wrongCredentials,
+
+  /// The server is online, but the response is unknown.
   unknown;
 }
 

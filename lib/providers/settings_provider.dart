@@ -123,6 +123,18 @@ class _SettingsOption<T> {
   final T? min;
   final T? max;
 
+  Future<T> get defaultValue {
+    if (getDefault == null) return Future.value(def);
+    try {
+      return getDefault!();
+    } catch (error, stack) {
+      handleError(error, stack, 'Failed to get default value for $key');
+      return Future.value(def);
+    }
+  }
+
+  _SettingsOption? dependOn;
+
   _SettingsOption({
     required this.key,
     required this.def,
@@ -133,9 +145,10 @@ class _SettingsOption<T> {
     this.max,
     this.onChanged,
     this.valueOverrider,
+    this.dependOn,
   }) {
     Future.microtask(() async {
-      _value = getDefault != null ? await getDefault!() : def;
+      _value = await defaultValue;
     });
 
     if (saveAs != null) {
@@ -180,9 +193,10 @@ class _SettingsOption<T> {
   String get defAsString => saveAs(def);
 
   Future<void> loadData(Map data) async {
+    await dependOn?.loadData(data);
     try {
       String? serializedData = data[key];
-      if (getDefault != null) serializedData ??= saveAs(await getDefault!());
+      if (getDefault != null) serializedData ??= saveAs(await defaultValue);
       serializedData ??= defAsString;
       _value = loadFrom(serializedData);
     } catch (error, stackTrace) {
@@ -191,7 +205,7 @@ class _SettingsOption<T> {
         stackTrace,
         'Error loading data for $key. Fallback to default value',
       );
-      _value = (await getDefault?.call()) ?? def;
+      _value = await defaultValue;
     }
   }
 
@@ -407,11 +421,15 @@ class SettingsProvider extends UnityProvider {
   );
 
   late final kDateFormat = _SettingsOption<DateFormat>(
-    def: DateFormat(
-      'EEEE, dd MMMM yyyy',
-      kLanguageCode.value.toLanguageTag(),
-    ),
+    def: DateFormat('EEEE, dd MMMM yyyy'),
     key: 'application.date_format',
+    dependOn: kLanguageCode,
+    getDefault: () async {
+      return DateFormat(
+        'EEEE, dd MMMM yyyy',
+        kLanguageCode.value.toLanguageTag(),
+      );
+    },
     valueOverrider: (value) {
       return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
     },
@@ -419,8 +437,15 @@ class SettingsProvider extends UnityProvider {
 
   static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
   late final kTimeFormat = _SettingsOption<DateFormat>(
-    def: DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag()),
+    def: DateFormat('hh:mm a'),
+    getDefault: () async {
+      return DateFormat(
+        'hh:mm a',
+        kLanguageCode.value.toLanguageTag(),
+      );
+    },
     key: 'application.time_format',
+    dependOn: kLanguageCode,
     valueOverrider: (value) {
       return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
     },
@@ -459,7 +484,7 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
-    getDefault: kIsWeb
+    getDefault: !canLaunchAtStartup
         ? null
         : () async {
             try {
@@ -484,12 +509,21 @@ class SettingsProvider extends UnityProvider {
     key: 'window.fullscreen',
     getDefault: () async {
       if (!isDesktopPlatform) return false;
-      return windowManager.isFullScreen();
+      try {
+        return windowManager.isFullScreen();
+      } catch (error) {
+        return false;
+      }
     },
     onChanged: (value) async {
       if (!isDesktopPlatform) return false;
-      await windowManager.setFullScreen(value);
-      return true;
+      try {
+        await WindowManager.instance.ensureInitialized();
+        await windowManager.setFullScreen(value);
+        return true;
+      } catch (error) {
+        return false;
+      }
     },
   );
   final kImmersiveMode = _SettingsOption<bool>(

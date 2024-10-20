@@ -100,6 +100,7 @@ Future<void> main(List<String> args) async {
     logging.writeLogToFile('Opening app with $args');
     logging.writeLogToFile(
       'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
+      print: true,
     );
 
     if (isDesktopPlatform && args.isNotEmpty) {

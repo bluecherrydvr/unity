@@ -49,11 +49,17 @@ int calculateCrossAxisCount(int deviceAmount) {
 
 class _LargeDeviceGridState extends State<LargeDeviceGrid>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 300),
-  );
+  late final AnimationController _animationController;
   Timer? cycleTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
 
   @override
   void didChangeDependencies() {

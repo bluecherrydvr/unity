@@ -123,6 +123,16 @@ class _SettingsOption<T> {
   final T? min;
   final T? max;
 
+  Future<T> get defaultValue {
+    if (getDefault == null) return Future.value(def);
+    try {
+      return getDefault!();
+    } catch (error, stack) {
+      handleError(error, stack, 'Failed to get default value for $key');
+      return Future.value(def);
+    }
+  }
+
   _SettingsOption({
     required this.key,
     required this.def,
@@ -135,15 +145,7 @@ class _SettingsOption<T> {
     this.valueOverrider,
   }) {
     Future.microtask(() async {
-      _value = getDefault != null
-          ? () async {
-              try {
-                return await getDefault!();
-              } catch (error) {
-                return def;
-              }
-            }() as T
-          : def;
+      _value = await defaultValue;
     });
 
     if (saveAs != null) {
@@ -190,7 +192,7 @@ class _SettingsOption<T> {
   Future<void> loadData(Map data) async {
     try {
       String? serializedData = data[key];
-      if (getDefault != null) serializedData ??= saveAs(await getDefault!());
+      if (getDefault != null) serializedData ??= saveAs(await defaultValue);
       serializedData ??= defAsString;
       _value = loadFrom(serializedData);
     } catch (error, stackTrace) {
@@ -199,7 +201,7 @@ class _SettingsOption<T> {
         stackTrace,
         'Error loading data for $key. Fallback to default value',
       );
-      _value = (await getDefault?.call()) ?? def;
+      _value = await defaultValue;
     }
   }
 
@@ -467,7 +469,7 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
-    getDefault: kIsWeb
+    getDefault: !canLaunchAtStartup
         ? null
         : () async {
             try {

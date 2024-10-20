@@ -188,7 +188,8 @@ void launchFileExplorer(String path) {
 ///
 /// MacOS is still lacking configuration at this time, so we are not supporting
 /// it for now.
-bool get canLaunchAtStartup => isDesktopPlatform && !Platform.isMacOS;
+bool get canLaunchAtStartup =>
+    !kIsWeb && isDesktopPlatform && !Platform.isMacOS;
 
 Future<void> setupLaunchAtStartup() async {
   assert(isDesktopPlatform);

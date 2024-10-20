@@ -133,6 +133,8 @@ class _SettingsOption<T> {
     }
   }
 
+  _SettingsOption? dependOn;
+
   _SettingsOption({
     required this.key,
     required this.def,
@@ -143,6 +145,7 @@ class _SettingsOption<T> {
     this.max,
     this.onChanged,
     this.valueOverrider,
+    this.dependOn,
   }) {
     Future.microtask(() async {
       _value = await defaultValue;
@@ -190,6 +193,7 @@ class _SettingsOption<T> {
   String get defAsString => saveAs(def);
 
   Future<void> loadData(Map data) async {
+    await dependOn?.loadData(data);
     try {
       String? serializedData = data[key];
       if (getDefault != null) serializedData ??= saveAs(await defaultValue);
@@ -417,11 +421,15 @@ class SettingsProvider extends UnityProvider {
   );
 
   late final kDateFormat = _SettingsOption<DateFormat>(
-    def: DateFormat(
-      'EEEE, dd MMMM yyyy',
-      kLanguageCode.value.toLanguageTag(),
-    ),
+    def: DateFormat('EEEE, dd MMMM yyyy'),
     key: 'application.date_format',
+    dependOn: kLanguageCode,
+    getDefault: () async {
+      return DateFormat(
+        'EEEE, dd MMMM yyyy',
+        kLanguageCode.value.toLanguageTag(),
+      );
+    },
     valueOverrider: (value) {
       return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
     },
@@ -429,8 +437,15 @@ class SettingsProvider extends UnityProvider {
 
   static const availableTimeFormats = ['HH:mm', 'hh:mm a'];
   late final kTimeFormat = _SettingsOption<DateFormat>(
-    def: DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag()),
+    def: DateFormat('hh:mm a'),
+    getDefault: () async {
+      return DateFormat(
+        'hh:mm a',
+        kLanguageCode.value.toLanguageTag(),
+      );
+    },
     key: 'application.time_format',
+    dependOn: kLanguageCode,
     valueOverrider: (value) {
       return DateFormat(value.pattern, kLanguageCode.value.toLanguageTag());
     },
@@ -494,12 +509,21 @@ class SettingsProvider extends UnityProvider {
     key: 'window.fullscreen',
     getDefault: () async {
       if (!isDesktopPlatform) return false;
-      return windowManager.isFullScreen();
+      try {
+        return windowManager.isFullScreen();
+      } catch (error) {
+        return false;
+      }
     },
     onChanged: (value) async {
       if (!isDesktopPlatform) return false;
-      await windowManager.setFullScreen(value);
-      return true;
+      try {
+        await WindowManager.instance.ensureInitialized();
+        await windowManager.setFullScreen(value);
+        return true;
+      } catch (error) {
+        return false;
+      }
     },
   );
   final kImmersiveMode = _SettingsOption<bool>(

@@ -20,6 +20,7 @@
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/direct_camera.dart';
 import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
@@ -127,6 +128,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
     final home = context.watch<HomeProvider>();
     final tab = home.tab;
 
@@ -147,7 +149,8 @@ class _HomeState extends State<Home> {
         final isWide = constraints.biggest.width > 700;
         final isTall = constraints.biggest.height > 440;
         final showNavigationRail =
-            (isWide && isTall && !isDesktop) || isEmbedded;
+            ((isWide && isTall && !isDesktop) || isEmbedded) &&
+                !settings.isImmersiveMode;
 
         return Scaffold(
           resizeToAvoidBottomInset: false,

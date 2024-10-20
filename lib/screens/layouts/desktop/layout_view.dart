@@ -144,7 +144,8 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
   }
 
   OverlayEntry? _overlayEntry;
-  void showOverlayEntry(BuildContext context, Widget bar) {
+  Future<void> showOverlayEntry(BuildContext context, Widget bar) async {
+    await dismissOverlayEntry();
     _overlayEntry = OverlayEntry(builder: (context) {
       return AnimatedBuilder(
         animation: _animationController,
@@ -178,12 +179,18 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
         },
       );
     });
-    Overlay.of(context).insert(_overlayEntry!);
-    _animationController.forward();
+    if (context.mounted) {
+      Overlay.of(context).insert(_overlayEntry!);
+      await _animationController.forward();
+    }
   }
 
   Future<void> dismissOverlayEntry() async {
-    await _animationController.reverse();
+    try {
+      await _animationController.reverse();
+    } catch (error) {
+      // ignore
+    }
     _overlayEntry?.remove();
     _overlayEntry = null;
   }

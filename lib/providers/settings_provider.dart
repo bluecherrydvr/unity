@@ -135,7 +135,15 @@ class _SettingsOption<T> {
     this.valueOverrider,
   }) {
     Future.microtask(() async {
-      _value = getDefault != null ? await getDefault!() : def;
+      _value = getDefault != null
+          ? () async {
+              try {
+                return await getDefault!();
+              } catch (error) {
+                return def;
+              }
+            }() as T
+          : def;
     });
 
     if (saveAs != null) {

@@ -116,10 +116,16 @@ class WindowButtons extends StatefulWidget {
 
 class _WindowButtonsState extends State<WindowButtons>
     with SingleTickerProviderStateMixin {
-  late final _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 350),
-  );
+  late final AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+  }
 
   @override
   void dispose() {

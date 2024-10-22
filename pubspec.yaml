@@ -62,6 +62,7 @@ dependencies:
   unity_multi_window:
     path: packages/unity_multi_window/
   local_auth: ^2.3.0
+  args: ^2.6.0
 
 dev_dependencies:
   flutter_test:

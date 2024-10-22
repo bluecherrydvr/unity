@@ -262,6 +262,9 @@ class _UnityAppState extends State<UnityApp>
 
   @override
   Future<void> onWindowClose() async {
+    if (isSubWindow) {
+      exit(0);
+    }
     final isPreventClose = await windowManager.isPreventClose();
     final context = navigatorKey.currentContext!;
     if (isPreventClose && mounted && context.mounted) {

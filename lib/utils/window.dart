@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
@@ -126,9 +125,9 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      '${MultiWindowType.device.index}',
-      '${SettingsProvider.instance.kThemeMode.value.index}',
-      json.encode(toJson()),
+      '--theme ${SettingsProvider.instance.kThemeMode.value.name}',
+      '--server ${server.name}',
+      '--device $id',
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');
@@ -136,18 +135,6 @@ extension DeviceWindowExtension on Device {
 }
 
 extension LayoutWindowExtension on Layout {
-  static (MultiWindowType, ThemeMode, Map<String, dynamic>) fromArgs(
-    List<String> args,
-  ) {
-    if (args.first == 'sub_window') {
-      args = args.sublist(1);
-    }
-    final type = MultiWindowType.values[int.parse(args[0])];
-    final themeMode = ThemeMode.values[int.parse(args[1])];
-    final map = json.decode(args[2]);
-    return (type, themeMode, map);
-  }
-
   Future<void> openInANewWindow() async {
     assert(
       isDesktopPlatform,
@@ -158,9 +145,8 @@ extension LayoutWindowExtension on Layout {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      '${MultiWindowType.layout.index}',
-      '${SettingsProvider.instance.kThemeMode.value.index}',
-      json.encode(toMap()),
+      '--layout $name',
+      '--theme ${SettingsProvider.instance.kThemeMode.value.name}',
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');

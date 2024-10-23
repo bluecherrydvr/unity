@@ -5,9 +5,10 @@ import 'package:flutter/foundation.dart';
 
 class MultiWindow {
   static Future<ResultWindow> run([List<String> arguments = const []]) async {
+    if (kDebugMode) print('Opening ${Platform.resolvedExecutable} $arguments');
     final result = await Process.start(
       Platform.resolvedExecutable,
-      ['sub_window', ...arguments],
+      arguments,
     );
 
     result.stdout

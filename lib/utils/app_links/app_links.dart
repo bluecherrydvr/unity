@@ -108,6 +108,7 @@ Future<void> handleArgs(
     );
 
   final results = parser.parse(args);
+  debugPrint('Opening app with ${results.arguments}');
 
   if (results.wasParsed('fullscreen')) {
     final isFullscreen = results.flag('fullscreen');

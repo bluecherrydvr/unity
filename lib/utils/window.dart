@@ -125,9 +125,12 @@ extension DeviceWindowExtension on Device {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      '--theme ${SettingsProvider.instance.kThemeMode.value.name}',
-      '--server ${server.name}',
-      '--device $id',
+      '--theme',
+      SettingsProvider.instance.kThemeMode.value.name,
+      '--server',
+      server.name,
+      '--device',
+      '$id',
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');

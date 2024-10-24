@@ -9,6 +9,14 @@ class MultiWindow {
     final result = await Process.start(
       Platform.resolvedExecutable,
       [
+        // This sub_window argument is required because of the way we handle
+        // the windows. If a url is passed as an argument, this url will be
+        // added to the current window in the "External Layout" layout. This
+        // sub_window argument will be used to identify the window as a
+        // sub-window and not add it to the current window, creating a new
+        // window instead.
+        //
+        // See windows\runner\main.cpp, 55 for more information.
         'sub_window',
         ...arguments,
       ],

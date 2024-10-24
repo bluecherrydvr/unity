@@ -33,9 +33,14 @@ import 'package:unity_video_player/unity_video_player.dart';
 class DesktopViewProvider extends UnityProvider {
   DesktopViewProvider._();
 
-  static late final DesktopViewProvider instance;
+  static DesktopViewProvider? _instance;
+  static DesktopViewProvider get instance {
+    assert(_instance != null, 'DesktopViewProvider is not initialized');
+    return _instance!;
+  }
+
   static Future<DesktopViewProvider> ensureInitialized() async {
-    instance = DesktopViewProvider._();
+    _instance = DesktopViewProvider._();
     await instance.initialize();
     debugPrint('DesktopViewProvider initialized');
     return instance;

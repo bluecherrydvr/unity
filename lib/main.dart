@@ -25,7 +25,6 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
-import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
@@ -59,7 +58,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -78,99 +76,64 @@ Future<void> main(List<String> args) async {
     await configureStorage();
     await SettingsProvider.ensureInitialized();
 
-    if (isDesktopPlatform) {
-      await configureWindow();
-      if (canLaunchAtStartup) setupLaunchAtStartup();
-      if (canUseSystemTray) setupSystemTray();
+    await app_links.handleArgs(
+      args,
+      onSplashScreen: () async {
+        if (isDesktopPlatform) {
+          await configureWindow();
+          if (canLaunchAtStartup) setupLaunchAtStartup();
+          if (canUseSystemTray) setupSystemTray();
 
-      // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
-      //
-      // On Windows, the window is hidden until flutter draws its first frame.
-      // To create a splash screen effect while the dependencies are loading, it
-      // is possible to run the [SplashScreen] widget as the app.
-      //
-      // This also creates a splash screen effect on other desktop platforms.
-      runApp(const SplashScreen());
-    }
-
-    DevHttpOverrides.configureCertificates();
-    API.initialize();
-    await UnityVideoPlayerInterface.instance.initialize();
-
-    logging.writeLogToFile('Opening app with $args');
-    logging.writeLogToFile(
-      'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
-      print: true,
-    );
-
-    if (isDesktopPlatform && args.isNotEmpty) {
-      debugPrint('FOUND ANOTHER WINDOW: $args');
-
-      if (args.length == 1 &&
-          (path.extension(args.first) == '.bluecherry' ||
-              Uri.tryParse(args.first)?.scheme == 'bluecherry' ||
-              Uri.tryParse(args.first)?.scheme == 'rtsp')) {
-        // this is handled by app_links. this clause is kept because we do not
-        // want to open the [AlternativeWindow] screen.
-      } else {
-        try {
-          isSubWindow = true;
-          // this is just a mock. HomeProvider depends on this, so we mock the instance
-          ServersProvider.instance = ServersProvider.dump();
-          await SettingsProvider.ensureInitialized();
-          await DesktopViewProvider.ensureInitialized();
-
-          final (windowType, themeMode, map) =
-              LayoutWindowExtension.fromArgs(args);
-
-          switch (windowType) {
-            case MultiWindowType.device:
-              final device = Device.fromJson(map);
-              configureWindowTitle(device.fullName);
-
-              runApp(AlternativeWindow(
-                mode: themeMode,
-                child: CameraView(device: device),
-              ));
-              break;
-            case MultiWindowType.layout:
-              final layout = Layout.fromMap(map);
-              configureWindowTitle(layout.name);
-
-              runApp(AlternativeWindow(
-                mode: themeMode,
-                child: AlternativeLayoutView(layout: layout),
-              ));
-
-              break;
-          }
-        } catch (error, stackTrace) {
-          logging.handleError(
-            error,
-            stackTrace,
-            'Failed to open a secondary window',
-          );
+          // https://github.com/flutter/flutter/issues/41980#issuecomment-1231760866
+          //
+          // On Windows, the window is hidden until flutter draws its first frame.
+          // To create a splash screen effect while the dependencies are loading, it
+          // is possible to run the [SplashScreen] widget as the app.
+          //
+          // This also creates a splash screen effect on other desktop platforms.
+          runApp(const SplashScreen());
         }
 
-        return;
-      }
-    }
+        DevHttpOverrides.configureCertificates();
+        API.initialize();
+        await UnityVideoPlayerInterface.instance.initialize();
 
-    // We use [Future.wait] to decrease startup time.
-    //
-    // With it, all these functions will be running at the same time, reducing the
-    // wait time at the splash screen
-    // settings provider needs to be initalized alone
-    await ServersProvider.ensureInitialized();
-    await Future.wait([
-      DownloadsManager.ensureInitialized(),
-      MobileViewProvider.ensureInitialized(),
-      DesktopViewProvider.ensureInitialized(),
-      UpdateManager.ensureInitialized(),
-      EventsProvider.ensureInitialized(),
-    ]);
+        logging.writeLogToFile('Opening app with $args');
+        logging.writeLogToFile(
+          'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
+          print: true,
+        );
 
-    runApp(const UnityApp());
+        // We use [Future.wait] to decrease startup time.
+        //
+        // With it, all these functions will be running at the same time, reducing the
+        // wait time at the splash screen
+        // settings provider needs to be initalized alone
+        await ServersProvider.ensureInitialized();
+        await Future.wait([
+          DownloadsManager.ensureInitialized(),
+          MobileViewProvider.ensureInitialized(),
+          DesktopViewProvider.ensureInitialized(),
+          UpdateManager.ensureInitialized(),
+          EventsProvider.ensureInitialized(),
+        ]);
+      },
+      onLayoutScreen: (layout, theme) {
+        configureWindowTitle(layout.name);
+        runApp(AlternativeWindow(
+          mode: theme,
+          child: AlternativeLayoutView(layout: layout),
+        ));
+      },
+      onDeviceScreen: (device, theme) {
+        configureWindowTitle(device.fullName);
+        runApp(AlternativeWindow(
+          mode: SettingsProvider.instance.kThemeMode.value,
+          child: CameraView(device: device),
+        ));
+      },
+      onRunApp: () => runApp(const UnityApp()),
+    );
 
     // Request notifications permission for iOS, Android 13+ and Windows.
     //
@@ -299,6 +262,9 @@ class _UnityAppState extends State<UnityApp>
 
   @override
   Future<void> onWindowClose() async {
+    if (isSubWindow) {
+      exit(0);
+    }
     final isPreventClose = await windowManager.isPreventClose();
     final context = navigatorKey.currentContext!;
     if (isPreventClose && mounted && context.mounted) {

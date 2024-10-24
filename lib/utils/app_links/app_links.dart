@@ -118,9 +118,9 @@ Future<void> handleArgs(
     final isImmersive = results.flag('immersive');
     settings.kImmersiveMode.value = isImmersive;
   }
-  if (results.wasParsed('kiosk')) {
-    final isKiosk = results.flag('kiosk');
-  }
+  // if (results.wasParsed('kiosk')) {
+  //   final isKiosk = results.flag('kiosk');
+  // }
   if (results.wasParsed('wakelock')) {
     final isWakeLock = results.flag('wakelock');
     settings.kWakelock.value = isWakeLock;

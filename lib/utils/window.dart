@@ -129,7 +129,7 @@ extension DeviceWindowExtension on Device {
       SettingsProvider.instance.kThemeMode.value.name,
       '--server',
       server.name,
-      '--device',
+      '--camera',
       '$id',
     ]);
 
@@ -148,8 +148,8 @@ extension LayoutWindowExtension on Layout {
 
     debugPrint('Opening a new window');
     final window = await MultiWindow.run([
-      '--layout $name',
-      '--theme ${SettingsProvider.instance.kThemeMode.value.name}',
+      '--layout=$name',
+      '--theme=${SettingsProvider.instance.kThemeMode.value.name}',
     ]);
 
     debugPrint('Opened window with id ${window.windowId}');

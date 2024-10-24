@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,7 @@ class AlternativeWindowState extends State<AlternativeWindow> {
         ChangeNotifierProvider.value(value: HomeProvider.instance),
         ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
         ChangeNotifierProvider.value(value: SettingsProvider.instance),
+        ChangeNotifierProvider.value(value: UnityPlayers.instance),
       ],
       builder: (context, child) {
         final settings = context.watch<SettingsProvider>();

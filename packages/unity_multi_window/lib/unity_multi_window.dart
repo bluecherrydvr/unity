@@ -8,13 +8,16 @@ class MultiWindow {
     if (kDebugMode) print('Opening ${Platform.resolvedExecutable} $arguments');
     final result = await Process.start(
       Platform.resolvedExecutable,
-      arguments,
+      [
+        'sub_window',
+        ...arguments,
+      ],
     );
 
     result.stdout
         .transform(utf8.decoder)
         .transform(const LineSplitter())
-        .map((line) => 'Sub window ${result.pid}: $line')
+        .map((line) => 'window(${result.pid}): $line')
         .forEach((line) {
       if (kDebugMode) print(line);
     });

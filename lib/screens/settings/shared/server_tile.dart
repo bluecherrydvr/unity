@@ -328,12 +328,19 @@ class ServerCard extends StatelessWidget {
                   const SizedBox(height: 12.0),
                   Transform.scale(
                     scale: 0.9,
-                    child: OutlinedButton(
-                      child: Text(loc.disconnectServer),
-                      onPressed: () {
-                        onRemoveServer(context, server);
-                      },
-                    ),
+                    child: server.online
+                        ? OutlinedButton(
+                            child: Text(loc.disconnectServer),
+                            onPressed: () {
+                              servers.disconnectServer(server);
+                            },
+                          )
+                        : OutlinedButton(
+                            child: Text(loc.connect),
+                            onPressed: () {
+                              servers.refreshDevices(ids: [server.id]);
+                            },
+                          ),
                   ),
                 ],
               ),
@@ -397,7 +404,12 @@ Future showServerMenu({
         },
       ),
       PopupMenuItem(
-        child: Text(loc.disconnectServer),
+        child: Text(
+          loc.disconnectServer,
+          style: TextStyle(
+            color: theme.colorScheme.error,
+          ),
+        ),
         onTap: () {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             if (context.mounted) {

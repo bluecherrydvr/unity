@@ -189,7 +189,10 @@ class ServerEntry extends StatelessWidget {
                   child: child,
                 );
               },
-              child: Icon(Icons.chevron_right),
+              child: Icon(
+                server.online ? Icons.chevron_right : Icons.close,
+                color: server.online ? null : theme.colorScheme.error,
+              ),
             ),
             onPressed: server.online
                 ? () {

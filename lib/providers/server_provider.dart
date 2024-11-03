@@ -155,6 +155,8 @@ class ServersProvider extends UnityProvider {
     await Future.wait(servers.map((target) async {
       if (ids != null && !ids.contains(target.id)) return;
       if (startup && !target.additionalSettings.connectAutomaticallyAtStartup) {
+        target.devices.clear();
+        target.online = false;
         return;
       }
 
@@ -185,6 +187,19 @@ class ServersProvider extends UnityProvider {
     await save();
 
     return servers;
+  }
+
+  Future<void> disconnectServer(Server server) async {
+    final index = servers.indexWhere((s) => s.id == server.id);
+    if (index == -1) return;
+
+    final s = servers[index].copyWith(
+      devices: [],
+      online: false,
+    );
+    servers[index] = s;
+
+    await save();
   }
 
   @override

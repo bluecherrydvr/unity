@@ -48,11 +48,13 @@ extension MatrixTypeExtension on MatrixType {
 class AddExternalStreamDialog extends StatefulWidget {
   final String? defaultUrl;
   final Iterable<VideoOverlay> overlays;
+  final Layout? targetLayout;
 
   const AddExternalStreamDialog({
     super.key,
     this.defaultUrl,
     this.overlays = const [],
+    this.targetLayout,
   });
 
   /// Shows the dialog.
@@ -68,12 +70,14 @@ class AddExternalStreamDialog extends StatefulWidget {
     String? defaultUrl,
     List<VideoOverlay> overlays = const [],
     bool fullscreen = false,
+    Layout? targetLayout,
   }) async {
     final device = await showDialog<Device>(
       context: context,
       builder: (context) => AddExternalStreamDialog(
         defaultUrl: defaultUrl,
         overlays: overlays,
+        targetLayout: targetLayout,
       ),
     );
 
@@ -92,6 +96,7 @@ class AddExternalStreamDialog extends StatefulWidget {
     List<VideoOverlay> overlays = const [],
     bool fullscreen = false,
     ExternalDeviceData? externalData,
+    Layout? targetLayout,
   }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
@@ -105,8 +110,9 @@ class AddExternalStreamDialog extends StatefulWidget {
     )..server = Server.dump(name: url);
 
     final view = context.read<DesktopViewProvider>();
-    final layout = view.layouts
-        .firstWhereOrNull((layout) => layout.name == loc.externalStream);
+    final layout = targetLayout ??
+        view.layouts
+            .firstWhereOrNull((layout) => layout.name == loc.externalStream);
     if (layout == null) {
       view.addLayout(Layout(name: loc.externalStream, devices: [device]));
     } else {
@@ -115,7 +121,10 @@ class AddExternalStreamDialog extends StatefulWidget {
 
     view.updateCurrentLayout(
       view.layouts.indexOf(
-        view.layouts.firstWhere((layout) => layout.name == loc.externalStream),
+        targetLayout ??
+            view.layouts.firstWhere(
+              (layout) => layout.name == loc.externalStream,
+            ),
       ),
     );
 
@@ -340,6 +349,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       matrixType: matrixType,
       overlays: overlays,
       externalData: externalData,
+      targetLayout: widget.targetLayout,
     );
 
     Navigator.of(context).pop<Device>(device);

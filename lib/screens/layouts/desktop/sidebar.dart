@@ -58,7 +58,6 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
     final servers = context.watch<ServersProvider>();
 
     return SafeArea(
@@ -101,13 +100,6 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 ),
               ),
             ),
-          const Divider(),
-          ListTile(
-            dense: true,
-            trailing: const Icon(Icons.camera_outdoor, size: 20.0),
-            title: Text(loc.addExternalStream),
-            onTap: () => AddExternalStreamDialog.show(context),
-          ),
         ]),
       ),
     );
@@ -585,11 +577,6 @@ class CollapsedSidebar extends StatelessWidget {
             onPressed: settings.toggleCycling,
           ),
           const Spacer(),
-          SquaredIconButton(
-            icon: const Icon(Icons.camera_outdoor, size: 20.0),
-            tooltip: loc.addExternalStream,
-            onPressed: () => AddExternalStreamDialog.show(context),
-          ),
           Container(
             padding: const EdgeInsetsDirectional.all(8.0),
             margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),

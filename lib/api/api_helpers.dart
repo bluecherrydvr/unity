@@ -22,7 +22,6 @@ import 'dart:io';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
-import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -151,11 +150,16 @@ class DevHttpOverrides extends HttpOverrides {
   /// See also:
   ///   * <https://github.com/bluecherrydvr/unity/discussions/42>
   ///   * [compute], used to compute data in another thread
-  static Future<void> configureCertificates() async {
+  static Future<void> configureCertificates({
+    bool? allowUntrustedCertificates,
+  }) async {
     ServersProvider.instance = ServersProvider.dump();
-    SettingsProvider.ensureInitialized();
-    HttpOverrides.global = DevHttpOverrides();
+    // SettingsProvider.ensureInitialized();
+    HttpOverrides.global = DevHttpOverrides()
+      ..allowUntrustedCertificates = allowUntrustedCertificates ?? true;
   }
+
+  bool allowUntrustedCertificates = true;
 
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -173,7 +177,7 @@ class DevHttpOverrides extends HttpOverrides {
           }
         }
 
-        return SettingsProvider.instance.kAllowUntrustedCertificates.value;
+        return allowUntrustedCertificates;
       };
   }
 }

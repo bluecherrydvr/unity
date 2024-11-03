@@ -5,6 +5,7 @@ import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -43,12 +44,15 @@ extension EventsExtension on API {
     final startTimeString = startTime?.toIso8601StringWithTimezoneOffset();
     final endTimeString = endTime?.toIso8601StringWithTimezoneOffset();
 
+    final settings = SettingsProvider.instance;
+
     return compute(_getEvents, {
       'server': server,
       'limit': (startTime != null && endTime != null) ? -1 : await eventsLimit,
       'startTime': startTimeString,
       'endTime': endTimeString,
       'device_id': device?.id,
+      'allowUntrustedCertificates': settings.kAllowUntrustedCertificates.value,
     });
   }
 
@@ -64,7 +68,9 @@ extension EventsExtension on API {
     final deviceId = data['device_id'] as int?;
     final limit = (data['limit'] as int?) ?? -1;
 
-    DevHttpOverrides.configureCertificates();
+    DevHttpOverrides.configureCertificates(
+      allowUntrustedCertificates: data['allowUntrustedCertificates'] as bool,
+    );
 
     debugPrint(
       'Getting events for server ${server.name} with limit $limit '

@@ -70,12 +70,13 @@ Future<void> migrate(SafeLocalStorage from, FlutterSecureStorage to) async {
         final encoded = jsonEncode(value);
         await to.write(key: key, value: encoded);
       } else {
-        await to.write(key: key, value: value);
+        await to.write(key: key, value: value?.toString());
       }
     }
 
-    // After migration, you might want to clear the old storage
-    // await from.clearAll();
+    try {
+      await from.delete();
+    } catch (_) {}
   } catch (error, stackTrace) {
     handleError(
       error,

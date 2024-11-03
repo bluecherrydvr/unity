@@ -174,10 +174,7 @@ class DownloadsManager extends UnityProvider {
       //   }
       // }
     });
-
-    await tryReadStorage(
-      () => super.initializeStorage(downloads, kStorageDownloads),
-    );
+    super.initializeStorage(kStorageDownloads);
 
     for (final de in downloadedEvents) {
       doesEventFileExist(de.event.id).then((exist) async {
@@ -197,7 +194,9 @@ class DownloadsManager extends UnityProvider {
   @override
   Future<void> save({bool notifyListeners = true}) async {
     await write({
-      kStorageDownloads: downloadedEvents.map((de) => de.toJson()).toList(),
+      kStorageDownloads: jsonEncode(
+        downloadedEvents.map((de) => de.toJson()).toList(),
+      ),
     });
 
     super.save(notifyListeners: notifyListeners);
@@ -205,8 +204,6 @@ class DownloadsManager extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => downloads.read());
-
     // TODO(bdlukaa): Remove this migration in the future.
     //                Previously, we were unecessarily encoding the downloads
     //                data as a string. This is no longer necessary.
@@ -214,12 +211,13 @@ class DownloadsManager extends UnityProvider {
     //                This migration is to ensure the downloads made on previous
     //                versions are not lost.
     List downloadsData;
-    if (data[kStorageDownloads] == null) {
-      downloadsData = [];
-    } else if (data[kStorageDownloads] is String) {
-      downloadsData = jsonDecode(data[kStorageDownloads]);
-    } else {
-      downloadsData = data[kStorageDownloads];
+    {
+      final data = await secureStorage.read(key: kStorageDownloads);
+      if (data == null) {
+        downloadsData = [];
+      } else {
+        downloadsData = jsonDecode(data) as List;
+      }
     }
 
     downloadedEvents = downloadsData.map<DownloadedEvent>((item) {

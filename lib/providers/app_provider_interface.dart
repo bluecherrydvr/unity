@@ -20,24 +20,16 @@
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/widgets.dart';
-import 'package:safe_local_storage/safe_local_storage.dart';
 
 abstract class UnityProvider extends ChangeNotifier {
   Future<void> initialize();
   Future<void> reloadInterface() => initialize();
 
-  SafeLocalStorage? storage;
   String? key;
 
   @protected
-  Future<void> initializeStorage(SafeLocalStorage storage, String key) async {
+  Future<void> initializeStorage(String key) async {
     this.key = key;
-    try {
-      this.storage = storage;
-    } catch (e) {
-      await configureStorage();
-      this.storage = storage;
-    }
     try {
       await restore();
     } catch (error, stackTrace) {
@@ -63,9 +55,24 @@ abstract class UnityProvider extends ChangeNotifier {
     }
   }
 
-  Future<void>? write(dynamic data) {
+  Future<void> write(Map<String, dynamic> data) async {
     try {
-      return storage?.write(data);
+      for (var key in data.keys) {
+        final value = data[key];
+        assert(
+          value is String ||
+              value is int ||
+              value is double ||
+              value is bool ||
+              value == null,
+        );
+        if (value != null) {
+          return secureStorage.write(
+            key: key,
+            value: value?.toString(),
+          );
+        }
+      }
     } catch (error, stackTrace) {
       handleError(error, stackTrace, 'Failed to write data to $key');
       return Future.value();

@@ -55,8 +55,7 @@ class ServersProvider extends UnityProvider {
   /// Called by [ensureInitialized].
   @override
   Future<void> initialize() async {
-    await tryReadStorage(
-        () => super.initializeStorage(serversStorage, kStorageServers));
+    await initializeStorage(kStorageServers);
     refreshDevices(startup: true);
   }
 
@@ -72,12 +71,20 @@ class ServersProvider extends UnityProvider {
     if (isMobilePlatform) {
       // Register notification token.
       try {
-        final data = await tryReadStorage(() => serversStorage.read());
-        final notificationToken = data[kStorageNotificationToken];
+        final notificationToken = await secureStorage.read(
+          key: kStorageNotificationToken,
+        );
         assert(
-            notificationToken != null, '[kStorageNotificationToken] is null.');
-        await API.instance
-            .registerNotificationToken(server, notificationToken!);
+          notificationToken != null,
+          '[kStorageNotificationToken] is null.',
+        );
+        if (notificationToken != null) {
+          // release safety
+          await API.instance.registerNotificationToken(
+            server,
+            notificationToken,
+          );
+        }
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());
@@ -205,7 +212,9 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> save({bool notifyListeners = true}) async {
     await write({
-      kStorageServers: servers.map((server) => server.toJson()).toList(),
+      kStorageServers: jsonEncode(
+        servers.map((server) => server.toJson()).toList(),
+      ),
     });
     super.save(notifyListeners: notifyListeners);
   }
@@ -213,15 +222,11 @@ class ServersProvider extends UnityProvider {
   /// Restore currently added [Server]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => serversStorage.read());
-
-    final serversData = data[kStorageServers] == null
+    final data = await secureStorage.read(key: kStorageServers);
+    final serversData = data == null
         ? <Map<String, dynamic>>[]
         : List<Map<String, dynamic>>.from(
-            data[kStorageServers] is String
-                ? (await compute(jsonDecode, data[kStorageServers] as String)
-                    as List)
-                : data[kStorageServers] as List,
+            await compute(jsonDecode, data) as List,
           );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);

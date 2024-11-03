@@ -73,8 +73,7 @@ class MobileViewProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await tryReadStorage(
-        () => super.initializeStorage(mobileView, kStorageMobileView));
+    await initializeStorage(kStorageMobileView);
     Future.microtask(() {
       for (final device in current) {
         if (device != null) {
@@ -202,18 +201,19 @@ class MobileViewProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => mobileView.read());
-    devices =
-        ((await compute(jsonDecode, data[kStorageMobileView] as String)) as Map)
-            .map(
-              (key, value) => MapEntry<int, List<Device?>>(
-                int.parse(key),
-                (value as Iterable)
-                    .map<Device?>((e) => e == null ? null : Device.fromJson(e))
-                    .toList(),
-              ),
-            )
-            .cast<int, List<Device?>>();
+    final data = await secureStorage.read(key: kStorageMobileView);
+    if (data != null) {
+      devices = ((await compute(jsonDecode, data)) as Map)
+          .map(
+            (key, value) => MapEntry<int, List<Device?>>(
+              int.parse(key),
+              (value as Iterable)
+                  .map<Device?>((e) => e == null ? null : Device.fromJson(e))
+                  .toList(),
+            ),
+          )
+          .cast<int, List<Device?>>();
+    }
 
     // This is just for migration. Old clients do not have the "6" layout in their
     // devices, so we add it here
@@ -223,7 +223,7 @@ class MobileViewProvider extends UnityProvider {
       });
     }
 
-    tab = data[kStorageMobileViewTab]!;
+    tab = await secureStorage.readInt(key: kStorageMobileViewTab) ?? 1;
     super.restore(notifyListeners: notifyListeners);
   }
 }

@@ -80,9 +80,7 @@ class DesktopViewProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await tryReadStorage(
-      () => initializeStorage(desktopView, kStorageDesktopLayouts),
-    );
+    await initializeStorage(kStorageDesktopLayouts);
     Future.microtask(() async {
       await Future.wait(
         currentLayout.devices.map<Future>((device) {
@@ -123,26 +121,31 @@ class DesktopViewProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => desktopView.read());
-
-    layouts = ((await compute(
-              jsonDecode,
-              data[kStorageDesktopLayouts] as String,
-            ) ??
-            []) as List)
-        .map<Layout>((item) {
-      return Layout.fromMap((item as Map).cast<String, dynamic>());
-    }).toList();
-    _currentLayout = data[kStorageDesktopCurrentLayout] ?? 0;
-    collapsedServers.addAll(
-      ((await compute(
-                jsonDecode,
-                data[kStorageDesktopCollapsedServers] as String,
-              ) ??
-              []) as List)
-          .cast<String>(),
+    {
+      final data = await secureStorage.read(key: kStorageDesktopLayouts);
+      if (data != null) {
+        layouts = ((await compute(jsonDecode, data) ?? []) as List)
+            .map<Layout>((item) {
+          return Layout.fromMap((item as Map).cast<String, dynamic>());
+        }).toList();
+      }
+    }
+    _currentLayout = await secureStorage.readInt(
+          key: kStorageDesktopCurrentLayout,
+        ) ??
+        0;
+    {
+      final data =
+          await secureStorage.read(key: kStorageDesktopCollapsedServers);
+      if (data != null) {
+        collapsedServers.addAll(
+          ((await compute(jsonDecode, data) ?? []) as List).cast<String>(),
+        );
+      }
+    }
+    layoutManagerHeight = await secureStorage.readDouble(
+      key: kStorageDesktopLayoutManagerHeight,
     );
-    layoutManagerHeight = data[kStorageDesktopLayoutManagerHeight] as double?;
 
     super.restore(notifyListeners: notifyListeners);
   }

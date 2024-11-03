@@ -17,6 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
@@ -115,14 +117,13 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> initialize() async {
-    await tryReadStorage(() => initializeStorage(events, kStorageEvents));
+    await initializeStorage(kStorageEvents);
   }
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
     await write({
-      kStorageEvents: kStorageEvents,
-      'selectedDevices': selectedDevices.toList(),
+      'selectedDevices': jsonEncode(selectedDevices.toList()),
     });
 
     super.save(notifyListeners: notifyListeners);
@@ -130,10 +131,10 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => events.read());
-
-    selectedDevices =
-        List<String>.from(data['selectedDevices'] as List).toSet();
+    final data = await secureStorage.read(key: 'selectedDevices');
+    if (data != null) {
+      selectedDevices = Set<String>.from(jsonDecode(data) as List);
+    }
     selectedDevices.removeWhere((device) {
       final server = ServersProvider.instance.servers.firstWhereOrNull(
         (server) => server.devices.any((d) => d.streamURL == device),

@@ -50,6 +50,7 @@ dependencies:
   path_provider: ^2.1.2
   file_picker: ^8.1.2
   safe_local_storage: ^1.0.2 # This is required because media_kit is still locked to this version. When bumped in the upstream package, this can be removed
+  flutter_secure_storage: ^9.2.2
   
   permission_handler: ^11.1.0
   uuid: ^4.3.3

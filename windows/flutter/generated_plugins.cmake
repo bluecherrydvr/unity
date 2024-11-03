@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   connectivity_plus
   firebase_core
+  flutter_secure_storage_windows
   fvp
   local_auth_windows
   media_kit_libs_windows_video

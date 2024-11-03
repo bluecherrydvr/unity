@@ -183,6 +183,7 @@ class CorrectedListTile extends StatelessWidget {
 }
 
 class SubHeader extends StatelessWidget {
+  final Widget? leading;
   final String text;
   final String? subtext;
   final TextStyle? subtextStyle;
@@ -194,6 +195,7 @@ class SubHeader extends StatelessWidget {
 
   const SubHeader(
     this.text, {
+      this.leading,
     this.subtext,
     this.subtextStyle,
     this.trailing,
@@ -215,6 +217,7 @@ class SubHeader extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         padding: padding,
         child: Row(children: [
+          if (leading != null) leading!,
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,

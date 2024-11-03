@@ -200,16 +200,20 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       TextSpan(
                         text: () {
                           String? nameToDisplay;
-                          nameToDisplay ??=
-                              widget.device.externalData?.rackName;
-                          if (widget.device.server.isDump) {
-                            nameToDisplay ??= path.basename(
-                              widget.device.url ?? widget.device.streamURL,
-                            );
-                          } else {
-                            nameToDisplay ??= widget.device.server.name;
+                          try {
+                            nameToDisplay ??=
+                                widget.device.externalData?.rackName;
+                            if (widget.device.server.isDump) {
+                              nameToDisplay ??= path.basename(
+                                widget.device.url ?? widget.device.streamURL,
+                              );
+                            } else {
+                              nameToDisplay ??= widget.device.server.name;
+                            }
+                            return '\n$nameToDisplay';
+                          } catch (error) {
+                            return '\n${loc.unknown}';
                           }
-                          return '\n$nameToDisplay';
                         }(),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,

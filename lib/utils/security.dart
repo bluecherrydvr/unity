@@ -20,7 +20,8 @@ class UnityAuth {
         return false;
       }
 
-      return availableBiometrics.contains(BiometricType.weak);
+      return availableBiometrics.contains(BiometricType.weak) ||
+          availableBiometrics.contains(BiometricType.strong);
     } on UnimplementedError {
       return false;
     } catch (error, stackTrace) {

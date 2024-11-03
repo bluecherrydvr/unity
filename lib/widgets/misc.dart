@@ -195,7 +195,7 @@ class SubHeader extends StatelessWidget {
 
   const SubHeader(
     this.text, {
-      this.leading,
+    this.leading,
     this.subtext,
     this.subtextStyle,
     this.trailing,

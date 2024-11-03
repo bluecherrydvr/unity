@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
@@ -63,6 +64,8 @@ class DesktopViewProvider extends UnityProvider {
   /// Gets the current selected layout
   Layout get currentLayout => layouts[currentLayoutIndex];
 
+  final collapsedServers = <String>[];
+
   @override
   Future<void> initialize() async {
     await tryReadStorage(
@@ -98,6 +101,7 @@ class DesktopViewProvider extends UnityProvider {
       kStorageDesktopLayouts:
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
       kStorageDesktopCurrentLayout: _currentLayout,
+      kStorageDesktopCollapsedServers: jsonEncode(collapsedServers),
     });
 
     super.save(notifyListeners: notifyListeners);
@@ -117,6 +121,14 @@ class DesktopViewProvider extends UnityProvider {
       return Layout.fromMap((item as Map).cast<String, dynamic>());
     }).toList();
     _currentLayout = data[kStorageDesktopCurrentLayout] ?? 0;
+    collapsedServers.addAll(
+      ((await compute(
+                jsonDecode,
+                data[kStorageDesktopCollapsedServers] as String,
+              ) ??
+              []) as List)
+          .cast<String>(),
+    );
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -355,4 +367,22 @@ class DesktopViewProvider extends UnityProvider {
 
     return device;
   }
+
+  Future<void> collapseServer(Server server) async {
+    if (!collapsedServers.contains(server.id)) {
+      collapsedServers.add(server.id);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  Future<void> expandServer(Server server) async {
+    if (collapsedServers.contains(server.id)) {
+      collapsedServers.remove(server.id);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  bool isServerCollapsed(Server server) => collapsedServers.contains(server.id);
 }

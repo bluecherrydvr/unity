@@ -39,6 +39,7 @@ const kStorageMobileView = 'mobile_view';
 const kStorageMobileViewTab = 'mobile_view_current_tab';
 const kStorageDesktopLayouts = 'desktop_view_layouts';
 const kStorageDesktopCurrentLayout = 'desktop_view_current_layout';
+const kStorageDesktopCollapsedServers = 'desktop_view_collapsed_servers';
 const kStorageNotificationToken = 'notification_token';
 const kStorageDownloads = 'downloads';
 const kStorageEventsPlayback = 'events_playback';

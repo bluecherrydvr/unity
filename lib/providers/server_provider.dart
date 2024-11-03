@@ -211,8 +211,4 @@ class ServersProvider extends UnityProvider {
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
   }
-
-  @override
-  // ignore: must_call_super
-  void dispose() {}
 }

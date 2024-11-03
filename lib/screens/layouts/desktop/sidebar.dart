@@ -177,6 +177,8 @@ class ServerEntry extends StatelessWidget {
         .where((d) => d.status)
         .every((d) => view.currentLayout.devices.contains(d));
 
+    final isCollapsed = view.isServerCollapsed(server);
+
     return MultiSliver(pushPinnedChildren: true, children: [
       SliverPinnedHeader(
         child: SubHeader(
@@ -186,10 +188,24 @@ class ServerEntry extends StatelessWidget {
             end: 8.0,
           ),
           leading: SquaredIconButton(
-            icon: Icon(Icons.chevron_right),
+            icon: TweenAnimationBuilder(
+              tween: Tween(begin: 0.0, end: isCollapsed ? 0.0 : 0.5),
+              duration: const Duration(milliseconds: 200),
+              builder: (context, value, child) {
+                return Transform.rotate(
+                  angle: value * pi,
+                  child: child,
+                );
+              },
+              child: Icon(Icons.chevron_right),
+            ),
             onPressed: server.online
                 ? () {
-                    // TODO: Collapse/Expand server
+                    if (isCollapsed) {
+                      view.expandServer(server);
+                    } else {
+                      view.collapseServer(server);
+                    }
                   }
                 : null,
           ),
@@ -252,7 +268,7 @@ class ServerEntry extends StatelessWidget {
           }),
         ),
       ),
-      if (server.online && !isLoading)
+      if (server.online && !isLoading && !isCollapsed)
         SliverList.builder(
           itemCount: devices.length,
           itemBuilder: (context, index) {

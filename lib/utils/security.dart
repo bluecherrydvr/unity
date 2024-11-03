@@ -62,11 +62,11 @@ class UnityAuth {
         content: Text(
           'Access denied',
           style: TextStyle(
-            color: theme.colorScheme.onError,
+            color: theme.colorScheme.onErrorContainer,
           ),
         ),
         width: 350,
-        backgroundColor: theme.colorScheme.error,
+        backgroundColor: theme.colorScheme.errorContainer,
         behavior: SnackBarBehavior.floating,
       ),
     );

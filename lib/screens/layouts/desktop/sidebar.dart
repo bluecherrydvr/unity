@@ -35,7 +35,7 @@ class DesktopSidebar extends StatefulWidget {
 class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
-  var _servers = <Server, Iterable<Device>>{};
+  final _servers = <Server, Iterable<Device>>{};
 
   @override
   void didChangeDependencies() {
@@ -46,7 +46,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   void _updateServers([bool listen = false]) {
     final servers = Provider.of<ServersProvider>(context, listen: listen);
 
-    _servers = {};
+    _servers.clear();
     for (final server in servers.servers) {
       final devices = server.devices.sorted(
         searchQuery: searchQuery,

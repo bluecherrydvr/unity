@@ -18,14 +18,15 @@
  */
 
 import 'dart:async';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -107,7 +108,7 @@ class AddExternalStreamDialog extends StatefulWidget {
       matrixType: matrixType,
       overlays: overlays,
       externalData: externalData,
-    )..server = Server.dump(name: url);
+    );
 
     final view = context.read<DesktopViewProvider>();
     final layout = targetLayout ??
@@ -207,13 +208,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                         onFieldSubmitted:
                             showMoreOptions ? null : (_) => _finish(),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return loc.streamNameRequired;
-                          } else if (Uri.tryParse(value) == null) {
-                            return loc.streamURLNotValid;
-                          }
-
-                          return null;
+                          return Validators.streamUrlValidator(context, value);
                         },
                       ),
                     ),

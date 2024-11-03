@@ -40,11 +40,11 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _updateServers();
+    _updateServers(true);
   }
 
-  void _updateServers() {
-    final servers = context.read<ServersProvider>();
+  void _updateServers([bool listen = false]) {
+    final servers = Provider.of<ServersProvider>(context, listen: listen);
 
     _servers = {};
     for (final server in servers.servers) {

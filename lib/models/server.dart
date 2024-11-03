@@ -178,6 +178,8 @@ class Server {
 
   ServerAdditionResponse additionResponse = ServerAdditionResponse.unknown;
 
+  final bool _dump;
+
   /// Creates a new [Server].
   Server({
     required this.name,
@@ -193,7 +195,7 @@ class Server {
     this.passedCertificates = true,
     this.additionalSettings = const AdditionalServerOptions(),
     this.additionResponse = ServerAdditionResponse.unknown,
-  });
+  }) : _dump = false;
 
   /// Creates a server with fake values.
   ///
@@ -213,7 +215,11 @@ class Server {
     this.online = true,
     this.passedCertificates = true,
     this.additionalSettings = const AdditionalServerOptions(),
-  });
+  }) : _dump = true;
+
+  bool get isDump {
+    return _dump;
+  }
 
   String get id {
     return '$name;$ip;$port';

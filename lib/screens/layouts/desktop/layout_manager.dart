@@ -65,7 +65,6 @@ extension DesktopLayoutTypeExtension on DesktopLayoutType {
 
 class LayoutManager extends StatefulWidget {
   final Widget collapseButton;
-
   final ValueChanged<String> onSearchChanged;
 
   const LayoutManager({
@@ -86,14 +85,30 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final view = context.watch<DesktopViewProvider>();
+    _height ??= view.layoutManagerHeight;
+  }
+
+  double? _height;
+  double get initialHeight => MediaQuery.sizeOf(context).height * 0.35;
+  double get height => _height ?? initialHeight;
+  set height(double value) => _height = value;
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final view = context.watch<DesktopViewProvider>();
     final settings = context.watch<SettingsProvider>();
 
+    final screenSize = MediaQuery.sizeOf(context);
+    final minHeight = screenSize.height * 0.2;
+    final maxHeight = screenSize.height * 0.6;
+
     return SizedBox(
-      height: 210.0,
+      height: height.clamp(minHeight, maxHeight),
       child: Column(children: [
         Material(
           color: theme.appBarTheme.backgroundColor,
@@ -156,7 +171,24 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
           ),
         ),
         ToggleSearchBar(searchable: this, showBottomDivider: false),
-        const Divider(height: 1.0),
+        MouseRegion(
+          cursor: SystemMouseCursors.resizeUpDown,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onVerticalDragUpdate: (details) {
+              setState(() {
+                height = (height + details.primaryDelta!).clamp(
+                  minHeight,
+                  maxHeight,
+                );
+              });
+            },
+            onVerticalDragEnd: (_) {
+              view.layoutManagerHeight = _height;
+            },
+            child: const Divider(height: 16.0),
+          ),
+        ),
       ]),
     );
   }

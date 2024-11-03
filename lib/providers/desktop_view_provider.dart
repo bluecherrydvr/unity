@@ -66,6 +66,18 @@ class DesktopViewProvider extends UnityProvider {
 
   final collapsedServers = <String>[];
 
+  /// The height of the layout manager.
+  ///
+  /// The layout can be resized by the user, so this value is used to keep the
+  /// layout manager height when the app is restarted.
+  double? _layoutManagerHeight;
+  double? get layoutManagerHeight => _layoutManagerHeight;
+  set layoutManagerHeight(double? value) {
+    _layoutManagerHeight = value;
+    notifyListeners();
+    save(notifyListeners: false);
+  }
+
   @override
   Future<void> initialize() async {
     await tryReadStorage(
@@ -102,6 +114,7 @@ class DesktopViewProvider extends UnityProvider {
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
       kStorageDesktopCurrentLayout: _currentLayout,
       kStorageDesktopCollapsedServers: jsonEncode(collapsedServers),
+      kStorageDesktopLayoutManagerHeight: layoutManagerHeight,
     });
 
     super.save(notifyListeners: notifyListeners);
@@ -129,6 +142,7 @@ class DesktopViewProvider extends UnityProvider {
               []) as List)
           .cast<String>(),
     );
+    layoutManagerHeight = data[kStorageDesktopLayoutManagerHeight] as double?;
 
     super.restore(notifyListeners: notifyListeners);
   }

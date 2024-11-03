@@ -86,7 +86,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    ..._servers.entries.map((entry) {
+                    ..._servers.entries.toList(growable: false).map((entry) {
                       final server = entry.key;
                       final devices = entry.value;
                       return ServerEntry(

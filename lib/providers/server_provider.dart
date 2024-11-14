@@ -55,8 +55,7 @@ class ServersProvider extends UnityProvider {
   /// Called by [ensureInitialized].
   @override
   Future<void> initialize() async {
-    await tryReadStorage(
-        () => super.initializeStorage(serversStorage, kStorageServers));
+    await initializeStorage(kStorageServers);
     refreshDevices(startup: true);
   }
 
@@ -72,12 +71,20 @@ class ServersProvider extends UnityProvider {
     if (isMobilePlatform) {
       // Register notification token.
       try {
-        final data = await tryReadStorage(() => serversStorage.read());
-        final notificationToken = data[kStorageNotificationToken];
+        final notificationToken = await secureStorage.read(
+          key: kStorageNotificationToken,
+        );
         assert(
-            notificationToken != null, '[kStorageNotificationToken] is null.');
-        await API.instance
-            .registerNotificationToken(server, notificationToken!);
+          notificationToken != null,
+          '[kStorageNotificationToken] is null.',
+        );
+        if (notificationToken != null) {
+          // release safety
+          await API.instance.registerNotificationToken(
+            server,
+            notificationToken,
+          );
+        }
       } catch (exception, stacktrace) {
         debugPrint(exception.toString());
         debugPrint(stacktrace.toString());
@@ -155,6 +162,8 @@ class ServersProvider extends UnityProvider {
     await Future.wait(servers.map((target) async {
       if (ids != null && !ids.contains(target.id)) return;
       if (startup && !target.additionalSettings.connectAutomaticallyAtStartup) {
+        target.devices.clear();
+        target.online = false;
         return;
       }
 
@@ -187,10 +196,25 @@ class ServersProvider extends UnityProvider {
     return servers;
   }
 
+  Future<void> disconnectServer(Server server) async {
+    final index = servers.indexWhere((s) => s.id == server.id);
+    if (index == -1) return;
+
+    final s = servers[index].copyWith(
+      devices: [],
+      online: false,
+    );
+    servers[index] = s;
+
+    await save();
+  }
+
   @override
   Future<void> save({bool notifyListeners = true}) async {
     await write({
-      kStorageServers: servers.map((server) => server.toJson()).toList(),
+      kStorageServers: jsonEncode(
+        servers.map((server) => server.toJson()).toList(),
+      ),
     });
     super.save(notifyListeners: notifyListeners);
   }
@@ -198,21 +222,13 @@ class ServersProvider extends UnityProvider {
   /// Restore currently added [Server]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => serversStorage.read());
-
-    final serversData = data[kStorageServers] == null
+    final data = await secureStorage.read(key: kStorageServers);
+    final serversData = data == null
         ? <Map<String, dynamic>>[]
         : List<Map<String, dynamic>>.from(
-            data[kStorageServers] is String
-                ? (await compute(jsonDecode, data[kStorageServers] as String)
-                    as List)
-                : data[kStorageServers] as List,
+            await compute(jsonDecode, data) as List,
           );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
   }
-
-  @override
-  // ignore: must_call_super
-  void dispose() {}
 }

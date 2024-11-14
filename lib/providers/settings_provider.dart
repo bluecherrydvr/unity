@@ -192,10 +192,10 @@ class _SettingsOption<T> {
 
   String get defAsString => saveAs(def);
 
-  Future<void> loadData(Map data) async {
-    await dependOn?.loadData(data);
+  Future<void> loadData() async {
+    await dependOn?.loadData();
     try {
-      String? serializedData = data[key];
+      var serializedData = await secureStorage.read(key: key);
       if (getDefault != null) serializedData ??= saveAs(await defaultValue);
       serializedData ??= defAsString;
       _value = loadFrom(serializedData);
@@ -722,7 +722,7 @@ class SettingsProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     try {
-      await initializeStorage(settings, 'settings');
+      await initializeStorage('settings');
     } catch (error, stackTrace) {
       handleError(
         error,
@@ -730,11 +730,11 @@ class SettingsProvider extends UnityProvider {
         'Error initializing settings storage. Fallback to memory',
       );
     }
-    final data = await tryReadStorage(() => settings.read());
 
-    _hasMigratedTimezone = data['hasMigratedTimezone'] == 'true';
+    _hasMigratedTimezone =
+        await secureStorage.readBool(key: 'hasMigratedTimezone') ?? false;
 
-    await Future.wait(_allSettings.map((setting) => setting.loadData(data)));
+    await Future.wait(_allSettings.map((setting) => setting.loadData()));
 
     notifyListeners();
   }
@@ -775,7 +775,10 @@ class SettingsProvider extends UnityProvider {
     final canRestoreDefaults = await UnityAuth.ask();
 
     if (canRestoreDefaults) {
-      await settings.delete();
+      for (final setting in _allSettings) {
+        setting._value = await setting.defaultValue;
+        await save();
+      }
       await initialize();
     }
   }

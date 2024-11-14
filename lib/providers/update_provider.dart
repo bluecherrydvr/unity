@@ -154,8 +154,7 @@ class UpdateManager extends UnityProvider {
     if (kIsWeb) {
       return _setPackageInfo();
     }
-    await tryReadStorage(
-        () => super.initializeStorage(updates, kStorageAutomaticUpdates));
+    super.initializeStorage(kStorageAutomaticUpdates);
 
     tempDir = (await getTemporaryDirectory()).path;
 
@@ -180,12 +179,11 @@ class UpdateManager extends UnityProvider {
 
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await updates.read() as Map;
-
-    _automaticDownloads = data[kStorageAutomaticUpdates];
-    _lastCheck = data[kStorageLastCheck] == null
-        ? null
-        : DateTime.tryParse(data[kStorageLastCheck]!);
+    _automaticDownloads =
+        await secureStorage.readBool(key: kStorageAutomaticUpdates) ?? false;
+    final lastCheckData = await secureStorage.read(key: kStorageLastCheck);
+    _lastCheck =
+        lastCheckData == null ? null : DateTime.tryParse(lastCheckData);
 
     super.restore(notifyListeners: notifyListeners);
   }

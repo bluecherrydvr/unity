@@ -204,11 +204,11 @@ class API {
         // If the device is repeated, do noting.
         if (server.devices.contains(device)) {
           continue;
-        } else
+        }
         // If there is already a device with the same id, merge the two devices.
         // Merging is made to ensure that some properties, such as volume and
         // matrix type, for example, are restored properly for each device.
-        if (server.devices.any((d) => d.id == device.id)) {
+        else if (server.devices.any((d) => d.id == device.id)) {
           final index = server.devices.indexWhere((d) => d.id == device.id);
           server.devices[index] = server.devices[index].merge(device);
         }

@@ -36,6 +36,7 @@ import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -197,8 +198,23 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     ),
                     settings.kShowServerNameOn.value.build(
                       TextSpan(
-                        text: '\n'
-                            '${widget.device.externalData?.rackName ?? widget.device.server.name}',
+                        text: () {
+                          String? nameToDisplay;
+                          try {
+                            nameToDisplay ??=
+                                widget.device.externalData?.rackName;
+                            if (widget.device.server.isDump) {
+                              nameToDisplay ??= path.basename(
+                                widget.device.url ?? widget.device.streamURL,
+                              );
+                            } else {
+                              nameToDisplay ??= widget.device.server.name;
+                            }
+                            return '\n$nameToDisplay';
+                          } catch (error) {
+                            return '\n${loc.unknown}';
+                          }
+                        }(),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           shadows: outlinedText(),

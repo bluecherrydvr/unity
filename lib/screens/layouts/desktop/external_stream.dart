@@ -18,14 +18,15 @@
  */
 
 import 'dart:async';
+
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -48,11 +49,13 @@ extension MatrixTypeExtension on MatrixType {
 class AddExternalStreamDialog extends StatefulWidget {
   final String? defaultUrl;
   final Iterable<VideoOverlay> overlays;
+  final Layout? targetLayout;
 
   const AddExternalStreamDialog({
     super.key,
     this.defaultUrl,
     this.overlays = const [],
+    this.targetLayout,
   });
 
   /// Shows the dialog.
@@ -68,12 +71,14 @@ class AddExternalStreamDialog extends StatefulWidget {
     String? defaultUrl,
     List<VideoOverlay> overlays = const [],
     bool fullscreen = false,
+    Layout? targetLayout,
   }) async {
     final device = await showDialog<Device>(
       context: context,
       builder: (context) => AddExternalStreamDialog(
         defaultUrl: defaultUrl,
         overlays: overlays,
+        targetLayout: targetLayout,
       ),
     );
 
@@ -92,6 +97,7 @@ class AddExternalStreamDialog extends StatefulWidget {
     List<VideoOverlay> overlays = const [],
     bool fullscreen = false,
     ExternalDeviceData? externalData,
+    Layout? targetLayout,
   }) {
     final loc = AppLocalizations.of(context);
     AppLocalizations.localizationsDelegates;
@@ -102,11 +108,12 @@ class AddExternalStreamDialog extends StatefulWidget {
       matrixType: matrixType,
       overlays: overlays,
       externalData: externalData,
-    )..server = Server.dump(name: url);
+    );
 
     final view = context.read<DesktopViewProvider>();
-    final layout = view.layouts
-        .firstWhereOrNull((layout) => layout.name == loc.externalStream);
+    final layout = targetLayout ??
+        view.layouts
+            .firstWhereOrNull((layout) => layout.name == loc.externalStream);
     if (layout == null) {
       view.addLayout(Layout(name: loc.externalStream, devices: [device]));
     } else {
@@ -115,7 +122,10 @@ class AddExternalStreamDialog extends StatefulWidget {
 
     view.updateCurrentLayout(
       view.layouts.indexOf(
-        view.layouts.firstWhere((layout) => layout.name == loc.externalStream),
+        targetLayout ??
+            view.layouts.firstWhere(
+              (layout) => layout.name == loc.externalStream,
+            ),
       ),
     );
 
@@ -198,13 +208,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                         onFieldSubmitted:
                             showMoreOptions ? null : (_) => _finish(),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return loc.streamNameRequired;
-                          } else if (Uri.tryParse(value) == null) {
-                            return loc.streamURLNotValid;
-                          }
-
-                          return null;
+                          return Validators.streamUrlValidator(context, value);
                         },
                       ),
                     ),
@@ -340,6 +344,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
       matrixType: matrixType,
       overlays: overlays,
       externalData: externalData,
+      targetLayout: widget.targetLayout,
     );
 
     Navigator.of(context).pop<Device>(device);

@@ -35,18 +35,18 @@ class DesktopSidebar extends StatefulWidget {
 class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
-  var _servers = <Server, Iterable<Device>>{};
+  final _servers = <Server, Iterable<Device>>{};
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _updateServers();
+    _updateServers(true);
   }
 
-  void _updateServers() {
-    final servers = context.read<ServersProvider>();
+  void _updateServers([bool listen = false]) {
+    final servers = Provider.of<ServersProvider>(context, listen: listen);
 
-    _servers = {};
+    _servers.clear();
     for (final server in servers.servers) {
       final devices = server.devices.sorted(
         searchQuery: searchQuery,
@@ -58,11 +58,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
-
     final servers = context.watch<ServersProvider>();
-    final view = context.watch<DesktopViewProvider>();
-    final settings = context.watch<SettingsProvider>();
 
     return SafeArea(
       top: false,
@@ -90,153 +86,20 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    ..._servers.entries.map((entry) {
+                    ..._servers.entries.toList(growable: false).map((entry) {
                       final server = entry.key;
                       final devices = entry.value;
-                      final isLoading = servers.isServerLoading(server);
-                      if (!isLoading &&
-                          devices.isEmpty &&
-                          searchQuery.isNotEmpty) {
-                        return const SliverToBoxAdapter(
-                          child: SizedBox.shrink(),
-                        );
-                      }
-
-                      /// Whether all the online devices are in the current view.
-                      final isAllInView = devices
-                          .where((d) => d.status)
-                          .every((d) => view.currentLayout.devices.contains(d));
-
-                      return MultiSliver(pushPinnedChildren: true, children: [
-                        SliverPinnedHeader(
-                          child: SubHeader(
-                            server.name,
-                            materialType: MaterialType.canvas,
-                            subtext: () {
-                              if (!settings.checkServerCertificates(server)) {
-                                return loc.certificateNotPassed;
-                              } else if (server.online) {
-                                return loc.nDevices(devices.length);
-                              } else {
-                                return loc.offline;
-                              }
-                            }(),
-                            subtextStyle: TextStyle(
-                              color: !server.online
-                                  ? theme.colorScheme.error
-                                  : null,
-                            ),
-                            trailing: Builder(builder: (context) {
-                              if (isLoading) {
-                                // wrap in an icon button to ensure ui consistency
-                                return const SquaredIconButton(
-                                  onPressed: null,
-                                  icon: SizedBox(
-                                    height: 16.0,
-                                    width: 16.0,
-                                    child: CircularProgressIndicator.adaptive(
-                                      strokeWidth: 1.5,
-                                    ),
-                                  ),
-                                );
-                              } else if (!server.online && isSidebarHovering) {
-                                return SquaredIconButton(
-                                  icon: const Icon(Icons.refresh),
-                                  tooltip: loc.refreshServer,
-                                  onPressed: () =>
-                                      servers.refreshDevices(ids: [server.id]),
-                                );
-                              } else if (isSidebarHovering &&
-                                  devices.isNotEmpty) {
-                                return SquaredIconButton(
-                                  icon: Icon(
-                                    isAllInView
-                                        ? Icons.playlist_remove
-                                        : Icons.playlist_add,
-                                  ),
-                                  tooltip: isAllInView
-                                      ? loc.removeAllFromView
-                                      : loc.addAllToView,
-                                  onPressed: () {
-                                    if (isAllInView) {
-                                      view.removeDevicesFromCurrentLayout(
-                                        devices,
-                                      );
-                                    } else {
-                                      for (final device in devices) {
-                                        if (device.status &&
-                                            !view.currentLayout.devices
-                                                .contains(device)) {
-                                          view.add(device);
-                                        }
-                                      }
-                                    }
-                                  },
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            }),
-                          ),
-                        ),
-                        if (server.online && !isLoading)
-                          SliverList.builder(
-                            itemCount: devices.length,
-                            itemBuilder: (context, index) {
-                              final device = devices.elementAt(index);
-                              final selected =
-                                  view.currentLayout.devices.contains(device);
-
-                              final tile = DeviceSelectorTile(
-                                device: device,
-                                selected: selected,
-                              );
-
-                              if (!device.status &&
-                                  !settings.kListOfflineDevices.value) {
-                                return const SizedBox.shrink();
-                              }
-                              if (selected || !device.status) return tile;
-
-                              final isBlocked = view.currentLayout.type ==
-                                      DesktopLayoutType.singleView &&
-                                  view.currentLayout.devices.isNotEmpty;
-
-                              return Draggable<Device>(
-                                data: device,
-                                feedback: Card(
-                                  child: SizedBox(
-                                    height: kDeviceSelectorTileHeight,
-                                    width: kSidebarConstraints.maxWidth,
-                                    child: Row(children: [
-                                      Expanded(child: tile),
-                                      if (isBlocked)
-                                        Icon(
-                                          Icons.block,
-                                          color: theme.colorScheme.error,
-                                          size: 18.0,
-                                        ),
-                                      const SizedBox(width: 16.0),
-                                    ]),
-                                  ),
-                                ),
-                                child: tile,
-                              );
-                            },
-                          ),
-                      ]);
+                      return ServerEntry(
+                        server: server,
+                        devices: devices,
+                        searchQuery: searchQuery,
+                        isSidebarHovering: isSidebarHovering,
+                      );
                     }),
                   ]),
                 ),
               ),
             ),
-          const Divider(),
-          ListTile(
-            dense: true,
-            trailing: const Icon(Icons.camera_outdoor, size: 20.0),
-            title: Text(loc.addExternalStream),
-            onTap: () => AddExternalStreamDialog.show(context),
-          ),
         ]),
       ),
     );
@@ -253,10 +116,7 @@ class NoServers extends StatelessWidget {
     return Padding(
       padding: const EdgeInsetsDirectional.all(8.0),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(
-          Icons.dns,
-          size: 48.0,
-        ),
+        const Icon(Icons.dns, size: 48.0),
         const SizedBox(height: 6.0),
         Text(loc.noServersAdded, textAlign: TextAlign.center),
         Text.rich(
@@ -272,6 +132,181 @@ class NoServers extends StatelessWidget {
         ),
       ]),
     );
+  }
+}
+
+class ServerEntry extends StatelessWidget {
+  final Server server;
+  final Iterable<Device> devices;
+  final String searchQuery;
+  final bool isSidebarHovering;
+
+  const ServerEntry({
+    super.key,
+    required this.server,
+    required this.devices,
+    required this.searchQuery,
+    required this.isSidebarHovering,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final servers = context.watch<ServersProvider>();
+    final view = context.watch<DesktopViewProvider>();
+    final settings = context.watch<SettingsProvider>();
+    final loc = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    final isLoading = servers.isServerLoading(server);
+    if (!isLoading && devices.isEmpty && searchQuery.isNotEmpty) {
+      return const SliverToBoxAdapter(
+        child: SizedBox.shrink(),
+      );
+    }
+
+    /// Whether all the online devices are in the current view.
+    final isAllInView = devices
+        .where((d) => d.status)
+        .every((d) => view.currentLayout.devices.contains(d));
+
+    final isCollapsed = view.isServerCollapsed(server);
+
+    return MultiSliver(pushPinnedChildren: true, children: [
+      SliverPinnedHeader(
+        child: SubHeader(
+          server.name,
+          padding: const EdgeInsetsDirectional.only(
+            start: 8.0,
+            end: 8.0,
+          ),
+          leading: SquaredIconButton(
+            icon: TweenAnimationBuilder(
+              tween: Tween(begin: 0.0, end: isCollapsed ? 0.0 : 0.5),
+              duration: const Duration(milliseconds: 200),
+              builder: (context, value, child) {
+                return Transform.rotate(
+                  angle: value * pi,
+                  child: child,
+                );
+              },
+              child: Icon(
+                server.online ? Icons.chevron_right : Icons.close,
+                color: server.online ? null : theme.colorScheme.error,
+              ),
+            ),
+            onPressed: server.online
+                ? () {
+                    if (isCollapsed) {
+                      view.expandServer(server);
+                    } else {
+                      view.collapseServer(server);
+                    }
+                  }
+                : null,
+          ),
+          materialType: MaterialType.canvas,
+          subtext: () {
+            if (!settings.checkServerCertificates(server)) {
+              return loc.certificateNotPassed;
+            } else if (server.online) {
+              return loc.nDevices(devices.length);
+            } else {
+              return loc.offline;
+            }
+          }(),
+          subtextStyle: TextStyle(
+            color: !server.online ? theme.colorScheme.error : null,
+          ),
+          trailing: Builder(builder: (context) {
+            if (isLoading) {
+              // wrap in an icon button to ensure ui consistency
+              return const SquaredIconButton(
+                onPressed: null,
+                icon: SizedBox(
+                  height: 16.0,
+                  width: 16.0,
+                  child: CircularProgressIndicator.adaptive(
+                    strokeWidth: 1.5,
+                  ),
+                ),
+              );
+            } else if (!server.online && isSidebarHovering) {
+              return SquaredIconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: loc.refreshServer,
+                onPressed: () => servers.refreshDevices(ids: [server.id]),
+              );
+            } else if (isSidebarHovering && devices.isNotEmpty) {
+              return SquaredIconButton(
+                icon: Icon(
+                  isAllInView ? Icons.playlist_remove : Icons.playlist_add,
+                ),
+                tooltip: isAllInView ? loc.removeAllFromView : loc.addAllToView,
+                onPressed: () {
+                  if (isAllInView) {
+                    view.removeDevicesFromCurrentLayout(
+                      devices,
+                    );
+                  } else {
+                    for (final device in devices) {
+                      if (device.status &&
+                          !view.currentLayout.devices.contains(device)) {
+                        view.add(device);
+                      }
+                    }
+                  }
+                },
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          }),
+        ),
+      ),
+      if (server.online && !isLoading && !isCollapsed)
+        SliverList.builder(
+          itemCount: devices.length,
+          itemBuilder: (context, index) {
+            final device = devices.elementAt(index);
+            final selected = view.currentLayout.devices.contains(device);
+
+            final tile = DeviceSelectorTile(
+              device: device,
+              selected: selected,
+            );
+
+            if (!device.status && !settings.kListOfflineDevices.value) {
+              return const SizedBox.shrink();
+            }
+            if (selected || !device.status) return tile;
+
+            final isBlocked =
+                view.currentLayout.type == DesktopLayoutType.singleView &&
+                    view.currentLayout.devices.isNotEmpty;
+
+            return Draggable<Device>(
+              data: device,
+              feedback: Card(
+                child: SizedBox(
+                  height: kDeviceSelectorTileHeight,
+                  width: kSidebarConstraints.maxWidth,
+                  child: Row(children: [
+                    Expanded(child: tile),
+                    if (isBlocked)
+                      Icon(
+                        Icons.block,
+                        color: theme.colorScheme.error,
+                        size: 18.0,
+                      ),
+                    const SizedBox(width: 16.0),
+                  ]),
+                ),
+              ),
+              child: tile,
+            );
+          },
+        ),
+    ]);
   }
 }
 
@@ -347,7 +382,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
             child: Row(children: [
               Container(
                 margin: const EdgeInsetsDirectional.only(
-                  start: 16.0,
+                  start: 16.0 + 20.0,
                   end: 8.0,
                 ),
                 width: 12.0,
@@ -545,11 +580,6 @@ class CollapsedSidebar extends StatelessWidget {
             onPressed: settings.toggleCycling,
           ),
           const Spacer(),
-          SquaredIconButton(
-            icon: const Icon(Icons.camera_outdoor, size: 20.0),
-            tooltip: loc.addExternalStream,
-            onPressed: () => AddExternalStreamDialog.show(context),
-          ),
           Container(
             padding: const EdgeInsetsDirectional.all(8.0),
             margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),

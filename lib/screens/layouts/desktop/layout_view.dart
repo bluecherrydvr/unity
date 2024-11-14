@@ -443,6 +443,19 @@ class _LayoutViewState extends State<LayoutView> {
                             ),
                           ];
                         }(),
+                      SquaredIconButton(
+                        icon: const Icon(
+                          Icons.satellite_alt,
+                          color: Colors.white,
+                        ),
+                        tooltip: loc.addExternalStream,
+                        onPressed: () {
+                          AddExternalStreamDialog.show(
+                            context,
+                            targetLayout: widget.layout,
+                          );
+                        },
+                      ),
                       if (canOpenNewWindow)
                         SquaredIconButton(
                           icon: const Icon(

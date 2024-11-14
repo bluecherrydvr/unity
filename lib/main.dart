@@ -110,13 +110,11 @@ Future<void> main(List<String> args) async {
         // wait time at the splash screen
         // settings provider needs to be initalized alone
         await ServersProvider.ensureInitialized();
-        await Future.wait([
-          DownloadsManager.ensureInitialized(),
-          MobileViewProvider.ensureInitialized(),
-          DesktopViewProvider.ensureInitialized(),
-          UpdateManager.ensureInitialized(),
-          EventsProvider.ensureInitialized(),
-        ]);
+        await DownloadsManager.ensureInitialized();
+        await MobileViewProvider.ensureInitialized();
+        await DesktopViewProvider.ensureInitialized();
+        await UpdateManager.ensureInitialized();
+        await EventsProvider.ensureInitialized();
       },
       onLayoutScreen: (layout, theme) {
         configureWindowTitle(layout.name);

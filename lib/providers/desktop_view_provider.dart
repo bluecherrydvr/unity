@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
@@ -63,11 +64,23 @@ class DesktopViewProvider extends UnityProvider {
   /// Gets the current selected layout
   Layout get currentLayout => layouts[currentLayoutIndex];
 
+  final collapsedServers = <String>[];
+
+  /// The height of the layout manager.
+  ///
+  /// The layout can be resized by the user, so this value is used to keep the
+  /// layout manager height when the app is restarted.
+  double? _layoutManagerHeight;
+  double? get layoutManagerHeight => _layoutManagerHeight;
+  set layoutManagerHeight(double? value) {
+    _layoutManagerHeight = value;
+    notifyListeners();
+    save(notifyListeners: false);
+  }
+
   @override
   Future<void> initialize() async {
-    await tryReadStorage(
-      () => initializeStorage(desktopView, kStorageDesktopLayouts),
-    );
+    await initializeStorage(kStorageDesktopLayouts);
     Future.microtask(() async {
       await Future.wait(
         currentLayout.devices.map<Future>((device) {
@@ -98,6 +111,8 @@ class DesktopViewProvider extends UnityProvider {
       kStorageDesktopLayouts:
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
       kStorageDesktopCurrentLayout: _currentLayout,
+      kStorageDesktopCollapsedServers: jsonEncode(collapsedServers),
+      kStorageDesktopLayoutManagerHeight: layoutManagerHeight,
     });
 
     super.save(notifyListeners: notifyListeners);
@@ -106,17 +121,31 @@ class DesktopViewProvider extends UnityProvider {
   /// Restores current layout/order of [Device]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
-    final data = await tryReadStorage(() => desktopView.read());
-
-    layouts = ((await compute(
-              jsonDecode,
-              data[kStorageDesktopLayouts] as String,
-            ) ??
-            []) as List)
-        .map<Layout>((item) {
-      return Layout.fromMap((item as Map).cast<String, dynamic>());
-    }).toList();
-    _currentLayout = data[kStorageDesktopCurrentLayout] ?? 0;
+    {
+      final data = await secureStorage.read(key: kStorageDesktopLayouts);
+      if (data != null) {
+        layouts = ((await compute(jsonDecode, data) ?? []) as List)
+            .map<Layout>((item) {
+          return Layout.fromMap((item as Map).cast<String, dynamic>());
+        }).toList();
+      }
+    }
+    _currentLayout = await secureStorage.readInt(
+          key: kStorageDesktopCurrentLayout,
+        ) ??
+        0;
+    {
+      final data =
+          await secureStorage.read(key: kStorageDesktopCollapsedServers);
+      if (data != null) {
+        collapsedServers.addAll(
+          ((await compute(jsonDecode, data) ?? []) as List).cast<String>(),
+        );
+      }
+    }
+    layoutManagerHeight = await secureStorage.readDouble(
+      key: kStorageDesktopLayoutManagerHeight,
+    );
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -355,4 +384,22 @@ class DesktopViewProvider extends UnityProvider {
 
     return device;
   }
+
+  Future<void> collapseServer(Server server) async {
+    if (!collapsedServers.contains(server.id)) {
+      collapsedServers.add(server.id);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  Future<void> expandServer(Server server) async {
+    if (collapsedServers.contains(server.id)) {
+      collapsedServers.remove(server.id);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  bool isServerCollapsed(Server server) => collapsedServers.contains(server.id);
 }

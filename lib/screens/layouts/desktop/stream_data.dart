@@ -26,6 +26,7 @@ import 'package:bluecherry_client/screens/layouts/desktop/external_stream.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/security.dart';
+import 'package:bluecherry_client/utils/validators.dart';
 import 'package:bluecherry_client/widgets/ptz.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/gestures.dart';
@@ -92,6 +93,7 @@ class _StreamDataState extends State<StreamData> {
   late var streamingType = widget.device.preferredStreamingType;
 
   late final StreamSubscription<double> volumeSubscription;
+  final _urlController = TextEditingController();
 
   var showUrl = false;
 
@@ -101,11 +103,16 @@ class _StreamDataState extends State<StreamData> {
     volumeSubscription = widget.video.player.volumeStream.listen((volume) {
       if (mounted) setState(() {});
     });
+
+    if (widget.device.url != null) {
+      _urlController.text = widget.device.url!;
+    }
   }
 
   @override
   void dispose() {
     volumeSubscription.cancel();
+    _urlController.dispose();
     super.dispose();
   }
 
@@ -138,58 +145,67 @@ class _StreamDataState extends State<StreamData> {
                 style: theme.textTheme.headlineSmall,
               ),
             ],
-            const TextSpan(text: '\n'),
-            TextSpan(
-              text: showUrl
-                  ? widget.device.streamURL
-                  : List.generate(
-                      widget.device.streamURL.length ~/ 2,
-                      (i) => '*',
-                    ).join(),
-              style: theme.textTheme.headlineSmall,
-              children: [
-                WidgetSpan(
-                  child: SquaredIconButton(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: 4.0,
-                    ),
-                    tooltip: showUrl ? loc.hide : loc.show,
-                    icon: Icon(
-                      showUrl ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () async {
-                      final canShow = showUrl || await UnityAuth.ask();
-                      if (!context.mounted) return;
+            if (widget.device.url == null) ...[
+              const TextSpan(text: '\n'),
+              TextSpan(
+                text: showUrl
+                    ? widget.device.streamURL
+                    : List.generate(
+                        widget.device.streamURL.length ~/ 2,
+                        (i) => '*',
+                      ).join(),
+                style: theme.textTheme.headlineSmall,
+                children: [
+                  WidgetSpan(
+                    child: SquaredIconButton(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 4.0,
+                      ),
+                      tooltip: showUrl ? loc.hide : loc.show,
+                      icon: Icon(
+                        showUrl ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () async {
+                        final canShow = showUrl || await UnityAuth.ask();
+                        if (!context.mounted) return;
 
-                      if (canShow) {
-                        setState(() => showUrl = !showUrl);
-                      } else {
-                        UnityAuth.showAccessDeniedMessage(context);
-                      }
-                    },
+                        if (canShow) {
+                          setState(() => showUrl = !showUrl);
+                        } else {
+                          UnityAuth.showAccessDeniedMessage(context);
+                        }
+                      },
+                    ),
                   ),
-                ),
-                WidgetSpan(
-                  child: CopyDeviceUrlButton(device: widget.device),
-                ),
-              ],
-            ),
+                  WidgetSpan(
+                    child: CopyDeviceUrlButton(device: widget.device),
+                  ),
+                ],
+              ),
+            ],
           ],
           style: theme.textTheme.headlineMedium,
         ),
       ),
-      // title: Text(
-      //   widget.device.name +
-      //       ('\n${widget.device.externalData?.serverIp ?? ''}'),
-      // ),
       content: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(
           width: 400.0,
-          child: LayoutBuilder(
-            builder: (context, constraints) => Column(
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (widget.device.url != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(bottom: 8.0),
+                    child: TextFormField(
+                      controller: _urlController,
+                      decoration: InputDecoration(label: Text(loc.streamURL)),
+                      validator: (value) {
+                        return Validators.streamUrlValidator(context, value);
+                      },
+                    ),
+                  ),
                 Text(
                   loc.streamingSettings,
                   style: theme.textTheme.headlineMedium,
@@ -334,8 +350,8 @@ class _StreamDataState extends State<StreamData> {
                   ),
                 ],
               ],
-            ),
-          ),
+            );
+          }),
         ),
         if (widget.device.overlays.isNotEmpty) ...[
           const Padding(
@@ -393,8 +409,12 @@ class _StreamDataState extends State<StreamData> {
               widget.onFitChanged(fit);
               widget.onPTZEnabledChanged(ptzEnabled);
 
+              /// This means this is an external stream
+              final shouldUpdateUrl =
+                  _urlController.text.isNotEmpty && widget.device.url != null;
               Navigator.of(context).pop(
                 widget.device.copyWith(
+                  url: shouldUpdateUrl ? _urlController.text : null,
                   overlays: overlays,
                   matrixType: matrixType,
                   preferredStreamingType: streamingType,

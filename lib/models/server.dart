@@ -163,7 +163,7 @@ class Server {
   final String? cookie;
 
   /// Whether this server is online or not.
-  bool online = true;
+  bool online = false;
 
   /// Whether the server has their certificates. This enables us to make use of
   /// https:// calls.
@@ -177,6 +177,8 @@ class Server {
   final AdditionalServerOptions additionalSettings;
 
   ServerAdditionResponse additionResponse = ServerAdditionResponse.unknown;
+
+  final bool _dump;
 
   /// Creates a new [Server].
   Server({
@@ -193,7 +195,7 @@ class Server {
     this.passedCertificates = true,
     this.additionalSettings = const AdditionalServerOptions(),
     this.additionResponse = ServerAdditionResponse.unknown,
-  });
+  }) : _dump = false;
 
   /// Creates a server with fake values.
   ///
@@ -213,7 +215,11 @@ class Server {
     this.online = true,
     this.passedCertificates = true,
     this.additionalSettings = const AdditionalServerOptions(),
-  });
+  }) : _dump = true;
+
+  bool get isDump {
+    return _dump;
+  }
 
   String get id {
     return '$name;$ip;$port';
@@ -305,31 +311,34 @@ class Server {
         'rtspPort': rtspPort,
         'login': login,
         'password': password,
-        'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
+        // 'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
         'serverUUID': serverUUID,
         'cookie': cookie,
         'additionalSettings': additionalSettings.toMap(),
       };
 
-  factory Server.fromJson(Map<String, dynamic> json) => Server(
-        name: json['name'],
-        ip: json['ip'],
-        port: json['port'],
-        login: json['login'],
-        password: json['password'],
-        devices: () {
-          if (json['devices'] == null) return <Device>[];
-          if ((json['devices'] as List).isEmpty) return <Device>[];
-          return List<Map<String, dynamic>?>.from(json['devices'] as List)
-              .where((element) => element != null)
-              .map<Device>((device) => Device.fromJson(device!))
-              .toList();
-        }(),
-        rtspPort: json['rtspPort'],
-        serverUUID: json['serverUUID'],
-        cookie: json['cookie'],
-        additionalSettings: json['additionalSettings'] != null
-            ? AdditionalServerOptions.fromMap(json['additionalSettings'])
-            : const AdditionalServerOptions(),
-      );
+  factory Server.fromJson(Map<String, dynamic> json) {
+    return Server(
+      name: json['name'],
+      ip: json['ip'],
+      port: json['port'],
+      login: json['login'],
+      password: json['password'],
+      // devices: () {
+      //   if (json['devices'] == null) return <Device>[];
+      //   if ((json['devices'] as List).isEmpty) return <Device>[];
+      //   return List<Map<String, dynamic>?>.from(json['devices'] as List)
+      //       .where((element) => element != null)
+      //       .map<Device>((device) => Device.fromJson(device!))
+      //       .toList();
+      // }(),
+      devices: <Device>[],
+      rtspPort: json['rtspPort'],
+      serverUUID: json['serverUUID'],
+      cookie: json['cookie'],
+      additionalSettings: json['additionalSettings'] != null
+          ? AdditionalServerOptions.fromMap(json['additionalSettings'])
+          : const AdditionalServerOptions(),
+    );
+  }
 }

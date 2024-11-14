@@ -21,28 +21,35 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/security.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-Future<void> showEditServer(BuildContext context, Server server) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      final loc = AppLocalizations.of(context);
-      return AlertDialog(
-        title: Text(loc.editServer(server.name)),
-        content: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: MediaQuery.sizeOf(context).width * 0.75,
+Future<void> showEditServer(BuildContext context, Server server) async {
+  final authorized = await UnityAuth.ask();
+  if (!context.mounted) return;
+  if (authorized) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        final loc = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(loc.editServer(server.name)),
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.sizeOf(context).width * 0.75,
+            ),
+            child: EditServer(
+              serverIp: server.ip,
+              serverPort: server.port,
+            ),
           ),
-          child: EditServer(
-            serverIp: server.ip,
-            serverPort: server.port,
-          ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
+  } else {
+    UnityAuth.showAccessDeniedMessage(context);
+  }
 }
 
 Future<void> updateServer(BuildContext context, Server serverCopy) async {

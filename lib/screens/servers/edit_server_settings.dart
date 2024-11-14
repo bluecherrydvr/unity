@@ -30,9 +30,7 @@ class EditServerSettings extends StatelessWidget {
           await updateServer(context, serverCopy);
         },
         onBack: () {},
-        onNext: () {
-          throw UnimplementedError('This should never be reached');
-        },
+        onNext: () {},
       ),
     );
   }

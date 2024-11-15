@@ -4,6 +4,7 @@ Section: base
 Priority: optional
 Homepage: https://www.bluecherrydvr.com/
 Architecture: amd64
-Depends: mpv, libmpv-dev
 Maintainer: Bluecherry DVR  <support@bluecherrydvr.com>
+Build-Depends: libsecret-1-dev, libjsoncpp-dev
+Depends: libsecret-1-0
 Description: Bluecherry client written in Flutter.

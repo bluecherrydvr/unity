@@ -32,21 +32,19 @@ bool _isStorageConfigured = false;
 Future<void> configureStorage() async {
   if (kIsWeb || _isStorageConfigured) return;
 
-  final dir = (await getApplicationSupportDirectory()).path;
-
-  debugPrint('App working directory: $dir');
-
-  storage = SafeLocalStorage(path.join(dir, 'bluecherry.json'));
-  settings = SafeLocalStorage(path.join(dir, 'settings.json'));
-  downloads = SafeLocalStorage(path.join(dir, 'downloads.json'));
-  eventsPlayback = SafeLocalStorage(path.join(dir, 'eventsPlayback.json'));
-  serversStorage = SafeLocalStorage(path.join(dir, 'servers.json'));
-  mobileView = SafeLocalStorage(path.join(dir, 'mobileView.json'));
-  desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
-  updates = SafeLocalStorage(path.join(dir, 'updates.json'));
-  events = SafeLocalStorage(path.join(dir, 'events.json'));
-
   try {
+    final dir = (await getApplicationSupportDirectory()).path;
+    writeLogToFile('App working directory: $dir');
+    storage = SafeLocalStorage(path.join(dir, 'bluecherry.json'));
+    settings = SafeLocalStorage(path.join(dir, 'settings.json'));
+    downloads = SafeLocalStorage(path.join(dir, 'downloads.json'));
+    eventsPlayback = SafeLocalStorage(path.join(dir, 'eventsPlayback.json'));
+    serversStorage = SafeLocalStorage(path.join(dir, 'servers.json'));
+    mobileView = SafeLocalStorage(path.join(dir, 'mobileView.json'));
+    desktopView = SafeLocalStorage(path.join(dir, 'desktopView.json'));
+    updates = SafeLocalStorage(path.join(dir, 'updates.json'));
+    events = SafeLocalStorage(path.join(dir, 'events.json'));
+
     await migrate(storage, secureStorage);
     await migrate(settings, secureStorage);
     await migrate(downloads, secureStorage);

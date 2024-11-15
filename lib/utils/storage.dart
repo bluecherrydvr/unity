@@ -46,15 +46,17 @@ Future<void> configureStorage() async {
   updates = SafeLocalStorage(path.join(dir, 'updates.json'));
   events = SafeLocalStorage(path.join(dir, 'events.json'));
 
-  await migrate(storage, secureStorage);
-  await migrate(settings, secureStorage);
-  await migrate(downloads, secureStorage);
-  await migrate(eventsPlayback, secureStorage);
-  await migrate(serversStorage, secureStorage);
-  await migrate(mobileView, secureStorage);
-  await migrate(desktopView, secureStorage);
-  await migrate(updates, secureStorage);
-  await migrate(events, secureStorage);
+  try {
+    await migrate(storage, secureStorage);
+    await migrate(settings, secureStorage);
+    await migrate(downloads, secureStorage);
+    await migrate(eventsPlayback, secureStorage);
+    await migrate(serversStorage, secureStorage);
+    await migrate(mobileView, secureStorage);
+    await migrate(desktopView, secureStorage);
+    await migrate(updates, secureStorage);
+    await migrate(events, secureStorage);
+  } catch (_) {}
 
   _isStorageConfigured = true;
 }

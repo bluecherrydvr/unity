@@ -22,11 +22,13 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
+import 'package:unity_video_player_main/unity_video_player_main.dart';
 
 /// The position of the [VideoStatusLabel].
 enum VideoStatusLabelPosition {
@@ -289,7 +291,10 @@ class _DeviceVideoInfo extends StatelessWidget {
               'x'
               '${video.player.height ?? device.resolutionY}',
         ),
-        _buildTextSpan(context, title: loc.fps, data: '${video.fps}'),
+        if (!kIsWeb &&
+            UnityVideoPlayerInterface.instance
+                is UnityVideoPlayerMediaKitInterface)
+          _buildTextSpan(context, title: loc.fps, data: '${video.fps}'),
         _buildTextSpan(
           context,
           title: loc.lastImageUpdate,

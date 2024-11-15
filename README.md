@@ -56,11 +56,13 @@ Most platforms will not require any extra steps to install the app.
 
 #### Linux
 
-To install the `.deb` file, run:
+To install the `.deb` file, download it and run:
 
 ```bash
-sudo dpkg -i bluecherry-linux-x86_64.deb
+sudo apt install ./bluecherry-linux-x86_64.deb
 ```
+
+The `libsecret-1-0` and `libjsoncpp-dev` libraries are required. If asked, install them.
 
 ## Usage
 
@@ -194,6 +196,17 @@ On Linux, a Flutter executable with different environment variables is used to b
 
 ```bash
 flutter run -d linux --dart-define-from-file=linux/env/[DISTRO_ENV].json
+```
+
+#### Linux Snapcraft
+
+To build the Snapcraft, follow the instructions [here](https://docs.flutter.dev/deployment/linux)
+
+```bash
+sudo snap install snapcraft --classic
+sudo snap install lxd
+sudo lxd init
+snapcraft
 ```
 
 #### Web

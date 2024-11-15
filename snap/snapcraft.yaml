@@ -1,32 +1,33 @@
 name: bluecherry-client
-version: 3.0.0-beta19
+version: '3.0.0'
 summary: Bluecherry DVR Client
-description: Bluecherry DVR client 
+description: |
+  The client app for Bluecherry to view live-streams and events of your cameras.
 
+base: core22
 confinement: strict
-base: core18
 grade: stable
 
-slots:
-  dbus-bluecherry-app: # adjust accordingly to your app name
-    interface: dbus
-    bus: session
-    name: com.bluecherry # adjust accordingly to your app name and
-    
-
-# TODO: Setup https://pub.dev/packages/flutter_secure_storage#configure-linux-version
 apps:
-  bluecherry-app:
-    command: bluecherry_app
-    extensions: [flutter-master] # Where "master" defines which Flutter channel to use for the build
-    plugs:
-    - network
-    slots:
-      - dbus-bluecherry-app
+  bluecherry-client:
+    command: bluecherry_client
+    extensions: [gnome]
+
 parts:
-  bluecherry-app:
+  bluecherry-client:
     source: .
     plugin: flutter
+    flutter-target: lib/main.dart
+
     build-packages:
-      - libmpv-dev
-    flutter-target: lib/main.dart # The main entry-point file of the application
+      - curl # This appears to be needed when building in the Snap Store.
+      - libsecret-1-dev
+      - libjsoncpp-dev
+
+    stage-packages:
+      - libsecret-1-0
+      - libjsoncpp-dev
+
+architectures:
+  - build-on: [ amd64 ]
+  - build-on: [ arm64 ]

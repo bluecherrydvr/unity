@@ -322,13 +322,13 @@ jobs:
           appimage-builder --skip-tests
           cp Bluecherry-latest-x86_64.AppImage bluecherry-linux-x86_64.AppImage
 
-      - name: Install Snapcraft
-        continue-on-error: true
-        uses: samuelmeuli/action-snapcraft@v3
-      
-      - name: Build Snapcraft
-        run: |
-          snapcraft
+      #- name: Install Snapcraft
+      #  continue-on-error: true
+      #  uses: samuelmeuli/action-snapcraft@v3
+      #
+      #- name: Build Snapcraft
+      #  run: |
+      #    snapcraft
 
       - name: Release
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts

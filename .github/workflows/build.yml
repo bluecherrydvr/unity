@@ -138,6 +138,11 @@ jobs:
 
       - run: flutter gen-l10n
       - run: flutter pub get
+
+      - name: Update Pods
+        working-directory: ./ios/
+        run: pod repo update
+
       - run: flutter build macos --verbose
       - run: 7z a bluecherry-macos.7z build/macos/Build/Products/Release/unity.app
       - name: Release

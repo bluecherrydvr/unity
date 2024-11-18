@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Bluecherry DVR"
-#define MyAppVersion "3.0.0-beta19"
+#define MyAppVersion "3.0.0-beta20"
 #define MyAppPublisher "Bluecherry DVR"
 #define MyAppURL "https://www.bluecherrydvr.com/"
 #define MyAppExeName "bluecherry_client.exe"

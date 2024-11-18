@@ -2,7 +2,7 @@
 Name=Bluecherry
 Comment=Bluecherry DVR Client
 Exec=bluecherry
-Icon=${SNAP}/meta/gui/icon.png # replace name to your app name
+Icon=${SNAP}/meta/gui/icon.png
 Terminal=false
 Type=Application
-Categories=Education; #adjust accordingly your snap category
+Categories=Video;Security;

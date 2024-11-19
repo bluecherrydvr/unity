@@ -34,12 +34,22 @@ class ServersProvider extends UnityProvider {
   ServersProvider._();
   ServersProvider.dump();
 
-  static late ServersProvider instance;
+  static late ServersProvider _instance;
+  static ServersProvider get instance {
+    try {
+      return _instance;
+    } catch (exception) {
+      return ServersProvider.dump();
+    }
+  }
+
+  static set instance(ServersProvider value) => _instance = value;
+
   static Future<ServersProvider> ensureInitialized() async {
-    instance = ServersProvider._();
-    await instance.initialize();
+    _instance = ServersProvider._();
+    await _instance.initialize();
     debugPrint('ServersProvider initialized');
-    return instance;
+    return _instance;
   }
 
   /// Whether any server is added.

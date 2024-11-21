@@ -18,8 +18,8 @@
  */
 
 import 'package:animations/animations.dart';
-import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/direct_camera.dart';
 import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';

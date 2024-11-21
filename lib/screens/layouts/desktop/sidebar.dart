@@ -59,6 +59,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SafeArea(
       top: false,
@@ -88,7 +89,13 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                   child: CustomScrollView(slivers: [
                     ..._servers.entries.toList(growable: false).map((entry) {
                       final server = entry.key;
-                      final devices = entry.value;
+                      final devices = entry.value.where((device) {
+                        if (!device.status &&
+                            !settings.kListOfflineDevices.value) {
+                          return false;
+                        }
+                        return true;
+                      });
                       return ServerEntry(
                         server: server,
                         devices: devices,
@@ -274,10 +281,6 @@ class ServerEntry extends StatelessWidget {
               device: device,
               selected: selected,
             );
-
-            if (!device.status && !settings.kListOfflineDevices.value) {
-              return const SizedBox.shrink();
-            }
             if (selected || !device.status) return tile;
 
             final isBlocked =

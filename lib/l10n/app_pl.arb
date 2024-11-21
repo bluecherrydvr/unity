@@ -201,6 +201,7 @@
   "invalidResponse": "Odebrano nieprawidłową odpowiedź z serwera",
   "cameraOptions": "Opcje",
   "showFullscreenCamera": "Pokaż na pełnym ekranie",
+  "exitFullscreen": "Exit fullscreen",
   "openInANewWindow": "Otwórz w nowym oknie",
   "enableAudio": "Włącz dźwięk",
   "disableAudio": "Wyłącz dźwięk",

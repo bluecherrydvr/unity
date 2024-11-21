@@ -201,6 +201,7 @@
   "invalidResponse": "Invalid response received from the server",
   "cameraOptions": "Options",
   "showFullscreenCamera": "Show in fullscreen",
+  "exitFullscreen": "Exit fullscreen",
   "openInANewWindow": "Open in a new window",
   "enableAudio": "Enable audio",
   "disableAudio": "Disable audio",

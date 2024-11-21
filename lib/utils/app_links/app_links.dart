@@ -99,6 +99,14 @@ Future<void> handleArgs(
       abbr: 'm',
       help: 'Mute the app',
     )
+    ..addOption(
+      'volume',
+      abbr: 'v',
+      help:
+          'Set the volume of all the cameras in all layouts. This is a value from 0 to 100.',
+      valueHelp: '50',
+      allowed: List.generate(101, (i) => '$i'),
+    )
 
     // Multi window
     ..addOption(
@@ -135,16 +143,29 @@ Future<void> handleArgs(
     final cycle = results.flag('cycle');
     settings.kLayoutCycleEnabled.value = cycle;
   }
-  if (results.wasParsed('mute')) {
-    final mute = results.flag('mute');
-    if (mute) {
-      await LayoutsProvider.ensureInitialized();
-      LayoutsProvider.instance.mute();
-    }
-  }
 
   await onSplashScreen(isFullscreen);
 
+  if (results.wasParsed('mute') || results.wasParsed('volume')) {
+    await LayoutsProvider.ensureInitialized();
+
+    if (results.wasParsed('volume')) {
+      final volumeData = results.option('volume');
+      if (volumeData != null) {
+        final volume = double.tryParse(volumeData);
+        if (volume != null) {
+          LayoutsProvider.instance.setVolume(volume / 100);
+        }
+      }
+    }
+
+    if (results.wasParsed('mute')) {
+      final mute = results.flag('mute');
+      if (mute) {
+        LayoutsProvider.instance.mute();
+      }
+    }
+  }
   final theme = () {
     final themeResult = results.option('theme');
     if (themeResult == null) return settings.kThemeMode.value;

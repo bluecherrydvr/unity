@@ -395,4 +395,12 @@ class LayoutsProvider extends UnityProvider {
   }
 
   bool isLayoutLocked(Layout layout) => lockedLayouts.contains(layout);
+
+  void setVolume(double volume) {
+    for (final layout in layouts) {
+      layout.setVolume(volume);
+    }
+  }
+
+  void mute() => setVolume(0);
 }

@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:xml/xml.dart';
@@ -251,6 +252,16 @@ class Layout {
     }
 
     return layout;
+  }
+
+  Future<void> setVolume(double volume) async {
+    for (final device in devices) {
+      final player = UnityPlayers.players[device.uuid];
+      if (player != null) {
+        await player.setVolume(volume);
+        device.volume = volume;
+      }
+    }
   }
 }
 

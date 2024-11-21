@@ -94,6 +94,11 @@ Future<void> handleArgs(
       },
       defaultsTo: settings.kThemeMode.value.name,
     )
+    ..addFlag(
+      'mute',
+      abbr: 'm',
+      help: 'Mute the app',
+    )
 
     // Multi window
     ..addOption(
@@ -129,6 +134,13 @@ Future<void> handleArgs(
   if (results.wasParsed('cycle')) {
     final cycle = results.flag('cycle');
     settings.kLayoutCycleEnabled.value = cycle;
+  }
+  if (results.wasParsed('mute')) {
+    final mute = results.flag('mute');
+    if (mute) {
+      await LayoutsProvider.ensureInitialized();
+      LayoutsProvider.instance.mute();
+    }
   }
 
   await onSplashScreen(isFullscreen);

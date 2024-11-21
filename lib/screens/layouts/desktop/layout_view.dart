@@ -416,15 +416,7 @@ class _LayoutViewState extends State<LayoutView> {
                                   divisions: 100,
                                   label: '${(volume * 100).round()}%',
                                   onChanged: (value) async {
-                                    for (final device
-                                        in widget.layout.devices) {
-                                      final player =
-                                          UnityPlayers.players[device.uuid];
-                                      if (player != null) {
-                                        await player.setVolume(value);
-                                        device.volume = value;
-                                      }
-                                    }
+                                    widget.layout.setVolume(volume);
                                     if (mounted) setState(() {});
                                   },
                                 ),

@@ -65,6 +65,7 @@ class DesktopViewProvider extends UnityProvider {
   Layout get currentLayout => layouts[currentLayoutIndex];
 
   final collapsedServers = <String>[];
+  final lockedLayouts = <Layout>[];
 
   /// The height of the layout manager.
   ///
@@ -112,6 +113,9 @@ class DesktopViewProvider extends UnityProvider {
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
       kStorageDesktopCurrentLayout: _currentLayout,
       kStorageDesktopCollapsedServers: jsonEncode(collapsedServers),
+      kStorageDesktopLockedLayouts: jsonEncode(
+        lockedLayouts.map((l) => l.name).toList(),
+      ),
       kStorageDesktopLayoutManagerHeight: layoutManagerHeight,
     });
 
@@ -130,10 +134,9 @@ class DesktopViewProvider extends UnityProvider {
         }).toList();
       }
     }
-    _currentLayout = await secureStorage.readInt(
-          key: kStorageDesktopCurrentLayout,
-        ) ??
-        0;
+    _currentLayout =
+        await secureStorage.readInt(key: kStorageDesktopCurrentLayout) ?? 0;
+
     {
       final data =
           await secureStorage.read(key: kStorageDesktopCollapsedServers);
@@ -141,6 +144,18 @@ class DesktopViewProvider extends UnityProvider {
         collapsedServers.addAll(
           ((await compute(jsonDecode, data) ?? []) as List).cast<String>(),
         );
+      }
+    }
+
+    {
+      final data = await secureStorage.read(key: kStorageDesktopLockedLayouts);
+      if (data != null) {
+        final lockedLayoutsNames =
+            ((await compute(jsonDecode, data) ?? []) as List).cast<String>();
+        final lockedLayouts = layouts.where((layout) {
+          return lockedLayoutsNames.contains(layout.name);
+        });
+        this.lockedLayouts.addAll(lockedLayouts);
       }
     }
     layoutManagerHeight = await secureStorage.readDouble(
@@ -159,6 +174,8 @@ class DesktopViewProvider extends UnityProvider {
     assert(device.status, 'The device must be online');
 
     layout ??= currentLayout;
+
+    if (isLayoutLocked(layout)) return Future.value();
 
     if (!layout.devices.contains(device)) {
       // If it's a single view layout, ensure the player will be disposed
@@ -192,6 +209,8 @@ class DesktopViewProvider extends UnityProvider {
 
   /// Removes a [Device] tile from the current layout
   Future<void> remove(Device device) {
+    if (isLayoutLocked(currentLayout)) return Future.value();
+
     if (currentLayout.devices.contains(device)) {
       debugPrint('Removed $device');
 
@@ -208,7 +227,9 @@ class DesktopViewProvider extends UnityProvider {
   ///
   /// This is usually used when a server is deleted
   Future<void> removeDevices(Iterable<Device> devices) {
+    if (devices.isEmpty) return Future.value();
     for (final layout in layouts) {
+      if (isLayoutLocked(layout)) return Future.value();
       layout.devices.removeWhere(
         (d1) => devices.any((d2) => d1.uri == d2.uri),
       );
@@ -223,6 +244,9 @@ class DesktopViewProvider extends UnityProvider {
   }
 
   Future<void> removeDevicesFromCurrentLayout(Iterable<Device> devices) {
+    if (devices.isEmpty) return Future.value();
+    if (isLayoutLocked(currentLayout)) return Future.value();
+
     currentLayout.devices.removeWhere(
       (d1) => devices.any((d2) => d1.uri == d2.uri),
     );
@@ -235,13 +259,11 @@ class DesktopViewProvider extends UnityProvider {
     return save(notifyListeners: false);
   }
 
-  /// Moves a device tile from [initial] position to [end] position inside a [tab].
-  /// Used for re-ordering camera [DeviceTile]s when dragging.
   Future<void> reorder(int initial, int end) {
     if (initial == end) return Future.value();
+    if (isLayoutLocked(currentLayout)) return Future.value();
 
     currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
-    // Prevent redundant latency.
     notifyListeners();
     return save(notifyListeners: false);
   }
@@ -402,4 +424,30 @@ class DesktopViewProvider extends UnityProvider {
   }
 
   bool isServerCollapsed(Server server) => collapsedServers.contains(server.id);
+
+  Future<void> lockLayout(Layout layout) async {
+    if (!lockedLayouts.contains(layout)) {
+      lockedLayouts.add(layout);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  Future<void> unlockLayout(Layout layout) async {
+    if (lockedLayouts.contains(layout)) {
+      lockedLayouts.remove(layout);
+      notifyListeners();
+      await save(notifyListeners: false);
+    }
+  }
+
+  Future<void> toggleLayoutLock(Layout layout) async {
+    if (isLayoutLocked(layout)) {
+      await unlockLayout(layout);
+    } else {
+      await lockLayout(layout);
+    }
+  }
+
+  bool isLayoutLocked(Layout layout) => lockedLayouts.contains(layout);
 }

@@ -108,6 +108,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
         onReorder: view.reorder,
         onWillAccept: (device) {
           if (device == null) return false;
+          if (view.isLayoutLocked(view.currentLayout)) return false;
           if (view.currentLayout.type == DesktopLayoutType.singleView) {
             return view.currentLayout.devices.isEmpty;
           }
@@ -433,8 +434,7 @@ class _LayoutViewState extends State<LayoutView> {
                                 Icons.equalizer,
                                 color: Colors.white,
                               ),
-                              tooltip:
-                                  'Layout Volume • ${(volume * 100).round()}%',
+                              tooltip: loc.layoutVolume((volume * 100).round()),
                               onPressed: () {
                                 setState(() {
                                   _volumeSliderVisible = !_volumeSliderVisible;
@@ -443,6 +443,18 @@ class _LayoutViewState extends State<LayoutView> {
                             ),
                           ];
                         }(),
+                      SquaredIconButton(
+                        icon: Icon(
+                          view.isLayoutLocked(widget.layout)
+                              ? Icons.lock
+                              : Icons.lock_open,
+                          color: Colors.white,
+                        ),
+                        tooltip: view.isLayoutLocked(widget.layout)
+                            ? loc.unlockLayout
+                            : loc.lockLayout,
+                        onPressed: () => view.toggleLayoutLock(widget.layout),
+                      ),
                       SquaredIconButton(
                         icon: const Icon(
                           Icons.satellite_alt,

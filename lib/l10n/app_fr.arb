@@ -267,6 +267,16 @@
     }
   },
   "switchToNext": "Passer au suivant",
+  "unlockLayout": "Unlock layout",
+  "lockLayout": "Lock layout",
+  "layoutVolume": "Layout Volume • {volume}%",
+  "@layoutVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",

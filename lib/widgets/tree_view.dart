@@ -160,11 +160,11 @@ List<TreeNode>? _copyNodesRecursively(
   if (nodes == null) {
     return null;
   }
-  return List.unmodifiable(nodes.map((n) {
+  return List.unmodifiable(nodes.map((node) {
     return TreeNode(
-      key: keyProvider.key(n.key),
-      content: n.content,
-      children: _copyNodesRecursively(n.children, keyProvider),
+      key: keyProvider.key(node.key),
+      content: node.content,
+      children: _copyNodesRecursively(node.children, keyProvider),
     );
   }));
 }

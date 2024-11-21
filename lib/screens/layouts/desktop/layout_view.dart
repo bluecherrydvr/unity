@@ -401,7 +401,7 @@ class _LayoutViewState extends State<LayoutView> {
                       if (widget.layout.devices.isNotEmpty)
                         ...() {
                           final volume = widget.layout.devices
-                              .map((e) => e.volume)
+                              .map((device) => device.volume)
                               .findMaxDuplicatedElementInList()
                               .toDouble();
                           return <Widget>[
@@ -410,7 +410,7 @@ class _LayoutViewState extends State<LayoutView> {
                                 height: 24.0,
                                 child: Slider(
                                   value: widget.layout.devices
-                                      .map((e) => e.volume)
+                                      .map((device) => device.volume)
                                       .findMaxDuplicatedElementInList()
                                       .toDouble(),
                                   divisions: 100,

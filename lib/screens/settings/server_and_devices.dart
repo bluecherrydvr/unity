@@ -125,12 +125,12 @@ class StreamingSettings extends StatelessWidget {
         subtitle: Text(loc.preferredStreamingProtocolDescription),
         icon: Icons.live_tv,
         value: settings.kStreamingType.value,
-        values: StreamingType.values.map((value) {
+        values: StreamingType.values.map((type) {
           return Option(
-            value: value,
+            value: type,
             // Disable RTSP on web
-            enabled: !kIsWeb || value != StreamingType.rtsp,
-            text: value.name.toUpperCase(),
+            enabled: !kIsWeb || type != StreamingType.rtsp,
+            text: type.name.toUpperCase(),
           );
         }),
         onChanged: (v) {
@@ -142,10 +142,10 @@ class StreamingSettings extends StatelessWidget {
         title: loc.rtspProtocol,
         icon: Icons.settings_input_antenna,
         value: settings.kRTSPProtocol.value,
-        values: RTSPProtocol.values.map((value) {
+        values: RTSPProtocol.values.map((protocol) {
           return Option(
-            value: value,
-            text: value.name.toUpperCase(),
+            value: protocol,
+            text: protocol.name.toUpperCase(),
           );
         }),
         onChanged:
@@ -161,10 +161,10 @@ class StreamingSettings extends StatelessWidget {
           description: loc.renderingQualityDescription,
           icon: Icons.hd,
           value: settings.kRenderingQuality.value,
-          values: RenderingQuality.values.map((value) {
+          values: RenderingQuality.values.map((quality) {
             return Option(
-              value: value,
-              text: value.locale(context),
+              value: quality,
+              text: quality.locale(context),
             );
           }),
           onChanged: (v) {
@@ -177,10 +177,10 @@ class StreamingSettings extends StatelessWidget {
         description: loc.cameraViewFitDescription,
         icon: Icons.fit_screen,
         value: settings.kVideoFit.value,
-        values: UnityVideoFit.values.map((value) {
+        values: UnityVideoFit.values.map((fit) {
           return Option(
-            value: value,
-            text: value.locale(context),
+            value: fit,
+            text: fit.locale(context),
           );
         }),
         onChanged: (v) {
@@ -198,10 +198,10 @@ class StreamingSettings extends StatelessWidget {
           Duration(seconds: 30),
           Duration(minutes: 2),
           Duration(minutes: 5),
-        ].map((q) {
+        ].map((period) {
           return Option(
-            value: q,
-            text: q.humanReadableCompact(context),
+            value: period,
+            text: period.humanReadableCompact(context),
           );
         }),
         onChanged: (v) {
@@ -263,10 +263,10 @@ class StreamingSettings extends StatelessWidget {
         ),
         icon: Icons.watch_later,
         value: settings.kLateStreamBehavior.value,
-        values: LateVideoBehavior.values.map((value) {
+        values: LateVideoBehavior.values.map((behavior) {
           return Option(
-            value: value,
-            text: value.locale(context),
+            value: behavior,
+            text: behavior.locale(context),
           );
         }),
         onChanged: (v) {

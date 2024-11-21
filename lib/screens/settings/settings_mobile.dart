@@ -177,13 +177,12 @@ class _MobileSettingsState extends State<MobileSettings> {
                       );
                     },
                   ),
-                ]
-                    .map((e) => Padding(
-                          padding:
-                              const EdgeInsetsDirectional.only(bottom: 8.0),
-                          child: e,
-                        ))
-                    .toList(),
+                ].map((child) {
+                  return Padding(
+                    padding: const EdgeInsetsDirectional.only(bottom: 8.0),
+                    child: child,
+                  );
+                }).toList(),
               ),
             ),
           ),

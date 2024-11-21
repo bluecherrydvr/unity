@@ -89,7 +89,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   Future<void> selectDevice(BuildContext context) async {
     device = await showDeviceSelector(
       context,
-      available: widget.timeline.tiles.map((t) => t.device),
+      available: widget.timeline.tiles.map((tile) => tile.device),
       selected: [if (tile != null) tile!.device],
       eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>(
         {},
@@ -191,7 +191,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
     }
     final eventsFactor = eventsBefore.isEmpty
         ? Duration.zero
-        : eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
+        : eventsBefore.map((event) => event.duration).reduce((a, b) => a + b);
 
     scrolledManually = true;
     await controller.animateTo(
@@ -240,7 +240,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
     for (final event in tile!.events) {
       Duration eventsBeforeDuration() =>
-          eventsBefore.map((e) => e.duration).reduce((a, b) => a + b);
+          eventsBefore.map((event) => event.duration).reduce((a, b) => a + b);
 
       final especulatedStartPosition = eventsBefore.isEmpty
           ? 0
@@ -284,7 +284,7 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         '/events',
         arguments: {
           'event': currentEvent!.event,
-          'upcoming': tile?.events.map((e) => e.event),
+          'upcoming': tile?.events.map((timelineEvent) => timelineEvent.event),
           'videoPlayer': tile?.videoController,
         },
       );

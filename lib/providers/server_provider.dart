@@ -32,45 +32,29 @@ import 'package:flutter/foundation.dart';
 
 class ServersProvider extends UnityProvider {
   ServersProvider._();
-  ServersProvider.dump();
 
-  static late ServersProvider _instance;
-  static ServersProvider get instance {
-    try {
-      return _instance;
-    } catch (exception) {
-      return ServersProvider.dump();
-    }
-  }
-
-  static set instance(ServersProvider value) => _instance = value;
+  static final ServersProvider _instance = ServersProvider._();
+  static ServersProvider get instance => _instance;
 
   static Future<ServersProvider> ensureInitialized() async {
-    _instance = ServersProvider._();
     await _instance.initialize();
     debugPrint('ServersProvider initialized');
     return _instance;
   }
 
-  /// Whether any server is added.
   bool get hasServers => servers.isNotEmpty;
 
   List<Server> servers = <Server>[];
+  final loadingServers = <String>{};
 
-  /// The list of servers that are being loaded
-  List<String> loadingServer = <String>[];
+  bool isServerLoading(Server server) => loadingServers.contains(server.id);
 
-  bool isServerLoading(Server server) => loadingServer.contains(server.id);
-
-  /// Called by [ensureInitialized].
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageServers);
     refreshDevices(startup: true);
   }
 
-  /// Adds a new [Server] to the cache.
-  /// Also registers the Firebase Messaging token for the server, to receive the notifications.
   Future<void> add(Server server) async {
     if (servers.contains(server)) return;
 
@@ -79,17 +63,11 @@ class ServersProvider extends UnityProvider {
     await refreshDevices(ids: [server.id]);
 
     if (isMobilePlatform) {
-      // Register notification token.
       try {
         final notificationToken = await secureStorage.read(
           key: kStorageNotificationToken,
         );
-        assert(
-          notificationToken != null,
-          '[kStorageNotificationToken] is null.',
-        );
         if (notificationToken != null) {
-          // release safety
           await API.instance.registerNotificationToken(
             server,
             notificationToken,
@@ -102,13 +80,10 @@ class ServersProvider extends UnityProvider {
     }
   }
 
-  /// Removes a [Server] from the cache.
-  /// Also un-registers the Firebase Messaging token for the server, to stop receiving the notifications.
   Future<void> remove(Server server) async {
     servers.remove(server);
     await save();
 
-    // Remove the device camera tiles showing devices from this server.
     try {
       final provider = MobileViewProvider.instance;
       final view = {...provider.devices};
@@ -128,7 +103,7 @@ class ServersProvider extends UnityProvider {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
-    // Unregister notification token.
+
     try {
       await API.instance.unregisterNotificationToken(server);
     } catch (exception, stacktrace) {
@@ -137,9 +112,7 @@ class ServersProvider extends UnityProvider {
     }
   }
 
-  /// Updates the given [server] in the cache.
   Future<void> update(Server server) async {
-    // If not found, add it
     if (!servers.any((s) => s.ip == server.ip && s.port == server.port)) {
       return add(server);
     }
@@ -163,12 +136,11 @@ class ServersProvider extends UnityProvider {
     UnityPlayers.reloadAll();
   }
 
-  /// If [ids] is provided, only the provided ids will be refreshed
   Future<List<Server>> refreshDevices({
     bool startup = false,
     Iterable<String>? ids,
   }) async {
-    final replacehold = <String, Server>{};
+    final replaceHolders = <String, Server>{};
     await Future.wait(servers.map((target) async {
       if (ids != null && !ids.contains(target.id)) return;
       if (startup && !target.additionalSettings.connectAutomaticallyAtStartup) {
@@ -177,25 +149,26 @@ class ServersProvider extends UnityProvider {
         return;
       }
 
-      if (!loadingServer.contains(target.id)) {
-        loadingServer.add(target.id);
+      if (!loadingServers.contains(target.id)) {
+        loadingServers.add(target.id);
         notifyListeners();
       }
 
       var (_, server) = await API.instance.checkServerCredentials(target);
+
       final devices = await API.instance.getDevices(server);
       if (devices != null) {
         debugPrint(devices.length.toString());
-        replacehold[target.id] = server;
+        replaceHolders[target.id] = server;
       }
 
-      if (loadingServer.contains(server.id)) {
-        loadingServer.remove(server.id);
+      if (loadingServers.contains(server.id)) {
+        loadingServers.remove(server.id);
         notifyListeners();
       }
     }));
 
-    for (final entry in replacehold.entries) {
+    for (final entry in replaceHolders.entries) {
       final server = entry.value;
       final index = servers.indexWhere((s) => s.id == server.id);
       servers[index] = server;
@@ -229,7 +202,6 @@ class ServersProvider extends UnityProvider {
     super.save(notifyListeners: notifyListeners);
   }
 
-  /// Restore currently added [Server]s from `package:hive` cache.
   @override
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await secureStorage.read(key: kStorageServers);

@@ -35,7 +35,7 @@ class DesktopSidebar extends StatefulWidget {
 class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
-  final _servers = <Server, Iterable<Device>>{};
+  final Map<Server, List<Device>> _servers = <Server, List<Device>>{};
 
   @override
   void didChangeDependencies() {
@@ -48,9 +48,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
     _servers.clear();
     for (final server in servers.servers) {
-      final devices = server.devices.sorted(
-        searchQuery: searchQuery,
-      );
+      final devices = server.devices.sorted(searchQuery: searchQuery);
       _servers[server] = devices;
     }
   }
@@ -95,7 +93,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                           return false;
                         }
                         return true;
-                      });
+                      }).toList();
                       return ServerEntry(
                         server: server,
                         devices: devices,
@@ -144,7 +142,7 @@ class NoServers extends StatelessWidget {
 
 class ServerEntry extends StatelessWidget {
   final Server server;
-  final Iterable<Device> devices;
+  final List<Device> devices;
   final String searchQuery;
   final bool isSidebarHovering;
 

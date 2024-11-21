@@ -31,18 +31,18 @@ import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
-class DesktopViewProvider extends UnityProvider {
-  DesktopViewProvider._();
+class LayoutsProvider extends UnityProvider {
+  LayoutsProvider._();
 
-  static DesktopViewProvider? _instance;
-  static DesktopViewProvider get instance {
-    _instance ??= DesktopViewProvider._();
+  static LayoutsProvider? _instance;
+  static LayoutsProvider get instance {
+    _instance ??= LayoutsProvider._();
     return _instance!;
   }
 
-  static Future<DesktopViewProvider> ensureInitialized() async {
+  static Future<LayoutsProvider> ensureInitialized() async {
     await instance.initialize();
-    debugPrint('DesktopViewProvider initialized');
+    debugPrint('LayoutsProvider initialized');
     return instance;
   }
 

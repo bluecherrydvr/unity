@@ -138,7 +138,7 @@ class VideoInfoCard extends StatelessWidget {
             ),
             tooltip: loc.removePlayer,
             onPressed: () {
-              final view = context.read<DesktopViewProvider>();
+              final view = context.read<LayoutsProvider>();
               final device = view.layouts
                   .map<List<Device>>((l) => l.devices)
                   .reduce((a, b) => a + b)

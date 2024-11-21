@@ -112,7 +112,7 @@ Future<void> main(List<String> args) async {
         await ServersProvider.ensureInitialized();
         await DownloadsManager.ensureInitialized();
         await MobileViewProvider.ensureInitialized();
-        await DesktopViewProvider.ensureInitialized();
+        await LayoutsProvider.ensureInitialized();
         await UpdateManager.ensureInitialized();
         await EventsProvider.ensureInitialized();
       },
@@ -311,8 +311,8 @@ class _UnityAppState extends State<UnityApp>
         ChangeNotifierProvider<SettingsProvider>.value(
           value: SettingsProvider.instance,
         ),
-        ChangeNotifierProvider<DesktopViewProvider>.value(
-          value: DesktopViewProvider.instance,
+        ChangeNotifierProvider<LayoutsProvider>.value(
+          value: LayoutsProvider.instance,
         ),
         ChangeNotifierProvider<DownloadsManager>.value(
           value: DownloadsManager.instance,

@@ -122,7 +122,7 @@ class ServersProvider extends UnityProvider {
         }
       }
 
-      final desktopProvider = DesktopViewProvider.instance;
+      final desktopProvider = LayoutsProvider.instance;
       await desktopProvider.removeDevices(server.devices);
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());

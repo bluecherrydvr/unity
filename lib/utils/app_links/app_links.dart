@@ -159,8 +159,8 @@ Future<void> handleArgs(
   }
 
   if (layout != null) {
-    await DesktopViewProvider.ensureInitialized();
-    final view = DesktopViewProvider.instance;
+    await LayoutsProvider.ensureInitialized();
+    final view = LayoutsProvider.instance;
     final layoutResult = view.layouts.firstWhereOrNull(
       (element) => element.name == layout,
     );

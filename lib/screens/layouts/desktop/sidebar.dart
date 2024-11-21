@@ -159,7 +159,7 @@ class ServerEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -339,7 +339,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final loc = AppLocalizations.of(context);
 
     return GestureDetector(
@@ -447,7 +447,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
 
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.read<DesktopViewProvider>();
+    final view = context.read<LayoutsProvider>();
 
     const padding = EdgeInsets.symmetric(horizontal: 16.0);
 
@@ -554,7 +554,7 @@ class CollapsedSidebar extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     return Material(
       color: theme.canvasColor,
       child: SafeArea(

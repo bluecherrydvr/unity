@@ -64,7 +64,7 @@ class AlternativeWindowState extends State<AlternativeWindow> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: HomeProvider.instance),
-        ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
+        ChangeNotifierProvider.value(value: LayoutsProvider.instance),
         ChangeNotifierProvider.value(value: SettingsProvider.instance),
         ChangeNotifierProvider.value(value: UnityPlayers.instance),
       ],

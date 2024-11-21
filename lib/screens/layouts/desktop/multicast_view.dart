@@ -92,7 +92,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
     final settings = context.watch<SettingsProvider>();
     final view = UnityVideoView.maybeOf(context);
     final theme = Theme.of(context);
-    final views = context.watch<DesktopViewProvider>();
+    final views = context.watch<LayoutsProvider>();
 
     if (view == null ||
         view.lastImageUpdate == null ||

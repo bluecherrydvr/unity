@@ -130,7 +130,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
     var video = UnityVideoView.maybeOf(context);
     final isSubView = AlternativeWindow.maybeOf(context) != null;

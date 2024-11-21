@@ -110,7 +110,7 @@ class AddExternalStreamDialog extends StatefulWidget {
       externalData: externalData,
     );
 
-    final view = context.read<DesktopViewProvider>();
+    final view = context.read<LayoutsProvider>();
     final layout = targetLayout ??
         view.layouts
             .firstWhereOrNull((layout) => layout.name == loc.externalStream);

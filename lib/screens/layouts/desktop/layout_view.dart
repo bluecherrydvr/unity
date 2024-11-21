@@ -69,7 +69,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
     cycleTimer = Timer.periodic(settings.kLayoutCyclePeriod.value, (_) {
       if (!mounted) return;
       if (settings.kLayoutCycleEnabled.value) {
-        context.read<DesktopViewProvider>().switchToNextLayout();
+        context.read<LayoutsProvider>().switchToNextLayout();
       }
     });
   }
@@ -84,7 +84,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final isReversed = widget.width <= _kReverseBreakpoint;
 
     final sidebar = CollapsableSidebar(
@@ -223,7 +223,7 @@ class _LayoutViewState extends State<LayoutView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
 
     return DragTarget<Device>(

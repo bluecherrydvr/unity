@@ -220,7 +220,7 @@ class Layout {
       }
     }();
 
-    if (DesktopViewProvider.instance.layouts.any((l) => l.name == name)) {
+    if (LayoutsProvider.instance.layouts.any((l) => l.name == name)) {
       name = '${name}_imported';
     }
 

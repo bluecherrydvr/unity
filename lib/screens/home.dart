@@ -54,7 +54,7 @@ class NavigatorData {
   static List<NavigatorData> of(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final screenSize = MediaQuery.sizeOf(context);
-    final layout = context.watch<DesktopViewProvider>().currentLayout;
+    final layout = context.watch<LayoutsProvider>().currentLayout;
 
     return [
       NavigatorData(

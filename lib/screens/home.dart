@@ -18,8 +18,8 @@
  */
 
 import 'package:animations/animations.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/direct_camera.dart';
 import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
@@ -54,7 +54,7 @@ class NavigatorData {
   static List<NavigatorData> of(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final screenSize = MediaQuery.sizeOf(context);
-    final layout = context.watch<DesktopViewProvider>().currentLayout;
+    final layout = context.watch<LayoutsProvider>().currentLayout;
 
     return [
       NavigatorData(

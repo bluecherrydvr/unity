@@ -212,7 +212,7 @@ class _StreamDataState extends State<StreamData> {
                 ),
                 Text(
                   loc.volume(
-                    (widget.video.player.volume * 100).toInt().toString(),
+                    '${(widget.video.player.volume * 100).toInt()}',
                   ),
                   style: theme.textTheme.headlineSmall,
                 ),

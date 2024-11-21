@@ -26,10 +26,10 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -78,9 +78,9 @@ Future<void> main(List<String> args) async {
 
     await app_links.handleArgs(
       args,
-      onSplashScreen: () async {
+      onSplashScreen: (isFullscreen) async {
         if (isDesktopPlatform) {
-          await configureWindow();
+          await configureWindow(fullscreen: isFullscreen);
           if (canLaunchAtStartup) setupLaunchAtStartup();
           if (canUseSystemTray) setupSystemTray();
 
@@ -98,7 +98,7 @@ Future<void> main(List<String> args) async {
         API.initialize();
         await UnityVideoPlayerInterface.instance.initialize();
 
-        logging.writeLogToFile('Opening app with $args');
+        logging.writeLogToFile('Opening app with $args', print: true);
         logging.writeLogToFile(
           'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
           print: true,
@@ -112,7 +112,7 @@ Future<void> main(List<String> args) async {
         await ServersProvider.ensureInitialized();
         await DownloadsManager.ensureInitialized();
         await MobileViewProvider.ensureInitialized();
-        await DesktopViewProvider.ensureInitialized();
+        await LayoutsProvider.ensureInitialized();
         await UpdateManager.ensureInitialized();
         await EventsProvider.ensureInitialized();
       },
@@ -311,8 +311,8 @@ class _UnityAppState extends State<UnityApp>
         ChangeNotifierProvider<SettingsProvider>.value(
           value: SettingsProvider.instance,
         ),
-        ChangeNotifierProvider<DesktopViewProvider>.value(
-          value: DesktopViewProvider.instance,
+        ChangeNotifierProvider<LayoutsProvider>.value(
+          value: LayoutsProvider.instance,
         ),
         ChangeNotifierProvider<DownloadsManager>.value(
           value: DownloadsManager.instance,

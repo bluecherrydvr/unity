@@ -69,7 +69,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
     cycleTimer = Timer.periodic(settings.kLayoutCyclePeriod.value, (_) {
       if (!mounted) return;
       if (settings.kLayoutCycleEnabled.value) {
-        context.read<DesktopViewProvider>().switchToNextLayout();
+        context.read<LayoutsProvider>().switchToNextLayout();
       }
     });
   }
@@ -84,7 +84,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final isReversed = widget.width <= _kReverseBreakpoint;
 
     final sidebar = CollapsableSidebar(
@@ -108,6 +108,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
         onReorder: view.reorder,
         onWillAccept: (device) {
           if (device == null) return false;
+          if (view.isLayoutLocked(view.currentLayout)) return false;
           if (view.currentLayout.type == DesktopLayoutType.singleView) {
             return view.currentLayout.devices.isEmpty;
           }
@@ -222,7 +223,7 @@ class _LayoutViewState extends State<LayoutView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
 
     return DragTarget<Device>(
@@ -400,7 +401,7 @@ class _LayoutViewState extends State<LayoutView> {
                       if (widget.layout.devices.isNotEmpty)
                         ...() {
                           final volume = widget.layout.devices
-                              .map((e) => e.volume)
+                              .map((device) => device.volume)
                               .findMaxDuplicatedElementInList()
                               .toDouble();
                           return <Widget>[
@@ -409,21 +410,13 @@ class _LayoutViewState extends State<LayoutView> {
                                 height: 24.0,
                                 child: Slider(
                                   value: widget.layout.devices
-                                      .map((e) => e.volume)
+                                      .map((device) => device.volume)
                                       .findMaxDuplicatedElementInList()
                                       .toDouble(),
                                   divisions: 100,
                                   label: '${(volume * 100).round()}%',
                                   onChanged: (value) async {
-                                    for (final device
-                                        in widget.layout.devices) {
-                                      final player =
-                                          UnityPlayers.players[device.uuid];
-                                      if (player != null) {
-                                        await player.setVolume(value);
-                                        device.volume = value;
-                                      }
-                                    }
+                                    widget.layout.setVolume(volume);
                                     if (mounted) setState(() {});
                                   },
                                 ),
@@ -433,8 +426,7 @@ class _LayoutViewState extends State<LayoutView> {
                                 Icons.equalizer,
                                 color: Colors.white,
                               ),
-                              tooltip:
-                                  'Layout Volume • ${(volume * 100).round()}%',
+                              tooltip: loc.layoutVolume((volume * 100).round()),
                               onPressed: () {
                                 setState(() {
                                   _volumeSliderVisible = !_volumeSliderVisible;
@@ -443,6 +435,18 @@ class _LayoutViewState extends State<LayoutView> {
                             ),
                           ];
                         }(),
+                      SquaredIconButton(
+                        icon: Icon(
+                          view.isLayoutLocked(widget.layout)
+                              ? Icons.lock
+                              : Icons.lock_open,
+                          color: Colors.white,
+                        ),
+                        tooltip: view.isLayoutLocked(widget.layout)
+                            ? loc.unlockLayout
+                            : loc.lockLayout,
+                        onPressed: () => view.toggleLayoutLock(widget.layout),
+                      ),
                       SquaredIconButton(
                         icon: const Icon(
                           Icons.satellite_alt,

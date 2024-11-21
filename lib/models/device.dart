@@ -120,9 +120,20 @@ class Device {
   ///
   /// This volume is restored every time the app opens and is applied to the
   /// respective video player.
-  double volume = defaultVolume;
+  double _volume = defaultVolume;
   static double get defaultVolume =>
       SettingsProvider.instance.kInitialDevicesVolume.value;
+  double get volume => _volume;
+  set volume(double value) {
+    if (value < 0.0 || value > 1.0) {
+      throw ArgumentError.value(
+        value,
+        'volume',
+        'Volume must be between 0.0 and 1.0',
+      );
+    }
+    _volume = value.clamp(0.0, 1.0);
+  }
 
   /// Creates a device.
   Device({

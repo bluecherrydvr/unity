@@ -252,12 +252,12 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                 onChanged(v);
               },
               hint: Text(defaultValue.name.toUpperCase()),
-              items: values.map((v) {
+              items: values.map((value) {
                 return DropdownMenuItem<T>(
-                  value: v,
+                  value: value,
                   child: Row(children: [
-                    Text(v.name.toUpperCase()),
-                    if (defaultValue == v) ...[
+                    Text(value.name.toUpperCase()),
+                    if (defaultValue == value) ...[
                       const SizedBox(width: 10.0),
                       const DefaultValueIcon(),
                     ],

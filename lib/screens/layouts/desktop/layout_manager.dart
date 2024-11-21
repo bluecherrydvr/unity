@@ -21,7 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/window.dart';
@@ -87,7 +87,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     _height ??= view.layoutManagerHeight;
   }
 
@@ -100,7 +100,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
 
     final screenSize = MediaQuery.sizeOf(context);
@@ -216,7 +216,7 @@ class _LayoutTileState extends State<LayoutTile> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
 
     return ReorderableDragStartListener(
       index: widget.reorderableIndex,
@@ -327,7 +327,7 @@ class _LayoutTileState extends State<LayoutTile> {
           PopupMenuItem(
             child: Text(loc.clearLayout(widget.layout.devices.length)),
             onTap: () {
-              DesktopViewProvider.instance.clearLayout(layout: widget.layout);
+              LayoutsProvider.instance.clearLayout(layout: widget.layout);
             },
           ),
           const PopupMenuDivider(),
@@ -506,7 +506,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
 
     return AlertDialog(
@@ -558,7 +558,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 
   void _onFinish() {
     final loc = AppLocalizations.of(context);
-    final view = context.read<DesktopViewProvider>();
+    final view = context.read<LayoutsProvider>();
     final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
 
     view.addLayout(Layout(
@@ -596,7 +596,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
 
     return AlertDialog(
       title: Row(children: [
@@ -644,7 +644,7 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
   }
 
   void _onUpdate() {
-    context.read<DesktopViewProvider>().updateLayout(
+    context.read<LayoutsProvider>().updateLayout(
           widget.layout,
           widget.layout.copyWith(
             name: layoutNameController.text.isEmpty

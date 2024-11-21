@@ -48,9 +48,11 @@ bool get canConfigureWindow {
 }
 
 /// Configures the current window
-Future<void> configureWindow() async {
+Future<void> configureWindow({bool? fullscreen}) async {
   if (canConfigureWindow) {
     final settings = SettingsProvider.instance;
+    fullscreen ??= settings.kFullscreen.value;
+
     await WindowManager.instance.ensureInitialized();
     await windowManager.waitUntilReadyToShow(
       WindowOptions(
@@ -58,10 +60,10 @@ Future<void> configureWindow() async {
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.hidden,
         windowButtonVisibility: true,
-        fullScreen: settings.kFullscreen.value,
+        fullScreen: fullscreen,
       ),
       () async {
-        if (kDebugMode && !settings.kFullscreen.value) {
+        if (kDebugMode && !fullscreen!) {
           await windowManager.setSize(kInitialWindowSize);
         }
         await windowManager.show();

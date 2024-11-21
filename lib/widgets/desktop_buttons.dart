@@ -344,6 +344,16 @@ class _WindowButtonsState extends State<WindowButtons>
                         ]);
                       }),
                     ),
+                  if (settings.kFullscreen.value &&
+                      !settings.kImmersiveMode.value) ...[
+                    SquaredIconButton(
+                      onPressed: () {
+                        settings.kFullscreen.value = false;
+                      },
+                      icon: const Icon(Icons.fullscreen_exit, size: 20.0),
+                      tooltip: loc.exitFullscreen,
+                    ),
+                  ]
                 ]),
               ),
               if (showNavigator)

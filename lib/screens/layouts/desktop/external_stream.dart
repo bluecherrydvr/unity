@@ -21,8 +21,8 @@ import 'dart:async';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/config.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
@@ -110,7 +110,7 @@ class AddExternalStreamDialog extends StatefulWidget {
       externalData: externalData,
     );
 
-    final view = context.read<DesktopViewProvider>();
+    final view = context.read<LayoutsProvider>();
     final layout = targetLayout ??
         view.layouts
             .firstWhereOrNull((layout) => layout.name == loc.externalStream);

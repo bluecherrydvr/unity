@@ -153,7 +153,6 @@ class DevHttpOverrides extends HttpOverrides {
   static Future<void> configureCertificates({
     bool? allowUntrustedCertificates,
   }) async {
-    ServersProvider.instance = ServersProvider.dump();
     // SettingsProvider.ensureInitialized();
     HttpOverrides.global = DevHttpOverrides()
       ..allowUntrustedCertificates = allowUntrustedCertificates ?? true;

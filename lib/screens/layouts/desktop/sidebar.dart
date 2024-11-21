@@ -35,7 +35,7 @@ class DesktopSidebar extends StatefulWidget {
 class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
-  final _servers = <Server, Iterable<Device>>{};
+  final Map<Server, List<Device>> _servers = <Server, List<Device>>{};
 
   @override
   void didChangeDependencies() {
@@ -48,9 +48,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
 
     _servers.clear();
     for (final server in servers.servers) {
-      final devices = server.devices.sorted(
-        searchQuery: searchQuery,
-      );
+      final devices = server.devices.sorted(searchQuery: searchQuery);
       _servers[server] = devices;
     }
   }
@@ -59,6 +57,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final servers = context.watch<ServersProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return SafeArea(
       top: false,
@@ -88,7 +87,13 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
                   child: CustomScrollView(slivers: [
                     ..._servers.entries.toList(growable: false).map((entry) {
                       final server = entry.key;
-                      final devices = entry.value;
+                      final devices = entry.value.where((device) {
+                        if (!device.status &&
+                            !settings.kListOfflineDevices.value) {
+                          return false;
+                        }
+                        return true;
+                      }).toList();
                       return ServerEntry(
                         server: server,
                         devices: devices,
@@ -137,7 +142,7 @@ class NoServers extends StatelessWidget {
 
 class ServerEntry extends StatelessWidget {
   final Server server;
-  final Iterable<Device> devices;
+  final List<Device> devices;
   final String searchQuery;
   final bool isSidebarHovering;
 
@@ -152,7 +157,7 @@ class ServerEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final servers = context.watch<ServersProvider>();
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -274,10 +279,6 @@ class ServerEntry extends StatelessWidget {
               device: device,
               selected: selected,
             );
-
-            if (!device.status && !settings.kListOfflineDevices.value) {
-              return const SizedBox.shrink();
-            }
             if (selected || !device.status) return tile;
 
             final isBlocked =
@@ -336,7 +337,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     final loc = AppLocalizations.of(context);
 
     return GestureDetector(
@@ -444,7 +445,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
 
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.read<DesktopViewProvider>();
+    final view = context.read<LayoutsProvider>();
 
     const padding = EdgeInsets.symmetric(horizontal: 16.0);
 
@@ -551,7 +552,7 @@ class CollapsedSidebar extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final view = context.watch<DesktopViewProvider>();
+    final view = context.watch<LayoutsProvider>();
     return Material(
       color: theme.canvasColor,
       child: SafeArea(

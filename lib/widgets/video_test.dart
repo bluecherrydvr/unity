@@ -19,7 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -138,7 +138,7 @@ class VideoInfoCard extends StatelessWidget {
             ),
             tooltip: loc.removePlayer,
             onPressed: () {
-              final view = context.read<DesktopViewProvider>();
+              final view = context.read<LayoutsProvider>();
               final device = view.layouts
                   .map<List<Device>>((l) => l.devices)
                   .reduce((a, b) => a + b)

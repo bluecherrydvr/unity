@@ -18,7 +18,7 @@
  */
 
 import 'package:bluecherry_client/main.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
@@ -63,7 +63,7 @@ enum UnityTab {
 
   String locale(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final layout = context.watch<DesktopViewProvider>().currentLayout;
+    final layout = context.watch<LayoutsProvider>().currentLayout;
 
     var title = switch (this) {
       UnityTab.deviceGrid => loc.screens(layout.name),
@@ -138,7 +138,7 @@ class HomeProvider extends ChangeNotifier {
       // If we're moving out of the device grid tab, we should not be able to
       // hear the live feed anymore.
 
-      final devices = DesktopViewProvider.instance.allDevices;
+      final devices = LayoutsProvider.instance.allDevices;
       final players = UnityPlayers.players.entries
           .where((entry) => devices.any((device) => device.uuid == entry.key))
           .toList();

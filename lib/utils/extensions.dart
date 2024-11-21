@@ -159,6 +159,20 @@ extension FileExtension on File {
 }
 
 extension IterableTExtension<T> on Iterable<T> {
+  /// Find the most duplicated element in the list.
+  ///
+  /// If there are multiple elements with the same count, the first one will be
+  /// returned. If the list is empty, null will be returned.
+  ///
+  /// Example:
+  /// ```dart
+  /// final list = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5];
+  /// final mostDuplicated = list.findMaxDuplicatedElementInList();
+  /// print(mostDuplicated); // 1
+  /// ```
+  ///
+  /// This is useful when you have a list of elements and you want to know which
+  /// element appears the most.
   T findMaxDuplicatedElementInList() => fold<Map<T, int>>(
           {},
           (map, element) =>

@@ -191,6 +191,7 @@
   "invalidResponse": "Réponse invalide reçu du serveur",
   "cameraOptions": "Options",
   "showFullscreenCamera": "Montrer en plein écran",
+  "exitFullscreen": "Exit fullscreen",
   "openInANewWindow": "Ouvrir dans une nouvelle fenêtre",
   "enableAudio": "Activer l'audio",
   "disableAudio": "Désactiver l'audio",
@@ -267,6 +268,16 @@
     }
   },
   "switchToNext": "Passer au suivant",
+  "unlockLayout": "Unlock layout",
+  "lockLayout": "Lock layout",
+  "layoutVolume": "Layout Volume • {volume}%",
+  "@layoutVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",

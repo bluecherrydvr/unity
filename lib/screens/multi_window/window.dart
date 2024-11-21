@@ -18,8 +18,8 @@
  */
 
 import 'package:bluecherry_client/main.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -64,7 +64,7 @@ class AlternativeWindowState extends State<AlternativeWindow> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: HomeProvider.instance),
-        ChangeNotifierProvider.value(value: DesktopViewProvider.instance),
+        ChangeNotifierProvider.value(value: LayoutsProvider.instance),
         ChangeNotifierProvider.value(value: SettingsProvider.instance),
         ChangeNotifierProvider.value(value: UnityPlayers.instance),
       ],

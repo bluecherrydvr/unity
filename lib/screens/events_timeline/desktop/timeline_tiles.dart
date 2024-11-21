@@ -22,6 +22,7 @@ import 'dart:math';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
+import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
@@ -342,8 +343,7 @@ class _TimelineTileState extends State<_TimelineTile> {
     super.initState();
     colors = Map.fromIterables(
       widget.tile.events.map((e) => e.event),
-      widget.tile.events.indexed.map((e) {
-        final index = e.$1;
+      widget.tile.events.mapIndexed((index, _) {
         return [
           ...Colors.primaries,
           ...Colors.accents,

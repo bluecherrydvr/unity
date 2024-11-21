@@ -21,7 +21,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
@@ -92,7 +92,7 @@ class _MulticastViewportState extends State<MulticastViewport> {
     final settings = context.watch<SettingsProvider>();
     final view = UnityVideoView.maybeOf(context);
     final theme = Theme.of(context);
-    final views = context.watch<DesktopViewProvider>();
+    final views = context.watch<LayoutsProvider>();
 
     if (view == null ||
         view.lastImageUpdate == null ||

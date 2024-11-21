@@ -349,7 +349,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   double get volume => mkPlayer.state.volume / 100;
 
   @override
-  Stream<double> get volumeStream => mkPlayer.stream.volume;
+  Stream<double> get volumeStream => mkPlayer.stream.volume.map((volume) {
+        return volume / 100;
+      });
 
   @override
   Future<void> setSpeed(double speed) => mkPlayer.setRate(speed);

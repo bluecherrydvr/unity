@@ -30,7 +30,7 @@ export 'app_links_stub.dart' if (dart.library.ffi) 'app_links_real.dart';
 
 Future<void> handleArgs(
   List<String> args, {
-  required Future<void> Function() onSplashScreen,
+  required Future<void> Function(bool fullscreen) onSplashScreen,
   required void Function(Layout layout, ThemeMode theme) onLayoutScreen,
   required void Function(Device device, ThemeMode theme) onDeviceScreen,
   required VoidCallback onRunApp,
@@ -110,8 +110,9 @@ Future<void> handleArgs(
   final results = parser.parse(args);
   debugPrint('Opening app with ${results.arguments}');
 
+  var isFullscreen = false;
   if (results.wasParsed('fullscreen')) {
-    final isFullscreen = results.flag('fullscreen');
+    isFullscreen = results.flag('fullscreen');
     settings.kFullscreen.value = isFullscreen;
   }
   if (results.wasParsed('immersive')) {
@@ -130,7 +131,7 @@ Future<void> handleArgs(
     settings.kLayoutCycleEnabled.value = cycle;
   }
 
-  await onSplashScreen();
+  await onSplashScreen(isFullscreen);
 
   final theme = () {
     final themeResult = results.option('theme');

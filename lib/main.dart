@@ -78,9 +78,9 @@ Future<void> main(List<String> args) async {
 
     await app_links.handleArgs(
       args,
-      onSplashScreen: () async {
+      onSplashScreen: (isFullscreen) async {
         if (isDesktopPlatform) {
-          await configureWindow();
+          await configureWindow(fullscreen: isFullscreen);
           if (canLaunchAtStartup) setupLaunchAtStartup();
           if (canUseSystemTray) setupSystemTray();
 
@@ -98,7 +98,7 @@ Future<void> main(List<String> args) async {
         API.initialize();
         await UnityVideoPlayerInterface.instance.initialize();
 
-        logging.writeLogToFile('Opening app with $args');
+        logging.writeLogToFile('Opening app with $args', print: true);
         logging.writeLogToFile(
           'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
           print: true,

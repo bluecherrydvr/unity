@@ -21,7 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluecherry_client/models/layout.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/window.dart';

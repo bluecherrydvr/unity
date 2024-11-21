@@ -21,7 +21,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bluecherry_client/models/device.dart';
-import 'package:bluecherry_client/providers/desktop_view_provider.dart';
+import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';

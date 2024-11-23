@@ -42,6 +42,7 @@ import 'package:bluecherry_client/screens/multi_window/single_layout_window.dart
 import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/screens/players/live_player.dart';
 import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/keyboard.dart';
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
@@ -416,7 +417,10 @@ class _UnityAppState extends State<UnityApp>
           builder: (context, child) {
             Intl.defaultLocale = Localizations.localeOf(context).languageCode;
 
-            return child!;
+            return CallbackShortcuts(
+              bindings: globalShortcuts(context),
+              child: child!,
+            );
           },
         );
       }),

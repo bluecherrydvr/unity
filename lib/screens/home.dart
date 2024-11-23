@@ -19,7 +19,6 @@
 
 import 'package:animations/animations.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
-import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/direct_camera.dart';
 import 'package:bluecherry_client/screens/downloads/downloads_manager.dart';
@@ -28,83 +27,11 @@ import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/screens/servers/wizard.dart';
 import 'package:bluecherry_client/screens/settings/settings.dart';
-import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/search.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-
-class NavigatorData {
-  /// The tab that this navigator data represents.
-  final UnityTab tab;
-  final IconData icon;
-  final IconData selectedIcon;
-  final String text;
-
-  const NavigatorData({
-    required this.tab,
-    required this.icon,
-    required this.selectedIcon,
-    required this.text,
-  });
-
-  static List<NavigatorData> of(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final screenSize = MediaQuery.sizeOf(context);
-    final layout = context.watch<LayoutsProvider>().currentLayout;
-
-    return [
-      NavigatorData(
-        tab: UnityTab.deviceGrid,
-        icon: Icons.window_outlined,
-        selectedIcon: Icons.window,
-        text: loc.screens(layout.name),
-      ),
-      NavigatorData(
-        tab: UnityTab.eventsTimeline,
-        icon: Icons.subscriptions_outlined,
-        selectedIcon: Icons.subscriptions,
-        text: loc.eventsTimeline,
-      ),
-      if (screenSize.width <= kMobileBreakpoint.width ||
-          Scaffold.hasDrawer(context))
-        NavigatorData(
-          tab: UnityTab.directCameraScreen,
-          icon: Icons.videocam_outlined,
-          selectedIcon: Icons.videocam,
-          text: loc.directCamera,
-        ),
-      NavigatorData(
-        tab: UnityTab.eventsHistory,
-        icon: Icons.featured_play_list_outlined,
-        selectedIcon: Icons.featured_play_list,
-        text: loc.eventBrowser,
-      ),
-      NavigatorData(
-        tab: UnityTab.addServer,
-        icon: Icons.dns_outlined,
-        selectedIcon: Icons.dns,
-        text: loc.addServer,
-      ),
-      if (!kIsWeb)
-        NavigatorData(
-          tab: UnityTab.downloads,
-          icon: Icons.download_outlined,
-          selectedIcon: Icons.download,
-          text: loc.downloads,
-        ),
-      NavigatorData(
-        tab: UnityTab.settings,
-        icon: Icons.settings_outlined,
-        selectedIcon: Icons.settings,
-        text: loc.settings,
-      ),
-    ];
-  }
-}
 
 class Home extends StatefulWidget {
   const Home({super.key});

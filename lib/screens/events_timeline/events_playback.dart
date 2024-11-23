@@ -195,6 +195,8 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           '${event.physicalKey}${event.physicalKey.debugName}',
         );
 
+        final isTimelineValid = timeline!.tiles.isNotEmpty;
+
         switch (event.logicalKey) {
           case LogicalKeyboardKey.arrowRight:
             timeline!.seekForward();
@@ -230,25 +232,17 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
             return KeyEventResult.handled;
           case LogicalKeyboardKey.mediaSkipForward:
           case LogicalKeyboardKey.mediaTrackNext:
-            timeline!.seekToNextEvent();
-            return KeyEventResult.handled;
+            final nextEvent = timeline!.seekToNextEvent();
+            if (nextEvent != null) return KeyEventResult.handled;
           case LogicalKeyboardKey.mediaSkipBackward:
           case LogicalKeyboardKey.mediaTrackPrevious:
-            timeline!.seekToPreviousEvent();
-            return KeyEventResult.handled;
+            final previousEvent = timeline!.seekToPreviousEvent();
+            if (previousEvent != null) return KeyEventResult.handled;
           case LogicalKeyboardKey.mediaStepForward:
             timeline!.stepForward();
             return KeyEventResult.handled;
           case LogicalKeyboardKey.mediaStepBackward:
             timeline!.stepBackward();
-            return KeyEventResult.handled;
-          case LogicalKeyboardKey.home:
-          case LogicalKeyboardKey.numpad0:
-          case LogicalKeyboardKey.digit0:
-            timeline!.seekTo(Duration.zero);
-            return KeyEventResult.handled;
-          case LogicalKeyboardKey.end:
-            timeline!.seekTo(timeline!.endPosition);
             return KeyEventResult.handled;
           case LogicalKeyboardKey.keyM:
             if (timeline!.isMuted) {
@@ -263,47 +257,70 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           case LogicalKeyboardKey.arrowDown:
             timeline!.volume -= 0.1;
             return KeyEventResult.handled;
-
+          case LogicalKeyboardKey.home:
+          case LogicalKeyboardKey.numpad0:
+          case LogicalKeyboardKey.digit0:
+            timeline!.seekTo(Duration.zero);
+            return KeyEventResult.handled;
+          case LogicalKeyboardKey.end:
+            timeline!.seekTo(timeline!.endPosition);
+            return KeyEventResult.handled;
           case LogicalKeyboardKey.numpad1:
           case LogicalKeyboardKey.digit1:
-            timeline!.seekTo(timeline!.endPosition * 0.1);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.1);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad2:
           case LogicalKeyboardKey.digit2:
-            timeline!.seekTo(timeline!.endPosition * 0.2);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.2);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad3:
           case LogicalKeyboardKey.digit3:
-            timeline!.seekTo(timeline!.endPosition * 0.3);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.3);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad4:
           case LogicalKeyboardKey.digit4:
-            timeline!.seekTo(timeline!.endPosition * 0.4);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.4);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad5:
           case LogicalKeyboardKey.digit5:
-            timeline!.seekTo(timeline!.endPosition * 0.5);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.5);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad6:
           case LogicalKeyboardKey.digit6:
-            timeline!.seekTo(timeline!.endPosition * 0.6);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.6);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad7:
           case LogicalKeyboardKey.digit7:
-            timeline!.seekTo(timeline!.endPosition * 0.7);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.7);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad8:
           case LogicalKeyboardKey.digit8:
-            timeline!.seekTo(timeline!.endPosition * 0.8);
-            return KeyEventResult.handled;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.8);
+              return KeyEventResult.handled;
+            }
           case LogicalKeyboardKey.numpad9:
           case LogicalKeyboardKey.digit9:
-            timeline!.seekTo(timeline!.endPosition * 0.9);
-            return KeyEventResult.handled;
-
-          default:
-            return KeyEventResult.ignored;
+            if (isTimelineValid) {
+              timeline!.seekTo(timeline!.endPosition * 0.9);
+              return KeyEventResult.handled;
+            }
         }
+        return KeyEventResult.ignored;
       },
       child: LayoutBuilder(builder: (context, constraints) {
         final hasDrawer = Scaffold.hasDrawer(context);

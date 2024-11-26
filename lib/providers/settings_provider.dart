@@ -710,6 +710,13 @@ class SettingsProvider extends UnityProvider {
     kShowNetworkUsage,
   ];
 
+  int _settingsIndex = 0;
+  int get settingsIndex => _settingsIndex;
+  set settingsIndex(int value) {
+    _settingsIndex = value;
+    notifyListeners();
+  }
+
   /// Initializes the [SettingsProvider] instance & fetches state from `async`
   /// `package:hive` method-calls. Called before [runApp].
   static Future<SettingsProvider> ensureInitialized() async {

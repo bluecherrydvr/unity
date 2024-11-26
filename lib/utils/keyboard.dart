@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-Map<ShortcutActivator, VoidCallback> globalShortcuts() {
-  final context = navigatorKey.currentContext!;
+Map<ShortcutActivator, VoidCallback> globalShortcuts(BuildContext context) {
+  context = navigatorKey.currentContext ?? context;
   final settings = context.read<SettingsProvider>();
   final home = context.read<HomeProvider>();
 
@@ -47,8 +47,8 @@ Map<ShortcutActivator, VoidCallback> globalShortcuts() {
   };
 }
 
-Map<ShortcutActivator, VoidCallback> layoutShortcuts() {
-  final context = navigatorKey.currentContext!;
+Map<ShortcutActivator, VoidCallback> layoutShortcuts(BuildContext context) {
+  context = navigatorKey.currentContext ?? context;
   final settings = context.read<SettingsProvider>();
   final layouts = context.read<LayoutsProvider>();
 
@@ -93,7 +93,8 @@ Map<ShortcutActivator, VoidCallback> layoutShortcuts() {
       layouts.sidebarKey.currentState?.toggle();
     },
     SingleActivator(LogicalKeyboardKey.keyN, control: true): () {
-      showNewLayoutDialog(context);
+      if (navigatorKey.currentContext == null) return;
+      showNewLayoutDialog(navigatorKey.currentContext!);
     },
     SingleActivator(LogicalKeyboardKey.tab, control: true):
         layouts.switchToNextLayout,
@@ -102,5 +103,47 @@ Map<ShortcutActivator, VoidCallback> layoutShortcuts() {
     SingleActivator(LogicalKeyboardKey.keyL, control: true): () {
       layouts.toggleLayoutLock(layouts.currentLayout);
     },
+  };
+}
+
+Map<ShortcutActivator, VoidCallback> settingsShortcuts(BuildContext context) {
+  context = navigatorKey.currentContext ?? context;
+  final settings = context.read<SettingsProvider>();
+
+  return {
+    for (var i = 0; i < 6; i++)
+      SingleActivator(
+        {
+          1: LogicalKeyboardKey.digit1,
+          2: LogicalKeyboardKey.digit2,
+          3: LogicalKeyboardKey.digit3,
+          4: LogicalKeyboardKey.digit4,
+          5: LogicalKeyboardKey.digit5,
+          6: LogicalKeyboardKey.digit6,
+          7: LogicalKeyboardKey.digit7,
+          8: LogicalKeyboardKey.digit8,
+          9: LogicalKeyboardKey.digit9,
+        }[i + 1]!,
+        control: true,
+      ): () {
+        settings.settingsIndex = i;
+      },
+    for (var i = 0; i < 6; i++)
+      SingleActivator(
+        {
+          1: LogicalKeyboardKey.numpad1,
+          2: LogicalKeyboardKey.numpad2,
+          3: LogicalKeyboardKey.numpad3,
+          4: LogicalKeyboardKey.numpad4,
+          5: LogicalKeyboardKey.numpad5,
+          6: LogicalKeyboardKey.numpad6,
+          7: LogicalKeyboardKey.numpad7,
+          8: LogicalKeyboardKey.numpad8,
+          9: LogicalKeyboardKey.numpad9,
+        }[i + 1]!,
+        control: true,
+      ): () {
+        settings.settingsIndex = i;
+      },
   };
 }

@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/advanced_options.dart';
 import 'package:bluecherry_client/screens/settings/application.dart';
 import 'package:bluecherry_client/screens/settings/events_and_downloads.dart';
@@ -26,8 +27,9 @@ import 'package:bluecherry_client/screens/settings/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
-class DesktopSettings extends StatefulWidget {
+class DesktopSettings extends StatelessWidget {
   const DesktopSettings({super.key});
 
   static const horizontalPadding =
@@ -36,16 +38,10 @@ class DesktopSettings extends StatefulWidget {
       EdgeInsetsDirectional.symmetric(vertical: 16.0);
 
   @override
-  State<DesktopSettings> createState() => _DesktopSettingsState();
-}
-
-class _DesktopSettingsState extends State<DesktopSettings> {
-  int currentIndex = 0;
-
-  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
 
     return LayoutBuilder(builder: (context, constraints) {
       return Row(children: [
@@ -78,9 +74,8 @@ class _DesktopSettingsState extends State<DesktopSettings> {
               label: Text(loc.advancedOptions),
             ),
           ],
-          selectedIndex: currentIndex,
-          onDestinationSelected: (index) =>
-              setState(() => currentIndex = index),
+          selectedIndex: settings.settingsIndex,
+          onDestinationSelected: (index) => settings.settingsIndex = index,
         ),
         Expanded(
           child: Card(
@@ -103,7 +98,7 @@ class _DesktopSettingsState extends State<DesktopSettings> {
                 ),
                 child: AnimatedSwitcher(
                   duration: kThemeChangeDuration,
-                  child: switch (currentIndex) {
+                  child: switch (settings.settingsIndex) {
                     0 => const GeneralSettings(),
                     1 => const ServerAndDevicesSettings(),
                     2 => const EventsAndDownloadsSettings(),

@@ -421,8 +421,11 @@ class _UnityAppState extends State<UnityApp>
 
             return CallbackShortcuts(
               bindings: {
-                ...globalShortcuts(),
-                if (home.tab == UnityTab.deviceGrid) ...layoutShortcuts(),
+                ...globalShortcuts(context),
+                if (home.tab == UnityTab.deviceGrid)
+                  ...layoutShortcuts(context),
+                if (home.tab == UnityTab.settings)
+                  ...settingsShortcuts(context),
               },
               child: child!,
             );

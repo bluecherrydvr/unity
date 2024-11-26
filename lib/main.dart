@@ -417,8 +417,13 @@ class _UnityAppState extends State<UnityApp>
           builder: (context, child) {
             Intl.defaultLocale = Localizations.localeOf(context).languageCode;
 
+            final home = context.watch<HomeProvider>();
+
             return CallbackShortcuts(
-              bindings: globalShortcuts(context),
+              bindings: {
+                ...globalShortcuts(),
+                if (home.tab == UnityTab.deviceGrid) ...layoutShortcuts(),
+              },
               child: child!,
             );
           },

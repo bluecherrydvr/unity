@@ -44,14 +44,17 @@ final navigatorObserver = NObserver();
 
 class NObserver extends NavigatorObserver {
   bool poppableRoute = false;
+  bool isDialog = false;
 
   void update(Route? route) {
     if (route == null || route is DialogRoute || route is PopupRoute) {
+      if (route is DialogRoute) isDialog = true;
       poppableRoute = false;
       return;
     }
 
     poppableRoute = true;
+    isDialog = false;
 
     navigationStream.add(route.settings.arguments);
   }

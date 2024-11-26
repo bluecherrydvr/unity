@@ -420,13 +420,15 @@ class _UnityAppState extends State<UnityApp>
             final home = context.watch<HomeProvider>();
 
             return CallbackShortcuts(
-              bindings: {
-                ...globalShortcuts(context),
-                if (home.tab == UnityTab.deviceGrid)
-                  ...layoutShortcuts(context),
-                if (home.tab == UnityTab.settings)
-                  ...settingsShortcuts(context),
-              },
+              bindings: navigatorObserver.isDialog
+                  ? {}
+                  : {
+                      ...globalShortcuts(context),
+                      if (home.tab == UnityTab.deviceGrid)
+                        ...layoutShortcuts(context),
+                      if (home.tab == UnityTab.settings)
+                        ...settingsShortcuts(context),
+                    },
               child: child!,
             );
           },

@@ -147,3 +147,234 @@ Map<ShortcutActivator, VoidCallback> settingsShortcuts(BuildContext context) {
       },
   };
 }
+
+class KeyboardBindings {
+  // Global shortcuts
+  static const toggleFullscreen = SingleActivator(LogicalKeyboardKey.f11);
+  static const toggleImmersiveMode = SingleActivator(LogicalKeyboardKey.f12);
+  static const setTab1 = SingleActivator(LogicalKeyboardKey.digit1, alt: true);
+  static const setTab2 = SingleActivator(LogicalKeyboardKey.digit2, alt: true);
+  static const setTab3 = SingleActivator(LogicalKeyboardKey.digit3, alt: true);
+  static const setTab4 = SingleActivator(LogicalKeyboardKey.digit4, alt: true);
+  static const setTab5 = SingleActivator(LogicalKeyboardKey.digit5, alt: true);
+  static const setTab6 = SingleActivator(LogicalKeyboardKey.digit6, alt: true);
+  static const setTab7 = SingleActivator(LogicalKeyboardKey.digit7, alt: true);
+  static const setTab8 = SingleActivator(LogicalKeyboardKey.digit8, alt: true);
+  static const setTab9 = SingleActivator(LogicalKeyboardKey.digit9, alt: true);
+
+  // Layout shortcuts
+  static const setLayout1 =
+      SingleActivator(LogicalKeyboardKey.digit1, control: true);
+  static const setLayout2 =
+      SingleActivator(LogicalKeyboardKey.digit2, control: true);
+  static const setLayout3 =
+      SingleActivator(LogicalKeyboardKey.digit3, control: true);
+  static const setLayout4 =
+      SingleActivator(LogicalKeyboardKey.digit4, control: true);
+  static const setLayout5 =
+      SingleActivator(LogicalKeyboardKey.digit5, control: true);
+  static const setLayout6 =
+      SingleActivator(LogicalKeyboardKey.digit6, control: true);
+  static const setLayout7 =
+      SingleActivator(LogicalKeyboardKey.digit7, control: true);
+  static const setLayout8 =
+      SingleActivator(LogicalKeyboardKey.digit8, control: true);
+  static const setLayout9 =
+      SingleActivator(LogicalKeyboardKey.digit9, control: true);
+  static const toggleLayoutCycling =
+      SingleActivator(LogicalKeyboardKey.keyC, control: true, shift: true);
+  static const toggleLayoutSidebar =
+      SingleActivator(LogicalKeyboardKey.keyB, control: true);
+  static const showNewLayoutDialog =
+      SingleActivator(LogicalKeyboardKey.keyN, control: true);
+  static const switchToNextLayout =
+      SingleActivator(LogicalKeyboardKey.tab, control: true);
+  static const switchToPreviousLayout =
+      SingleActivator(LogicalKeyboardKey.tab, control: true, shift: true);
+  static const toggleLayoutLock =
+      SingleActivator(LogicalKeyboardKey.keyL, control: true);
+
+  // Settings shortcuts
+  static const setSettingsTab1 =
+      SingleActivator(LogicalKeyboardKey.digit1, control: true);
+  static const setSettingsTab2 =
+      SingleActivator(LogicalKeyboardKey.digit2, control: true);
+  static const setSettingsTab3 =
+      SingleActivator(LogicalKeyboardKey.digit3, control: true);
+  static const setSettingsTab4 =
+      SingleActivator(LogicalKeyboardKey.digit4, control: true);
+  static const setSettingsTab5 =
+      SingleActivator(LogicalKeyboardKey.digit5, control: true);
+  static const setSettingsTab6 =
+      SingleActivator(LogicalKeyboardKey.digit6, control: true);
+
+  static List<
+      ({
+        String name,
+        String system,
+        ShortcutActivator activator,
+      })> get all {
+    return [
+      (
+        name: 'Toggle Fullscreen',
+        system: 'Global',
+        activator: toggleFullscreen,
+      ),
+      (
+        name: 'Toggle Immersive Mode',
+        system: 'Global',
+        activator: toggleImmersiveMode,
+      ),
+      (
+        name: 'Set Layouts Tab',
+        system: 'Global',
+        activator: setTab1,
+      ),
+      (
+        name: 'Set Events Timeline Tab',
+        system: 'Global',
+        activator: setTab2,
+      ),
+      (
+        name: 'Set Add Server Tab',
+        system: 'Global',
+        activator: setTab3,
+      ),
+      (
+        name: 'Set Downloads Tab',
+        system: 'Global',
+        activator: setTab4,
+      ),
+      (
+        name: 'Set Settings Tab',
+        system: 'Global',
+        activator: setTab5,
+      ),
+      (
+        name: 'Set Tab 6',
+        system: 'Global',
+        activator: setTab6,
+      ),
+      (
+        name: 'Set Tab 7',
+        system: 'Global',
+        activator: setTab7,
+      ),
+      (
+        name: 'Set Tab 8',
+        system: 'Global',
+        activator: setTab8,
+      ),
+      (
+        name: 'Set Tab 9',
+        system: 'Global',
+        activator: setTab9,
+      ),
+      (
+        name: 'Set Layout 1',
+        system: 'Layout',
+        activator: setLayout1,
+      ),
+      (
+        name: 'Set Layout 2',
+        system: 'Layout',
+        activator: setLayout2,
+      ),
+      (
+        name: 'Set Layout 3',
+        system: 'Layout',
+        activator: setLayout3,
+      ),
+      (
+        name: 'Set Layout 4',
+        system: 'Layout',
+        activator: setLayout4,
+      ),
+      (
+        name: 'Set Layout 5',
+        system: 'Layout',
+        activator: setLayout5,
+      ),
+      (
+        name: 'Set Layout 6',
+        system: 'Layout',
+        activator: setLayout6,
+      ),
+      (
+        name: 'Set Layout 7',
+        system: 'Layout',
+        activator: setLayout7,
+      ),
+      (
+        name: 'Set Layout 8',
+        system: 'Layout',
+        activator: setLayout8,
+      ),
+      (
+        name: 'Set Layout 9',
+        system: 'Layout',
+        activator: setLayout9,
+      ),
+      (
+        name: 'Toggle Layout Cycling',
+        system: 'Layout',
+        activator: toggleLayoutCycling,
+      ),
+      (
+        name: 'Toggle Layout Sidebar',
+        system: 'Layout',
+        activator: toggleLayoutSidebar,
+      ),
+      (
+        name: 'Show New Layout Dialog',
+        system: 'Layout',
+        activator: showNewLayoutDialog,
+      ),
+      (
+        name: 'Switch to Next Layout',
+        system: 'Layout',
+        activator: switchToNextLayout,
+      ),
+      (
+        name: 'Switch to Previous Layout',
+        system: 'Layout',
+        activator: switchToPreviousLayout,
+      ),
+      (
+        name: 'Toggle Layout Lock',
+        system: 'Layout',
+        activator: toggleLayoutLock,
+      ),
+      (
+        name: 'Go to General Settings',
+        system: 'Settings',
+        activator: setSettingsTab1,
+      ),
+      (
+        name: 'Go to Server and Devices Settings',
+        system: 'Settings',
+        activator: setSettingsTab2,
+      ),
+      (
+        name: 'Go to Events and Downloads Settings',
+        system: 'Settings',
+        activator: setSettingsTab3,
+      ),
+      (
+        name: 'Go to Application Settings',
+        system: 'Settings',
+        activator: setSettingsTab4,
+      ),
+      (
+        name: 'Go to Updates and Help Settings',
+        system: 'Settings',
+        activator: setSettingsTab5,
+      ),
+      (
+        name: 'Go to Advanced Options Settings',
+        system: 'Settings',
+        activator: setSettingsTab6,
+      ),
+    ];
+  }
+}

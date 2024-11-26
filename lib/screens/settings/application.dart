@@ -21,10 +21,12 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/keyboard.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:intl/intl.dart';
@@ -208,6 +210,11 @@ class ApplicationSettings extends StatelessWidget {
           ),
         ),
       ],
+      const SubHeader(
+        'Keyboard Shortcuts',
+        padding: DesktopSettings.horizontalPadding,
+      ),
+      KeyboardSection(),
     ]);
   }
 
@@ -369,6 +376,137 @@ class TimeFormatSection extends StatelessWidget {
       onChanged: (v) {
         settings.kTimeFormat.value = DateFormat(v!, locale);
       },
+    );
+  }
+}
+
+class KeyboardSection extends StatelessWidget {
+  const KeyboardSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DataTable(
+      columns: [
+        DataColumn(label: Text('System')),
+        DataColumn(label: Text('Command')),
+        DataColumn(label: Text('Keybinding')),
+      ],
+      rows: [
+        for (final keybinding in KeyboardBindings.all)
+          DataRow(
+            cells: [
+              DataCell(Text(keybinding.system)),
+              DataCell(Text(keybinding.name)),
+              DataCell(
+                Text(keybinding.activator.debugDescribeKeys()),
+                showEditIcon: true,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        KeybindingDialog(keybinding: keybinding),
+                  );
+                },
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class KeybindingDialog extends StatefulWidget {
+  final ({String name, String system, ShortcutActivator activator}) keybinding;
+
+  const KeybindingDialog({super.key, required this.keybinding});
+
+  @override
+  State<KeybindingDialog> createState() => _KeybindingDialogState();
+}
+
+class _KeybindingDialogState extends State<KeybindingDialog> {
+  ShortcutActivator? _newActivator;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleKeypress(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      setState(() {
+        _newActivator = SingleActivator(
+          LogicalKeyboardKey.findKeyByKeyId(event.logicalKey.keyId)!,
+          control: HardwareKeyboard.instance.isControlPressed,
+          shift: HardwareKeyboard.instance.isShiftPressed,
+          alt: HardwareKeyboard.instance.isAltPressed,
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Change Keybinding for "${widget.keybinding.name}"'),
+      content: KeyboardListener(
+        autofocus: true,
+        focusNode: _focusNode,
+        onKeyEvent: _handleKeypress,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text('Press the new key combination you want to use.'),
+          const SizedBox(height: 20),
+          RichText(
+            text: TextSpan(
+              text: 'Current Keybinding: ',
+              style: DefaultTextStyle.of(context).style,
+              children: [
+                TextSpan(
+                  text: widget.keybinding.activator.debugDescribeKeys(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              text: 'New Keybinding: ',
+              style: DefaultTextStyle.of(context).style,
+              children: [
+                TextSpan(
+                  text: _newActivator?.debugDescribeKeys() ?? 'Empty',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // TODO: Save the new keybinding
+            Navigator.pop(context);
+          },
+          child: const Text('Save'),
+        ),
+      ],
     );
   }
 }

@@ -385,6 +385,7 @@ class KeyboardSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final keyboard = context.watch<KeyboardBindings>();
     return DataTable(
       columns: [
         DataColumn(label: Text('System')),
@@ -392,19 +393,20 @@ class KeyboardSection extends StatelessWidget {
         DataColumn(label: Text('Keybinding')),
       ],
       rows: [
-        for (final keybinding in KeyboardBindings.all)
+        for (final keybinding in keyboard.all)
           DataRow(
             cells: [
               DataCell(Text(keybinding.system)),
               DataCell(Text(keybinding.name)),
               DataCell(
-                Text(keybinding.activator.debugDescribeKeys()),
+                Text(keybinding.value.debugDescribeKeys()),
                 showEditIcon: true,
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (context) =>
-                        KeybindingDialog(keybinding: keybinding),
+                    builder: (context) => KeybindingDialog(
+                      keybinding: keybinding,
+                    ),
                   );
                 },
               ),
@@ -416,16 +418,19 @@ class KeyboardSection extends StatelessWidget {
 }
 
 class KeybindingDialog extends StatefulWidget {
-  final ({String name, String system, ShortcutActivator activator}) keybinding;
+  final KeybindingSetting keybinding;
 
-  const KeybindingDialog({super.key, required this.keybinding});
+  const KeybindingDialog({
+    super.key,
+    required this.keybinding,
+  });
 
   @override
   State<KeybindingDialog> createState() => _KeybindingDialogState();
 }
 
 class _KeybindingDialogState extends State<KeybindingDialog> {
-  ShortcutActivator? _newActivator;
+  SingleActivator? _newActivator;
   late FocusNode _focusNode;
 
   @override
@@ -470,7 +475,7 @@ class _KeybindingDialogState extends State<KeybindingDialog> {
               style: DefaultTextStyle.of(context).style,
               children: [
                 TextSpan(
-                  text: widget.keybinding.activator.debugDescribeKeys(),
+                  text: widget.keybinding.value.debugDescribeKeys(),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -501,7 +506,9 @@ class _KeybindingDialogState extends State<KeybindingDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            // TODO: Save the new keybinding
+            if (_newActivator != null) {
+              widget.keybinding.value = _newActivator!;
+            }
             Navigator.pop(context);
           },
           child: const Text('Save'),

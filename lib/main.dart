@@ -116,6 +116,7 @@ Future<void> main(List<String> args) async {
         await LayoutsProvider.ensureInitialized();
         await UpdateManager.ensureInitialized();
         await EventsProvider.ensureInitialized();
+        await KeyboardBindings.ensureInitialized();
       },
       onLayoutScreen: (layout, theme) {
         configureWindowTitle(layout.name);
@@ -333,6 +334,9 @@ class _UnityAppState extends State<UnityApp>
         ChangeNotifierProvider<EventsProvider>.value(
           value: EventsProvider.instance,
         ),
+        ChangeNotifierProvider<KeyboardBindings>.value(
+          value: KeyboardBindings.instance,
+        ),
       ],
       child: Consumer<SettingsProvider>(builder: (context, settings, _) {
         return MaterialApp(
@@ -418,16 +422,17 @@ class _UnityAppState extends State<UnityApp>
             Intl.defaultLocale = Localizations.localeOf(context).languageCode;
 
             final home = context.watch<HomeProvider>();
+            final bindings = context.watch<KeyboardBindings>();
 
             return CallbackShortcuts(
               bindings: navigatorObserver.isDialog
                   ? {}
                   : {
-                      ...globalShortcuts(context),
+                      ...globalShortcuts(context, bindings),
                       if (home.tab == UnityTab.deviceGrid)
-                        ...layoutShortcuts(context),
+                        ...layoutShortcuts(context, bindings),
                       if (home.tab == UnityTab.settings)
-                        ...settingsShortcuts(context),
+                        ...settingsShortcuts(context, bindings),
                     },
               child: child!,
             );

@@ -242,7 +242,7 @@ class PTZToggleButton extends StatelessWidget {
         tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
         onPressed: () => onChanged(!ptzEnabled),
       ),
-      // TODO(bdlukaa): enable presets when the API is ready
+      // TODO(bdlukaa): Enable presets when the API is ready
       // SquaredIconButton(
       //   icon: Icon(
       //     Icons.dataset,

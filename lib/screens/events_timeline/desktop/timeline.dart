@@ -375,6 +375,8 @@ class Timeline extends ChangeNotifier {
     });
   }
 
+  // TODO(bdlukaa): Only make it possible to seek between bounds.
+  //                Currently, is is possible to seek before and after the day.
   /// Seeks forward by [duration]
   void seekForward([Duration duration = const Duration(seconds: 15)]) =>
       seekTo(currentPosition + duration);

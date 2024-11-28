@@ -143,12 +143,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
                 SquaredIconButton(
                   icon: const Icon(Icons.add),
                   tooltip: loc.newLayout,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const NewLayoutDialog(),
-                    );
-                  },
+                  onPressed: () => showNewLayoutDialog(context),
                 ),
               ]),
             ),
@@ -387,6 +382,13 @@ class _LayoutTypeChooser extends StatelessWidget {
       }).toList(),
     );
   }
+}
+
+Future<void> showNewLayoutDialog(BuildContext context) {
+  return showDialog(
+    context: context,
+    builder: (context) => const NewLayoutDialog(),
+  );
 }
 
 class NewLayoutDialog extends StatefulWidget {

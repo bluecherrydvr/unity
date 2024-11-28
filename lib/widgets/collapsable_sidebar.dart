@@ -49,10 +49,10 @@ class CollapsableSidebar extends StatefulWidget {
   });
 
   @override
-  State<CollapsableSidebar> createState() => _CollapsableSidebarState();
+  State<CollapsableSidebar> createState() => CollapsableSidebarState();
 }
 
-class _CollapsableSidebarState extends State<CollapsableSidebar>
+class CollapsableSidebarState extends State<CollapsableSidebar>
     with SingleTickerProviderStateMixin {
   late final AnimationController collapseController = AnimationController(
     vsync: this,
@@ -87,6 +87,14 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
   void dispose() {
     collapseController.dispose();
     super.dispose();
+  }
+
+  void toggle() {
+    if (collapseController.isCompleted) {
+      collapseController.reverse();
+    } else {
+      collapseController.forward();
+    }
   }
 
   @override
@@ -126,13 +134,7 @@ class _CollapsableSidebarState extends State<CollapsableSidebar>
                   .animate(collapseAnimation),
               child: const Icon(Icons.keyboard_arrow_right),
             ),
-            onPressed: () {
-              if (collapseController.isCompleted) {
-                collapseController.reverse();
-              } else {
-                collapseController.forward();
-              }
-            },
+            onPressed: toggle,
           ),
         );
 

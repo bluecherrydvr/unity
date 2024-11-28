@@ -88,6 +88,7 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
     final isReversed = widget.width <= _kReverseBreakpoint;
 
     final sidebar = CollapsableSidebar(
+      key: view.sidebarKey,
       initiallyClosed:
           app_links.openedFromFile || view.currentLayout.devices.isNotEmpty,
       left: !isReversed,

@@ -42,6 +42,7 @@ import 'package:bluecherry_client/screens/multi_window/single_layout_window.dart
 import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/screens/players/live_player.dart';
 import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/keyboard.dart';
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
@@ -115,6 +116,7 @@ Future<void> main(List<String> args) async {
         await LayoutsProvider.ensureInitialized();
         await UpdateManager.ensureInitialized();
         await EventsProvider.ensureInitialized();
+        await KeyboardBindings.ensureInitialized();
       },
       onLayoutScreen: (layout, theme) {
         configureWindowTitle(layout.name);
@@ -332,6 +334,9 @@ class _UnityAppState extends State<UnityApp>
         ChangeNotifierProvider<EventsProvider>.value(
           value: EventsProvider.instance,
         ),
+        ChangeNotifierProvider<KeyboardBindings>.value(
+          value: KeyboardBindings.instance,
+        ),
       ],
       child: Consumer<SettingsProvider>(builder: (context, settings, _) {
         return MaterialApp(
@@ -416,7 +421,21 @@ class _UnityAppState extends State<UnityApp>
           builder: (context, child) {
             Intl.defaultLocale = Localizations.localeOf(context).languageCode;
 
-            return child!;
+            final home = context.watch<HomeProvider>();
+            final bindings = context.watch<KeyboardBindings>();
+
+            return CallbackShortcuts(
+              bindings: navigatorObserver.isDialog
+                  ? {}
+                  : {
+                      ...globalShortcuts(context, bindings),
+                      if (home.tab == UnityTab.deviceGrid)
+                        ...layoutShortcuts(context, bindings),
+                      if (home.tab == UnityTab.settings)
+                        ...settingsShortcuts(context, bindings),
+                    },
+              child: child!,
+            );
           },
         );
       }),

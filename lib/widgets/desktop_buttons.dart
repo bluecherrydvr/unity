@@ -28,7 +28,6 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/events_playback.dart';
-import 'package:bluecherry_client/screens/home.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
@@ -45,14 +44,17 @@ final navigatorObserver = NObserver();
 
 class NObserver extends NavigatorObserver {
   bool poppableRoute = false;
+  bool isDialog = false;
 
   void update(Route? route) {
     if (route == null || route is DialogRoute || route is PopupRoute) {
+      if (route is DialogRoute) isDialog = true;
       poppableRoute = false;
       return;
     }
 
     poppableRoute = true;
+    isDialog = false;
 
     navigationStream.add(route.settings.arguments);
   }

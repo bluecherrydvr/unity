@@ -22,6 +22,7 @@ import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/providers/update_provider.dart';
+import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
@@ -101,6 +102,75 @@ enum UnityLoadingReason {
       UnityLoadingReason.fetchingEventsPlayback =>
         loc.taskFetchingEventsPlayback,
     };
+  }
+}
+
+class NavigatorData {
+  /// The tab that this navigator data represents.
+  final UnityTab tab;
+  final IconData icon;
+  final IconData selectedIcon;
+  final String text;
+
+  const NavigatorData({
+    required this.tab,
+    required this.icon,
+    required this.selectedIcon,
+    required this.text,
+  });
+
+  static List<NavigatorData> of(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final screenSize = MediaQuery.sizeOf(context);
+    final layout = context.read<LayoutsProvider>().currentLayout;
+
+    return [
+      NavigatorData(
+        tab: UnityTab.deviceGrid,
+        icon: Icons.window_outlined,
+        selectedIcon: Icons.window,
+        text: loc.screens(layout.name),
+      ),
+      NavigatorData(
+        tab: UnityTab.eventsTimeline,
+        icon: Icons.subscriptions_outlined,
+        selectedIcon: Icons.subscriptions,
+        text: loc.eventsTimeline,
+      ),
+      if (screenSize.width <= kMobileBreakpoint.width ||
+          Scaffold.hasDrawer(context))
+        NavigatorData(
+          tab: UnityTab.directCameraScreen,
+          icon: Icons.videocam_outlined,
+          selectedIcon: Icons.videocam,
+          text: loc.directCamera,
+        ),
+      NavigatorData(
+        tab: UnityTab.eventsHistory,
+        icon: Icons.featured_play_list_outlined,
+        selectedIcon: Icons.featured_play_list,
+        text: loc.eventBrowser,
+      ),
+      NavigatorData(
+        tab: UnityTab.addServer,
+        icon: Icons.dns_outlined,
+        selectedIcon: Icons.dns,
+        text: loc.addServer,
+      ),
+      if (!kIsWeb)
+        NavigatorData(
+          tab: UnityTab.downloads,
+          icon: Icons.download_outlined,
+          selectedIcon: Icons.download,
+          text: loc.downloads,
+        ),
+      NavigatorData(
+        tab: UnityTab.settings,
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings,
+        text: loc.settings,
+      ),
+    ];
   }
 }
 

@@ -28,7 +28,9 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
+import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 class LayoutsProvider extends UnityProvider {
@@ -68,6 +70,8 @@ class LayoutsProvider extends UnityProvider {
     notifyListeners();
     save();
   }
+
+  final sidebarKey = GlobalKey<CollapsableSidebarState>();
 
   @override
   Future<void> initialize() async {

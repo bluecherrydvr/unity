@@ -70,7 +70,7 @@ class ApplicationSettings extends StatelessWidget {
           settings.kThemeMode.value = v;
         },
       ),
-      if (isMobilePlatform) _buildImmersiveModeTile(),
+      if (isMobilePlatform) ImmersiveModeTile(),
       const LanguageSection(),
       SubHeader(loc.dateAndTime, padding: DesktopSettings.horizontalPadding),
       const DateFormatSection(),
@@ -94,121 +94,14 @@ class ApplicationSettings extends StatelessWidget {
       ),
       if (isDesktopPlatform) ...[
         const SubHeader('Window', padding: DesktopSettings.horizontalPadding),
-        if (canLaunchAtStartup)
-          CheckboxListTile.adaptive(
-            value: settings.kLaunchAppOnStartup.value,
-            onChanged: (v) {
-              if (v != null) {
-                settings.kLaunchAppOnStartup.value = v;
-              }
-            },
-            contentPadding: DesktopSettings.horizontalPadding,
-            secondary: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: theme.iconTheme.color,
-              child: const Icon(Icons.launch),
-            ),
-            title: const Text('Launch app on startup'),
-            subtitle: const Text(
-              'Whether to launch the app when the system starts',
-            ),
-          ),
-        CheckboxListTile.adaptive(
-          value: settings.kFullscreen.value,
-          onChanged: (v) {
-            if (v != null) settings.kFullscreen.value = v;
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.fullscreen),
-          ),
-          title: const Text('Fullscreen Mode'),
-          subtitle: const Text('Whether the app is in fullscreen mode or not.'),
-        ),
-        _buildImmersiveModeTile(),
-        if (canUseSystemTray)
-          CheckboxListTile.adaptive(
-            value: settings.kMinimizeToTray.value,
-            onChanged: (v) {
-              if (v != null) {
-                settings.kMinimizeToTray.value = v;
-              }
-            },
-            contentPadding: DesktopSettings.horizontalPadding,
-            secondary: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: theme.iconTheme.color,
-              child: const Icon(Icons.sensor_door),
-            ),
-            title: const Text('Minimize to tray'),
-            subtitle: const Text(
-              'Whether to minimize app to the system tray when the window is '
-              'closed. This will keep the app running in the background.',
-            ),
-          ),
+        WindowSection(),
       ],
       if (settings.kShowDebugInfo.value) ...[
         const SubHeader(
           'Acessibility',
           padding: DesktopSettings.horizontalPadding,
         ),
-        CheckboxListTile.adaptive(
-          value: settings.kAnimationsEnabled.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kAnimationsEnabled.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.animation),
-          ),
-          title: const Text('Animations'),
-          subtitle: const Text(
-            'Disable animations on low-end devices to improve performance. This '
-            'will also disable some visual effects. ',
-          ),
-        ),
-        CheckboxListTile.adaptive(
-          value: settings.kHighContrast.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kHighContrast.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.filter_b_and_w),
-          ),
-          title: const Text('High contrast mode'),
-          subtitle: const Text(
-            'Enable high contrast mode to make the app easier to read and use.',
-          ),
-        ),
-        CheckboxListTile.adaptive(
-          value: settings.kLargeFont.value,
-          onChanged: (v) {
-            if (v != null) {
-              settings.kLargeFont.value = v;
-            }
-          },
-          contentPadding: DesktopSettings.horizontalPadding,
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.accessibility_new),
-          ),
-          title: const Text('Large Font'),
-          subtitle: const Text(
-            'Increase the size of the text in the app to make it easier to read.',
-          ),
-        ),
+        AcessibilitySection(),
       ],
       if (isDesktopPlatform) ...[
         SubHeader(
@@ -248,41 +141,6 @@ class ApplicationSettings extends StatelessWidget {
         KeyboardSection(),
       ],
     ]);
-  }
-
-  /// Creates the Immersive Mode tile.
-  ///
-  /// On Desktop, this is used alonside the Fullscreen mode tile. When in
-  /// fullscreen, the immersive mode hides the top bar and only shows it when
-  /// the user hovers over the top of the window.
-  ///
-  /// On Mobile, this makes the app full-screen and hides the system UI.
-  Widget _buildImmersiveModeTile() {
-    return Builder(builder: (context) {
-      final theme = Theme.of(context);
-      final settings = context.watch<SettingsProvider>();
-
-      return CheckboxListTile.adaptive(
-        value: settings.kImmersiveMode.value,
-        onChanged: settings.kFullscreen.value || isMobilePlatform
-            ? (v) {
-                if (v != null) settings.kImmersiveMode.value = v;
-              }
-            : null,
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.web_asset),
-        ),
-        title: const Text('Immersive Mode'),
-        subtitle: const Text(
-          'This will hide the title bar and window controls. '
-          'To show the top bar, hover over the top of the window. '
-          'This only works in fullscreen mode.',
-        ),
-      );
-    });
   }
 }
 
@@ -409,6 +267,178 @@ class TimeFormatSection extends StatelessWidget {
         settings.kTimeFormat.value = DateFormat(v!, locale);
       },
     );
+  }
+}
+
+class WindowSection extends StatelessWidget {
+  const WindowSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (canLaunchAtStartup)
+        CheckboxListTile.adaptive(
+          value: settings.kLaunchAppOnStartup.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kLaunchAppOnStartup.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.launch),
+          ),
+          title: const Text('Launch app on startup'),
+          subtitle: const Text(
+            'Whether to launch the app when the system starts',
+          ),
+        ),
+      CheckboxListTile.adaptive(
+        value: settings.kFullscreen.value,
+        onChanged: (v) {
+          if (v != null) settings.kFullscreen.value = v;
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.fullscreen),
+        ),
+        title: const Text('Fullscreen Mode'),
+        subtitle: const Text('Whether the app is in fullscreen mode or not.'),
+      ),
+      ImmersiveModeTile(),
+      if (canUseSystemTray)
+        CheckboxListTile.adaptive(
+          value: settings.kMinimizeToTray.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kMinimizeToTray.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.sensor_door),
+          ),
+          title: const Text('Minimize to tray'),
+          subtitle: const Text(
+            'Whether to minimize app to the system tray when the window is '
+            'closed. This will keep the app running in the background.',
+          ),
+        ),
+    ]);
+  }
+}
+
+/// Creates the Immersive Mode tile.
+///
+/// On Desktop, this is used alonside the Fullscreen mode tile. When in
+/// fullscreen, the immersive mode hides the top bar and only shows it when
+/// the user hovers over the top of the window.
+///
+/// On Mobile, this makes the app full-screen and hides the system UI.
+class ImmersiveModeTile extends StatelessWidget {
+  const ImmersiveModeTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
+
+    return CheckboxListTile.adaptive(
+      value: settings.kImmersiveMode.value,
+      onChanged: settings.kFullscreen.value || isMobilePlatform
+          ? (v) {
+              if (v != null) settings.kImmersiveMode.value = v;
+            }
+          : null,
+      contentPadding: DesktopSettings.horizontalPadding,
+      secondary: CircleAvatar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: theme.iconTheme.color,
+        child: const Icon(Icons.web_asset),
+      ),
+      title: const Text('Immersive Mode'),
+      subtitle: const Text(
+        'This will hide the title bar and window controls. '
+        'To show the top bar, hover over the top of the window. '
+        'This only works in fullscreen mode.',
+      ),
+    );
+  }
+}
+
+class AcessibilitySection extends StatelessWidget {
+  const AcessibilitySection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      CheckboxListTile.adaptive(
+        value: settings.kAnimationsEnabled.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kAnimationsEnabled.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.animation),
+        ),
+        title: const Text('Animations'),
+        subtitle: const Text(
+          'Disable animations on low-end devices to improve performance. This '
+          'will also disable some visual effects. ',
+        ),
+      ),
+      CheckboxListTile.adaptive(
+        value: settings.kHighContrast.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kHighContrast.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.filter_b_and_w),
+        ),
+        title: const Text('High contrast mode'),
+        subtitle: const Text(
+          'Enable high contrast mode to make the app easier to read and use.',
+        ),
+      ),
+      CheckboxListTile.adaptive(
+        value: settings.kLargeFont.value,
+        onChanged: (v) {
+          if (v != null) {
+            settings.kLargeFont.value = v;
+          }
+        },
+        contentPadding: DesktopSettings.horizontalPadding,
+        secondary: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.iconTheme.color,
+          child: const Icon(Icons.accessibility_new),
+        ),
+        title: const Text('Large Font'),
+        subtitle: const Text(
+          'Increase the size of the text in the app to make it easier to read.',
+        ),
+      ),
+    ]);
   }
 }
 

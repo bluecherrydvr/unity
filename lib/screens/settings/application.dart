@@ -448,11 +448,21 @@ class _KeybindingDialogState extends State<KeybindingDialog> {
   void _handleKeypress(KeyEvent event) {
     if (event is KeyDownEvent) {
       setState(() {
+        final key = LogicalKeyboardKey.findKeyByKeyId(event.logicalKey.keyId)!;
+        if (key == LogicalKeyboardKey.control ||
+            key == LogicalKeyboardKey.alt ||
+            key == LogicalKeyboardKey.shift) return;
+
         _newActivator = SingleActivator(
-          LogicalKeyboardKey.findKeyByKeyId(event.logicalKey.keyId)!,
+          key,
           control: HardwareKeyboard.instance.isControlPressed,
           shift: HardwareKeyboard.instance.isShiftPressed,
           alt: HardwareKeyboard.instance.isAltPressed,
+        );
+        debugPrint(
+          'New activator: '
+          '${_newActivator!.debugDescribeKeys()}'
+          '/${_newActivator?.trigger.debugName}',
         );
       });
     }

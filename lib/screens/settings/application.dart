@@ -210,11 +210,43 @@ class ApplicationSettings extends StatelessWidget {
           ),
         ),
       ],
-      const SubHeader(
-        'Keyboard Shortcuts',
-        padding: DesktopSettings.horizontalPadding,
-      ),
-      KeyboardSection(),
+      if (isDesktopPlatform) ...[
+        SubHeader(
+          'Keyboard Shortcuts',
+          padding: DesktopSettings.horizontalPadding,
+          trailing: TextButton(
+            child: Text(
+              'Reset Defaults',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Reset Keyboard Shortcuts'),
+                  content: Text(
+                    'Are you sure you want to reset all keyboard shortcuts to their default values?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<KeyboardBindings>().restoreDefaults();
+                        Navigator.pop(context);
+                      },
+                      child: Text('Reset'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        KeyboardSection(),
+      ],
     ]);
   }
 

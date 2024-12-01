@@ -183,10 +183,10 @@ class MobileViewProvider extends UnityProvider {
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    final data = devices.map(
+    final data = devices.map<String, List<Map<String, dynamic>?>>(
       (key, value) => MapEntry(
         key.toString(),
-        value.map<Map<String, dynamic>?>((e) => e?.toJson()),
+        value.map<Map<String, dynamic>?>((e) => e?.toJson()).toList(),
       ),
     );
 

@@ -58,8 +58,6 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
       ),
       margin: const EdgeInsetsDirectional.only(end: 4.0, top: 4.0, start: 4.0),
       child: CollapsableSidebar(
-        // TODO(bdlukaa): This is not working because offline devices are being
-        //                marked as selected.
         initiallyClosed:
             eventsProvider.selectedDevices.isNotEmpty || isEmbedded,
         left: false,

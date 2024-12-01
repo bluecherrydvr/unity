@@ -615,6 +615,7 @@ class Timeline extends ChangeNotifier {
     for (final tile in tiles) {
       tile.videoController.dispose();
     }
+    tiles.clear();
     zoomController.dispose();
     super.dispose();
   }

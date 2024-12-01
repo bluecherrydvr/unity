@@ -43,7 +43,7 @@
 
 | Android                                                                                                                            | iOS                                                                       | Windows                                                                                                              | GNU/Linux                                                                                                                         | MacOS                                                                                                           |
 | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-android-arm64-v8a-release.apk)    | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-windows-setup.exe) | 🚧 **SOON** ~~`AppImage`~~  | [Executable `.app`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-macos.7z) |
+| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-android-arm64-v8a-release.apk)    | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-windows-setup.exe) | [SnapStore](https://snapcraft.io/bluecherry-client)  | [Executable `.app`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-macos.7z) |
 | [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-android-armeabi-v7a-release.apk) |                                                                           | 🚧 **SOON** ~~`winget install bluecherry`~~                                                                          | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-linux-x86_64.deb)        | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~                                  |
 | [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-android-x86_64-release.apk)      |                                                                           | 🚧 **SOON** ~~Microsoft Store~~                                                                                      | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-linux-x86_64.tar.gz) |                                                                                                                 |
 | 🚧 **SOON** ~~Play Store~~                                                                                                         |                                                                           |                                                                                                                      | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta20/bluecherry-linux-x86_64.rpm) |                                                                                                                 |
@@ -53,6 +53,14 @@ Or download the latest release [here](https://github.com/bluecherrydvr/unity/rel
 ### Installation
 
 Most platforms will not require any extra steps to install the app.
+
+#### Android
+
+Download the APK file and install it. You may need to enable installation from unknown sources in your settings.
+
+#### Windows
+
+Download the installer and run it. The app will be installed in the `Program Files` directory.
 
 #### Linux
 

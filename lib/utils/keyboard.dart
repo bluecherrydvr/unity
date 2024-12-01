@@ -545,11 +545,7 @@ class KeybindingSetting {
     required this.system,
     required this.key,
     required this.def,
-  }) {
-    Future.microtask(() async {
-      _value = await defaultValue;
-    });
-  }
+  });
 
   String saveAs(SingleActivator activator) {
     return [

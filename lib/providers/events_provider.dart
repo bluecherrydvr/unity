@@ -27,7 +27,7 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -201,18 +201,36 @@ extension EventsScreenProvider on EventsProvider {
             ..removeWhere((event) {
               if (!isDateSet) return false;
 
-              return event.published.toUtc().isBefore(startDate!.toUtc()) ||
-                  event.updated.toUtc().isAfter(endDate!.toUtc());
+              final isToRemove =
+                  event.published.toUtc().isBefore(startDate!.toUtc()) ||
+                      event.updated.toUtc().isAfter(endDate!.toUtc());
+
+              if (isToRemove) {
+                logging.writeLogToFile(
+                  'Removing future event ${event.id} '
+                  'from ${event.server.name}/${event.deviceID}: '
+                  '{raw: ${event.publishedRaw}, parsed: ${event.published}}.',
+                  print: true,
+                );
+              }
+              return isToRemove;
             })
-            ..sort(
-                (a, b) => b.published.toUtc().compareTo(a.published.toUtc()));
+            ..sort((a, b) => a.published.compareTo(b.published));
 
           loadedEvents!.events[server] ??= [];
           loadedEvents!.events[server]!.addAll(iterable);
+
+          if (iterable.isNotEmpty) {
+            logging.writeLogToFile(
+              'First event: ${iterable.first}',
+              print: true,
+            );
+            logging.writeLogToFile('Last event: ${iterable.last}', print: true);
+          }
           _notify();
         }));
       } catch (error, stack) {
-        handleError(error, stack, 'Error loading events for $server');
+        logging.handleError(error, stack, 'Error loading events for $server');
         loadedEvents!.invalidResponses.add(server);
       }
     }));

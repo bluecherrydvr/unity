@@ -124,7 +124,7 @@ class Event {
 
   @override
   String toString() {
-    return 'Event(server: $server, id: $id, deviceID: $deviceID, title: $title, publishedRaw: $publishedRaw, published: $published, updatedRaw: $updatedRaw, updated: $updated, category: $category, mediaID: $mediaID, mediaURL: $mediaURL)';
+    return 'Event(server: ${server.ip}, id: $id, deviceID: $deviceID, title: $title, publishedRaw: $publishedRaw, published: $published, updatedRaw: $updatedRaw, updated: $updated, category: $category, mediaID: $mediaID, mediaURL: $mediaURL)';
   }
 
   Map<String, dynamic> toJson() => {

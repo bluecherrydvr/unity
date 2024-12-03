@@ -30,6 +30,7 @@ import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_sideb
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_view.dart';
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
 import 'package:bluecherry_client/utils/date.dart';
+import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,7 +68,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     DateTimeExtension.now().year,
     DateTimeExtension.now().month,
     DateTimeExtension.now().day,
-  ).toLocal();
+  );
 
   bool hasEverFetched = false;
 
@@ -78,14 +79,13 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     final settings = context.read<SettingsProvider>();
     setState(() {
       hasEverFetched = true;
-      date = date.toLocal();
-      startDate = DateTime(date.year, date.month, date.day).toLocal();
-      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      startDate = DateTime(date.year, date.month, date.day);
+      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59);
       timeline?.dispose();
       timeline = null;
     });
 
-    // if (true) {
+    // if (kDebugMode) {
     //   setState(() => timeline = Timeline.dump());
     //   return;
     // }
@@ -111,10 +111,23 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           return 0;
         });
       for (final event in events) {
-        if (event.isAlarm || event.mediaURL == null) continue;
+        if (event.isAlarm || event.mediaURL == null) {
+          logging.writeLogToFile(
+            'Removing corrupted event ${event.id} from ${event.server.name}/${event.deviceID}.',
+            print: true,
+          );
+          continue;
+        }
 
-        if (!DateUtils.isSameDay(event.published, date) ||
-            !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+        if (!DateUtils.isSameDay(event.published.toLocal(), date.toLocal()) ||
+            !DateUtils.isSameDay(event.published.add(event.duration).toLocal(),
+                date.toLocal())) {
+          logging.writeLogToFile(
+            'Removing future event ${event.id} '
+            'from ${event.server.name}/${event.deviceID}: '
+            '{raw: ${event.publishedRaw}, parsed: ${event.published}}.',
+            print: true,
+          );
           continue;
         }
 
@@ -372,7 +385,10 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
   TimelineTile buildTimelineTile(BuildContext context) {
     final device = key;
     final events = value;
-    debugPrint('Loaded ${events.length} events for $device');
+    logging.writeLogToFile(
+      'Loaded ${events.length} events for tile $device',
+      print: true,
+    );
 
     return TimelineTile(
       device: device,

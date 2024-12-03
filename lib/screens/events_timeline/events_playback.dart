@@ -67,7 +67,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     DateTimeExtension.now().year,
     DateTimeExtension.now().month,
     DateTimeExtension.now().day,
-  ).toLocal();
+  );
 
   bool hasEverFetched = false;
 
@@ -78,9 +78,8 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     final settings = context.read<SettingsProvider>();
     setState(() {
       hasEverFetched = true;
-      date = date.toLocal();
-      startDate = DateTime(date.year, date.month, date.day).toLocal();
-      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59).toLocal();
+      startDate = DateTime(date.year, date.month, date.day);
+      endDate = DateTime(date.year, date.month, date.day, 23, 59, 59);
       timeline?.dispose();
       timeline = null;
     });
@@ -111,10 +110,17 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           return 0;
         });
       for (final event in events) {
-        if (event.isAlarm || event.mediaURL == null) continue;
+        if (event.isAlarm || event.mediaURL == null) {
+          debugPrint('Removing corrupted event ${event.id}/${event.deviceID}.');
+          continue;
+        }
 
-        if (!DateUtils.isSameDay(event.published, date) ||
-            !DateUtils.isSameDay(event.published.add(event.duration), date)) {
+        if (!DateUtils.isSameDay(event.published.toLocal(), date.toLocal()) ||
+            !DateUtils.isSameDay(event.published.add(event.duration).toLocal(),
+                date.toLocal())) {
+          debugPrint(
+            'Removing future event ${event.id}/${event.deviceID}: ${event.published}.',
+          );
           continue;
         }
 

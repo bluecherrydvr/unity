@@ -198,6 +198,6 @@ extension EventsExtension on API {
       '${deviceId != null ? ' for device $deviceId' : ''}',
     );
 
-    return events.where((e) => e.duration > const Duration(seconds: 5));
+    return events;
   }
 }

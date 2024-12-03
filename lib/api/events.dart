@@ -72,11 +72,12 @@ extension EventsExtension on API {
       allowUntrustedCertificates: data['allowUntrustedCertificates'] as bool,
     );
 
-    debugPrint(
+    writeLogToFile(
       'Getting events for server ${server.name} with limit $limit '
-      '${startTime != null ? 'from $startTime ' : ''}'
-      '${endTime != null ? 'to $endTime ' : ''}'
+      '${startTime != null ? 'from $startTime ' : ''} '
+      '${endTime != null ? 'to $endTime ' : ''} '
       '${deviceId != null ? 'for device $deviceId' : ''}',
+      print: true,
     );
 
     assert(server.serverUUID != null && server.hasCookies);
@@ -155,7 +156,9 @@ extension EventsExtension on API {
         events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable)
             .map<Event>((item) {
           final e = item as Map;
-          if (!e.containsKey('content')) debugPrint(e.toString());
+          if (!e.containsKey('content')) {
+            debugPrint('Event does not have a content: $e');
+          }
           return Event(
             server: server,
             id: int.parse(e['id']['raw']),
@@ -189,13 +192,14 @@ extension EventsExtension on API {
       handleError(
         error,
         stack,
-        'Failed to getEvents on server ${server.name} $uri ${response.body}',
+        'Failed to _getEvents on server ${server.name} $uri ${response.body}',
       );
     }
 
-    debugPrint(
+    writeLogToFile(
       'Loaded ${events.length} events for server ${server.name}'
       '${deviceId != null ? ' for device $deviceId' : ''}',
+      print: true,
     );
 
     return events;

@@ -31,6 +31,7 @@ import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_view.
 import 'package:bluecherry_client/screens/events_timeline/mobile/timeline_device_view.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/methods.dart';
+import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +85,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
       timeline = null;
     });
 
-    // if (true) {
+    // if (kDebugMode) {
     //   setState(() => timeline = Timeline.dump());
     //   return;
     // }
@@ -111,15 +112,21 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
         });
       for (final event in events) {
         if (event.isAlarm || event.mediaURL == null) {
-          debugPrint('Removing corrupted event ${event.id}/${event.deviceID}.');
+          logging.writeLogToFile(
+            'Removing corrupted event ${event.id} from ${event.server.name}/${event.deviceID}.',
+            print: true,
+          );
           continue;
         }
 
         if (!DateUtils.isSameDay(event.published.toLocal(), date.toLocal()) ||
             !DateUtils.isSameDay(event.published.add(event.duration).toLocal(),
                 date.toLocal())) {
-          debugPrint(
-            'Removing future event ${event.id}/${event.deviceID}: ${event.published}.',
+          logging.writeLogToFile(
+            'Removing future event ${event.id} '
+            'from ${event.server.name}/${event.deviceID}: '
+            '{raw: ${event.publishedRaw}, parsed: ${event.published}}.',
+            print: true,
           );
           continue;
         }
@@ -378,7 +385,10 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
   TimelineTile buildTimelineTile(BuildContext context) {
     final device = key;
     final events = value;
-    debugPrint('Loaded ${events.length} events for $device');
+    logging.writeLogToFile(
+      'Loaded ${events.length} events for tile $device',
+      print: true,
+    );
 
     return TimelineTile(
       device: device,

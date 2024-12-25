@@ -67,10 +67,12 @@ abstract class UnityProvider extends ChangeNotifier {
               value == null,
         );
         if (value != null) {
-          return secureStorage.write(
+          secureStorage.write(
             key: key,
             value: value?.toString(),
           );
+        } else {
+          debugPrint('Could not write $key: $value. Invalid value.');
         }
       }
     } catch (error, stackTrace) {

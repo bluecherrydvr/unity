@@ -27,6 +27,7 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 const kDeviceNameWidth = 100.0;
@@ -47,10 +48,27 @@ class _TimelineTilesState extends State<TimelineTiles> {
 
   Timeline get timeline => widget.timeline;
 
+  bool _isSelecting = false;
+
+  Offset _initialSelectionPoint = Offset.zero;
+  Rect? _selectedArea;
+
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_handleKey);
+  }
+
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKey);
     verticalScrollController.dispose();
     super.dispose();
+  }
+
+  bool _handleKey(KeyEvent event) {
+    setState(() {});
+    return false;
   }
 
   @override
@@ -68,6 +86,8 @@ class _TimelineTilesState extends State<TimelineTiles> {
       final zoomOffset = timeline.zoomController.hasClients
           ? timeline.zoomController.positions.last.pixels
           : 0.0;
+
+      final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
 
       return Stack(
         fit: StackFit.passthrough,
@@ -98,84 +118,127 @@ class _TimelineTilesState extends State<TimelineTiles> {
               ),
             ),
             Flexible(
-              child: EnforceScrollbarScroll(
-                controller: verticalScrollController,
-                onPointerSignal: _receivedPointerSignal,
-                child: ReorderableListView.builder(
-                  key: reorderableViewKey,
-                  scrollController: verticalScrollController,
-                  itemCount: timeline.tiles.length,
-                  buildDefaultDragHandles: false,
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanDown: isShiftPressed
+                    ? (details) {
+                        if (HardwareKeyboard.instance.isShiftPressed) {
+                          _isSelecting = true;
+                          _initialSelectionPoint = details.localPosition;
+                        }
                       }
-                      final item = timeline.tiles.removeAt(oldIndex);
-                      timeline.tiles.insert(newIndex, item);
-                      timeline.notify();
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final tile = timeline.tiles[index];
+                    : null,
+                onPanUpdate: isShiftPressed || _isSelecting
+                    ? (details) {
+                        if (_isSelecting) {
+                          final localPosition = details.localPosition;
+                          final dx = localPosition.dx;
+                          final dy = localPosition.dy;
+                          final x = min(dx, _initialSelectionPoint.dx);
+                          final y = min(dy, _initialSelectionPoint.dy);
+                          final width = max(dx, _initialSelectionPoint.dx) - x;
+                          final height = max(dy, _initialSelectionPoint.dy) - y;
+                          setState(
+                            () => _selectedArea =
+                                Rect.fromLTWH(x, y, width, height),
+                          );
+                        }
+                      }
+                    : null,
+                onPanEnd: isShiftPressed || _isSelecting
+                    ? (details) {
+                        _isSelecting = false;
+                      }
+                    : null,
+                child: EnforceScrollbarScroll(
+                  controller: verticalScrollController,
+                  onPointerSignal: _receivedPointerSignal,
+                  child: ReorderableListView.builder(
+                    key: reorderableViewKey,
+                    scrollController: verticalScrollController,
+                    itemCount: timeline.tiles.length,
+                    buildDefaultDragHandles: false,
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final item = timeline.tiles.removeAt(oldIndex);
+                        timeline.tiles.insert(newIndex, item);
+                        timeline.notify();
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final tile = timeline.tiles[index];
 
-                    return Row(
-                      key: ValueKey(tile.device.uuid),
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: kDeviceNameWidth,
-                          child: ReorderableDragStartListener(
-                            index: index,
-                            child: _TimelineTile.name(tile: tile),
+                      return Row(
+                        key: ValueKey(tile.device.uuid),
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            width: kDeviceNameWidth,
+                            child: ReorderableDragStartListener(
+                              index: index,
+                              child: _TimelineTile.name(tile: tile),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTapUp: (details) {
-                              _onMove(
-                                details.localPosition,
-                                constraints,
-                                tileWidth,
-                              );
-                            },
-                            onHorizontalDragUpdate: (details) {
-                              _onMove(
-                                details.localPosition,
-                                constraints,
-                                tileWidth,
-                              );
-                            },
-                            child: Builder(builder: (context) {
-                              return ScrollConfiguration(
-                                behavior:
-                                    ScrollConfiguration.of(context).copyWith(
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                ),
-                                child: Scrollbar(
-                                  controller: timeline.zoomController,
-                                  thumbVisibility: isMobilePlatform,
-                                  child: SingleChildScrollView(
+                          Expanded(
+                            child: GestureDetector(
+                              onTapUp: (details) {
+                                if (_selectedArea != null) {
+                                  setState(() => _selectedArea = null);
+                                } else {
+                                  _onMove(
+                                    details.localPosition,
+                                    constraints,
+                                    tileWidth,
+                                  );
+                                }
+                              },
+                              onHorizontalDragUpdate: isShiftPressed ||
+                                      _isSelecting
+                                  ? null
+                                  : (details) {
+                                      if (_selectedArea != null) {
+                                        setState(() => _selectedArea = null);
+                                      } else {
+                                        _onMove(
+                                          details.localPosition,
+                                          constraints,
+                                          tileWidth,
+                                        );
+                                      }
+                                    },
+                              child: Builder(builder: (context) {
+                                return ScrollConfiguration(
+                                  behavior:
+                                      ScrollConfiguration.of(context).copyWith(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                  ),
+                                  child: Scrollbar(
                                     controller: timeline.zoomController,
-                                    scrollDirection: Axis.horizontal,
-                                    child: SizedBox(
-                                      width: tileWidth,
-                                      child: _TimelineTile(
-                                        key: ValueKey(tile),
-                                        tile: tile,
+                                    thumbVisibility: isMobilePlatform,
+                                    child: SingleChildScrollView(
+                                      controller: timeline.zoomController,
+                                      scrollDirection: Axis.horizontal,
+                                      child: SizedBox(
+                                        width: tileWidth,
+                                        child: _TimelineTile(
+                                          key: ValueKey(tile),
+                                          tile: tile,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }),
+                                );
+                              }),
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -216,6 +279,24 @@ class _TimelineTilesState extends State<TimelineTiles> {
                 ),
               );
             }),
+          if (_selectedArea != null)
+            Positioned.fromRect(
+              rect: _selectedArea!,
+              // rect: Rect.fromLTWH(
+              //   kDeviceNameWidth + _selectedArea.left,
+              //   _selectedArea.top,
+              //   _selectedArea.width,
+              //   _selectedArea.height,
+              // ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: theme.colorScheme.primary,
+                  ),
+                  color: theme.colorScheme.primary.withOpacity(0.1),
+                ),
+              ),
+            ),
         ],
       );
     });

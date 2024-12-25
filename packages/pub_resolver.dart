@@ -49,7 +49,7 @@ Future<void> _runPubGet(String packagePath) async {
 
 Future<void> _runPubUpgrade(String packagePath) async {
   void printLine(String line) {
-    print('[$packagePath] $line');
+    if (line.isNotEmpty) print('[$packagePath] $line');
   }
 
   final process = await Process.start(

@@ -22,6 +22,7 @@ dependencies:
   dio: ^5.4.0
 
   xml2json: ^6.2.2
+  xml: ^6.5.0
   auto_size_text: ^3.0.0
   animations: ^2.0.11
   provider: ^6.1.1
@@ -30,6 +31,7 @@ dependencies:
   sliver_tools: ^0.2.12
 
   intl: ^0.18.1
+  collection: ^1.19.1
   flutter_localized_locales: ^2.0.5
   duration: ^4.0.3
   firebase_core: ^3.6.0
@@ -47,6 +49,7 @@ dependencies:
   url_launcher: ^6.2.4
   logging: ^1.2.0
 
+  path: ^1.9.1
   path_provider: ^2.1.2
   file_picker: ^8.1.7
   safe_local_storage: ^1.0.2 # This is required because media_kit is still locked to this version. When bumped in the upstream package, this can be removed

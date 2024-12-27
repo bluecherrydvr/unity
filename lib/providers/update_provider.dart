@@ -402,10 +402,6 @@ class UpdateManager extends UnityProvider {
         case LinuxPlatform.embedded:
         case LinuxPlatform.appImage:
           throw UnsupportedError('AppImages do not support updating from app');
-        default:
-          throw UnsupportedError(
-            'Can not install an executable on an unknown environment',
-          );
       }
     }
 

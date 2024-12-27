@@ -269,10 +269,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: c2376a6aae82358a9f9ccdd7d1f4006d08faa39a2767cce01031d9f593a8bd3b
+      sha256: c904b4ab56d53385563c7c39d8e9fa9af086f91495dfc48717ad84a42c3cf204
       url: "https://pub.dev"
     source: hosted
-    version: "8.1.6"
+    version: "8.1.7"
   firebase_core:
     dependency: "direct main"
     description:
@@ -457,10 +457,10 @@ packages:
     dependency: transitive
     description:
       name: fvp
-      sha256: "6462fd078de4478a0990d437463897036cff98aff3f0ac9efbbf817c99654c87"
+      sha256: ad134b93f6400edd93e674ee15b9d365d0227b7fb1f013ac60f0dc601d387c78
       url: "https://pub.dev"
     source: hosted
-    version: "0.24.1"
+    version: "0.29.0"
   get_it:
     dependency: transitive
     description:
@@ -658,7 +658,7 @@ packages:
     description:
       path: "libs/android/media_kit_libs_android_video"
       ref: HEAD
-      resolved-ref: e2b601609fe833653a2029ba74c1845c8f087030
+      resolved-ref: "0b7b7e4d88a0bc574550a929835e0400c7c2d135"
       url: "https://github.com/media-kit/media-kit/"
     source: git
     version: "1.3.6"
@@ -667,7 +667,7 @@ packages:
     description:
       path: "libs/ios/media_kit_libs_ios_video"
       ref: HEAD
-      resolved-ref: e2b601609fe833653a2029ba74c1845c8f087030
+      resolved-ref: "0b7b7e4d88a0bc574550a929835e0400c7c2d135"
       url: "https://github.com/media-kit/media-kit/"
     source: git
     version: "1.1.4"
@@ -676,7 +676,7 @@ packages:
     description:
       path: "libs/macos/media_kit_libs_macos_video"
       ref: HEAD
-      resolved-ref: e2b601609fe833653a2029ba74c1845c8f087030
+      resolved-ref: "0b7b7e4d88a0bc574550a929835e0400c7c2d135"
       url: "https://github.com/media-kit/media-kit/"
     source: git
     version: "1.1.4"
@@ -685,7 +685,7 @@ packages:
     description:
       path: "libs/windows/media_kit_libs_windows_video"
       ref: HEAD
-      resolved-ref: e2b601609fe833653a2029ba74c1845c8f087030
+      resolved-ref: "0b7b7e4d88a0bc574550a929835e0400c7c2d135"
       url: "https://github.com/media-kit/media-kit/"
     source: git
     version: "1.0.10"

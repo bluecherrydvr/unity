@@ -52,7 +52,9 @@ class VideoOverlay {
       'textStyle': {
         'color': textStyle?.color == null
             ? null
-            : '#${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+            : '#'
+                '${(textStyle!.color!.a * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
                 '${(textStyle!.color!.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
                 '${(textStyle!.color!.b * 255).toInt().toRadixString(16).padLeft(2, '0')}',
         'fontSize': textStyle?.fontSize,

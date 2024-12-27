@@ -44,6 +44,7 @@ class TimelineTiles extends StatefulWidget {
 }
 
 class _TimelineTilesState extends State<TimelineTiles> {
+  final hoursScrollController = ScrollController();
   final verticalScrollController = ScrollController();
   final reorderableViewKey = GlobalKey();
 
@@ -58,19 +59,32 @@ class _TimelineTilesState extends State<TimelineTiles> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_handleKey);
+
+    timeline.zoomController.addListener(_zoomListener);
   }
 
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKey);
+    timeline.zoomController.removeListener(_zoomListener);
+    hoursScrollController.dispose();
     verticalScrollController.dispose();
     super.dispose();
   }
 
   bool _handleKey(KeyEvent event) {
-    setState(() {});
+    if (mounted) setState(() {});
     return false;
   }
+
+  void _zoomListener() {
+    final offset = timeline.zoomController.hasClients ? zoomOffset : 0.0;
+    hoursScrollController.jumpTo(offset);
+  }
+
+  double get zoomOffset => timeline.zoomController.hasClients
+      ? timeline.zoomController.positions.last.pixels
+      : 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +98,6 @@ class _TimelineTilesState extends State<TimelineTiles> {
           (constraints.maxWidth - kDeviceNameWidth) * timeline.zoom;
       final hourWidth = tileWidth / 24;
       final secondsWidth = tileWidth / secondsInADay;
-      final zoomOffset = timeline.zoomController.hasClients
-          ? timeline.zoomController.positions.last.pixels
-          : 0.0;
 
       final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
 
@@ -95,28 +106,14 @@ class _TimelineTilesState extends State<TimelineTiles> {
         alignment: AlignmentDirectional.bottomCenter,
         children: [
           Column(mainAxisSize: MainAxisSize.min, children: [
-            Padding(
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: hoursScrollController,
               padding: const EdgeInsetsDirectional.only(
                 start: kDeviceNameWidth,
               ),
-              // a hacky workaround to make the hours to follow the zoom
-              // controller.
-              child: AnimatedBuilder(
-                animation: Listenable.merge([timeline.zoomController]),
-                builder: (context, _) {
-                  final offset =
-                      timeline.zoomController.hasClients ? zoomOffset : 0.0;
-                  return SingleChildScrollView(
-                    key: ValueKey(offset),
-                    scrollDirection: Axis.horizontal,
-                    controller: ScrollController(
-                      initialScrollOffset: offset,
-                      debugLabel: 'Timeline Hours Scroll Controller',
-                    ),
-                    child: _TimelineHours(hourWidth: hourWidth),
-                  );
-                },
-              ),
+              physics: const NeverScrollableScrollPhysics(),
+              child: _TimelineHours(hourWidth: hourWidth),
             ),
             Flexible(
               child: GestureDetector(
@@ -149,6 +146,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
                 onPanEnd: isShiftPressed || _isSelecting
                     ? (details) {
                         _isSelecting = false;
+                        debugPrint(selectedEvents().toString());
                       }
                     : null,
                 child: EnforceScrollbarScroll(

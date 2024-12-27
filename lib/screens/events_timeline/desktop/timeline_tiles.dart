@@ -49,6 +49,39 @@ class _TimelineTilesState extends State<TimelineTiles> {
   final reorderableViewKey = GlobalKey();
 
   Timeline get timeline => widget.timeline;
+  Map<TimelineTile, GlobalKey> keys = {};
+  GlobalKey keyForTile(TimelineTile tile) {
+    return keys.putIfAbsent(tile, GlobalKey.new);
+  }
+
+  List<TimelineEvent> selectedEvents() {
+    assert(reorderableViewKey.currentContext != null);
+    assert(_selectedArea != null);
+
+    final selectedEvents = <TimelineEvent>[];
+    final rect = _selectedArea!;
+    // final renderBox =
+    //     reorderableViewKey.currentContext!.findRenderObject()! as RenderBox;
+    final tiles =
+        reorderableViewKey.currentContext!.findRenderObject()! as RenderBox;
+    for (final tile in timeline.tiles) {
+      final tileKey = keyForTile(tile);
+      final tileRenderBox =
+          tileKey.currentContext!.findRenderObject()! as RenderBox;
+      final tileRect =
+          tileRenderBox.localToGlobal(Offset.zero, ancestor: tiles);
+      final tileSize = tileRenderBox.size;
+      final tileArea = Rect.fromLTWH(
+          tileRect.dx, tileRect.dy, tileSize.width, tileSize.height);
+      if (rect.overlaps(tileArea)) {
+        final tileWidget = tileKey.currentState! as _TimelineTileState;
+        final events = tileWidget.eventsInRect(rect);
+        selectedEvents.addAll(events);
+      }
+    }
+
+    return selectedEvents;
+  }
 
   bool _isSelecting = false;
 
@@ -224,7 +257,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
                                       child: SizedBox(
                                         width: tileWidth,
                                         child: _TimelineTile(
-                                          key: ValueKey(tile),
+                                          key: keyForTile(tile),
                                           tile: tile,
                                         ),
                                       ),
@@ -418,6 +451,7 @@ class _TimelineTile extends StatefulWidget {
 
 class _TimelineTileState extends State<_TimelineTile> {
   late final Map<Event, Color> colors;
+  var secondWidth = 0.0;
 
   @override
   void initState() {
@@ -457,7 +491,7 @@ class _TimelineTileState extends State<_TimelineTile> {
                 return const SizedBox.shrink();
               }
 
-              final secondWidth = constraints.maxWidth / 60 / 60;
+              secondWidth = constraints.maxWidth / 60 / 60;
 
               return Stack(clipBehavior: Clip.none, children: [
                 for (final event in widget.tile.events
@@ -500,6 +534,24 @@ class _TimelineTileState extends State<_TimelineTile> {
         );
       }),
     ]);
+  }
+
+  List<TimelineEvent> eventsInRect(Rect rect) {
+    final events = <TimelineEvent>[];
+    for (final event in widget.tile.events) {
+      final eventRect = Rect.fromLTWH(
+        (event.startTime.hour * secondWidth * 60 * 60) +
+            (event.startTime.minute * secondWidth * 60) +
+            (event.startTime.second * secondWidth),
+        0.0,
+        event.duration.inSeconds * secondWidth,
+        kTimelineTileHeight,
+      );
+      if (rect.overlaps(eventRect)) {
+        events.add(event);
+      }
+    }
+    return events;
   }
 }
 

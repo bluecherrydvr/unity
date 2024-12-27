@@ -50,7 +50,13 @@ class VideoOverlay {
     return {
       'text': text,
       'textStyle': {
-        'color': textStyle?.color?.value.toRadixString(16),
+        'color': textStyle?.color == null
+            ? null
+            : '#'
+                '${(textStyle!.color!.a * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.b * 255).toInt().toRadixString(16).padLeft(2, '0')}',
         'fontSize': textStyle?.fontSize,
       },
       'position_x': position.dx,
@@ -255,7 +261,7 @@ Future<void> handleConfigurationFile(File file) async {
                 int.parse(
                   '0xFF${(overlayData['color'] as String).replaceAll('#', '')}',
                 ),
-              ).withOpacity(opacity),
+              ).withValues(alpha: opacity),
         fontSize: (overlayData['size'] as num?)?.toDouble(),
       );
       final position = Offset(

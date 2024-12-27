@@ -87,6 +87,14 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       ]);
     });
   }
+
+  @override
+  bool get supportsFPS => !kIsWasm && !kIsWeb;
+
+  @override
+  bool get supportsHardwareZoom {
+    return !kIsWeb && !Platform.isMacOS;
+  }
 }
 
 class _MKVideo extends StatefulWidget {
@@ -403,7 +411,9 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
         // On macOS, the mpv options don't seem to work properly. Because of this,
         // software zoom is used instead.
         Platform.isMacOS ||
-        zoom.softwareZoom) return;
+        zoom.softwareZoom) {
+      return;
+    }
 
     final reset = zoom.zoomAxis == (-1, -1);
     // final player = mkPlayer.platform as dynamic;

@@ -143,7 +143,9 @@ class _PTZControllerState extends State<PTZController> {
       onScaleUpdate: (details) async {
         if (lock ||
             details.scale.isNegative ||
-            details.scale.toString().runes.last.isEven) return;
+            details.scale.toString().runes.last.isEven) {
+          return;
+        }
         lock = true;
 
         if (details.scale > 1.0) {
@@ -237,7 +239,7 @@ class PTZToggleButton extends StatelessWidget {
           color: ptzEnabled
               ? enabledColor ?? Colors.white
               : disabledColor ??
-                  theme.colorScheme.onInverseSurface.withOpacity(0.86),
+                  theme.colorScheme.onInverseSurface.withValues(alpha: 0.86),
         ),
         tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
         onPressed: () => onChanged(!ptzEnabled),

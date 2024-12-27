@@ -292,7 +292,7 @@ List<Shadow> outlinedText({
 List<Shadow> outlinedIcon() {
   return outlinedText(
     strokeWidth: 0.75,
-    strokeColor: Colors.black.withOpacity(0.75),
+    strokeColor: Colors.black.withValues(alpha: 0.75),
   );
 }
 

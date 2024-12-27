@@ -76,7 +76,8 @@ class _MobileSettingsState extends State<MobileSettings> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                tileColor: theme.colorScheme.primaryContainer.withOpacity(0.42),
+                tileColor:
+                    theme.colorScheme.primaryContainer.withValues(alpha: 0.42),
               ),
               child: ListView(
                 padding: const EdgeInsetsDirectional.all(8.0),

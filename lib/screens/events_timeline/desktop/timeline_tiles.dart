@@ -32,6 +32,7 @@ import 'package:provider/provider.dart';
 
 const kDeviceNameWidth = 100.0;
 const kTimelineTileHeight = 30.0;
+const kTimelineHoursHeight = 20.0;
 
 class TimelineTiles extends StatefulWidget {
   final Timeline timeline;
@@ -281,13 +282,14 @@ class _TimelineTilesState extends State<TimelineTiles> {
             }),
           if (_selectedArea != null)
             Positioned.fromRect(
-              rect: _selectedArea!,
-              // rect: Rect.fromLTWH(
-              //   kDeviceNameWidth + _selectedArea.left,
-              //   _selectedArea.top,
-              //   _selectedArea.width,
-              //   _selectedArea.height,
-              // ),
+              // rect: _selectedArea!,
+              rect: Rect.fromLTWH(
+                // kDeviceNameWidth + _selectedArea.left,
+                _selectedArea!.left,
+                kTimelineHoursHeight + _selectedArea!.top,
+                _selectedArea!.width,
+                _selectedArea!.height,
+              ),
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -513,53 +515,56 @@ class _TimelineHours extends StatelessWidget {
     final theme = Theme.of(context);
 
     final decWidth = hourWidth / 6;
-    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      ...List.generate(24, (index) {
-        final hour = index + 1;
-        final shouldDisplayHour = hour < 24;
+    return SizedBox(
+      height: kTimelineHoursHeight,
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        ...List.generate(24, (index) {
+          final hour = index + 1;
+          final shouldDisplayHour = hour < 24;
 
-        final hourWidget = shouldDisplayHour
-            ? Transform.translate(
-                offset: Offset(
-                  hour.toString().length * 4,
-                  0.0,
-                ),
-                child: Text(
-                  '$hour',
-                  style: theme.textTheme.labelMedium,
-                  textAlign: TextAlign.end,
-                ),
-              )
-            : const SizedBox.shrink();
+          final hourWidget = shouldDisplayHour
+              ? Transform.translate(
+                  offset: Offset(
+                    hour.toString().length * 4,
+                    0.0,
+                  ),
+                  child: Text(
+                    '$hour',
+                    style: theme.textTheme.labelMedium,
+                    textAlign: TextAlign.end,
+                  ),
+                )
+              : const SizedBox.shrink();
 
-        if (decWidth > 25.0) {
+          if (decWidth > 25.0) {
+            return SizedBox(
+              width: hourWidth,
+              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                ...List.generate(5, (index) {
+                  return SizedBox(
+                    width: decWidth,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Container(
+                        height: 6.5,
+                        width: 2,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                }),
+                const Spacer(),
+                hourWidget,
+              ]),
+            );
+          }
+
           return SizedBox(
             width: hourWidth,
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              ...List.generate(5, (index) {
-                return SizedBox(
-                  width: decWidth,
-                  child: Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: Container(
-                      height: 6.5,
-                      width: 2,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                );
-              }),
-              const Spacer(),
-              hourWidget,
-            ]),
+            child: hourWidget,
           );
-        }
-
-        return SizedBox(
-          width: hourWidth,
-          child: hourWidget,
-        );
-      }),
-    ]);
+        }),
+      ]),
+    );
   }
 }

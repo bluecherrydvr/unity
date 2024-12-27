@@ -48,7 +48,7 @@ dependencies:
   logging: ^1.2.0
 
   path_provider: ^2.1.2
-  file_picker: ^8.1.2
+  file_picker: ^8.1.7
   safe_local_storage: ^1.0.2 # This is required because media_kit is still locked to this version. When bumped in the upstream package, this can be removed
   flutter_secure_storage: ^8.1.0 # Locked to this version because of https://github.com/juliansteenbakker/flutter_secure_storage/issues/634
   

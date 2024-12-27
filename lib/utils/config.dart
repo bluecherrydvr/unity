@@ -50,7 +50,11 @@ class VideoOverlay {
     return {
       'text': text,
       'textStyle': {
-        'color': textStyle?.color?.value.toRadixString(16),
+        'color': textStyle?.color == null
+            ? null
+            : '#${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                '${(textStyle!.color!.b * 255).toInt().toRadixString(16).padLeft(2, '0')}',
         'fontSize': textStyle?.fontSize,
       },
       'position_x': position.dx,

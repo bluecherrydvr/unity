@@ -287,8 +287,8 @@ class _TimelineTile extends StatefulWidget {
     return Builder(builder: (context) {
       final theme = Theme.of(context);
       final border = Border(
-        right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
-        top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+        right: BorderSide(color: theme.disabledColor.withValues(alpha: 0.5)),
+        top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
       );
 
       return
@@ -358,8 +358,8 @@ class _TimelineTileState extends State<_TimelineTile> {
     final settings = context.watch<SettingsProvider>();
 
     final border = Border(
-      right: BorderSide(color: theme.disabledColor.withOpacity(0.5)),
-      top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+      right: BorderSide(color: theme.disabledColor.withValues(alpha: 0.5)),
+      top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
     );
 
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

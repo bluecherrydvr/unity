@@ -45,7 +45,7 @@ class LetsGoScreen extends StatelessWidget {
       elevation: 4.0,
       margin: const EdgeInsetsDirectional.only(bottom: 8.0),
       color: Color.alphaBlend(
-        Colors.green.withOpacity(0.2),
+        Colors.green.withValues(alpha: 0.2),
         theme.cardColor,
       ),
       child: Padding(

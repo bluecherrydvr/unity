@@ -88,7 +88,7 @@ class NoServerWarning extends StatelessWidget {
         Icon(
           Icons.dns,
           size: 72.0,
-          color: theme.iconTheme.color?.withOpacity(0.8),
+          color: theme.iconTheme.color?.withValues(alpha: 0.8),
         ),
         const SizedBox(height: 8.0),
         Text(

@@ -48,7 +48,7 @@ class SquaredIconButton extends StatelessWidget {
               size: 18.0,
               color: onPressed == null
                   ? theme.disabledColor
-                  : theme.colorScheme.onSurface.withOpacity(0.9),
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.9),
             ),
             child: icon,
           ),

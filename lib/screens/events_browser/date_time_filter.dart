@@ -236,7 +236,7 @@ class _FilterCard extends StatelessWidget {
               title,
               style: theme.textTheme.titleSmall?.copyWith(
                 color: onPressed == null
-                    ? theme.colorScheme.onSurface.withOpacity(0.5)
+                    ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
                     : null,
               ),
             ),
@@ -244,7 +244,7 @@ class _FilterCard extends StatelessWidget {
               value,
               style: TextStyle(
                 color: onPressed == null
-                    ? theme.colorScheme.onSurface.withOpacity(0.5)
+                    ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
                     : theme.colorScheme.onSurface,
               ),
             ),

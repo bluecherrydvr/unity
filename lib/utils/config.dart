@@ -255,7 +255,7 @@ Future<void> handleConfigurationFile(File file) async {
                 int.parse(
                   '0xFF${(overlayData['color'] as String).replaceAll('#', '')}',
                 ),
-              ).withOpacity(opacity),
+              ).withValues(alpha: opacity),
         fontSize: (overlayData['size'] as num?)?.toDouble(),
       );
       final position = Offset(

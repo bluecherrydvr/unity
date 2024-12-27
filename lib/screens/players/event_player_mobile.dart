@@ -336,7 +336,7 @@ class _VideoViewportState extends State<VideoViewport> {
                         overlayShape:
                             const RoundSliderOverlayShape(overlayRadius: 12.0),
                         overlayColor:
-                            theme.colorScheme.primary.withOpacity(0.4),
+                            theme.colorScheme.primary.withValues(alpha: 0.4),
                         thumbColor: theme.colorScheme.primary,
                         trackHeight: 2.0,
                         thumbShape: const RoundSliderThumbShape(

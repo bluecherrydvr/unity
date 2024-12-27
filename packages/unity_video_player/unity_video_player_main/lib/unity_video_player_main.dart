@@ -87,6 +87,14 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
       ]);
     });
   }
+
+  @override
+  bool get supportsFPS => !kIsWasm && !kIsWeb;
+
+  @override
+  bool get supportsHardwareZoom {
+    return !kIsWeb && !Platform.isMacOS;
+  }
 }
 
 class _MKVideo extends StatefulWidget {

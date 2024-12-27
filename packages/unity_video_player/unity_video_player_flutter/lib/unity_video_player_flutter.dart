@@ -91,6 +91,12 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
       ]);
     });
   }
+
+  @override
+  bool get supportsFPS => false;
+
+  @override
+  bool get supportsHardwareZoom => false;
 }
 
 class UnityVideoPlayerFlutter extends UnityVideoPlayer {

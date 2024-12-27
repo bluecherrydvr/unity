@@ -97,6 +97,12 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
       }
     });
   }
+
+  /// Whether the current platform supports listening to the video FPS.
+  bool get supportsFPS;
+
+  /// Whether the current platform supports hardware zoom.
+  bool get supportsHardwareZoom;
 }
 
 /// The size of a view with 4K resolution

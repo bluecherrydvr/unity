@@ -478,12 +478,13 @@ class Timeline extends ChangeNotifier {
     debugLabel: 'Zoom Indicator Controller',
   );
   void scrollTo(double to, [double? max]) {
-    final position =
-        zoomController.hasClients ? zoomController.positions.last : null;
+    if (!zoomController.hasClients) return;
+
+    final position = zoomController.positions.last;
     zoomController.jumpTo(clampDouble(
       to,
       0.0,
-      max ?? position?.maxScrollExtent ?? 0.0,
+      max ?? position.maxScrollExtent,
     ));
   }
 

@@ -417,6 +417,10 @@ class _LayoutViewState extends State<LayoutView> {
                                     await widget.layout.setVolume(value);
                                     if (mounted) setState(() {});
                                   },
+                                  onChangeEnd: (value) async {
+                                    await widget.layout.setVolume(value);
+                                    view.save();
+                                  },
                                 ),
                               ),
                             SquaredIconButton(

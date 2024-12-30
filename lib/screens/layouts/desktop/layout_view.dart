@@ -410,14 +410,11 @@ class _LayoutViewState extends State<LayoutView> {
                               SizedBox(
                                 height: 24.0,
                                 child: Slider(
-                                  value: widget.layout.devices
-                                      .map((device) => device.volume)
-                                      .findMaxDuplicatedElementInList()
-                                      .toDouble(),
+                                  value: volume,
                                   divisions: 100,
                                   label: '${(volume * 100).round()}%',
                                   onChanged: (value) async {
-                                    widget.layout.setVolume(volume);
+                                    await widget.layout.setVolume(value);
                                     if (mounted) setState(() {});
                                   },
                                 ),

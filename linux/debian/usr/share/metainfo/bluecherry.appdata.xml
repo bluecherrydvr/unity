@@ -36,6 +36,7 @@
 	<launchable type="desktop-id">bluecherrydvr.desktop</launchable>
 	<releases>
 		<!-- <release version="VERSION" date="YYYY-MM-DD" />| -->
+		<release version="3.0.0-beta21" date="2024-12-30" />|
 		<release version="3.0.0-beta20" date="2024-11-18" />|
 		<release version="3.0.0-beta19" date="2024-09-09" />|
 		<release version="3.0.0-beta18" date="2024-07-10" />|

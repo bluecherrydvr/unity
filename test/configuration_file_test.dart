@@ -19,7 +19,7 @@ void main() {
       {
         'text': 'My overlay',
         'textStyle': {
-          'color': 'ff000000',
+          'color': '#ff000000',
           'fontSize': 12.0,
         },
         'position_x': 10.0,

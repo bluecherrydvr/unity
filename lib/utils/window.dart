@@ -33,6 +33,11 @@ import 'package:provider/provider.dart';
 import 'package:unity_multi_window/unity_multi_window.dart';
 import 'package:window_manager/window_manager.dart';
 
+/// The small window size.
+///
+/// This is used in debug mode and when the window is a sub window.
+const kSmallWindowSize = Size(300, 200);
+
 /// The initial size of the window
 const kInitialWindowSize = Size(1066, 645);
 
@@ -56,7 +61,11 @@ Future<void> configureWindow({bool? fullscreen}) async {
     await WindowManager.instance.ensureInitialized();
     await windowManager.waitUntilReadyToShow(
       WindowOptions(
-        minimumSize: kDebugMode ? Size(100, 100) : kInitialWindowSize,
+        minimumSize: () {
+          if (kDebugMode) return kSmallWindowSize;
+          if (isSubWindow) return kSmallWindowSize;
+          return kInitialWindowSize;
+        }(),
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.hidden,
         windowButtonVisibility: true,

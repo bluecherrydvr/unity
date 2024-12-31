@@ -36,6 +36,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
   var isSidebarHovering = false;
   var searchQuery = '';
   final Map<Server, List<Device>> _servers = <Server, List<Device>>{};
+  final _serversEntries = <MapEntry<Server, List<Device>>>[];
 
   @override
   void didChangeDependencies() {
@@ -51,6 +52,8 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       final devices = server.devices.sorted(searchQuery: searchQuery);
       _servers[server] = devices;
     }
+    _serversEntries.clear();
+    _serversEntries.addAll(_servers.entries.toList(growable: false));
   }
 
   @override
@@ -81,26 +84,27 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
               child: MouseRegion(
                 onEnter: (e) => setState(() => isSidebarHovering = true),
                 onExit: (e) => setState(() => isSidebarHovering = false),
-                // Add another material here because its descendants must be clipped.
+                // Add another [Material] here because its descendants must be clipped.
                 child: Material(
                   type: MaterialType.transparency,
                   child: CustomScrollView(slivers: [
-                    ..._servers.entries.toList(growable: false).map((entry) {
-                      final server = entry.key;
-                      final devices = entry.value.where((device) {
-                        if (!device.status &&
-                            !settings.kListOfflineDevices.value) {
-                          return false;
-                        }
-                        return true;
-                      }).toList();
-                      return ServerEntry(
-                        server: server,
-                        devices: devices,
-                        searchQuery: searchQuery,
-                        isSidebarHovering: isSidebarHovering,
-                      );
-                    }),
+                    for (var MapEntry(key: server, value: devices)
+                        in _serversEntries)
+                      () {
+                        devices = devices.where((device) {
+                          if (!device.status &&
+                              !settings.kListOfflineDevices.value) {
+                            return false;
+                          }
+                          return true;
+                        }).toList();
+                        return ServerEntry(
+                          server: server,
+                          devices: devices,
+                          searchQuery: searchQuery,
+                          isSidebarHovering: isSidebarHovering,
+                        );
+                      }(),
                   ]),
                 ),
               ),
@@ -244,23 +248,29 @@ class ServerEntry extends StatelessWidget {
             } else if (isSidebarHovering && devices.isNotEmpty) {
               return SquaredIconButton(
                 icon: Icon(
-                  isAllInView ? Icons.playlist_remove : Icons.playlist_add,
+                  view.isLayoutLocked(view.currentLayout)
+                      ? Icons.lock
+                      : isAllInView
+                          ? Icons.playlist_remove
+                          : Icons.playlist_add,
                 ),
                 tooltip: isAllInView ? loc.removeAllFromView : loc.addAllToView,
-                onPressed: () {
-                  if (isAllInView) {
-                    view.removeDevicesFromCurrentLayout(
-                      devices,
-                    );
-                  } else {
-                    for (final device in devices) {
-                      if (device.status &&
-                          !view.currentLayout.devices.contains(device)) {
-                        view.add(device);
-                      }
-                    }
-                  }
-                },
+                onPressed: view.isLayoutLocked(view.currentLayout)
+                    ? null
+                    : () {
+                        if (isAllInView) {
+                          view.removeDevicesFromCurrentLayout(
+                            devices,
+                          );
+                        } else {
+                          for (final device in devices) {
+                            if (device.status &&
+                                !view.currentLayout.devices.contains(device)) {
+                              view.add(device);
+                            }
+                          }
+                        }
+                      },
               );
             } else {
               return const SizedBox.shrink();

@@ -239,9 +239,11 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   /// Implementations must call this when the video source is ready to be
   /// listened to.
   late final VoidCallback onReady;
+  bool _isReady = false;
 
   UnityVideoPlayer({this.width, this.height}) {
     onReady = () {
+      _isReady = true;
       _onErrorSubscription = onError.listen(_onError);
       _onDurationUpdateSubscription =
           onDurationUpdate.listen(_onDurationUpdate);
@@ -446,14 +448,16 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   @mustCallSuper
   @override
   Future<void> dispose() async {
-    try {
-      _onDurationUpdateSubscription.cancel();
-      _onErrorSubscription.cancel();
-      _onPositionUpdateSubscription.cancel();
-      _fpsSubscription.cancel();
-      _oldImageTimer?.cancel();
-    } catch (error, stack) {
-      debugPrint('Tried to cancel subscriptions but failed: $error, $stack');
+    if (_isReady) {
+      try {
+        _onDurationUpdateSubscription.cancel();
+        _onErrorSubscription.cancel();
+        _onPositionUpdateSubscription.cancel();
+        _fpsSubscription.cancel();
+        _oldImageTimer?.cancel();
+      } catch (error, stack) {
+        debugPrint('Tried to cancel subscriptions but failed: $error, $stack');
+      }
     }
     _lastImageTime = null;
     _isImageOld = false;

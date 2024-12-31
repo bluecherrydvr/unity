@@ -357,8 +357,7 @@ class _LayoutViewState extends State<LayoutView> {
                 childAspectRatio: kHorizontalAspectRatio,
                 reorderable: widget.onReorder != null,
                 onReorder: widget.onReorder ?? (a, b) {},
-                padding:
-                    settings.isImmersiveMode ? EdgeInsets.zero : kGridPadding,
+                padding: EdgeInsets.zero,
                 children: devices.map((device) {
                   return DesktopDeviceTile(device: device);
                 }).toList(),
@@ -410,15 +409,16 @@ class _LayoutViewState extends State<LayoutView> {
                               SizedBox(
                                 height: 24.0,
                                 child: Slider(
-                                  value: widget.layout.devices
-                                      .map((device) => device.volume)
-                                      .findMaxDuplicatedElementInList()
-                                      .toDouble(),
+                                  value: volume,
                                   divisions: 100,
                                   label: '${(volume * 100).round()}%',
                                   onChanged: (value) async {
-                                    widget.layout.setVolume(volume);
+                                    await widget.layout.setVolume(value);
                                     if (mounted) setState(() {});
+                                  },
+                                  onChangeEnd: (value) async {
+                                    await widget.layout.setVolume(value);
+                                    view.save();
                                   },
                                 ),
                               ),
@@ -507,7 +507,9 @@ class _LayoutViewState extends State<LayoutView> {
                   ),
                 ),
               if (devices.isNotEmpty)
-                Expanded(child: Center(child: child))
+                Expanded(
+                  child: SizedBox.fromSize(size: Size.infinite, child: child),
+                )
               else
                 Expanded(
                   child: Center(child: Text('Add a camera')),

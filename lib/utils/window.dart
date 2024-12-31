@@ -134,7 +134,7 @@ extension DeviceWindowExtension on Device {
 
     assert(!isEmbedded, 'Can not open a new window in an embedded environment');
 
-    debugPrint('Opening a new window');
+    debugPrint('Opening a new window for device $name (${server.name}#$id)');
     final window = await MultiWindow.run([
       '--theme',
       SettingsProvider.instance.kThemeMode.value.name,

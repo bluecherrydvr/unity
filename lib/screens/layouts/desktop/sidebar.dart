@@ -248,23 +248,29 @@ class ServerEntry extends StatelessWidget {
             } else if (isSidebarHovering && devices.isNotEmpty) {
               return SquaredIconButton(
                 icon: Icon(
-                  isAllInView ? Icons.playlist_remove : Icons.playlist_add,
+                  view.isLayoutLocked(view.currentLayout)
+                      ? Icons.lock
+                      : isAllInView
+                          ? Icons.playlist_remove
+                          : Icons.playlist_add,
                 ),
                 tooltip: isAllInView ? loc.removeAllFromView : loc.addAllToView,
-                onPressed: () {
-                  if (isAllInView) {
-                    view.removeDevicesFromCurrentLayout(
-                      devices,
-                    );
-                  } else {
-                    for (final device in devices) {
-                      if (device.status &&
-                          !view.currentLayout.devices.contains(device)) {
-                        view.add(device);
-                      }
-                    }
-                  }
-                },
+                onPressed: view.isLayoutLocked(view.currentLayout)
+                    ? null
+                    : () {
+                        if (isAllInView) {
+                          view.removeDevicesFromCurrentLayout(
+                            devices,
+                          );
+                        } else {
+                          for (final device in devices) {
+                            if (device.status &&
+                                !view.currentLayout.devices.contains(device)) {
+                              view.add(device);
+                            }
+                          }
+                        }
+                      },
               );
             } else {
               return const SizedBox.shrink();

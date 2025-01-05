@@ -171,7 +171,8 @@ class StaticGridState extends State<StaticGrid> {
                   key: ValueKey(index),
                   width: childWidth,
                   child: AspectRatio(
-                    aspectRatio: widget.childAspectRatio,
+                    aspectRatio:
+                        widget.childAspectRatio.clamp(0.1, double.infinity),
                     child: realChildren[index],
                   ),
                 );

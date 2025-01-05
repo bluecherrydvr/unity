@@ -173,11 +173,14 @@ extension IterableTExtension<T> on Iterable<T> {
   ///
   /// This is useful when you have a list of elements and you want to know which
   /// element appears the most.
-  T findMaxDuplicatedElementInList() => fold<Map<T, int>>(
-          {},
-          (map, element) =>
-              map..update(element, (value) => value + 1, ifAbsent: () => 1))
-      .entries
-      .reduce((e1, e2) => e1.value > e2.value ? e1 : e2)
-      .key;
+  T findMaxDuplicatedElementInList() {
+    if (length == 1) return first;
+    return fold<Map<T, int>>(
+            {},
+            (map, element) =>
+                map..update(element, (value) => value + 1, ifAbsent: () => 1))
+        .entries
+        .reduce((e1, e2) => e1.value > e2.value ? e1 : e2)
+        .key;
+  }
 }

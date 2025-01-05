@@ -67,7 +67,6 @@ class LayoutsProvider extends UnityProvider {
   double? get layoutManagerHeight => _layoutManagerHeight;
   set layoutManagerHeight(double? value) {
     _layoutManagerHeight = value;
-    notifyListeners();
     save();
   }
 
@@ -89,7 +88,8 @@ class LayoutsProvider extends UnityProvider {
   }
 
   @override
-  Future<void> save({bool notifyListeners = true}) async {
+  Future<void> save({bool notifyListeners = false}) async {
+    this.notifyListeners();
     await write({
       kStorageDesktopLayouts:
           jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
@@ -161,7 +161,7 @@ class LayoutsProvider extends UnityProvider {
         var previousDevice = layout.devices.firstOrNull;
         if (previousDevice != null) {
           layout.devices.clear();
-          await _releaseDevice(device);
+          await maybeReleaseDevice(device);
         }
       }
 
@@ -169,12 +169,12 @@ class LayoutsProvider extends UnityProvider {
       layout.devices.add(device);
       debugPrint('Added $device');
 
-      notifyListeners();
       await save();
     }
   }
 
-  Future<void> _releaseDevice(Device device) async {
+  /// Releases the device if it's not used in any layout.
+  Future<void> maybeReleaseDevice(Device device) async {
     if (!UnityPlayers.players.containsKey(device.uuid)) return;
     if (!layouts
         .any((layout) => layout.devices.any((d) => d.uuid == device.uuid))) {
@@ -188,9 +188,8 @@ class LayoutsProvider extends UnityProvider {
       debugPrint('Removed $device');
 
       currentLayout.devices.remove(device);
-      _releaseDevice(device);
+      maybeReleaseDevice(device);
     }
-    notifyListeners();
     await save();
   }
 
@@ -206,10 +205,9 @@ class LayoutsProvider extends UnityProvider {
     }
 
     for (final device in devices) {
-      _releaseDevice(device);
+      maybeReleaseDevice(device);
     }
 
-    notifyListeners();
     await save();
   }
 
@@ -221,10 +219,9 @@ class LayoutsProvider extends UnityProvider {
       (d1) => devices.any((d2) => d1.uri == d2.uri),
     );
     for (final device in devices) {
-      _releaseDevice(device);
+      maybeReleaseDevice(device);
     }
 
-    notifyListeners();
     await save();
   }
 
@@ -233,7 +230,6 @@ class LayoutsProvider extends UnityProvider {
     if (isLayoutLocked(currentLayout)) return;
 
     currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
-    notifyListeners();
     await save();
   }
 
@@ -244,7 +240,6 @@ class LayoutsProvider extends UnityProvider {
     } else {
       debugPrint('$layout already exists');
     }
-    notifyListeners();
     await save();
     return layouts.indexOf(layout);
   }
@@ -258,10 +253,9 @@ class LayoutsProvider extends UnityProvider {
       layouts.remove(layout);
 
       for (final device in layout.devices) {
-        _releaseDevice(device);
+        maybeReleaseDevice(device);
       }
     }
-    notifyListeners();
     await save();
   }
 
@@ -273,7 +267,7 @@ class LayoutsProvider extends UnityProvider {
         ..insert(layoutIndex, newLayout);
       for (final device
           in oldLayout.devices.where((d) => !newLayout.devices.contains(d))) {
-        _releaseDevice(device);
+        maybeReleaseDevice(device);
       }
 
       debugPrint('Replaced $oldLayout at $layoutIndex with $newLayout');
@@ -281,7 +275,6 @@ class LayoutsProvider extends UnityProvider {
       debugPrint('Layout $oldLayout not found');
     }
 
-    notifyListeners();
     await save();
   }
 
@@ -291,7 +284,6 @@ class LayoutsProvider extends UnityProvider {
       UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
     }
 
-    notifyListeners();
     await save();
   }
 
@@ -316,7 +308,6 @@ class LayoutsProvider extends UnityProvider {
     }
 
     layouts.insert(newIndex, layouts.removeAt(oldIndex));
-    notifyListeners();
     await save();
   }
 
@@ -350,7 +341,6 @@ class LayoutsProvider extends UnityProvider {
       UnityPlayers.reloadDevice(device);
     }
 
-    notifyListeners();
     save();
 
     return device;
@@ -359,7 +349,6 @@ class LayoutsProvider extends UnityProvider {
   Future<void> collapseServer(Server server) async {
     if (!collapsedServers.contains(server.id)) {
       collapsedServers.add(server.id);
-      notifyListeners();
       await save();
     }
   }
@@ -367,7 +356,6 @@ class LayoutsProvider extends UnityProvider {
   Future<void> expandServer(Server server) async {
     if (collapsedServers.contains(server.id)) {
       collapsedServers.remove(server.id);
-      notifyListeners();
       await save();
     }
   }
@@ -377,16 +365,14 @@ class LayoutsProvider extends UnityProvider {
   Future<void> lockLayout(Layout layout) async {
     if (!lockedLayouts.contains(layout)) {
       lockedLayouts.add(layout);
-      notifyListeners();
-      await save();
+      await save(notifyListeners: false);
     }
   }
 
   Future<void> unlockLayout(Layout layout) async {
     if (lockedLayouts.contains(layout)) {
       lockedLayouts.remove(layout);
-      notifyListeners();
-      await save();
+      await save(notifyListeners: false);
     }
   }
 
@@ -400,11 +386,14 @@ class LayoutsProvider extends UnityProvider {
 
   bool isLayoutLocked(Layout layout) => lockedLayouts.contains(layout);
 
+  /// Sets the volume for all layouts.
   void setVolume(double volume) {
     for (final layout in layouts) {
       layout.setVolume(volume);
     }
+    save();
   }
 
+  /// Mutes all layouts.
   void mute() => setVolume(0);
 }

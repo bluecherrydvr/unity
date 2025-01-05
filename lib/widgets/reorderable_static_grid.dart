@@ -68,8 +68,9 @@ class StaticGrid extends StatefulWidget {
 }
 
 class StaticGridState extends State<StaticGrid> {
+  late var crossAxisCount = widget.crossAxisCount;
   List<Widget> realChildren = [];
-  int get gridRows => (realChildren.length / widget.crossAxisCount).ceil();
+  int get gridRows => (realChildren.length / crossAxisCount).ceil();
   void generateRealChildren() {
     realChildren = [...widget.children];
 
@@ -99,6 +100,7 @@ class StaticGridState extends State<StaticGrid> {
   void didUpdateWidget(covariant StaticGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.children != widget.children) {
+      crossAxisCount = widget.crossAxisCount;
       generateRealChildren();
     }
   }
@@ -114,40 +116,51 @@ class StaticGridState extends State<StaticGrid> {
         vertical: widget.mainAxisSpacing,
       )),
       child: LayoutBuilder(builder: (context, constraints) {
-        final availableWidth = constraints.biggest.width -
-            widget.padding.horizontal -
-            (widget.crossAxisCount - 1) * widget.crossAxisSpacing;
+        late double gridHeight, childWidth;
+        void calculate() {
+          var availableWidth = constraints.biggest.width -
+              widget.padding.horizontal -
+              (widget.crossAxisCount - 1) * widget.crossAxisSpacing;
 
-        var childWidth = availableWidth / widget.crossAxisCount;
-        final childHeight = childWidth / widget.childAspectRatio;
-        double gridHeight =
-            childHeight * gridRows + widget.crossAxisSpacing * (gridRows - 1);
-
-        if (gridRows == 1) {
-          // For a single row, ensure childHeight does not exceed the
-          // available height
-          if (childHeight > constraints.biggest.height) {
-            final maxHeight = constraints.biggest.height;
-            childWidth = maxHeight * widget.childAspectRatio;
-            gridHeight = maxHeight;
-          }
-        } else {
-          // For multiple rows, calculate gridHeight and adjust childWidth if
-          // necessary
+          childWidth = availableWidth / crossAxisCount;
+          final childHeight = childWidth / widget.childAspectRatio;
           gridHeight =
               childHeight * gridRows + widget.crossAxisSpacing * (gridRows - 1);
 
-          if (gridHeight > constraints.biggest.height) {
-            // Calculate the maximum height each child can have to fit
-            // within the available height
-            final maxHeight =
-                constraints.biggest.height / gridRows - widget.crossAxisSpacing;
+          if (gridRows == 1) {
+            // If there is enough space for another row, try to accomodate it
+            if (gridHeight * 2 < constraints.biggest.height) {
+              crossAxisCount -= 1;
+              calculate();
+            }
 
-            // Calculate the new width based on the maximum height and
-            // the aspect ratio
-            childWidth = maxHeight * widget.childAspectRatio;
+            // For a single row, ensure childHeight does not exceed the
+            // available height
+            if (childHeight > constraints.biggest.height) {
+              final maxHeight = constraints.biggest.height;
+              childWidth = maxHeight * widget.childAspectRatio;
+              gridHeight = maxHeight;
+            }
+          } else {
+            // For multiple rows, calculate gridHeight and adjust childWidth if
+            // necessary
+            gridHeight = (childHeight * gridRows) +
+                (widget.crossAxisSpacing * (gridRows - 1));
+
+            if (gridHeight > constraints.biggest.height) {
+              // Calculate the maximum height each child can have to fit
+              // within the available height
+              final maxHeight = constraints.biggest.height / gridRows -
+                  widget.crossAxisSpacing;
+
+              // Calculate the new width based on the maximum height and
+              // the aspect ratio
+              childWidth = maxHeight * widget.childAspectRatio;
+            }
           }
         }
+
+        calculate();
 
         return SizedBox(
           height: gridHeight,
@@ -158,8 +171,8 @@ class StaticGridState extends State<StaticGrid> {
               enableReorder: widget.reorderable,
               spacing: widget.mainAxisSpacing,
               runSpacing: widget.crossAxisSpacing,
-              minMainAxisCount: widget.crossAxisCount,
-              maxMainAxisCount: widget.crossAxisCount,
+              minMainAxisCount: crossAxisCount,
+              maxMainAxisCount: crossAxisCount,
               onReorder: widget.onReorder,
               needsLongPressDraggable: isMobile,
               alignment: WrapAlignment.center,
@@ -171,7 +184,8 @@ class StaticGridState extends State<StaticGrid> {
                   key: ValueKey(index),
                   width: childWidth,
                   child: AspectRatio(
-                    aspectRatio: widget.childAspectRatio,
+                    aspectRatio:
+                        widget.childAspectRatio.clamp(0.1, double.infinity),
                     child: realChildren[index],
                   ),
                 );

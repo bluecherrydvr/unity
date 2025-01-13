@@ -281,6 +281,14 @@
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",
+  "downloadN": "Download {n, plural, =1{1 event} other{{n} events}}",
+  "@downloadN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "downloaded": "Téléchargé",
   "downloading": "En téléchargement",
   "seeInDownloads": "Voir dans téléchargements",

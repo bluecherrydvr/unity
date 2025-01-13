@@ -326,11 +326,15 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                             videoController.isPlaying ? loc.pause : loc.play,
                         icon: PlayPauseIcon(
                           isPlaying: videoController.isPlaying,
+                          size: 18.0,
                         ),
                       ),
                       Consumer<DownloadsManager>(
                         builder: (context, downloads, child) {
-                          return DownloadIndicator(event: currentEvent);
+                          return DownloadIndicator(
+                            event: currentEvent,
+                            small: true,
+                          );
                         },
                       ),
                       padd,

@@ -281,7 +281,7 @@
   "@Downloads": {},
   "downloads": "Téléchargements",
   "download": "Télécharger",
-  "downloadN": "Download {n} events",
+  "downloadN": "Download {n, plural, =1{1 event} other{{n} events}}",
   "@downloadN": {
     "placeholders": {
       "n": {

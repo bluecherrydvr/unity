@@ -98,9 +98,11 @@ class DownloadIndicator extends StatelessWidget {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return SizedBox(
-      height: 40.0,
-      width: 40.0,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: 40.0,
+        maxWidth: 40.0,
+      ),
       child: () {
         if (event.isAlarm) {
           return Icon(
@@ -140,6 +142,11 @@ class DownloadIndicator extends StatelessWidget {
           return SquaredIconButton(
             tooltip: loc.download,
             onPressed: () => downloads.download(event),
+            padding: const EdgeInsetsDirectional.only(
+              top: 4.0,
+              bottom: 4.0,
+              end: 4.0,
+            ),
             icon: Icon(
               Icons.download,
               size: small ? 18.0 : 22.0,

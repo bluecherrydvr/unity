@@ -23,9 +23,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
+          distribution: "zulu"
+          java-version: "17"
+          cache: "gradle"
           check-latest: true
       - uses: subosito/flutter-action@v2.8.0
         with:
@@ -136,12 +136,16 @@ jobs:
           architecture: x64
           # cache: true
 
+      - name: Update Pods
+        working-directory: ./macos/
+        run: |
+          pod repo update
+          pod cache clean mdk
+          rm -rf /Pods
+          rm -rf /Podfile.lock
+
       - run: flutter gen-l10n
       - run: flutter pub get
-
-      - name: Update Pods
-        working-directory: ./ios/
-        run: pod repo update
 
       - run: flutter build macos --verbose
       - run: 7z a bluecherry-macos.7z build/macos/Build/Products/Release/unity.app
@@ -239,9 +243,11 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
+        # https://docs.flutter.dev/platform-integration/linux/building#prepare-linux-apps-for-distribution
+        # https://pub.dev/packages/flutter_secure_storage#configure-linux-version
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar libsecret-1-dev libjsoncpp-dev
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
@@ -377,6 +383,7 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
+          flutter-version: 3.27.0
           cache: false
 
       - name: Initiate Flutter

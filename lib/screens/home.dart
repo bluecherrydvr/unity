@@ -305,7 +305,7 @@ class NavigationRailDrawerData {
   const NavigationRailDrawerData({required this.theme});
 
   Color get selectedBackgroundColor =>
-      theme.colorScheme.primary.withOpacity(0.2);
+      theme.colorScheme.primary.withValues(alpha: 0.2);
   Color get selectedForegroundColor => theme.colorScheme.primary;
   Color? get unselectedForegroundColor => theme.iconTheme.color;
 }

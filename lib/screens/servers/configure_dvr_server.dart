@@ -426,13 +426,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
 
       final name = nameController.text.trim();
       final hostname = getServerHostname(hostnameController.text.trim());
+      final port = int.parse(portController.text.trim());
 
       if (ServersProvider.instance.servers.any((s) {
-        final serverHost = Uri.parse(s.login).host;
-        final newServerHost = Uri.parse(hostname).host;
-        return serverHost.isNotEmpty &&
-            newServerHost.isNotEmpty &&
-            serverHost == newServerHost;
+        return s.ip == hostname && s.port == port;
       })) {
         showDialog(
           context: context,
@@ -454,7 +451,6 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           state = _ServerAddState.checkingServerCredentials;
         });
       }
-      final port = int.parse(portController.text.trim());
       final (code, server) = await API.instance.checkServerCredentials(
         Server(
           name: name,

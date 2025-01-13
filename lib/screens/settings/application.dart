@@ -513,7 +513,9 @@ class _KeybindingDialogState extends State<KeybindingDialog> {
         final key = LogicalKeyboardKey.findKeyByKeyId(event.logicalKey.keyId)!;
         if (key == LogicalKeyboardKey.control ||
             key == LogicalKeyboardKey.alt ||
-            key == LogicalKeyboardKey.shift) return;
+            key == LogicalKeyboardKey.shift) {
+          return;
+        }
 
         _newActivator = SingleActivator(
           key,

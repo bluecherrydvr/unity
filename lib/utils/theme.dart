@@ -64,8 +64,8 @@ ThemeData createTheme({required Brightness brightness}) {
       ),
       displaySmall: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.70)
-            : Colors.white.withOpacity(0.70),
+            ? Colors.black.withValues(alpha: 0.70)
+            : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -76,8 +76,8 @@ ThemeData createTheme({required Brightness brightness}) {
       ),
       headlineSmall: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.70)
-            : Colors.white.withOpacity(0.70),
+            ? Colors.black.withValues(alpha: 0.70)
+            : Colors.white.withValues(alpha: 0.70),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
@@ -88,15 +88,15 @@ ThemeData createTheme({required Brightness brightness}) {
       ),
       bodyMedium: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.70)
-            : Colors.white.withOpacity(0.70),
+            ? Colors.black.withValues(alpha: 0.70)
+            : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       bodySmall: TextStyle(
         color: light
-            ? Colors.black.withOpacity(0.70)
-            : Colors.white.withOpacity(0.70),
+            ? Colors.black.withValues(alpha: 0.70)
+            : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -105,27 +105,27 @@ ThemeData createTheme({required Brightness brightness}) {
     textTheme = TextTheme(
       displayLarge: TextStyle(
         fontWeight: FontWeight.normal,
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         fontSize: 18.0,
       ),
       displayMedium: TextStyle(
         fontWeight: FontWeight.normal,
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         fontSize: 16.0,
       ),
       displaySmall: TextStyle(
         fontWeight: FontWeight.normal,
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.54),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.54),
         fontSize: 14.0,
       ),
       headlineMedium: TextStyle(
         fontWeight: FontWeight.normal,
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         fontSize: 14.0,
       ),
       headlineSmall: TextStyle(
         fontWeight: FontWeight.normal,
-        color: light ? Colors.black54 : Colors.white.withOpacity(0.54),
+        color: light ? Colors.black54 : Colors.white.withValues(alpha: 0.54),
         fontSize: 14.0,
       ),
     );
@@ -143,7 +143,7 @@ ThemeData createTheme({required Brightness brightness}) {
     colorScheme: colorScheme,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: primary,
-      selectionColor: primary.withOpacity(0.2),
+      selectionColor: primary.withValues(alpha: 0.2),
     ),
     scrollbarTheme: ScrollbarThemeData(
       thumbVisibility: WidgetStateProperty.all(true),
@@ -171,7 +171,7 @@ ThemeData createTheme({required Brightness brightness}) {
         ),
       ),
     ),
-    splashColor: primary.withOpacity(0.15),
+    splashColor: primary.withValues(alpha: 0.15),
     appBarTheme: AppBarTheme(
       // color: Colors.transparent,
       shadowColor: light ? Colors.white : const Color(0xFF202020),
@@ -183,16 +183,16 @@ ThemeData createTheme({required Brightness brightness}) {
       scrolledUnderElevation: 0.0,
       elevation: 0.0,
       iconTheme: IconThemeData(
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         size: 24.0,
       ),
       actionsIconTheme: IconThemeData(
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         size: 24.0,
       ),
       titleTextStyle: TextStyle(
         fontSize: 18.0,
-        color: light ? Colors.black87 : Colors.white.withOpacity(0.87),
+        color: light ? Colors.black87 : Colors.white.withValues(alpha: 0.87),
         fontWeight: FontWeight.w500,
       ),
       centerTitle: [

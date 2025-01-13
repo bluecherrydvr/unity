@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:reorderables/reorderables.dart';
 
 /// The default spacing between the grid items
-const kGridInnerPadding = 8.0;
+const kGridInnerPadding = 4.0;
 
 /// The default padding for the grid
 const kGridPadding = EdgeInsetsDirectional.all(10.0);
@@ -68,8 +68,9 @@ class StaticGrid extends StatefulWidget {
 }
 
 class StaticGridState extends State<StaticGrid> {
+  late var crossAxisCount = widget.crossAxisCount;
   List<Widget> realChildren = [];
-  int get gridRows => (realChildren.length / widget.crossAxisCount).round();
+  int get gridRows => (realChildren.length / crossAxisCount).ceil();
   void generateRealChildren() {
     realChildren = [...widget.children];
 
@@ -99,6 +100,7 @@ class StaticGridState extends State<StaticGrid> {
   void didUpdateWidget(covariant StaticGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.children != widget.children) {
+      crossAxisCount = widget.crossAxisCount;
       generateRealChildren();
     }
   }
@@ -108,53 +110,87 @@ class StaticGridState extends State<StaticGrid> {
     if (widget.children.isEmpty && widget.emptyChild != null) {
       return widget.emptyChild!;
     }
-
     return Padding(
-      padding: widget.padding.add(EdgeInsetsDirectional.only(
-        start: widget.crossAxisSpacing,
-        top: widget.mainAxisSpacing,
+      padding: widget.padding.add(EdgeInsetsDirectional.symmetric(
+        horizontal: widget.crossAxisSpacing,
+        vertical: widget.mainAxisSpacing,
       )),
       child: LayoutBuilder(builder: (context, constraints) {
-        var width = (constraints.biggest.width / widget.crossAxisCount) -
-            widget.mainAxisSpacing;
+        late double gridHeight, childWidth;
+        void calculate() {
+          var availableWidth = constraints.biggest.width -
+              widget.padding.horizontal -
+              (widget.crossAxisCount - 1) * widget.crossAxisSpacing;
 
-        final height = width / widget.childAspectRatio;
-        final gridHeight =
-            height * gridRows + widget.crossAxisSpacing * gridRows;
+          childWidth = availableWidth / crossAxisCount;
+          final childHeight = childWidth / widget.childAspectRatio;
+          gridHeight =
+              childHeight * gridRows + widget.crossAxisSpacing * (gridRows - 1);
 
-        // If the items heights summed will overflow the available space, reduce
-        // the width of the items, making it possible to fit all the items in the
-        // view
-        if (gridHeight > constraints.biggest.height) {
-          width -= gridHeight - constraints.biggest.height;
+          if (gridRows == 1) {
+            // If there is enough space for another row, try to accomodate it
+            if (gridHeight * 2 < constraints.biggest.height) {
+              crossAxisCount -= 1;
+              calculate();
+            }
+
+            // For a single row, ensure childHeight does not exceed the
+            // available height
+            if (childHeight > constraints.biggest.height) {
+              final maxHeight = constraints.biggest.height;
+              childWidth = maxHeight * widget.childAspectRatio;
+              gridHeight = maxHeight;
+            }
+          } else {
+            // For multiple rows, calculate gridHeight and adjust childWidth if
+            // necessary
+            gridHeight = (childHeight * gridRows) +
+                (widget.crossAxisSpacing * (gridRows - 1));
+
+            if (gridHeight > constraints.biggest.height) {
+              // Calculate the maximum height each child can have to fit
+              // within the available height
+              final maxHeight = constraints.biggest.height / gridRows -
+                  widget.crossAxisSpacing;
+
+              // Calculate the new width based on the maximum height and
+              // the aspect ratio
+              childWidth = maxHeight * widget.childAspectRatio;
+            }
+          }
         }
 
-        return ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: ReorderableWrap(
-            enableReorder: widget.reorderable,
-            spacing: widget.mainAxisSpacing,
-            runSpacing: widget.crossAxisSpacing,
-            minMainAxisCount: widget.crossAxisCount,
-            maxMainAxisCount: widget.crossAxisCount,
-            onReorder: widget.onReorder,
-            needsLongPressDraggable: isMobile,
-            alignment: WrapAlignment.center,
-            runAlignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            scrollPhysics: const NeverScrollableScrollPhysics(),
-            children: List.generate(realChildren.length, (index) {
-              return SizedBox(
-                key: ValueKey(index),
-                width: width,
-                child: Center(
+        calculate();
+
+        return SizedBox(
+          height: gridHeight,
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: true),
+            child: ReorderableWrap(
+              enableReorder: widget.reorderable,
+              spacing: widget.mainAxisSpacing,
+              runSpacing: widget.crossAxisSpacing,
+              minMainAxisCount: crossAxisCount,
+              maxMainAxisCount: crossAxisCount,
+              onReorder: widget.onReorder,
+              needsLongPressDraggable: isMobile,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              scrollPhysics: const NeverScrollableScrollPhysics(),
+              children: List.generate(realChildren.length, (index) {
+                return SizedBox(
+                  key: ValueKey(index),
+                  width: childWidth,
                   child: AspectRatio(
-                    aspectRatio: widget.childAspectRatio,
+                    aspectRatio:
+                        widget.childAspectRatio.clamp(0.1, double.infinity),
                     child: realChildren[index],
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         );
       }),

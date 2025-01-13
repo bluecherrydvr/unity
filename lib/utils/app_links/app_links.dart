@@ -220,6 +220,7 @@ Future<void> handleArgs(
     if (serverResult == null) {
       throw ArgumentError('Server $server not found');
     } else {
+      await ServersProvider.instance.refreshDevices();
       final deviceResult = serverResult.devices.firstWhereOrNull((d) {
         return d.id.toString() == camera;
       });

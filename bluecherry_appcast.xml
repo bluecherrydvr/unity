@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta21</title>
+            <description>Keyboard Improvements and Bug Fixes</description>
+            <pubDate>Mon, 30 Dec 2024</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta20</title>
             <description>Security and Usability</description>
             <pubDate>Mon, 18 Nov 2024</pubDate>

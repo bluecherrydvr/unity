@@ -17,12 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
-import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/logging.dart';
@@ -39,7 +36,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-import 'package:unity_video_player_main/unity_video_player_main.dart';
 import 'package:window_manager/window_manager.dart';
 
 enum NetworkUsage {
@@ -599,22 +595,7 @@ class SettingsProvider extends UnityProvider {
     saveAs: (value) => value.index.toString(),
   );
   static bool get isHardwareZoomSupported {
-    if (kIsWeb || Platform.isMacOS || UpdateManager.isEmbedded) {
-      return false;
-    }
-
-    // In case the UnityVideoPlayerInterface is not available, such as in secondary
-    // entrypoints, we assume that the hardware zoom is not supported.
-    try {
-      if (UnityVideoPlayerInterface.instance.runtimeType !=
-          UnityVideoPlayerMediaKitInterface) {
-        return false;
-      }
-    } catch (_) {
-      return false;
-    }
-
-    return true;
+    return UnityVideoPlayerInterface.instance.supportsHardwareZoom;
   }
 
   final kSoftwareZooming = _SettingsOption<bool>(

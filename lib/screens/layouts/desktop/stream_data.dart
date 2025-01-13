@@ -378,7 +378,7 @@ class _StreamDataState extends State<StreamData> {
               padding: const EdgeInsetsDirectional.only(end: 8.0),
               child: PTZToggleButton(
                 enabledColor: theme.colorScheme.primary,
-                disabledColor: theme.colorScheme.primary.withOpacity(0.5),
+                disabledColor: theme.colorScheme.primary.withValues(alpha: 0.5),
                 ptzEnabled: ptzEnabled,
                 onChanged: (v) {
                   setState(() => ptzEnabled = v);

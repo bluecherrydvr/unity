@@ -151,8 +151,7 @@ class UnityPlayers with ChangeNotifier {
     SettingsProvider settings() => SettingsProvider.instance;
 
     final controller = UnityVideoPlayer.create(
-      // quality: settings().kRenderingQuality.value.playerQuality,
-      quality: UnityVideoQuality.p480,
+      quality: settings().kRenderingQuality.value.playerQuality,
       enableCache: true,
       title: event.title,
       matrixType: settings().kMatrixSize.value,

@@ -251,7 +251,10 @@ class _TimelineCardState extends State<TimelineCard> {
                             '/events',
                             arguments: {
                               'event': currentEvent.event,
-                              'videoPlayer': widget.tile.videoController,
+                              // Do not pass the video controller to the fullscreen
+                              // view because we don't want to desync the video
+                              // from the Timeline. https://github.com/bluecherrydvr/unity/issues/306
+                              // 'videoPlayer': widget.tile.videoController,
                             },
                           );
 

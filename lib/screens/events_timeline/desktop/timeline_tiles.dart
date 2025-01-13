@@ -51,6 +51,7 @@ class TimelineTiles extends StatefulWidget {
 class _TimelineTilesState extends State<TimelineTiles> {
   final hoursScrollController = ScrollController();
   final verticalScrollController = ScrollController();
+  final reorderableViewKey = GlobalKey();
 
   Timeline get timeline => widget.timeline;
   Map<TimelineTile, GlobalKey> keys = {};
@@ -92,10 +93,34 @@ class _TimelineTilesState extends State<TimelineTiles> {
     });
   }
 
+  void updateSelection() {
+    final events = selectedEvents();
+    if (events.isEmpty) {
+      clearSelection();
+    } else {
+      widget.onSelectionChanged(selectedEvents());
+    }
+  }
+
   bool _isSelecting = false;
 
   Offset _initialSelectionPoint = Offset.zero;
   Rect? _selectedArea;
+
+  void selectArea(Offset globalPosition) {
+    final renderBox =
+        reorderableViewKey.currentContext!.findRenderObject()! as RenderBox;
+    final localPosition = renderBox.globalToLocal(globalPosition);
+    final dx = localPosition.dx;
+    final dy = localPosition.dy;
+    final x = min(dx, _initialSelectionPoint.dx);
+    final y = min(dy, _initialSelectionPoint.dy);
+    final width = max(dx, _initialSelectionPoint.dx) - x;
+    final height = max(dy, _initialSelectionPoint.dy) - y;
+    setState(
+      () => _selectedArea = Rect.fromLTWH(x, y, width, height),
+    );
+  }
 
   @override
   void initState() {
@@ -170,36 +195,20 @@ class _TimelineTilesState extends State<TimelineTiles> {
                     : null,
                 onPanUpdate: isShiftPressed || _isSelecting
                     ? (details) {
-                        if (_isSelecting) {
-                          final localPosition = details.localPosition;
-                          final dx = localPosition.dx;
-                          final dy = localPosition.dy;
-                          final x = min(dx, _initialSelectionPoint.dx);
-                          final y = min(dy, _initialSelectionPoint.dy);
-                          final width = max(dx, _initialSelectionPoint.dx) - x;
-                          final height = max(dy, _initialSelectionPoint.dy) - y;
-                          setState(
-                            () => _selectedArea =
-                                Rect.fromLTWH(x, y, width, height),
-                          );
-                        }
+                        if (_isSelecting) selectArea(details.globalPosition);
                       }
                     : null,
                 onPanEnd: isShiftPressed || _isSelecting
                     ? (details) {
                         _isSelecting = false;
-                        final events = selectedEvents();
-                        if (events.isEmpty) {
-                          clearSelection();
-                        } else {
-                          widget.onSelectionChanged(events);
-                        }
+                        updateSelection();
                       }
                     : null,
                 child: EnforceScrollbarScroll(
                   controller: verticalScrollController,
                   onPointerSignal: _receivedPointerSignal,
                   child: ReorderableListView.builder(
+                    key: reorderableViewKey,
                     scrollController: verticalScrollController,
                     itemCount: timeline.tiles.length,
                     buildDefaultDragHandles: false,
@@ -243,13 +252,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
                                   );
                                   if (events.isNotEmpty) {
                                     assert(events.length == 1);
-                                    _selectedArea = Rect.fromLTWH(
-                                      renderBox.localToGlobal(Offset.zero).dx,
-                                      renderBox.localToGlobal(Offset.zero).dy,
-                                      Size.zero.width,
-                                      Size.zero.height,
-                                    );
-                                    widget.onSelectionChanged(events);
+                                    selectArea(details.globalPosition);
                                     return;
                                   }
                                 }
@@ -295,6 +298,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
                                         child: _TimelineTile(
                                           key: keyForTile(tile),
                                           tile: tile,
+                                          selectedEvents: selectedEvents(),
                                         ),
                                       ),
                                     ),
@@ -427,8 +431,13 @@ class _TimelineTilesState extends State<TimelineTiles> {
 
 class _TimelineTile extends StatefulWidget {
   final TimelineTile tile;
+  final List<TimelineEvent> selectedEvents;
 
-  const _TimelineTile({super.key, required this.tile});
+  const _TimelineTile({
+    super.key,
+    required this.tile,
+    required this.selectedEvents,
+  });
 
   static Widget name({required TimelineTile tile}) {
     return Builder(builder: (context) {
@@ -544,13 +553,16 @@ class _TimelineTileState extends State<_TimelineTile> {
                     width: event.duration.inSeconds * secondWidth,
                     height: kTimelineTileHeight,
                     child: ColoredBox(
-                      color: settings.kShowDebugInfo.value ||
-                              settings.kShowDifferentColorsForEvents.value
-                          ? colors[event.event] ?? theme.colorScheme.primary
-                          : switch (event.event.type) {
-                              EventType.motion => theme.colorScheme.secondary,
-                              _ => theme.colorScheme.primary,
-                            },
+                      color: widget.selectedEvents.contains(event)
+                          ? theme.colorScheme.tertiary
+                          : settings.kShowDebugInfo.value ||
+                                  settings.kShowDifferentColorsForEvents.value
+                              ? colors[event.event] ?? theme.colorScheme.primary
+                              : switch (event.event.type) {
+                                  EventType.motion =>
+                                    theme.colorScheme.secondary,
+                                  _ => theme.colorScheme.primary,
+                                },
                       // color: theme.colorScheme.primary,
                       child: settings.kShowDebugInfo.value
                           ? Align(

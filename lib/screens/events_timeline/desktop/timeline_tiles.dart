@@ -23,7 +23,6 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
-import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,6 @@ class TimelineTiles extends StatefulWidget {
 }
 
 class _TimelineTilesState extends State<TimelineTiles> {
-  final hoursScrollController = ScrollController();
   final verticalScrollController = ScrollController();
   final reorderableViewKey = GlobalKey();
 
@@ -57,6 +55,19 @@ class _TimelineTilesState extends State<TimelineTiles> {
   Map<TimelineTile, GlobalKey> keys = {};
   GlobalKey keyForTile(TimelineTile tile) {
     return keys.putIfAbsent(tile, GlobalKey.new);
+  }
+
+  Map<GlobalKey, ScrollController> controllers = {};
+  ScrollController controllerForTile(GlobalKey key) {
+    return controllers.putIfAbsent(key, () {
+      final controller = ScrollController();
+      controller.addListener(() {
+        if (timeline.zoomController.hasClients) {
+          timeline.zoomController.jumpTo(controller.offset);
+        }
+      });
+      return controller;
+    });
   }
 
   final selectionAreaKey = GlobalKey();
@@ -129,27 +140,21 @@ class _TimelineTilesState extends State<TimelineTiles> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_handleKey);
-
-    timeline.zoomController.addListener(_zoomListener);
   }
 
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKey);
-    timeline.zoomController.removeListener(_zoomListener);
-    hoursScrollController.dispose();
     verticalScrollController.dispose();
+    for (final controller in controllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   bool _handleKey(KeyEvent event) {
     if (mounted) setState(() {});
     return false;
-  }
-
-  void _zoomListener() {
-    final offset = timeline.zoomController.hasClients ? zoomOffset : 0.0;
-    hoursScrollController.jumpTo(offset);
   }
 
   double get zoomOffset => timeline.zoomController.hasClients
@@ -171,6 +176,14 @@ class _TimelineTilesState extends State<TimelineTiles> {
 
       final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
 
+      if (timeline.zoomController.hasClients) {
+        for (final controller in controllers.values) {
+          if (controller.hasClients) {
+            controller.jumpTo(timeline.zoomController.offset);
+          }
+        }
+      }
+
       return Stack(
         fit: StackFit.passthrough,
         alignment: AlignmentDirectional.bottomCenter,
@@ -178,7 +191,8 @@ class _TimelineTilesState extends State<TimelineTiles> {
           Column(mainAxisSize: MainAxisSize.min, children: [
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              controller: hoursScrollController,
+              // controller: hoursScrollController,
+              controller: timeline.zoomController,
               padding: const EdgeInsetsDirectional.only(
                 start: kDeviceNameWidth,
               ),
@@ -282,20 +296,19 @@ class _TimelineTilesState extends State<TimelineTiles> {
                                       ScrollConfiguration.of(context).copyWith(
                                     physics:
                                         const AlwaysScrollableScrollPhysics(),
+                                    scrollbars: false,
                                   ),
-                                  child: Scrollbar(
-                                    controller: timeline.zoomController,
-                                    thumbVisibility: isMobilePlatform,
-                                    child: SingleChildScrollView(
-                                      controller: timeline.zoomController,
-                                      scrollDirection: Axis.horizontal,
-                                      child: SizedBox(
-                                        width: tileWidth,
-                                        child: _TimelineTile(
-                                          key: keyForTile(tile),
-                                          tile: tile,
-                                          selectedEvents: selectedEvents(),
-                                        ),
+                                  child: SingleChildScrollView(
+                                    controller: controllerForTile(
+                                      keyForTile(tile),
+                                    ),
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                      width: tileWidth,
+                                      child: _TimelineTile(
+                                        key: keyForTile(tile),
+                                        tile: tile,
+                                        selectedEvents: selectedEvents(),
                                       ),
                                     ),
                                   ),

@@ -69,14 +69,17 @@ class _TimelineTilesState extends State<TimelineTiles> {
 
     final selectedAreaBox =
         selectionAreaKey.currentContext!.findRenderObject() as RenderBox;
+    if (!selectedAreaBox.hasSize) return [];
     final selectedArea =
         selectedAreaBox.localToGlobal(Offset.zero) & selectedAreaBox.size;
     for (final tile in timeline.tiles) {
       final tileKey = keyForTile(tile);
+      if (tileKey.currentContext == null) continue;
       final tileBox = tileKey.currentContext!.findRenderObject()! as RenderBox;
       final tilePosition = tileBox.localToGlobal(Offset.zero);
       final tileRect = tilePosition & tileBox.size;
       if (selectedArea.overlaps(tileRect)) {
+        if (tileKey.currentState == null) continue;
         final tileWidget = tileKey.currentState! as _TimelineTileState;
         final events = tileWidget.eventsInRect(selectedArea);
         selectedEvents.addAll(events);

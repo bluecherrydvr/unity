@@ -184,199 +184,201 @@ class _TimelineTilesState extends State<TimelineTiles> {
         }
       }
 
-      return Stack(
-        fit: StackFit.passthrough,
-        alignment: AlignmentDirectional.bottomCenter,
-        children: [
-          Column(mainAxisSize: MainAxisSize.min, children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              // controller: hoursScrollController,
-              controller: timeline.zoomController,
-              padding: const EdgeInsetsDirectional.only(
-                start: kDeviceNameWidth,
+      return RepaintBoundary(
+        child: Stack(
+          fit: StackFit.passthrough,
+          alignment: AlignmentDirectional.bottomCenter,
+          children: [
+            Column(mainAxisSize: MainAxisSize.min, children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: timeline.zoomController,
+                padding: const EdgeInsetsDirectional.only(
+                  start: kDeviceNameWidth,
+                ),
+                physics: const NeverScrollableScrollPhysics(),
+                child: _TimelineHours(hourWidth: hourWidth),
               ),
-              physics: const NeverScrollableScrollPhysics(),
-              child: _TimelineHours(hourWidth: hourWidth),
-            ),
-            Flexible(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanDown: isShiftPressed
-                    ? (details) {
-                        if (HardwareKeyboard.instance.isShiftPressed) {
-                          _isSelecting = true;
-                          _initialSelectionPoint = details.localPosition;
+              Flexible(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onPanDown: isShiftPressed
+                      ? (details) {
+                          if (HardwareKeyboard.instance.isShiftPressed) {
+                            _isSelecting = true;
+                            _initialSelectionPoint = details.localPosition;
+                          }
                         }
-                      }
-                    : null,
-                onPanUpdate: isShiftPressed || _isSelecting
-                    ? (details) {
-                        if (_isSelecting) selectArea(details.globalPosition);
-                      }
-                    : null,
-                onPanEnd: isShiftPressed || _isSelecting
-                    ? (details) {
-                        _isSelecting = false;
-                        updateSelection();
-                      }
-                    : null,
-                child: EnforceScrollbarScroll(
-                  controller: verticalScrollController,
-                  onPointerSignal: _receivedPointerSignal,
-                  child: ReorderableListView.builder(
-                    key: reorderableViewKey,
-                    scrollController: verticalScrollController,
-                    itemCount: timeline.tiles.length,
-                    buildDefaultDragHandles: false,
-                    onReorder: (oldIndex, newIndex) {
-                      setState(() {
-                        if (oldIndex < newIndex) {
-                          newIndex -= 1;
+                      : null,
+                  onPanUpdate: isShiftPressed || _isSelecting
+                      ? (details) {
+                          if (_isSelecting) selectArea(details.globalPosition);
                         }
-                        final item = timeline.tiles.removeAt(oldIndex);
-                        timeline.tiles.insert(newIndex, item);
-                        timeline.notify();
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      final tile = timeline.tiles[index];
+                      : null,
+                  onPanEnd: isShiftPressed || _isSelecting
+                      ? (details) {
+                          _isSelecting = false;
+                          updateSelection();
+                        }
+                      : null,
+                  child: EnforceScrollbarScroll(
+                    controller: verticalScrollController,
+                    onPointerSignal: _receivedPointerSignal,
+                    child: ReorderableListView.builder(
+                      key: reorderableViewKey,
+                      scrollController: verticalScrollController,
+                      itemCount: timeline.tiles.length,
+                      buildDefaultDragHandles: false,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (oldIndex < newIndex) {
+                            newIndex -= 1;
+                          }
+                          final item = timeline.tiles.removeAt(oldIndex);
+                          timeline.tiles.insert(newIndex, item);
+                          timeline.notify();
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        final tile = timeline.tiles[index];
 
-                      return Row(
-                        key: ValueKey(tile.device.uuid),
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            width: kDeviceNameWidth,
-                            child: ReorderableDragStartListener(
-                              index: index,
-                              child: _TimelineTile.name(tile: tile),
+                        return Row(
+                          key: ValueKey(tile.device.uuid),
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: kDeviceNameWidth,
+                              child: ReorderableDragStartListener(
+                                index: index,
+                                child: _TimelineTile.name(tile: tile),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTapUp: (details) {
-                                if (isShiftPressed) {
-                                  selectArea(details.globalPosition);
-                                  if (_selectedArea != null) {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback(
-                                      (_) => updateSelection(),
-                                    );
-                                    return;
+                            Expanded(
+                              child: GestureDetector(
+                                onTapUp: (details) {
+                                  if (isShiftPressed) {
+                                    selectArea(details.globalPosition);
+                                    if (_selectedArea != null) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback(
+                                        (_) => updateSelection(),
+                                      );
+                                      return;
+                                    }
                                   }
-                                }
-                                if (_selectedArea != null) {
-                                  clearSelection();
-                                } else {
-                                  _onMove(
-                                    details.localPosition,
-                                    constraints,
-                                    tileWidth,
-                                  );
-                                }
-                              },
-                              onHorizontalDragUpdate:
-                                  isShiftPressed || _isSelecting
-                                      ? null
-                                      : (details) {
-                                          if (_selectedArea != null) {
-                                            clearSelection();
-                                          } else {
-                                            _onMove(
-                                              details.localPosition,
-                                              constraints,
-                                              tileWidth,
-                                            );
-                                          }
-                                        },
-                              child: Builder(builder: (context) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    scrollbars: false,
-                                  ),
-                                  child: SingleChildScrollView(
-                                    controller: controllerForTile(
-                                      keyForTile(tile),
+                                  if (_selectedArea != null) {
+                                    clearSelection();
+                                  } else {
+                                    _onMove(
+                                      details.localPosition,
+                                      constraints,
+                                      tileWidth,
+                                    );
+                                  }
+                                },
+                                onHorizontalDragUpdate:
+                                    isShiftPressed || _isSelecting
+                                        ? null
+                                        : (details) {
+                                            if (_selectedArea != null) {
+                                              clearSelection();
+                                            } else {
+                                              _onMove(
+                                                details.localPosition,
+                                                constraints,
+                                                tileWidth,
+                                              );
+                                            }
+                                          },
+                                child: Builder(builder: (context) {
+                                  return ScrollConfiguration(
+                                    behavior: ScrollConfiguration.of(context)
+                                        .copyWith(
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      scrollbars: false,
                                     ),
-                                    scrollDirection: Axis.horizontal,
-                                    child: SizedBox(
-                                      width: tileWidth,
-                                      child: _TimelineTile(
-                                        key: keyForTile(tile),
-                                        tile: tile,
-                                        selectedEvents: selectedEvents(),
+                                    child: SingleChildScrollView(
+                                      controller: controllerForTile(
+                                        keyForTile(tile),
+                                      ),
+                                      scrollDirection: Axis.horizontal,
+                                      child: SizedBox(
+                                        width: tileWidth,
+                                        child: _TimelineTile(
+                                          key: keyForTile(tile),
+                                          tile: tile,
+                                          selectedEvents: selectedEvents(),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }),
+                                  );
+                                }),
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          ]),
-          if (timeline.zoomController.hasClients)
-            Builder(builder: (context) {
-              final left = (timeline.currentPosition.inSeconds * secondsWidth) -
-                  zoomOffset -
-                  (/* the width of half of the triangle */
-                      8 / 2);
-              if (left < -8.0) return const SizedBox.shrink();
+            ]),
+            if (timeline.zoomController.hasClients)
+              Builder(builder: (context) {
+                final left =
+                    (timeline.currentPosition.inSeconds * secondsWidth) -
+                        zoomOffset -
+                        (/* the width of half of the triangle */
+                            8 / 2);
+                if (left < -8.0) return const SizedBox.shrink();
 
-              final pointerColor = switch (theme.brightness) {
-                Brightness.light => theme.colorScheme.onSurface,
-                Brightness.dark => theme.colorScheme.onSurface,
-              };
+                final pointerColor = switch (theme.brightness) {
+                  Brightness.light => theme.colorScheme.onSurface,
+                  Brightness.dark => theme.colorScheme.onSurface,
+                };
 
-              return Positioned(
-                key: timeline.indicatorKey,
-                left: kDeviceNameWidth + left,
-                width: 8,
-                top: 12.0,
-                bottom: 0.0,
-                child: IgnorePointer(
-                  child: Column(children: [
-                    ClipPath(
-                      clipper: InvertedTriangleClipper(),
-                      child: Container(
-                        width: 8,
-                        height: 4,
-                        color: pointerColor,
+                return Positioned(
+                  key: timeline.indicatorKey,
+                  left: kDeviceNameWidth + left,
+                  width: 8,
+                  top: 12.0,
+                  bottom: 0.0,
+                  child: IgnorePointer(
+                    child: Column(children: [
+                      ClipPath(
+                        clipper: InvertedTriangleClipper(),
+                        child: Container(
+                          width: 8,
+                          height: 4,
+                          color: pointerColor,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Container(width: 1.8, color: pointerColor),
-                    ),
-                  ]),
+                      Expanded(
+                        child: Container(width: 1.8, color: pointerColor),
+                      ),
+                    ]),
+                  ),
+                );
+              }),
+            if (_selectedArea != null)
+              Positioned.fromRect(
+                key: selectionAreaKey,
+                rect: Rect.fromLTWH(
+                  _selectedArea!.left,
+                  _selectedArea!.top + kTimelineHoursHeight,
+                  _selectedArea!.width,
+                  _selectedArea!.height,
                 ),
-              );
-            }),
-          if (_selectedArea != null)
-            Positioned.fromRect(
-              key: selectionAreaKey,
-              rect: Rect.fromLTWH(
-                _selectedArea!.left,
-                _selectedArea!.top + kTimelineHoursHeight,
-                _selectedArea!.width,
-                _selectedArea!.height,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.primary),
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.primary),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       );
     });
   }

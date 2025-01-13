@@ -36,8 +36,13 @@ const kTimelineHoursHeight = 20.0;
 
 class TimelineTiles extends StatefulWidget {
   final Timeline timeline;
+  final ValueChanged<List<TimelineEvent>> onSelectionChanged;
 
-  const TimelineTiles({super.key, required this.timeline});
+  const TimelineTiles({
+    super.key,
+    required this.timeline,
+    required this.onSelectionChanged,
+  });
 
   @override
   State<TimelineTiles> createState() => _TimelineTilesState();
@@ -56,7 +61,9 @@ class _TimelineTilesState extends State<TimelineTiles> {
   final selectionAreaKey = GlobalKey();
 
   List<TimelineEvent> selectedEvents() {
+    if (selectionAreaKey.currentContext == null) return [];
     assert(selectionAreaKey.currentContext != null);
+
     final selectedEvents = <TimelineEvent>[];
 
     final selectedAreaBox =
@@ -76,6 +83,13 @@ class _TimelineTilesState extends State<TimelineTiles> {
     }
 
     return selectedEvents;
+  }
+
+  void clearSelection() {
+    setState(() => _selectedArea = null);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.onSelectionChanged(selectedEvents());
+    });
   }
 
   bool _isSelecting = false;
@@ -174,7 +188,12 @@ class _TimelineTilesState extends State<TimelineTiles> {
                 onPanEnd: isShiftPressed || _isSelecting
                     ? (details) {
                         _isSelecting = false;
-                        debugPrint(selectedEvents().toString());
+                        final events = selectedEvents();
+                        if (events.isEmpty) {
+                          clearSelection();
+                        } else {
+                          widget.onSelectionChanged(events);
+                        }
                       }
                     : null,
                 child: EnforceScrollbarScroll(
@@ -212,7 +231,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
                             child: GestureDetector(
                               onTapUp: (details) {
                                 if (_selectedArea != null) {
-                                  setState(() => _selectedArea = null);
+                                  clearSelection();
                                 } else {
                                   _onMove(
                                     details.localPosition,
@@ -221,20 +240,20 @@ class _TimelineTilesState extends State<TimelineTiles> {
                                   );
                                 }
                               },
-                              onHorizontalDragUpdate: isShiftPressed ||
-                                      _isSelecting
-                                  ? null
-                                  : (details) {
-                                      if (_selectedArea != null) {
-                                        setState(() => _selectedArea = null);
-                                      } else {
-                                        _onMove(
-                                          details.localPosition,
-                                          constraints,
-                                          tileWidth,
-                                        );
-                                      }
-                                    },
+                              onHorizontalDragUpdate:
+                                  isShiftPressed || _isSelecting
+                                      ? null
+                                      : (details) {
+                                          if (_selectedArea != null) {
+                                            clearSelection();
+                                          } else {
+                                            _onMove(
+                                              details.localPosition,
+                                              constraints,
+                                              tileWidth,
+                                            );
+                                          }
+                                        },
                               child: Builder(builder: (context) {
                                 return ScrollConfiguration(
                                   behavior:

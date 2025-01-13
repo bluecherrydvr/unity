@@ -20,6 +20,7 @@
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline_card.dart';
@@ -291,16 +292,30 @@ class TimelineSelectionOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final downloads = context.watch<DownloadsManager>();
+    final events =
+        selectedEvents.where((e) => !downloads.isEventDownloaded(e.event.id));
+    final downloading =
+        events.where((e) => downloads.isEventDownloading(e.event.id));
     return Row(children: [
-      SquaredIconButton(
-        tooltip: loc.downloadN(selectedEvents.length),
-        onPressed: () {
-          for (final event in selectedEvents) {
-            downloads.download(event.event);
-          }
-        },
-        icon: Icon(Icons.download),
-      )
+      if (downloading.length != events.length)
+        SquaredIconButton(
+          tooltip: loc.downloadN(events.length),
+          onPressed: () {
+            for (final event in events) {
+              downloads.download(event.event);
+            }
+          },
+          icon: Icon(Icons.download),
+        ),
+      if (downloading.isNotEmpty)
+        SizedBox.square(
+          dimension: 40.0,
+          child: DownloadProgressIndicator(
+            progress: downloading
+                .map((e) => downloads.downloading[e.event]!.$1)
+                .reduce((a, b) => a + b),
+          ),
+        ),
     ]);
   }
 }

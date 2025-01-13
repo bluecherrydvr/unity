@@ -36,6 +36,7 @@ class DownloadProgressIndicator extends StatelessWidget {
     this.color,
   });
 
+  /// The download progress from 0.0 to 1.0.
   final DownloadProgress progress;
 
   /// The color of the indicator.

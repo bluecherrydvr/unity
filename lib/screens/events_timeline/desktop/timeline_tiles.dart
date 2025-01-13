@@ -46,7 +46,6 @@ class TimelineTiles extends StatefulWidget {
 class _TimelineTilesState extends State<TimelineTiles> {
   final hoursScrollController = ScrollController();
   final verticalScrollController = ScrollController();
-  final reorderableViewKey = GlobalKey();
 
   Timeline get timeline => widget.timeline;
   Map<TimelineTile, GlobalKey> keys = {};
@@ -54,28 +53,24 @@ class _TimelineTilesState extends State<TimelineTiles> {
     return keys.putIfAbsent(tile, GlobalKey.new);
   }
 
-  List<TimelineEvent> selectedEvents() {
-    assert(reorderableViewKey.currentContext != null);
-    assert(_selectedArea != null);
+  final selectionAreaKey = GlobalKey();
 
+  List<TimelineEvent> selectedEvents() {
+    assert(selectionAreaKey.currentContext != null);
     final selectedEvents = <TimelineEvent>[];
-    final rect = _selectedArea!;
-    // final renderBox =
-    //     reorderableViewKey.currentContext!.findRenderObject()! as RenderBox;
-    final tiles =
-        reorderableViewKey.currentContext!.findRenderObject()! as RenderBox;
+
+    final selectedAreaBox =
+        selectionAreaKey.currentContext!.findRenderObject() as RenderBox;
+    final selectedArea =
+        selectedAreaBox.localToGlobal(Offset.zero) & selectedAreaBox.size;
     for (final tile in timeline.tiles) {
       final tileKey = keyForTile(tile);
-      final tileRenderBox =
-          tileKey.currentContext!.findRenderObject()! as RenderBox;
-      final tileRect =
-          tileRenderBox.localToGlobal(Offset.zero, ancestor: tiles);
-      final tileSize = tileRenderBox.size;
-      final tileArea = Rect.fromLTWH(
-          tileRect.dx, tileRect.dy, tileSize.width, tileSize.height);
-      if (rect.overlaps(tileArea)) {
+      final tileBox = tileKey.currentContext!.findRenderObject()! as RenderBox;
+      final tilePosition = tileBox.localToGlobal(Offset.zero);
+      final tileRect = tilePosition & tileBox.size;
+      if (selectedArea.overlaps(tileRect)) {
         final tileWidget = tileKey.currentState! as _TimelineTileState;
-        final events = tileWidget.eventsInRect(rect);
+        final events = tileWidget.eventsInRect(selectedArea);
         selectedEvents.addAll(events);
       }
     }
@@ -186,7 +181,6 @@ class _TimelineTilesState extends State<TimelineTiles> {
                   controller: verticalScrollController,
                   onPointerSignal: _receivedPointerSignal,
                   child: ReorderableListView.builder(
-                    key: reorderableViewKey,
                     scrollController: verticalScrollController,
                     itemCount: timeline.tiles.length,
                     buildDefaultDragHandles: false,
@@ -313,20 +307,17 @@ class _TimelineTilesState extends State<TimelineTiles> {
             }),
           if (_selectedArea != null)
             Positioned.fromRect(
-              // rect: _selectedArea!,
+              key: selectionAreaKey,
               rect: Rect.fromLTWH(
-                // kDeviceNameWidth + _selectedArea.left,
                 _selectedArea!.left,
-                kTimelineHoursHeight + _selectedArea!.top,
+                _selectedArea!.top + kTimelineHoursHeight,
                 _selectedArea!.width,
                 _selectedArea!.height,
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: theme.colorScheme.primary,
-                  ),
-                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  border: Border.all(color: theme.colorScheme.primary),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -453,6 +444,11 @@ class _TimelineTileState extends State<_TimelineTile> {
   late final Map<Event, Color> colors;
   var secondWidth = 0.0;
 
+  Map<TimelineEvent, GlobalKey> keys = {};
+  GlobalKey keyForTile(TimelineEvent event) {
+    return keys.putIfAbsent(event, GlobalKey.new);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -497,6 +493,7 @@ class _TimelineTileState extends State<_TimelineTile> {
                 for (final event in widget.tile.events
                     .where((event) => event.startTime.hour == hour))
                   PositionedDirectional(
+                    key: keyForTile(event),
                     // the minute (in seconds) + the start second * the width of
                     // a second
                     start: ((event.startTime.minute * 60) +
@@ -539,14 +536,10 @@ class _TimelineTileState extends State<_TimelineTile> {
   List<TimelineEvent> eventsInRect(Rect rect) {
     final events = <TimelineEvent>[];
     for (final event in widget.tile.events) {
-      final eventRect = Rect.fromLTWH(
-        (event.startTime.hour * secondWidth * 60 * 60) +
-            (event.startTime.minute * secondWidth * 60) +
-            (event.startTime.second * secondWidth),
-        0.0,
-        event.duration.inSeconds * secondWidth,
-        kTimelineTileHeight,
-      );
+      final key = keyForTile(event);
+      final renderBox = key.currentContext!.findRenderObject()! as RenderBox;
+      final position = renderBox.localToGlobal(Offset.zero);
+      final eventRect = position & renderBox.size;
       if (rect.overlaps(eventRect)) {
         events.add(event);
       }

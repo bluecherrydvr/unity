@@ -230,6 +230,29 @@ class _TimelineTilesState extends State<TimelineTiles> {
                           Expanded(
                             child: GestureDetector(
                               onTapUp: (details) {
+                                if (isShiftPressed) {
+                                  final key = keyForTile(tile);
+                                  final renderBox = key.currentContext!
+                                      .findRenderObject()! as RenderBox;
+                                  final state =
+                                      key.currentState! as _TimelineTileState;
+                                  final events = state.eventsInRect(
+                                    renderBox.localToGlobal(
+                                            details.localPosition) &
+                                        Size.zero,
+                                  );
+                                  if (events.isNotEmpty) {
+                                    assert(events.length == 1);
+                                    _selectedArea = Rect.fromLTWH(
+                                      renderBox.localToGlobal(Offset.zero).dx,
+                                      renderBox.localToGlobal(Offset.zero).dy,
+                                      Size.zero.width,
+                                      Size.zero.height,
+                                    );
+                                    widget.onSelectionChanged(events);
+                                    return;
+                                  }
+                                }
                                 if (_selectedArea != null) {
                                   clearSelection();
                                 } else {

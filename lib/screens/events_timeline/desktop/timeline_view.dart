@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/events_screen.dart';
@@ -56,6 +57,8 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
   double? _volume;
 
   var _isCollapsed = false;
+
+  var selectedEvents = <TimelineEvent>[];
 
   @override
   void initState() {
@@ -139,13 +142,15 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
               start: 8.0,
               end: 8.0,
             ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            child: Row(children: [
               SquaredIconButton(
                 icon:
                     Icon(_isCollapsed ? Icons.expand_less : Icons.expand_more),
                 onPressed: () => setState(() => _isCollapsed = !_isCollapsed),
                 tooltip: _isCollapsed ? loc.expand : loc.collapse,
               ),
+              if (selectedEvents.isNotEmpty)
+                TimelineSelectionOptions(selectedEvents: selectedEvents),
               Expanded(
                 child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   if (timeline.pausedToBuffer.isNotEmpty)
@@ -264,10 +269,38 @@ class _TimelineEventsViewState extends State<TimelineEventsView> {
             constraints: BoxConstraints(
               maxHeight: _isCollapsed ? 0.0 : kTimelineTileHeight * 5.0,
             ),
-            child: TimelineTiles(timeline: timeline),
+            child: TimelineTiles(
+              timeline: timeline,
+              onSelectionChanged: (events) {
+                setState(() => selectedEvents = events);
+              },
+            ),
           ),
         ]),
       ),
+    ]);
+  }
+}
+
+class TimelineSelectionOptions extends StatelessWidget {
+  final List<TimelineEvent> selectedEvents;
+
+  const TimelineSelectionOptions({super.key, required this.selectedEvents});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final downloads = context.watch<DownloadsManager>();
+    return Row(children: [
+      SquaredIconButton(
+        tooltip: loc.downloadN(selectedEvents.length),
+        onPressed: () {
+          for (final event in selectedEvents) {
+            downloads.download(event.event);
+          }
+        },
+        icon: Icon(Icons.download),
+      )
     ]);
   }
 }

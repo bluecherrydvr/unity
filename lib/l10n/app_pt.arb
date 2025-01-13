@@ -291,6 +291,14 @@
   "@Downloads": {},
   "downloads": "Downloads",
   "download": "Baixar",
+  "downloadN": "Baixe {n} eventos",
+  "@downloadN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "downloaded": "Baixado",
   "downloading": "Baixando",
   "seeInDownloads": "Ver nos Downloads",

@@ -291,6 +291,14 @@
   "@Downloads": {},
   "downloads": "Pobrania",
   "download": "Pobierz",
+  "downloadN": "Download {n} events",
+  "@downloadN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "downloaded": "Pobrane",
   "downloading": "Pobieranie",
   "seeInDownloads": "Zobacz w Pobranych",

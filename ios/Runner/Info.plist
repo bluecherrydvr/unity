@@ -63,5 +63,9 @@
 		</dict>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true />
+		<key>NSFaceIDUsageDescription</key>
+		<string>Make sure only you can view your private information.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Make sure only you can view your private information.</string>
 	</dict>
 </plist>

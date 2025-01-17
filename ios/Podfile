@@ -54,6 +54,7 @@ post_install do |installer|
       ]
     end 
   end
+  # https://pub.dev/packages/awesome_notifications#-configuring-ios-for-awesome-notifications
   ################  Awesome Notifications pod modification  ###################
   awesome_pod_file = File.expand_path(File.join('plugins', 'awesome_notifications', 'ios', 'Scripts', 'AwesomePodFile'), '.symlinks')
   require awesome_pod_file

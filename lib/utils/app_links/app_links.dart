@@ -26,6 +26,11 @@ import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
+// Video Player Options
+import 'package:unity_video_player/unity_video_player.dart';
+// ignore: depend_on_referenced_packages
+import 'package:unity_video_player_flutter/unity_video_player_flutter.dart';
+
 export 'app_links_stub.dart' if (dart.library.ffi) 'app_links_real.dart';
 
 Future<void> handleArgs(
@@ -69,6 +74,10 @@ Future<void> handleArgs(
       abbr: 'c',
       help: 'Cycle through the cameras in the layout',
       defaultsTo: settings.kLayoutCycleEnabled.value,
+    )
+    ..addFlag(
+      'mdk',
+      help: 'Whether to use MDK instead of MPV for video playback',
     )
     ..addOption(
       'layout',
@@ -142,6 +151,12 @@ Future<void> handleArgs(
   if (results.wasParsed('cycle')) {
     final cycle = results.flag('cycle');
     settings.kLayoutCycleEnabled.value = cycle;
+  }
+  if (results.wasParsed('mdk')) {
+    final mdk = results.flag('mdk');
+    if (mdk) {
+      UnityVideoPlayerInterface.instance = UnityVideoPlayerFlutterInterface();
+    }
   }
 
   await onSplashScreen(isFullscreen);

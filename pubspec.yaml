@@ -3,7 +3,7 @@ description: Bluecherry client written in Flutter.
 
 publish_to: "none"
 
-version: 3.0.0-beta21
+version: 3.0.0-beta22
 
 environment:
   sdk: ">=3.5.0 <4.0.0"

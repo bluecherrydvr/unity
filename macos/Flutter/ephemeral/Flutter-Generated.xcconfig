@@ -2,11 +2,11 @@
 FLUTTER_ROOT=/Users/user249455/Documents/development/flutter
 FLUTTER_APPLICATION_PATH=/Users/user249455/Documents/GitHub/unity
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/user249455/Documents/GitHub/unity/lib/main.dart
+FLUTTER_TARGET=lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=3.0.022
 FLUTTER_BUILD_NUMBER=3.0.022
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
-TREE_SHAKE_ICONS=false
+TREE_SHAKE_ICONS=true
 PACKAGE_CONFIG=/Users/user249455/Documents/GitHub/unity/.dart_tool/package_config.json

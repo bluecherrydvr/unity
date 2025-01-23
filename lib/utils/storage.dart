@@ -86,7 +86,16 @@ Future<void> migrate(SafeLocalStorage from, FlutterSecureStorage to) async {
   }
 }
 
-final secureStorage = FlutterSecureStorage();
+final secureStorage = FlutterSecureStorage(
+  iOptions: IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+    synchronizable: true,
+  ),
+  mOptions: MacOsOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+    synchronizable: true,
+  ),
+);
 
 late final SafeLocalStorage storage;
 late final SafeLocalStorage downloads;

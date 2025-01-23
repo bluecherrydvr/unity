@@ -52,13 +52,18 @@ bool get canConfigureWindow {
   return false;
 }
 
+Future<void> preconfigureWindow() async {
+  if (canConfigureWindow) {
+    await WindowManager.instance.ensureInitialized();
+  }
+}
+
 /// Configures the current window
 Future<void> configureWindow({bool? fullscreen}) async {
   if (canConfigureWindow) {
     final settings = SettingsProvider.instance;
     fullscreen ??= settings.kFullscreen.value;
 
-    await WindowManager.instance.ensureInitialized();
     await windowManager.waitUntilReadyToShow(
       WindowOptions(
         minimumSize: () {

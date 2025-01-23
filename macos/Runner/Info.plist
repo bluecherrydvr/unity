@@ -18,6 +18,18 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>bluecherry_schemes</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>rtsp</string>
+				<string>bluecherry</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSMinimumSystemVersion</key>
@@ -28,18 +40,5 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>CFBundleURLTypes</key>
-	<!-- https://pub.dev/packages/app_links/versions/3.5.0-beta.2#getting-started -->
-	<array>
-    	<dict>
-        	<key>CFBundleURLName</key>
-    	    <string>bluecherry_schemes</string>
-        	<key>CFBundleURLSchemes</key>
-	        <array>
-        	    <string>rtsp</string>
-        	    <string>bluecherry</string>
-	        </array>
-    	</dict>
-	</array>
 </dict>
 </plist>

@@ -72,7 +72,7 @@ Future<void> main(List<String> args) async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     logging.setupLogging();
-
+    await preconfigureWindow();
     await initializeDateFormatting();
     await configureStorage();
     await SettingsProvider.ensureInitialized();

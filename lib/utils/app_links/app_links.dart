@@ -135,6 +135,11 @@ Future<void> handleArgs(
   var isFullscreen = false;
   if (results.wasParsed('fullscreen')) {
     isFullscreen = results.flag('fullscreen');
+    settings.kFullscreen.value = isFullscreen;
+  }
+  if (results.wasParsed('immersive')) {
+    final isImmersive = results.flag('immersive');
+    settings.kImmersiveMode.value = isImmersive;
   }
   // if (results.wasParsed('kiosk')) {
   //   final isKiosk = results.flag('kiosk');
@@ -155,19 +160,6 @@ Future<void> handleArgs(
   }
 
   await onSplashScreen(isFullscreen);
-
-  /// `--fullscreen` and `immersive` NEED to be parsed after the splash screen
-  /// because they affect window options, which are only initialized on the
-  /// splash screen. Failure to do so will result in the app crashing before it
-  /// is opened: "Fatal error: Unexpectedly found nil while unwrapping an
-  /// Optional value".
-  if (results.wasParsed('fullscreen')) {
-    settings.kFullscreen.value = isFullscreen;
-  }
-  if (results.wasParsed('immersive')) {
-    final isImmersive = results.flag('immersive');
-    settings.kImmersiveMode.value = isImmersive;
-  }
 
   if (results.wasParsed('mute') || results.wasParsed('volume')) {
     await LayoutsProvider.ensureInitialized();

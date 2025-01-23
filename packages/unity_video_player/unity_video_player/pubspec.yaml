@@ -32,7 +32,7 @@ flutter:
       ios:
         default_package: unity_video_player_main
       macos:
-        default_package: unity_video_player_main
+        default_package: unity_video_player_flutter
       linux:
         default_package: unity_video_player_flutter
       windows:

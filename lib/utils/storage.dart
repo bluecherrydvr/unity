@@ -94,7 +94,7 @@ final secureStorage = FlutterSecureStorage(
   mOptions: MacOsOptions(
     accessibility: KeychainAccessibility.first_unlock,
     synchronizable: true,
-  )
+  ),
 );
 
 late final SafeLocalStorage storage;

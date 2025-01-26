@@ -671,15 +671,6 @@ packages:
       url: "https://github.com/media-kit/media-kit/"
     source: git
     version: "1.1.4"
-  media_kit_libs_macos_video:
-    dependency: transitive
-    description:
-      path: "libs/macos/media_kit_libs_macos_video"
-      ref: HEAD
-      resolved-ref: "0b7b7e4d88a0bc574550a929835e0400c7c2d135"
-      url: "https://github.com/media-kit/media-kit/"
-    source: git
-    version: "1.1.4"
   media_kit_libs_windows_video:
     dependency: transitive
     description:

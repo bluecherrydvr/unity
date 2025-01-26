@@ -463,6 +463,7 @@ class _WindowButtonsState extends State<WindowButtons>
   }
 
   Future<void> dismissOverlayEntry() async {
+    Tooltip.dismissAllToolTips();
     await _animationController.reverse();
     _overlayEntry?.remove();
     _overlayEntry = null;

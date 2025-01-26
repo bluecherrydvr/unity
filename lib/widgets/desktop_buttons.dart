@@ -132,6 +132,7 @@ class _WindowButtonsState extends State<WindowButtons>
   @override
   void dispose() {
     _animationController.dispose();
+    dismissOverlayEntry();
     super.dispose();
   }
 
@@ -405,9 +406,19 @@ class _WindowButtonsState extends State<WindowButtons>
           width: double.infinity,
         ),
       );
+    } else {
+      /// If not in immersive mode, return the bar directly.
+      ///
+      /// The overlay is dismissed here because, if the overlay was not dismissed
+      /// when the immersive mode was enabled, the overlay would be shown on top
+      /// of the bar. It does nothing if the overlay is already dismissed.
+      return MouseRegion(
+        onExit: (_) {
+          dismissOverlayEntry();
+        },
+        child: bar,
+      );
     }
-
-    return bar;
   }
 
   OverlayEntry? _overlayEntry;

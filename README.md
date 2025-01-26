@@ -25,30 +25,27 @@
   <br /> $~~~~~$📱 For smaller screens, see multiple cameras in 2x3, 2x2, 2x1 or 1x1 view
   <br /> $~~~~~$👆 Re-orgderable drag-and-drop camera viewer
   <br /> $~~~~~$🛞 Cycle through different layout views automatically
-- 🔎 Pinch-to-zoom fullscreen camera viewer.
+- 🔎 Pinch-to-zoom fullscreen camera viewer
 - 📹 Multicast streams support
 - 🏃 Events List Viewer
 - 🚡 Events Timeline Viewer
-- 📸 Direct camera viewer.
 - 🎮 **P**an-**T**ilt-**Z**oom controls for supported cameras.
-- 🌓 Light & dark app theme.
-- 📰 System camera event notifications.
+- 🌓 Light & dark app theme
+- 📰 System camera event notifications
 - 📺 Adaptive and responsive design for larger screens
 - 📱 Cross-platform
-  <br /> $~~~~$📱 Mobile: Android & iOS
-  <br /> $~~~~$🖥️ Desktop: Windows, Linux & MacOS
 - 📦 Automatic updates
 
 ## Download
 
-| Android                                                                                                                            | iOS                                                                       | Windows                                                                                                              | GNU/Linux                                                                                                                         | MacOS                                                                                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-arm64-v8a-release.apk)    | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-windows-setup.exe) | [SnapStore](https://snapcraft.io/bluecherry-client)  | [Executable `.app`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-macos.7z) |
-| [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-armeabi-v7a-release.apk) |                                                                           | 🚧 **SOON** ~~`winget install bluecherry`~~                                                                          | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.deb)        | 🚧 **SOON** ~~[App Store](https://github.com/bluecherrydvr/unity/issues/112)~~                                  |
-| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-x86_64-release.apk)      |                                                                           | 🚧 **SOON** ~~Microsoft Store~~                                                                                      | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.tar.gz) |                                                                                                                 |
-| 🚧 **SOON** ~~Play Store~~                                                                                                         |                                                                           |                                                                                                                      | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.rpm) |                                                                                                                 |
+| Android                                                                                                                            | iOS                                                                       | Windows                                                                                                              | GNU/Linux                                                                                                                         | MacOS                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [arm64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-arm64-v8a-release.apk)    | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id1555805139) | [Windows Setup](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-windows-setup.exe) | [SnapStore](https://snapcraft.io/bluecherry-client)                                                                               | [App Store](https://apps.apple.com/us/app/bluecherry-mobile/id6474160553) |
+| [armabi `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-armeabi-v7a-release.apk) |                                                                           | 🚧 **SOON** ~~`winget install bluecherry`~~                                                                          | [Ubuntu/Debian `.deb`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.deb)        |                                                                           |
+| [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-android-x86_64-release.apk)      |                                                                           | 🚧 **SOON** ~~Microsoft Store~~                                                                                      | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.tar.gz) |                                                                           |
+| 🚧 **SOON** ~~Play Store~~                                                                                                         |                                                                           |                                                                                                                      | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta22/bluecherry-linux-x86_64.rpm) |                                                                           |
 
-Or download the latest release [here](https://github.com/bluecherrydvr/unity/releases).
+Or download the latest release [here](https://github.com/bluecherrydvr/unity/releases/tag/bleeding_edge)*.
 
 ### Installation
 

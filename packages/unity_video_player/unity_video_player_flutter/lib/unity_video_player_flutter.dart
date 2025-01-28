@@ -276,7 +276,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   Future<void> release() async {
-    if (!kIsWeb && Platform.isLinux) {
+    if (!kIsWeb) {
       await pause();
       await Future.delayed(const Duration(milliseconds: 150));
     }

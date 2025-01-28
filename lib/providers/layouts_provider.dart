@@ -98,7 +98,8 @@ class LayoutsProvider extends UnityProvider {
       kStorageDesktopLockedLayouts: jsonEncode(
         lockedLayouts.map((l) => l.name).toList(),
       ),
-      kStorageDesktopLayoutManagerHeight: layoutManagerHeight,
+      if (layoutManagerHeight != null)
+        kStorageDesktopLayoutManagerHeight: layoutManagerHeight,
     });
     super.save(notifyListeners: notifyListeners);
   }

@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/app_provider_interface.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -193,9 +194,13 @@ class ServersProvider extends UnityProvider {
   }
 
   Future<void> reorder(int oldIndex, int newIndex) async {
-    final server = servers.removeAt(oldIndex);
-    servers.insert(newIndex, server);
-    await save();
+    try {
+      final server = servers.removeAt(oldIndex);
+      servers.insert(newIndex, server);
+      await save();
+    } catch (error, stackTrace) {
+      handleError(error, stackTrace, 'Error trying to reorder servers.');
+    }
   }
 
   @override

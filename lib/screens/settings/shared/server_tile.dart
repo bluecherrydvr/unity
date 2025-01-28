@@ -388,6 +388,13 @@ class ServerCard extends StatelessWidget {
               child: Row(children: [
                 ServerStatusIcon(isLoading: isLoading, server: server),
                 Spacer(),
+                Tooltip(
+                  message: 'Reorder',
+                  child: Icon(
+                    Icons.drag_indicator_outlined,
+                    size: 18.0,
+                  ),
+                ),
                 SquaredIconButton(
                   tooltip: loc.serverOptions,
                   icon: Icon(moreIconData, size: 20.0),

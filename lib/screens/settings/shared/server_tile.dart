@@ -41,11 +41,12 @@ class ServersList extends StatelessWidget {
       if (consts.maxWidth >= kMobileBreakpoint.width) {
         return Padding(
           padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
-          child: Wrap(children: [
-            ...serversProvider.servers.map((server) {
-              return ServerCard(server: server, onRemoveServer: onRemoveServer);
-            }),
-            SizedBox(
+          child: ReorderableWrap(
+            needsLongPressDraggable: isMobile,
+            onReorder: (oldIndex, newIndex) {
+              serversProvider.reorder(oldIndex, newIndex);
+            },
+            footer: SizedBox(
               height: 180,
               width: 180,
               child: Card(
@@ -75,16 +76,40 @@ class ServersList extends StatelessWidget {
                 ),
               ),
             ),
-          ]),
+            children: [
+              ...serversProvider.servers.map((server) {
+                return ServerCard(
+                  key: ValueKey(server.id),
+                  server: server,
+                  onRemoveServer: onRemoveServer,
+                );
+              }),
+            ],
+          ),
         );
       } else {
         return Column(children: [
-          ...serversProvider.servers.map((server) {
-            return ServerTile(
-              server: server,
-              onRemoveServer: onRemoveServer,
-            );
-          }),
+          ReorderableListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            onReorder: (oldIndex, newIndex) {
+              serversProvider.reorder(oldIndex, newIndex);
+            },
+            buildDefaultDragHandles: false,
+            itemCount: serversProvider.servers.length,
+            itemBuilder: (context, index) {
+              final server = serversProvider.servers[index];
+              return ServerTile(
+                key: ValueKey(server.id),
+                server: server,
+                onRemoveServer: onRemoveServer,
+                trailing: ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_handle_outlined),
+                ),
+              );
+            },
+          ),
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.transparent,
@@ -158,11 +183,13 @@ class ServersList extends StatelessWidget {
 class ServerTile extends StatelessWidget {
   final Server server;
   final OnRemoveServer onRemoveServer;
+  final Widget? trailing;
 
   const ServerTile({
     super.key,
     required this.server,
     required this.onRemoveServer,
+    this.trailing,
   });
 
   @override
@@ -211,16 +238,25 @@ class ServerTile extends StatelessWidget {
                   if (!server.passedCertificates) loc.certificateNotPassed
                 ].join(' • ')
               : loc.gettingDevices,
-          overflow: TextOverflow.ellipsis,
         ),
-        trailing: SquaredIconButton(
-          icon: Icon(
-            Icons.delete,
-            color: theme.colorScheme.error,
-          ),
-          tooltip: loc.disconnectServer,
-          // splashRadius: 24.0,
-          onPressed: () => onRemoveServer(context, server),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SquaredIconButton(
+              icon: Icon(
+                Icons.delete,
+                color: theme.colorScheme.error,
+              ),
+              tooltip: loc.disconnectServer,
+              // splashRadius: 24.0,
+              onPressed: () => onRemoveServer(context, server),
+            ),
+            if (trailing != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 8.0),
+                child: trailing!,
+              ),
+          ],
         ),
         onTap: () {
           showEditServer(context, server);

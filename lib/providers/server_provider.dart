@@ -192,6 +192,12 @@ class ServersProvider extends UnityProvider {
     await save();
   }
 
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    final server = servers.removeAt(oldIndex);
+    servers.insert(newIndex, server);
+    await save();
+  }
+
   @override
   Future<void> save({bool notifyListeners = true}) async {
     await write({

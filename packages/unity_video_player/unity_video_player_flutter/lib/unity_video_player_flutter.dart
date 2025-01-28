@@ -204,11 +204,10 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       if (autoPlay) {
         await player!.play();
       }
-    } catch (e, _) {
+    } catch (e, stackTrace) {
       error = e.toString();
+      _videoStream.addError(e, stackTrace);
       notifyListeners();
-
-      rethrow;
     }
   }
 

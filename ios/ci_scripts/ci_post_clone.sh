@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# https://docs.flutter.dev/deployment/cd#post-clone-script
 # Fail this script if any subcommand fails.
 set -e
 

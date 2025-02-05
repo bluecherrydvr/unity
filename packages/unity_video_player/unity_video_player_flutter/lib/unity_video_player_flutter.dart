@@ -204,11 +204,10 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       if (autoPlay) {
         await player!.play();
       }
-    } catch (e, _) {
+    } catch (e, stackTrace) {
       error = e.toString();
+      _videoStream.addError(e, stackTrace);
       notifyListeners();
-
-      rethrow;
     }
   }
 
@@ -277,7 +276,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   Future<void> release() async {
-    if (!kIsWeb && Platform.isLinux) {
+    if (!kIsWeb) {
       await pause();
       await Future.delayed(const Duration(milliseconds: 150));
     }

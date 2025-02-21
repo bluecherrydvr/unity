@@ -37,11 +37,14 @@ class ServersList extends StatelessWidget {
         ..setTab(UnityTab.addServer, context);
     }
 
+    final canReorder = serversProvider.servers.length > 1;
+
     return LayoutBuilder(builder: (context, consts) {
       if (consts.maxWidth >= kMobileBreakpoint.width) {
         return Padding(
           padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
           child: ReorderableWrap(
+            enableReorder: canReorder,
             needsLongPressDraggable: isMobile,
             onReorder: (oldIndex, newIndex) {
               serversProvider.reorder(oldIndex, newIndex);
@@ -103,10 +106,12 @@ class ServersList extends StatelessWidget {
                 key: ValueKey(server.id),
                 server: server,
                 onRemoveServer: onRemoveServer,
-                trailing: ReorderableDragStartListener(
-                  index: index,
-                  child: const Icon(Icons.drag_handle_outlined),
-                ),
+                trailing: canReorder
+                    ? ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle_outlined),
+                      )
+                    : null,
               );
             },
           ),
@@ -388,13 +393,14 @@ class ServerCard extends StatelessWidget {
               child: Row(children: [
                 ServerStatusIcon(isLoading: isLoading, server: server),
                 Spacer(),
-                Tooltip(
-                  message: 'Reorder',
-                  child: Icon(
-                    Icons.drag_indicator_outlined,
-                    size: 18.0,
+                if (servers.servers.length > 1)
+                  Tooltip(
+                    message: 'Reorder',
+                    child: Icon(
+                      Icons.drag_indicator_outlined,
+                      size: 18.0,
+                    ),
                   ),
-                ),
                 SquaredIconButton(
                   tooltip: loc.serverOptions,
                   icon: Icon(moreIconData, size: 20.0),

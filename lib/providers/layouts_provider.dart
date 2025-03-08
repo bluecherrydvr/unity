@@ -19,7 +19,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
@@ -75,16 +74,7 @@ class LayoutsProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageDesktopLayouts);
-    await Future.wait(
-      currentLayout.devices.map<Future>((device) async {
-        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-
-        if (!kIsWeb &&
-            (Platform.isAndroid || Platform.isLinux || Platform.isMacOS)) {
-          await Future.delayed(const Duration(milliseconds: 350));
-        }
-      }),
-    );
+    await UnityPlayers.initializeDevices(currentLayout.devices);
   }
 
   @override
@@ -281,9 +271,7 @@ class LayoutsProvider extends UnityProvider {
 
   Future<void> updateCurrentLayout(int layoutIndex) async {
     _currentLayout = layoutIndex;
-    for (final device in currentLayout.devices) {
-      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-    }
+    await UnityPlayers.initializeDevices(currentLayout.devices);
 
     await save();
   }

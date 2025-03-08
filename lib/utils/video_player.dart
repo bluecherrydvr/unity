@@ -184,6 +184,16 @@ class UnityPlayers with ChangeNotifier {
     return controller;
   }
 
+  static Future<void> initializeDevices(List<Device> devices) async {
+    await Future.microtask(() async {
+      for (final device in devices) {
+        if (players.containsKey(device.uuid)) continue;
+        players[device.uuid] = forDevice(device);
+        await Future.delayed(const Duration(milliseconds: 350));
+      }
+    });
+  }
+
   /// Release the video player for the given [Device].
   static Future<void> releaseDevice(String deviceUUID) async {
     debugPrint('Releasing device $deviceUUID. ${players[deviceUUID]}');

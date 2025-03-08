@@ -74,13 +74,7 @@ class MobileViewProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageMobileView);
-    Future.microtask(() {
-      for (final device in current) {
-        if (device != null) {
-          UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-        }
-      }
-    });
+    UnityPlayers.initializeDevices(current.whereType<Device>().toList());
   }
 
   /// Moves a device tile from [initial] position to [end] position inside a [tab].
@@ -102,9 +96,7 @@ class MobileViewProvider extends UnityProvider {
     // [Device]s present in the new tab.
     final items = devices[value]!;
     // Find the non-common i.e. new device tiles in this tab & create a new video player for them.
-    for (final device in items.whereType<Device>()) {
-      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-    }
+    UnityPlayers.initializeDevices(items.whereType<Device>().toList());
     // Remove & dispose the video player instances that will not be used in this new tab.
     UnityPlayers.players.removeWhere((deviceUUID, player) {
       final result = items.contains(Device.fromUUID(deviceUUID));

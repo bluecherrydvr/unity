@@ -623,6 +623,8 @@
   "allowUntrustedCertificates": "Allow untrusted certificates",
   "allowUntrustedCertificatesDescription": "Allow connecting to servers with untrusted certificates. This is useful when you are using self-signed certificates or certificates from unknown authorities.",
   "certificateNotPassed": "Certificate not passed",
+  "addServerTimeout": "Add server timeout",
+  "addServerTimeoutDescription": "The time to wait for the server to respond when adding a new server.",
   "@@STREAMING": {},
   "streamingSettings": "Streaming settings",
   "streamingProtocol": "Streaming Protocol",

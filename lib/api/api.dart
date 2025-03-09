@@ -17,12 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +44,10 @@ enum ServerAdditionResponse {
   wrongCredentials,
 
   /// The server is online, but the response is unknown.
-  unknown;
+  unknown,
+
+  /// The server took too long to respond.
+  timeout;
 }
 
 class API {
@@ -81,6 +86,7 @@ class API {
       )> checkServerCredentials(Server server) async {
     debugPrint('Checking server credentials for server ${server.id}');
     try {
+      final settings = SettingsProvider.instance;
       final uri = Uri.https(
         '${server.ip}:${server.port}',
         '/ajax/loginapp.php',
@@ -99,7 +105,8 @@ class API {
         ..headers.addAll({
           'Content-Type': 'application/x-www-form-urlencoded',
         });
-      final response = await request.send();
+      final response =
+          await request.send().timeout(settings.kAddServerTimeout.value);
       final body = await response.stream.bytesToString();
       debugPrint(
         '${server.ip}:${server.port} with status code ${response.statusCode}'
@@ -145,6 +152,16 @@ class API {
       } else {
         server.online = false;
       }
+    } on TimeoutException catch (error, stack) {
+      handleError(
+        error,
+        stack,
+        'Failed to check server credentials on server $server. '
+        'Server took too long to respond.',
+      );
+
+      server.online = false;
+      return (ServerAdditionResponse.timeout, server);
     } catch (error, stack) {
       handleError(
         error,

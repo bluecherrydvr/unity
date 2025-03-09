@@ -106,6 +106,21 @@ class ServerSettings extends StatelessWidget {
           }
         },
       ),
+      OptionsChooserTile<int>(
+        title: loc.addServerTimeout,
+        description: loc.addServerTimeoutDescription,
+        icon: Icons.av_timer,
+        value: settings.kAddServerTimeout.value.inSeconds,
+        values: [
+          Option(value: 15, text: '15s'),
+          Option(value: 30, text: '30s'),
+          Option(value: 45, text: '45s'),
+          Option(value: 60, text: '60s'),
+        ],
+        onChanged: (v) {
+          settings.kAddServerTimeout.value = Duration(seconds: v);
+        },
+      ),
     ]);
   }
 }

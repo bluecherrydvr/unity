@@ -597,6 +597,8 @@
   "allowUntrustedCertificates": "Permettre les certificats non fiables",
   "allowUntrustedCertificatesDescription": "Autoriser la connexion à des serveurs avec des certificats non fiables. Cela est utile lorsque vous utilisez des certificats auto-signés ou des certificats provenant d'autorités inconnues.",
   "certificateNotPassed": "Certificat non validé",
+  "addServerTimeout": "Add server timeout",
+  "addServerTimeoutDescription": "The time to wait for the server to respond when adding a new server.",
   "@@STREAMING": {},
   "streamingSettings": "Paramètre de diffusion",
   "streamingProtocol": "Protocol de diffusion",

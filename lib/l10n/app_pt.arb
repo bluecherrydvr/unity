@@ -623,6 +623,8 @@
   "allowUntrustedCertificates": "Permitir certificados não confiáveis",
   "allowUntrustedCertificatesDescription": "Permitir a conexão a servidores com certificados não confiáveis. Isso é útil quando você está usando certificados autoassinados ou certificados de autoridades desconhecidas.",
   "certificateNotPassed": "Certificado não autorizado",
+  "addServerTimeout": "Tempo limite para adicionar servidor",
+  "addServerTimeoutDescription": "O tempo para esperar a resposta do servidor ao adicionar um novo servidor.",
   "@@STREAMING": {},
   "streamingSettings": "Configurações de streaming",
   "streamingProtocol": "Protocolo de Streaming",

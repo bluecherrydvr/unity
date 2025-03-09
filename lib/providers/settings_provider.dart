@@ -268,6 +268,10 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'server.allow_untrusted_certificates',
   );
+  final kAddServerTimeout = _SettingsOption<Duration>(
+    def: const Duration(seconds: 15),
+    key: 'server.add_server_timeout',
+  );
 
   // Streaming settings
   final kStreamingType = _SettingsOption<StreamingType>(
@@ -643,6 +647,7 @@ class SettingsProvider extends UnityProvider {
     kStreamOnBackground,
     kConnectAutomaticallyAtStartup,
     kAllowUntrustedCertificates,
+    kAddServerTimeout,
     kStreamingType,
     kRTSPProtocol,
     kRenderingQuality,

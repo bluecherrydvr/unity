@@ -434,7 +434,7 @@ Future showServerMenu({
       pos.dx + 180.0,
       pos.dy + 200,
     ),
-    color: theme.dialogBackgroundColor,
+    color: theme.dialogTheme.backgroundColor,
     items: <PopupMenuEntry>[
       PopupMenuItem(
         child: Text(loc.editServerInfo),

@@ -472,7 +472,7 @@ class _TimelineTile extends StatefulWidget {
         height: kTimelineTileHeight,
         padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
         decoration: BoxDecoration(
-          color: theme.dialogBackgroundColor,
+          color: theme.dialogTheme.backgroundColor,
           border: border,
         ),
         alignment: AlignmentDirectional.centerStart,

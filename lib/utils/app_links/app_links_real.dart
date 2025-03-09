@@ -37,15 +37,13 @@ Future<void> register(String scheme) async {
     var appPath = Platform.resolvedExecutable;
 
     var protocolRegKey = 'Software\\Classes\\$scheme';
-    var protocolRegValue = const RegistryValue(
+    var protocolRegValue = const RegistryValue.string(
       'URL Protocol',
-      RegistryValueType.string,
       '',
     );
     var protocolCmdRegKey = 'shell\\open\\command';
-    var protocolCmdRegValue = RegistryValue(
+    var protocolCmdRegValue = RegistryValue.string(
       '',
-      RegistryValueType.string,
       '"$appPath" "%1"',
     );
 

@@ -35,9 +35,7 @@ import 'package:version/version.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xml/xml.dart';
 
-enum FailType {
-  executableNotFound;
-}
+enum FailType { executableNotFound }
 
 class UpdateVersion {
   final String version;
@@ -93,7 +91,7 @@ enum LinuxPlatform {
       LinuxPlatform.rpm => 'Rpm',
       LinuxPlatform.appImage => 'AppImage',
       LinuxPlatform.tarball => 'Tarball',
-      LinuxPlatform.embedded || _ => 'Embedded'
+      LinuxPlatform.embedded || _ => 'Embedded',
     };
   }
 }
@@ -158,10 +156,7 @@ class UpdateManager extends UnityProvider {
 
     tempDir = (await getTemporaryDirectory()).path;
 
-    await Future.wait([
-      checkForUpdates(),
-      _setPackageInfo(),
-    ]);
+    await Future.wait([checkForUpdates(), _setPackageInfo()]);
 
     if (hasUpdateAvailable && automaticDownloads) {
       download(latestVersion!.version);
@@ -286,16 +281,20 @@ class UpdateManager extends UnityProvider {
     );
 
     if (Platform.isWindows) {
-      final file = File(path.join(
-        tempDir,
-        '${UpdateVersion.windowsDownloadFileName}-$version.exe',
-      ));
+      final file = File(
+        path.join(
+          tempDir,
+          '${UpdateVersion.windowsDownloadFileName}-$version.exe',
+        ),
+      );
       if (file.existsSync()) return file;
     } else if (Platform.isLinux) {
-      final file = File(path.join(
-        tempDir,
-        '${UpdateVersion.linuxDownloadFileName}-$version.$linuxEnvironment',
-      ));
+      final file = File(
+        path.join(
+          tempDir,
+          '${UpdateVersion.linuxDownloadFileName}-$version.$linuxEnvironment',
+        ),
+      );
       if (file.existsSync()) return file;
     } else {
       throw UnsupportedError(
@@ -360,9 +359,7 @@ class UpdateManager extends UnityProvider {
   /// Installs the executable for the latest version.
   ///
   /// It can not downgrade
-  Future<void> install({
-    required ValueChanged<FailType> onFail,
-  }) async {
+  Future<void> install({required ValueChanged<FailType> onFail}) async {
     assert(
       isUpdatingSupported,
       'This should never be reached on unsupported platforms',
@@ -383,11 +380,7 @@ class UpdateManager extends UnityProvider {
 
     if (Platform.isWindows) {
       // https://jrsoftware.org/ishelp/index.php?topic=technotes
-      Process.run(executable.path, [
-        '/SP-',
-        '/silent',
-        '/noicons',
-      ]);
+      Process.run(executable.path, ['/SP-', '/silent', '/noicons']);
     } else if (Platform.isLinux) {
       switch (linuxEnvironment) {
         case LinuxPlatform.rpm:
@@ -445,11 +438,13 @@ class UpdateManager extends UnityProvider {
             default:
           }
         }
-        versions.add(UpdateVersion(
-          version: version,
-          description: description,
-          publishedAt: publishedAt,
-        ));
+        versions.add(
+          UpdateVersion(
+            version: version,
+            description: description,
+            publishedAt: publishedAt,
+          ),
+        );
       }
       // versions.sort(
       //   (a, b) => a.publishedAt.compareTo(b.publishedAt),

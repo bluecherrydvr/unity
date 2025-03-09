@@ -32,17 +32,12 @@ class AlternativeLayoutView extends StatelessWidget {
     return Material(
       color: Colors.black,
       child: SafeArea(
-        child: Column(children: [
-          WindowButtons(
-            title: layout.name,
-            showNavigator: false,
-          ),
-          Expanded(
-            child: LayoutView(
-              layout: layout,
-            ),
-          ),
-        ]),
+        child: Column(
+          children: [
+            WindowButtons(title: layout.name, showNavigator: false),
+            Expanded(child: LayoutView(layout: layout)),
+          ],
+        ),
       ),
     );
   }

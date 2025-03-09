@@ -65,10 +65,12 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
         loc.dateTimeFilter,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(loc.fromToDate(
-        eventsProvider.startDate.formatDecoratedDateTime(context),
-        eventsProvider.endDate.formatDecoratedDateTime(context),
-      )),
+      subtitle: Text(
+        loc.fromToDate(
+          eventsProvider.startDate.formatDecoratedDateTime(context),
+          eventsProvider.endDate.formatDecoratedDateTime(context),
+        ),
+      ),
       children: [
         _FilterTile(
           title: loc.fromDate,
@@ -114,52 +116,52 @@ class _FilterTile extends StatelessWidget {
     return ListTile(
       dense: true,
       isThreeLine: true,
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Padding(
         padding: const EdgeInsetsDirectional.only(top: 4.0),
         child: IntrinsicHeight(
-          child: Row(children: [
-            Expanded(
-              child: _FilterCard(
-                title: loc.dateFilter,
-                value: () {
-                  if (date == null) {
-                    return loc.mostRecent;
-                  } else if (DateUtils.isSameDay(
-                    date,
-                    DateTimeExtension.now(),
-                  )) {
-                    return loc.today;
-                  } else if (DateUtils.isSameDay(
-                    date,
-                    DateTimeExtension.now().subtract(const Duration(days: 1)),
-                  )) {
-                    return loc.yesterday;
-                  }
+          child: Row(
+            children: [
+              Expanded(
+                child: _FilterCard(
+                  title: loc.dateFilter,
+                  value: () {
+                    if (date == null) {
+                      return loc.mostRecent;
+                    } else if (DateUtils.isSameDay(
+                      date,
+                      DateTimeExtension.now(),
+                    )) {
+                      return loc.today;
+                    } else if (DateUtils.isSameDay(
+                      date,
+                      DateTimeExtension.now().subtract(const Duration(days: 1)),
+                    )) {
+                      return loc.yesterday;
+                    }
 
-                  final formatter = DateFormat.MEd();
-                  return formatter.format(date!);
-                }(),
-                onPressed: () => _openDatePicker(context),
+                    final formatter = DateFormat.MEd();
+                    return formatter.format(date!);
+                  }(),
+                  onPressed: () => _openDatePicker(context),
+                ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: _FilterCard(
-                title: loc.timeFilter,
-                value: () {
-                  if (date == null) {
-                    return loc.mostRecent;
-                  }
-                  return settings.kTimeFormat.value.format(date!);
-                }(),
-                onPressed: date != null ? () => _openTimePicker(context) : null,
+              const SizedBox(width: 8.0),
+              Expanded(
+                child: _FilterCard(
+                  title: loc.timeFilter,
+                  value: () {
+                    if (date == null) {
+                      return loc.mostRecent;
+                    }
+                    return settings.kTimeFormat.value.format(date!);
+                  }(),
+                  onPressed:
+                      date != null ? () => _openTimePicker(context) : null,
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -177,11 +179,13 @@ class _FilterTile extends StatelessWidget {
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (selectedDate != null) {
-      onDateChanged(date.copyWith(
-        year: selectedDate.year,
-        month: selectedDate.month,
-        day: selectedDate.day,
-      ));
+      onDateChanged(
+        date.copyWith(
+          year: selectedDate.year,
+          month: selectedDate.month,
+          day: selectedDate.day,
+        ),
+      );
     }
   }
 
@@ -194,13 +198,9 @@ class _FilterTile extends StatelessWidget {
       initialEntryMode: TimePickerEntryMode.dialOnly,
     );
     if (time != null) {
-      onDateChanged(DateTime(
-        date!.year,
-        date!.month,
-        date!.day,
-        time.hour,
-        time.minute,
-      ));
+      onDateChanged(
+        DateTime(date!.year, date!.month, date!.day, time.hour, time.minute),
+      );
     }
   }
 }
@@ -235,17 +235,19 @@ class _FilterCard extends StatelessWidget {
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
-                color: onPressed == null
-                    ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-                    : null,
+                color:
+                    onPressed == null
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
+                        : null,
               ),
             ),
             Text(
               value,
               style: TextStyle(
-                color: onPressed == null
-                    ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-                    : theme.colorScheme.onSurface,
+                color:
+                    onPressed == null
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
+                        : theme.colorScheme.onSurface,
               ),
             ),
           ],

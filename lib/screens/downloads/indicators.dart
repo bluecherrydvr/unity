@@ -49,28 +49,28 @@ class DownloadProgressIndicator extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (isCupertino) {
-      return CupertinoActivityIndicator.partiallyRevealed(
-        progress: progress,
-      );
+      return CupertinoActivityIndicator.partiallyRevealed(progress: progress);
     }
 
-    return Stack(children: [
-      Padding(
-        padding: const EdgeInsetsDirectional.all(8.0),
-        child: CircularProgressIndicator(
-          value: progress,
-          strokeWidth: 2.0,
-          color: color,
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.all(8.0),
+          child: CircularProgressIndicator(
+            value: progress,
+            strokeWidth: 2.0,
+            color: color,
+          ),
         ),
-      ),
-      Center(
-        child: Icon(
-          Icons.download,
-          size: 14.0,
-          color: color ?? theme.colorScheme.primary,
+        Center(
+          child: Icon(
+            Icons.download,
+            size: 14.0,
+            color: color ?? theme.colorScheme.primary,
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -100,10 +100,7 @@ class DownloadIndicator extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: 40.0,
-        maxWidth: 40.0,
-      ),
+      constraints: BoxConstraints(maxHeight: 40.0, maxWidth: 40.0),
       child: () {
         if (event.isAlarm) {
           return Icon(
@@ -131,10 +128,12 @@ class DownloadIndicator extends StatelessWidget {
 
         if (downloads.isEventDownloading(event.id)) {
           return DownloadProgressIndicator(
-            progress: downloads
-                .downloading[downloads.downloading.keys
-                    .firstWhere((e) => e.id == event.id)]!
-                .$1,
+            progress:
+                downloads
+                    .downloading[downloads.downloading.keys.firstWhere(
+                      (e) => e.id == event.id,
+                    )]!
+                    .$1,
             color: highlight ? Colors.amber : null,
           );
         }

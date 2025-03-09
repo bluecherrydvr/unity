@@ -102,35 +102,37 @@ class _DownloadTileState extends State<DownloadTile> {
             shape: shape,
             collapsedShape: shape,
             initiallyExpanded: widget.initiallyExpanded,
-            title: Row(children: [
-              SizedBox(
-                width: 40.0,
-                height: 40.0,
-                child: () {
-                  if (isDownloaded) {
-                    return Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 12.0),
-                      child: Icon(
-                        Icons.download_done,
-                        color: theme.extension<UnityColors>()!.successColor,
-                      ),
-                    );
-                  }
+            title: Row(
+              children: [
+                SizedBox(
+                  width: 40.0,
+                  height: 40.0,
+                  child: () {
+                    if (isDownloaded) {
+                      return Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 12.0),
+                        child: Icon(
+                          Icons.download_done,
+                          color: theme.extension<UnityColors>()!.successColor,
+                        ),
+                      );
+                    }
 
-                  return DownloadProgressIndicator(progress: widget.progress);
-                }(),
-              ),
-              Expanded(
-                child: Text(
-                  loc.downloadTitle(
-                    eventType,
-                    widget.event.deviceName,
-                    widget.event.server.name,
-                    at,
+                    return DownloadProgressIndicator(progress: widget.progress);
+                  }(),
+                ),
+                Expanded(
+                  child: Text(
+                    loc.downloadTitle(
+                      eventType,
+                      widget.event.deviceName,
+                      widget.event.server.name,
+                      at,
+                    ),
                   ),
                 ),
-              ),
-            ]),
+              ],
+            ),
             childrenPadding: const EdgeInsetsDirectional.symmetric(
               vertical: 12.0,
               horizontal: 16.0,
@@ -140,9 +142,10 @@ class _DownloadTileState extends State<DownloadTile> {
               SizedBox(
                 width: double.infinity,
                 child: Flex(
-                  direction: widget.size.width >= DownloadTile._breakpoint
-                      ? Axis.horizontal
-                      : Axis.vertical,
+                  direction:
+                      widget.size.width >= DownloadTile._breakpoint
+                          ? Axis.horizontal
+                          : Axis.vertical,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -153,9 +156,7 @@ class _DownloadTileState extends State<DownloadTile> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           DefaultTextStyle.merge(
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             child: Column(
@@ -177,21 +178,20 @@ class _DownloadTileState extends State<DownloadTile> {
                                 Text(eventType),
                                 Text(widget.event.deviceName),
                                 Text(widget.event.server.name),
-                                Text(
-                                  () {
-                                    var fileSize = '';
-                                    if (isDownloaded) {
-                                      final size =
-                                          File(widget.downloadPath!).mbSize;
-                                      fileSize =
-                                          ' (${size.toStringAsFixed(2)} MB)';
-                                    }
+                                Text(() {
+                                  var fileSize = '';
+                                  if (isDownloaded) {
+                                    final size =
+                                        File(widget.downloadPath!).mbSize;
+                                    fileSize =
+                                        ' (${size.toStringAsFixed(2)} MB)';
+                                  }
 
-                                    return widget.event.duration
-                                            .humanReadable(context) +
-                                        fileSize;
-                                  }(),
-                                ),
+                                  return widget.event.duration.humanReadable(
+                                        context,
+                                      ) +
+                                      fileSize;
+                                }()),
                                 Text(at),
                               ],
                             ),
@@ -202,9 +202,10 @@ class _DownloadTileState extends State<DownloadTile> {
                     const SizedBox(height: 12.0),
                     Center(
                       child: Flex(
-                        direction: widget.size.width >= DownloadTile._breakpoint
-                            ? Axis.vertical
-                            : Axis.horizontal,
+                        direction:
+                            widget.size.width >= DownloadTile._breakpoint
+                                ? Axis.vertical
+                                : Axis.horizontal,
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -215,33 +216,36 @@ class _DownloadTileState extends State<DownloadTile> {
                             preferBelow: false,
                             message: loc.play,
                             child: TextButton(
-                              onPressed: isDownloaded
-                                  ? () {
-                                      Navigator.of(context).pushNamed(
-                                        '/events',
-                                        arguments: {
-                                          'event': widget.event,
-                                          'upcoming': widget.upcomingEvents,
-                                        },
-                                      );
-                                    }
-                                  : null,
-                              child: Row(children: [
-                                const Icon(Icons.play_arrow, size: 20.0),
-                                if (widget.size.width >=
-                                    DownloadTile._breakpoint) ...[
-                                  const SizedBox(width: 8.0),
-                                  Text(loc.play),
+                              onPressed:
+                                  isDownloaded
+                                      ? () {
+                                        Navigator.of(context).pushNamed(
+                                          '/events',
+                                          arguments: {
+                                            'event': widget.event,
+                                            'upcoming': widget.upcomingEvents,
+                                          },
+                                        );
+                                      }
+                                      : null,
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.play_arrow, size: 20.0),
+                                  if (widget.size.width >=
+                                      DownloadTile._breakpoint) ...[
+                                    const SizedBox(width: 8.0),
+                                    Text(loc.play),
+                                  ],
                                 ],
-                              ]),
+                              ),
                             ),
                           ),
                           if (isDownloaded)
                             TextButton.icon(
                               onPressed: () {
-                                context
-                                    .read<DownloadsManager>()
-                                    .delete(widget.downloadPath!);
+                                context.read<DownloadsManager>().delete(
+                                  widget.downloadPath!,
+                                );
                               },
                               icon: const Icon(Icons.delete, size: 20.0),
                               label: Text(loc.delete),
@@ -258,13 +262,16 @@ class _DownloadTileState extends State<DownloadTile> {
                             ),
                           if (isDesktop)
                             TextButton.icon(
-                              onPressed: isDownloaded
-                                  ? () {
-                                      launchFileExplorer(
-                                        File(widget.downloadPath!).parent.path,
-                                      );
-                                    }
-                                  : null,
+                              onPressed:
+                                  isDownloaded
+                                      ? () {
+                                        launchFileExplorer(
+                                          File(
+                                            widget.downloadPath!,
+                                          ).parent.path,
+                                        );
+                                      }
+                                      : null,
                               icon: const Icon(Icons.folder, size: 20.0),
                               label: Text(loc.showInFiles),
                             ),

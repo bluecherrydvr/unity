@@ -50,13 +50,14 @@ class VideoOverlay {
     return {
       'text': text,
       'textStyle': {
-        'color': textStyle?.color == null
-            ? null
-            : '#'
-                '${(textStyle!.color!.a * 255).toInt().toRadixString(16).padLeft(2, '0')}'
-                '${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
-                '${(textStyle!.color!.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
-                '${(textStyle!.color!.b * 255).toInt().toRadixString(16).padLeft(2, '0')}',
+        'color':
+            textStyle?.color == null
+                ? null
+                : '#'
+                    '${(textStyle!.color!.a * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                    '${(textStyle!.color!.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                    '${(textStyle!.color!.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+                    '${(textStyle!.color!.b * 255).toInt().toRadixString(16).padLeft(2, '0')}',
         'fontSize': textStyle?.fontSize,
       },
       'position_x': position.dx,
@@ -69,11 +70,14 @@ class VideoOverlay {
     return VideoOverlay(
       text: map['text'] ?? '',
       textStyle: TextStyle(
-        color: map['textStyle']['color'] == null
-            ? null
-            : Color(int.parse(
-                '0xFF${(map['textStyle']['color'] as String).replaceAll('#', '')}',
-              )),
+        color:
+            map['textStyle']['color'] == null
+                ? null
+                : Color(
+                  int.parse(
+                    '0xFF${(map['textStyle']['color'] as String).replaceAll('#', '')}',
+                  ),
+                ),
         fontSize: (map['textStyle']['fontSize'] as num?)?.toDouble(),
       ),
       position: Offset(map['position_x'] ?? 0.0, map['position_y'] ?? 0.0),
@@ -194,8 +198,9 @@ Map<String, dynamic> parseConfig(String configFileContent) {
       }();
 
       if (config[currentSection] is List) {
-        ((config[currentSection] as List).last as Map)
-            .addAll({key: parsedValue});
+        ((config[currentSection] as List).last as Map).addAll({
+          key: parsedValue,
+        });
       } else {
         config[currentSection][key] = parsedValue;
       }
@@ -250,18 +255,20 @@ Future<void> handleConfigurationFile(File file) async {
       if (text == null) throw Exception('Missing "text" key in [overlay]');
 
       final opacityData = overlayData['opacity'];
-      final opacity = opacityData == null
-          ? 1.0
-          : ((opacityData as num?)?.toDouble() ?? 100.0) / 100;
+      final opacity =
+          opacityData == null
+              ? 1.0
+              : ((opacityData as num?)?.toDouble() ?? 100.0) / 100;
 
       final textStyle = TextStyle(
-        color: overlayData['color'] == null
-            ? null
-            : Color(
-                int.parse(
-                  '0xFF${(overlayData['color'] as String).replaceAll('#', '')}',
-                ),
-              ).withValues(alpha: opacity),
+        color:
+            overlayData['color'] == null
+                ? null
+                : Color(
+                  int.parse(
+                    '0xFF${(overlayData['color'] as String).replaceAll('#', '')}',
+                  ),
+                ).withValues(alpha: opacity),
         fontSize: (overlayData['size'] as num?)?.toDouble(),
       );
       final position = Offset(
@@ -270,12 +277,14 @@ Future<void> handleConfigurationFile(File file) async {
       );
       final visible = (overlayData['show'] as bool?) ?? true;
 
-      overlays.add(VideoOverlay(
-        text: text,
-        textStyle: textStyle,
-        position: position,
-        visible: visible,
-      ));
+      overlays.add(
+        VideoOverlay(
+          text: text,
+          textStyle: textStyle,
+          position: position,
+          visible: visible,
+        ),
+      );
     }
   }
 

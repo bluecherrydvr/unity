@@ -67,10 +67,7 @@ abstract class UnityProvider extends ChangeNotifier {
               value == null,
         );
         if (value != null) {
-          secureStorage.write(
-            key: key,
-            value: value?.toString(),
-          );
+          secureStorage.write(key: key, value: value?.toString());
         } else {
           debugPrint('Could not write $key: $value. Invalid value.');
         }

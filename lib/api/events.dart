@@ -34,11 +34,9 @@ extension EventsExtension on API {
 
     if (startTime != null && endTime != null) {
       if (startTime == endTime) {
-        startTime = startTime.subtract(const Duration(
-          hours: 23,
-          minutes: 59,
-          seconds: 59,
-        ));
+        startTime = startTime.subtract(
+          const Duration(hours: 23, minutes: 59, seconds: 59),
+        );
       }
     }
     final startTimeString = startTime?.toIso8601StringWithTimezoneOffset();
@@ -94,9 +92,7 @@ extension EventsExtension on API {
     );
     final response = await API.client.get(
       uri,
-      headers: {
-        if (server.cookie != null) API.cookieHeader: server.cookie!,
-      },
+      headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
     );
 
     var events = const Iterable<Event>.empty();
@@ -104,8 +100,9 @@ extension EventsExtension on API {
     try {
       if (response.headers['content-type'] == 'application/json') {
         debugPrint('Server returned a JSON response');
-        events = ((jsonDecode(response.body) as Map)['entry'] as Iterable)
-            .map((item) {
+        events = ((jsonDecode(response.body) as Map)['entry'] as Iterable).map((
+          item,
+        ) {
           final eventObject = item as Map;
           final published = DateTime.parse(eventObject['published']);
           final event = Event(
@@ -132,29 +129,34 @@ extension EventsExtension on API {
             publishedRaw: eventObject['published'],
             published: published,
             updatedRaw: eventObject['updated'] ?? eventObject['published'],
-            updated: eventObject['updated'] == null
-                ? published
-                : DateTime.parse(eventObject['updated']),
+            updated:
+                eventObject['updated'] == null
+                    ? published
+                    : DateTime.parse(eventObject['updated']),
             category: eventObject['category']['term'],
-            mediaID: eventObject.containsKey('content')
-                ? int.parse(eventObject['content']['media_id'])
-                : null,
-            mediaURL: eventObject.containsKey('content')
-                ? Uri.parse(eventObject['content']['content'] as String
-                    // .replaceAll(
-                    //   'https://',
-                    //   'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                    // ),
+            mediaID:
+                eventObject.containsKey('content')
+                    ? int.parse(eventObject['content']['media_id'])
+                    : null,
+            mediaURL:
+                eventObject.containsKey('content')
+                    ? Uri.parse(
+                      eventObject['content']['content'] as String,
+                      // .replaceAll(
+                      //   'https://',
+                      //   'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                      // ),
                     )
-                : null,
+                    : null,
           );
           return event;
         });
       } else {
         debugPrint('Server returned a XML response');
         final parser = Xml2Json()..parse(response.body);
-        events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable)
-            .map<Event>((item) {
+        events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable).map<
+          Event
+        >((item) {
           final e = item as Map;
           if (!e.containsKey('content')) {
             debugPrint('Event does not have a content: $e');
@@ -162,29 +164,34 @@ extension EventsExtension on API {
           return Event(
             server: server,
             id: int.parse(e['id']['raw']),
-            deviceID:
-                int.parse((e['category']['term'] as String).split('/').first),
+            deviceID: int.parse(
+              (e['category']['term'] as String).split('/').first,
+            ),
             title: e['title']['\$t'],
             publishedRaw: e['published']['\$t'],
-            published: e['published'] == null || e['published']['\$t'] == null
-                ? DateTimeExtension.now()
-                : DateTime.parse(e['published']['\$t']),
+            published:
+                e['published'] == null || e['published']['\$t'] == null
+                    ? DateTimeExtension.now()
+                    : DateTime.parse(e['published']['\$t']),
             updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
-            updated: e['updated'] == null || e['updated']['\$t'] == null
-                ? DateTimeExtension.now()
-                : DateTime.parse(e['updated']['\$t']),
+            updated:
+                e['updated'] == null || e['updated']['\$t'] == null
+                    ? DateTimeExtension.now()
+                    : DateTime.parse(e['updated']['\$t']),
             category: e['category']['term'],
-            mediaID: !e.containsKey('content')
-                ? null
-                : int.parse(e['content']['media_id']),
-            mediaURL: !e.containsKey('content')
-                ? null
-                : Uri.parse(
-                    e['content'][r'$t'].replaceAll(
-                      'https://',
-                      'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+            mediaID:
+                !e.containsKey('content')
+                    ? null
+                    : int.parse(e['content']['media_id']),
+            mediaURL:
+                !e.containsKey('content')
+                    ? null
+                    : Uri.parse(
+                      e['content'][r'$t'].replaceAll(
+                        'https://',
+                        'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
+                      ),
                     ),
-                  ),
           );
         });
       }

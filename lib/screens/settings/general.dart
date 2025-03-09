@@ -35,159 +35,176 @@ class GeneralSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
-    return ListView(padding: DesktopSettings.verticalPadding, children: [
-      OptionsChooserTile(
-        title: loc.cycleTogglePeriod,
-        description: loc.cycleTogglePeriodDescription,
-        icon: Icons.timelapse,
-        value: settings.kLayoutCyclePeriod.value,
-        values: [5, 10, 30, 60, 60 * 5]
-            .map((seconds) => Duration(seconds: seconds))
-            .map((duration) {
-          return Option(
-            text: duration.humanReadableCompact(context),
-            value: duration,
-          );
-        }),
-        onChanged: (value) {
-          settings.kLayoutCyclePeriod.value = value;
-        },
-      ),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.monitor),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.wakelock),
-        subtitle: Text(loc.wakelockDescription),
-        isThreeLine: true,
-        value: settings.kWakelock.value,
-        onChanged: (value) {
-          settings.kWakelock.value = !settings.kWakelock.value;
-        },
-      ),
-      SubHeader(loc.notifications, padding: DesktopSettings.horizontalPadding),
-      CheckboxListTile.adaptive(
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.crop),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.notificationsEnabled),
-        value: settings.kNotificationsEnabled.value,
-        onChanged: (value) {
-          if (value != null) {
-            settings.kNotificationsEnabled.value = value;
-          }
-        },
-      ),
-      ListTile(
-        contentPadding: DesktopSettings.horizontalPadding,
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.notifications_paused),
-        ),
-        title: Text(loc.snoozeNotifications),
-        subtitle: Text(
-          settings.kSnoozeNotificationsUntil.value.isAfter(DateTime.now())
-              ? loc.snoozedUntil(
-                  [
-                    if (settings.kSnoozeNotificationsUntil.value
-                            .difference(DateTime.now()) >
-                        const Duration(hours: 24))
-                      settings
-                          .formatDate(settings.kSnoozeNotificationsUntil.value),
-                    settings
-                        .formatTime(settings.kSnoozeNotificationsUntil.value),
-                  ].join(' '),
-                )
-              : loc.notSnoozed,
-        ),
-        onTap: () async {
-          if (settings.kSnoozeNotificationsUntil.value
-              .isAfter(DateTime.now())) {
-            settings.kSnoozeNotificationsUntil.value =
-                SettingsProvider.instance.kSnoozeNotificationsUntil.def;
-          } else {
-            final timeOfDay = await showTimePicker(
-              context: context,
-              helpText: loc.snoozeNotificationsUntil.toUpperCase(),
-              initialTime: TimeOfDay.fromDateTime(DateTime.now()),
-              useRootNavigator: false,
-            );
-            if (timeOfDay != null) {
-              settings.kSnoozeNotificationsUntil.value = DateTime(
-                DateTime.now().year,
-                DateTime.now().month,
-                DateTime.now().day,
-                timeOfDay.hour,
-                timeOfDay.minute,
-              );
-            }
-          }
-        },
-      ),
-      OptionsChooserTile(
-        title: loc.notificationClickBehavior,
-        description: loc.notificationClickBehaviorDescription,
-        icon: Icons.beenhere_rounded,
-        value: settings.kNotificationClickBehavior.value,
-        values: NotificationClickBehavior.values
-            .map((behavior) => Option(
-                  value: behavior,
-                  icon: behavior.icon,
-                  text: behavior.locale(context),
-                ))
-            .toList(),
-        onChanged: (v) {
-          settings.kNotificationClickBehavior.value = v;
-        },
-      ),
-      SubHeader(loc.dataUsage, padding: DesktopSettings.horizontalPadding),
-      OptionsChooserTile(
-        icon: Icons.cloud_done,
-        title: loc.streamsOnBackground,
-        description: loc.streamsOnBackgroundDescription,
-        value: settings.kStreamOnBackground.value,
-        values: NetworkUsage.values.map((value) {
-          return Option(
-            value: value,
-            // icon: value.icon,
-            text: value.locale(context),
-          );
-        }),
-        onChanged: (value) {
-          settings.kStreamOnBackground.value = value;
-        },
-      ),
-      if (settings.kShowDebugInfo.value) ...[
+    return ListView(
+      padding: DesktopSettings.verticalPadding,
+      children: [
         OptionsChooserTile(
-          icon: Icons.data_usage,
-          title: 'Automatic streaming',
-          description: 'When to stream videos automatically on startup',
-          value: '',
-          values: const [
-            Option(value: '', icon: Icons.insights, text: 'Auto'),
-            Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
-            Option(value: '', icon: Icons.not_interested, text: 'Never'),
-          ],
-          onChanged: (value) {},
+          title: loc.cycleTogglePeriod,
+          description: loc.cycleTogglePeriodDescription,
+          icon: Icons.timelapse,
+          value: settings.kLayoutCyclePeriod.value,
+          values: [
+            5,
+            10,
+            30,
+            60,
+            60 * 5,
+          ].map((seconds) => Duration(seconds: seconds)).map((duration) {
+            return Option(
+              text: duration.humanReadableCompact(context),
+              value: duration,
+            );
+          }),
+          onChanged: (value) {
+            settings.kLayoutCyclePeriod.value = value;
+          },
+        ),
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.monitor),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.wakelock),
+          subtitle: Text(loc.wakelockDescription),
+          isThreeLine: true,
+          value: settings.kWakelock.value,
+          onChanged: (value) {
+            settings.kWakelock.value = !settings.kWakelock.value;
+          },
+        ),
+        SubHeader(
+          loc.notifications,
+          padding: DesktopSettings.horizontalPadding,
+        ),
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.crop),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.notificationsEnabled),
+          value: settings.kNotificationsEnabled.value,
+          onChanged: (value) {
+            if (value != null) {
+              settings.kNotificationsEnabled.value = value;
+            }
+          },
         ),
         ListTile(
+          contentPadding: DesktopSettings.horizontalPadding,
           leading: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.show_chart),
+            child: const Icon(Icons.notifications_paused),
           ),
-          contentPadding: DesktopSettings.horizontalPadding,
-          title: const Text('View previous data usage'),
-          trailing: const Icon(Icons.navigate_next),
+          title: Text(loc.snoozeNotifications),
+          subtitle: Text(
+            settings.kSnoozeNotificationsUntil.value.isAfter(DateTime.now())
+                ? loc.snoozedUntil(
+                  [
+                    if (settings.kSnoozeNotificationsUntil.value.difference(
+                          DateTime.now(),
+                        ) >
+                        const Duration(hours: 24))
+                      settings.formatDate(
+                        settings.kSnoozeNotificationsUntil.value,
+                      ),
+                    settings.formatTime(
+                      settings.kSnoozeNotificationsUntil.value,
+                    ),
+                  ].join(' '),
+                )
+                : loc.notSnoozed,
+          ),
+          onTap: () async {
+            if (settings.kSnoozeNotificationsUntil.value.isAfter(
+              DateTime.now(),
+            )) {
+              settings.kSnoozeNotificationsUntil.value =
+                  SettingsProvider.instance.kSnoozeNotificationsUntil.def;
+            } else {
+              final timeOfDay = await showTimePicker(
+                context: context,
+                helpText: loc.snoozeNotificationsUntil.toUpperCase(),
+                initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+                useRootNavigator: false,
+              );
+              if (timeOfDay != null) {
+                settings.kSnoozeNotificationsUntil.value = DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month,
+                  DateTime.now().day,
+                  timeOfDay.hour,
+                  timeOfDay.minute,
+                );
+              }
+            }
+          },
         ),
+        OptionsChooserTile(
+          title: loc.notificationClickBehavior,
+          description: loc.notificationClickBehaviorDescription,
+          icon: Icons.beenhere_rounded,
+          value: settings.kNotificationClickBehavior.value,
+          values:
+              NotificationClickBehavior.values
+                  .map(
+                    (behavior) => Option(
+                      value: behavior,
+                      icon: behavior.icon,
+                      text: behavior.locale(context),
+                    ),
+                  )
+                  .toList(),
+          onChanged: (v) {
+            settings.kNotificationClickBehavior.value = v;
+          },
+        ),
+        SubHeader(loc.dataUsage, padding: DesktopSettings.horizontalPadding),
+        OptionsChooserTile(
+          icon: Icons.cloud_done,
+          title: loc.streamsOnBackground,
+          description: loc.streamsOnBackgroundDescription,
+          value: settings.kStreamOnBackground.value,
+          values: NetworkUsage.values.map((value) {
+            return Option(
+              value: value,
+              // icon: value.icon,
+              text: value.locale(context),
+            );
+          }),
+          onChanged: (value) {
+            settings.kStreamOnBackground.value = value;
+          },
+        ),
+        if (settings.kShowDebugInfo.value) ...[
+          OptionsChooserTile(
+            icon: Icons.data_usage,
+            title: 'Automatic streaming',
+            description: 'When to stream videos automatically on startup',
+            value: '',
+            values: const [
+              Option(value: '', icon: Icons.insights, text: 'Auto'),
+              Option(value: '', icon: Icons.wifi, text: 'Wifi only'),
+              Option(value: '', icon: Icons.not_interested, text: 'Never'),
+            ],
+            onChanged: (value) {},
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.show_chart),
+            ),
+            contentPadding: DesktopSettings.horizontalPadding,
+            title: const Text('View previous data usage'),
+            trailing: const Icon(Icons.navigate_next),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 }

@@ -47,7 +47,7 @@ enum ServerAdditionResponse {
   unknown,
 
   /// The server took too long to respond.
-  timeout;
+  timeout,
 }
 
 class API {
@@ -79,11 +79,8 @@ class API {
   /// The response is a tuple of [ServerAdditionResponse] and [Server]. The
   /// [ServerAdditionResponse] is used to determine the status of the server
   /// credentials.
-  Future<
-      (
-        ServerAdditionResponse response,
-        Server server,
-      )> checkServerCredentials(Server server) async {
+  Future<(ServerAdditionResponse response, Server server)>
+  checkServerCredentials(Server server) async {
     debugPrint('Checking server credentials for server ${server.id}');
     try {
       final settings = SettingsProvider.instance;
@@ -96,17 +93,19 @@ class API {
           'from_client': '${true}',
         },
       );
-      final request = http.MultipartRequest('POST', uri)
-        ..fields.addAll({
-          'login': server.login,
-          'password': server.password,
-          'from_client': '${true}',
-        })
-        ..headers.addAll({
-          'Content-Type': 'application/x-www-form-urlencoded',
-        });
-      final response =
-          await request.send().timeout(settings.kAddServerTimeout.value);
+      final request =
+          http.MultipartRequest('POST', uri)
+            ..fields.addAll({
+              'login': server.login,
+              'password': server.password,
+              'from_client': '${true}',
+            })
+            ..headers.addAll({
+              'Content-Type': 'application/x-www-form-urlencoded',
+            });
+      final response = await request.send().timeout(
+        settings.kAddServerTimeout.value,
+      );
       final body = await response.stream.bytesToString();
       debugPrint(
         '${server.ip}:${server.port} with status code ${response.statusCode}'
@@ -134,20 +133,18 @@ class API {
             default:
               response = ServerAdditionResponse.unknown;
           }
-          return (
-            response,
-            server..additionResponse = response,
-          );
+          return (response, server..additionResponse = response);
         }
 
         return (
           ServerAdditionResponse.validated,
           server.copyWith(
             serverUUID: json['server_uuid'],
-            cookie: response.headers['set-cookie'] ??
+            cookie:
+                response.headers['set-cookie'] ??
                 response.headers['Set-Cookie'],
             online: true,
-          )
+          ),
         );
       } else {
         server.online = false;
@@ -189,13 +186,9 @@ class API {
         Uri.https(
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/devices.php',
-          {
-            'XML': '1',
-          },
+          {'XML': '1'},
         ),
-        headers: {
-          if (server.cookie != null) API.cookieHeader: server.cookie!,
-        },
+        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
       );
       // debugPrint(response.body);
       final parser = Xml2Json()..parse(response.body);
@@ -261,9 +254,7 @@ class API {
           '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/mobile-app-config.json',
         ),
-        headers: {
-          if (server.cookie != null) API.cookieHeader: server.cookie!,
-        },
+        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
       );
       final body = jsonDecode(response.body);
       return body['notification_api_endpoint'];
@@ -293,21 +284,21 @@ class API {
           API.cookieHeader: server.cookie!,
           HttpHeaders.contentTypeHeader: 'application/json',
         },
-        body: jsonEncode(
-          {
-            'client_id': clientID,
-            'server_id': server.serverUUID,
-            'token': token,
-            'disable_payload_notification': true,
-          },
-        ),
+        body: jsonEncode({
+          'client_id': clientID,
+          'server_id': server.serverUUID,
+          'token': token,
+          'disable_payload_notification': true,
+        }),
       );
-      debugPrint({
-        'client_id': clientID,
-        'server_id': server.serverUUID,
-        'token': token,
-        'disable_payload_notification': true,
-      }.toString());
+      debugPrint(
+        {
+          'client_id': clientID,
+          'server_id': server.serverUUID,
+          'token': token,
+          'disable_payload_notification': true,
+        }.toString(),
+      );
       debugPrint(response.statusCode.toString());
       debugPrint(response.body);
       return true;
@@ -337,12 +328,10 @@ class API {
           API.cookieHeader: server.cookie!,
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(
-          {
-            'client_id': '${clientID}_flutter',
-            'server_id': server.serverUUID,
-          },
-        ),
+        body: jsonEncode({
+          'client_id': '${clientID}_flutter',
+          'server_id': server.serverUUID,
+        }),
       );
       debugPrint(response.statusCode.toString());
       debugPrint(response.body);

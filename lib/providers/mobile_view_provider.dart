@@ -195,23 +195,26 @@ class MobileViewProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await secureStorage.read(key: kStorageMobileView);
     if (data != null) {
-      devices = ((await compute(jsonDecode, data)) as Map)
-          .map(
-            (key, value) => MapEntry<int, List<Device?>>(
-              int.parse(key),
-              (value as Iterable)
-                  .map<Device?>((e) => e == null ? null : Device.fromJson(e))
-                  .toList(),
-            ),
-          )
-          .cast<int, List<Device?>>();
+      devices =
+          ((await compute(jsonDecode, data)) as Map)
+              .map(
+                (key, value) => MapEntry<int, List<Device?>>(
+                  int.parse(key),
+                  (value as Iterable)
+                      .map<Device?>(
+                        (e) => e == null ? null : Device.fromJson(e),
+                      )
+                      .toList(),
+                ),
+              )
+              .cast<int, List<Device?>>();
     }
 
     // This is just for migration. Old clients do not have the "6" layout in their
     // devices, so we add it here
     if (!devices.containsKey(6)) {
       devices.addAll({
-        6: [null, null, null, null, null, null]
+        6: [null, null, null, null, null, null],
       });
     }
 

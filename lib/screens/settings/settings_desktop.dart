@@ -32,10 +32,12 @@ import 'package:provider/provider.dart';
 class DesktopSettings extends StatelessWidget {
   const DesktopSettings({super.key});
 
-  static const horizontalPadding =
-      EdgeInsetsDirectional.symmetric(horizontal: 24.0);
-  static const verticalPadding =
-      EdgeInsetsDirectional.symmetric(vertical: 16.0);
+  static const horizontalPadding = EdgeInsetsDirectional.symmetric(
+    horizontal: 24.0,
+  );
+  static const verticalPadding = EdgeInsetsDirectional.symmetric(
+    vertical: 16.0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -43,76 +45,81 @@ class DesktopSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Row(children: [
-        NavigationRail(
-          extended: constraints.maxWidth >
-              kMobileBreakpoint.width + kMobileBreakpoint.width / 4,
-          destinations: [
-            NavigationRailDestination(
-              icon: const Icon(Icons.dashboard),
-              label: Text(loc.general),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Row(
+          children: [
+            NavigationRail(
+              extended:
+                  constraints.maxWidth >
+                  kMobileBreakpoint.width + kMobileBreakpoint.width / 4,
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.dashboard),
+                  label: Text(loc.general),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.dns),
+                  label: Text(loc.serverAndDevices),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.event),
+                  label: Text(loc.eventsAndDownloads),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.style),
+                  label: Text(loc.application),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.update),
+                  label: Text(loc.updatesHelpAndPrivacy),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.code),
+                  label: Text(loc.advancedOptions),
+                ),
+              ],
+              selectedIndex: settings.settingsIndex,
+              onDestinationSelected: (index) => settings.settingsIndex = index,
             ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.dns),
-              label: Text(loc.serverAndDevices),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.event),
-              label: Text(loc.eventsAndDownloads),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.style),
-              label: Text(loc.application),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.update),
-              label: Text(loc.updatesHelpAndPrivacy),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.code),
-              label: Text(loc.advancedOptions),
-            ),
-          ],
-          selectedIndex: settings.settingsIndex,
-          onDestinationSelected: (index) => settings.settingsIndex = index,
-        ),
-        Expanded(
-          child: Card(
-            margin: EdgeInsetsDirectional.zero,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadiusDirectional.only(
-                topStart: Radius.circular(12.0),
-              ),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: Theme(
-                data: theme.copyWith(
-                  cardTheme: CardTheme(
-                    color: ElevationOverlay.applySurfaceTint(
-                      theme.colorScheme.surface,
-                      theme.colorScheme.surfaceTint,
-                      4,
+            Expanded(
+              child: Card(
+                margin: EdgeInsetsDirectional.zero,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadiusDirectional.only(
+                    topStart: Radius.circular(12.0),
+                  ),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: Theme(
+                    data: theme.copyWith(
+                      cardTheme: CardTheme(
+                        color: ElevationOverlay.applySurfaceTint(
+                          theme.colorScheme.surface,
+                          theme.colorScheme.surfaceTint,
+                          4,
+                        ),
+                      ),
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: kThemeChangeDuration,
+                      child: switch (settings.settingsIndex) {
+                        0 => const GeneralSettings(),
+                        1 => const ServerAndDevicesSettings(),
+                        2 => const EventsAndDownloadsSettings(),
+                        3 => const ApplicationSettings(),
+                        4 => const UpdatesSettings(),
+                        5 => const AdvancedOptionsSettings(),
+                        _ => const GeneralSettings(),
+                      },
                     ),
                   ),
                 ),
-                child: AnimatedSwitcher(
-                  duration: kThemeChangeDuration,
-                  child: switch (settings.settingsIndex) {
-                    0 => const GeneralSettings(),
-                    1 => const ServerAndDevicesSettings(),
-                    2 => const EventsAndDownloadsSettings(),
-                    3 => const ApplicationSettings(),
-                    4 => const UpdatesSettings(),
-                    5 => const AdvancedOptionsSettings(),
-                    _ => const GeneralSettings(),
-                  },
-                ),
               ),
             ),
-          ),
-        ),
-      ]);
-    });
+          ],
+        );
+      },
+    );
   }
 }

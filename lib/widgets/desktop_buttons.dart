@@ -161,7 +161,8 @@ class _WindowButtonsState extends State<WindowButtons>
     final bar = StreamBuilder(
       stream: navigationStream.stream,
       builder: (context, arguments) {
-        final canPop = (navigatorKey.currentState?.canPop() ?? false) &&
+        final canPop =
+            (navigatorKey.currentState?.canPop() ?? false) &&
             navigatorObserver.poppableRoute;
         final showNavigator = !canPop && widget.showNavigator;
 
@@ -195,9 +196,10 @@ class _WindowButtonsState extends State<WindowButtons>
             return '';
           }(),
           style: TextStyle(
-            color: theme.brightness == Brightness.light
-                ? Colors.black
-                : Colors.white,
+            color:
+                theme.brightness == Brightness.light
+                    ? Colors.black
+                    : Colors.white,
             fontSize: 12.0,
           ),
           textAlign: centerTitle ? TextAlign.center : null,
@@ -208,161 +210,183 @@ class _WindowButtonsState extends State<WindowButtons>
         return Material(
           child: SizedBox(
             height: 40.0,
-            child: Stack(children: [
-              if (centerTitle) Center(child: titleWidget),
-              DragToMoveArea(
-                child: Row(children: [
-                  if (isMacOSPlatform)
-                    const SizedBox(width: 70.0, height: 40.0),
-                  if (canPop)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: SquaredIconButton(
-                        onPressed: () async {
-                          await widget.onBack?.call();
-                          await navigatorKey.currentState?.maybePop();
-                        },
-                        tooltip:
-                            MaterialLocalizations.of(context).backButtonTooltip,
-                        icon: Container(
-                          padding: const EdgeInsetsDirectional.all(4.0),
-                          // height: 40.0,
-                          // width: 40.0,
-                          alignment: AlignmentDirectional.center,
-                          child: Icon(
-                            Icons.adaptive.arrow_back,
-                            size: 20.0,
-                            color: theme.hintColor,
-                          ),
-                        ),
-                      ),
-                    )
-                  else if (isWindowsPlatform)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 8.0),
-                      child: Image.asset(
-                        'assets/images/icon.png',
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                    ),
-                  if (centerTitle)
-                    const Spacer()
-                  else
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 10.0),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: titleWidget,
-                        ),
-                      ),
-                    ),
-                  if (home.isLoading)
-                    const Padding(
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 8.0),
-                      child: UnityLoadingIndicator(),
-                    )
-                  else if (home.tab == UnityTab.eventsHistory ||
-                      home.tab == UnityTab.eventsTimeline && !canPop)
-                    SquaredIconButton(
-                      onPressed: () {
-                        eventsScreenKey.currentState?.fetch();
-                        eventsPlaybackScreenKey.currentState?.fetch();
-                      },
-                      icon: const Icon(Icons.refresh, size: 20.0),
-                      tooltip: loc.refresh,
-                    ),
-                  if (widget.flexible != null) widget.flexible!,
-
-                  // Do not render the Window Buttons on web nor macOS nor when
-                  // in fullscreen. macOS render the buttons natively.
-                  if (!kIsWeb &&
-                      !isMacOSPlatform &&
-                      !UpdateManager.isEmbedded &&
-                      !settings.kFullscreen.value)
-                    SizedBox(
-                      width: 138,
-                      child: Builder(builder: (context) {
-                        if (isLinuxPlatform) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              DecoratedMinimizeButton(
-                                onPressed: windowManager.minimize,
-                              ),
-                              DecoratedMaximizeButton(
-                                onPressed: () async {
-                                  if (await windowManager.isMaximized()) {
-                                    windowManager.unmaximize();
-                                  } else {
-                                    windowManager.maximize();
-                                  }
-                                },
-                              ),
-                              DecoratedCloseButton(
-                                onPressed: () => performWindowClose(context),
-                              ),
-                            ].map((button) {
-                              return Padding(
-                                padding: const EdgeInsetsDirectional.all(2.0),
-                                child: button,
-                              );
-                            }).toList(),
-                          );
-                        }
-                        return Row(children: [
-                          WindowCaptionButton.minimize(
-                            brightness: theme.brightness,
+            child: Stack(
+              children: [
+                if (centerTitle) Center(child: titleWidget),
+                DragToMoveArea(
+                  child: Row(
+                    children: [
+                      if (isMacOSPlatform)
+                        const SizedBox(width: 70.0, height: 40.0),
+                      if (canPop)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(start: 8.0),
+                          child: SquaredIconButton(
                             onPressed: () async {
-                              final isMinimized =
-                                  await windowManager.isMinimized();
-                              if (isMinimized) {
-                                windowManager.restore();
-                              } else {
-                                windowManager.minimize();
-                              }
+                              await widget.onBack?.call();
+                              await navigatorKey.currentState?.maybePop();
                             },
+                            tooltip:
+                                MaterialLocalizations.of(
+                                  context,
+                                ).backButtonTooltip,
+                            icon: Container(
+                              padding: const EdgeInsetsDirectional.all(4.0),
+                              // height: 40.0,
+                              // width: 40.0,
+                              alignment: AlignmentDirectional.center,
+                              child: Icon(
+                                Icons.adaptive.arrow_back,
+                                size: 20.0,
+                                color: theme.hintColor,
+                              ),
+                            ),
                           ),
-                          FutureBuilder<bool>(
-                            future: windowManager.isMaximized(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<bool> snapshot) {
-                              if (snapshot.data == true) {
-                                return WindowCaptionButton.unmaximize(
-                                  brightness: theme.brightness,
-                                  onPressed: windowManager.unmaximize,
+                        )
+                      else if (isWindowsPlatform)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(start: 8.0),
+                          child: Image.asset(
+                            'assets/images/icon.png',
+                            height: 16.0,
+                            width: 16.0,
+                          ),
+                        ),
+                      if (centerTitle)
+                        const Spacer()
+                      else
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              start: 10.0,
+                            ),
+                            child: Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: titleWidget,
+                            ),
+                          ),
+                        ),
+                      if (home.isLoading)
+                        const Padding(
+                          padding: EdgeInsetsDirectional.symmetric(
+                            horizontal: 8.0,
+                          ),
+                          child: UnityLoadingIndicator(),
+                        )
+                      else if (home.tab == UnityTab.eventsHistory ||
+                          home.tab == UnityTab.eventsTimeline && !canPop)
+                        SquaredIconButton(
+                          onPressed: () {
+                            eventsScreenKey.currentState?.fetch();
+                            eventsPlaybackScreenKey.currentState?.fetch();
+                          },
+                          icon: const Icon(Icons.refresh, size: 20.0),
+                          tooltip: loc.refresh,
+                        ),
+                      if (widget.flexible != null) widget.flexible!,
+
+                      // Do not render the Window Buttons on web nor macOS nor when
+                      // in fullscreen. macOS render the buttons natively.
+                      if (!kIsWeb &&
+                          !isMacOSPlatform &&
+                          !UpdateManager.isEmbedded &&
+                          !settings.kFullscreen.value)
+                        SizedBox(
+                          width: 138,
+                          child: Builder(
+                            builder: (context) {
+                              if (isLinuxPlatform) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children:
+                                      [
+                                        DecoratedMinimizeButton(
+                                          onPressed: windowManager.minimize,
+                                        ),
+                                        DecoratedMaximizeButton(
+                                          onPressed: () async {
+                                            if (await windowManager
+                                                .isMaximized()) {
+                                              windowManager.unmaximize();
+                                            } else {
+                                              windowManager.maximize();
+                                            }
+                                          },
+                                        ),
+                                        DecoratedCloseButton(
+                                          onPressed:
+                                              () => performWindowClose(context),
+                                        ),
+                                      ].map((button) {
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.all(
+                                                2.0,
+                                              ),
+                                          child: button,
+                                        );
+                                      }).toList(),
                                 );
                               }
-                              return WindowCaptionButton.maximize(
-                                brightness: theme.brightness,
-                                onPressed: windowManager.maximize,
+                              return Row(
+                                children: [
+                                  WindowCaptionButton.minimize(
+                                    brightness: theme.brightness,
+                                    onPressed: () async {
+                                      final isMinimized =
+                                          await windowManager.isMinimized();
+                                      if (isMinimized) {
+                                        windowManager.restore();
+                                      } else {
+                                        windowManager.minimize();
+                                      }
+                                    },
+                                  ),
+                                  FutureBuilder<bool>(
+                                    future: windowManager.isMaximized(),
+                                    builder: (
+                                      BuildContext context,
+                                      AsyncSnapshot<bool> snapshot,
+                                    ) {
+                                      if (snapshot.data == true) {
+                                        return WindowCaptionButton.unmaximize(
+                                          brightness: theme.brightness,
+                                          onPressed: windowManager.unmaximize,
+                                        );
+                                      }
+                                      return WindowCaptionButton.maximize(
+                                        brightness: theme.brightness,
+                                        onPressed: windowManager.maximize,
+                                      );
+                                    },
+                                  ),
+                                  WindowCaptionButton.close(
+                                    brightness: theme.brightness,
+                                    onPressed:
+                                        () => performWindowClose(context),
+                                  ),
+                                ],
                               );
                             },
                           ),
-                          WindowCaptionButton.close(
-                            brightness: theme.brightness,
-                            onPressed: () => performWindowClose(context),
-                          ),
-                        ]);
-                      }),
-                    ),
-                  if (settings.kFullscreen.value &&
-                      !settings.kImmersiveMode.value) ...[
-                    SquaredIconButton(
-                      onPressed: () {
-                        settings.kFullscreen.value = false;
-                      },
-                      icon: const Icon(Icons.fullscreen_exit, size: 20.0),
-                      tooltip: loc.exitFullscreen,
-                    ),
-                  ]
-                ]),
-              ),
-              if (showNavigator)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(top: 4.0),
-                  child: Row(
+                        ),
+                      if (settings.kFullscreen.value &&
+                          !settings.kImmersiveMode.value) ...[
+                        SquaredIconButton(
+                          onPressed: () {
+                            settings.kFullscreen.value = false;
+                          },
+                          icon: const Icon(Icons.fullscreen_exit, size: 20.0),
+                          tooltip: loc.exitFullscreen,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (showNavigator)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(top: 4.0),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ...navData.map((data) {
@@ -377,9 +401,10 @@ class _WindowButtonsState extends State<WindowButtons>
                               child: Icon(
                                 icon,
                                 key: ValueKey(isSelected),
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.hintColor,
+                                color:
+                                    isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.hintColor,
                                 fill: isSelected ? 1.0 : 0.0,
                                 size: 22.0,
                               ),
@@ -388,9 +413,11 @@ class _WindowButtonsState extends State<WindowButtons>
                             onPressed: () => home.setTab(data.tab, context),
                           );
                         }),
-                      ]),
-                ),
-            ]),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -401,10 +428,7 @@ class _WindowButtonsState extends State<WindowButtons>
         onEnter: (_) {
           showOverlayEntry(context, bar);
         },
-        child: const SizedBox(
-          height: 4,
-          width: double.infinity,
-        ),
+        child: const SizedBox(height: 4, width: double.infinity),
       );
     } else {
       /// If not in immersive mode, return the bar directly.
@@ -423,41 +447,46 @@ class _WindowButtonsState extends State<WindowButtons>
 
   OverlayEntry? _overlayEntry;
   void showOverlayEntry(BuildContext context, Widget bar) {
-    _overlayEntry = OverlayEntry(builder: (context) {
-      return AnimatedBuilder(
-        animation: _animationController,
-        child: bar,
-        builder: (context, animation) {
-          return Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: IgnorePointer(
-              ignoring: _animationController.status == AnimationStatus.forward,
-              child: MouseRegion(
-                onExit: (_) {
-                  dismissOverlayEntry();
-                },
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, -1),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.easeInOut,
-                    )),
-                    child: animation,
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return AnimatedBuilder(
+          animation: _animationController,
+          child: bar,
+          builder: (context, animation) {
+            return Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                ignoring:
+                    _animationController.status == AnimationStatus.forward,
+                child: MouseRegion(
+                  onExit: (_) {
+                    dismissOverlayEntry();
+                  },
+                  child: Material(
+                    color: Colors.transparent,
+                    elevation: 8,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -1),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: _animationController,
+                          curve: Curves.easeInOut,
+                        ),
+                      ),
+                      child: animation,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      );
-    });
+            );
+          },
+        );
+      },
+    );
     Overlay.of(context).insert(_overlayEntry!);
     _animationController.forward();
   }
@@ -486,26 +515,34 @@ class _UnityLoadingIndicatorState extends State<UnityLoadingIndicator> {
     final box = context.findRenderObject() as RenderBox;
     final pos = box.localToGlobal(Offset.zero);
 
-    _overlayEntry = OverlayEntry(builder: (context) {
-      return LayoutBuilder(builder: (context, constraints) {
-        final willFitY = constraints.maxHeight - (pos.dy + box.size.height) >
-            CurrentTasks.width;
-        const margin = 12.0;
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final willFitY =
+                constraints.maxHeight - (pos.dy + box.size.height) >
+                CurrentTasks.width;
+            const margin = 12.0;
 
-        return Stack(children: [
-          Positioned(
-            top: willFitY ? pos.dy + box.size.height : null,
-            bottom: willFitY ? null : constraints.maxHeight - pos.dy + 1.0,
-            left: clampDouble(
-              pos.dx - (CurrentTasks.width / 2),
-              margin,
-              constraints.maxWidth - CurrentTasks.width - margin,
-            ),
-            child: const CurrentTasks(),
-          ),
-        ]);
-      });
-    });
+            return Stack(
+              children: [
+                Positioned(
+                  top: willFitY ? pos.dy + box.size.height : null,
+                  bottom:
+                      willFitY ? null : constraints.maxHeight - pos.dy + 1.0,
+                  left: clampDouble(
+                    pos.dx - (CurrentTasks.width / 2),
+                    margin,
+                    constraints.maxWidth - CurrentTasks.width - margin,
+                  ),
+                  child: const CurrentTasks(),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
 
     overlay.insert(_overlayEntry!);
   }
@@ -577,29 +614,34 @@ class CurrentTasks extends StatelessWidget {
           horizontal: 12.0,
           vertical: 10.0,
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Expanded(
-              child: Text(
-                loc.currentTasks,
-                style: theme.textTheme.titleMedium,
-              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    loc.currentTasks,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                Text(
+                  '${home.loadReasons.length}',
+                  style: theme.textTheme.labelSmall,
+                ),
+              ],
             ),
-            Text(
-              '${home.loadReasons.length}',
-              style: theme.textTheme.labelSmall,
-            ),
-          ]),
-          if (home.loadReasons.isEmpty)
-            Text(loc.noCurrentTasks, style: theme.textTheme.labelSmall)
-          else
-            ...home.loadReasons.map((reason) {
-              return Text(
-                reason.locale(context),
-                style: theme.textTheme.bodyMedium,
-              );
-            }),
-        ]),
+            if (home.loadReasons.isEmpty)
+              Text(loc.noCurrentTasks, style: theme.textTheme.labelSmall)
+            else
+              ...home.loadReasons.map((reason) {
+                return Text(
+                  reason.locale(context),
+                  style: theme.textTheme.bodyMedium,
+                );
+              }),
+          ],
+        ),
       ),
     );
   }

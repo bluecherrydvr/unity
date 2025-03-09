@@ -66,130 +66,142 @@ class _MobileSettingsState extends State<MobileSettings> {
     return Material(
       type: MaterialType.transparency,
       child: SafeArea(
-        child: Column(children: [
-          if (Scaffold.of(context).hasDrawer)
-            AppBar(
-              leading: MaybeUnityDrawerButton(context),
-              title: Text(loc.settings),
-            ),
-          Expanded(
-            child: ListTileTheme(
-              data: ListTileThemeData(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+        child: Column(
+          children: [
+            if (Scaffold.of(context).hasDrawer)
+              AppBar(
+                leading: MaybeUnityDrawerButton(context),
+                title: Text(loc.settings),
+              ),
+            Expanded(
+              child: ListTileTheme(
+                data: ListTileThemeData(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  tileColor: theme.colorScheme.primaryContainer.withValues(
+                    alpha: 0.42,
+                  ),
                 ),
-                tileColor:
-                    theme.colorScheme.primaryContainer.withValues(alpha: 0.42),
-              ),
-              child: ListView(
-                padding: const EdgeInsetsDirectional.all(8.0),
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.dashboard),
-                    title: Text(loc.general),
-                    subtitle: Text(loc.generalSettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const GeneralSettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.dns),
-                    title: Text(loc.serverAndDevices),
-                    subtitle: Text(loc.serverAndDevicesSettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const ServerAndDevicesSettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.event),
-                    title: Text(loc.eventsAndDownloads),
-                    subtitle: Text(loc.eventsAndDownloadsSettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const EventsAndDownloadsSettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.style),
-                    title: Text(loc.application),
-                    subtitle: Text(loc.applicationSettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const ApplicationSettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.update),
-                    title: Text(loc.updatesHelpAndPrivacy),
-                    subtitle: Text(loc.updatesHelpAndPrivacySettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const UpdatesSettings();
-                        },
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.code),
-                    title: Text(loc.advancedOptions),
-                    subtitle: Text(loc.advancedOptionsSettingsSuggestion),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        scrollControlDisabledMaxHeightRatio: 0.9,
-                        builder: (context) {
-                          return const AdvancedOptionsSettings();
-                        },
-                      );
-                    },
-                  ),
-                ].map((child) {
-                  return Padding(
-                    padding: const EdgeInsetsDirectional.only(bottom: 8.0),
-                    child: child,
-                  );
-                }).toList(),
+                child: ListView(
+                  padding: const EdgeInsetsDirectional.all(8.0),
+                  children:
+                      [
+                        ListTile(
+                          leading: const Icon(Icons.dashboard),
+                          title: Text(loc.general),
+                          subtitle: Text(loc.generalSettingsSuggestion),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const GeneralSettings();
+                              },
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.dns),
+                          title: Text(loc.serverAndDevices),
+                          subtitle: Text(
+                            loc.serverAndDevicesSettingsSuggestion,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const ServerAndDevicesSettings();
+                              },
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.event),
+                          title: Text(loc.eventsAndDownloads),
+                          subtitle: Text(
+                            loc.eventsAndDownloadsSettingsSuggestion,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const EventsAndDownloadsSettings();
+                              },
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.style),
+                          title: Text(loc.application),
+                          subtitle: Text(loc.applicationSettingsSuggestion),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const ApplicationSettings();
+                              },
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.update),
+                          title: Text(loc.updatesHelpAndPrivacy),
+                          subtitle: Text(
+                            loc.updatesHelpAndPrivacySettingsSuggestion,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const UpdatesSettings();
+                              },
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.code),
+                          title: Text(loc.advancedOptions),
+                          subtitle: Text(loc.advancedOptionsSettingsSuggestion),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              scrollControlDisabledMaxHeightRatio: 0.9,
+                              builder: (context) {
+                                return const AdvancedOptionsSettings();
+                              },
+                            );
+                          },
+                        ),
+                      ].map((child) {
+                        return Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            bottom: 8.0,
+                          ),
+                          child: child,
+                        );
+                      }).toList(),
+                ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

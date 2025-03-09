@@ -65,7 +65,7 @@ class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
               ),
               title: Text(entry.key.deviceName),
               subtitle: Text(entry.key.server.name),
-            )
+            ),
         ],
       ),
       actions: [
@@ -78,13 +78,14 @@ class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
           child: Text(loc.closeAnyway),
         ),
         FilledButton(
-          onPressed: _closeWhenDone
-              ? null
-              : () async {
-                  setState(() => _closeWhenDone = true);
-                  await downloadsManager.downloadsCompleter?.future;
-                  navigator.pop<bool>(true);
-                },
+          onPressed:
+              _closeWhenDone
+                  ? null
+                  : () async {
+                    setState(() => _closeWhenDone = true);
+                    await downloadsManager.downloadsCompleter?.future;
+                    navigator.pop<bool>(true);
+                  },
           child: Text(loc.closeWhenDone),
         ),
       ],

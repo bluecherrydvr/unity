@@ -67,49 +67,55 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
       right: false,
       child: Material(
         color: theme.canvasColor,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          LayoutManager(
-            collapseButton: widget.collapseButton,
-            onSearchChanged: (text) {
-              setState(() {
-                searchQuery = text;
-                _updateServers();
-              });
-            },
-          ),
-          if (servers.servers.isEmpty)
-            const Expanded(child: NoServers())
-          else
-            Expanded(
-              child: MouseRegion(
-                onEnter: (e) => setState(() => isSidebarHovering = true),
-                onExit: (e) => setState(() => isSidebarHovering = false),
-                // Add another [Material] here because its descendants must be clipped.
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: CustomScrollView(slivers: [
-                    for (var MapEntry(key: server, value: devices)
-                        in _serversEntries)
-                      () {
-                        devices = devices.where((device) {
-                          if (!device.status &&
-                              !settings.kListOfflineDevices.value) {
-                            return false;
-                          }
-                          return true;
-                        }).toList();
-                        return ServerEntry(
-                          server: server,
-                          devices: devices,
-                          searchQuery: searchQuery,
-                          isSidebarHovering: isSidebarHovering,
-                        );
-                      }(),
-                  ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LayoutManager(
+              collapseButton: widget.collapseButton,
+              onSearchChanged: (text) {
+                setState(() {
+                  searchQuery = text;
+                  _updateServers();
+                });
+              },
+            ),
+            if (servers.servers.isEmpty)
+              const Expanded(child: NoServers())
+            else
+              Expanded(
+                child: MouseRegion(
+                  onEnter: (e) => setState(() => isSidebarHovering = true),
+                  onExit: (e) => setState(() => isSidebarHovering = false),
+                  // Add another [Material] here because its descendants must be clipped.
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: CustomScrollView(
+                      slivers: [
+                        for (var MapEntry(key: server, value: devices)
+                            in _serversEntries)
+                          () {
+                            devices =
+                                devices.where((device) {
+                                  if (!device.status &&
+                                      !settings.kListOfflineDevices.value) {
+                                    return false;
+                                  }
+                                  return true;
+                                }).toList();
+                            return ServerEntry(
+                              server: server,
+                              devices: devices,
+                              searchQuery: searchQuery,
+                              isSidebarHovering: isSidebarHovering,
+                            );
+                          }(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -124,22 +130,24 @@ class NoServers extends StatelessWidget {
     final home = context.watch<HomeProvider>();
     return Padding(
       padding: const EdgeInsetsDirectional.all(8.0),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.dns, size: 48.0),
-        const SizedBox(height: 6.0),
-        Text(loc.noServersAdded, textAlign: TextAlign.center),
-        Text.rich(
-          TextSpan(
-            text: loc.howToAddServer,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.dns, size: 48.0),
+          const SizedBox(height: 6.0),
+          Text(loc.noServersAdded, textAlign: TextAlign.center),
+          Text.rich(
+            TextSpan(
+              text: loc.howToAddServer,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              recognizer:
+                  TapGestureRecognizer()
+                    ..onTap = () => home.setTab(UnityTab.addServer, context),
             ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => home.setTab(UnityTab.addServer, context),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -168,9 +176,7 @@ class ServerEntry extends StatelessWidget {
 
     final isLoading = servers.isServerLoading(server);
     if (!isLoading && devices.isEmpty && searchQuery.isNotEmpty) {
-      return const SliverToBoxAdapter(
-        child: SizedBox.shrink(),
-      );
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
     /// Whether all the online devices are in the current view.
@@ -180,144 +186,148 @@ class ServerEntry extends StatelessWidget {
 
     final isCollapsed = view.isServerCollapsed(server);
 
-    return MultiSliver(pushPinnedChildren: true, children: [
-      SliverPinnedHeader(
-        child: SubHeader(
-          server.name,
-          padding: const EdgeInsetsDirectional.only(
-            start: 8.0,
-            end: 8.0,
-          ),
-          leading: SquaredIconButton(
-            icon: TweenAnimationBuilder(
-              tween: Tween(begin: 0.0, end: isCollapsed ? 0.0 : 0.5),
-              duration: const Duration(milliseconds: 200),
-              builder: (context, value, child) {
-                return Transform.rotate(
-                  angle: value * pi,
-                  child: child,
-                );
-              },
-              child: Icon(
-                server.online ? Icons.chevron_right : Icons.close,
-                color: server.online ? null : theme.colorScheme.error,
-              ),
-            ),
-            onPressed: server.online
-                ? () {
-                    if (isCollapsed) {
-                      view.expandServer(server);
-                    } else {
-                      view.collapseServer(server);
-                    }
-                  }
-                : null,
-          ),
-          materialType: MaterialType.canvas,
-          subtext: () {
-            if (!settings.checkServerCertificates(server)) {
-              return loc.certificateNotPassed;
-            } else if (server.online) {
-              return loc.nDevices(devices.length);
-            } else {
-              return loc.offline;
-            }
-          }(),
-          subtextStyle: TextStyle(
-            color: !server.online ? theme.colorScheme.error : null,
-          ),
-          trailing: Builder(builder: (context) {
-            if (isLoading) {
-              // wrap in an icon button to ensure ui consistency
-              return const SquaredIconButton(
-                onPressed: null,
-                icon: SizedBox(
-                  height: 16.0,
-                  width: 16.0,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 1.5,
-                  ),
+    return MultiSliver(
+      pushPinnedChildren: true,
+      children: [
+        SliverPinnedHeader(
+          child: SubHeader(
+            server.name,
+            padding: const EdgeInsetsDirectional.only(start: 8.0, end: 8.0),
+            leading: SquaredIconButton(
+              icon: TweenAnimationBuilder(
+                tween: Tween(begin: 0.0, end: isCollapsed ? 0.0 : 0.5),
+                duration: const Duration(milliseconds: 200),
+                builder: (context, value, child) {
+                  return Transform.rotate(angle: value * pi, child: child);
+                },
+                child: Icon(
+                  server.online ? Icons.chevron_right : Icons.close,
+                  color: server.online ? null : theme.colorScheme.error,
                 ),
-              );
-            } else if (!server.online && isSidebarHovering) {
-              return SquaredIconButton(
-                icon: const Icon(Icons.refresh),
-                tooltip: loc.refreshServer,
-                onPressed: () => servers.refreshDevices(ids: [server.id]),
-              );
-            } else if (isSidebarHovering && devices.isNotEmpty) {
-              return SquaredIconButton(
-                icon: Icon(
-                  view.isLayoutLocked(view.currentLayout)
-                      ? Icons.lock
-                      : isAllInView
+              ),
+              onPressed:
+                  server.online
+                      ? () {
+                        if (isCollapsed) {
+                          view.expandServer(server);
+                        } else {
+                          view.collapseServer(server);
+                        }
+                      }
+                      : null,
+            ),
+            materialType: MaterialType.canvas,
+            subtext: () {
+              if (!settings.checkServerCertificates(server)) {
+                return loc.certificateNotPassed;
+              } else if (server.online) {
+                return loc.nDevices(devices.length);
+              } else {
+                return loc.offline;
+              }
+            }(),
+            subtextStyle: TextStyle(
+              color: !server.online ? theme.colorScheme.error : null,
+            ),
+            trailing: Builder(
+              builder: (context) {
+                if (isLoading) {
+                  // wrap in an icon button to ensure ui consistency
+                  return const SquaredIconButton(
+                    onPressed: null,
+                    icon: SizedBox(
+                      height: 16.0,
+                      width: 16.0,
+                      child: CircularProgressIndicator.adaptive(
+                        strokeWidth: 1.5,
+                      ),
+                    ),
+                  );
+                } else if (!server.online && isSidebarHovering) {
+                  return SquaredIconButton(
+                    icon: const Icon(Icons.refresh),
+                    tooltip: loc.refreshServer,
+                    onPressed: () => servers.refreshDevices(ids: [server.id]),
+                  );
+                } else if (isSidebarHovering && devices.isNotEmpty) {
+                  return SquaredIconButton(
+                    icon: Icon(
+                      view.isLayoutLocked(view.currentLayout)
+                          ? Icons.lock
+                          : isAllInView
                           ? Icons.playlist_remove
                           : Icons.playlist_add,
-                ),
-                tooltip: isAllInView ? loc.removeAllFromView : loc.addAllToView,
-                onPressed: view.isLayoutLocked(view.currentLayout)
-                    ? null
-                    : () {
-                        if (isAllInView) {
-                          view.removeDevicesFromCurrentLayout(
-                            devices,
-                          );
-                        } else {
-                          for (final device in devices) {
-                            if (device.status &&
-                                !view.currentLayout.devices.contains(device)) {
-                              view.add(device);
-                            }
-                          }
-                        }
-                      },
+                    ),
+                    tooltip:
+                        isAllInView ? loc.removeAllFromView : loc.addAllToView,
+                    onPressed:
+                        view.isLayoutLocked(view.currentLayout)
+                            ? null
+                            : () {
+                              if (isAllInView) {
+                                view.removeDevicesFromCurrentLayout(devices);
+                              } else {
+                                for (final device in devices) {
+                                  if (device.status &&
+                                      !view.currentLayout.devices.contains(
+                                        device,
+                                      )) {
+                                    view.add(device);
+                                  }
+                                }
+                              }
+                            },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+          ),
+        ),
+        if (server.online && !isLoading && !isCollapsed)
+          SliverList.builder(
+            itemCount: devices.length,
+            itemBuilder: (context, index) {
+              final device = devices.elementAt(index);
+              final selected = view.currentLayout.devices.contains(device);
+
+              final tile = DeviceSelectorTile(
+                device: device,
+                selected: selected,
               );
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
-        ),
-      ),
-      if (server.online && !isLoading && !isCollapsed)
-        SliverList.builder(
-          itemCount: devices.length,
-          itemBuilder: (context, index) {
-            final device = devices.elementAt(index);
-            final selected = view.currentLayout.devices.contains(device);
+              if (selected || !device.status) return tile;
 
-            final tile = DeviceSelectorTile(
-              device: device,
-              selected: selected,
-            );
-            if (selected || !device.status) return tile;
+              final isBlocked =
+                  view.currentLayout.type == DesktopLayoutType.singleView &&
+                  view.currentLayout.devices.isNotEmpty;
 
-            final isBlocked =
-                view.currentLayout.type == DesktopLayoutType.singleView &&
-                    view.currentLayout.devices.isNotEmpty;
-
-            return Draggable<Device>(
-              data: device,
-              feedback: Card(
-                child: SizedBox(
-                  height: kDeviceSelectorTileHeight,
-                  width: kSidebarConstraints.maxWidth,
-                  child: Row(children: [
-                    Expanded(child: tile),
-                    if (isBlocked)
-                      Icon(
-                        Icons.block,
-                        color: theme.colorScheme.error,
-                        size: 18.0,
-                      ),
-                    const SizedBox(width: 16.0),
-                  ]),
+              return Draggable<Device>(
+                data: device,
+                feedback: Card(
+                  child: SizedBox(
+                    height: kDeviceSelectorTileHeight,
+                    width: kSidebarConstraints.maxWidth,
+                    child: Row(
+                      children: [
+                        Expanded(child: tile),
+                        if (isBlocked)
+                          Icon(
+                            Icons.block,
+                            color: theme.colorScheme.error,
+                            size: 18.0,
+                          ),
+                        const SizedBox(width: 16.0),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              child: tile,
-            );
-          },
-        ),
-    ]);
+                child: tile,
+              );
+            },
+          ),
+      ],
+    );
   }
 }
 
@@ -367,15 +377,16 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
         _currentLongPressDeviceKind = null;
       },
       child: InkWell(
-        onTap: !widget.device.status || !widget.selectable
-            ? null
-            : () {
-                if (widget.selected) {
-                  view.remove(widget.device);
-                } else {
-                  view.add(widget.device);
-                }
-              },
+        onTap:
+            !widget.device.status || !widget.selectable
+                ? null
+                : () {
+                  if (widget.selected) {
+                    view.remove(widget.device);
+                  } else {
+                    view.add(widget.device);
+                  }
+                },
         child: MouseRegion(
           onEnter: (_) {
             if (mounted) setState(() => hovering = true);
@@ -387,60 +398,69 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
             if (mounted) setState(() => hovering = false);
           },
           child: SizedBox(
-            height: widget.device.status
-                ? kDeviceSelectorTileHeight
-                : kDeviceSelectorTileHeight / 1.5,
-            child: Row(children: [
-              Container(
-                margin: const EdgeInsetsDirectional.only(
-                  start: 16.0 + 20.0,
-                  end: 8.0,
-                ),
-                width: 12.0,
-                alignment: AlignmentDirectional.centerStart,
-                child: Container(
-                  height: 6.0,
-                  width: 6.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.device.status
-                        ? theme.extension<UnityColors>()!.successColor
-                        : theme.colorScheme.error,
+            height:
+                widget.device.status
+                    ? kDeviceSelectorTileHeight
+                    : kDeviceSelectorTileHeight / 1.5,
+            child: Row(
+              children: [
+                Container(
+                  margin: const EdgeInsetsDirectional.only(
+                    start: 16.0 + 20.0,
+                    end: 8.0,
+                  ),
+                  width: 12.0,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Container(
+                    height: 6.0,
+                    width: 6.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color:
+                          widget.device.status
+                              ? theme.extension<UnityColors>()!.successColor
+                              : theme.colorScheme.error,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: AutoSizeText(
-                  widget.device.name.uppercaseFirst,
-                  maxLines: 1,
-                  style: theme.textTheme.titleMedium!.copyWith(
-                    color: widget.selected
-                        ? theme.colorScheme.primary
-                        : !widget.device.status
-                            ? theme.disabledColor
-                            : null,
-                    decoration: !widget.device.status
-                        ? TextDecoration.lineThrough
-                        : null,
+                Expanded(
+                  child: AutoSizeText(
+                    widget.device.name.uppercaseFirst,
+                    maxLines: 1,
+                    style: theme.textTheme.titleMedium!.copyWith(
+                      color:
+                          widget.selected
+                              ? theme.colorScheme.primary
+                              : !widget.device.status
+                              ? theme.disabledColor
+                              : null,
+                      decoration:
+                          !widget.device.status
+                              ? TextDecoration.lineThrough
+                              : null,
+                    ),
                   ),
                 ),
-              ),
-              if (isMobile || hovering)
-                Tooltip(
-                  message: widget.device.status
-                      ? loc.cameraOptions
-                      : loc.viewDeviceDetails,
-                  preferBelow: false,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(4.0),
-                    onTap: widget.device.status
-                        ? () => _displayOptions(context)
-                        : () => showDeviceInfoDialog(context, widget.device),
-                    child: Icon(moreIconData, size: 20.0),
+                if (isMobile || hovering)
+                  Tooltip(
+                    message:
+                        widget.device.status
+                            ? loc.cameraOptions
+                            : loc.viewDeviceDetails,
+                    preferBelow: false,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(4.0),
+                      onTap:
+                          widget.device.status
+                              ? () => _displayOptions(context)
+                              : () =>
+                                  showDeviceInfoDialog(context, widget.device),
+                      child: Icon(moreIconData, size: 20.0),
+                    ),
                   ),
-                ),
-              const SizedBox(width: 16.0),
-            ]),
+                const SizedBox(width: 16.0),
+              ],
+            ),
           ),
         ),
       ),
@@ -460,10 +480,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
     const padding = EdgeInsets.symmetric(horizontal: 16.0);
 
     final renderBox = context.findRenderObject() as RenderBox;
-    final offset = renderBox.localToGlobal(Offset(
-      padding.left,
-      padding.top,
-    ));
+    final offset = renderBox.localToGlobal(Offset(padding.left, padding.top));
     final size = Size(
       renderBox.size.width - padding.right * 2,
       renderBox.size.height - padding.bottom,
@@ -482,8 +499,9 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
       items: <PopupMenuEntry>[
         PopupMenuLabel(
           label: Padding(
-            padding: padding
-                .add(const EdgeInsetsDirectional.symmetric(vertical: 6.0)),
+            padding: padding.add(
+              const EdgeInsetsDirectional.symmetric(vertical: 6.0),
+            ),
             child: Text(
               widget.device.name,
               maxLines: 1,
@@ -494,9 +512,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
         const PopupMenuDivider(),
         if (widget.selectable)
           PopupMenuItem(
-            child: Text(
-              widget.selected ? loc.removeFromView : loc.addToView,
-            ),
+            child: Text(widget.selected ? loc.removeFromView : loc.addToView),
             onTap: () {
               if (widget.selected) {
                 view.remove(widget.device);
@@ -519,10 +535,7 @@ class _DeviceSelectorTileState extends State<DeviceSelectorTile> {
 
                 await Navigator.of(context).pushNamed(
                   '/fullscreen',
-                  arguments: {
-                    'device': widget.device,
-                    'player': player,
-                  },
+                  arguments: {'device': widget.device, 'player': player},
                 );
                 if (isLocalController) await player.dispose();
               });
@@ -568,42 +581,46 @@ class CollapsedSidebar extends StatelessWidget {
       child: SafeArea(
         top: false,
         right: false,
-        child: Column(children: [
-          collapseButton,
-          SquaredIconButton(
-            icon: const Icon(
-              // view.currentLayout.type.icon,
-              Icons.next_plan_outlined,
-              size: 20.0,
+        child: Column(
+          children: [
+            collapseButton,
+            SquaredIconButton(
+              icon: const Icon(
+                // view.currentLayout.type.icon,
+                Icons.next_plan_outlined,
+                size: 20.0,
+              ),
+              tooltip: loc.switchToNext,
+              onPressed:
+                  view.layouts.length > 1 ? view.switchToNextLayout : null,
             ),
-            tooltip: loc.switchToNext,
-            onPressed: view.layouts.length > 1 ? view.switchToNextLayout : null,
-          ),
-          SquaredIconButton(
-            icon: Icon(
-              Icons.cyclone,
-              size: 20.0,
-              color: settings.kLayoutCycleEnabled.value
-                  ? theme.colorScheme.primary
-                  : IconTheme.of(context).color,
+            SquaredIconButton(
+              icon: Icon(
+                Icons.cyclone,
+                size: 20.0,
+                color:
+                    settings.kLayoutCycleEnabled.value
+                        ? theme.colorScheme.primary
+                        : IconTheme.of(context).color,
+              ),
+              tooltip: loc.cycle,
+              onPressed: settings.toggleCycling,
             ),
-            tooltip: loc.cycle,
-            onPressed: settings.toggleCycling,
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsetsDirectional.all(8.0),
-            margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.colorScheme.primaryContainer,
+            const Spacer(),
+            Container(
+              padding: const EdgeInsetsDirectional.all(8.0),
+              margin: const EdgeInsetsDirectional.only(bottom: 8.0, top: 4.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: theme.colorScheme.primaryContainer,
+              ),
+              child: Text(
+                '${view.currentLayout.devices.length}',
+                style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+              ),
             ),
-            child: Text(
-              '${view.currentLayout.devices.length}',
-              style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-            ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

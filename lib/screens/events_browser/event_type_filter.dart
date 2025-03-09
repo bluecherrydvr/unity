@@ -48,23 +48,21 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
         loc.eventType,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      trailing: AutoSizeText(
-        () {
-          final type = eventsProvider.eventTypeFilter;
-          // For some reason I can not use a switch here
-          if (type == EventType.motion.index) {
-            return loc.motion;
-          } else if (type == EventType.continuous.index) {
-            return loc.continuous;
-          } else {
-            return 'All';
-          }
-        }(),
-        maxLines: 1,
-      ),
+      trailing: AutoSizeText(() {
+        final type = eventsProvider.eventTypeFilter;
+        // For some reason I can not use a switch here
+        if (type == EventType.motion.index) {
+          return loc.motion;
+        } else if (type == EventType.continuous.index) {
+          return loc.continuous;
+        } else {
+          return 'All';
+        }
+      }(), maxLines: 1),
       onTap: () async {
-        final box = _eventTypeFilterTileKey.currentContext!.findRenderObject()
-            as RenderBox;
+        final box =
+            _eventTypeFilterTileKey.currentContext!.findRenderObject()
+                as RenderBox;
 
         showMenu(
           context: context,
@@ -95,10 +93,7 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
               ),
             ),
             const PopupMenuDivider(),
-            _buildMenuItem(
-              value: -1,
-              child: const Text('All'),
-            ),
+            _buildMenuItem(value: -1, child: const Text('All')),
             _buildMenuItem(
               value: EventType.motion.index,
               child: Text(loc.motion),
@@ -125,10 +120,7 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
       onTap: () {
         eventsProvider.eventTypeFilter = value;
       },
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: child,
-      ),
+      child: Align(alignment: AlignmentDirectional.centerEnd, child: child),
     );
   }
 }

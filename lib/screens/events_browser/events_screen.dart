@@ -62,17 +62,15 @@ class EventsScreen extends StatefulWidget {
 
 class EventsScreenState<T extends StatefulWidget> extends State<T> {
   /// Fetches the events from the servers.
-  Future<void> fetch({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
-    final home = context.read<HomeProvider>()
-      ..loading(UnityLoadingReason.fetchingEventsHistory);
+  Future<void> fetch({DateTime? startDate, DateTime? endDate}) async {
+    final home =
+        context.read<HomeProvider>()
+          ..loading(UnityLoadingReason.fetchingEventsHistory);
 
     await context.read<EventsProvider>().loadEvents(
-          startDate: startDate,
-          endDate: endDate,
-        );
+      startDate: startDate,
+      endDate: endDate,
+    );
 
     home.notLoading(UnityLoadingReason.fetchingEventsHistory);
   }
@@ -86,41 +84,46 @@ class EventsScreenState<T extends StatefulWidget> extends State<T> {
     final eventsProvider = context.watch<EventsProvider>();
     final hasDrawer = Scaffold.hasDrawer(context);
 
-    return LayoutBuilder(builder: (context, consts) {
-      final events =
-          (eventsProvider.loadedEvents?.filteredEvents ?? List.empty())
-              .where((event) {
-        final typeFilter = eventsProvider.eventTypeFilter;
-        if (typeFilter == -1) return true;
-        return event.type.index == typeFilter;
-      });
-      if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
-        return EventsScreenMobile(
-          events: events,
-          loadedServers:
-              eventsProvider.loadedEvents?.events.keys ?? List.empty(),
-          refresh: fetch,
-          invalid:
-              eventsProvider.loadedEvents?.invalidResponses ?? List.empty(),
-        );
-      }
+    return LayoutBuilder(
+      builder: (context, consts) {
+        final events = (eventsProvider.loadedEvents?.filteredEvents ??
+                List.empty())
+            .where((event) {
+              final typeFilter = eventsProvider.eventTypeFilter;
+              if (typeFilter == -1) return true;
+              return event.type.index == typeFilter;
+            });
+        if (hasDrawer || consts.maxWidth < kMobileBreakpoint.width) {
+          return EventsScreenMobile(
+            events: events,
+            loadedServers:
+                eventsProvider.loadedEvents?.events.keys ?? List.empty(),
+            refresh: fetch,
+            invalid:
+                eventsProvider.loadedEvents?.invalidResponses ?? List.empty(),
+          );
+        }
 
-      return Material(
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          EventsScreenSidebar(fetch: fetch),
-          Expanded(
-            child: Card(
-              margin: EdgeInsets.zero,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadiusDirectional.only(
-                  topStart: Radius.circular(12.0),
+        return Material(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              EventsScreenSidebar(fetch: fetch),
+              Expanded(
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadiusDirectional.only(
+                      topStart: Radius.circular(12.0),
+                    ),
+                  ),
+                  child: EventsScreenDesktop(events: events),
                 ),
               ),
-              child: EventsScreenDesktop(events: events),
-            ),
+            ],
           ),
-        ]),
-      );
-    });
+        );
+      },
+    );
   }
 }

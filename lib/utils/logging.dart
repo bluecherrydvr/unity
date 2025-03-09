@@ -63,7 +63,8 @@ Future<void> writeErrorToFile(
   if (kIsWeb) return;
 
   final time = DateTime.now().toIso8601String();
-  final errorLog = '\n[$time]$context'
+  final errorLog =
+      '\n[$time]$context'
       '\n[$time]Error: $error\n'
       '[$time]Stack trace: $stackTrace';
 
@@ -99,20 +100,15 @@ Future<File> getLogFileForStream(String streamUrl) async {
   if (streamUri == null || streamUri.host.isEmpty) {
     fileName = streamUrl;
   } else {
-    fileName = ''
+    fileName =
+        ''
         '${streamUri.host}-'
         '${streamUri.port}'
         '${streamUri.path.replaceAll('/', '-')}';
   }
   fileName = fileName.trim();
 
-  final file = File(
-    path.join(
-      dir.path,
-      'logs',
-      '$fileName.txt',
-    ),
-  );
+  final file = File(path.join(dir.path, 'logs', '$fileName.txt'));
 
   if (!(await file.exists())) {
     await file.create(recursive: true);

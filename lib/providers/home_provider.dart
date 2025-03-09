@@ -178,9 +178,10 @@ class HomeProvider extends ChangeNotifier {
   static final _instance = HomeProvider();
   static HomeProvider get instance => _instance;
 
-  UnityTab tab = ServersProvider.instance.hasServers
-      ? UnityTab.deviceGrid
-      : UnityTab.addServer;
+  UnityTab tab =
+      ServersProvider.instance.hasServers
+          ? UnityTab.deviceGrid
+          : UnityTab.addServer;
 
   List<UnityLoadingReason> loadReasons = [];
 
@@ -209,9 +210,12 @@ class HomeProvider extends ChangeNotifier {
       // hear the live feed anymore.
 
       final devices = LayoutsProvider.instance.allDevices;
-      final players = UnityPlayers.players.entries
-          .where((entry) => devices.any((device) => device.uuid == entry.key))
-          .toList();
+      final players =
+          UnityPlayers.players.entries
+              .where(
+                (entry) => devices.any((device) => device.uuid == entry.key),
+              )
+              .toList();
 
       for (final player in players) {
         volumes[player.key] = player.value.volume;

@@ -56,8 +56,8 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
     final settings = context.watch<SettingsProvider>();
 
     final isLoading = context.watch<HomeProvider>().isLoadingFor(
-          UnityLoadingReason.fetchingEventsHistory,
-        );
+      UnityLoadingReason.fetchingEventsHistory,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -82,8 +82,9 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
       ),
       body: () {
         if (widget.events.isEmpty) {
-          final isLoading = HomeProvider.instance
-              .isLoadingFor(UnityLoadingReason.fetchingEventsHistory);
+          final isLoading = HomeProvider.instance.isLoadingFor(
+            UnityLoadingReason.fetchingEventsHistory,
+          );
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -104,10 +105,12 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
         }
 
         final serversList = servers.servers.sorted((a, b) {
-          final aEvents =
-              widget.events.where((event) => event.server.id == a.id);
-          final bEvents =
-              widget.events.where((event) => event.server.id == b.id);
+          final aEvents = widget.events.where(
+            (event) => event.server.id == a.id,
+          );
+          final bEvents = widget.events.where(
+            (event) => event.server.id == b.id,
+          );
 
           final aOnline = a.online && aEvents.isNotEmpty;
           final bOnline = b.online && bEvents.isNotEmpty;
@@ -126,8 +129,9 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
               itemCount: serversList.length,
               itemBuilder: (context, index) {
                 final server = serversList[index];
-                final serverEvents = widget.events
-                    .where((event) => event.server.id == server.id);
+                final serverEvents = widget.events.where(
+                  (event) => event.server.id == server.id,
+                );
                 final hasEvents = serverEvents.isNotEmpty;
 
                 return ListTile(
@@ -135,24 +139,23 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
                     server.name,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text(
-                    () {
-                      if (!settings.checkServerCertificates(server)) {
-                        return loc.certificateNotPassed;
-                      } else if (server.online) {
-                        return loc.nEvents(serverEvents.length);
-                      } else {
-                        return loc.offline;
-                      }
-                    }(),
-                  ),
-                  trailing: !server.online
-                      ? Icon(
-                          Icons.domain_disabled_outlined,
-                          color: theme.colorScheme.error,
-                          size: 20.0,
-                        )
-                      : hasEvents
+                  subtitle: Text(() {
+                    if (!settings.checkServerCertificates(server)) {
+                      return loc.certificateNotPassed;
+                    } else if (server.online) {
+                      return loc.nEvents(serverEvents.length);
+                    } else {
+                      return loc.offline;
+                    }
+                  }()),
+                  trailing:
+                      !server.online
+                          ? Icon(
+                            Icons.domain_disabled_outlined,
+                            color: theme.colorScheme.error,
+                            size: 20.0,
+                          )
+                          : hasEvents
                           ? const Icon(Icons.navigate_next, size: 20.0)
                           : null,
                   enabled: server.online && hasEvents,
@@ -191,9 +194,11 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
               controller: controller,
               child: MobileFilterSheet(
                 onChanged: () => hasChanged = true,
-                timeFilterTile: EventsDateTimeFilter(onSelect: () {
-                  hasChanged = true;
-                }),
+                timeFilterTile: EventsDateTimeFilter(
+                  onSelect: () {
+                    hasChanged = true;
+                  },
+                ),
               ),
             );
           },
@@ -222,43 +227,45 @@ class _EventsScreenMobileState extends State<EventsScreenMobile> {
               itemBuilder: (context, index) {
                 final event = events.elementAt(index);
                 return ListTile(
-                  title: Row(children: [
-                    Flexible(
-                      child: Text(
-                        event.deviceName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                  title: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          event.deviceName,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    Text(
-                      ' (${event.type.locale(context)})',
-                      style: const TextStyle(fontSize: 10.0),
-                    ),
-                  ]),
+                      Text(
+                        ' (${event.type.locale(context)})',
+                        style: const TextStyle(fontSize: 10.0),
+                      ),
+                    ],
+                  ),
                   dense: true,
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
-                        const Icon(Icons.event, size: 16.0),
-                        const SizedBox(width: 6.0),
-                        Expanded(
-                          child: Text(
-                            '${settings.formatDate(event.updated)}'
-                            ' • ${settings.formatTime(event.updated).toUpperCase()}',
+                      Row(
+                        children: [
+                          const Icon(Icons.event, size: 16.0),
+                          const SizedBox(width: 6.0),
+                          Expanded(
+                            child: Text(
+                              '${settings.formatDate(event.updated)}'
+                              ' • ${settings.formatTime(event.updated).toUpperCase()}',
+                            ),
                           ),
-                        ),
-                      ]),
-                      Row(children: [
-                        const Icon(Icons.timelapse, size: 16.0),
-                        const SizedBox(width: 6.0),
-                        Expanded(
-                          child: Text(
-                            event.duration.humanReadable(context),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Icons.timelapse, size: 16.0),
+                          const SizedBox(width: 6.0),
+                          Expanded(
+                            child: Text(event.duration.humanReadable(context)),
                           ),
-                        ),
-                      ]),
+                        ],
+                      ),
                     ],
                   ),
                   trailing: const Icon(Icons.navigate_next, size: 20.0),

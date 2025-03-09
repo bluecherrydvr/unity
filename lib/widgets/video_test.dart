@@ -47,9 +47,7 @@ class _VideoTestState extends State<VideoTest> {
   @override
   void initState() {
     super.initState();
-    device.server = device.server.copyWith(
-      name: 'By Blender Foundation',
-    );
+    device.server = device.server.copyWith(name: 'By Blender Foundation');
   }
 
   @override
@@ -65,30 +63,32 @@ class _VideoTestState extends State<VideoTest> {
       initialChildSize: 0.95,
       maxChildSize: 0.95,
       builder: (context, controller) {
-        return ListView(children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: UnityVideoView(
-              player: testVideoPlayer,
-              paneBuilder: (context, player) {
-                return DesktopTileViewport(
-                  controller: player,
-                  device: device,
-                  showDebugInfo: true,
-                  onFitChanged: (_) {},
-                );
-              },
+        return ListView(
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: UnityVideoView(
+                player: testVideoPlayer,
+                paneBuilder: (context, player) {
+                  return DesktopTileViewport(
+                    controller: player,
+                    device: device,
+                    showDebugInfo: true,
+                    onFitChanged: (_) {},
+                  );
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: VideoInfoCard(
-              player: testVideoPlayer,
-              uuid: device.uuid,
-              title: '${device.name} (${device.server.name})',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: VideoInfoCard(
+                player: testVideoPlayer,
+                uuid: device.uuid,
+                title: '${device.name} (${device.server.name})',
+              ),
             ),
-          ),
-        ]);
+          ],
+        );
       },
     );
   }
@@ -112,52 +112,49 @@ class VideoInfoCard extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     Widget buildCardProp(String title, String value) {
-      return Row(children: [
-        Text('$title:', style: theme.textTheme.labelMedium),
-        const SizedBox(width: 4.0),
-        Text(value, style: theme.textTheme.bodySmall),
-      ]);
+      return Row(
+        children: [
+          Text('$title:', style: theme.textTheme.labelMedium),
+          const SizedBox(width: 4.0),
+          Text(value, style: theme.textTheme.bodySmall),
+        ],
+      );
     }
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: ListenableBuilder(
         listenable: player,
-        child: Row(children: [
-          Expanded(
-            child: AutoSizeText(
-              title ?? player.title,
-              style: theme.textTheme.titleMedium,
-              maxLines: 1,
+        child: Row(
+          children: [
+            Expanded(
+              child: AutoSizeText(
+                title ?? player.title,
+                style: theme.textTheme.titleMedium,
+                maxLines: 1,
+              ),
             ),
-          ),
-          SquaredIconButton(
-            icon: Icon(
-              Icons.close,
-              color: theme.colorScheme.error,
+            SquaredIconButton(
+              icon: Icon(Icons.close, color: theme.colorScheme.error),
+              tooltip: loc.removePlayer,
+              onPressed: () {
+                final view = context.read<LayoutsProvider>();
+                final device = view.layouts
+                    .map<List<Device>>((l) => l.devices)
+                    .reduce((a, b) => a + b)
+                    .firstWhereOrNull((d) => d.uuid == uuid);
+                if (device != null) view.removeDevices([device]);
+              },
             ),
-            tooltip: loc.removePlayer,
-            onPressed: () {
-              final view = context.read<LayoutsProvider>();
-              final device = view.layouts
-                  .map<List<Device>>((l) => l.devices)
-                  .reduce((a, b) => a + b)
-                  .firstWhereOrNull((d) => d.uuid == uuid);
-              if (device != null) view.removeDevices([device]);
-            },
-          ),
-        ]),
+          ],
+        ),
         builder: (context, title) {
           return ListView(
             padding: const EdgeInsets.all(12.0),
             shrinkWrap: true,
             children: [
               title!,
-              AutoSizeText(
-                uuid,
-                style: theme.textTheme.bodySmall,
-                maxLines: 1,
-              ),
+              AutoSizeText(uuid, style: theme.textTheme.bodySmall, maxLines: 1),
               const Divider(),
               buildCardProp('Position', player.currentPos.toString()),
               buildCardProp('Duration', player.duration.toString()),

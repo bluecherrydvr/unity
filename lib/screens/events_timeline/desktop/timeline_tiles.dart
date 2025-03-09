@@ -131,9 +131,7 @@ class _TimelineTilesState extends State<TimelineTiles> {
     final y = min(dy, _initialSelectionPoint.dy);
     final width = max(dx, _initialSelectionPoint.dx) - x;
     final height = max(dy, _initialSelectionPoint.dy) - y;
-    setState(
-      () => _selectedArea = Rect.fromLTWH(x, y, width, height),
-    );
+    setState(() => _selectedArea = Rect.fromLTWH(x, y, width, height));
   }
 
   @override
@@ -157,230 +155,249 @@ class _TimelineTilesState extends State<TimelineTiles> {
     return false;
   }
 
-  double get zoomOffset => timeline.zoomController.hasClients
-      ? timeline.zoomController.positions.last.pixels
-      : 0.0;
+  double get zoomOffset =>
+      timeline.zoomController.hasClients
+          ? timeline.zoomController.positions.last.pixels
+          : 0.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxHeight < kTimelineTileHeight / 1.9) {
-        return const SizedBox.shrink();
-      }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxHeight < kTimelineTileHeight / 1.9) {
+          return const SizedBox.shrink();
+        }
 
-      final tileWidth =
-          (constraints.maxWidth - kDeviceNameWidth) * timeline.zoom;
-      final hourWidth = tileWidth / 24;
-      final secondsWidth = tileWidth / secondsInADay;
+        final tileWidth =
+            (constraints.maxWidth - kDeviceNameWidth) * timeline.zoom;
+        final hourWidth = tileWidth / 24;
+        final secondsWidth = tileWidth / secondsInADay;
 
-      final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+        final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
 
-      if (timeline.zoomController.hasClients) {
-        for (final controller in controllers.values) {
-          if (controller.hasClients) {
-            controller.jumpTo(timeline.zoomController.offset);
+        if (timeline.zoomController.hasClients) {
+          for (final controller in controllers.values) {
+            if (controller.hasClients) {
+              controller.jumpTo(timeline.zoomController.offset);
+            }
           }
         }
-      }
 
-      return RepaintBoundary(
-        child: Stack(
-          fit: StackFit.passthrough,
-          alignment: AlignmentDirectional.bottomCenter,
-          children: [
-            Column(mainAxisSize: MainAxisSize.min, children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: timeline.zoomController,
-                padding: const EdgeInsetsDirectional.only(
-                  start: kDeviceNameWidth,
-                ),
-                physics: const NeverScrollableScrollPhysics(),
-                child: _TimelineHours(hourWidth: hourWidth),
+        return RepaintBoundary(
+          child: Stack(
+            fit: StackFit.passthrough,
+            alignment: AlignmentDirectional.bottomCenter,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: timeline.zoomController,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: kDeviceNameWidth,
+                    ),
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: _TimelineHours(hourWidth: hourWidth),
+                  ),
+                  Flexible(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanDown:
+                          isShiftPressed
+                              ? (details) {
+                                if (HardwareKeyboard.instance.isShiftPressed) {
+                                  _isSelecting = true;
+                                  _initialSelectionPoint =
+                                      details.localPosition;
+                                }
+                              }
+                              : null,
+                      onPanUpdate:
+                          isShiftPressed || _isSelecting
+                              ? (details) {
+                                if (_isSelecting) {
+                                  selectArea(details.globalPosition);
+                                }
+                              }
+                              : null,
+                      onPanEnd:
+                          isShiftPressed || _isSelecting
+                              ? (details) {
+                                _isSelecting = false;
+                                updateSelection();
+                              }
+                              : null,
+                      child: EnforceScrollbarScroll(
+                        controller: verticalScrollController,
+                        onPointerSignal: _receivedPointerSignal,
+                        child: ReorderableListView.builder(
+                          key: reorderableViewKey,
+                          scrollController: verticalScrollController,
+                          itemCount: timeline.tiles.length,
+                          buildDefaultDragHandles: false,
+                          onReorder: (oldIndex, newIndex) {
+                            setState(() {
+                              if (oldIndex < newIndex) {
+                                newIndex -= 1;
+                              }
+                              final item = timeline.tiles.removeAt(oldIndex);
+                              timeline.tiles.insert(newIndex, item);
+                              timeline.notify();
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            final tile = timeline.tiles[index];
+
+                            return Row(
+                              key: ValueKey(tile.device.uuid),
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                SizedBox(
+                                  width: kDeviceNameWidth,
+                                  child: ReorderableDragStartListener(
+                                    index: index,
+                                    child: _TimelineTile.name(tile: tile),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTapUp: (details) {
+                                      if (isShiftPressed) {
+                                        selectArea(details.globalPosition);
+                                        if (_selectedArea != null) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback(
+                                                (_) => updateSelection(),
+                                              );
+                                          return;
+                                        }
+                                      }
+                                      if (_selectedArea != null) {
+                                        clearSelection();
+                                      } else {
+                                        _onMove(
+                                          details.localPosition,
+                                          constraints,
+                                          tileWidth,
+                                        );
+                                      }
+                                    },
+                                    onHorizontalDragUpdate:
+                                        isShiftPressed || _isSelecting
+                                            ? null
+                                            : (details) {
+                                              if (_selectedArea != null) {
+                                                clearSelection();
+                                              } else {
+                                                _onMove(
+                                                  details.localPosition,
+                                                  constraints,
+                                                  tileWidth,
+                                                );
+                                              }
+                                            },
+                                    child: Builder(
+                                      builder: (context) {
+                                        return ScrollConfiguration(
+                                          behavior: ScrollConfiguration.of(
+                                            context,
+                                          ).copyWith(
+                                            physics:
+                                                const AlwaysScrollableScrollPhysics(),
+                                            scrollbars: false,
+                                          ),
+                                          child: SingleChildScrollView(
+                                            controller: controllerForTile(
+                                              keyForTile(tile),
+                                            ),
+                                            scrollDirection: Axis.horizontal,
+                                            child: SizedBox(
+                                              width: tileWidth,
+                                              child: _TimelineTile(
+                                                key: keyForTile(tile),
+                                                tile: tile,
+                                                selectedEvents:
+                                                    selectedEvents(),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Flexible(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanDown: isShiftPressed
-                      ? (details) {
-                          if (HardwareKeyboard.instance.isShiftPressed) {
-                            _isSelecting = true;
-                            _initialSelectionPoint = details.localPosition;
-                          }
-                        }
-                      : null,
-                  onPanUpdate: isShiftPressed || _isSelecting
-                      ? (details) {
-                          if (_isSelecting) selectArea(details.globalPosition);
-                        }
-                      : null,
-                  onPanEnd: isShiftPressed || _isSelecting
-                      ? (details) {
-                          _isSelecting = false;
-                          updateSelection();
-                        }
-                      : null,
-                  child: EnforceScrollbarScroll(
-                    controller: verticalScrollController,
-                    onPointerSignal: _receivedPointerSignal,
-                    child: ReorderableListView.builder(
-                      key: reorderableViewKey,
-                      scrollController: verticalScrollController,
-                      itemCount: timeline.tiles.length,
-                      buildDefaultDragHandles: false,
-                      onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (oldIndex < newIndex) {
-                            newIndex -= 1;
-                          }
-                          final item = timeline.tiles.removeAt(oldIndex);
-                          timeline.tiles.insert(newIndex, item);
-                          timeline.notify();
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final tile = timeline.tiles[index];
+              if (timeline.zoomController.hasClients)
+                Builder(
+                  builder: (context) {
+                    final left =
+                        (timeline.currentPosition.inSeconds * secondsWidth) -
+                        zoomOffset -
+                        ( /* the width of half of the triangle */ 8 / 2);
+                    if (left < -8.0) return const SizedBox.shrink();
 
-                        return Row(
-                          key: ValueKey(tile.device.uuid),
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                    final pointerColor = switch (theme.brightness) {
+                      Brightness.light => theme.colorScheme.onSurface,
+                      Brightness.dark => theme.colorScheme.onSurface,
+                    };
+
+                    return Positioned(
+                      key: timeline.indicatorKey,
+                      left: kDeviceNameWidth + left,
+                      width: 8,
+                      top: 12.0,
+                      bottom: 0.0,
+                      child: IgnorePointer(
+                        child: Column(
                           children: [
-                            SizedBox(
-                              width: kDeviceNameWidth,
-                              child: ReorderableDragStartListener(
-                                index: index,
-                                child: _TimelineTile.name(tile: tile),
+                            ClipPath(
+                              clipper: InvertedTriangleClipper(),
+                              child: Container(
+                                width: 8,
+                                height: 4,
+                                color: pointerColor,
                               ),
                             ),
                             Expanded(
-                              child: GestureDetector(
-                                onTapUp: (details) {
-                                  if (isShiftPressed) {
-                                    selectArea(details.globalPosition);
-                                    if (_selectedArea != null) {
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback(
-                                        (_) => updateSelection(),
-                                      );
-                                      return;
-                                    }
-                                  }
-                                  if (_selectedArea != null) {
-                                    clearSelection();
-                                  } else {
-                                    _onMove(
-                                      details.localPosition,
-                                      constraints,
-                                      tileWidth,
-                                    );
-                                  }
-                                },
-                                onHorizontalDragUpdate:
-                                    isShiftPressed || _isSelecting
-                                        ? null
-                                        : (details) {
-                                            if (_selectedArea != null) {
-                                              clearSelection();
-                                            } else {
-                                              _onMove(
-                                                details.localPosition,
-                                                constraints,
-                                                tileWidth,
-                                              );
-                                            }
-                                          },
-                                child: Builder(builder: (context) {
-                                  return ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      scrollbars: false,
-                                    ),
-                                    child: SingleChildScrollView(
-                                      controller: controllerForTile(
-                                        keyForTile(tile),
-                                      ),
-                                      scrollDirection: Axis.horizontal,
-                                      child: SizedBox(
-                                        width: tileWidth,
-                                        child: _TimelineTile(
-                                          key: keyForTile(tile),
-                                          tile: tile,
-                                          selectedEvents: selectedEvents(),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
+                              child: Container(width: 1.8, color: pointerColor),
                             ),
                           ],
-                        );
-                      },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              if (_selectedArea != null)
+                Positioned.fromRect(
+                  key: selectionAreaKey,
+                  rect: Rect.fromLTWH(
+                    _selectedArea!.left,
+                    _selectedArea!.top + kTimelineHoursHeight,
+                    _selectedArea!.width,
+                    _selectedArea!.height,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: theme.colorScheme.primary),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
-              ),
-            ]),
-            if (timeline.zoomController.hasClients)
-              Builder(builder: (context) {
-                final left =
-                    (timeline.currentPosition.inSeconds * secondsWidth) -
-                        zoomOffset -
-                        (/* the width of half of the triangle */
-                            8 / 2);
-                if (left < -8.0) return const SizedBox.shrink();
-
-                final pointerColor = switch (theme.brightness) {
-                  Brightness.light => theme.colorScheme.onSurface,
-                  Brightness.dark => theme.colorScheme.onSurface,
-                };
-
-                return Positioned(
-                  key: timeline.indicatorKey,
-                  left: kDeviceNameWidth + left,
-                  width: 8,
-                  top: 12.0,
-                  bottom: 0.0,
-                  child: IgnorePointer(
-                    child: Column(children: [
-                      ClipPath(
-                        clipper: InvertedTriangleClipper(),
-                        child: Container(
-                          width: 8,
-                          height: 4,
-                          color: pointerColor,
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(width: 1.8, color: pointerColor),
-                      ),
-                    ]),
-                  ),
-                );
-              }),
-            if (_selectedArea != null)
-              Positioned.fromRect(
-                key: selectionAreaKey,
-                rect: Rect.fromLTWH(
-                  _selectedArea!.left,
-                  _selectedArea!.top + kTimelineHoursHeight,
-                  _selectedArea!.width,
-                  _selectedArea!.height,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.primary),
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-    });
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // Handle mousewheel and web trackpad scroll events.
@@ -451,51 +468,55 @@ class _TimelineTile extends StatefulWidget {
   });
 
   static Widget name({required TimelineTile tile}) {
-    return Builder(builder: (context) {
-      final theme = Theme.of(context);
-      final border = Border(
-        right: BorderSide(color: theme.disabledColor.withValues(alpha: 0.5)),
-        top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
-      );
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final border = Border(
+          right: BorderSide(color: theme.disabledColor.withValues(alpha: 0.5)),
+          top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
+        );
 
-      return
-          // Tooltip(
-          //   message:
-          //       '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
-          //   preferBelow: false,
-          //   textStyle: theme.textTheme.labelMedium?.copyWith(
-          //     color: theme.colorScheme.onInverseSurface,
-          //   ),
-          // child:
-          Container(
-        width: kDeviceNameWidth,
-        height: kTimelineTileHeight,
-        padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
-        decoration: BoxDecoration(
-          color: theme.dialogTheme.backgroundColor,
-          border: border,
-        ),
-        alignment: AlignmentDirectional.centerStart,
-        child: DefaultTextStyle(
-          style: theme.textTheme.labelMedium!,
-          child: Row(children: [
-            Flexible(
-              child: Text(
-                tile.device.name,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-              ),
+        return
+        // Tooltip(
+        //   message:
+        //       '${tile.device.server.name}/${tile.device.name} (${tile.events.length})',
+        //   preferBelow: false,
+        //   textStyle: theme.textTheme.labelMedium?.copyWith(
+        //     color: theme.colorScheme.onInverseSurface,
+        //   ),
+        // child:
+        Container(
+          width: kDeviceNameWidth,
+          height: kTimelineTileHeight,
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
+          decoration: BoxDecoration(
+            color: theme.dialogTheme.backgroundColor,
+            border: border,
+          ),
+          alignment: AlignmentDirectional.centerStart,
+          child: DefaultTextStyle(
+            style: theme.textTheme.labelMedium!,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    tile.device.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                  ),
+                ),
+                Text(
+                  ' (${tile.events.length})',
+                  style: const TextStyle(fontSize: 10),
+                ),
+              ],
             ),
-            Text(
-              ' (${tile.events.length})',
-              style: const TextStyle(fontSize: 10),
-            ),
-          ]),
-        ),
-      );
-      // ,
-      // );
-    });
+          ),
+        );
+        // ,
+        // );
+      },
+    );
   }
 
   @override
@@ -517,10 +538,8 @@ class _TimelineTileState extends State<_TimelineTile> {
     colors = Map.fromIterables(
       widget.tile.events.map((e) => e.event),
       widget.tile.events.mapIndexed((index, _) {
-        return [
-          ...Colors.primaries,
-          ...Colors.accents,
-        ][index % [...Colors.primaries, ...Colors.accents].length];
+        return [...Colors.primaries, ...Colors.accents][index %
+            [...Colors.primaries, ...Colors.accents].length];
       }),
     );
   }
@@ -535,67 +554,84 @@ class _TimelineTileState extends State<_TimelineTile> {
       top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
     );
 
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      ...List.generate(24, (index) {
-        final hour = index;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...List.generate(24, (index) {
+          final hour = index;
 
-        return Expanded(
-          child: Container(
-            height: kTimelineTileHeight,
-            decoration: BoxDecoration(border: border),
-            child: LayoutBuilder(builder: (context, constraints) {
-              if (!widget.tile.events
-                  .any((event) => event.startTime.hour == hour)) {
-                return const SizedBox.shrink();
-              }
+          return Expanded(
+            child: Container(
+              height: kTimelineTileHeight,
+              decoration: BoxDecoration(border: border),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (!widget.tile.events.any(
+                    (event) => event.startTime.hour == hour,
+                  )) {
+                    return const SizedBox.shrink();
+                  }
 
-              secondWidth = constraints.maxWidth / 60 / 60;
+                  secondWidth = constraints.maxWidth / 60 / 60;
 
-              return Stack(clipBehavior: Clip.none, children: [
-                for (final event in widget.tile.events
-                    .where((event) => event.startTime.hour == hour))
-                  PositionedDirectional(
-                    key: keyForTile(event),
-                    // the minute (in seconds) + the start second * the width of
-                    // a second
-                    start: ((event.startTime.minute * 60) +
-                            event.startTime.second) *
-                        secondWidth,
-                    width: event.duration.inSeconds * secondWidth,
-                    height: kTimelineTileHeight,
-                    child: ColoredBox(
-                      color: widget.selectedEvents.contains(event)
-                          ? theme.colorScheme.tertiary
-                          : settings.kShowDebugInfo.value ||
-                                  settings.kShowDifferentColorsForEvents.value
-                              ? colors[event.event] ?? theme.colorScheme.primary
-                              : switch (event.event.type) {
-                                  EventType.motion =>
-                                    theme.colorScheme.secondary,
-                                  _ => theme.colorScheme.primary,
-                                },
-                      // color: theme.colorScheme.primary,
-                      child: settings.kShowDebugInfo.value
-                          ? Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: Text(
-                                '${widget.tile.events.indexOf(event)}',
-                                style: TextStyle(
-                                  color: theme.colorScheme.onPrimary,
-                                  fontSize: 10.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-              ]);
-            }),
-          ),
-        );
-      }),
-    ]);
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (final event in widget.tile.events.where(
+                        (event) => event.startTime.hour == hour,
+                      ))
+                        PositionedDirectional(
+                          key: keyForTile(event),
+                          // the minute (in seconds) + the start second * the width of
+                          // a second
+                          start:
+                              ((event.startTime.minute * 60) +
+                                  event.startTime.second) *
+                              secondWidth,
+                          width: event.duration.inSeconds * secondWidth,
+                          height: kTimelineTileHeight,
+                          child: ColoredBox(
+                            color:
+                                widget.selectedEvents.contains(event)
+                                    ? theme.colorScheme.tertiary
+                                    : settings.kShowDebugInfo.value ||
+                                        settings
+                                            .kShowDifferentColorsForEvents
+                                            .value
+                                    ? colors[event.event] ??
+                                        theme.colorScheme.primary
+                                    : switch (event.event.type) {
+                                      EventType.motion =>
+                                        theme.colorScheme.secondary,
+                                      _ => theme.colorScheme.primary,
+                                    },
+                            // color: theme.colorScheme.primary,
+                            child:
+                                settings.kShowDebugInfo.value
+                                    ? Align(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: Text(
+                                        '${widget.tile.events.indexOf(event)}',
+                                        style: TextStyle(
+                                          color: theme.colorScheme.onPrimary,
+                                          fontSize: 10.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                    : null,
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        }),
+      ],
+    );
   }
 
   List<TimelineEvent> eventsInRect(Rect rect) {
@@ -625,54 +661,55 @@ class _TimelineHours extends StatelessWidget {
     final decWidth = hourWidth / 6;
     return SizedBox(
       height: kTimelineHoursHeight,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        ...List.generate(24, (index) {
-          final hour = index + 1;
-          final shouldDisplayHour = hour < 24;
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          ...List.generate(24, (index) {
+            final hour = index + 1;
+            final shouldDisplayHour = hour < 24;
 
-          final hourWidget = shouldDisplayHour
-              ? Transform.translate(
-                  offset: Offset(
-                    hour.toString().length * 4,
-                    0.0,
-                  ),
-                  child: Text(
-                    '$hour',
-                    style: theme.textTheme.labelMedium,
-                    textAlign: TextAlign.end,
-                  ),
-                )
-              : const SizedBox.shrink();
-
-          if (decWidth > 25.0) {
-            return SizedBox(
-              width: hourWidth,
-              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                ...List.generate(5, (index) {
-                  return SizedBox(
-                    width: decWidth,
-                    child: Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: Container(
-                        height: 6.5,
-                        width: 2,
-                        color: theme.colorScheme.onSurface,
+            final hourWidget =
+                shouldDisplayHour
+                    ? Transform.translate(
+                      offset: Offset(hour.toString().length * 4, 0.0),
+                      child: Text(
+                        '$hour',
+                        style: theme.textTheme.labelMedium,
+                        textAlign: TextAlign.end,
                       ),
-                    ),
-                  );
-                }),
-                const Spacer(),
-                hourWidget,
-              ]),
-            );
-          }
+                    )
+                    : const SizedBox.shrink();
 
-          return SizedBox(
-            width: hourWidth,
-            child: hourWidget,
-          );
-        }),
-      ]),
+            if (decWidth > 25.0) {
+              return SizedBox(
+                width: hourWidth,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ...List.generate(5, (index) {
+                      return SizedBox(
+                        width: decWidth,
+                        child: Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: Container(
+                            height: 6.5,
+                            width: 2,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      );
+                    }),
+                    const Spacer(),
+                    hourWidget,
+                  ],
+                ),
+              );
+            }
+
+            return SizedBox(width: hourWidth, child: hourWidget);
+          }),
+        ],
+      ),
     );
   }
 }

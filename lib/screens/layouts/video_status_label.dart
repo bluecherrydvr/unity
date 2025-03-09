@@ -34,7 +34,7 @@ enum VideoStatusLabelPosition {
   ///
   /// This is the default position.
   bottom,
-  top;
+  top,
 }
 
 class VideoStatusLabel extends StatefulWidget {
@@ -74,7 +74,7 @@ enum VideoLabel {
 
   /// When the video is live, receiving frames, but the current position does
   /// not match the current time - with an offset of 1.5 seconds.
-  late;
+  late,
 }
 
 class _VideoStatusLabelState extends State<VideoStatusLabel> {
@@ -82,17 +82,18 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
 
   bool get isLoading => widget.video.lastImageUpdate == null;
 
-  VideoLabel get status => widget.video.error != null
-      ? VideoLabel.error
-      : isLoading
+  VideoLabel get status =>
+      widget.video.error != null
+          ? VideoLabel.error
+          : isLoading
           ? VideoLabel.loading
           : widget.video.player.isRecorded
-              ? VideoLabel.recorded
-              : widget.video.player.isImageOld
-                  ? VideoLabel.timedOut
-                  : widget.video.player.isLate
-                      ? VideoLabel.late
-                      : VideoLabel.live;
+          ? VideoLabel.recorded
+          : widget.video.player.isImageOld
+          ? VideoLabel.timedOut
+          : widget.video.player.isLate
+          ? VideoLabel.late
+          : VideoLabel.live;
 
   bool _openWithTap = false;
   OverlayEntry? entry;
@@ -104,39 +105,47 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
     final boxSize = box.size;
     final position = box.localToGlobal(Offset.zero);
 
-    entry = OverlayEntry(builder: (context) {
-      return LayoutBuilder(builder: (context, constraints) {
-        final label = _DeviceVideoInfo(
-          device: widget.device,
-          video: widget.video,
-          label: status,
-          event: widget.event,
+    entry = OverlayEntry(
+      builder: (context) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final label = _DeviceVideoInfo(
+              device: widget.device,
+              video: widget.video,
+              label: status,
+              event: widget.event,
+            );
+            final (height, width) = label.textSize(context);
+            const padding = 8.0;
+
+            final left =
+                widget.position == VideoStatusLabelPosition.bottom
+                    ? position.dx - width + boxSize.width
+                    : position.dx;
+            final top =
+                widget.position == VideoStatusLabelPosition.bottom
+                    ? position.dy - height - padding
+                    : position.dy + boxSize.height + padding;
+
+            final overflowsRight = left + width > constraints.maxWidth;
+            final right = constraints.maxWidth - position.dx - boxSize.width;
+
+            return Stack(
+              children: [
+                Positioned(
+                  left: overflowsRight ? null : left,
+                  right: overflowsRight ? right : null,
+                  top: top,
+                  height: height,
+                  width: width,
+                  child: label,
+                ),
+              ],
+            );
+          },
         );
-        final (height, width) = label.textSize(context);
-        const padding = 8.0;
-
-        final left = widget.position == VideoStatusLabelPosition.bottom
-            ? position.dx - width + boxSize.width
-            : position.dx;
-        final top = widget.position == VideoStatusLabelPosition.bottom
-            ? position.dy - height - padding
-            : position.dy + boxSize.height + padding;
-
-        final overflowsRight = left + width > constraints.maxWidth;
-        final right = constraints.maxWidth - position.dx - boxSize.width;
-
-        return Stack(children: [
-          Positioned(
-            left: overflowsRight ? null : left,
-            right: overflowsRight ? right : null,
-            top: top,
-            height: height,
-            width: width,
-            child: label,
-          ),
-        ]);
-      });
-    });
+      },
+    );
     Overlay.of(context).insert(entry!);
   }
 
@@ -163,7 +172,8 @@ class _VideoStatusLabelState extends State<VideoStatusLabel> {
       });
     }
 
-    final isLateDismissal = status == VideoLabel.late &&
+    final isLateDismissal =
+        status == VideoLabel.late &&
         settings.kLateStreamBehavior.value == LateVideoBehavior.manual;
 
     return MouseRegion(
@@ -226,26 +236,30 @@ class VideoStatusLabelIndicator extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(4.0),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (status == VideoLabel.loading)
-          const Padding(
-            padding: EdgeInsetsDirectional.only(end: 8.0),
-            child: SizedBox(
-              height: 12.0,
-              width: 12.0,
-              child: CircularProgressIndicator.adaptive(
-                strokeWidth: 1.5,
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (status == VideoLabel.loading)
+            const Padding(
+              padding: EdgeInsetsDirectional.only(end: 8.0),
+              child: SizedBox(
+                height: 12.0,
+                width: 12.0,
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 1.5,
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
               ),
             ),
+          Text(
+            text,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color:
+                  color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+            ),
           ),
-        Text(
-          text,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-          ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -285,7 +299,8 @@ class _DeviceVideoInfo extends StatelessWidget {
         _buildTextSpan(
           context,
           title: loc.resolution,
-          data: '${video.player.width ?? device.resolutionX}'
+          data:
+              '${video.player.width ?? device.resolutionX}'
               'x'
               '${video.player.height ?? device.resolutionY}',
         ),
@@ -294,9 +309,10 @@ class _DeviceVideoInfo extends StatelessWidget {
         _buildTextSpan(
           context,
           title: loc.lastImageUpdate,
-          data: video.lastImageUpdate == null
-              ? loc.unknown
-              : DateFormat.Hms().format(video.lastImageUpdate!),
+          data:
+              video.lastImageUpdate == null
+                  ? loc.unknown
+                  : DateFormat.Hms().format(video.lastImageUpdate!),
         ),
         _buildTextSpan(
           context,
@@ -384,19 +400,18 @@ class _DeviceVideoInfo extends StatelessWidget {
     bool last = false,
   }) {
     final theme = Theme.of(context);
-    return TextSpan(children: [
-      TextSpan(
-        text: '$title: ',
-        style: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.onSecondaryContainer,
+    return TextSpan(
+      children: [
+        TextSpan(
+          text: '$title: ',
+          style: theme.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSecondaryContainer,
+          ),
         ),
-      ),
-      TextSpan(
-        text: data,
-        style: theme.textTheme.labelLarge,
-      ),
-      if (!last) const TextSpan(text: '\n'),
-    ]);
+        TextSpan(text: data, style: theme.textTheme.labelLarge),
+        if (!last) const TextSpan(text: '\n'),
+      ],
+    );
   }
 }

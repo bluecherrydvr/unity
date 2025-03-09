@@ -47,53 +47,56 @@ class OptionsChooserTile<T> extends StatelessWidget {
         backgroundColor: Colors.transparent,
         foregroundColor: theme.iconTheme.color,
         child: Align(
-          alignment: description == null
-              ? Alignment.center
-              : AlignmentDirectional.topCenter,
+          alignment:
+              description == null
+                  ? Alignment.center
+                  : AlignmentDirectional.topCenter,
           child: Icon(icon),
         ),
       ),
       title: Text(title),
       textColor: theme.textTheme.bodyLarge?.color,
-      subtitle: subtitle ??
+      subtitle:
+          subtitle ??
           (description == null
               ? null
               : Text(
-                  description!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodySmall?.color,
-                  ),
-                )),
+                description!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.textTheme.bodySmall?.color,
+                ),
+              )),
       tilePadding: DesktopSettings.horizontalPadding,
-      trailing: Text(values
-          .firstWhere(
-            (v) => v.value == value,
-            orElse: () => values.first,
-          )
-          .text),
-      children: values.map((option) {
-        return RadioListTile<T>.adaptive(
-          contentPadding: const EdgeInsetsDirectional.only(
-            start: 76.0,
-            end: 16.0,
-          ),
-          value: option.value,
-          groupValue: value,
-          onChanged: option.enabled && onChanged != null
-              ? (value) {
-                  if (value != null) {
-                    onChanged!(value);
-                  }
-                }
-              : null,
-          secondary: option.icon == null ? null : Icon(option.icon),
-          controlAffinity: ListTileControlAffinity.trailing,
-          title: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16.0),
-            child: Text(option.text),
-          ),
-        );
-      }).toList(),
+      trailing: Text(
+        values
+            .firstWhere((v) => v.value == value, orElse: () => values.first)
+            .text,
+      ),
+      children:
+          values.map((option) {
+            return RadioListTile<T>.adaptive(
+              contentPadding: const EdgeInsetsDirectional.only(
+                start: 76.0,
+                end: 16.0,
+              ),
+              value: option.value,
+              groupValue: value,
+              onChanged:
+                  option.enabled && onChanged != null
+                      ? (value) {
+                        if (value != null) {
+                          onChanged!(value);
+                        }
+                      }
+                      : null,
+              secondary: option.icon == null ? null : Icon(option.icon),
+              controlAffinity: ListTileControlAffinity.trailing,
+              title: Padding(
+                padding: const EdgeInsetsDirectional.only(start: 16.0),
+                child: Text(option.text),
+              ),
+            );
+          }).toList(),
     );
   }
 }

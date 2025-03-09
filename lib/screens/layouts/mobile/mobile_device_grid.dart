@@ -70,88 +70,101 @@ class _SmallDeviceGridState extends State<SmallDeviceGrid> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
 
-    return Column(children: [
-      if (view.tab == -1)
-        const Spacer()
-      else
-        Expanded(
+    return Column(
+      children: [
+        if (view.tab == -1)
+          const Spacer()
+        else
+          Expanded(
+            child: SafeArea(
+              bottom: false,
+              child: PageTransitionSwitcher(
+                child: view.devices.keys
+                    .map((key) => _SmallDeviceGridChild(tab: key))
+                    .elementAt(
+                      view.devices.keys
+                          .toList()
+                          .indexOf(view.tab)
+                          .clamp(0, view.devices.length - 1),
+                    ),
+                transitionBuilder: (
+                  child,
+                  primaryAnimation,
+                  secondaryAnimation,
+                ) {
+                  return FadeThroughTransition(
+                    animation: primaryAnimation,
+                    secondaryAnimation: secondaryAnimation,
+                    fillColor: theme.colorScheme.surface,
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ),
+        Material(
           child: SafeArea(
-            bottom: false,
-            child: PageTransitionSwitcher(
-              child: view.devices.keys
-                  .map((key) => _SmallDeviceGridChild(tab: key))
-                  .elementAt(
-                    view.devices.keys
-                        .toList()
-                        .indexOf(view.tab)
-                        .clamp(0, view.devices.length - 1),
+            top: false,
+            child: Container(
+              height: kMobileBottomBarHeight,
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
+              width: double.infinity,
+              child: Row(
+                children: <Widget>[
+                  UnityDrawerButton(
+                    iconColor: theme.colorScheme.onSurface,
+                    iconSize: 18.0,
+                    splashRadius: 24.0,
                   ),
-              transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-                return FadeThroughTransition(
-                  animation: primaryAnimation,
-                  secondaryAnimation: secondaryAnimation,
-                  fillColor: theme.colorScheme.surface,
-                  child: child,
-                );
-              },
+                  IconButton(
+                    icon: Icon(
+                      Icons.cyclone,
+                      size: 18.0,
+                      color:
+                          settings.kLayoutCycleEnabled.value
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface,
+                    ),
+                    tooltip: loc.cycle,
+                    onPressed: settings.toggleCycling,
+                  ),
+                  const Spacer(),
+                  ...view.devices.keys.map((tab) {
+                    return Container(
+                      height: 48.0,
+                      width: 48.0,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color:
+                              view.tab == tab
+                                  ? theme.colorScheme.primary
+                                  : null,
+                        ),
+                        child: IconButton(
+                          onPressed: () => view.setTab(tab),
+                          icon: Text(
+                            '$tab',
+                            style: TextStyle(
+                              color:
+                                  view.tab == tab
+                                      ? theme.colorScheme.onPrimary
+                                      : theme.colorScheme.onSurface,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
         ),
-      Material(
-        child: SafeArea(
-          top: false,
-          child: Container(
-            height: kMobileBottomBarHeight,
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
-            width: double.infinity,
-            child: Row(children: <Widget>[
-              UnityDrawerButton(
-                iconColor: theme.colorScheme.onSurface,
-                iconSize: 18.0,
-                splashRadius: 24.0,
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.cyclone,
-                  size: 18.0,
-                  color: settings.kLayoutCycleEnabled.value
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface,
-                ),
-                tooltip: loc.cycle,
-                onPressed: settings.toggleCycling,
-              ),
-              const Spacer(),
-              ...view.devices.keys.map((tab) {
-                return Container(
-                  height: 48.0,
-                  width: 48.0,
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: view.tab == tab ? theme.colorScheme.primary : null,
-                    ),
-                    child: IconButton(
-                      onPressed: () => view.setTab(tab),
-                      icon: Text(
-                        '$tab',
-                        style: TextStyle(
-                          color: view.tab == tab
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onSurface,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ]),
-          ),
-        ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -178,55 +191,57 @@ class _SmallDeviceGridChild extends StatelessWidget {
       counts[device] = !counts.containsKey(device) ? 1 : counts[device]! + 1;
     }
 
-    final children = view.devices[tab]!.asMap().entries.map(
-      (e) {
-        counts[e.value] = counts[e.value]! - 1;
-        debugPrint(
-            '${e.value}.${e.value?.server.serverUUID}.${counts[e.value]}');
-        return MobileDeviceView(
-          key: ValueKey(
+    final children =
+        view.devices[tab]!.asMap().entries.map((e) {
+          counts[e.value] = counts[e.value]! - 1;
+          debugPrint(
             '${e.value}.${e.value?.server.serverUUID}.${counts[e.value]}',
-          ),
-          index: e.key,
-          tab: tab,
-        );
-      },
-    ).toList();
+          );
+          return MobileDeviceView(
+            key: ValueKey(
+              '${e.value}.${e.value?.server.serverUUID}.${counts[e.value]}',
+            ),
+            index: e.key,
+            tab: tab,
+          );
+        }).toList();
 
-    return LayoutBuilder(builder: (context, consts) {
-      final size = consts.biggest;
+    return LayoutBuilder(
+      builder: (context, consts) {
+        final size = consts.biggest;
 
-      final width = size.width - kGridInnerPadding;
-      final height = size.height - kGridInnerPadding;
+        final width = size.width - kGridInnerPadding;
+        final height = size.height - kGridInnerPadding;
 
-      return Container(
-        height: size.height,
-        width: size.width,
-        padding: const EdgeInsetsDirectional.all(kGridInnerPadding),
-        child: AspectRatio(
-          aspectRatio: kHorizontalAspectRatio,
-          child: Center(
-            child: StaticGrid(
-              crossAxisCount: switch (tab) {
-                9 => 3,
-                6 => 3,
-                4 => 2,
-                2 => 2,
-                _ => 1,
-              },
-              childAspectRatio: switch (tab) {
-                2 => width * 0.5 / height,
-                4 => width / height,
-                _ => kHorizontalAspectRatio,
-              },
-              reorderable: view.current.any((device) => device != null),
-              padding: EdgeInsetsDirectional.zero,
-              onReorder: (initial, end) => view.reorder(tab, initial, end),
-              children: children,
+        return Container(
+          height: size.height,
+          width: size.width,
+          padding: const EdgeInsetsDirectional.all(kGridInnerPadding),
+          child: AspectRatio(
+            aspectRatio: kHorizontalAspectRatio,
+            child: Center(
+              child: StaticGrid(
+                crossAxisCount: switch (tab) {
+                  9 => 3,
+                  6 => 3,
+                  4 => 2,
+                  2 => 2,
+                  _ => 1,
+                },
+                childAspectRatio: switch (tab) {
+                  2 => width * 0.5 / height,
+                  4 => width / height,
+                  _ => kHorizontalAspectRatio,
+                },
+                reorderable: view.current.any((device) => device != null),
+                padding: EdgeInsetsDirectional.zero,
+                onReorder: (initial, end) => view.reorder(tab, initial, end),
+                children: children,
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

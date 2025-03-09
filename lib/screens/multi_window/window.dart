@@ -38,11 +38,7 @@ class AlternativeWindow extends StatefulWidget {
   final Widget child;
 
   /// Creates a new [AlternativeWindow] instance.
-  const AlternativeWindow({
-    super.key,
-    required this.mode,
-    required this.child,
-  });
+  const AlternativeWindow({super.key, required this.mode, required this.child});
 
   static AlternativeWindowState? maybeOf(BuildContext context) {
     return context.findAncestorStateOfType<AlternativeWindowState>();

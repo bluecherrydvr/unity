@@ -111,89 +111,100 @@ class StaticGridState extends State<StaticGrid> {
       return widget.emptyChild!;
     }
     return Padding(
-      padding: widget.padding.add(EdgeInsetsDirectional.symmetric(
-        horizontal: widget.crossAxisSpacing,
-        vertical: widget.mainAxisSpacing,
-      )),
-      child: LayoutBuilder(builder: (context, constraints) {
-        late double gridHeight, childWidth;
-        void calculate() {
-          var availableWidth = constraints.biggest.width -
-              widget.padding.horizontal -
-              (widget.crossAxisCount - 1) * widget.crossAxisSpacing;
+      padding: widget.padding.add(
+        EdgeInsetsDirectional.symmetric(
+          horizontal: widget.crossAxisSpacing,
+          vertical: widget.mainAxisSpacing,
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          late double gridHeight, childWidth;
+          void calculate() {
+            var availableWidth =
+                constraints.biggest.width -
+                widget.padding.horizontal -
+                (widget.crossAxisCount - 1) * widget.crossAxisSpacing;
 
-          childWidth = availableWidth / crossAxisCount;
-          final childHeight = childWidth / widget.childAspectRatio;
-          gridHeight =
-              childHeight * gridRows + widget.crossAxisSpacing * (gridRows - 1);
+            childWidth = availableWidth / crossAxisCount;
+            final childHeight = childWidth / widget.childAspectRatio;
+            gridHeight =
+                childHeight * gridRows +
+                widget.crossAxisSpacing * (gridRows - 1);
 
-          if (gridRows == 1) {
-            // If there is enough space for another row, try to accomodate it
-            if (gridHeight * 2 < constraints.biggest.height) {
-              crossAxisCount -= 1;
-              calculate();
-            }
+            if (gridRows == 1) {
+              // If there is enough space for another row, try to accomodate it
+              if (gridHeight * 2 < constraints.biggest.height) {
+                crossAxisCount -= 1;
+                calculate();
+              }
 
-            // For a single row, ensure childHeight does not exceed the
-            // available height
-            if (childHeight > constraints.biggest.height) {
-              final maxHeight = constraints.biggest.height;
-              childWidth = maxHeight * widget.childAspectRatio;
-              gridHeight = maxHeight;
-            }
-          } else {
-            // For multiple rows, calculate gridHeight and adjust childWidth if
-            // necessary
-            gridHeight = (childHeight * gridRows) +
-                (widget.crossAxisSpacing * (gridRows - 1));
+              // For a single row, ensure childHeight does not exceed the
+              // available height
+              if (childHeight > constraints.biggest.height) {
+                final maxHeight = constraints.biggest.height;
+                childWidth = maxHeight * widget.childAspectRatio;
+                gridHeight = maxHeight;
+              }
+            } else {
+              // For multiple rows, calculate gridHeight and adjust childWidth if
+              // necessary
+              gridHeight =
+                  (childHeight * gridRows) +
+                  (widget.crossAxisSpacing * (gridRows - 1));
 
-            if (gridHeight > constraints.biggest.height) {
-              // Calculate the maximum height each child can have to fit
-              // within the available height
-              final maxHeight = constraints.biggest.height / gridRows -
-                  widget.crossAxisSpacing;
+              if (gridHeight > constraints.biggest.height) {
+                // Calculate the maximum height each child can have to fit
+                // within the available height
+                final maxHeight =
+                    constraints.biggest.height / gridRows -
+                    widget.crossAxisSpacing;
 
-              // Calculate the new width based on the maximum height and
-              // the aspect ratio
-              childWidth = maxHeight * widget.childAspectRatio;
+                // Calculate the new width based on the maximum height and
+                // the aspect ratio
+                childWidth = maxHeight * widget.childAspectRatio;
+              }
             }
           }
-        }
 
-        calculate();
+          calculate();
 
-        return SizedBox(
-          height: gridHeight,
-          child: ScrollConfiguration(
-            behavior:
-                ScrollConfiguration.of(context).copyWith(scrollbars: true),
-            child: ReorderableWrap(
-              enableReorder: widget.reorderable,
-              spacing: widget.mainAxisSpacing,
-              runSpacing: widget.crossAxisSpacing,
-              minMainAxisCount: crossAxisCount,
-              maxMainAxisCount: crossAxisCount,
-              onReorder: widget.onReorder,
-              needsLongPressDraggable: isMobile,
-              alignment: WrapAlignment.center,
-              runAlignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              scrollPhysics: const NeverScrollableScrollPhysics(),
-              children: List.generate(realChildren.length, (index) {
-                return SizedBox(
-                  key: ValueKey(index),
-                  width: childWidth,
-                  child: AspectRatio(
-                    aspectRatio:
-                        widget.childAspectRatio.clamp(0.1, double.infinity),
-                    child: realChildren[index],
-                  ),
-                );
-              }),
+          return SizedBox(
+            height: gridHeight,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(
+                context,
+              ).copyWith(scrollbars: true),
+              child: ReorderableWrap(
+                enableReorder: widget.reorderable,
+                spacing: widget.mainAxisSpacing,
+                runSpacing: widget.crossAxisSpacing,
+                minMainAxisCount: crossAxisCount,
+                maxMainAxisCount: crossAxisCount,
+                onReorder: widget.onReorder,
+                needsLongPressDraggable: isMobile,
+                alignment: WrapAlignment.center,
+                runAlignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                scrollPhysics: const NeverScrollableScrollPhysics(),
+                children: List.generate(realChildren.length, (index) {
+                  return SizedBox(
+                    key: ValueKey(index),
+                    width: childWidth,
+                    child: AspectRatio(
+                      aspectRatio: widget.childAspectRatio.clamp(
+                        0.1,
+                        double.infinity,
+                      ),
+                      child: realChildren[index],
+                    ),
+                  );
+                }),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

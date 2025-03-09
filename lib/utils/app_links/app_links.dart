@@ -42,92 +42,90 @@ Future<void> handleArgs(
 }) async {
   final settings = SettingsProvider.instance;
 
-  var parser = ArgParser()
-    ..addFlag(
-      'fullscreen',
-      abbr: 'f',
-      help: 'Open the app in fullscreen mode',
-      defaultsTo: settings.kFullscreen.value,
-    )
-    ..addFlag(
-      'immersive',
-      abbr: 'i',
-      help:
-          'Open the app in immersive mode. This is only applied if fullscreen '
-          'mode is enabled',
-      defaultsTo: settings.isImmersiveMode,
-    )
-    ..addFlag(
-      'kiosk',
-      abbr: 'k',
-      help: 'Only allow users to access the Layouts View',
-    )
-    ..addFlag(
-      'wakelock',
-      abbr: 'w',
-      help: 'Keep the screen on while the app is running. Already enabled when '
-          'kiosk mode is active',
-      defaultsTo: settings.kWakelock.value,
-    )
-    ..addFlag(
-      'cycle',
-      abbr: 'c',
-      help: 'Cycle through the cameras in the layout',
-      defaultsTo: settings.kLayoutCycleEnabled.value,
-    )
-    ..addFlag(
-      'mdk',
-      help: 'Whether to use MDK instead of MPV for video playback',
-    )
-    ..addOption(
-      'layout',
-      abbr: 'l',
-      help: 'Open the app in a specific layout',
-      valueHelp: 'layout name',
-    )
-    ..addOption(
-      'layout-index',
-      abbr: 'x',
-      help: 'Open the app in a specific layout by index',
-      valueHelp: '0',
-    )
-    ..addOption(
-      'theme',
-      allowed: ['light', 'dark', 'system'],
-      help: 'Set the theme of the app',
-      valueHelp: 'light',
-      allowedHelp: {
-        'light': 'Light theme',
-        'dark': 'Dark theme',
-        'system': 'Defaults to the system theme',
-      },
-      defaultsTo: settings.kThemeMode.value.name,
-    )
-    ..addFlag(
-      'mute',
-      abbr: 'm',
-      help: 'Mute the app',
-    )
-    ..addOption(
-      'volume',
-      abbr: 'v',
-      help:
-          'Set the volume of all the cameras in all layouts. This is a value from 0 to 100.',
-      valueHelp: '50',
-      allowed: List.generate(101, (i) => '$i'),
-    )
-
-    // Multi window
-    ..addOption(
-      'camera',
-      help: 'Open the app the specified camera id. The server is mandatory',
-    )
-    ..addOption(
-      'server',
-      help: 'Open the app the specified server name. This must be a valid '
-          'server name If camera is specified, this is mandatory.',
-      valueHelp: 'Market',
-    );
+  var parser =
+      ArgParser()
+        ..addFlag(
+          'fullscreen',
+          abbr: 'f',
+          help: 'Open the app in fullscreen mode',
+          defaultsTo: settings.kFullscreen.value,
+        )
+        ..addFlag(
+          'immersive',
+          abbr: 'i',
+          help:
+              'Open the app in immersive mode. This is only applied if fullscreen '
+              'mode is enabled',
+          defaultsTo: settings.isImmersiveMode,
+        )
+        ..addFlag(
+          'kiosk',
+          abbr: 'k',
+          help: 'Only allow users to access the Layouts View',
+        )
+        ..addFlag(
+          'wakelock',
+          abbr: 'w',
+          help:
+              'Keep the screen on while the app is running. Already enabled when '
+              'kiosk mode is active',
+          defaultsTo: settings.kWakelock.value,
+        )
+        ..addFlag(
+          'cycle',
+          abbr: 'c',
+          help: 'Cycle through the cameras in the layout',
+          defaultsTo: settings.kLayoutCycleEnabled.value,
+        )
+        ..addFlag(
+          'mdk',
+          help: 'Whether to use MDK instead of MPV for video playback',
+        )
+        ..addOption(
+          'layout',
+          abbr: 'l',
+          help: 'Open the app in a specific layout',
+          valueHelp: 'layout name',
+        )
+        ..addOption(
+          'layout-index',
+          abbr: 'x',
+          help: 'Open the app in a specific layout by index',
+          valueHelp: '0',
+        )
+        ..addOption(
+          'theme',
+          allowed: ['light', 'dark', 'system'],
+          help: 'Set the theme of the app',
+          valueHelp: 'light',
+          allowedHelp: {
+            'light': 'Light theme',
+            'dark': 'Dark theme',
+            'system': 'Defaults to the system theme',
+          },
+          defaultsTo: settings.kThemeMode.value.name,
+        )
+        ..addFlag('mute', abbr: 'm', help: 'Mute the app')
+        ..addOption(
+          'volume',
+          abbr: 'v',
+          help:
+              'Set the volume of all the cameras in all layouts. This is a value from 0 to 100.',
+          valueHelp: '50',
+          allowed: List.generate(101, (i) => '$i'),
+        )
+        // Multi window
+        ..addOption(
+          'camera',
+          help: 'Open the app the specified camera id. The server is mandatory',
+        )
+        ..addOption(
+          'server',
+          help:
+              'Open the app the specified server name. This must be a valid '
+              'server name If camera is specified, this is mandatory.',
+          valueHelp: 'Market',
+        );
 
   final results = parser.parse(args);
   debugPrint('Opening app with ${results.arguments}');
@@ -181,18 +179,19 @@ Future<void> handleArgs(
       }
     }
   }
-  final theme = () {
-    final themeResult = results.option('theme');
-    if (themeResult == null) return settings.kThemeMode.value;
-    switch (themeResult) {
-      case 'light':
-        return ThemeMode.light;
-      case 'dark':
-        return ThemeMode.dark;
-      case 'system':
-        return ThemeMode.system;
-    }
-  }()!;
+  final theme =
+      () {
+        final themeResult = results.option('theme');
+        if (themeResult == null) return settings.kThemeMode.value;
+        switch (themeResult) {
+          case 'light':
+            return ThemeMode.light;
+          case 'dark':
+            return ThemeMode.dark;
+          case 'system':
+            return ThemeMode.system;
+        }
+      }()!;
 
   final layout = results.option('layout');
   final layoutIndex = () {

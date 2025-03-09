@@ -62,8 +62,9 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
       setState(() {
         for (final server in serversProvider.servers) {
           if (server.devices.length < 7 ||
-              eventsProvider.selectedDevices.any((d) =>
-                  server.devices.any((device) => device.streamURL == d))) {
+              eventsProvider.selectedDevices.any(
+                (d) => server.devices.any((device) => device.streamURL == d),
+              )) {
             treeViewController.toggleNodeExpanded(ValueKey(server.ip));
           }
         }
@@ -82,100 +83,116 @@ class _EventsDevicesPickerState extends State<EventsDevicesPicker> {
         treeController: treeViewController,
         indent: 56,
         iconSize: 18.0,
-        nodes: serversProvider.servers.map((server) {
-          final enabledDevicesForServer = eventsProvider.selectedDevices.where(
-            (deviceUrl) => server.devices.any(
-              (device) => device.streamURL == deviceUrl,
-            ),
-          );
-          final isOffline = !server.online;
-          final serverEvents = (eventsProvider.loadedEvents?.events ?? {})
-              .entries
-              .firstWhereOrNull((entry) => entry.key.ip == server.ip)
-              ?.value;
-
-          return TreeNode(
-            key: ValueKey(server.ip),
-            content: buildCheckbox(
-              value: enabledDevicesForServer.isEmpty || isOffline
-                  ? false
-                  : enabledDevicesForServer.length ==
-                          server.devices.where((device) => device.status).length
-                      ? true
-                      : null,
-              isError: isOffline,
-              onChanged: (v) {
-                if (v == true) {
-                  eventsProvider.selectDevices(
-                    server.devices
-                        .where((device) => device.status)
-                        .map((device) => device.streamURL),
-                  );
-                  widget.onChanged?.call();
-                } else if (v == null || !v) {
-                  final toUnselectDevices = server.devices
-                      .map((device) => device.streamURL)
-                      .where((d) => eventsProvider.selectedDevices.contains(d));
-                  eventsProvider.unselectDevices(toUnselectDevices);
-                  widget.onChanged?.call();
-                }
-              },
-              checkboxScale: widget.checkboxScale,
-              text: server.name,
-              secondaryText: isOffline ? null : '${server.devices.length}',
-              gapCheckboxText: widget.gapCheckboxText,
-              textFit: FlexFit.tight,
-              offlineIcon: Icons.domain_disabled_outlined,
-            ),
-            children: () {
-              if (isOffline) {
-                return <TreeNode>[];
-              } else {
-                return server.devices
-                    .toSet()
-                    .sorted(
-                      searchQuery: widget.searchQuery,
-                      onlyEnabled: !settings.kListOfflineDevices.value,
-                    )
-                    .map((device) {
-                  final enabled = isOffline
-                      ? false
-                      : eventsProvider.selectedDevices
-                          .contains(device.streamURL);
-                  final eventsForDevice = serverEvents
-                      ?.where((event) => event.deviceID == device.id);
-                  return TreeNode(
-                    key: ValueKey(device.streamURL),
-                    content: IgnorePointer(
-                      ignoring: !device.status,
-                      child: buildCheckbox(
-                        value: device.status ? enabled : false,
-                        isError: !device.status,
-                        onChanged: (v) {
-                          if (!device.status) return;
-
-                          if (enabled) {
-                            eventsProvider.unselectDevices([device.streamURL]);
-                            widget.onChanged?.call();
-                          } else {
-                            eventsProvider.selectDevices([device.streamURL]);
-                            widget.onChanged?.call();
-                          }
-                        },
-                        checkboxScale: widget.checkboxScale,
-                        text: device.name,
-                        secondaryText: eventsForDevice != null && device.status
-                            ? ' (${eventsForDevice.length})'
-                            : null,
-                        gapCheckboxText: widget.gapCheckboxText,
-                      ),
+        nodes:
+            serversProvider.servers.map((server) {
+              final enabledDevicesForServer = eventsProvider.selectedDevices
+                  .where(
+                    (deviceUrl) => server.devices.any(
+                      (device) => device.streamURL == deviceUrl,
                     ),
                   );
-                }).toList();
-              }
-            }(),
-          );
-        }).toList(),
+              final isOffline = !server.online;
+              final serverEvents =
+                  (eventsProvider.loadedEvents?.events ?? {}).entries
+                      .firstWhereOrNull((entry) => entry.key.ip == server.ip)
+                      ?.value;
+
+              return TreeNode(
+                key: ValueKey(server.ip),
+                content: buildCheckbox(
+                  value:
+                      enabledDevicesForServer.isEmpty || isOffline
+                          ? false
+                          : enabledDevicesForServer.length ==
+                              server.devices
+                                  .where((device) => device.status)
+                                  .length
+                          ? true
+                          : null,
+                  isError: isOffline,
+                  onChanged: (v) {
+                    if (v == true) {
+                      eventsProvider.selectDevices(
+                        server.devices
+                            .where((device) => device.status)
+                            .map((device) => device.streamURL),
+                      );
+                      widget.onChanged?.call();
+                    } else if (v == null || !v) {
+                      final toUnselectDevices = server.devices
+                          .map((device) => device.streamURL)
+                          .where(
+                            (d) => eventsProvider.selectedDevices.contains(d),
+                          );
+                      eventsProvider.unselectDevices(toUnselectDevices);
+                      widget.onChanged?.call();
+                    }
+                  },
+                  checkboxScale: widget.checkboxScale,
+                  text: server.name,
+                  secondaryText: isOffline ? null : '${server.devices.length}',
+                  gapCheckboxText: widget.gapCheckboxText,
+                  textFit: FlexFit.tight,
+                  offlineIcon: Icons.domain_disabled_outlined,
+                ),
+                children: () {
+                  if (isOffline) {
+                    return <TreeNode>[];
+                  } else {
+                    return server.devices
+                        .toSet()
+                        .sorted(
+                          searchQuery: widget.searchQuery,
+                          onlyEnabled: !settings.kListOfflineDevices.value,
+                        )
+                        .map((device) {
+                          final enabled =
+                              isOffline
+                                  ? false
+                                  : eventsProvider.selectedDevices.contains(
+                                    device.streamURL,
+                                  );
+                          final eventsForDevice = serverEvents?.where(
+                            (event) => event.deviceID == device.id,
+                          );
+                          return TreeNode(
+                            key: ValueKey(device.streamURL),
+                            content: IgnorePointer(
+                              ignoring: !device.status,
+                              child: buildCheckbox(
+                                value: device.status ? enabled : false,
+                                isError: !device.status,
+                                onChanged: (v) {
+                                  if (!device.status) return;
+
+                                  if (enabled) {
+                                    eventsProvider.unselectDevices([
+                                      device.streamURL,
+                                    ]);
+                                    widget.onChanged?.call();
+                                  } else {
+                                    eventsProvider.selectDevices([
+                                      device.streamURL,
+                                    ]);
+                                    widget.onChanged?.call();
+                                  }
+                                },
+                                checkboxScale: widget.checkboxScale,
+                                text: device.name,
+                                secondaryText:
+                                    eventsForDevice != null && device.status
+                                        ? ' (${eventsForDevice.length})'
+                                        : null,
+                                gapCheckboxText: widget.gapCheckboxText,
+                              ),
+                            ),
+                          );
+                        })
+                        .toList();
+                  }
+                }(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -200,38 +217,42 @@ class _MobileFilterSheetState extends State<MobileFilterSheet> with Searchable {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final eventsProvider = context.watch<EventsProvider>();
-    return ListView(primary: true, children: [
-      widget.timeFilterTile,
-      const SubHeader('Minimum level', height: 20.0),
-      DropdownButtonHideUnderline(
-        child: DropdownButton<EventsMinLevelFilter>(
-          isExpanded: true,
-          value: eventsProvider.levelFilter,
-          items: EventsMinLevelFilter.values.map((level) {
-            return DropdownMenuItem(
-              value: level,
-              child: Text(level.name.uppercaseFirst),
-            );
-          }).toList(),
-          onChanged: (filter) {
-            if (filter != null) {
-              eventsProvider.levelFilter = filter;
-            }
-          },
+    return ListView(
+      primary: true,
+      children: [
+        widget.timeFilterTile,
+        const SubHeader('Minimum level', height: 20.0),
+        DropdownButtonHideUnderline(
+          child: DropdownButton<EventsMinLevelFilter>(
+            isExpanded: true,
+            value: eventsProvider.levelFilter,
+            items:
+                EventsMinLevelFilter.values.map((level) {
+                  return DropdownMenuItem(
+                    value: level,
+                    child: Text(level.name.uppercaseFirst),
+                  );
+                }).toList(),
+            onChanged: (filter) {
+              if (filter != null) {
+                eventsProvider.levelFilter = filter;
+              }
+            },
+          ),
         ),
-      ),
-      SubHeader(
-        loc.servers,
-        height: 38.0,
-        trailing: SearchToggleButton(searchable: this),
-      ),
-      ToggleSearchBar(searchable: this),
-      EventsDevicesPicker(
-        gapCheckboxText: 10.0,
-        checkboxScale: 1.15,
-        searchQuery: searchQuery,
-        onChanged: widget.onChanged,
-      )
-    ]);
+        SubHeader(
+          loc.servers,
+          height: 38.0,
+          trailing: SearchToggleButton(searchable: this),
+        ),
+        ToggleSearchBar(searchable: this),
+        EventsDevicesPicker(
+          gapCheckboxText: 10.0,
+          checkboxScale: 1.15,
+          searchQuery: searchQuery,
+          onChanged: widget.onChanged,
+        ),
+      ],
+    );
   }
 }

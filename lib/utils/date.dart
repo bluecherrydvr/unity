@@ -117,10 +117,7 @@ extension DateSettingsExtension on SettingsProvider {
     DateFormat? pattern,
     Duration offset = Duration.zero,
   }) {
-    return formatTime(
-      timezoneAwareDate(rawTime).add(offset),
-      pattern: pattern,
-    );
+    return formatTime(timezoneAwareDate(rawTime).add(offset), pattern: pattern);
   }
 
   String formatRawDateAndTime(String rawDateTime) {
@@ -141,7 +138,8 @@ extension DateTimeExtension on DateTime? {
     bool allowSameMoment = false,
   }) {
     assert(this != null);
-    final isBetween = this!.toLocal().isAfter(first.toLocal()) &&
+    final isBetween =
+        this!.toLocal().isAfter(first.toLocal()) &&
         this!.toLocal().isBefore(second.toLocal());
 
     if (allowSameMoment) return isBetween;
@@ -216,7 +214,8 @@ extension DateTimeExtension on DateTime? {
     final isoString = date.toIso8601String();
     if (offset == Duration.zero) return isoString;
 
-    final offsetString = '${offset.isNegative ? '-' : '+'}'
+    final offsetString =
+        '${offset.isNegative ? '-' : '+'}'
         '${offset.inHours.toString().replaceAll('-', '').replaceAll('+', '').padLeft(2, '0')}:'
         '${offset.inMinutes.remainder(60).toString().padLeft(2, '0')}';
 

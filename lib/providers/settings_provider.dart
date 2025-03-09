@@ -71,10 +71,7 @@ enum DisplayOn {
 
   static Iterable<Option<DisplayOn>> options(BuildContext context) {
     return values.map<Option<DisplayOn>>((value) {
-      return Option(
-        value: value,
-        text: value.locale(context),
-      );
+      return Option(value: value, text: value.locale(context));
     });
   }
 
@@ -224,10 +221,7 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'general.cycle_enabled',
   );
-  final kWakelock = _SettingsOption<bool>(
-    def: true,
-    key: 'general.wakelock',
-  );
+  final kWakelock = _SettingsOption<bool>(def: true, key: 'general.wakelock');
 
   // Notifications
   final kNotificationsEnabled = _SettingsOption<bool>(
@@ -383,10 +377,7 @@ class SettingsProvider extends UnityProvider {
     def: 1.0,
     key: 'events.speed',
   );
-  final kEventsVolume = _SettingsOption<double>(
-    def: 1.0,
-    key: 'events.volume',
-  );
+  final kEventsVolume = _SettingsOption<double>(def: 1.0, key: 'events.volume');
 
   // Timeline of Events
   final kShowDifferentColorsForEvents = _SettingsOption<bool>(
@@ -439,10 +430,7 @@ class SettingsProvider extends UnityProvider {
   late final kTimeFormat = _SettingsOption<DateFormat>(
     def: DateFormat('hh:mm a'),
     getDefault: () async {
-      return DateFormat(
-        'hh:mm a',
-        kLanguageCode.value.toLanguageTag(),
-      );
+      return DateFormat('hh:mm a', kLanguageCode.value.toLanguageTag());
     },
     key: 'application.time_format',
     dependOn: kLanguageCode,
@@ -456,13 +444,13 @@ class SettingsProvider extends UnityProvider {
     return switch (kTimeFormat.value.pattern!) {
       'HH:mm' => DateFormat('HH:mm:ss', kLanguageCode.value.toLanguageTag()),
       'hh:mm a' => DateFormat(
-          'hh:mm:ss a',
-          kLanguageCode.value.toLanguageTag(),
-        ),
+        'hh:mm:ss a',
+        kLanguageCode.value.toLanguageTag(),
+      ),
       _ => DateFormat(
-          kTimeFormat.value.pattern,
-          kLanguageCode.value.toLanguageTag(),
-        ),
+        kTimeFormat.value.pattern,
+        kLanguageCode.value.toLanguageTag(),
+      ),
     };
   }
 
@@ -484,15 +472,16 @@ class SettingsProvider extends UnityProvider {
   final kLaunchAppOnStartup = _SettingsOption<bool>(
     def: false,
     key: 'window.launch_app_on_startup',
-    getDefault: !canLaunchAtStartup
-        ? null
-        : () async {
-            try {
-              return await launchAtStartup.isEnabled();
-            } catch (_) {
-              return false;
-            }
-          },
+    getDefault:
+        !canLaunchAtStartup
+            ? null
+            : () async {
+              try {
+                return await launchAtStartup.isEnabled();
+              } catch (_) {
+                return false;
+              }
+            },
     onChanged: (value) async {
       if (kIsWeb || !canLaunchAtStartup) return false;
 
@@ -850,11 +839,7 @@ enum RenderingQuality {
   }
 }
 
-enum StreamingType {
-  rtsp,
-  hls,
-  mjpeg;
-}
+enum StreamingType { rtsp, hls, mjpeg }
 
 /// How to handle late video streams.
 extension LateVideoBehaviorExtension on LateVideoBehavior {

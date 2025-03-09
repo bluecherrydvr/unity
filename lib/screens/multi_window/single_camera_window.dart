@@ -36,7 +36,8 @@ class CameraView extends StatefulWidget {
 
 class _CameraViewState extends State<CameraView> {
   late final UnityVideoPlayer _controller;
-  late UnityVideoFit fit = widget.device.server.additionalSettings.videoFit ??
+  late UnityVideoFit fit =
+      widget.device.server.additionalSettings.videoFit ??
       SettingsProvider.instance.kVideoFit.value;
 
   @override
@@ -55,22 +56,24 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.black,
-      child: Column(children: [
-        WindowButtons(title: widget.device.name, showNavigator: false),
-        Expanded(
-          child: UnityVideoView(
-            player: _controller,
-            fit: fit,
-            paneBuilder: (context, controller) {
-              return DesktopTileViewport(
-                controller: controller,
-                device: widget.device,
-                onFitChanged: (fit) => setState(() => this.fit = fit),
-              );
-            },
+      child: Column(
+        children: [
+          WindowButtons(title: widget.device.name, showNavigator: false),
+          Expanded(
+            child: UnityVideoView(
+              player: _controller,
+              fit: fit,
+              paneBuilder: (context, controller) {
+                return DesktopTileViewport(
+                  controller: controller,
+                  device: widget.device,
+                  onFitChanged: (fit) => setState(() => this.fit = fit),
+                );
+              },
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

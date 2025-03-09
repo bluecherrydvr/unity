@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 void main() {
-  final files = Directory('${Directory.current.path}/lib/l10n')
-      .listSync()
-      .whereType<File>();
+  final files =
+      Directory(
+        '${Directory.current.path}/lib/l10n',
+      ).listSync().whereType<File>();
   final mirrorFile = File('${Directory.current.path}/lib/l10n/app_en.arb');
 
   final mirrorContent = mirrorFile.readAsStringSync();
@@ -16,8 +17,9 @@ void main() {
 
     final content = file.readAsStringSync();
     final contentMap = Map<String, dynamic>.from(json.decode(content));
-    contentMap
-        .removeWhere((key, value) => key.replaceAll('"', '').startsWith('@'));
+    contentMap.removeWhere(
+      (key, value) => key.replaceAll('"', '').startsWith('@'),
+    );
 
     final newContentMap = <String, dynamic>{
       for (final key in mirrorMap.keys) key: contentMap[key] ?? mirrorMap[key],
@@ -25,8 +27,9 @@ void main() {
     newContentMap['@@locale'] =
         path.basenameWithoutExtension(file.path).split('_').last;
 
-    final newContent =
-        const JsonEncoder.withIndent('  ').convert(newContentMap);
+    final newContent = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(newContentMap);
     file.writeAsString(newContent);
   }
 

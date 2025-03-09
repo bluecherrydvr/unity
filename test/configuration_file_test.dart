@@ -6,27 +6,18 @@ void main() {
   test('VideoOverlay serialization', () {
     const overlay = VideoOverlay(
       text: 'My overlay',
-      textStyle: TextStyle(
-        color: Color(0xFF000000),
-        fontSize: 12.0,
-      ),
+      textStyle: TextStyle(color: Color(0xFF000000), fontSize: 12.0),
       position: Offset(10.0, 10.0),
     );
 
     final map = overlay.toMap();
-    expect(
-      map,
-      {
-        'text': 'My overlay',
-        'textStyle': {
-          'color': '#ff000000',
-          'fontSize': 12.0,
-        },
-        'position_x': 10.0,
-        'position_y': 10.0,
-        'visible': true,
-      },
-    );
+    expect(map, {
+      'text': 'My overlay',
+      'textStyle': {'color': '#ff000000', 'fontSize': 12.0},
+      'position_x': 10.0,
+      'position_y': 10.0,
+      'visible': true,
+    });
 
     final overlay2 = VideoOverlay.fromMap(map);
     expect(overlay2.text, 'My overlay');

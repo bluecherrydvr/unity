@@ -52,43 +52,53 @@ class DirectCameraScreenState extends State<DirectCameraScreen>
     final searchBar = ToggleSearchBar(searchable: this);
 
     return SafeArea(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        if (hasDrawer) ...[
-          AppBar(
-            leading: MaybeUnityDrawerButton(context),
-            title: Text(loc.directCamera),
-            actions: [
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 12.0),
-                child: SearchToggleButton(searchable: this),
-              ),
-            ],
-          ),
-          searchBar,
-        ] else
-          searchBar,
-        Expanded(child: () {
-          if (serversProviders.servers.isEmpty) {
-            return const NoServerWarning();
-          } else {
-            return LayoutBuilder(builder: (context, consts) {
-              return RefreshIndicator.adaptive(
-                onRefresh: serversProviders.refreshDevices,
-                child: CustomScrollView(slivers: <Widget>[
-                  ...serversProviders.servers.map((server) {
-                    return _DevicesForServer(
-                      server: server,
-                      isCompact: hasDrawer ||
-                          consts.maxWidth < kMobileBreakpoint.width,
-                      searchQuery: searchVisible ? searchQuery : '',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasDrawer) ...[
+            AppBar(
+              leading: MaybeUnityDrawerButton(context),
+              title: Text(loc.directCamera),
+              actions: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 12.0),
+                  child: SearchToggleButton(searchable: this),
+                ),
+              ],
+            ),
+            searchBar,
+          ] else
+            searchBar,
+          Expanded(
+            child: () {
+              if (serversProviders.servers.isEmpty) {
+                return const NoServerWarning();
+              } else {
+                return LayoutBuilder(
+                  builder: (context, consts) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: serversProviders.refreshDevices,
+                      child: CustomScrollView(
+                        slivers: <Widget>[
+                          ...serversProviders.servers.map((server) {
+                            return _DevicesForServer(
+                              server: server,
+                              isCompact:
+                                  hasDrawer ||
+                                  consts.maxWidth < kMobileBreakpoint.width,
+                              searchQuery: searchVisible ? searchQuery : '',
+                            );
+                          }),
+                        ],
+                      ),
                     );
-                  }),
-                ]),
-              );
-            });
-          }
-        }()),
-      ]),
+                  },
+                );
+              }
+            }(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -128,13 +138,14 @@ class _DevicesForServer extends StatelessWidget {
       subtextStyle: TextStyle(
         color: !server.online ? theme.colorScheme.error : null,
       ),
-      trailing: isLoading
-          ? const SizedBox(
-              height: 16.0,
-              width: 16.0,
-              child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
-            )
-          : null,
+      trailing:
+          isLoading
+              ? const SizedBox(
+                height: 16.0,
+                width: 16.0,
+                child: CircularProgressIndicator.adaptive(strokeWidth: 1.5),
+              )
+              : null,
     );
 
     if (isLoading || !server.online) {
@@ -142,116 +153,135 @@ class _DevicesForServer extends StatelessWidget {
     }
 
     if (server.devices.isEmpty) {
-      return SliverList.list(children: [
-        serverIndicator,
-        SizedBox(
-          height: 72.0,
-          child: Center(
-            child: Text(
-              loc.noDevices,
-              style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+      return SliverList.list(
+        children: [
+          serverIndicator,
+          SizedBox(
+            height: 72.0,
+            child: Center(
+              child: Text(
+                loc.noDevices,
+                style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+              ),
             ),
           ),
-        ),
-      ]);
+        ],
+      );
     }
 
     final devices = server.devices.sorted(searchQuery: searchQuery);
 
     if (isCompact) {
-      return MultiSliver(pushPinnedChildren: true, children: [
-        SliverPinnedHeader(child: serverIndicator),
-        SliverList.builder(
-          itemCount: devices.length,
-          itemBuilder: (context, index) {
-            final device = devices[index];
-            return ListTile(
-              enabled: device.status,
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                foregroundColor: device.status
-                    ? theme.extension<UnityColors>()!.successColor
-                    : theme.colorScheme.error,
-                child: Icon(
-                  device.status
-                      ? Icons.videocam_outlined
-                      : Icons.videocam_off_outlined,
-                ),
-              ),
-              title: Text(device.name.uppercaseFirst),
-              subtitle: Text([
-                device.uri,
-                '${device.resolutionX}x${device.resolutionY}',
-              ].join(' • ')),
-              trailing:
-                  device.hasPTZ ? const Icon(Icons.videogame_asset) : null,
-              onTap: () => onTap(context, device),
-            );
-          },
-        ),
-      ]);
-    }
-
-    return MultiSliver(children: [
-      SliverPinnedHeader(child: serverIndicator),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 10.0),
-          child: Wrap(
-            children: devices.map<Widget>((device) {
-              final foregroundColor = device.status
-                  ? theme.extension<UnityColors>()!.successColor
-                  : theme.colorScheme.error;
-
-              return Card(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10.0),
-                  onTap: device.status ? () => onTap(context, device) : null,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 8.0),
-                    child: Column(children: [
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: foregroundColor,
-                          child: Icon(
-                            device.status
-                                ? Icons.videocam_outlined
-                                : Icons.videocam_off,
-                          ),
-                        ),
-                        Text(
-                          device.name,
-                          style: TextStyle(color: foregroundColor),
-                        ),
-                        if (device.hasPTZ)
-                          Padding(
-                            padding: const EdgeInsetsDirectional.only(start: 6),
-                            child: Icon(
-                              Icons.videogame_asset,
-                              color: foregroundColor,
-                            ),
-                          )
-                      ]),
-                    ]),
+      return MultiSliver(
+        pushPinnedChildren: true,
+        children: [
+          SliverPinnedHeader(child: serverIndicator),
+          SliverList.builder(
+            itemCount: devices.length,
+            itemBuilder: (context, index) {
+              final device = devices[index];
+              return ListTile(
+                enabled: device.status,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor:
+                      device.status
+                          ? theme.extension<UnityColors>()!.successColor
+                          : theme.colorScheme.error,
+                  child: Icon(
+                    device.status
+                        ? Icons.videocam_outlined
+                        : Icons.videocam_off_outlined,
                   ),
                 ),
+                title: Text(device.name.uppercaseFirst),
+                subtitle: Text(
+                  [
+                    device.uri,
+                    '${device.resolutionX}x${device.resolutionY}',
+                  ].join(' • '),
+                ),
+                trailing:
+                    device.hasPTZ ? const Icon(Icons.videogame_asset) : null,
+                onTap: () => onTap(context, device),
               );
-            }).toList(),
+            },
+          ),
+        ],
+      );
+    }
+
+    return MultiSliver(
+      children: [
+        SliverPinnedHeader(child: serverIndicator),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 10.0),
+            child: Wrap(
+              children:
+                  devices.map<Widget>((device) {
+                    final foregroundColor =
+                        device.status
+                            ? theme.extension<UnityColors>()!.successColor
+                            : theme.colorScheme.error;
+
+                    return Card(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10.0),
+                        onTap:
+                            device.status ? () => onTap(context, device) : null,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 8.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: foregroundColor,
+                                    child: Icon(
+                                      device.status
+                                          ? Icons.videocam_outlined
+                                          : Icons.videocam_off,
+                                    ),
+                                  ),
+                                  Text(
+                                    device.name,
+                                    style: TextStyle(color: foregroundColor),
+                                  ),
+                                  if (device.hasPTZ)
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: 6,
+                                      ),
+                                      child: Icon(
+                                        Icons.videogame_asset,
+                                        color: foregroundColor,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Future<void> onTap(BuildContext context, Device device) async {
     final player =
         UnityPlayers.players[device.uuid] ?? UnityPlayers.forDevice(device);
 
-    await Navigator.of(context).pushNamed(
-      '/fullscreen',
-      arguments: {'device': device, 'player': player},
-    );
+    await Navigator.of(
+      context,
+    ).pushNamed('/fullscreen', arguments: {'device': device, 'player': player});
 
     if (!UnityPlayers.players.containsKey(device.uuid)) await player.dispose();
   }

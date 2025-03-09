@@ -75,11 +75,12 @@ class AddExternalStreamDialog extends StatefulWidget {
   }) async {
     final device = await showDialog<Device>(
       context: context,
-      builder: (context) => AddExternalStreamDialog(
-        defaultUrl: defaultUrl,
-        overlays: overlays,
-        targetLayout: targetLayout,
-      ),
+      builder:
+          (context) => AddExternalStreamDialog(
+            defaultUrl: defaultUrl,
+            overlays: overlays,
+            targetLayout: targetLayout,
+          ),
     );
 
     if (device != null && context.mounted) {
@@ -111,9 +112,11 @@ class AddExternalStreamDialog extends StatefulWidget {
     );
 
     final view = context.read<LayoutsProvider>();
-    final layout = targetLayout ??
-        view.layouts
-            .firstWhereOrNull((layout) => layout.name == loc.externalStream);
+    final layout =
+        targetLayout ??
+        view.layouts.firstWhereOrNull(
+          (layout) => layout.name == loc.externalStream,
+        );
     if (layout == null) {
       view.addLayout(Layout(name: loc.externalStream, devices: [device]));
     } else {
@@ -185,8 +188,9 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                       child: TextFormField(
                         autofocus: true,
                         controller: nameController,
-                        decoration:
-                            InputDecoration(label: Text(loc.streamName)),
+                        decoration: InputDecoration(
+                          label: Text(loc.streamName),
+                        ),
                         textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -202,9 +206,10 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                       child: TextFormField(
                         controller: urlController,
                         decoration: InputDecoration(label: Text(loc.streamURL)),
-                        textInputAction: showMoreOptions
-                            ? TextInputAction.next
-                            : TextInputAction.done,
+                        textInputAction:
+                            showMoreOptions
+                                ? TextInputAction.next
+                                : TextInputAction.done,
                         onFieldSubmitted:
                             showMoreOptions ? null : (_) => _finish(),
                         validator: (value) {
@@ -219,8 +224,10 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(top: 16.0),
                     child: TextButton(
-                      onPressed: () =>
-                          setState(() => showMoreOptions = !showMoreOptions),
+                      onPressed:
+                          () => setState(
+                            () => showMoreOptions = !showMoreOptions,
+                          ),
                       child: Text(
                         showMoreOptions ? loc.showLess : loc.showMore,
                       ),
@@ -233,67 +240,75 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
                   const SizedBox(height: 6.0),
                   Center(
                     child: ToggleButtons(
-                      isSelected: MatrixType.values.map((type) {
-                        return type.index == matrixType.index;
-                      }).toList(),
-                      onPressed: (type) => setState(() {
-                        matrixType = MatrixType.values[type];
-                      }),
-                      children: MatrixType.values.map<Widget>((type) {
-                        return Row(children: [
-                          const SizedBox(width: 12.0),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 150),
-                            child: KeyedSubtree(
-                              key: ValueKey(type),
-                              child: IconTheme.merge(
-                                data: const IconThemeData(size: 22.0),
-                                child: type.icon,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(type.toString()),
-                          const SizedBox(width: 16.0),
-                        ]);
-                      }).toList(),
+                      isSelected:
+                          MatrixType.values.map((type) {
+                            return type.index == matrixType.index;
+                          }).toList(),
+                      onPressed:
+                          (type) => setState(() {
+                            matrixType = MatrixType.values[type];
+                          }),
+                      children:
+                          MatrixType.values.map<Widget>((type) {
+                            return Row(
+                              children: [
+                                const SizedBox(width: 12.0),
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
+                                  child: KeyedSubtree(
+                                    key: ValueKey(type),
+                                    child: IconTheme.merge(
+                                      data: const IconThemeData(size: 22.0),
+                                      child: type.icon,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text(type.toString()),
+                                const SizedBox(width: 16.0),
+                              ],
+                            );
+                          }).toList(),
                     ),
                   ),
                 ],
                 if (showMoreOptions) ...[
                   const SizedBox(height: 16.0),
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Expanded(
-                      child: TextField(
-                        controller: rackNameController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          label: Text(loc.rackName),
-                          hintText: loc.rackNameExample,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: rackNameController,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            label: Text(loc.rackName),
+                            hintText: loc.rackNameExample,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFormField(
-                        controller: serverIpController,
-                        textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(
-                          label: Text(loc.serverHostname),
-                          hintText: loc.serverHostnameExample,
-                        ),
-                        validator: (value) {
-                          if (value != null &&
-                              value.isNotEmpty &&
-                              Uri.tryParse(value) == null) {
-                            return loc.streamURLNotValid;
-                          }
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: TextFormField(
+                          controller: serverIpController,
+                          textInputAction: TextInputAction.done,
+                          decoration: InputDecoration(
+                            label: Text(loc.serverHostname),
+                            hintText: loc.serverHostnameExample,
+                          ),
+                          validator: (value) {
+                            if (value != null &&
+                                value.isNotEmpty &&
+                                Uri.tryParse(value) == null) {
+                              return loc.streamURLNotValid;
+                            }
 
-                          return null;
-                        },
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                 ],
                 if (overlays.isNotEmpty && showMoreOptions)
                   Flexible(
@@ -316,10 +331,7 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
           onPressed: Navigator.of(context).pop,
           child: Text(loc.cancel),
         ),
-        FilledButton(
-          onPressed: _finish,
-          child: Text(loc.finish),
-        ),
+        FilledButton(onPressed: _finish, child: Text(loc.finish)),
       ],
     );
   }
@@ -333,9 +345,9 @@ class _AddExternalStreamDialogState extends State<AddExternalStreamDialog> {
         (rackNameController.text.isEmpty && serverIpController.text.isEmpty)
             ? null
             : ExternalDeviceData(
-                rackName: rackNameController.text,
-                serverIp: Uri.tryParse(serverIpController.text),
-              );
+              rackName: rackNameController.text,
+              serverIp: Uri.tryParse(serverIpController.text),
+            );
 
     final device = AddExternalStreamDialog.addStream(
       context,
@@ -374,36 +386,39 @@ class VideoOverlaysEditor extends StatelessWidget {
         Text(loc.overlays, style: theme.textTheme.headlineSmall),
         for (final overlay in overlays) ...[
           const SizedBox(height: 6.0),
-          Row(children: [
-            Tooltip(
-              message: loc.visible,
-              child: Transform.scale(
-                scale: 0.9,
-                child: Checkbox.adaptive(
-                  value: overlay.visible,
-                  onChanged: (visible) {
-                    onChanged(
-                      overlays.indexOf(overlay),
-                      overlay.copyWith(visible: visible!),
-                    );
-                  },
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
+          Row(
+            children: [
+              Tooltip(
+                message: loc.visible,
+                child: Transform.scale(
+                  scale: 0.9,
+                  child: Checkbox.adaptive(
+                    value: overlay.visible,
+                    onChanged: (visible) {
+                      onChanged(
+                        overlays.indexOf(overlay),
+                        overlay.copyWith(visible: visible!),
+                      );
+                    },
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 6.0),
-            Text(
-              loc.nOverlay(overlays.indexOf(overlay) + 1),
-              style: theme.textTheme.labelLarge,
-            ),
-            const Spacer(),
-            Text(
-              loc.overlayPosition(overlay.position.dx, overlay.position.dy),
-              style: theme.textTheme.labelSmall!
-                  .copyWith(fontWeight: FontWeight.normal),
-            ),
-          ]),
+              const SizedBox(width: 6.0),
+              Text(
+                loc.nOverlay(overlays.indexOf(overlay) + 1),
+                style: theme.textTheme.labelLarge,
+              ),
+              const Spacer(),
+              Text(
+                loc.overlayPosition(overlay.position.dx, overlay.position.dy),
+                style: theme.textTheme.labelSmall!.copyWith(
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 2.0),
           TextFormField(
             initialValue: overlay.text,

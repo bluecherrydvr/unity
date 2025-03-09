@@ -84,18 +84,21 @@ class NoServerWarning extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Center(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(
-          Icons.dns,
-          size: 72.0,
-          color: theme.iconTheme.color?.withValues(alpha: 0.8),
-        ),
-        const SizedBox(height: 8.0),
-        Text(
-          loc.noServersAdded,
-          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
-        ),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.dns,
+            size: 72.0,
+            color: theme.iconTheme.color?.withValues(alpha: 0.8),
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            loc.noServersAdded,
+            style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+          ),
+        ],
+      ),
     );
   }
 }

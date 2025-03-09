@@ -58,21 +58,14 @@ Widget wrapTooltipIf(
   bool? preferBelow,
 }) {
   if (condition) {
-    return Tooltip(
-      message: message,
-      preferBelow: preferBelow,
-      child: child,
-    );
+    return Tooltip(message: message, preferBelow: preferBelow, child: child);
   }
 
   return child;
 }
 
 /// Wraps [child] in an [Expanded] if [condition] is true.
-Widget wrapExpandedIf(
-  bool condition, {
-  required Widget child,
-}) {
+Widget wrapExpandedIf(bool condition, {required Widget child}) {
   if (condition) {
     return Expanded(child: child);
   }
@@ -151,9 +144,10 @@ bool get isEmbedded {
 /// is connected to a WiFi network, then it returns 400, otherwise it returns
 /// 200.
 Future<int> get eventsLimit async {
-  final connectivityResult = UpdateManager.isEmbedded
-      ? ConnectivityResult.wifi
-      : await Connectivity().checkConnectivity();
+  final connectivityResult =
+      UpdateManager.isEmbedded
+          ? ConnectivityResult.wifi
+          : await Connectivity().checkConnectivity();
 
   switch (connectivityResult) {
     case ConnectivityResult.wifi:

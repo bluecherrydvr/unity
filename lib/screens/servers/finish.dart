@@ -50,16 +50,13 @@ class LetsGoScreen extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.all(16.0),
-        child: Row(children: [
-          Icon(
-            Icons.check,
-            color: Colors.green.shade400,
-          ),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child: Text(loc.serverAdded),
-          ),
-        ]),
+        child: Row(
+          children: [
+            Icon(Icons.check, color: Colors.green.shade400),
+            const SizedBox(width: 16.0),
+            Expanded(child: Text(loc.serverAdded)),
+          ],
+        ),
       ),
     );
 
@@ -78,17 +75,13 @@ class LetsGoScreen extends StatelessWidget {
               ),
               ...[loc.tip0, loc.tip1, loc.tip2, loc.tip3].map((tip) {
                 return Padding(
-                  padding: const EdgeInsetsDirectional.only(
-                    top: 8.0,
-                  ),
+                  padding: const EdgeInsetsDirectional.only(top: 8.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(' • '),
                       const SizedBox(width: 4.0),
-                      Expanded(
-                        child: Text(tip),
-                      ),
+                      Expanded(child: Text(tip)),
                     ],
                   ),
                 );
@@ -108,93 +101,100 @@ class LetsGoScreen extends StatelessWidget {
       ),
     );
 
-    return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth < kMobileBreakpoint.width) {
-        return PopScope(
-          canPop: false,
-          child: ListView(
-            padding: const EdgeInsetsDirectional.all(24.0),
-            children: [
-              SizedBox(
-                height: consts.maxHeight * 0.875,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (server != null) addedCard,
-                    tipsCard,
-                    const SizedBox(height: 8.0),
-                    finishButton,
-                    const SizedBox(height: 12.0),
-                  ],
-                ),
-              ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.symmetric(vertical: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: server!.devices.sorted().map((device) {
-                      return DeviceSelectorTile(
-                        device: device,
-                        selected: false,
-                        selectable: false,
-                      );
-                    }).toList(),
-                  ),
-                ),
-              )
-            ],
-          ),
-        );
-      } else {
-        return PopScope(
-          canPop: false,
-          child: IntrinsicWidth(
-            child: Container(
-              margin: const EdgeInsetsDirectional.all(16.0),
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.sizeOf(context).width / 2.5,
-              ),
-              child: Row(children: [
-                Expanded(
+    return LayoutBuilder(
+      builder: (context, consts) {
+        if (consts.maxWidth < kMobileBreakpoint.width) {
+          return PopScope(
+            canPop: false,
+            child: ListView(
+              padding: const EdgeInsetsDirectional.all(24.0),
+              children: [
+                SizedBox(
+                  height: consts.maxHeight * 0.875,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       if (server != null) addedCard,
                       tipsCard,
                       const SizedBox(height: 8.0),
                       finishButton,
+                      const SizedBox(height: 12.0),
                     ],
                   ),
                 ),
-                if (server != null && server!.devices.isNotEmpty) ...[
-                  const SizedBox(width: 16.0),
-                  SizedBox(
-                    width: kSidebarConstraints.maxWidth,
-                    child: Card(
-                      child: SingleChildScrollView(
-                        padding:
-                            const EdgeInsetsDirectional.symmetric(vertical: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: server!.devices.sorted().map((device) {
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.symmetric(vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children:
+                          server!.devices.sorted().map((device) {
                             return DeviceSelectorTile(
                               device: device,
                               selected: false,
                               selectable: false,
                             );
                           }).toList(),
-                        ),
-                      ),
                     ),
                   ),
-                ]
-              ]),
+                ),
+              ],
             ),
-          ),
-        );
-      }
-    });
+          );
+        } else {
+          return PopScope(
+            canPop: false,
+            child: IntrinsicWidth(
+              child: Container(
+                margin: const EdgeInsetsDirectional.all(16.0),
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.sizeOf(context).width / 2.5,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (server != null) addedCard,
+                          tipsCard,
+                          const SizedBox(height: 8.0),
+                          finishButton,
+                        ],
+                      ),
+                    ),
+                    if (server != null && server!.devices.isNotEmpty) ...[
+                      const SizedBox(width: 16.0),
+                      SizedBox(
+                        width: kSidebarConstraints.maxWidth,
+                        child: Card(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              vertical: 8,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children:
+                                  server!.devices.sorted().map((device) {
+                                    return DeviceSelectorTile(
+                                      device: device,
+                                      selected: false,
+                                      selectable: false,
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 }

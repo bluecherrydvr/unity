@@ -63,84 +63,92 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
     if (device != null) {
       return Material(
         color: Colors.black,
-        child: Stack(alignment: AlignmentDirectional.topEnd, children: [
-          DeviceTile(
-            device: device,
-            tab: widget.tab,
-            index: widget.index,
-          ),
-          PositionedDirectional(
-            top: 0.0,
-            end: 0.0,
-            child: Container(
-              height: 72.0,
-              width: 72.0,
-              decoration: const BoxDecoration(
-                color: Colors.black,
-                gradient: LinearGradient(
-                  colors: [Colors.black54, Colors.transparent],
-                  begin: AlignmentDirectional.topEnd,
-                  end: AlignmentDirectional.bottomStart,
-                  stops: [0.0, 0.6],
+        child: Stack(
+          alignment: AlignmentDirectional.topEnd,
+          children: [
+            DeviceTile(device: device, tab: widget.tab, index: widget.index),
+            PositionedDirectional(
+              top: 0.0,
+              end: 0.0,
+              child: Container(
+                height: 72.0,
+                width: 72.0,
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  gradient: LinearGradient(
+                    colors: [Colors.black54, Colors.transparent],
+                    begin: AlignmentDirectional.topEnd,
+                    end: AlignmentDirectional.bottomStart,
+                    stops: [0.0, 0.6],
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(top: 4.0, end: 4.0),
-            child: Builder(builder: (context) {
-              return GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTapUp: (d) async {
-                  final box = context.findRenderObject() as RenderBox;
-                  final buttonPos = box.localToGlobal(
-                    const Offset(kMinInteractiveDimension - 14.0, 0.0),
-                    ancestor: Navigator.of(context).context.findRenderObject(),
-                  );
+            Padding(
+              padding: const EdgeInsetsDirectional.only(top: 4.0, end: 4.0),
+              child: Builder(
+                builder: (context) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTapUp: (d) async {
+                      final box = context.findRenderObject() as RenderBox;
+                      final buttonPos = box.localToGlobal(
+                        const Offset(kMinInteractiveDimension - 14.0, 0.0),
+                        ancestor:
+                            Navigator.of(context).context.findRenderObject(),
+                      );
 
-                  const menuWidth = 200.0;
-                  final position = RelativeRect.fromDirectional(
-                    textDirection: Directionality.of(context),
-                    start: buttonPos.dx - menuWidth,
-                    top: buttonPos.dy,
-                    end: buttonPos.dx,
-                    bottom: buttonPos.dy + menuWidth,
-                  );
+                      const menuWidth = 200.0;
+                      final position = RelativeRect.fromDirectional(
+                        textDirection: Directionality.of(context),
+                        start: buttonPos.dx - menuWidth,
+                        top: buttonPos.dy,
+                        end: buttonPos.dx,
+                        bottom: buttonPos.dy + menuWidth,
+                      );
 
-                  await showMenu<IconData>(
-                    context: context,
-                    position: position,
-                    items: [
-                      PopupMenuItem(
-                        child: Text(loc.removeCamera),
-                        onTap: () => view.remove(widget.tab, widget.index),
-                      ),
-                      PopupMenuItem(
-                        child: Text(loc.replaceCamera),
-                        onTap: () async {
-                          if (mounted) {
-                            final device = await showDeviceSelector(context);
-                            if (device != null) {
-                              view.replace(widget.tab, widget.index, device);
-                            }
-                          }
-                        },
-                      ),
-                      PopupMenuItem(
-                        child: Text(loc.reloadCamera),
-                        onTap: () => view.reload(widget.tab, widget.index),
-                      ),
-                    ],
+                      await showMenu<IconData>(
+                        context: context,
+                        position: position,
+                        items: [
+                          PopupMenuItem(
+                            child: Text(loc.removeCamera),
+                            onTap: () => view.remove(widget.tab, widget.index),
+                          ),
+                          PopupMenuItem(
+                            child: Text(loc.replaceCamera),
+                            onTap: () async {
+                              if (mounted) {
+                                final device = await showDeviceSelector(
+                                  context,
+                                );
+                                if (device != null) {
+                                  view.replace(
+                                    widget.tab,
+                                    widget.index,
+                                    device,
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                          PopupMenuItem(
+                            child: Text(loc.reloadCamera),
+                            onTap: () => view.reload(widget.tab, widget.index),
+                          ),
+                        ],
+                      );
+                    },
+                    child: SquaredIconButton(
+                      onPressed: null,
+                      icon: Icon(moreIconData, color: Colors.white),
+                    ),
                   );
                 },
-                child: SquaredIconButton(
-                  onPressed: null,
-                  icon: Icon(moreIconData, color: Colors.white),
-                ),
-              );
-            }),
-          ),
-        ]),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -167,11 +175,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
           },
           child: Container(
             alignment: AlignmentDirectional.center,
-            child: const Icon(
-              Icons.add,
-              size: 36.0,
-              color: Colors.white,
-            ),
+            child: const Icon(Icons.add, size: 36.0, color: Colors.white),
           ),
         ),
       ),
@@ -197,13 +201,14 @@ class DeviceTile extends StatefulWidget {
 
 class DeviceTileState extends State<DeviceTile> {
   bool get hover =>
-      context.read<MobileViewProvider>().hoverStates[widget.tab]
-          ?[widget.index] ??
+      context.read<MobileViewProvider>().hoverStates[widget.tab]?[widget
+          .index] ??
       false;
 
   set hover(bool value) =>
-      context.read<MobileViewProvider>().hoverStates[widget.tab]
-          ?[widget.index] = value;
+      context.read<MobileViewProvider>().hoverStates[widget.tab]?[widget
+              .index] =
+          value;
 
   @override
   Widget build(BuildContext context) {
@@ -224,17 +229,15 @@ class DeviceTileState extends State<DeviceTile> {
         if (videoPlayer.error == null) {
           await Navigator.of(context).pushNamed(
             '/fullscreen',
-            arguments: {
-              'device': widget.device,
-              'player': videoPlayer,
-            },
+            arguments: {'device': widget.device, 'player': videoPlayer},
           );
         }
       },
       child: UnityVideoView(
         heroTag: widget.device.streamURL,
         player: videoPlayer,
-        fit: widget.device.server.additionalSettings.videoFit ??
+        fit:
+            widget.device.server.additionalSettings.videoFit ??
             settings.kVideoFit.value,
         paneBuilder: (context, controller) {
           final video = UnityVideoView.of(context);
@@ -242,110 +245,109 @@ class DeviceTileState extends State<DeviceTile> {
           final isLoading = !controller.isSeekable;
 
           return ClipRect(
-            child: Stack(alignment: Alignment.center, children: [
-              if (error != null)
-                ErrorWarning(message: error)
-              else if (isLoading)
-                const CircularProgressIndicator.adaptive(
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
-                  strokeWidth: 1.5,
-                ),
-              if (video.lastImageUpdate != null)
-                TweenAnimationBuilder(
-                  tween: Tween<double>(
-                    begin: 0.0,
-                    end: hover ? 1.0 : 0.0,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (error != null)
+                  ErrorWarning(message: error)
+                else if (isLoading)
+                  const CircularProgressIndicator.adaptive(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                    strokeWidth: 1.5,
                   ),
-                  duration: const Duration(milliseconds: 300),
-                  builder: (context, value, child) {
-                    return Opacity(
-                      opacity: value,
-                      child: child,
-                    );
-                  },
-                  child: SquaredIconButton(
-                    // splashRadius: 20.0,
-                    onPressed: () async {
-                      await Navigator.of(context).pushNamed(
-                        '/fullscreen',
-                        arguments: {
-                          'device': widget.device,
-                          'player': videoPlayer,
-                        },
-                      );
+                if (video.lastImageUpdate != null)
+                  TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0.0, end: hover ? 1.0 : 0.0),
+                    duration: const Duration(milliseconds: 300),
+                    builder: (context, value, child) {
+                      return Opacity(opacity: value, child: child);
                     },
-                    icon: const Icon(
-                      Icons.fullscreen,
-                      color: Colors.white,
-                      size: 32.0,
-                    ),
-                  ),
-                ),
-              PositionedDirectional(
-                top: 6.0,
-                start: 6.0,
-                child: VideoStatusLabel(
-                  video: video,
-                  device: widget.device,
-                  position: VideoStatusLabelPosition.top,
-                ),
-              ),
-              PositionedDirectional(
-                bottom: 0.0,
-                start: 0.0,
-                end: 0.0,
-                child: AnimatedSlide(
-                  offset: Offset(
-                    0,
-                    error != null || isLoading || hover ? 0.0 : 1.0,
-                  ),
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Container(
-                    padding: const EdgeInsetsDirectional.only(
-                      start: 16.0,
-                      top: 6.0,
-                      bottom: 6.0,
-                      end: 16.0,
-                    ),
-                    alignment: AlignmentDirectional.centerEnd,
-                    color: Colors.black26,
-                    child: Row(children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.device.name,
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            Text(
-                              widget.device.server.name,
-                              style: theme.textTheme.displaySmall?.copyWith(
-                                color: Colors.white70,
-                                fontSize: 10.0,
-                              ),
-                            ),
-                          ],
-                        ),
+                    child: SquaredIconButton(
+                      // splashRadius: 20.0,
+                      onPressed: () async {
+                        await Navigator.of(context).pushNamed(
+                          '/fullscreen',
+                          arguments: {
+                            'device': widget.device,
+                            'player': videoPlayer,
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.fullscreen,
+                        color: Colors.white,
+                        size: 32.0,
                       ),
-                      if (widget.device.hasPTZ)
-                        Icon(
-                          Icons.videogame_asset,
-                          color: Colors.white,
-                          size: 20.0,
-                          semanticLabel: loc.ptzSupported,
-                        ),
-                    ]),
+                    ),
+                  ),
+                PositionedDirectional(
+                  top: 6.0,
+                  start: 6.0,
+                  child: VideoStatusLabel(
+                    video: video,
+                    device: widget.device,
+                    position: VideoStatusLabelPosition.top,
                   ),
                 ),
-              ),
-            ]),
+                PositionedDirectional(
+                  bottom: 0.0,
+                  start: 0.0,
+                  end: 0.0,
+                  child: AnimatedSlide(
+                    offset: Offset(
+                      0,
+                      error != null || isLoading || hover ? 0.0 : 1.0,
+                    ),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 16.0,
+                        top: 6.0,
+                        bottom: 6.0,
+                        end: 16.0,
+                      ),
+                      alignment: AlignmentDirectional.centerEnd,
+                      color: Colors.black26,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.device.name,
+                                  style: theme.textTheme.displayLarge?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                                Text(
+                                  widget.device.server.name,
+                                  style: theme.textTheme.displaySmall?.copyWith(
+                                    color: Colors.white70,
+                                    fontSize: 10.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.device.hasPTZ)
+                            Icon(
+                              Icons.videogame_asset,
+                              color: Colors.white,
+                              size: 20.0,
+                              semanticLabel: loc.ptzSupported,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

@@ -70,15 +70,17 @@ class DeviceGrid extends StatelessWidget {
 
     return Material(
       type: MaterialType.transparency,
-      child: LayoutBuilder(builder: (context, consts) {
-        final width = consts.biggest.width;
+      child: LayoutBuilder(
+        builder: (context, consts) {
+          final width = consts.biggest.width;
 
-        if (hasDrawer || width < kMobileBreakpoint.width) {
-          return const SmallDeviceGrid();
-        } else {
-          return LargeDeviceGrid(width: width);
-        }
-      }),
+          if (hasDrawer || width < kMobileBreakpoint.width) {
+            return const SmallDeviceGrid();
+          } else {
+            return LargeDeviceGrid(width: width);
+          }
+        },
+      ),
     );
   }
 }

@@ -48,68 +48,74 @@ class AddServerInfoScreen extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsetsDirectional.all(16.0),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset(
-                    'assets/images/icon.png',
-                    height: 124.0,
-                    width: 124.0,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 24.0),
-                  Text(
-                    loc.projectName,
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      fontSize: 36.0,
-                      fontWeight: FontWeight.w600,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/icon.png',
+                      height: 124.0,
+                      width: 124.0,
+                      fit: BoxFit.contain,
                     ),
-                  ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    loc.projectDescription,
-                    style: theme.textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    Link(
-                      uri: Uri.https('bluecherrydvr.com', '/'),
-                      builder: (context, open) {
-                        return TextButton(
-                          onPressed: open,
-                          child: Text(loc.website),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 8.0),
-                    Link(
-                      uri: Uri.https(
-                        'bluecherrydvr.com',
-                        '/product/v3license/',
+                    const SizedBox(height: 24.0),
+                    Text(
+                      loc.projectName,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        fontSize: 36.0,
+                        fontWeight: FontWeight.w600,
                       ),
-                      builder: (context, open) {
-                        return TextButton(
-                          onPressed: open,
-                          child: Text(loc.purchase),
-                        );
-                      },
                     ),
-                  ]),
-                  const Divider(thickness: 1.0),
-                  const SizedBox(height: 16.0),
-                  Text(
-                    loc.welcome,
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 4.0),
+                    Text(
+                      loc.projectDescription,
+                      style: theme.textTheme.headlineSmall,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    loc.welcomeDescription,
-                    style: theme.textTheme.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                ]),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Link(
+                          uri: Uri.https('bluecherrydvr.com', '/'),
+                          builder: (context, open) {
+                            return TextButton(
+                              onPressed: open,
+                              child: Text(loc.website),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 8.0),
+                        Link(
+                          uri: Uri.https(
+                            'bluecherrydvr.com',
+                            '/product/v3license/',
+                          ),
+                          builder: (context, open) {
+                            return TextButton(
+                              onPressed: open,
+                              child: Text(loc.purchase),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const Divider(thickness: 1.0),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      loc.welcome,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      loc.welcomeDescription,
+                      style: theme.textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16.0),
               Material(

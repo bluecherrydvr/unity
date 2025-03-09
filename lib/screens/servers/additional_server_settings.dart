@@ -53,7 +53,7 @@ class AdditionalServerSettings extends StatefulWidget {
 class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
   late bool connectAutomaticallyAtStartup =
       widget.server?.additionalSettings.connectAutomaticallyAtStartup ??
-          SettingsProvider.instance.kConnectAutomaticallyAtStartup.value;
+      SettingsProvider.instance.kConnectAutomaticallyAtStartup.value;
   late StreamingType? streamingType =
       widget.server?.additionalSettings.preferredStreamingType;
   late RTSPProtocol? rtspProtocol =
@@ -64,15 +64,17 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
 
   Future<void> updateServer() async {
     if (widget.server != null) {
-      await widget.onServerChanged(widget.server!.copyWith(
-        additionalSettings: AdditionalServerOptions(
-          connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
-          preferredStreamingType: streamingType,
-          rtspProtocol: rtspProtocol,
-          renderingQuality: renderingQuality,
-          videoFit: videoFit,
+      await widget.onServerChanged(
+        widget.server!.copyWith(
+          additionalSettings: AdditionalServerOptions(
+            connectAutomaticallyAtStartup: connectAutomaticallyAtStartup,
+            preferredStreamingType: streamingType,
+            rtspProtocol: rtspProtocol,
+            renderingQuality: renderingQuality,
+            videoFit: videoFit,
+          ),
         ),
-      ));
+      );
     }
   }
 
@@ -100,9 +102,10 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: isDesktop
-                        ? MediaQuery.sizeOf(context).width / 2.5
-                        : null,
+                    width:
+                        isDesktop
+                            ? MediaQuery.sizeOf(context).width / 2.5
+                            : null,
                     child: buildCardAppBar(
                       title: loc.serverSettings,
                       description: loc.serverSettingsDescription,
@@ -177,34 +180,36 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
                   ),
                   Padding(
                     padding: const EdgeInsetsDirectional.only(top: 12.0),
-                    child: Row(children: [
-                      if (streamingType != null ||
-                          rtspProtocol != null ||
-                          renderingQuality != null ||
-                          videoFit != null)
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              streamingType = null;
-                              rtspProtocol = null;
-                              renderingQuality = null;
-                              videoFit = null;
-                            });
+                    child: Row(
+                      children: [
+                        if (streamingType != null ||
+                            rtspProtocol != null ||
+                            renderingQuality != null ||
+                            videoFit != null)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                streamingType = null;
+                                rtspProtocol = null;
+                                renderingQuality = null;
+                                videoFit = null;
+                              });
+                            },
+                            child: Text(loc.clear),
+                          ),
+                        const Spacer(),
+                        FilledButton(
+                          onPressed: () async {
+                            await updateServer();
+                            widget.onNext();
                           },
-                          child: Text(loc.clear),
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Text(loc.finish.toUpperCase()),
+                          ),
                         ),
-                      const Spacer(),
-                      FilledButton(
-                        onPressed: () async {
-                          await updateServer();
-                          widget.onNext();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.all(8.0),
-                          child: Text(loc.finish.toUpperCase()),
-                        ),
-                      ),
-                    ]),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -223,51 +228,56 @@ class _AdditionalServerSettingsState extends State<AdditionalServerSettings> {
     required T defaultValue,
     required ValueChanged<T?> onChanged,
   }) {
-    return Builder(builder: (context) {
-      return ListTile(
-        title: Row(children: [
-          Flexible(child: Text(title)),
-          if (description != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 6.0),
-              child: Tooltip(
-                message: description,
-                child: Icon(
-                  Icons.info_outline,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 16.0,
+    return Builder(
+      builder: (context) {
+        return ListTile(
+          title: Row(
+            children: [
+              Flexible(child: Text(title)),
+              if (description != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 6.0),
+                  child: Tooltip(
+                    message: description,
+                    child: Icon(
+                      Icons.info_outline,
+                      color: Theme.of(context).colorScheme.secondary,
+                      size: 16.0,
+                    ),
+                  ),
                 ),
+            ],
+          ),
+          trailing: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: isDesktop ? 175.0 : 90.0),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<T>(
+                // isExpanded: true,
+                value: value,
+                onChanged: (v) {
+                  onChanged(v);
+                },
+                hint: Text(defaultValue.name.toUpperCase()),
+                items:
+                    values.map((value) {
+                      return DropdownMenuItem<T>(
+                        value: value,
+                        child: Row(
+                          children: [
+                            Text(value.name.toUpperCase()),
+                            if (defaultValue == value) ...[
+                              const SizedBox(width: 10.0),
+                              const DefaultValueIcon(),
+                            ],
+                          ],
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
-        ]),
-        trailing: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: isDesktop ? 175.0 : 90.0,
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<T>(
-              // isExpanded: true,
-              value: value,
-              onChanged: (v) {
-                onChanged(v);
-              },
-              hint: Text(defaultValue.name.toUpperCase()),
-              items: values.map((value) {
-                return DropdownMenuItem<T>(
-                  value: value,
-                  child: Row(children: [
-                    Text(value.name.toUpperCase()),
-                    if (defaultValue == value) ...[
-                      const SizedBox(width: 10.0),
-                      const DefaultValueIcon(),
-                    ],
-                  ]),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

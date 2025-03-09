@@ -122,9 +122,7 @@ class EventsProvider extends UnityProvider {
 
   @override
   Future<void> save({bool notifyListeners = true}) async {
-    await write({
-      'selectedDevices': jsonEncode(selectedDevices.toList()),
-    });
+    await write({'selectedDevices': jsonEncode(selectedDevices.toList())});
 
     super.save(notifyListeners: notifyListeners);
   }
@@ -156,10 +154,7 @@ class EventsProvider extends UnityProvider {
 }
 
 extension EventsScreenProvider on EventsProvider {
-  Future<void> loadEvents({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
+  Future<void> loadEvents({DateTime? startDate, DateTime? endDate}) async {
     loadedEvents = LoadedEvents();
     _notify();
 
@@ -167,72 +162,84 @@ extension EventsScreenProvider on EventsProvider {
     endDate ??= this.endDate;
 
     // Load the events at the same time
-    await Future.wait(ServersProvider.instance.servers.map((server) async {
-      if (!server.online || server.devices.isEmpty) return;
+    await Future.wait(
+      ServersProvider.instance.servers.map((server) async {
+        if (!server.online || server.devices.isEmpty) return;
 
-      (_, server) = await API.instance.checkServerCredentials(server);
+        (_, server) = await API.instance.checkServerCredentials(server);
 
-      try {
-        final allowedDevices = server.devices
-            .where((d) => d.status && selectedDevices.contains(d.streamURL));
+        try {
+          final allowedDevices = server.devices.where(
+            (d) => d.status && selectedDevices.contains(d.streamURL),
+          );
 
-        // Perform a query for each selected device
-        await Future.wait(allowedDevices.map((device) async {
-          final iterable = (await API.instance.getEvents(
-            server,
-            startTime: startDate,
-            endTime: endDate,
-            device: device,
-          ))
-              .toList()
-            ..removeWhere((event) {
-              switch (levelFilter) {
-                case EventsMinLevelFilter.alarming:
-                  if (event.isAlarm) return true;
-                  break;
-                case EventsMinLevelFilter.warning:
-                  if (event.priority == EventPriority.warning) return true;
-                  break;
-                default:
-                  break;
-              }
-              return false;
-            })
-            ..removeWhere((event) {
-              if (!isDateSet) return false;
+          // Perform a query for each selected device
+          await Future.wait(
+            allowedDevices.map((device) async {
+              final iterable =
+                  (await API.instance.getEvents(
+                      server,
+                      startTime: startDate,
+                      endTime: endDate,
+                      device: device,
+                    )).toList()
+                    ..removeWhere((event) {
+                      switch (levelFilter) {
+                        case EventsMinLevelFilter.alarming:
+                          if (event.isAlarm) return true;
+                          break;
+                        case EventsMinLevelFilter.warning:
+                          if (event.priority == EventPriority.warning) {
+                            return true;
+                          }
+                          break;
+                        default:
+                          break;
+                      }
+                      return false;
+                    })
+                    ..removeWhere((event) {
+                      if (!isDateSet) return false;
 
-              final isToRemove =
-                  event.published.toUtc().isBefore(startDate!.toUtc()) ||
-                      event.updated.toUtc().isAfter(endDate!.toUtc());
+                      final isToRemove =
+                          event.published.toUtc().isBefore(
+                            startDate!.toUtc(),
+                          ) ||
+                          event.updated.toUtc().isAfter(endDate!.toUtc());
 
-              if (isToRemove) {
+                      if (isToRemove) {
+                        logging.writeLogToFile(
+                          'Removing future event ${event.id} '
+                          'from ${event.server.name}/${event.deviceID}: '
+                          '{raw: ${event.publishedRaw}, parsed: ${event.published}}.',
+                          print: true,
+                        );
+                      }
+                      return isToRemove;
+                    })
+                    ..sort((a, b) => a.published.compareTo(b.published));
+
+              loadedEvents!.events[server] ??= [];
+              loadedEvents!.events[server]!.addAll(iterable);
+
+              if (iterable.isNotEmpty) {
                 logging.writeLogToFile(
-                  'Removing future event ${event.id} '
-                  'from ${event.server.name}/${event.deviceID}: '
-                  '{raw: ${event.publishedRaw}, parsed: ${event.published}}.',
+                  'First event: ${iterable.first}',
+                  print: true,
+                );
+                logging.writeLogToFile(
+                  'Last event: ${iterable.last}',
                   print: true,
                 );
               }
-              return isToRemove;
-            })
-            ..sort((a, b) => a.published.compareTo(b.published));
-
-          loadedEvents!.events[server] ??= [];
-          loadedEvents!.events[server]!.addAll(iterable);
-
-          if (iterable.isNotEmpty) {
-            logging.writeLogToFile(
-              'First event: ${iterable.first}',
-              print: true,
-            );
-            logging.writeLogToFile('Last event: ${iterable.last}', print: true);
-          }
-          _notify();
-        }));
-      } catch (error, stack) {
-        logging.handleError(error, stack, 'Error loading events for $server');
-        loadedEvents!.invalidResponses.add(server);
-      }
-    }));
+              _notify();
+            }),
+          );
+        } catch (error, stack) {
+          logging.handleError(error, stack, 'Error loading events for $server');
+          loadedEvents!.invalidResponses.add(server);
+        }
+      }),
+    );
   }
 }

@@ -40,7 +40,7 @@ enum DesktopLayoutType {
 
   /// If selected, only 4 views will be show in the grid. Each view can have 4
   /// cameras displayed, creating a soft and compact layout view
-  compactView;
+  compactView,
 }
 
 /// A layout is a view that can contain one or more [Device]s.
@@ -100,9 +100,10 @@ class Layout {
   factory Layout.fromMap(Map<String, dynamic> map) {
     return Layout(
       name: map['name'] ?? '',
-      devices: List<Map<String, dynamic>>.from(map['devices'] as List)
-          .map<Device>(Device.fromJson)
-          .toList(),
+      devices:
+          List<Map<String, dynamic>>.from(
+            map['devices'] as List,
+          ).map<Device>(Device.fromJson).toList(),
       type: DesktopLayoutType.values[map['layoutType'] as int],
     );
   }
@@ -121,31 +122,44 @@ class Layout {
 
   /// Exports the layout to an XML file
   String toXml() {
-    final builder = XmlBuilder()
-      ..processing('xml', 'version="1.0"')
-      ..processing(
-        'client-version',
-        UpdateManager.instance.packageInfo?.version ?? 'beta',
-      );
-    builder.element('layout', nest: () {
-      builder
-        ..element('name', nest: () => builder.text(name))
-        ..element('type', nest: () => builder.text(type.name))
-        ..element('devices', nest: () {
-          for (final device in devices) {
-            builder.element('device', nest: () {
-              builder
-                ..element('id', nest: () => builder.text(device.id))
-                ..element('name', nest: () => builder.text(device.name))
-                ..element('server', nest: () => builder.text(device.server.ip))
-                ..element(
-                  'server_port',
-                  nest: () => builder.text(device.server.port),
+    final builder =
+        XmlBuilder()
+          ..processing('xml', 'version="1.0"')
+          ..processing(
+            'client-version',
+            UpdateManager.instance.packageInfo?.version ?? 'beta',
+          );
+    builder.element(
+      'layout',
+      nest: () {
+        builder
+          ..element('name', nest: () => builder.text(name))
+          ..element('type', nest: () => builder.text(type.name))
+          ..element(
+            'devices',
+            nest: () {
+              for (final device in devices) {
+                builder.element(
+                  'device',
+                  nest: () {
+                    builder
+                      ..element('id', nest: () => builder.text(device.id))
+                      ..element('name', nest: () => builder.text(device.name))
+                      ..element(
+                        'server',
+                        nest: () => builder.text(device.server.ip),
+                      )
+                      ..element(
+                        'server_port',
+                        nest: () => builder.text(device.server.port),
+                      );
+                  },
                 );
-            });
-          }
-        });
-    });
+              }
+            },
+          );
+      },
+    );
     final document = builder.buildDocument();
     return document.toXmlString(pretty: true);
   }
@@ -184,8 +198,9 @@ class Layout {
     var name = layoutElement.getElement('name')?.innerText ?? fallbackName;
     final type = layoutElement.getElement('type')?.innerText;
     final devices = () sync* {
-      for (final deviceElement
-          in layoutElement.getElement('devices')!.findElements('device')) {
+      for (final deviceElement in layoutElement
+          .getElement('devices')!
+          .findElements('device')) {
         final id = deviceElement.getElement('id')?.innerText;
         if (id == null) {
           throw ArgumentError('Invalid layout file: device id not found');
@@ -227,16 +242,19 @@ class Layout {
 
     final layout = Layout(
       name: name,
-      type: DesktopLayoutType.values.firstWhereOrNull((t) => t.name == type) ??
+      type:
+          DesktopLayoutType.values.firstWhereOrNull((t) => t.name == type) ??
           DesktopLayoutType.singleView,
       devices: devices.toList(),
     );
 
     for (final layoutDevice in layout.devices.toList()) {
       final servers = ServersProvider.instance;
-      final server = servers.servers.firstWhereOrNull((server) =>
-          server.ip == layoutDevice.server.ip &&
-          server.port == layoutDevice.server.port);
+      final server = servers.servers.firstWhereOrNull(
+        (server) =>
+            server.ip == layoutDevice.server.ip &&
+            server.port == layoutDevice.server.port,
+      );
       if (server == null) {
         throw DeviceServerNotFound(
           layoutName: layout.name,
@@ -244,8 +262,9 @@ class Layout {
         );
       }
 
-      final device =
-          server.devices.firstWhereOrNull((d) => d.id == layoutDevice.id);
+      final device = server.devices.firstWhereOrNull(
+        (d) => d.id == layoutDevice.id,
+      );
       if (device == null) continue;
       layout.devices.remove(layoutDevice);
       layout.devices.add(device);
@@ -269,10 +288,7 @@ class DeviceServerNotFound extends Error {
   final String layoutName;
   final Server server;
 
-  DeviceServerNotFound({
-    required this.layoutName,
-    required this.server,
-  });
+  DeviceServerNotFound({required this.layoutName, required this.server});
 
   @override
   String toString() =>

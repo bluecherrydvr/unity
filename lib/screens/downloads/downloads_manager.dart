@@ -38,64 +38,78 @@ class DownloadsManagerScreen extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final downloads = context.watch<DownloadsManager>();
 
-    return Column(children: [
-      if (Scaffold.hasDrawer(context))
-        AppBar(
-          leading: MaybeUnityDrawerButton(context),
-          title: Text(loc.downloads),
-        )
-      else
-        const SafeArea(child: SizedBox.shrink()),
-      Expanded(
-        child: LayoutBuilder(builder: (context, consts) {
-          if (downloads.isEmpty) return const _NoDownloads();
+    return Column(
+      children: [
+        if (Scaffold.hasDrawer(context))
+          AppBar(
+            leading: MaybeUnityDrawerButton(context),
+            title: Text(loc.downloads),
+          )
+        else
+          const SafeArea(child: SizedBox.shrink()),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, consts) {
+              if (downloads.isEmpty) return const _NoDownloads();
 
-          final size = consts.biggest;
-          return CustomScrollView(slivers: [
-            SliverPadding(
-              padding: const EdgeInsetsDirectional.only(
-                top: kDownloadsManagerPadding / 2,
-                bottom: kDownloadsManagerPadding / 2,
-              ),
-              sliver: SliverList.builder(
-                itemCount: downloads.downloading.length,
-                itemBuilder: (context, index) {
-                  final entry = downloads.downloading.entries.elementAt(index);
-                  final event = entry.key;
-                  final (progress, _) = entry.value;
+              final size = consts.biggest;
+              return CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.only(
+                      top: kDownloadsManagerPadding / 2,
+                      bottom: kDownloadsManagerPadding / 2,
+                    ),
+                    sliver: SliverList.builder(
+                      itemCount: downloads.downloading.length,
+                      itemBuilder: (context, index) {
+                        final entry = downloads.downloading.entries.elementAt(
+                          index,
+                        );
+                        final event = entry.key;
+                        final (progress, _) = entry.value;
 
-                  return DownloadTile(
-                    key: ValueKey(event.id),
-                    event: event,
-                    upcomingEvents:
-                        downloads.downloadedEvents.map((e) => e.event).toList(),
-                    size: size,
-                    progress: progress,
-                    initiallyExpanded: initiallyExpandedEventId == event.id,
-                  );
-                },
-              ),
-            ),
-            SliverList.builder(
-              itemCount: downloads.downloadedEvents.length,
-              itemBuilder: (context, index) {
-                final de = downloads.downloadedEvents.elementAt(index);
+                        return DownloadTile(
+                          key: ValueKey(event.id),
+                          event: event,
+                          upcomingEvents:
+                              downloads.downloadedEvents
+                                  .map((e) => e.event)
+                                  .toList(),
+                          size: size,
+                          progress: progress,
+                          initiallyExpanded:
+                              initiallyExpandedEventId == event.id,
+                        );
+                      },
+                    ),
+                  ),
+                  SliverList.builder(
+                    itemCount: downloads.downloadedEvents.length,
+                    itemBuilder: (context, index) {
+                      final de = downloads.downloadedEvents.elementAt(index);
 
-                return DownloadTile(
-                  key: ValueKey(de.event.id),
-                  event: de.event,
-                  upcomingEvents:
-                      downloads.downloadedEvents.map((e) => e.event).toList(),
-                  size: size,
-                  downloadPath: de.downloadPath,
-                  initiallyExpanded: initiallyExpandedEventId == de.event.id,
-                );
-              },
-            ),
-          ]);
-        }),
-      ),
-    ]);
+                      return DownloadTile(
+                        key: ValueKey(de.event.id),
+                        event: de.event,
+                        upcomingEvents:
+                            downloads.downloadedEvents
+                                .map((e) => e.event)
+                                .toList(),
+                        size: size,
+                        downloadPath: de.downloadPath,
+                        initiallyExpanded:
+                            initiallyExpandedEventId == de.event.id,
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -109,20 +123,16 @@ class _NoDownloads extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.folder_off,
-          size: 48.0,
-        ),
+        const Icon(Icons.folder_off, size: 48.0),
         const SizedBox(height: 6.0),
         Text(loc.noDownloads),
         Text.rich(
           TextSpan(
             text: loc.howToDownload,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => home.setTab(UnityTab.eventsHistory, context),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            recognizer:
+                TapGestureRecognizer()
+                  ..onTap = () => home.setTab(UnityTab.eventsHistory, context),
           ),
           textAlign: TextAlign.center,
         ),

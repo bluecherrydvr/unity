@@ -24,11 +24,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 const kSidebarConstraints = BoxConstraints(maxWidth: 256.0);
 const kCompactSidebarConstraints = BoxConstraints(maxWidth: 48.0);
 
-typedef SidebarBuilder = Widget Function(
-  BuildContext context,
-  bool collapsed,
-  Widget collapseButton,
-);
+typedef SidebarBuilder =
+    Widget Function(
+      BuildContext context,
+      bool collapsed,
+      Widget collapseButton,
+    );
 
 class CollapsableSidebar extends StatefulWidget {
   final SidebarBuilder builder;
@@ -104,33 +105,30 @@ class CollapsableSidebarState extends State<CollapsableSidebar>
     return AnimatedBuilder(
       animation: collapseAnimation,
       builder: (context, child) {
-        final isTransitioning = collapseAnimation.value > 0.0 &&
+        final isTransitioning =
+            collapseAnimation.value > 0.0 &&
             collapseAnimation.value < 1.0 &&
             collapseController.status != AnimationStatus.completed &&
             collapseController.status != AnimationStatus.dismissed;
         final collapsed = collapseController.isCompleted;
         final collapseButton = Container(
-          alignment: isTransitioning
-              ? (widget.left
-                  ? AlignmentDirectional.topStart
-                  : AlignmentDirectional.topEnd)
-              : AlignmentDirectional.topCenter,
-          padding: collapsed
-              ? EdgeInsetsDirectional.zero
-              : const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
+          alignment:
+              isTransitioning
+                  ? (widget.left
+                      ? AlignmentDirectional.topStart
+                      : AlignmentDirectional.topEnd)
+                  : AlignmentDirectional.topCenter,
+          padding:
+              collapsed
+                  ? EdgeInsetsDirectional.zero
+                  : const EdgeInsetsDirectional.symmetric(horizontal: 5.0),
           child: SquaredIconButton(
             key: collapseButtonKey,
             tooltip: collapsed ? loc.expand : loc.collapse,
             icon: RotationTransition(
               turns: (widget.left
-                      ? Tween(
-                          begin: 0.5,
-                          end: 1.0,
-                        )
-                      : Tween(
-                          begin: 1.0,
-                          end: 0.5,
-                        ))
+                      ? Tween(begin: 0.5, end: 1.0)
+                      : Tween(begin: 1.0, end: 0.5))
                   .animate(collapseAnimation),
               child: const Icon(Icons.keyboard_arrow_right),
             ),

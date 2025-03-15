@@ -80,9 +80,6 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
-  # The following line ensures that the translations are generated before the
-  # application build using the ARB files provided.
-  generate: true
   assets:
     - assets/images/
 

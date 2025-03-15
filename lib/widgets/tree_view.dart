@@ -1,7 +1,7 @@
 // ORIGINAL PACKAGE: https://pub.dev/packages/flutter_simple_treeview
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart'
     show TreeNode, TreeController;
 
@@ -19,76 +19,84 @@ Widget buildCheckbox({
   double checkboxScale = 0.8,
   FlexFit textFit = FlexFit.loose,
 }) {
-  return Builder(builder: (context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
-    final checkbox = SizedBox.fromSize(
-      size: const Size(24.0, 24.0),
-      child: isError
-          ? Tooltip(
-              message: loc.offline,
-              child: Icon(
-                offlineIcon,
-                size: 16.0,
-                color: theme.colorScheme.error,
-              ),
-            )
-          : Transform.scale(
-              scale: checkboxScale,
-              child: Checkbox.adaptive(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity:
-                    const VisualDensity(horizontal: -4, vertical: -4),
-                splashRadius: 0.0,
-                tristate: true,
-                value: value,
-                isError: isError,
-                onChanged: onChanged,
-                side:
-                    isError ? BorderSide(color: theme.colorScheme.error) : null,
-              ),
-            ),
-    );
-
-    return SizedBox(
-      height: isError ? 18.0 : 24.0,
-      child: Row(children: [
-        checkbox,
-        Expanded(
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () {
-                onChanged(value == null ? true : !value);
-              },
-              child: Row(children: [
-                SizedBox(width: gapCheckboxText),
-                Flexible(
-                  fit: textFit,
-                  child: Text(
-                    text,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      color: isError ? theme.colorScheme.error : null,
-                      // decoration: isError ? TextDecoration.lineThrough : null,
+  return Builder(
+    builder: (context) {
+      final theme = Theme.of(context);
+      final loc = AppLocalizations.of(context);
+      final checkbox = SizedBox.fromSize(
+        size: const Size(24.0, 24.0),
+        child:
+            isError
+                ? Tooltip(
+                  message: loc.offline,
+                  child: Icon(
+                    offlineIcon,
+                    size: 16.0,
+                    color: theme.colorScheme.error,
+                  ),
+                )
+                : Transform.scale(
+                  scale: checkboxScale,
+                  child: Checkbox.adaptive(
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: const VisualDensity(
+                      horizontal: -4,
+                      vertical: -4,
                     ),
+                    splashRadius: 0.0,
+                    tristate: true,
+                    value: value,
+                    isError: isError,
+                    onChanged: onChanged,
+                    side:
+                        isError
+                            ? BorderSide(color: theme.colorScheme.error)
+                            : null,
                   ),
                 ),
-                if (secondaryText != null)
-                  Text(
-                    secondaryText,
-                    style: theme.textTheme.labelSmall,
+      );
+
+      return SizedBox(
+        height: isError ? 18.0 : 24.0,
+        child: Row(
+          children: [
+            checkbox,
+            Expanded(
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    onChanged(value == null ? true : !value);
+                  },
+                  child: Row(
+                    children: [
+                      SizedBox(width: gapCheckboxText),
+                      Flexible(
+                        fit: textFit,
+                        child: Text(
+                          text,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: TextStyle(
+                            color: isError ? theme.colorScheme.error : null,
+                            // decoration: isError ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      ),
+                      if (secondaryText != null)
+                        Text(secondaryText, style: theme.textTheme.labelSmall),
+                      const SizedBox(width: 10.0),
+                    ],
                   ),
-                const SizedBox(width: 10.0),
-              ]),
+                ),
+              ),
             ),
-          ),
-        )
-      ]),
-    );
-  });
+          ],
+        ),
+      );
+    },
+  );
 }
 
 /// Tree view with collapsible and expandable nodes.
@@ -129,13 +137,21 @@ class _TreeViewState extends State<TreeView> {
   @override
   Widget build(BuildContext context) {
     return buildNodes(
-        widget.nodes, widget.indent, _controller!, widget.iconSize);
+      widget.nodes,
+      widget.indent,
+      _controller!,
+      widget.iconSize,
+    );
   }
 }
 
 /// Builds set of [nodes] respecting [state], [indent] and [iconSize].
-Widget buildNodes(Iterable<TreeNode> nodes, double? indent,
-    TreeController state, double? iconSize) {
+Widget buildNodes(
+  Iterable<TreeNode> nodes,
+  double? indent,
+  TreeController state,
+  double? iconSize,
+) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -145,7 +161,7 @@ Widget buildNodes(Iterable<TreeNode> nodes, double? indent,
           indent: indent,
           state: state,
           iconSize: iconSize,
-        )
+        ),
     ],
   );
 }
@@ -156,17 +172,21 @@ List<TreeNode> copyTreeNodes(List<TreeNode>? nodes) {
 }
 
 List<TreeNode>? _copyNodesRecursively(
-    List<TreeNode>? nodes, KeyProvider keyProvider) {
+  List<TreeNode>? nodes,
+  KeyProvider keyProvider,
+) {
   if (nodes == null) {
     return null;
   }
-  return List.unmodifiable(nodes.map((node) {
-    return TreeNode(
-      key: keyProvider.key(node.key),
-      content: node.content,
-      children: _copyNodesRecursively(node.children, keyProvider),
-    );
-  }));
+  return List.unmodifiable(
+    nodes.map((node) {
+      return TreeNode(
+        key: keyProvider.key(node.key),
+        content: node.content,
+        children: _copyNodesRecursively(node.children, keyProvider),
+      );
+    }),
+  );
 }
 
 class _TreeNodeKey extends ValueKey {
@@ -200,12 +220,13 @@ class NodeWidget extends StatefulWidget {
   final double? iconSize;
   final TreeController state;
 
-  const NodeWidget(
-      {super.key,
-      required this.treeNode,
-      this.indent,
-      required this.state,
-      this.iconSize});
+  const NodeWidget({
+    super.key,
+    required this.treeNode,
+    this.indent,
+    required this.state,
+    this.iconSize,
+  });
 
   @override
   State<NodeWidget> createState() => _NodeWidgetState();
@@ -227,53 +248,67 @@ class _NodeWidgetState extends State<NodeWidget> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    var icon = _isLeaf
-        ? null
-        : _isExpanded
+    var icon =
+        _isLeaf
+            ? null
+            : _isExpanded
             ? Icons.expand_more
             : Icons.chevron_right;
 
-    var onIconPressed = _isLeaf || !_isEnabled
-        ? null
-        : () {
-            if (mounted) {
-              setState(
-                () => widget.state.toggleNodeExpanded(widget.treeNode.key!),
-              );
-            }
-          };
+    var onIconPressed =
+        _isLeaf || !_isEnabled
+            ? null
+            : () {
+              if (mounted) {
+                setState(
+                  () => widget.state.toggleNodeExpanded(widget.treeNode.key!),
+                );
+              }
+            };
 
     return IgnorePointer(
       ignoring: _isLeaf ? false : !_isEnabled,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          if (!_isLeaf && _isEnabled)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8.0, end: 4.0),
-              child: Tooltip(
-                message: _isExpanded ? loc.collapse : loc.expand,
-                child: InkWell(
-                  onTap: onIconPressed,
-                  borderRadius: BorderRadius.circular(6.0),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.all(4.5),
-                    child: Icon(icon, size: widget.iconSize),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (!_isLeaf && _isEnabled)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: 8.0,
+                    end: 4.0,
                   ),
-                ),
+                  child: Tooltip(
+                    message: _isExpanded ? loc.collapse : loc.expand,
+                    child: InkWell(
+                      onTap: onIconPressed,
+                      borderRadius: BorderRadius.circular(6.0),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.all(4.5),
+                        child: Icon(icon, size: widget.iconSize),
+                      ),
+                    ),
+                  ),
+                )
+              // If it is not leaf nor enabled, mimic the space of the icon button
+              else if (!_isLeaf && !_isEnabled)
+                const SizedBox(width: 39.0),
+              Expanded(child: widget.treeNode.content),
+            ],
+          ),
+          if (_isExpanded && !_isLeaf)
+            Padding(
+              padding: EdgeInsetsDirectional.only(start: widget.indent!),
+              child: buildNodes(
+                widget.treeNode.children!,
+                widget.indent,
+                widget.state,
+                widget.iconSize,
               ),
-            )
-          // If it is not leaf nor enabled, mimic the space of the icon button
-          else if (!_isLeaf && !_isEnabled)
-            const SizedBox(width: 39.0),
-          Expanded(child: widget.treeNode.content),
-        ]),
-        if (_isExpanded && !_isLeaf)
-          Padding(
-            padding: EdgeInsetsDirectional.only(start: widget.indent!),
-            child: buildNodes(widget.treeNode.children!, widget.indent,
-                widget.state, widget.iconSize),
-          )
-      ]),
+            ),
+        ],
+      ),
     );
   }
 }

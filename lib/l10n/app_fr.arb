@@ -39,14 +39,18 @@
   "errorTextField": "{field} n'est pas entré.",
   "@errorTextField": {
     "placeholders": {
-      "field": {}
+      "field": {
+        "type": "String"
+      }
     }
   },
   "serverAdded": "Le serveur à été ajouté",
   "serverNotAddedError": "{serverName} n'a pas pu être ajouté. S.V.P. vérifiez les informations entrées.",
   "@serverNotAddedError": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {
+        "type": "String"
+      }
     }
   },
   "serverNotAddedErrorDescription": "S.V.P. vérifiez les informations entrées et assurez-vous que le serveur est en ligne.\n\nSi vous-vous connectez à distance, vérifiez que les ports {port} et {rtspPort} sont ouverts sur le serveur Bluecherry!",
@@ -153,7 +157,9 @@
   "editServer": "Modifier le serveur {serverName}",
   "@editServer": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {
+        "type": "String"
+      }
     }
   },
   "servers": "Serveurs",
@@ -169,14 +175,18 @@
   "nDevices": "{n} appareils",
   "@nDevices": {
     "placeholders": {
-      "n": {}
+      "n": {
+        "type": "int"
+      }
     }
   },
   "remove": "Retirer ?",
   "removeServerDescription": "{serverName} sera retiré de l'application. Vous ne pourrez plus voir les caméras de ce serveur et ne pourrez plus recevoir des notifications.",
   "@removeServerDescription": {
     "placeholders": {
-      "serverName": {}
+      "serverName": {
+        "type": "String"
+      }
     }
   },
   "yes": "Oui",
@@ -308,10 +318,18 @@
   "downloadTitle": "{event} sur {device} du serveur {server} à {date}",
   "@downloadTitle": {
     "placeholders": {
-      "event": {},
-      "device": {},
-      "server": {},
-      "date": {}
+      "event": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "playbackOptions": "OPTION DE LECTURE",
@@ -322,13 +340,17 @@
   "volume": "Volume • {v}",
   "@volume": {
     "placeholders": {
-      "v": {}
+      "v": {
+        "type": "String"
+      }
     }
   },
   "speed": "Vitesse • {s}",
   "@speed": {
     "placeholders": {
-      "s": {}
+      "s": {
+        "type": "String"
+      }
     }
   },
   "noRecords": "Cette caméra n'a aucun enregistrement pour la période actuelle",
@@ -448,7 +470,9 @@
   "lastChecked": "Dernière vérification: {date}",
   "@lastChecked": {
     "placeholders": {
-      "date": {}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "checkForUpdates": "Vérifier les mises à jour",
@@ -588,7 +612,9 @@
   "snoozedUntil": "Mis en pause jusqu'à {time}",
   "@snoozedUntil": {
     "placeholders": {
-      "time": {}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "@@SERVERS": {},
@@ -597,6 +623,8 @@
   "allowUntrustedCertificates": "Permettre les certificats non fiables",
   "allowUntrustedCertificatesDescription": "Autoriser la connexion à des serveurs avec des certificats non fiables. Cela est utile lorsque vous utilisez des certificats auto-signés ou des certificats provenant d'autorités inconnues.",
   "certificateNotPassed": "Certificat non validé",
+  "addServerTimeout": "Add server timeout",
+  "addServerTimeoutDescription": "The time to wait for the server to respond when adding a new server.",
   "@@STREAMING": {},
   "streamingSettings": "Paramètre de diffusion",
   "streamingProtocol": "Protocol de diffusion",

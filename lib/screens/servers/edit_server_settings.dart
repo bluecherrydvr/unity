@@ -15,10 +15,7 @@ Future<void> showEditServerSettings(BuildContext context, Server server) {
 class EditServerSettings extends StatelessWidget {
   final Server server;
 
-  const EditServerSettings({
-    super.key,
-    required this.server,
-  });
+  const EditServerSettings({super.key, required this.server});
 
   @override
   Widget build(BuildContext context) {

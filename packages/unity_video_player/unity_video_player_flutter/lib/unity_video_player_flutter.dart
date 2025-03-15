@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterpi_gstreamer_video_player/flutterpi_gstreamer_video_player.dart';
-import 'package:video_player/video_player.dart';
-import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 import 'package:fvp/fvp.dart' as fvp;
+import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
+import 'package:video_player/video_player.dart';
 
 class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].

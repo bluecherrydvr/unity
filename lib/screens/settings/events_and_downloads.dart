@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/events_timeline/desktop/timeline.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
@@ -26,7 +27,6 @@ import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.d
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class EventsAndDownloadsSettings extends StatelessWidget {
@@ -37,201 +37,204 @@ class EventsAndDownloadsSettings extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
-    return ListView(children: [
-      SubHeader(loc.events),
-      if (settings.kShowDebugInfo.value)
+    return ListView(
+      children: [
+        SubHeader(loc.events),
+        if (settings.kShowDebugInfo.value)
+          CheckboxListTile.adaptive(
+            value: settings.kPictureInPicture.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kPictureInPicture.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.picture_in_picture),
+            ),
+            title: const Text('Picture-in-picture'),
+            subtitle: const Text(
+              'Move to picture-in-picture mode when the app moves to background.',
+            ),
+          ),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.speed),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.initialEventSpeed),
+          subtitle: Text(settings.kEventsSpeed.value.toStringAsFixed(1)),
+          trailing: SizedBox(
+            width: 160.0,
+            child: Slider(
+              value: settings.kEventsSpeed.value.clamp(
+                settings.kEventsSpeed.min!,
+                settings.kEventsSpeed.max!,
+              ),
+              min: settings.kEventsSpeed.min!,
+              max: settings.kEventsSpeed.max!,
+              onChanged: (v) {
+                settings.kEventsSpeed.value = v;
+              },
+            ),
+          ),
+        ),
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.equalizer),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          title: Text(loc.initialEventVolume),
+          subtitle: Text(settings.kEventsVolume.value.toStringAsFixed(1)),
+          trailing: SizedBox(
+            width: 160.0,
+            child: Slider(
+              value: settings.kEventsVolume.value,
+              onChanged: (v) {
+                settings.kEventsVolume.value = v;
+              },
+            ),
+          ),
+        ),
+        SubHeader(loc.eventsTimeline),
+        OptionsChooserTile<TimelineInitialPoint>(
+          title: loc.initialTimelinePoint,
+          description: loc.initialTimelinePointDescription,
+          icon: Icons.flag,
+          value: settings.kTimelineInitialPoint.value,
+          values: [
+            Option(
+              value: TimelineInitialPoint.beginning,
+              icon: Icons.start,
+              text: loc.beginningInitialPoint,
+            ),
+            Option(
+              value: TimelineInitialPoint.firstEvent,
+              icon: Icons.first_page,
+              text: loc.firstEventInitialPoint,
+            ),
+            Option(
+              value: TimelineInitialPoint.hourAgo,
+              icon: Icons.hourglass_bottom,
+              text: loc.hourAgoInitialPoint,
+            ),
+          ],
+          onChanged: (v) => settings.kTimelineInitialPoint.value = v,
+        ),
         CheckboxListTile.adaptive(
-          value: settings.kPictureInPicture.value,
+          value: settings.kShowDifferentColorsForEvents.value,
           onChanged: (v) {
             if (v != null) {
-              settings.kPictureInPicture.value = v;
+              settings.kShowDifferentColorsForEvents.value = v;
             }
           },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.picture_in_picture),
+            child: const Icon(Icons.color_lens),
           ),
-          title: const Text('Picture-in-picture'),
-          subtitle: const Text(
-            'Move to picture-in-picture mode when the app moves to background.',
+          title: Text(loc.differentEventColors),
+          subtitle: Text(loc.differentEventColorsDescription),
+        ),
+        CheckboxListTile.adaptive(
+          value: settings.kAutomaticallySkipEmptyPeriods.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kAutomaticallySkipEmptyPeriods.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.hourglass_empty),
           ),
+          title: Text(loc.automaticallySkipEmptyPeriods),
         ),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.speed),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.initialEventSpeed),
-        subtitle: Text(settings.kEventsSpeed.value.toStringAsFixed(1)),
-        trailing: SizedBox(
-          width: 160.0,
-          child: Slider(
-            value: settings.kEventsSpeed.value.clamp(
-              settings.kEventsSpeed.min!,
-              settings.kEventsSpeed.max!,
+        if (settings.kShowDebugInfo.value) ...[
+          CheckboxListTile.adaptive(
+            value: settings.kPauseToBuffer.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kPauseToBuffer.value = v;
+              }
+            },
+            contentPadding: DesktopSettings.horizontalPadding,
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.pause_presentation),
             ),
-            min: settings.kEventsSpeed.min!,
-            max: settings.kEventsSpeed.max!,
-            onChanged: (v) {
-              settings.kEventsSpeed.value = v;
-            },
-          ),
-        ),
-      ),
-      ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.equalizer),
-        ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        title: Text(loc.initialEventVolume),
-        subtitle: Text(settings.kEventsVolume.value.toStringAsFixed(1)),
-        trailing: SizedBox(
-          width: 160.0,
-          child: Slider(
-            value: settings.kEventsVolume.value,
-            onChanged: (v) {
-              settings.kEventsVolume.value = v;
-            },
-          ),
-        ),
-      ),
-      SubHeader(loc.eventsTimeline),
-      OptionsChooserTile<TimelineInitialPoint>(
-        title: loc.initialTimelinePoint,
-        description: loc.initialTimelinePointDescription,
-        icon: Icons.flag,
-        value: settings.kTimelineInitialPoint.value,
-        values: [
-          Option(
-            value: TimelineInitialPoint.beginning,
-            icon: Icons.start,
-            text: loc.beginningInitialPoint,
-          ),
-          Option(
-            value: TimelineInitialPoint.firstEvent,
-            icon: Icons.first_page,
-            text: loc.firstEventInitialPoint,
-          ),
-          Option(
-            value: TimelineInitialPoint.hourAgo,
-            icon: Icons.hourglass_bottom,
-            text: loc.hourAgoInitialPoint,
+            title: const Text('Pause to buffer'),
+            subtitle: const Text(
+              'Whether the entire timeline should pause to buffer the events.',
+            ),
           ),
         ],
-        onChanged: (v) => settings.kTimelineInitialPoint.value = v,
-      ),
-      CheckboxListTile.adaptive(
-        value: settings.kShowDifferentColorsForEvents.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kShowDifferentColorsForEvents.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.color_lens),
-        ),
-        title: Text(loc.differentEventColors),
-        subtitle: Text(loc.differentEventColorsDescription),
-      ),
-      CheckboxListTile.adaptive(
-        value: settings.kAutomaticallySkipEmptyPeriods.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kAutomaticallySkipEmptyPeriods.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.hourglass_empty),
-        ),
-        title: Text(loc.automaticallySkipEmptyPeriods),
-      ),
-      if (settings.kShowDebugInfo.value) ...[
+        SubHeader(loc.downloads),
         CheckboxListTile.adaptive(
-          value: settings.kPauseToBuffer.value,
+          value: settings.kChooseLocationEveryTime.value,
           onChanged: (v) {
             if (v != null) {
-              settings.kPauseToBuffer.value = v;
+              settings.kChooseLocationEveryTime.value = v;
             }
           },
           contentPadding: DesktopSettings.horizontalPadding,
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
             foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.pause_presentation),
+            child: const Icon(Icons.create_new_folder),
           ),
-          title: const Text('Pause to buffer'),
-          subtitle: const Text(
-            'Whether the entire timeline should pause to buffer the events.',
+          title: Text(loc.chooseEveryDownloadsLocation),
+          subtitle: Text(loc.chooseEveryDownloadsLocationDescription),
+        ),
+        ListTile(
+          contentPadding: DesktopSettings.horizontalPadding,
+          leading: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.notifications_paused),
           ),
+          title: Text(loc.downloadPath),
+          subtitle: Text(settings.kDownloadsDirectory.value),
+          trailing: const Icon(Icons.navigate_next),
+          onTap: () async {
+            final selectedDirectory = await FilePicker.platform
+                .getDirectoryPath(
+                  dialogTitle: loc.downloadPath,
+                  initialDirectory: settings.kDownloadsDirectory.value,
+                  lockParentWindow: true,
+                );
+
+            if (selectedDirectory != null) {
+              settings.kDownloadsDirectory.value =
+                  Directory(selectedDirectory).path;
+            }
+          },
+        ),
+        CheckboxListTile.adaptive(
+          value: settings.kAllowAppCloseWhenDownloading.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kAllowAppCloseWhenDownloading.value = v;
+            }
+          },
+          contentPadding: DesktopSettings.horizontalPadding,
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.close),
+          ),
+          title: Text(loc.allowCloseWhenDownloading),
         ),
       ],
-      SubHeader(loc.downloads),
-      CheckboxListTile.adaptive(
-        value: settings.kChooseLocationEveryTime.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kChooseLocationEveryTime.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.create_new_folder),
-        ),
-        title: Text(loc.chooseEveryDownloadsLocation),
-        subtitle: Text(loc.chooseEveryDownloadsLocationDescription),
-      ),
-      ListTile(
-        contentPadding: DesktopSettings.horizontalPadding,
-        leading: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.notifications_paused),
-        ),
-        title: Text(loc.downloadPath),
-        subtitle: Text(settings.kDownloadsDirectory.value),
-        trailing: const Icon(Icons.navigate_next),
-        onTap: () async {
-          final selectedDirectory = await FilePicker.platform.getDirectoryPath(
-            dialogTitle: loc.downloadPath,
-            initialDirectory: settings.kDownloadsDirectory.value,
-            lockParentWindow: true,
-          );
-
-          if (selectedDirectory != null) {
-            settings.kDownloadsDirectory.value =
-                Directory(selectedDirectory).path;
-          }
-        },
-      ),
-      CheckboxListTile.adaptive(
-        value: settings.kAllowAppCloseWhenDownloading.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kAllowAppCloseWhenDownloading.value = v;
-          }
-        },
-        contentPadding: DesktopSettings.horizontalPadding,
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.close),
-        ),
-        title: Text(loc.allowCloseWhenDownloading),
-      ),
-    ]);
+    );
   }
 }

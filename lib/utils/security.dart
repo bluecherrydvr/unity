@@ -25,11 +25,7 @@ class UnityAuth {
     } on UnimplementedError {
       return false;
     } catch (error, stackTrace) {
-      handleError(
-        error,
-        stackTrace,
-        'Error checking biometrics support',
-      );
+      handleError(error, stackTrace, 'Error checking biometrics support');
       return false;
     }
   }
@@ -45,11 +41,7 @@ class UnityAuth {
           localizedReason: reason ?? 'Please authenticate to continue',
         );
       } catch (error, stackTrace) {
-        handleError(
-          error,
-          stackTrace,
-          'Error authenticating with biometrics',
-        );
+        handleError(error, stackTrace, 'Error authenticating with biometrics');
         return false;
       }
     }
@@ -62,9 +54,7 @@ class UnityAuth {
       SnackBar(
         content: Text(
           'Access denied',
-          style: TextStyle(
-            color: theme.colorScheme.onErrorContainer,
-          ),
+          style: TextStyle(color: theme.colorScheme.onErrorContainer),
         ),
         width: 350,
         backgroundColor: theme.colorScheme.errorContainer,

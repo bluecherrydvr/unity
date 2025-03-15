@@ -19,6 +19,7 @@
 
 import 'dart:async';
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
@@ -35,7 +36,6 @@ import 'package:bluecherry_client/widgets/device_selector.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -77,8 +77,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
   bool get isLastEvent =>
       lastEventIndex.isNegative || lastEventIndex == tile!.events.length - 1;
 
-  Iterable<TimelineEvent> get eventsBefore => tile!.events
-      .whereIndexed((index, _) => index < tile!.events.indexOf(currentEvent!));
+  Iterable<TimelineEvent> get eventsBefore => tile!.events.whereIndexed(
+    (index, _) => index < tile!.events.indexOf(currentEvent!),
+  );
 
   /// Whether the user is scrolling the timeline. If true, [ensureScrollPosition]
   /// will not execute to avoid conflicts
@@ -91,27 +92,29 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       context,
       available: widget.timeline.tiles.map((tile) => tile.device),
       selected: [if (tile != null) tile!.device],
-      eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>(
-        {},
-        (map, tile) {
-          map[tile.device] = tile.events.length;
-          return map;
-        },
-      ),
+      eventsPerDevice: widget.timeline.tiles.fold<Map<Device, int>>({}, (
+        map,
+        tile,
+      ) {
+        map[tile.device] = tile.events.length;
+        return map;
+      }),
     );
     if (device != null && mounted) {
       // If there is already a selected device, dispose it
       setState(() {
-        positionSubscription = tile!.videoController.onCurrentPosUpdate
-            .listen(_tilePositionListener);
-        bufferingSubscription =
-            tile!.videoController.onBufferStateUpdate.listen((v) {
-          if (mounted) setState(() => isBuffering = v);
-        });
+        positionSubscription = tile!.videoController.onCurrentPosUpdate.listen(
+          _tilePositionListener,
+        );
+        bufferingSubscription = tile!.videoController.onBufferStateUpdate
+            .listen((v) {
+              if (mounted) setState(() => isBuffering = v);
+            });
         tile!.videoController.onBufferUpdate.listen((_) => _updateScreen());
         tile!.videoController.setDataSource(currentEvent!.videoUrl);
-        tile!.videoController.onPlayingStateUpdate
-            .listen((_) => _updateScreen());
+        tile!.videoController.onPlayingStateUpdate.listen(
+          (_) => _updateScreen(),
+        );
 
         currentDate = tile!.events.first.event.published;
 
@@ -161,8 +164,9 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
           }
           setEvent(tile!.events.elementAt(lastEventIndex + 1));
         } else if (currentEvent != null) {
-          currentDate =
-              currentEvent!.startTime.add(tile!.videoController.currentPos);
+          currentDate = currentEvent!.startTime.add(
+            tile!.videoController.currentPos,
+          );
           ensureScrollPosition(position - _lastPosition);
 
           _lastPosition = position;
@@ -189,9 +193,12 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         scrolledManually) {
       return;
     }
-    final eventsFactor = eventsBefore.isEmpty
-        ? Duration.zero
-        : eventsBefore.map((event) => event.duration).reduce((a, b) => a + b);
+    final eventsFactor =
+        eventsBefore.isEmpty
+            ? Duration.zero
+            : eventsBefore
+                .map((event) => event.duration)
+                .reduce((a, b) => a + b);
 
     scrolledManually = true;
     await controller.animateTo(
@@ -202,9 +209,10 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       eventsFactor.inDoubleSeconds +
           currentEvent!.position(currentDate!).inDoubleSeconds +
           eventsBefore.length * _kEventSeparatorWidth,
-      duration: duration > Duration.zero
-          ? duration
-          : const Duration(milliseconds: 100),
+      duration:
+          duration > Duration.zero
+              ? duration
+              : const Duration(milliseconds: 100),
       curve: curve,
     );
     scrolledManually = false;
@@ -242,17 +250,19 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
       Duration eventsBeforeDuration() =>
           eventsBefore.map((event) => event.duration).reduce((a, b) => a + b);
 
-      final especulatedStartPosition = eventsBefore.isEmpty
-          ? 0
-          : (eventsBeforeDuration().inSeconds +
-                  eventsBefore.length * _kEventSeparatorWidth)
-              .toInt();
+      final especulatedStartPosition =
+          eventsBefore.isEmpty
+              ? 0
+              : (eventsBeforeDuration().inSeconds +
+                      eventsBefore.length * _kEventSeparatorWidth)
+                  .toInt();
 
-      final especulatedEndPosition = eventsBefore.isEmpty
-          ? event.duration.inSeconds
-          : (eventsBeforeDuration().inSeconds +
-              (eventsBefore.length * _kEventSeparatorWidth) +
-              event.duration.inSeconds);
+      final especulatedEndPosition =
+          eventsBefore.isEmpty
+              ? event.duration.inSeconds
+              : (eventsBeforeDuration().inSeconds +
+                  (eventsBefore.length * _kEventSeparatorWidth) +
+                  event.duration.inSeconds);
 
       if (scrollPosition >= especulatedStartPosition &&
           scrollPosition <= especulatedEndPosition) {
@@ -308,341 +318,387 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
 
     final tile = this.tile;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-        padding: const EdgeInsetsDirectional.all(8.0),
-        child: AspectRatio(
-          aspectRatio: kHorizontalAspectRatio,
-          child: () {
-            if (tile == null) {
-              return Card(
-                margin: EdgeInsetsDirectional.zero,
-                clipBehavior: Clip.hardEdge,
-                child: InkWell(
-                  onTap: () => selectDevice(context),
-                  child: const Center(child: Icon(Icons.add, size: 42.0)),
-                ),
-              );
-            }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.all(8.0),
+          child: AspectRatio(
+            aspectRatio: kHorizontalAspectRatio,
+            child: () {
+              if (tile == null) {
+                return Card(
+                  margin: EdgeInsetsDirectional.zero,
+                  clipBehavior: Clip.hardEdge,
+                  child: InkWell(
+                    onTap: () => selectDevice(context),
+                    child: const Center(child: Icon(Icons.add, size: 42.0)),
+                  ),
+                );
+              }
 
-            return UnityVideoView(
-              heroTag: currentEvent?.videoUrl,
-              player: tile.videoController,
-              fit: device?.server.additionalSettings.videoFit ??
-                  settings.kVideoFit.value,
-              paneBuilder: !settings.kShowDebugInfo.value
-                  ? null
-                  : (context, controller) {
-                      return Padding(
-                        padding: const EdgeInsetsDirectional.all(8.0),
-                        child: Stack(children: [
-                          RichText(
-                            text: TextSpan(
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                shadows: outlinedText(),
-                                color: Colors.white,
-                              ),
+              return UnityVideoView(
+                heroTag: currentEvent?.videoUrl,
+                player: tile.videoController,
+                fit:
+                    device?.server.additionalSettings.videoFit ??
+                    settings.kVideoFit.value,
+                paneBuilder:
+                    !settings.kShowDebugInfo.value
+                        ? null
+                        : (context, controller) {
+                          return Padding(
+                            padding: const EdgeInsetsDirectional.all(8.0),
+                            child: Stack(
                               children: [
-                                TextSpan(
-                                  text: currentEvent
-                                      ?.position(currentDate!)
-                                      .humanReadableCompact(context),
-                                ),
-                                const TextSpan(text: '\ndebug: '),
-                                TextSpan(
-                                  text: tile.videoController.currentPos
-                                      .humanReadableCompact(context),
-                                ),
-                                const TextSpan(text: '\nindex: '),
-                                TextSpan(
-                                  text: currentEvent == null
-                                      ? (-1).toString()
-                                      : tile.events
-                                          .indexOf(currentEvent!)
-                                          .toString(),
-                                ),
-                                const TextSpan(text: '\nscroll: '),
-                                if (this.controller.hasClients)
-                                  TextSpan(
-                                    text: this
-                                        .controller
-                                        .position
-                                        .pixels
-                                        .toString(),
+                                RichText(
+                                  text: TextSpan(
+                                    style: theme.textTheme.labelMedium
+                                        ?.copyWith(
+                                          shadows: outlinedText(),
+                                          color: Colors.white,
+                                        ),
+                                    children: [
+                                      TextSpan(
+                                        text: currentEvent
+                                            ?.position(currentDate!)
+                                            .humanReadableCompact(context),
+                                      ),
+                                      const TextSpan(text: '\ndebug: '),
+                                      TextSpan(
+                                        text: tile.videoController.currentPos
+                                            .humanReadableCompact(context),
+                                      ),
+                                      const TextSpan(text: '\nindex: '),
+                                      TextSpan(
+                                        text:
+                                            currentEvent == null
+                                                ? (-1).toString()
+                                                : tile.events
+                                                    .indexOf(currentEvent!)
+                                                    .toString(),
+                                      ),
+                                      const TextSpan(text: '\nscroll: '),
+                                      if (this.controller.hasClients)
+                                        TextSpan(
+                                          text:
+                                              this.controller.position.pixels
+                                                  .toString(),
+                                        ),
+                                      TextSpan(
+                                        text:
+                                            '\nt: ${tile.videoController.dataSource}',
+                                      ),
+                                    ],
                                   ),
-                                TextSpan(
-                                    text:
-                                        '\nt: ${tile.videoController.dataSource}'),
+                                ),
                               ],
                             ),
-                          ),
-                        ]),
-                      );
-                    },
-            );
-          }(),
-        ),
-      ),
-      Center(
-        child: Container(
-          margin: const EdgeInsetsDirectional.only(
-            top: 8.0,
-            bottom: 14.0,
+                          );
+                        },
+              );
+            }(),
           ),
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: 8.0,
-            vertical: 4.0,
-          ),
-          color: theme.colorScheme.secondaryContainer,
-          child: currentDate == null
-              ? const Text(' ■■■■■ • ■■■■■ ')
-              : Text(
-                  '${settings.kDateFormat.value.format(currentDate!)}'
-                  ' '
-                  '${settings.extendedTimeFormat.format(currentDate!)}',
-                  style: theme.textTheme.labelMedium,
-                ),
         ),
-      ),
-      Container(
-        height: 48.0,
-        color: theme.colorScheme.secondaryContainer,
-        child: tile == null
-            ? Center(child: Text(loc.selectACamera))
-            : Stack(children: [
-                Positioned.fill(
-                  child: NotificationListener(
-                    onNotification: (Notification notification) {
-                      if (notification is! ScrollNotification) return false;
-
-                      if (notification is ScrollStartNotification) {
-                        _onScrollStart(notification);
-                      } else if (notification is ScrollUpdateNotification) {
-                        _onScrollUpdate(notification);
-                      } else if (notification is ScrollEndNotification) {
-                        _onScrollEnd(notification);
-                        return true;
-                      }
-
-                      return false;
-                    },
-                    child: ListView.separated(
-                      controller: controller,
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: 8.0,
-                        vertical: 6.0,
-                      ),
-                      separatorBuilder: (_, __) => const SizedBox(
-                        width: _kEventSeparatorWidth,
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: tile.events.length,
-                      itemBuilder: (context, index) {
-                        final event = tile.events.elementAt(index);
-
-                        return _TimelineTile(
-                          key: ValueKey(event.event.id),
-                          event: event,
-                          index: index,
-                          isCurrentEvent: event == currentEvent,
-                          onPressed: () => setEvent(event),
-                          tile: tile,
-                        );
-                      },
+        Center(
+          child: Container(
+            margin: const EdgeInsetsDirectional.only(top: 8.0, bottom: 14.0),
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 8.0,
+              vertical: 4.0,
+            ),
+            color: theme.colorScheme.secondaryContainer,
+            child:
+                currentDate == null
+                    ? const Text(' ■■■■■ • ■■■■■ ')
+                    : Text(
+                      '${settings.kDateFormat.value.format(currentDate!)}'
+                      ' '
+                      '${settings.extendedTimeFormat.format(currentDate!)}',
+                      style: theme.textTheme.labelMedium,
                     ),
+          ),
+        ),
+        Container(
+          height: 48.0,
+          color: theme.colorScheme.secondaryContainer,
+          child:
+              tile == null
+                  ? Center(child: Text(loc.selectACamera))
+                  : Stack(
+                    children: [
+                      Positioned.fill(
+                        child: NotificationListener(
+                          onNotification: (Notification notification) {
+                            if (notification is! ScrollNotification) {
+                              return false;
+                            }
+
+                            if (notification is ScrollStartNotification) {
+                              _onScrollStart(notification);
+                            } else if (notification
+                                is ScrollUpdateNotification) {
+                              _onScrollUpdate(notification);
+                            } else if (notification is ScrollEndNotification) {
+                              _onScrollEnd(notification);
+                              return true;
+                            }
+
+                            return false;
+                          },
+                          child: ListView.separated(
+                            controller: controller,
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 8.0,
+                              vertical: 6.0,
+                            ),
+                            separatorBuilder:
+                                (_, __) => const SizedBox(
+                                  width: _kEventSeparatorWidth,
+                                ),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: tile.events.length,
+                            itemBuilder: (context, index) {
+                              final event = tile.events.elementAt(index);
+
+                              return _TimelineTile(
+                                key: ValueKey(event.event.id),
+                                event: event,
+                                index: index,
+                                isCurrentEvent: event == currentEvent,
+                                onPressed: () => setEvent(event),
+                                tile: tile,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      PositionedDirectional(
+                        start: 8.0,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 3,
+                          color: theme.colorScheme.onInverseSurface,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                PositionedDirectional(
-                  start: 8.0,
-                  top: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 3,
-                    color: theme.colorScheme.onInverseSurface,
+        ),
+        const SizedBox(height: 14.0),
+        Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (tile != null) ...[
+                    const Spacer(),
+                    Container(
+                      margin: const EdgeInsetsDirectional.only(start: 8.0),
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 6.0,
+                        vertical: 4.0,
+                      ),
+                      color: theme.colorScheme.secondaryContainer,
+                      child: Text(
+                        loc.nEvents(tile.events.length),
+                        style: theme.textTheme.labelSmall,
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
+                  SquaredIconButton(
+                    icon: const Icon(Icons.fullscreen),
+                    tooltip:
+                        currentEvent == null ? null : loc.showFullscreenCamera,
+                    onPressed:
+                        currentEvent == null
+                            ? null
+                            : () => enterFullscreen(context),
                   ),
-                ),
-              ]),
-      ),
-      const SizedBox(height: 14.0),
-      Row(children: [
-        Expanded(
-          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            if (tile != null) ...[
-              const Spacer(),
-              Container(
-                margin: const EdgeInsetsDirectional.only(start: 8.0),
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: 6.0,
-                  vertical: 4.0,
-                ),
-                color: theme.colorScheme.secondaryContainer,
-                child: Text(
-                  loc.nEvents(tile.events.length),
-                  style: theme.textTheme.labelSmall,
-                ),
+                ],
               ),
-              const Spacer(),
-            ],
+            ),
             SquaredIconButton(
-              icon: const Icon(Icons.fullscreen),
-              tooltip: currentEvent == null ? null : loc.showFullscreenCamera,
+              icon: const Icon(Icons.skip_previous),
+              tooltip: isFirstEvent ? null : loc.previous,
               onPressed:
-                  currentEvent == null ? null : () => enterFullscreen(context),
+                  isFirstEvent
+                      ? null
+                      : () {
+                        setEvent(tile!.events.elementAt(lastEventIndex - 1));
+                      },
             ),
-          ]),
-        ),
-        SquaredIconButton(
-          icon: const Icon(Icons.skip_previous),
-          tooltip: isFirstEvent ? null : loc.previous,
-          onPressed: isFirstEvent
-              ? null
-              : () {
-                  setEvent(tile!.events.elementAt(lastEventIndex - 1));
-                },
-        ),
-        const SizedBox(width: 6.0),
-        IconButton.filled(
-          icon: PlayPauseIcon(
-            isPlaying: tile?.videoController.isPlaying ?? false,
-            color: theme.colorScheme.surface,
-          ),
-          tooltip: tile == null
-              ? null
-              : tile.videoController.isPlaying
-                  ? loc.pause
-                  : loc.play,
-          iconSize: 32,
-          onPressed: tile == null
-              ? null
-              : () {
-                  setState(() {
-                    if (widget.timeline.isPlaying) {
-                      widget.timeline.stop();
-                    } else {
-                      widget.timeline.play(currentEvent);
-                    }
-                  });
-                },
-        ),
-        const SizedBox(width: 6.0),
-        SquaredIconButton(
-          icon: const Icon(Icons.skip_next),
-          tooltip: isLastEvent ? null : loc.next,
-          onPressed: isLastEvent
-              ? null
-              : () {
-                  setEvent(tile!.events.elementAt(lastEventIndex + 1));
-                },
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(end: 12.0),
-            child: Row(children: [
-              SquaredIconButton(
-                icon: const Icon(Icons.event),
-                tooltip: loc.timeFilter,
-                onPressed: () async {
-                  final result = await showDatePicker(
-                    context: context,
-                    initialDate: widget.timeline.currentDate,
-                    firstDate: DateTime.utc(1970),
-                    lastDate: DateTimeExtension.now(),
-                    initialEntryMode: DatePickerEntryMode.calendarOnly,
-                  );
-                  if (result != null) {
-                    widget.onDateChanged(result);
-                  }
-                },
+            const SizedBox(width: 6.0),
+            IconButton.filled(
+              icon: PlayPauseIcon(
+                isPlaying: tile?.videoController.isPlaying ?? false,
+                color: theme.colorScheme.surface,
               ),
-              const Spacer(),
-              if (tile != null &&
-                  (isBuffering ||
-                      tile.videoController.currentPos ==
-                          tile.videoController.duration ||
-                      tile.videoController.currentBuffer == Duration.zero ||
-                      widget.timeline.pausedToBuffer.isNotEmpty))
-                const SizedBox(
-                  width: 24.0,
-                  height: 24.0,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 2.5,
-                  ),
-                ),
-            ]),
-          ),
-        ),
-      ]),
-      const Spacer(),
-      Padding(
-        padding: const EdgeInsetsDirectional.all(8.0),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          if (Scaffold.hasDrawer(context))
-            _buildIconButton(
-              icon: const DrawerButtonIcon(),
-              text: MaterialLocalizations.of(context).moreButtonTooltip,
-              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip:
+                  tile == null
+                      ? null
+                      : tile.videoController.isPlaying
+                      ? loc.pause
+                      : loc.play,
+              iconSize: 32,
+              onPressed:
+                  tile == null
+                      ? null
+                      : () {
+                        setState(() {
+                          if (widget.timeline.isPlaying) {
+                            widget.timeline.stop();
+                          } else {
+                            widget.timeline.play(currentEvent);
+                          }
+                        });
+                      },
             ),
-          _buildIconButton(
-            icon: const Icon(Icons.refresh),
-            text: loc.refresh,
-            onPressed: () {
-              eventsPlaybackScreenKey.currentState?.fetch();
-            },
-          ),
-          if (tile != null) ...[
-            _buildIconButton(
-              icon: const Icon(Icons.cameraswitch),
-              text: loc.switchCamera,
-              onPressed: () {
-                selectDevice(context);
-              },
+            const SizedBox(width: 6.0),
+            SquaredIconButton(
+              icon: const Icon(Icons.skip_next),
+              tooltip: isLastEvent ? null : loc.next,
+              onPressed:
+                  isLastEvent
+                      ? null
+                      : () {
+                        setEvent(tile!.events.elementAt(lastEventIndex + 1));
+                      },
             ),
-            Builder(builder: (context) {
-              final downloads = context.watch<DownloadsManager>();
-              final event = currentEvent?.event;
-
-              final isDownloaded =
-                  event == null ? false : downloads.isEventDownloaded(event.id);
-              final isDownloading = event == null
-                  ? false
-                  : downloads.isEventDownloading(event.id);
-
-              return _buildIconButton(
-                icon: isDownloaded
-                    ? Icon(
-                        Icons.download_done,
-                        color: theme.extension<UnityColors>()!.successColor,
-                      )
-                    : isDownloading
-                        ? DownloadProgressIndicator(
-                            progress: downloads
-                                .downloading[downloads.downloading.keys
-                                    .firstWhere((e) => e.id == event.id)]!
-                                .$1,
-                          )
-                        : const Icon(Icons.download),
-                text: isDownloaded
-                    ? loc.downloaded
-                    : isDownloading
-                        ? loc.downloading
-                        : loc.download,
-                onPressed: event == null
-                    ? null
-                    : () {
-                        if (isDownloaded || isDownloading) {
-                          context
-                              .read<HomeProvider>()
-                              .toDownloads(event.id, context);
-                        } else {
-                          downloads.download(event);
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 12.0),
+                child: Row(
+                  children: [
+                    SquaredIconButton(
+                      icon: const Icon(Icons.event),
+                      tooltip: loc.timeFilter,
+                      onPressed: () async {
+                        final result = await showDatePicker(
+                          context: context,
+                          initialDate: widget.timeline.currentDate,
+                          firstDate: DateTime.utc(1970),
+                          lastDate: DateTimeExtension.now(),
+                          initialEntryMode: DatePickerEntryMode.calendarOnly,
+                        );
+                        if (result != null) {
+                          widget.onDateChanged(result);
                         }
                       },
-              );
-            }),
+                    ),
+                    const Spacer(),
+                    if (tile != null &&
+                        (isBuffering ||
+                            tile.videoController.currentPos ==
+                                tile.videoController.duration ||
+                            tile.videoController.currentBuffer ==
+                                Duration.zero ||
+                            widget.timeline.pausedToBuffer.isNotEmpty))
+                      const SizedBox(
+                        width: 24.0,
+                        height: 24.0,
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 2.5,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ],
-        ]),
-      ),
-    ]);
+        ),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsetsDirectional.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              if (Scaffold.hasDrawer(context))
+                _buildIconButton(
+                  icon: const DrawerButtonIcon(),
+                  text: MaterialLocalizations.of(context).moreButtonTooltip,
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              _buildIconButton(
+                icon: const Icon(Icons.refresh),
+                text: loc.refresh,
+                onPressed: () {
+                  eventsPlaybackScreenKey.currentState?.fetch();
+                },
+              ),
+              if (tile != null) ...[
+                _buildIconButton(
+                  icon: const Icon(Icons.cameraswitch),
+                  text: loc.switchCamera,
+                  onPressed: () {
+                    selectDevice(context);
+                  },
+                ),
+                Builder(
+                  builder: (context) {
+                    final downloads = context.watch<DownloadsManager>();
+                    final event = currentEvent?.event;
+
+                    final isDownloaded =
+                        event == null
+                            ? false
+                            : downloads.isEventDownloaded(event.id);
+                    final isDownloading =
+                        event == null
+                            ? false
+                            : downloads.isEventDownloading(event.id);
+
+                    return _buildIconButton(
+                      icon:
+                          isDownloaded
+                              ? Icon(
+                                Icons.download_done,
+                                color:
+                                    theme
+                                        .extension<UnityColors>()!
+                                        .successColor,
+                              )
+                              : isDownloading
+                              ? DownloadProgressIndicator(
+                                progress:
+                                    downloads
+                                        .downloading[downloads.downloading.keys
+                                            .firstWhere(
+                                              (e) => e.id == event.id,
+                                            )]!
+                                        .$1,
+                              )
+                              : const Icon(Icons.download),
+                      text:
+                          isDownloaded
+                              ? loc.downloaded
+                              : isDownloading
+                              ? loc.downloading
+                              : loc.download,
+                      onPressed:
+                          event == null
+                              ? null
+                              : () {
+                                if (isDownloaded || isDownloading) {
+                                  context.read<HomeProvider>().toDownloads(
+                                    event.id,
+                                    context,
+                                  );
+                                } else {
+                                  downloads.download(event);
+                                }
+                              },
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildIconButton({
@@ -656,14 +712,13 @@ class _TimelineDeviceViewState extends State<TimelineDeviceView> {
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsetsDirectional.all(8.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            SizedBox(
-              height: 38.0,
-              width: 38.0,
-              child: icon,
-            ),
-            if (text != null) Text(text),
-          ]),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 38.0, width: 38.0, child: icon),
+              if (text != null) Text(text),
+            ],
+          ),
         ),
       ),
     );
@@ -693,97 +748,93 @@ class _TimelineTile extends StatelessWidget {
       onTap: onPressed,
       child: SizedBox(
         width: event.duration.inDoubleSeconds,
-        child: Stack(alignment: AlignmentDirectional.centerStart, children: [
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSecondaryContainer,
-                borderRadius: BorderRadius.circular(25.0),
-              ),
-            ),
-          ),
-          if (isCurrentEvent &&
-              tile.videoController.dataSource == event.videoUrl)
+        child: Stack(
+          alignment: AlignmentDirectional.centerStart,
+          children: [
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Container(
-                    width: tile.videoController.currentBuffer.inDoubleSeconds,
-                    color: theme.colorScheme.tertiary,
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: 12.0,
-                    ),
-                    alignment: AlignmentDirectional.centerStart,
-                  ),
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 12.0,
-            ),
-            child: Row(children: [
-              Container(
+              child: Container(
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.tertiaryContainer,
+                  color: theme.colorScheme.onSecondaryContainer,
+                  borderRadius: BorderRadius.circular(25.0),
                 ),
-                padding: const EdgeInsetsDirectional.all(
-                  5.5,
-                ),
-                margin: const EdgeInsetsDirectional.only(
-                  end: 4.0,
-                ),
-                child: Text(
-                  '${index + 1}',
-                  style: TextStyle(
-                    fontSize: 11.0,
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.onTertiaryContainer,
+              ),
+            ),
+            if (isCurrentEvent &&
+                tile.videoController.dataSource == event.videoUrl)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.0),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Container(
+                      width: tile.videoController.currentBuffer.inDoubleSeconds,
+                      color: theme.colorScheme.tertiary,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 12.0,
+                      ),
+                      alignment: AlignmentDirectional.centerStart,
+                    ),
                   ),
                 ),
               ),
-              Icon(
-                () {
-                  switch (event.event.type) {
-                    case EventType.motion:
-                      return Icons.directions_run;
-                    case EventType.continuous:
-                      return Icons.horizontal_rule;
-                    default:
-                      return Icons.event_note;
-                  }
-                }(),
-                color: theme.colorScheme.surface,
-              ),
-              const SizedBox(width: 4.0),
-              Expanded(
-                child: Text(
-                  event.event.type.locale(context),
-                  style: theme.textTheme.labelLarge?.copyWith(
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
+              child: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.tertiaryContainer,
+                    ),
+                    padding: const EdgeInsetsDirectional.all(5.5),
+                    margin: const EdgeInsetsDirectional.only(end: 4.0),
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontSize: 11.0,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                  ),
+                  Icon(() {
+                    switch (event.event.type) {
+                      case EventType.motion:
+                        return Icons.directions_run;
+                      case EventType.continuous:
+                        return Icons.horizontal_rule;
+                      default:
+                        return Icons.event_note;
+                    }
+                  }(), color: theme.colorScheme.surface),
+                  const SizedBox(width: 4.0),
+                  Expanded(
+                    child: Text(
+                      event.event.type.locale(context),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.surface,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 6.0),
+                  Icon(
+                    Icons.timer,
+                    size: 16.0,
                     color: theme.colorScheme.surface,
                   ),
-                  maxLines: 1,
-                ),
+                  const SizedBox(width: 4.0),
+                  Text(
+                    event.event.duration.humanReadableCompact(context),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.surface,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6.0),
-              Icon(
-                Icons.timer,
-                size: 16.0,
-                color: theme.colorScheme.surface,
-              ),
-              const SizedBox(width: 4.0),
-              Text(
-                event.event.duration.humanReadableCompact(context),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.surface,
-                ),
-              ),
-            ]),
-          ),
-        ]),
+            ),
+          ],
+        ),
       ),
     );
   }

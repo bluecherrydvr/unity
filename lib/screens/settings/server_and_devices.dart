@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -31,7 +32,6 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/video_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -41,27 +41,32 @@ class ServerAndDevicesSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return ListView(children: [
-      SubHeader(loc.servers, padding: DesktopSettings.horizontalPadding),
-      const ServersList(),
-      SubHeader(loc.serverSettings, padding: DesktopSettings.horizontalPadding),
-      const ServerSettings(),
-      SubHeader(
-        loc.streamingSettings,
-        padding: DesktopSettings.horizontalPadding,
-      ),
-      const StreamingSettings(),
-      SubHeader(
-        loc.matrixMagnification,
-        padding: DesktopSettings.horizontalPadding,
-      ),
-      AreaMagnificationSettings(),
-      SubHeader(
-        loc.devicesSettings,
-        padding: DesktopSettings.horizontalPadding,
-      ),
-      const DevicesSettings(),
-    ]);
+    return ListView(
+      children: [
+        SubHeader(loc.servers, padding: DesktopSettings.horizontalPadding),
+        const ServersList(),
+        SubHeader(
+          loc.serverSettings,
+          padding: DesktopSettings.horizontalPadding,
+        ),
+        const ServerSettings(),
+        SubHeader(
+          loc.streamingSettings,
+          padding: DesktopSettings.horizontalPadding,
+        ),
+        const StreamingSettings(),
+        SubHeader(
+          loc.matrixMagnification,
+          padding: DesktopSettings.horizontalPadding,
+        ),
+        AreaMagnificationSettings(),
+        SubHeader(
+          loc.devicesSettings,
+          padding: DesktopSettings.horizontalPadding,
+        ),
+        const DevicesSettings(),
+      ],
+    );
   }
 }
 
@@ -73,40 +78,58 @@ class ServerSettings extends StatelessWidget {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CheckboxListTile.adaptive(
-        title: Text(loc.connectToServerAutomaticallyAtStartup),
-        subtitle: Text(loc.connectToServerAutomaticallyAtStartupDescription),
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.connect_without_contact),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CheckboxListTile.adaptive(
+          title: Text(loc.connectToServerAutomaticallyAtStartup),
+          subtitle: Text(loc.connectToServerAutomaticallyAtStartupDescription),
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.connect_without_contact),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: settings.kConnectAutomaticallyAtStartup.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kConnectAutomaticallyAtStartup.value = v;
+            }
+          },
         ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: settings.kConnectAutomaticallyAtStartup.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kConnectAutomaticallyAtStartup.value = v;
-          }
-        },
-      ),
-      CheckboxListTile.adaptive(
-        title: Text(loc.allowUntrustedCertificates),
-        subtitle: Text(loc.allowUntrustedCertificatesDescription),
-        secondary: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.iconTheme.color,
-          child: const Icon(Icons.approval),
+        CheckboxListTile.adaptive(
+          title: Text(loc.allowUntrustedCertificates),
+          subtitle: Text(loc.allowUntrustedCertificatesDescription),
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.approval),
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: settings.kAllowUntrustedCertificates.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kAllowUntrustedCertificates.value = v;
+            }
+          },
         ),
-        contentPadding: DesktopSettings.horizontalPadding,
-        value: settings.kAllowUntrustedCertificates.value,
-        onChanged: (v) {
-          if (v != null) {
-            settings.kAllowUntrustedCertificates.value = v;
-          }
-        },
-      ),
-    ]);
+        OptionsChooserTile<int>(
+          title: loc.addServerTimeout,
+          description: loc.addServerTimeoutDescription,
+          icon: Icons.av_timer,
+          value: settings.kAddServerTimeout.value.inSeconds,
+          values: [
+            Option(value: 15, text: '15s'),
+            Option(value: 30, text: '30s'),
+            Option(value: 45, text: '45s'),
+            Option(value: 60, text: '60s'),
+          ],
+          onChanged: (v) {
+            settings.kAddServerTimeout.value = Duration(seconds: v);
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -119,111 +142,104 @@ class StreamingSettings extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final loc = AppLocalizations.of(context);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      OptionsChooserTile(
-        title: loc.preferredStreamingProtocol,
-        subtitle: Text(loc.preferredStreamingProtocolDescription),
-        icon: Icons.live_tv,
-        value: settings.kStreamingType.value,
-        values: StreamingType.values.map((type) {
-          return Option(
-            value: type,
-            // Disable RTSP on web
-            enabled: !kIsWeb || type != StreamingType.rtsp,
-            text: type.name.toUpperCase(),
-          );
-        }),
-        onChanged: (v) {
-          settings.kStreamingType.value = v;
-        },
-      ),
-      const SizedBox(height: 8.0),
-      OptionsChooserTile<RTSPProtocol>(
-        title: loc.rtspProtocol,
-        icon: Icons.settings_input_antenna,
-        value: settings.kRTSPProtocol.value,
-        values: RTSPProtocol.values.map((protocol) {
-          return Option(
-            value: protocol,
-            text: protocol.name.toUpperCase(),
-          );
-        }),
-        onChanged:
-            !kIsWeb && settings.kStreamingType.value == StreamingType.rtsp
-                ? (v) {
-                    settings.kRTSPProtocol.value = v;
-                  }
-                : null,
-      ),
-      if (!kIsWeb)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         OptionsChooserTile(
-          title: loc.renderingQuality,
-          description: loc.renderingQualityDescription,
-          icon: Icons.hd,
-          value: settings.kRenderingQuality.value,
-          values: RenderingQuality.values.map((quality) {
+          title: loc.preferredStreamingProtocol,
+          subtitle: Text(loc.preferredStreamingProtocolDescription),
+          icon: Icons.live_tv,
+          value: settings.kStreamingType.value,
+          values: StreamingType.values.map((type) {
             return Option(
-              value: quality,
-              text: quality.locale(context),
+              value: type,
+              // Disable RTSP on web
+              enabled: !kIsWeb || type != StreamingType.rtsp,
+              text: type.name.toUpperCase(),
             );
           }),
           onChanged: (v) {
-            settings.kRenderingQuality.value = v;
+            settings.kStreamingType.value = v;
           },
         ),
-      const SizedBox(height: 8.0),
-      OptionsChooserTile(
-        title: loc.cameraViewFit,
-        description: loc.cameraViewFitDescription,
-        icon: Icons.fit_screen,
-        value: settings.kVideoFit.value,
-        values: UnityVideoFit.values.map((fit) {
-          return Option(
-            value: fit,
-            text: fit.locale(context),
-          );
-        }),
-        onChanged: (v) {
-          settings.kVideoFit.value = v;
-        },
-      ),
-      const SizedBox(height: 8.0),
-      OptionsChooserTile(
-        title: loc.streamRefreshPeriod,
-        description: loc.streamRefreshPeriodDescription,
-        icon: Icons.sync,
-        value: settings.kRefreshRate.value,
-        values: const [
-          Duration.zero,
-          Duration(seconds: 30),
-          Duration(minutes: 2),
-          Duration(minutes: 5),
-        ].map((period) {
-          return Option(
-            value: period,
-            text: period.humanReadableCompact(context),
-          );
-        }),
-        onChanged: (v) {
-          settings.kRefreshRate.value = v;
-        },
-      ),
-      const SizedBox(height: 8.0),
-      OptionsChooserTile<LateVideoBehavior>(
-        title: loc.lateStreamBehavior,
-        description: loc.lateStreamBehaviorDescription,
-        subtitle: RichText(
-          text: TextSpan(
-            text: loc.lateStreamBehaviorDescription,
-            style: theme.textTheme.bodyMedium,
-            children: [
-              const TextSpan(text: '\n'),
-              switch (settings.kLateStreamBehavior.value) {
-                LateVideoBehavior.automatic => TextSpan(
+        const SizedBox(height: 8.0),
+        OptionsChooserTile<RTSPProtocol>(
+          title: loc.rtspProtocol,
+          icon: Icons.settings_input_antenna,
+          value: settings.kRTSPProtocol.value,
+          values: RTSPProtocol.values.map((protocol) {
+            return Option(value: protocol, text: protocol.name.toUpperCase());
+          }),
+          onChanged:
+              !kIsWeb && settings.kStreamingType.value == StreamingType.rtsp
+                  ? (v) {
+                    settings.kRTSPProtocol.value = v;
+                  }
+                  : null,
+        ),
+        if (!kIsWeb)
+          OptionsChooserTile(
+            title: loc.renderingQuality,
+            description: loc.renderingQualityDescription,
+            icon: Icons.hd,
+            value: settings.kRenderingQuality.value,
+            values: RenderingQuality.values.map((quality) {
+              return Option(value: quality, text: quality.locale(context));
+            }),
+            onChanged: (v) {
+              settings.kRenderingQuality.value = v;
+            },
+          ),
+        const SizedBox(height: 8.0),
+        OptionsChooserTile(
+          title: loc.cameraViewFit,
+          description: loc.cameraViewFitDescription,
+          icon: Icons.fit_screen,
+          value: settings.kVideoFit.value,
+          values: UnityVideoFit.values.map((fit) {
+            return Option(value: fit, text: fit.locale(context));
+          }),
+          onChanged: (v) {
+            settings.kVideoFit.value = v;
+          },
+        ),
+        const SizedBox(height: 8.0),
+        OptionsChooserTile(
+          title: loc.streamRefreshPeriod,
+          description: loc.streamRefreshPeriodDescription,
+          icon: Icons.sync,
+          value: settings.kRefreshRate.value,
+          values: const [
+            Duration.zero,
+            Duration(seconds: 30),
+            Duration(minutes: 2),
+            Duration(minutes: 5),
+          ].map((period) {
+            return Option(
+              value: period,
+              text: period.humanReadableCompact(context),
+            );
+          }),
+          onChanged: (v) {
+            settings.kRefreshRate.value = v;
+          },
+        ),
+        const SizedBox(height: 8.0),
+        OptionsChooserTile<LateVideoBehavior>(
+          title: loc.lateStreamBehavior,
+          description: loc.lateStreamBehaviorDescription,
+          subtitle: RichText(
+            text: TextSpan(
+              text: loc.lateStreamBehaviorDescription,
+              style: theme.textTheme.bodyMedium,
+              children: [
+                const TextSpan(text: '\n'),
+                switch (settings.kLateStreamBehavior.value) {
+                  LateVideoBehavior.automatic => TextSpan(
                     text: loc.automaticBehaviorDescription,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                LateVideoBehavior.manual => TextSpan(
+                  LateVideoBehavior.manual => TextSpan(
                     children: [
                       ...() {
                         final list = loc
@@ -249,51 +265,49 @@ class StreamingSettings extends StatelessWidget {
                             return TextSpan(text: '$part ');
                           }
                         });
-                      }()
+                      }(),
                     ],
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                LateVideoBehavior.never => TextSpan(
+                  LateVideoBehavior.never => TextSpan(
                     text: loc.neverBehaviorDescription,
                     style: const TextStyle(fontWeight: FontWeight.w600),
-                  )
-              },
-            ],
+                  ),
+                },
+              ],
+            ),
           ),
-        ),
-        icon: Icons.watch_later,
-        value: settings.kLateStreamBehavior.value,
-        values: LateVideoBehavior.values.map((behavior) {
-          return Option(
-            value: behavior,
-            text: behavior.locale(context),
-          );
-        }),
-        onChanged: (v) {
-          settings.kLateStreamBehavior.value = v;
-        },
-      ),
-      const SizedBox(height: 8.0),
-      if (settings.kShowDebugInfo.value) ...[
-        CheckboxListTile.adaptive(
-          secondary: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: theme.iconTheme.color,
-            child: const Icon(Icons.history),
-          ),
-          title: const Text('Automatically reload timed out streams'),
-          subtitle:
-              const Text('When to reload timed out streams automatically'),
-          contentPadding: DesktopSettings.horizontalPadding,
-          value: settings.kReloadTimedOutStreams.value,
+          icon: Icons.watch_later,
+          value: settings.kLateStreamBehavior.value,
+          values: LateVideoBehavior.values.map((behavior) {
+            return Option(value: behavior, text: behavior.locale(context));
+          }),
           onChanged: (v) {
-            if (v != null) {
-              settings.kReloadTimedOutStreams.value = v;
-            }
+            settings.kLateStreamBehavior.value = v;
           },
         ),
         const SizedBox(height: 8.0),
-        /* 
+        if (settings.kShowDebugInfo.value) ...[
+          CheckboxListTile.adaptive(
+            secondary: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: theme.iconTheme.color,
+              child: const Icon(Icons.history),
+            ),
+            title: const Text('Automatically reload timed out streams'),
+            subtitle: const Text(
+              'When to reload timed out streams automatically',
+            ),
+            contentPadding: DesktopSettings.horizontalPadding,
+            value: settings.kReloadTimedOutStreams.value,
+            onChanged: (v) {
+              if (v != null) {
+                settings.kReloadTimedOutStreams.value = v;
+              }
+            },
+          ),
+          const SizedBox(height: 8.0),
+          /* 
         CheckboxListTile.adaptive(
           secondary: CircleAvatar(
             backgroundColor: Colors.transparent,
@@ -316,8 +330,9 @@ class StreamingSettings extends StatelessWidget {
           },
         ),
         */
+        ],
       ],
-    ]);
+    );
   }
 }
 
@@ -411,10 +426,8 @@ class _DevicesSettingsState extends State<DevicesSettings> {
               aspectRatio: 16 / 9,
               child: DesktopTileViewport(
                 controller: _testPlayer,
-                device: Device.dump(
-                  name: 'Camera Viewport',
-                  id: 1,
-                )..server = Server.dump(name: 'Server Name'),
+                device: Device.dump(name: 'Camera Viewport', id: 1)
+                  ..server = Server.dump(name: 'Server Name'),
                 onFitChanged: (_) {},
                 showDebugInfo: true,
               ),
@@ -494,10 +507,7 @@ class AreaMagnificationSettings extends StatelessWidget {
           icon: Icons.view_quilt,
           value: settings.kMatrixSize.value,
           values: MatrixType.values.map((size) {
-            return Option(
-              value: size,
-              text: size.toString(),
-            );
+            return Option(value: size, text: size.toString());
           }),
           onChanged: (v) {
             settings.kMatrixSize.value = v;
@@ -517,13 +527,14 @@ class AreaMagnificationSettings extends StatelessWidget {
                 : loc.softwareMagnificationDescription,
           ),
           value: settings.kSoftwareZooming.value,
-          onChanged: isMacOS
-              ? null
-              : (v) {
-                  if (v != null) {
-                    settings.kSoftwareZooming.value = v;
-                  }
-                },
+          onChanged:
+              isMacOS
+                  ? null
+                  : (v) {
+                    if (v != null) {
+                      settings.kSoftwareZooming.value = v;
+                    }
+                  },
           dense: false,
         ),
         CheckboxListTile.adaptive(

@@ -18,17 +18,18 @@
  */
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-typedef PTZComamndsBuilder = Widget Function(
-  BuildContext context,
-  List<PTZControllerCommand> commands,
-  BoxConstraints constraints,
-);
+typedef PTZComamndsBuilder =
+    Widget Function(
+      BuildContext context,
+      List<PTZControllerCommand> commands,
+      BoxConstraints constraints,
+    );
 
 class PTZControllerCommand {
   final Movement movement;
@@ -70,9 +71,12 @@ class _PTZControllerState extends State<PTZController> {
         forceEnabled: true,
         hitTestBehavior: HitTestBehavior.translucent,
         listenTo: const {ButtonStates.hovering},
-        builder: (context, _) => LayoutBuilder(builder: (context, constraints) {
-          return widget.builder(context, commands, constraints);
-        }),
+        builder:
+            (context, _) => LayoutBuilder(
+              builder: (context, constraints) {
+                return widget.builder(context, commands, constraints);
+              },
+            ),
       );
     }
 
@@ -170,9 +174,11 @@ class _PTZControllerState extends State<PTZController> {
       },
       onScaleEnd: (_) => lock = false,
       builder: (context, states) {
-        return LayoutBuilder(builder: (context, constraints) {
-          return widget.builder(context, commands, constraints);
-        });
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return widget.builder(context, commands, constraints);
+          },
+        );
       },
     );
   }
@@ -196,16 +202,23 @@ class PTZData extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
-          children: commands.map<String>((cmd) {
-            switch (cmd.command) {
-              case PTZCommand.move:
-                return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
-              case PTZCommand.stop:
-                return cmd.command.locale(context);
-            }
-          }).map<Widget>((text) {
-            return Text(text, style: const TextStyle(color: Colors.white));
-          }).toList(),
+          children:
+              commands
+                  .map<String>((cmd) {
+                    switch (cmd.command) {
+                      case PTZCommand.move:
+                        return '${cmd.command.locale(context)}: ${cmd.movement.locale(context)}';
+                      case PTZCommand.stop:
+                        return cmd.command.locale(context);
+                    }
+                  })
+                  .map<Widget>((text) {
+                    return Text(
+                      text,
+                      style: const TextStyle(color: Colors.white),
+                    );
+                  })
+                  .toList(),
         ),
       ),
     );
@@ -232,38 +245,43 @@ class PTZToggleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    return Row(children: [
-      SquaredIconButton(
-        icon: Icon(
-          Icons.videogame_asset,
-          color: ptzEnabled
-              ? enabledColor ?? Colors.white
-              : disabledColor ??
-                  theme.colorScheme.onInverseSurface.withValues(alpha: 0.86),
+    return Row(
+      children: [
+        SquaredIconButton(
+          icon: Icon(
+            Icons.videogame_asset,
+            color:
+                ptzEnabled
+                    ? enabledColor ?? Colors.white
+                    : disabledColor ??
+                        theme.colorScheme.onInverseSurface.withValues(
+                          alpha: 0.86,
+                        ),
+          ),
+          tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
+          onPressed: () => onChanged(!ptzEnabled),
         ),
-        tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-        onPressed: () => onChanged(!ptzEnabled),
-      ),
-      // TODO(bdlukaa): Enable presets when the API is ready
-      // SquaredIconButton(
-      //   icon: Icon(
-      //     Icons.dataset,
-      //     color: ptzEnabled ? Colors.white : theme.disabledColor,
-      //   ),
-      //   tooltip: ptzEnabled
-      //       ? loc.enabledPTZ
-      //       : loc.disabledPTZ,
-      //   onPressed: !ptzEnabled
-      //       ? null
-      //       : () {
-      //           showDialog(
-      //             context: context,
-      //             builder: (context) {
-      //               return PresetsDialog(device: widget.device);
-      //             },
-      //           );
-      //         },
-      // ),
-    ]);
+        // TODO(bdlukaa): Enable presets when the API is ready
+        // SquaredIconButton(
+        //   icon: Icon(
+        //     Icons.dataset,
+        //     color: ptzEnabled ? Colors.white : theme.disabledColor,
+        //   ),
+        //   tooltip: ptzEnabled
+        //       ? loc.enabledPTZ
+        //       : loc.disabledPTZ,
+        //   onPressed: !ptzEnabled
+        //       ? null
+        //       : () {
+        //           showDialog(
+        //             context: context,
+        //             builder: (context) {
+        //               return PresetsDialog(device: widget.device);
+        //             },
+        //           );
+        //         },
+        // ),
+      ],
+    );
   }
 }

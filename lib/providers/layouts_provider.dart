@@ -19,7 +19,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/layout.dart';
@@ -52,9 +51,7 @@ class LayoutsProvider extends UnityProvider {
   // [Device]s must be created - and each [Layout] will contain only the id
   // of each device. This ensures that the [Device] state is properly updated
   // across all layouts.
-  List<Layout> layouts = [
-    Layout(name: 'Default', devices: []),
-  ];
+  List<Layout> layouts = [Layout(name: 'Default', devices: [])];
   int _currentLayout = 0;
   int get currentLayoutIndex => _currentLayout.isNegative ? 0 : _currentLayout;
 
@@ -75,24 +72,16 @@ class LayoutsProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageDesktopLayouts);
-    await Future.wait(
-      currentLayout.devices.map<Future>((device) async {
-        UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-
-        if (!kIsWeb &&
-            (Platform.isAndroid || Platform.isLinux || Platform.isMacOS)) {
-          await Future.delayed(const Duration(milliseconds: 350));
-        }
-      }),
-    );
+    await UnityPlayers.initializeDevices(currentLayout.devices);
   }
 
   @override
   Future<void> save({bool notifyListeners = false}) async {
     this.notifyListeners();
     await write({
-      kStorageDesktopLayouts:
-          jsonEncode(layouts.map((layout) => layout.toMap()).toList()),
+      kStorageDesktopLayouts: jsonEncode(
+        layouts.map((layout) => layout.toMap()).toList(),
+      ),
       kStorageDesktopCurrentLayout: _currentLayout,
       kStorageDesktopCollapsedServers: jsonEncode(collapsedServers.toList()),
       kStorageDesktopLockedLayouts: jsonEncode(
@@ -108,21 +97,20 @@ class LayoutsProvider extends UnityProvider {
   Future<void> restore({bool notifyListeners = true}) async {
     final layoutsData = await secureStorage.read(key: kStorageDesktopLayouts);
     if (layoutsData != null) {
-      layouts = ((await compute(
-                jsonDecode,
-                layoutsData,
-              ) ??
-              []) as List)
-          .map<Layout>((item) {
-        return Layout.fromMap((item as Map).cast<String, dynamic>());
-      }).toList();
+      layouts =
+          ((await compute(jsonDecode, layoutsData) ?? []) as List).map<Layout>((
+            item,
+          ) {
+            return Layout.fromMap((item as Map).cast<String, dynamic>());
+          }).toList();
     }
 
     _currentLayout =
         await secureStorage.readInt(key: kStorageDesktopCurrentLayout) ?? 0;
 
-    final collapsedData =
-        await secureStorage.read(key: kStorageDesktopCollapsedServers);
+    final collapsedData = await secureStorage.read(
+      key: kStorageDesktopCollapsedServers,
+    );
     if (collapsedData != null) {
       collapsedServers.addAll(
         ((await compute(jsonDecode, collapsedData) ?? []) as List)
@@ -130,8 +118,9 @@ class LayoutsProvider extends UnityProvider {
       );
     }
 
-    final lockedData =
-        await secureStorage.read(key: kStorageDesktopLockedLayouts);
+    final lockedData = await secureStorage.read(
+      key: kStorageDesktopLockedLayouts,
+    );
     if (lockedData != null) {
       final lockedLayoutsNames =
           ((await compute(jsonDecode, lockedData) ?? []) as List)
@@ -177,8 +166,9 @@ class LayoutsProvider extends UnityProvider {
   /// Releases the device if it's not used in any layout.
   Future<void> maybeReleaseDevice(Device device) async {
     if (!UnityPlayers.players.containsKey(device.uuid)) return;
-    if (!layouts
-        .any((layout) => layout.devices.any((d) => d.uuid == device.uuid))) {
+    if (!layouts.any(
+      (layout) => layout.devices.any((d) => d.uuid == device.uuid),
+    )) {
       await UnityPlayers.releaseDevice(device.uuid);
     }
   }
@@ -200,9 +190,7 @@ class LayoutsProvider extends UnityProvider {
     if (devices.isEmpty) return;
     for (final layout in layouts) {
       if (isLayoutLocked(layout)) return;
-      layout.devices.removeWhere(
-        (d1) => devices.any((d2) => d1.uri == d2.uri),
-      );
+      layout.devices.removeWhere((d1) => devices.any((d2) => d1.uri == d2.uri));
     }
 
     for (final device in devices) {
@@ -266,8 +254,9 @@ class LayoutsProvider extends UnityProvider {
       layouts
         ..removeAt(layoutIndex)
         ..insert(layoutIndex, newLayout);
-      for (final device
-          in oldLayout.devices.where((d) => !newLayout.devices.contains(d))) {
+      for (final device in oldLayout.devices.where(
+        (d) => !newLayout.devices.contains(d),
+      )) {
         maybeReleaseDevice(device);
       }
 
@@ -281,9 +270,7 @@ class LayoutsProvider extends UnityProvider {
 
   Future<void> updateCurrentLayout(int layoutIndex) async {
     _currentLayout = layoutIndex;
-    for (final device in currentLayout.devices) {
-      UnityPlayers.players[device.uuid] ??= UnityPlayers.forDevice(device);
-    }
+    await UnityPlayers.initializeDevices(currentLayout.devices);
 
     await save();
   }
@@ -314,10 +301,7 @@ class LayoutsProvider extends UnityProvider {
 
   Future<void> clearLayout({Layout? layout}) async {
     layout ??= currentLayout;
-    await updateLayout(
-      layout,
-      layout.copyWith(devices: []),
-    );
+    await updateLayout(layout, layout.copyWith(devices: []));
   }
 
   Device updateDevice(

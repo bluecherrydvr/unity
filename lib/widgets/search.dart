@@ -1,6 +1,6 @@
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 mixin Searchable<T extends StatefulWidget> on State<T> {
   bool _searchVisible = false;
@@ -52,9 +52,10 @@ class SearchToggleButton extends StatelessWidget {
         searchable.searchVisible ? Icons.search_off : Icons.search,
         size: iconSize,
       ),
-      tooltip: searchable.searchVisible
-          ? loc.disableSearch
-          : MaterialLocalizations.of(context).searchFieldLabel,
+      tooltip:
+          searchable.searchVisible
+              ? loc.disableSearch
+              : MaterialLocalizations.of(context).searchFieldLabel,
       onPressed: searchable.toggleSearch,
     );
   }
@@ -76,35 +77,40 @@ class ToggleSearchBar extends StatelessWidget {
     return AnimatedSize(
       duration: kThemeChangeDuration,
       curve: Curves.easeInOut,
-      child: Builder(builder: (context) {
-        if (!searchable.searchVisible) return const SizedBox.shrink();
-        return Column(children: [
-          const Divider(height: 1.0),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchable.searchController,
-              focusNode: searchable.searchFocusNode,
-              decoration: InputDecoration(
-                hintText: MaterialLocalizations.of(context).searchFieldLabel,
-                isDense: true,
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
+      child: Builder(
+        builder: (context) {
+          if (!searchable.searchVisible) return const SizedBox.shrink();
+          return Column(
+            children: [
+              const Divider(height: 1.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: searchable.searchController,
+                  focusNode: searchable.searchFocusNode,
+                  decoration: InputDecoration(
+                    hintText:
+                        MaterialLocalizations.of(context).searchFieldLabel,
+                    isDense: true,
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    contentPadding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
+                  ),
+                  onChanged: searchable.onSearchChanged,
                 ),
               ),
-              onChanged: searchable.onSearchChanged,
-            ),
-          ),
-          if (showBottomDivider) ...[
-            const Divider(height: 1.0),
-            const SizedBox(height: 8.0),
-          ],
-        ]);
-      }),
+              if (showBottomDivider) ...[
+                const Divider(height: 1.0),
+                const SizedBox(height: 8.0),
+              ],
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -62,74 +62,91 @@ class _HomeState extends State<Home> {
     return Title(
       color: theme.colorScheme.primary,
       title: tab.locale(context),
-      child: LayoutBuilder(builder: (context, constraints) {
-        /// Whether there is enough space for a navigation rail to pop off.
-        ///
-        /// The screen must be horizontally wide ([isWide]) and vertically tall ([isTall]), since
-        /// the navigation rail requires space. The environment must not be a desktop environment [!isDesktop].
-        /// On desktop, [WindowButtons] is the responsible to handle navigation-related tasks.
-        ///
-        /// If the conditions are not met, the drawer is displayed instead.
-        ///
-        /// When a navigation item is added, for example, these breakpoints need to be updated
-        /// in order to delight a good user experience
-        final isWide = constraints.biggest.width > 700;
-        final isTall = constraints.biggest.height > 440;
-        final showNavigationRail =
-            ((isWide && isTall && !isDesktop) || isEmbedded) &&
-                !settings.isImmersiveMode;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          /// Whether there is enough space for a navigation rail to pop off.
+          ///
+          /// The screen must be horizontally wide ([isWide]) and vertically tall ([isTall]), since
+          /// the navigation rail requires space. The environment must not be a desktop environment [!isDesktop].
+          /// On desktop, [WindowButtons] is the responsible to handle navigation-related tasks.
+          ///
+          /// If the conditions are not met, the drawer is displayed instead.
+          ///
+          /// When a navigation item is added, for example, these breakpoints need to be updated
+          /// in order to delight a good user experience
+          final isWide = constraints.biggest.width > 700;
+          final isTall = constraints.biggest.height > 440;
+          final showNavigationRail =
+              ((isWide && isTall && !isDesktop) || isEmbedded) &&
+              !settings.isImmersiveMode;
 
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          drawer: isDesktop || showNavigationRail
-              ? null
-              : Builder(builder: buildDrawer),
-          body: Column(children: [
-            WindowButtons(showNavigator: !showNavigationRail),
-            Expanded(
-              child: Row(children: [
-                if (showNavigationRail)
-                  SafeArea(
-                    right: Directionality.of(context) == TextDirection.rtl,
-                    child: Builder(builder: buildNavigationRail),
-                  ),
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            drawer:
+                isDesktop || showNavigationRail
+                    ? null
+                    : Builder(builder: buildDrawer),
+            body: Column(
+              children: [
+                WindowButtons(showNavigator: !showNavigationRail),
                 Expanded(
-                  child: ClipRect(
-                    child: PageTransitionSwitcher(
-                      transitionBuilder:
-                          (child, animation, secondaryAnimation) {
-                        return SharedAxisTransition(
-                          animation: animation,
-                          secondaryAnimation: secondaryAnimation,
-                          transitionType: SharedAxisTransitionType.vertical,
-                          child: child,
-                        );
-                      },
-                      child: switch (tab) {
-                        UnityTab.deviceGrid => const DeviceGrid(),
-                        UnityTab.directCameraScreen =>
-                          DirectCameraScreen(key: directCameraKey),
-                        UnityTab.eventsTimeline => EventsPlayback(),
-                        UnityTab.eventsHistory =>
-                          EventsScreen(key: eventsScreenKey),
-                        UnityTab.addServer => AddServerWizard(
-                            onFinish: () async =>
-                                home.setTab(UnityTab.deviceGrid, context),
+                  child: Row(
+                    children: [
+                      if (showNavigationRail)
+                        SafeArea(
+                          right:
+                              Directionality.of(context) == TextDirection.rtl,
+                          child: Builder(builder: buildNavigationRail),
+                        ),
+                      Expanded(
+                        child: ClipRect(
+                          child: PageTransitionSwitcher(
+                            transitionBuilder: (
+                              child,
+                              animation,
+                              secondaryAnimation,
+                            ) {
+                              return SharedAxisTransition(
+                                animation: animation,
+                                secondaryAnimation: secondaryAnimation,
+                                transitionType:
+                                    SharedAxisTransitionType.vertical,
+                                child: child,
+                              );
+                            },
+                            child: switch (tab) {
+                              UnityTab.deviceGrid => const DeviceGrid(),
+                              UnityTab.directCameraScreen => DirectCameraScreen(
+                                key: directCameraKey,
+                              ),
+                              UnityTab.eventsTimeline => EventsPlayback(),
+                              UnityTab.eventsHistory => EventsScreen(
+                                key: eventsScreenKey,
+                              ),
+                              UnityTab.addServer => AddServerWizard(
+                                onFinish:
+                                    () async => home.setTab(
+                                      UnityTab.deviceGrid,
+                                      context,
+                                    ),
+                              ),
+                              UnityTab.downloads => DownloadsManagerScreen(
+                                initiallyExpandedEventId:
+                                    home.initiallyExpandedDownloadEventId,
+                              ),
+                              UnityTab.settings => const Settings(),
+                            },
                           ),
-                        UnityTab.downloads => DownloadsManagerScreen(
-                            initiallyExpandedEventId:
-                                home.initiallyExpandedDownloadEventId,
-                          ),
-                        UnityTab.settings => const Settings(),
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ]),
+              ],
             ),
-          ]),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -163,10 +180,7 @@ class _HomeState extends State<Home> {
             final text = data.text;
 
             return Container(
-              padding: const EdgeInsetsDirectional.only(
-                end: 12.0,
-                bottom: 4.0,
-              ),
+              padding: const EdgeInsetsDirectional.only(end: 12.0, bottom: 4.0),
               width: double.infinity,
               height: 48.0,
               child: Material(
@@ -199,9 +213,10 @@ class _HomeState extends State<Home> {
                         backgroundColor: Colors.transparent,
                         child: Icon(
                           icon,
-                          color: isSelected
-                              ? theme.selectedForegroundColor
-                              : theme.unselectedForegroundColor,
+                          color:
+                              isSelected
+                                  ? theme.selectedForegroundColor
+                                  : theme.unselectedForegroundColor,
                         ),
                       ),
                       title: Text(
@@ -209,10 +224,9 @@ class _HomeState extends State<Home> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: isSelected
-                                  ? theme.selectedForegroundColor
-                                  : null,
-                            ),
+                          color:
+                              isSelected ? theme.selectedForegroundColor : null,
+                        ),
                       ),
                     ),
                   ),
@@ -233,68 +247,74 @@ class _HomeState extends State<Home> {
     final navData = NavigatorData.of(context);
 
     return Card(
-      child: Column(children: [
-        Padding(
-          padding: const EdgeInsetsDirectional.only(top: 16.0),
-          child: Image.asset(
-            'assets/images/icon.png',
-            width: imageSize,
-            height: imageSize,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(top: 16.0),
+            child: Image.asset(
+              'assets/images/icon.png',
+              width: imageSize,
+              height: imageSize,
+            ),
           ),
-        ),
-        Expanded(
-          child: NavigationRail(
-            minExtendedWidth: 220,
-            backgroundColor: Colors.transparent,
-            // useIndicator: true,
-            indicatorColor: theme.selectedBackgroundColor,
-            selectedLabelTextStyle: TextStyle(
-              color: theme.selectedForegroundColor,
-            ),
-            unselectedLabelTextStyle: TextStyle(
-              color: theme.unselectedForegroundColor,
-            ),
-            destinations: navData.map((data) {
-              final isSelected = home.tab == data.tab;
+          Expanded(
+            child: NavigationRail(
+              minExtendedWidth: 220,
+              backgroundColor: Colors.transparent,
+              // useIndicator: true,
+              indicatorColor: theme.selectedBackgroundColor,
+              selectedLabelTextStyle: TextStyle(
+                color: theme.selectedForegroundColor,
+              ),
+              unselectedLabelTextStyle: TextStyle(
+                color: theme.unselectedForegroundColor,
+              ),
+              destinations:
+                  navData.map((data) {
+                    final isSelected = home.tab == data.tab;
 
-              final icon = isSelected ? data.selectedIcon : data.icon;
-              final text = data.text;
+                    final icon = isSelected ? data.selectedIcon : data.icon;
+                    final text = data.text;
 
-              return NavigationRailDestination(
-                icon: Icon(
-                  icon,
-                  color: isSelected
-                      ? theme.selectedForegroundColor
-                      : theme.unselectedForegroundColor,
+                    return NavigationRailDestination(
+                      icon: Icon(
+                        icon,
+                        color:
+                            isSelected
+                                ? theme.selectedForegroundColor
+                                : theme.unselectedForegroundColor,
+                      ),
+                      label: Text(text),
+                    );
+                  }).toList(),
+              selectedIndex: navData.indexOf(
+                navData.firstWhere(
+                  (data) => data.tab == home.tab,
+                  orElse: () => navData.first,
                 ),
-                label: Text(text),
-              );
-            }).toList(),
-            selectedIndex: navData.indexOf(navData.firstWhere(
-              (data) => data.tab == home.tab,
-              orElse: () => navData.first,
-            )),
-            onDestinationSelected: (index) {
-              final nav = navData[index];
-              home.setTab(nav.tab, context);
-            },
+              ),
+              onDestinationSelected: (index) {
+                final nav = navData[index];
+                home.setTab(nav.tab, context);
+              },
+            ),
           ),
-        ),
-        if (directCameraKey.currentState != null)
-          SearchToggleButton(
-            searchable: directCameraKey.currentState!,
-            iconSize: 24.0,
-          ),
-        if (home.isLoading)
-          SizedBox(
-            height: imageSize + 16.0,
-            child: () {
-              if (home.isLoading) {
-                return const Center(child: UnityLoadingIndicator());
-              }
-            }(),
-          ),
-      ]),
+          if (directCameraKey.currentState != null)
+            SearchToggleButton(
+              searchable: directCameraKey.currentState!,
+              iconSize: 24.0,
+            ),
+          if (home.isLoading)
+            SizedBox(
+              height: imageSize + 16.0,
+              child: () {
+                if (home.isLoading) {
+                  return const Center(child: UnityLoadingIndicator());
+                }
+              }(),
+            ),
+        ],
+      ),
     );
   }
 }

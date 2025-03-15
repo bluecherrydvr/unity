@@ -51,10 +51,7 @@ class TimelineTile {
 
   late final UnityVideoPlayer videoController;
 
-  TimelineTile({
-    required this.device,
-    required List<TimelineEvent> events,
-  }) {
+  TimelineTile({required this.device, required List<TimelineEvent> events}) {
     _events = events;
     videoController = UnityVideoPlayer.create(
       quality: UnityVideoQuality.p480,
@@ -99,8 +96,9 @@ class TimelineTile {
     if (playingEvents.isEmpty) return null;
     if (playingEvents.length == 1) return playingEvents.first.event;
 
-    final continuousEvent = playingEvents
-        .firstWhereOrNull((event) => event.event.type == EventType.continuous);
+    final continuousEvent = playingEvents.firstWhereOrNull(
+      (event) => event.event.type == EventType.continuous,
+    );
     if (continuousEvent != null) return continuousEvent.event;
 
     return playingEvents.first.event;
@@ -130,58 +128,70 @@ class TimelineEvent {
     return [
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime.now()
-            .add(
-              Duration(
-                  hours: Random().nextInt(4), minutes: Random().nextInt(60)),
-            )
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(
+                  Duration(
+                    hours: Random().nextInt(4),
+                    minutes: Random().nextInt(60),
+                  ),
+                )
+                .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(hours: 1),
-        startTime: DateTime.now()
-            .add(Duration(hours: Random().nextInt(4) + 5))
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(Duration(hours: Random().nextInt(4) + 5))
+                .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime.now()
-            .add(Duration(hours: Random().nextInt(4) + 9))
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(Duration(hours: Random().nextInt(4) + 9))
+                .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime.now()
-            .add(
-              Duration(
-                hours: Random().nextInt(4) + 13,
-                minutes: Random().nextInt(60),
-              ),
-            )
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(
+                  Duration(
+                    hours: Random().nextInt(4) + 13,
+                    minutes: Random().nextInt(60),
+                  ),
+                )
+                .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime.now()
-            .add(Duration(
-              hours: Random().nextInt(4) + 14,
-              minutes: Random().nextInt(60),
-            ))
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(
+                  Duration(
+                    hours: Random().nextInt(4) + 14,
+                    minutes: Random().nextInt(60),
+                  ),
+                )
+                .toUtc(),
         event: Event.dump(),
       ),
       TimelineEvent(
         duration: const Duration(minutes: 1),
-        startTime: DateTime.now()
-            .add(Duration(
-              hours: Random().nextInt(4) + 20,
-              minutes: Random().nextInt(60),
-            ))
-            .toUtc(),
+        startTime:
+            DateTime.now()
+                .add(
+                  Duration(
+                    hours: Random().nextInt(4) + 20,
+                    minutes: Random().nextInt(60),
+                  ),
+                )
+                .toUtc(),
         event: Event.dump(),
       ),
     ];
@@ -232,27 +242,27 @@ class Timeline extends ChangeNotifier {
   }
 
   Timeline.dump()
-      : this(
-          tiles: [
-            TimelineTile(
-              device: Device.dump(id: 0, name: 'device1'),
-              events: TimelineEvent.fakeData,
-            ),
-            TimelineTile(
-              device: Device.dump(id: 1, name: 'device2'),
-              events: TimelineEvent.fakeData,
-            ),
-            TimelineTile(
-              device: Device.dump(id: 2, name: 'device3'),
-              events: TimelineEvent.fakeData,
-            ),
-            TimelineTile(
-              device: Device.dump(id: 3, name: 'device4'),
-              events: TimelineEvent.fakeData,
-            ),
-          ],
-          date: DateTime.now(),
-        );
+    : this(
+        tiles: [
+          TimelineTile(
+            device: Device.dump(id: 0, name: 'device1'),
+            events: TimelineEvent.fakeData,
+          ),
+          TimelineTile(
+            device: Device.dump(id: 1, name: 'device2'),
+            events: TimelineEvent.fakeData,
+          ),
+          TimelineTile(
+            device: Device.dump(id: 2, name: 'device3'),
+            events: TimelineEvent.fakeData,
+          ),
+          TimelineTile(
+            device: Device.dump(id: 3, name: 'device4'),
+            events: TimelineEvent.fakeData,
+          ),
+        ],
+        date: DateTime.now(),
+      );
 
   void _eventCallback(TimelineTile tile, {bool notify = true}) {
     if (tile.videoController.duration <= Duration.zero) return;
@@ -322,15 +332,14 @@ class Timeline extends ChangeNotifier {
     //     );
     //   });
     // }), 'All events must have happened in the same day');
-    this.tiles.addAll(tiles.where((tile) {
-      // add the events in the same day
-      return tile.events.any((event) {
-        return DateUtils.isSameDay(
-          event.startTime.toLocal(),
-          date.toLocal(),
-        );
-      });
-    }));
+    this.tiles.addAll(
+      tiles.where((tile) {
+        // add the events in the same day
+        return tile.events.any((event) {
+          return DateUtils.isSameDay(event.startTime.toLocal(), date.toLocal());
+        });
+      }),
+    );
     // assert(
     //   this.tiles.length <= kMaxDevicesOnScreen,
     //   'There must be at most $kMaxDevicesOnScreen devices on screen',
@@ -344,7 +353,8 @@ class Timeline extends ChangeNotifier {
   }
 
   void forEachEvent(
-      void Function(TimelineTile tile, TimelineEvent event) callback) {
+    void Function(TimelineTile tile, TimelineEvent event) callback,
+  ) {
     for (var tile in tiles) {
       for (var event in tile.events) {
         callback(tile, event);
@@ -485,11 +495,9 @@ class Timeline extends ChangeNotifier {
     if (!zoomController.hasClients) return;
 
     final position = zoomController.positions.last;
-    zoomController.jumpTo(clampDouble(
-      to,
-      0.0,
-      max ?? position.maxScrollExtent,
-    ));
+    zoomController.jumpTo(
+      clampDouble(to, 0.0, max ?? position.maxScrollExtent),
+    );
   }
 
   double _zoom = 1.0;
@@ -587,7 +595,8 @@ class Timeline extends ChangeNotifier {
         final position = e.position(currentDate);
         if (tile.videoController.isPlaying) {
           // if the video is late by a lot of seconds, seek to the current position
-          final isLate = position - tile.videoController.currentPos >
+          final isLate =
+              position - tile.videoController.currentPos >
               const Duration(milliseconds: 3000);
           if (isLate) {
             tile.videoController.seekTo(position);

@@ -18,6 +18,7 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/screens/events_browser/event_type_filter.dart';
 import 'package:bluecherry_client/screens/events_browser/filter.dart';
@@ -27,7 +28,6 @@ import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -68,53 +68,58 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
           );
           if (collapsed) return collapseButton;
 
-          return Column(children: [
-            SubHeader(
-              loc.servers,
-              height: 40.0,
-              trailing: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SearchToggleButton(searchable: this, iconSize: 22.0),
-                  collapseButton,
-                ],
-              ),
-              padding: const EdgeInsetsDirectional.only(start: 16.0, end: 4.0),
-            ),
-            ToggleSearchBar(searchable: this),
-            Expanded(child: EventsDevicesPicker(searchQuery: searchQuery)),
-            const Divider(),
-            ListTile(
-              dense: true,
-              title: Text(
-                loc.dateFilter,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              trailing: AutoSizeText(
-                widget.date.formatDecoratedDate(
-                  context,
-                  DateFormat('EEE, dd MMM yyyy'),
+          return Column(
+            children: [
+              SubHeader(
+                loc.servers,
+                height: 40.0,
+                trailing: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SearchToggleButton(searchable: this, iconSize: 22.0),
+                    collapseButton,
+                  ],
                 ),
-                maxLines: 1,
+                padding: const EdgeInsetsDirectional.only(
+                  start: 16.0,
+                  end: 4.0,
+                ),
               ),
-              onTap: () async {
-                final result = await showDatePicker(
-                  context: context,
-                  initialDate: widget.date,
-                  firstDate: DateTime.utc(1970),
-                  lastDate: DateTimeExtension.now(),
-                  initialEntryMode: DatePickerEntryMode.calendarOnly,
-                  currentDate: widget.date,
-                );
-                if (result != null) {
-                  debugPrint('date picked: from ${widget.date} to $result');
-                  widget.onDateChanged(result);
-                }
-              },
-            ),
-            const EventTypeFilterTile(),
-          ]);
+              ToggleSearchBar(searchable: this),
+              Expanded(child: EventsDevicesPicker(searchQuery: searchQuery)),
+              const Divider(),
+              ListTile(
+                dense: true,
+                title: Text(
+                  loc.dateFilter,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: AutoSizeText(
+                  widget.date.formatDecoratedDate(
+                    context,
+                    DateFormat('EEE, dd MMM yyyy'),
+                  ),
+                  maxLines: 1,
+                ),
+                onTap: () async {
+                  final result = await showDatePicker(
+                    context: context,
+                    initialDate: widget.date,
+                    firstDate: DateTime.utc(1970),
+                    lastDate: DateTimeExtension.now(),
+                    initialEntryMode: DatePickerEntryMode.calendarOnly,
+                    currentDate: widget.date,
+                  );
+                  if (result != null) {
+                    debugPrint('date picked: from ${widget.date} to $result');
+                    widget.onDateChanged(result);
+                  }
+                },
+              ),
+              const EventTypeFilterTile(),
+            ],
+          );
         },
       ),
     );

@@ -59,9 +59,11 @@ class UnityPlayers with ChangeNotifier {
 
   /// Reloads all devices that are marked as reloadable.
   static Future<void> reloadDevices() async {
-    debugPrint('Reloading devices $_reloadable');
-    for (final player
-        in players.entries.where((entry) => _reloadable.contains(entry.key))) {
+    if (_reloadable.isEmpty) return;
+    debugPrint('Reloading ${_reloadable.length} devices: $_reloadable');
+    for (final player in players.entries.where(
+      (entry) => _reloadable.contains(entry.key),
+    )) {
       // reload each device at once
       await reloadDevice(Device.fromUUID(player.key)!);
     }
@@ -84,57 +86,65 @@ class UnityPlayers with ChangeNotifier {
         debugPrint('Initializing ${device.url}');
         await controller.setDataSource(device.url!);
       } else {
-        var streamingType = device.preferredStreamingType ??
+        var streamingType =
+            device.preferredStreamingType ??
             device.server.additionalSettings.preferredStreamingType ??
             settings().kStreamingType.value;
         if (kIsWeb && streamingType == StreamingType.rtsp) {
           streamingType = StreamingType.hls;
         }
-        final (String source, Future<String> fallback) =
-            switch (streamingType) {
+        final (
+          String source,
+          Future<String> fallback,
+        ) = switch (streamingType) {
           StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
           StreamingType.hls => (
-              await device.getHLSUrl(),
-              Future.value(device.rtspURL)
-            ),
+            await device.getHLSUrl(),
+            Future.value(device.rtspURL),
+          ),
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };
         debugPrint('Initializing $source');
         controller.fallbackUrl = fallback;
-        await controller.setDataSource(source, headers: {
-          if (device.server.cookie != null)
-            API.cookieHeader: device.server.cookie!,
-        });
+        await controller.setDataSource(
+          source,
+          headers: {
+            if (device.server.cookie != null)
+              API.cookieHeader: device.server.cookie!,
+          },
+        );
 
         _reloadable.add(source);
       }
       onSetSource?.call();
     }
 
-    controller = UnityVideoPlayer.create(
-      quality: (device.server.additionalSettings.renderingQuality ??
-              settings().kRenderingQuality.value)
-          .playerQuality,
-      onReload: () {
-        if (settings().kReloadTimedOutStreams.value) {
-          setSource();
-        }
-      },
-      title: device.name,
-      matrixType: device.matrixType ?? settings().kMatrixSize.value,
-      softwareZoom: settings().kSoftwareZooming.value,
-      onLog: (message) {
-        logStreamToFile(
-          device.url ?? '${device.name} (${device.server.ip})',
-          message,
-        );
-      },
-    )
-      ..setVolume(device.volume)
-      ..setSpeed(1.0)
-      ..volumeStream.listen((volume) {
-        device.volume = volume;
-      });
+    controller =
+        UnityVideoPlayer.create(
+            quality:
+                (device.server.additionalSettings.renderingQuality ??
+                        settings().kRenderingQuality.value)
+                    .playerQuality,
+            onReload: () {
+              if (settings().kReloadTimedOutStreams.value) {
+                setSource();
+              }
+            },
+            title: device.name,
+            matrixType: device.matrixType ?? settings().kMatrixSize.value,
+            softwareZoom: settings().kSoftwareZooming.value,
+            onLog: (message) {
+              logStreamToFile(
+                device.url ?? '${device.name} (${device.server.ip})',
+                message,
+              );
+            },
+          )
+          ..setVolume(device.volume)
+          ..setSpeed(1.0)
+          ..volumeStream.listen((volume) {
+            device.volume = volume;
+          });
 
     setSource();
 
@@ -150,30 +160,31 @@ class UnityPlayers with ChangeNotifier {
   static UnityVideoPlayer forEvent(Event event) {
     SettingsProvider settings() => SettingsProvider.instance;
 
-    final controller = UnityVideoPlayer.create(
-      quality: settings().kRenderingQuality.value.playerQuality,
-      enableCache: true,
-      title: event.title,
-      matrixType: settings().kMatrixSize.value,
-      softwareZoom: settings().kSoftwareZooming.value,
-      onLog: (message) {
-        logStreamToFile(
-          event.mediaURL == null
-              ? 'Event ${event.title} (${event.id})'
-              : event.mediaPath,
-          message,
-        );
-      },
-    )
-      ..setDataSource(
-        event.mediaPath,
-        headers: {
-          if (event.server.cookie != null)
-            API.cookieHeader: event.server.cookie!,
-        },
-      )
-      ..setVolume(1.0)
-      ..setSpeed(1.0);
+    final controller =
+        UnityVideoPlayer.create(
+            quality: settings().kRenderingQuality.value.playerQuality,
+            enableCache: true,
+            title: event.title,
+            matrixType: settings().kMatrixSize.value,
+            softwareZoom: settings().kSoftwareZooming.value,
+            onLog: (message) {
+              logStreamToFile(
+                event.mediaURL == null
+                    ? 'Event ${event.title} (${event.id})'
+                    : event.mediaPath,
+                message,
+              );
+            },
+          )
+          ..setDataSource(
+            event.mediaPath,
+            headers: {
+              if (event.server.cookie != null)
+                API.cookieHeader: event.server.cookie!,
+            },
+          )
+          ..setVolume(1.0)
+          ..setSpeed(1.0);
 
     controller.onError.listen((event) {
       writeLogToFile(
@@ -182,6 +193,16 @@ class UnityPlayers with ChangeNotifier {
     });
 
     return controller;
+  }
+
+  static Future<void> initializeDevices(List<Device> devices) async {
+    await Future.microtask(() async {
+      for (final device in devices) {
+        if (players.containsKey(device.uuid)) continue;
+        players[device.uuid] = forDevice(device);
+        await Future.delayed(const Duration(milliseconds: 350));
+      }
+    });
   }
 
   /// Release the video player for the given [Device].
@@ -234,11 +255,7 @@ class UnityPlayers with ChangeNotifier {
 
     await Navigator.of(context).pushNamed(
       '/fullscreen',
-      arguments: {
-        'device': device,
-        'player': player,
-        'ptzEnabled': ptzEnabled,
-      },
+      arguments: {'device': device, 'player': player, 'ptzEnabled': ptzEnabled},
     );
     if (isLocalController) await player.dispose();
   }

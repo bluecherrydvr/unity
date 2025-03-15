@@ -90,26 +90,23 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
     //   return;
     // }
 
-    await super.fetch(
-      startDate: startDate,
-      endDate: endDate,
-    );
+    await super.fetch(startDate: startDate, endDate: endDate);
 
     if (mounted) {
       final devices = <Device, List<Event>>{};
 
-      final events = eventsProvider.loadedEvents!.filteredEvents
-        ..sort((a, b) {
-          // Sort the events in a way that the continuous events are displayed first
-          // Ideally, in the Timeline, the motion events should be displayed on
-          // top of the continuous events. We need to sort the continuous events
-          // so that the continuous events don't get on top of the motion events.
-          final aIsContinuous = a.type == EventType.continuous;
-          final bIsContinuous = b.type == EventType.continuous;
-          if (aIsContinuous && !bIsContinuous) return -1;
-          if (!aIsContinuous && bIsContinuous) return 1;
-          return 0;
-        });
+      final events =
+          eventsProvider.loadedEvents!.filteredEvents..sort((a, b) {
+            // Sort the events in a way that the continuous events are displayed first
+            // Ideally, in the Timeline, the motion events should be displayed on
+            // top of the continuous events. We need to sort the continuous events
+            // so that the continuous events don't get on top of the motion events.
+            final aIsContinuous = a.type == EventType.continuous;
+            final bIsContinuous = b.type == EventType.continuous;
+            if (aIsContinuous && !bIsContinuous) return -1;
+            if (!aIsContinuous && bIsContinuous) return 1;
+            return 0;
+          });
       for (final event in events) {
         if (event.isAlarm || event.mediaURL == null) {
           logging.writeLogToFile(
@@ -120,8 +117,10 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
         }
 
         if (!DateUtils.isSameDay(event.published.toLocal(), date.toLocal()) ||
-            !DateUtils.isSameDay(event.published.add(event.duration).toLocal(),
-                date.toLocal())) {
+            !DateUtils.isSameDay(
+              event.published.add(event.duration).toLocal(),
+              date.toLocal(),
+            )) {
           logging.writeLogToFile(
             'Removing future event ${event.id} '
             'from ${event.server.name}/${event.deviceID}: '
@@ -133,10 +132,7 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
 
         final device = event.server.devices.firstWhere(
           (d) => d.id == event.deviceID,
-          orElse: () => Device.dump(
-            name: event.deviceName,
-            id: event.deviceID,
-          ),
+          orElse: () => Device.dump(name: event.deviceName, id: event.deviceID),
         );
         devices[device] ??= [];
 
@@ -166,25 +162,29 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
           initialPosition: switch (settings.kTimelineInitialPoint.value) {
             TimelineInitialPoint.beginning => Duration.zero,
             TimelineInitialPoint.firstEvent => () {
-                if (parsedTiles.isEmpty) return Duration.zero;
+              if (parsedTiles.isEmpty) return Duration.zero;
 
-                final firstEvent = parsedTiles
-                    .map((e) {
-                      final earliestEvent = e.events.reduce(
-                          (a, b) => a.startTime.isBefore(b.startTime) ? a : b);
-                      return earliestEvent;
-                    })
-                    .reduce((a, b) => a.startTime.isBefore(b.startTime) ? a : b)
-                    .startTime;
-                return Duration(
-                  hours: firstEvent.hour,
-                  minutes: firstEvent.minute,
-                  seconds: firstEvent.second,
-                );
-              }(),
+              final firstEvent =
+                  parsedTiles
+                      .map((e) {
+                        final earliestEvent = e.events.reduce(
+                          (a, b) => a.startTime.isBefore(b.startTime) ? a : b,
+                        );
+                        return earliestEvent;
+                      })
+                      .reduce(
+                        (a, b) => a.startTime.isBefore(b.startTime) ? a : b,
+                      )
+                      .startTime;
+              return Duration(
+                hours: firstEvent.hour,
+                minutes: firstEvent.minute,
+                seconds: firstEvent.second,
+              );
+            }(),
             TimelineInitialPoint.hourAgo => Duration(
-                hours: DateTimeExtension.now().hour - 1,
-              ),
+              hours: DateTimeExtension.now().hour - 1,
+            ),
           },
         );
       });
@@ -335,48 +335,52 @@ class _EventsPlaybackState extends EventsScreenState<EventsPlayback> {
         }
         return KeyEventResult.ignored;
       },
-      child: LayoutBuilder(builder: (context, constraints) {
-        final hasDrawer = Scaffold.hasDrawer(context);
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final hasDrawer = Scaffold.hasDrawer(context);
 
-        if (hasDrawer ||
-            // special case: the width is less than the mobile breakpoint
-            constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */) {
-          if (!hasEverFetched) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
-          }
-          if (timeline == null) {
+          if (hasDrawer ||
+              // special case: the width is less than the mobile breakpoint
+              constraints.maxWidth < 630.0 /* kMobileBreakpoint.width */ ) {
+            if (!hasEverFetched) {
+              WidgetsBinding.instance.addPostFrameCallback((_) => fetch());
+            }
+            if (timeline == null) {
+              return SafeArea(
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(8.0),
+                  child: Stack(
+                    children: [
+                      if (hasDrawer) const DrawerButton(),
+                      const Center(child: CircularProgressIndicator.adaptive()),
+                    ],
+                  ),
+                ),
+              );
+            }
             return SafeArea(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(8.0),
-                child: Stack(children: [
-                  if (hasDrawer) const DrawerButton(),
-                  const Center(child: CircularProgressIndicator.adaptive()),
-                ]),
+              child: TimelineDeviceView(
+                timeline: timeline!,
+                onDateChanged: (date) {
+                  this.date = date;
+                  fetch();
+                },
               ),
             );
           }
           return SafeArea(
-            child: TimelineDeviceView(
-              timeline: timeline!,
-              onDateChanged: (date) {
-                this.date = date;
-                fetch();
-              },
+            child: TimelineEventsView(
+              // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
+              timeline: timeline,
+              sidebar: TimelineSidebar(
+                date: date,
+                onDateChanged: (date) => setState(() => this.date = date),
+              ),
+              onFetch: fetch,
             ),
           );
-        }
-        return SafeArea(
-          child: TimelineEventsView(
-            // timeline: kDebugMode ? Timeline.fakeTimeline : timeline,
-            timeline: timeline,
-            sidebar: TimelineSidebar(
-              date: date,
-              onDateChanged: (date) => setState(() => this.date = date),
-            ),
-            onFetch: fetch,
-          ),
-        );
-      }),
+        },
+      ),
     );
   }
 }
@@ -392,22 +396,24 @@ extension DevicesMapExtension on MapEntry<Device, Iterable<Event>> {
 
     return TimelineTile(
       device: device,
-      events: events.map((event) {
-        final downloads = context.read<DownloadsManager>();
-        final mediaUrl = downloads.isEventDownloaded(event.id)
-            ? Uri.file(
-                downloads.getDownloadedPathForEvent(event.id),
-                windows: isDesktopPlatform && Platform.isWindows,
-              ).toString()
-            : event.mediaPath;
+      events:
+          events.map((event) {
+            final downloads = context.read<DownloadsManager>();
+            final mediaUrl =
+                downloads.isEventDownloaded(event.id)
+                    ? Uri.file(
+                      downloads.getDownloadedPathForEvent(event.id),
+                      windows: isDesktopPlatform && Platform.isWindows,
+                    ).toString()
+                    : event.mediaPath;
 
-        return TimelineEvent(
-          startTime: event.published,
-          duration: event.duration,
-          videoUrl: mediaUrl,
-          event: event,
-        );
-      }).toList(),
+            return TimelineEvent(
+              startTime: event.published,
+              duration: event.duration,
+              videoUrl: mediaUrl,
+              event: event,
+            );
+          }).toList(),
     );
   }
 }

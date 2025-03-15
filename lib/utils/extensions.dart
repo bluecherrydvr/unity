@@ -19,12 +19,12 @@
 
 import 'dart:io' show File;
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 export 'package:collection/collection.dart' show IterableExtension;
@@ -55,7 +55,8 @@ extension DurationExtension on Duration {
   String humanReadable(BuildContext context) {
     return prettyDuration(
       this,
-      locale: DurationLocale.fromLanguageCode(
+      locale:
+          DurationLocale.fromLanguageCode(
             Localizations.localeOf(context).languageCode,
           ) ??
           const EnglishDurationLocale(),
@@ -66,7 +67,8 @@ extension DurationExtension on Duration {
     return prettyDuration(
       this,
       abbreviated: true,
-      locale: DurationLocale.fromLanguageCode(
+      locale:
+          DurationLocale.fromLanguageCode(
             Localizations.localeOf(context).languageCode,
           ) ??
           const EnglishDurationLocale(),
@@ -92,7 +94,7 @@ extension CameraViewFitExtension on UnityVideoFit {
     return switch (this) {
       UnityVideoFit.contain => Icons.fit_screen,
       UnityVideoFit.fill => Icons.rectangle_rounded,
-      UnityVideoFit.cover => Icons.aspect_ratio
+      UnityVideoFit.cover => Icons.aspect_ratio,
     };
   }
 }
@@ -138,11 +140,14 @@ extension DeviceListExtension on Iterable<Device> {
     String searchQuery = '',
     bool onlyEnabled = false,
   }) {
-    final list = where((device) {
-      if (onlyEnabled && !device.status) return false;
-      return device.name.toLowerCase().contains(searchQuery.toLowerCase());
-    }).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final list =
+        where((device) {
+            if (onlyEnabled && !device.status) return false;
+            return device.name.toLowerCase().contains(
+              searchQuery.toLowerCase(),
+            );
+          }).toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
 
     if (available != null) list.sort((a, b) => available.contains(a) ? 0 : 1);
     list.sort((a, b) => a.status ? 0 : 1);
@@ -176,11 +181,9 @@ extension IterableTExtension<T> on Iterable<T> {
   T findMaxDuplicatedElementInList() {
     if (length == 1) return first;
     return fold<Map<T, int>>(
-            {},
-            (map, element) =>
-                map..update(element, (value) => value + 1, ifAbsent: () => 1))
-        .entries
-        .reduce((e1, e2) => e1.value > e2.value ? e1 : e2)
-        .key;
+      {},
+      (map, element) =>
+          map..update(element, (value) => value + 1, ifAbsent: () => 1),
+    ).entries.reduce((e1, e2) => e1.value > e2.value ? e1 : e2).key;
   }
 }

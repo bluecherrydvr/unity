@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
 import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/models/server.dart';
@@ -54,7 +55,6 @@ import 'package:bluecherry_client/widgets/splash_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -62,8 +62,6 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
-// import 'package:unity_video_player_flutter/unity_video_player_flutter.dart';
-// import 'package:unity_video_player_main/unity_video_player_main.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -120,17 +118,21 @@ Future<void> main(List<String> args) async {
       },
       onLayoutScreen: (layout, theme) {
         configureWindowTitle(layout.name);
-        runApp(AlternativeWindow(
-          mode: theme,
-          child: AlternativeLayoutView(layout: layout),
-        ));
+        runApp(
+          AlternativeWindow(
+            mode: theme,
+            child: AlternativeLayoutView(layout: layout),
+          ),
+        );
       },
       onDeviceScreen: (device, theme) {
         configureWindowTitle(device.fullName);
-        runApp(AlternativeWindow(
-          mode: SettingsProvider.instance.kThemeMode.value,
-          child: CameraView(device: device),
-        ));
+        runApp(
+          AlternativeWindow(
+            mode: SettingsProvider.instance.kThemeMode.value,
+            child: CameraView(device: device),
+          ),
+        );
       },
       onRunApp: () => runApp(const UnityApp()),
     );
@@ -338,107 +340,101 @@ class _UnityAppState extends State<UnityApp>
           value: KeyboardBindings.instance,
         ),
       ],
-      child: Consumer<SettingsProvider>(builder: (context, settings, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          navigatorKey: navigatorKey,
-          navigatorObservers: [navigatorObserver],
-          locale: settings.kLanguageCode.value,
-          localizationsDelegates: UnityApp.localizationDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          themeMode: settings.kThemeMode.value,
-          theme: createTheme(brightness: Brightness.light),
-          darkTheme: createTheme(brightness: Brightness.dark),
-          initialRoute: '/',
-          routes: {
-            '/': (context) => const Home(),
-          },
-          onGenerateRoute: (settings) {
-            if (settings.name == '/events') {
-              final data = settings.arguments! as Map;
-              final event = data['event'] as Event;
-              final upcomingEvents = (data['upcoming'] as Iterable<Event>?) ??
-                  List.empty(growable: true);
-              final videoPlayer = data['videoPlayer'] as UnityVideoPlayer?;
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
+            navigatorObservers: [navigatorObserver],
+            locale: settings.kLanguageCode.value,
+            localizationsDelegates: UnityApp.localizationDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            themeMode: settings.kThemeMode.value,
+            theme: createTheme(brightness: Brightness.light),
+            darkTheme: createTheme(brightness: Brightness.dark),
+            initialRoute: '/',
+            routes: {'/': (context) => const Home()},
+            onGenerateRoute: (settings) {
+              if (settings.name == '/events') {
+                final data = settings.arguments! as Map;
+                final event = data['event'] as Event;
+                final upcomingEvents =
+                    (data['upcoming'] as Iterable<Event>?) ??
+                    List.empty(growable: true);
+                final videoPlayer = data['videoPlayer'] as UnityVideoPlayer?;
 
-              return MaterialPageRoute(
-                settings: RouteSettings(
-                  name: '/events',
-                  arguments: event,
-                ),
-                builder: (context) {
-                  return EventPlayerScreen(
-                    event: event,
-                    upcomingEvents: upcomingEvents,
-                    player: videoPlayer,
-                  );
-                },
-              );
-            }
+                return MaterialPageRoute(
+                  settings: RouteSettings(name: '/events', arguments: event),
+                  builder: (context) {
+                    return EventPlayerScreen(
+                      event: event,
+                      upcomingEvents: upcomingEvents,
+                      player: videoPlayer,
+                    );
+                  },
+                );
+              }
 
-            if (settings.name == '/fullscreen') {
-              final data = settings.arguments! as Map;
-              final Device device = data['device'];
-              final UnityVideoPlayer player = data['player'];
-              final bool ptzEnabled = data['ptzEnabled'] ?? false;
+              if (settings.name == '/fullscreen') {
+                final data = settings.arguments! as Map;
+                final Device device = data['device'];
+                final UnityVideoPlayer player = data['player'];
+                final bool ptzEnabled = data['ptzEnabled'] ?? false;
 
-              return MaterialPageRoute(
-                settings: RouteSettings(
-                  name: '/fullscreen',
-                  arguments: device,
-                ),
-                builder: (context) {
-                  return LivePlayer(
-                    player: player,
-                    device: device,
-                    ptzEnabled: ptzEnabled,
-                  );
-                },
-              );
-            }
+                return MaterialPageRoute(
+                  settings: RouteSettings(
+                    name: '/fullscreen',
+                    arguments: device,
+                  ),
+                  builder: (context) {
+                    return LivePlayer(
+                      player: player,
+                      device: device,
+                      ptzEnabled: ptzEnabled,
+                    );
+                  },
+                );
+              }
 
-            if (settings.name == '/rtsp') {
-              final url = settings.arguments as String;
-              return MaterialPageRoute(
-                settings: RouteSettings(
-                  name: '/rtsp',
-                  arguments: url,
-                ),
-                builder: (context) {
-                  return LivePlayer.fromUrl(
-                    url: url,
-                    device: Device.dump(
-                      name: 'External stream',
+              if (settings.name == '/rtsp') {
+                final url = settings.arguments as String;
+                return MaterialPageRoute(
+                  settings: RouteSettings(name: '/rtsp', arguments: url),
+                  builder: (context) {
+                    return LivePlayer.fromUrl(
                       url: url,
-                    )..server = Server.dump(name: url),
-                  );
-                },
+                      device: Device.dump(name: 'External stream', url: url)
+                        ..server = Server.dump(name: url),
+                    );
+                  },
+                );
+              }
+
+              return null;
+            },
+            builder: (context, child) {
+              Intl.defaultLocale = Localizations.localeOf(context).languageCode;
+
+              final home = context.watch<HomeProvider>();
+              final bindings = context.watch<KeyboardBindings>();
+
+              return CallbackShortcuts(
+                bindings:
+                    navigatorObserver.isDialog
+                        ? {}
+                        : {
+                          ...globalShortcuts(context, bindings),
+                          if (home.tab == UnityTab.deviceGrid)
+                            ...layoutShortcuts(context, bindings),
+                          if (home.tab == UnityTab.settings)
+                            ...settingsShortcuts(context, bindings),
+                        },
+                child: child!,
               );
-            }
-
-            return null;
-          },
-          builder: (context, child) {
-            Intl.defaultLocale = Localizations.localeOf(context).languageCode;
-
-            final home = context.watch<HomeProvider>();
-            final bindings = context.watch<KeyboardBindings>();
-
-            return CallbackShortcuts(
-              bindings: navigatorObserver.isDialog
-                  ? {}
-                  : {
-                      ...globalShortcuts(context, bindings),
-                      if (home.tab == UnityTab.deviceGrid)
-                        ...layoutShortcuts(context, bindings),
-                      if (home.tab == UnityTab.settings)
-                        ...settingsShortcuts(context, bindings),
-                    },
-              child: child!,
-            );
-          },
-        );
-      }),
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -119,26 +119,22 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
     );
 
     if (settings.isImmersiveMode) {
-      return Row(children: [
-        MouseRegion(
-          onEnter: (_) {
-            showOverlayEntry(context, sidebar);
-          },
-          child: const SizedBox(
-            height: double.infinity,
-            width: 4.0,
+      return Row(
+        children: [
+          MouseRegion(
+            onEnter: (_) {
+              showOverlayEntry(context, sidebar);
+            },
+            child: const SizedBox(height: double.infinity, width: 4.0),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(
-              end: 4.0,
-              bottom: 4.0,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(end: 4.0, bottom: 4.0),
+              child: layoutView,
             ),
-            child: layoutView,
           ),
-        ),
-      ]);
+        ],
+      );
     }
 
     final children = [sidebar, Expanded(child: layoutView)];
@@ -148,39 +144,44 @@ class _LargeDeviceGridState extends State<LargeDeviceGrid>
   OverlayEntry? _overlayEntry;
   Future<void> showOverlayEntry(BuildContext context, Widget bar) async {
     await dismissOverlayEntry();
-    _overlayEntry = OverlayEntry(builder: (context) {
-      return AnimatedBuilder(
-        animation: _animationController,
-        child: bar,
-        builder: (context, animation) {
-          return Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            child: IgnorePointer(
-              ignoring: _animationController.status == AnimationStatus.forward,
-              child: MouseRegion(
-                onExit: (_) => dismissOverlayEntry(),
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(-1, 0),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.easeInOut,
-                    )),
-                    child: animation,
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return AnimatedBuilder(
+          animation: _animationController,
+          child: bar,
+          builder: (context, animation) {
+            return Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: IgnorePointer(
+                ignoring:
+                    _animationController.status == AnimationStatus.forward,
+                child: MouseRegion(
+                  onExit: (_) => dismissOverlayEntry(),
+                  child: Material(
+                    color: Colors.transparent,
+                    elevation: 8,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(-1, 0),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: _animationController,
+                          curve: Curves.easeInOut,
+                        ),
+                      ),
+                      child: animation,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      );
-    });
+            );
+          },
+        );
+      },
+    );
     if (context.mounted) {
       Overlay.of(context).insert(_overlayEntry!);
       await _animationController.forward();
@@ -228,9 +229,10 @@ class _LayoutViewState extends State<LayoutView> {
     final settings = context.watch<SettingsProvider>();
 
     return DragTarget<Device>(
-      onWillAcceptWithDetails: widget.onWillAccept == null
-          ? null
-          : (details) => widget.onWillAccept!.call(details.data),
+      onWillAcceptWithDetails:
+          widget.onWillAccept == null
+              ? null
+              : (details) => widget.onWillAccept!.call(details.data),
       onAcceptWithDetails: (details) => widget.onAccept?.call(details.data),
       builder: (context, candidateItems, rejectedItems) {
         late Widget child;
@@ -275,21 +277,19 @@ class _LayoutViewState extends State<LayoutView> {
           );
         } else if (widget.layout.type == DesktopLayoutType.compactView &&
             dl >= 4) {
-          var foldedDevices = devices
-              .fold<List<List<Device>>>(
-                [[]],
-                (collection, device) {
-                  if (collection.last.length == 4) {
-                    collection.add([device]);
-                  } else {
-                    collection.last.add(device);
-                  }
+          var foldedDevices =
+              devices
+                  .fold<List<List<Device>>>([[]], (collection, device) {
+                    if (collection.last.length == 4) {
+                      collection.add([device]);
+                    } else {
+                      collection.last.add(device);
+                    }
 
-                  return collection;
-                },
-              )
-              .reversed
-              .toList();
+                    return collection;
+                  })
+                  .reversed
+                  .toList();
           final crossAxisCount = calculateCrossAxisCount(foldedDevices.length);
 
           final amountOfItemsOnScreen = crossAxisCount * crossAxisCount;
@@ -358,9 +358,10 @@ class _LayoutViewState extends State<LayoutView> {
                 reorderable: widget.onReorder != null,
                 onReorder: widget.onReorder ?? (a, b) {},
                 padding: EdgeInsets.zero,
-                children: devices.map((device) {
-                  return DesktopDeviceTile(device: device);
-                }).toList(),
+                children:
+                    devices.map((device) {
+                      return DesktopDeviceTile(device: device);
+                    }).toList(),
               ),
             ),
           );
@@ -374,147 +375,160 @@ class _LayoutViewState extends State<LayoutView> {
         return Material(
           color: Colors.black,
           shape: RoundedRectangleBorder(
-            borderRadius: isAlternativeWindow || settings.isImmersiveMode
-                ? BorderRadius.zero
-                : BorderRadiusDirectional.only(
-                    topStart:
-                        isReversed ? Radius.zero : const Radius.circular(8.0),
-                    topEnd:
-                        isReversed ? const Radius.circular(8.0) : Radius.zero,
-                  ),
+            borderRadius:
+                isAlternativeWindow || settings.isImmersiveMode
+                    ? BorderRadius.zero
+                    : BorderRadiusDirectional.only(
+                      topStart:
+                          isReversed ? Radius.zero : const Radius.circular(8.0),
+                      topEnd:
+                          isReversed ? const Radius.circular(8.0) : Radius.zero,
+                    ),
           ),
           child: SafeArea(
-            child: Column(children: [
-              if (!settings.isImmersiveMode)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: IntrinsicHeight(
-                    child: Row(children: [
-                      Expanded(
-                        child: Text(
-                          widget.layout.name,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      if (widget.layout.devices.isNotEmpty)
-                        ...() {
-                          final volume = widget.layout.devices
-                              .map((device) => device.volume)
-                              .findMaxDuplicatedElementInList()
-                              .toDouble();
-                          return <Widget>[
-                            if (_volumeSliderVisible)
-                              SizedBox(
-                                height: 24.0,
-                                child: Slider(
-                                  value: volume,
-                                  divisions: 100,
-                                  label: '${(volume * 100).round()}%',
-                                  onChanged: (value) async {
-                                    await widget.layout.setVolume(value);
-                                    if (mounted) setState(() {});
-                                  },
-                                  onChangeEnd: (value) async {
-                                    await widget.layout.setVolume(value);
-                                    view.save();
-                                  },
-                                ),
-                              ),
-                            SquaredIconButton(
-                              icon: const Icon(
-                                Icons.equalizer,
+            child: Column(
+              children: [
+                if (!settings.isImmersiveMode)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.layout.name,
+                              style: theme.textTheme.titleSmall?.copyWith(
                                 color: Colors.white,
                               ),
-                              tooltip: loc.layoutVolume((volume * 100).round()),
-                              onPressed: () {
-                                setState(() {
-                                  _volumeSliderVisible = !_volumeSliderVisible;
-                                });
-                              },
                             ),
-                          ];
-                        }(),
-                      SquaredIconButton(
-                        icon: Icon(
-                          view.isLayoutLocked(widget.layout)
-                              ? Icons.lock
-                              : Icons.lock_open,
-                          color: Colors.white,
-                        ),
-                        tooltip: view.isLayoutLocked(widget.layout)
-                            ? loc.unlockLayout
-                            : loc.lockLayout,
-                        onPressed: () => view.toggleLayoutLock(widget.layout),
-                      ),
-                      SquaredIconButton(
-                        icon: const Icon(
-                          Icons.satellite_alt,
-                          color: Colors.white,
-                        ),
-                        tooltip: loc.addExternalStream,
-                        onPressed: () {
-                          AddExternalStreamDialog.show(
-                            context,
-                            targetLayout: widget.layout,
-                          );
-                        },
-                      ),
-                      if (canOpenNewWindow)
-                        SquaredIconButton(
-                          icon: const Icon(
-                            Icons.open_in_new,
-                            color: Colors.white,
                           ),
-                          tooltip: loc.openInANewWindow,
-                          onPressed: widget.layout.openInANewWindow,
-                        ),
-                      SquaredIconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white),
-                        tooltip: loc.editLayout,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                EditLayoutDialog(layout: widget.layout),
-                          );
-                        },
-                      ),
-                      SquaredIconButton(
-                        icon: const Icon(
-                          Icons.import_export,
-                          color: Colors.white,
-                        ),
-                        tooltip: loc.exportLayout,
-                        onPressed: () {
-                          widget.layout.export(dialogTitle: loc.exportLayout);
-                        },
-                      ),
-                      if (widget.layout.devices.isNotEmpty) ...[
-                        const VerticalDivider(),
-                        SquaredIconButton(
-                          icon: Icon(
-                            Icons.clear,
-                            color: theme.colorScheme.error,
+                          if (widget.layout.devices.isNotEmpty)
+                            ...() {
+                              final volume =
+                                  widget.layout.devices
+                                      .map((device) => device.volume)
+                                      .findMaxDuplicatedElementInList()
+                                      .toDouble();
+                              return <Widget>[
+                                if (_volumeSliderVisible)
+                                  SizedBox(
+                                    height: 24.0,
+                                    child: Slider(
+                                      value: volume,
+                                      divisions: 100,
+                                      label: '${(volume * 100).round()}%',
+                                      onChanged: (value) async {
+                                        await widget.layout.setVolume(value);
+                                        if (mounted) setState(() {});
+                                      },
+                                      onChangeEnd: (value) async {
+                                        await widget.layout.setVolume(value);
+                                        view.save();
+                                      },
+                                    ),
+                                  ),
+                                SquaredIconButton(
+                                  icon: const Icon(
+                                    Icons.equalizer,
+                                    color: Colors.white,
+                                  ),
+                                  tooltip: loc.layoutVolume(
+                                    (volume * 100).round(),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _volumeSliderVisible =
+                                          !_volumeSliderVisible;
+                                    });
+                                  },
+                                ),
+                              ];
+                            }(),
+                          SquaredIconButton(
+                            icon: Icon(
+                              view.isLayoutLocked(widget.layout)
+                                  ? Icons.lock
+                                  : Icons.lock_open,
+                              color: Colors.white,
+                            ),
+                            tooltip:
+                                view.isLayoutLocked(widget.layout)
+                                    ? loc.unlockLayout
+                                    : loc.lockLayout,
+                            onPressed:
+                                () => view.toggleLayoutLock(widget.layout),
                           ),
-                          tooltip:
-                              loc.clearLayout(widget.layout.devices.length),
-                          onPressed: view.clearLayout,
-                        ),
-                      ],
-                    ]),
+                          SquaredIconButton(
+                            icon: const Icon(
+                              Icons.satellite_alt,
+                              color: Colors.white,
+                            ),
+                            tooltip: loc.addExternalStream,
+                            onPressed: () {
+                              AddExternalStreamDialog.show(
+                                context,
+                                targetLayout: widget.layout,
+                              );
+                            },
+                          ),
+                          if (canOpenNewWindow)
+                            SquaredIconButton(
+                              icon: const Icon(
+                                Icons.open_in_new,
+                                color: Colors.white,
+                              ),
+                              tooltip: loc.openInANewWindow,
+                              onPressed: widget.layout.openInANewWindow,
+                            ),
+                          SquaredIconButton(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            tooltip: loc.editLayout,
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) =>
+                                        EditLayoutDialog(layout: widget.layout),
+                              );
+                            },
+                          ),
+                          SquaredIconButton(
+                            icon: const Icon(
+                              Icons.import_export,
+                              color: Colors.white,
+                            ),
+                            tooltip: loc.exportLayout,
+                            onPressed: () {
+                              widget.layout.export(
+                                dialogTitle: loc.exportLayout,
+                              );
+                            },
+                          ),
+                          if (widget.layout.devices.isNotEmpty) ...[
+                            const VerticalDivider(),
+                            SquaredIconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: theme.colorScheme.error,
+                              ),
+                              tooltip: loc.clearLayout(
+                                widget.layout.devices.length,
+                              ),
+                              onPressed: view.clearLayout,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              if (devices.isNotEmpty)
-                Expanded(
-                  child: SizedBox.fromSize(size: Size.infinite, child: child),
-                )
-              else
-                Expanded(
-                  child: Center(child: Text('Add a camera')),
-                ),
-            ]),
+                if (devices.isNotEmpty)
+                  Expanded(
+                    child: SizedBox.fromSize(size: Size.infinite, child: child),
+                  )
+                else
+                  Expanded(child: Center(child: Text('Add a camera'))),
+              ],
+            ),
           ),
         );
       },
@@ -523,10 +537,8 @@ class _LayoutViewState extends State<LayoutView> {
 }
 
 class DesktopCompactTile extends StatelessWidget {
-  const DesktopCompactTile({
-    super.key,
-    required this.devices,
-  }) : assert(devices.length >= 2 && devices.length <= 4);
+  const DesktopCompactTile({super.key, required this.devices})
+    : assert(devices.length >= 2 && devices.length <= 4);
 
   final List<Device> devices;
 
@@ -537,31 +549,39 @@ class DesktopCompactTile extends StatelessWidget {
     final device1 = devices[0];
     final device2 = devices[1];
 
-    return Column(children: [
-      Expanded(
-        child: Row(children: [
-          Expanded(child: DesktopDeviceTile(device: device1)),
-          const SizedBox(width: kGridInnerPadding),
-          Expanded(child: DesktopDeviceTile(device: device2)),
-        ]),
-      ),
-      const SizedBox(height: kGridInnerPadding),
-      Expanded(
-        child: Row(children: [
-          Expanded(
-            child: devices.length >= 3
-                ? DesktopDeviceTile(device: devices[2])
-                : const SizedBox.shrink(),
+    return Column(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(child: DesktopDeviceTile(device: device1)),
+              const SizedBox(width: kGridInnerPadding),
+              Expanded(child: DesktopDeviceTile(device: device2)),
+            ],
           ),
-          const SizedBox(width: kGridInnerPadding),
-          Expanded(
-            child: devices.length == 4
-                ? DesktopDeviceTile(device: devices[3])
-                : const SizedBox.shrink(),
+        ),
+        const SizedBox(height: kGridInnerPadding),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child:
+                    devices.length >= 3
+                        ? DesktopDeviceTile(device: devices[2])
+                        : const SizedBox.shrink(),
+              ),
+              const SizedBox(width: kGridInnerPadding),
+              Expanded(
+                child:
+                    devices.length == 4
+                        ? DesktopDeviceTile(device: devices[3])
+                        : const SizedBox.shrink(),
+              ),
+            ],
           ),
-        ]),
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 }
 
@@ -577,57 +597,58 @@ class PresetsDialog extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SimpleDialog(
-      title: Row(children: [
-        Expanded(child: Text(loc.presets)),
-        Text('0', style: theme.textTheme.bodySmall),
-      ]),
+      title: Row(
+        children: [
+          Expanded(child: Text(loc.presets)),
+          Text('0', style: theme.textTheme.bodySmall),
+        ],
+      ),
       children: [
-        SizedBox(
-          height: 200,
-          child: Center(child: Text(loc.noPresets)),
-        ),
+        SizedBox(height: 200, child: Center(child: Text(loc.noPresets))),
         Container(
           height: 30.0,
           margin: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
-          child: Row(children: [
-            Tooltip(
-              message: loc.newPreset,
-              child: TextButton(
-                child: const Icon(Icons.add),
-                onPressed: () {},
+          child: Row(
+            children: [
+              Tooltip(
+                message: loc.newPreset,
+                child: TextButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {},
+                ),
               ),
-            ),
-            const VerticalDivider(),
-            Tooltip(
-              message: loc.goToPreset,
-              child: TextButton(
-                onPressed: hasSelected ? () {} : null,
-                child: const Icon(Icons.logout),
+              const VerticalDivider(),
+              Tooltip(
+                message: loc.goToPreset,
+                child: TextButton(
+                  onPressed: hasSelected ? () {} : null,
+                  child: const Icon(Icons.logout),
+                ),
               ),
-            ),
-            Tooltip(
-              message: loc.renamePreset,
-              child: TextButton(
-                onPressed: hasSelected ? () {} : null,
-                child: const Icon(Icons.edit),
+              Tooltip(
+                message: loc.renamePreset,
+                child: TextButton(
+                  onPressed: hasSelected ? () {} : null,
+                  child: const Icon(Icons.edit),
+                ),
               ),
-            ),
-            Tooltip(
-              message: loc.deletePreset,
-              child: TextButton(
-                onPressed: hasSelected ? () {} : null,
-                child: const Icon(Icons.delete),
+              Tooltip(
+                message: loc.deletePreset,
+                child: TextButton(
+                  onPressed: hasSelected ? () {} : null,
+                  child: const Icon(Icons.delete),
+                ),
               ),
-            ),
-            const VerticalDivider(),
-            Tooltip(
-              message: loc.refreshPresets,
-              child: TextButton(
-                child: const Icon(Icons.refresh),
-                onPressed: () {},
+              const VerticalDivider(),
+              Tooltip(
+                message: loc.refreshPresets,
+                child: TextButton(
+                  child: const Icon(Icons.refresh),
+                  onPressed: () {},
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ],
     );

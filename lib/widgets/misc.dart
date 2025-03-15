@@ -134,49 +134,51 @@ class CorrectedListTile extends StatelessWidget {
           maxWidth: MediaQuery.sizeOf(context).width,
         ),
         padding: DesktopSettings.horizontalPadding,
-        child: Row(children: [
-          Container(
-            margin: const EdgeInsetsDirectional.only(end: 12.0),
-            alignment: AlignmentDirectional.center,
-            width: 40.0,
-            height: 40.0,
-            child: Icon(iconData),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: theme.textTheme.bodyLarge),
-                if (subtitle != null) const SizedBox(height: 4.0),
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
-          ),
-          if (trailingWidget != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 12.0),
-              child: trailingWidget!,
-            )
-          else if (trailing != null)
+        child: Row(
+          children: [
             Container(
-              margin: const EdgeInsetsDirectional.only(start: 12.0),
+              margin: const EdgeInsetsDirectional.only(end: 12.0),
               alignment: AlignmentDirectional.center,
               width: 40.0,
               height: 40.0,
-              child: Icon(trailing, color: theme.colorScheme.primary),
+              child: Icon(iconData),
             ),
-          const SizedBox(width: 16.0),
-        ]),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.bodyLarge),
+                  if (subtitle != null) const SizedBox(height: 4.0),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.textTheme.bodySmall?.color,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            if (trailingWidget != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 12.0),
+                child: trailingWidget!,
+              )
+            else if (trailing != null)
+              Container(
+                margin: const EdgeInsetsDirectional.only(start: 12.0),
+                alignment: AlignmentDirectional.center,
+                width: 40.0,
+                height: 40.0,
+                child: Icon(trailing, color: theme.colorScheme.primary),
+              ),
+            const SizedBox(width: 16.0),
+          ],
+        ),
       ),
     );
   }
@@ -216,38 +218,40 @@ class SubHeader extends StatelessWidget {
         height: height,
         alignment: AlignmentDirectional.centerStart,
         padding: padding,
-        child: Row(children: [
-          if (leading != null) leading!,
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  text.toUpperCase(),
-                  style: theme.textTheme.labelMedium?.copyWith(),
-                  textAlign: textAlign,
-                ),
-                if (subtext != null)
+        child: Row(
+          children: [
+            if (leading != null) leading!,
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtext!.toUpperCase(),
-                    style: theme.textTheme.labelSmall
-                        ?.copyWith(
-                          color: theme.hintColor,
-                          fontSize: 10.0,
-                          fontWeight: FontWeight.w600,
-                        )
-                        .merge(subtextStyle),
-                  )
-              ],
+                    text.toUpperCase(),
+                    style: theme.textTheme.labelMedium?.copyWith(),
+                    textAlign: textAlign,
+                  ),
+                  if (subtext != null)
+                    Text(
+                      subtext!.toUpperCase(),
+                      style: theme.textTheme.labelSmall
+                          ?.copyWith(
+                            color: theme.hintColor,
+                            fontSize: 10.0,
+                            fontWeight: FontWeight.w600,
+                          )
+                          .merge(subtextStyle),
+                    ),
+                ],
+              ),
             ),
-          ),
-          if (trailing != null)
-            DefaultTextStyle(
-              style: theme.textTheme.labelSmall ?? const TextStyle(),
-              child: trailing!,
-            ),
-        ]),
+            if (trailing != null)
+              DefaultTextStyle(
+                style: theme.textTheme.labelSmall ?? const TextStyle(),
+                child: trailing!,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -268,22 +272,30 @@ List<Shadow> outlinedText({
       var offsetX = x.toDouble();
       var offsetY = y.toDouble();
       result
-        ..add(Shadow(
-          offset: Offset(-strokeWidth / offsetX, -strokeWidth / offsetY),
-          color: strokeColor,
-        ))
-        ..add(Shadow(
-          offset: Offset(-strokeWidth / offsetX, strokeWidth / offsetY),
-          color: strokeColor,
-        ))
-        ..add(Shadow(
-          offset: Offset(strokeWidth / offsetX, -strokeWidth / offsetY),
-          color: strokeColor,
-        ))
-        ..add(Shadow(
-          offset: Offset(strokeWidth / offsetX, strokeWidth / offsetY),
-          color: strokeColor,
-        ));
+        ..add(
+          Shadow(
+            offset: Offset(-strokeWidth / offsetX, -strokeWidth / offsetY),
+            color: strokeColor,
+          ),
+        )
+        ..add(
+          Shadow(
+            offset: Offset(-strokeWidth / offsetX, strokeWidth / offsetY),
+            color: strokeColor,
+          ),
+        )
+        ..add(
+          Shadow(
+            offset: Offset(strokeWidth / offsetX, -strokeWidth / offsetY),
+            color: strokeColor,
+          ),
+        )
+        ..add(
+          Shadow(
+            offset: Offset(strokeWidth / offsetX, strokeWidth / offsetY),
+            color: strokeColor,
+          ),
+        );
     }
   }
   return result.toList();
@@ -416,9 +428,10 @@ class _EnforceScrollbarScrollState extends State<EnforceScrollbarScroll> {
       onPointerSignal: widget.onPointerSignal,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(
-          physics: isHovered && !isScrolling
-              ? const NeverScrollableScrollPhysics()
-              : null,
+          physics:
+              isHovered && !isScrolling
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
         ),
         child: MouseRegion(
           onEnter: (v) => setState(() => isHovered = true),
@@ -445,11 +458,7 @@ class CameraViewFitButton extends StatelessWidget {
     return SquaredIconButton(
       tooltip: fit.locale(context),
       onPressed: () => onChanged(fit.next),
-      icon: Icon(
-        fit.icon,
-        shadows: outlinedText(),
-        color: Colors.white,
-      ),
+      icon: Icon(fit.icon, shadows: outlinedText(), color: Colors.white),
     );
   }
 }

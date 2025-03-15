@@ -39,15 +39,9 @@ class DownloadedEvent {
   final Event event;
   final String downloadPath;
 
-  const DownloadedEvent({
-    required this.event,
-    required this.downloadPath,
-  });
+  const DownloadedEvent({required this.event, required this.downloadPath});
 
-  DownloadedEvent copyWith({
-    Event? event,
-    String? downloadPath,
-  }) {
+  DownloadedEvent copyWith({Event? event, String? downloadPath}) {
     return DownloadedEvent(
       event: event ?? this.event,
       downloadPath: downloadPath ?? this.downloadPath,
@@ -55,10 +49,7 @@ class DownloadedEvent {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'event': event.toJson(),
-      'downloadPath': downloadPath,
-    };
+    return {'event': event.toJson(), 'downloadPath': downloadPath};
   }
 
   factory DownloadedEvent.fromJson(Map<String, dynamic> map) {
@@ -105,7 +96,8 @@ class DownloadsManager extends UnityProvider {
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
         final dirs = await getExternalStorageDirectories(
-            type: StorageDirectory.downloads);
+          type: StorageDirectory.downloads,
+        );
         if (dirs?.isNotEmpty ?? false) dir = dirs!.first;
       }
 
@@ -180,7 +172,8 @@ class DownloadsManager extends UnityProvider {
       doesEventFileExist(de.event.id).then((exist) async {
         if (!exist) {
           debugPrint(
-              'Event file does not exist: ${de.event.id}. Redownloading');
+            'Event file does not exist: ${de.event.id}. Redownloading',
+          );
           final downloadPath = await _downloadEventFile(
             de.event,
             path.dirname(de.downloadPath),
@@ -220,11 +213,12 @@ class DownloadsManager extends UnityProvider {
       }
     }
 
-    downloadedEvents = downloadsData.map<DownloadedEvent>((item) {
-      return DownloadedEvent.fromJson(
-        (item as Map).cast<String, dynamic>(),
-      );
-    }).toSet();
+    downloadedEvents =
+        downloadsData.map<DownloadedEvent>((item) {
+          return DownloadedEvent.fromJson(
+            (item as Map).cast<String, dynamic>(),
+          );
+        }).toSet();
 
     super.restore(notifyListeners: notifyListeners);
   }
@@ -308,8 +302,8 @@ class DownloadsManager extends UnityProvider {
       'downloads(${event.id}): $dir at ${event.mediaPath}',
       print: true,
     );
-    final home = HomeProvider.instance
-      ..loading(UnityLoadingReason.downloadEvent);
+    final home =
+        HomeProvider.instance..loading(UnityLoadingReason.downloadEvent);
 
     if (downloadsCompleter == null || downloadsCompleter!.isCompleted) {
       downloadsCompleter = Completer();
@@ -357,11 +351,7 @@ class DownloadsManager extends UnityProvider {
         '${error.message}. ',
       );
     } catch (error, stack) {
-      handleError(
-        error,
-        stack,
-        'Failed to download event file',
-      );
+      handleError(error, stack, 'Failed to download event file');
     } finally {
       home.notLoading(UnityLoadingReason.downloadEvent);
     }

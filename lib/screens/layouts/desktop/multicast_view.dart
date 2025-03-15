@@ -143,89 +143,98 @@ class _MulticastViewportState extends State<MulticastViewport> {
       );
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(alignment: Alignment.center, children: [
-        if (size > 1)
-          Positioned.fill(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: kHorizontalAspectRatio,
-                child: GridView.count(
-                  crossAxisCount: size,
-                  childAspectRatio: kHorizontalAspectRatio,
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  children: List.generate(size * size, (index) {
-                    final row = index ~/ size;
-                    final col = index % size;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            if (size > 1)
+              Positioned.fill(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: kHorizontalAspectRatio,
+                    child: GridView.count(
+                      crossAxisCount: size,
+                      childAspectRatio: kHorizontalAspectRatio,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      children: List.generate(size * size, (index) {
+                        final row = index ~/ size;
+                        final col = index % size;
 
-                    return HoverButton(
-                      onDoubleTap: () {
-                        setState(() {
-                          if (widget.device != null) {
-                            device = views.updateDevice(
-                              device,
-                              device.copyWith(matrixType: matrixType.next),
-                            );
-                          } else {
-                            device = device.copyWith(
-                              matrixType: matrixType.next,
-                            );
-                            view.player.zoom.matrixType = device.matrixType!;
-                          }
-                        });
-                      },
-                      onPressed: () {
-                        view.player.crop(row, col);
-                        currentZoom = (row, col);
-                      },
-                      builder: (context, states) => SizedBox.expand(
-                        child: IgnorePointer(
-                          child: states.isHovering
-                              ? Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: theme.colorScheme.secondary,
-                                      width: 2.25,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                      ),
-                    );
-                  }),
+                        return HoverButton(
+                          onDoubleTap: () {
+                            setState(() {
+                              if (widget.device != null) {
+                                device = views.updateDevice(
+                                  device,
+                                  device.copyWith(matrixType: matrixType.next),
+                                );
+                              } else {
+                                device = device.copyWith(
+                                  matrixType: matrixType.next,
+                                );
+                                view.player.zoom.matrixType =
+                                    device.matrixType!;
+                              }
+                            });
+                          },
+                          onPressed: () {
+                            view.player.crop(row, col);
+                            currentZoom = (row, col);
+                          },
+                          builder:
+                              (context, states) => SizedBox.expand(
+                                child: IgnorePointer(
+                                  child:
+                                      states.isHovering
+                                          ? Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color:
+                                                    theme.colorScheme.secondary,
+                                                width: 2.25,
+                                              ),
+                                            ),
+                                          )
+                                          : null,
+                                ),
+                              ),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        for (final overlay in device.overlays)
-          if (overlay.visible)
-            Positioned(
-              left: constraints.maxWidth * (overlay.position.dx / 100),
-              top: constraints.maxHeight * (overlay.position.dy / 100),
-              right: 0,
-              bottom: 0,
-              child: IgnorePointer(
-                child: Text(
-                  overlay.text,
-                  style: theme.textTheme.bodyLarge!
-                      .copyWith(
-                        shadows: outlinedText(
-                          strokeColor:
-                              (overlay.textStyle?.color ?? Colors.black)
-                                          .computeLuminance() >
-                                      0.5
-                                  ? Colors.black
-                                  : Colors.white,
-                          strokeWidth: 0.5,
-                        ),
-                      )
-                      .merge(overlay.textStyle),
+            for (final overlay in device.overlays)
+              if (overlay.visible)
+                Positioned(
+                  left: constraints.maxWidth * (overlay.position.dx / 100),
+                  top: constraints.maxHeight * (overlay.position.dy / 100),
+                  right: 0,
+                  bottom: 0,
+                  child: IgnorePointer(
+                    child: Text(
+                      overlay.text,
+                      style: theme.textTheme.bodyLarge!
+                          .copyWith(
+                            shadows: outlinedText(
+                              strokeColor:
+                                  (overlay.textStyle?.color ?? Colors.black)
+                                              .computeLuminance() >
+                                          0.5
+                                      ? Colors.black
+                                      : Colors.white,
+                              strokeWidth: 0.5,
+                            ),
+                          )
+                          .merge(overlay.textStyle),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-      ]);
-    });
+          ],
+        );
+      },
+    );
   }
 }

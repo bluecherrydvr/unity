@@ -85,26 +85,30 @@ class AdditionalServerOptions {
     return AdditionalServerOptions(
       connectAutomaticallyAtStartup:
           map['connectAutomaticallyAtStartup'] ?? false,
-      preferredStreamingType: map['preferredStreamingType'] != null
-          ? StreamingType.values.firstWhereOrNull(
-              (type) => type.name == map['preferredStreamingType'],
-            )
-          : null,
-      rtspProtocol: map['rtspProtocol'] != null
-          ? RTSPProtocol.values.firstWhereOrNull(
-              (type) => type.name == map['rtspProtocol'],
-            )
-          : null,
-      renderingQuality: map['renderingQuality'] != null
-          ? RenderingQuality.values.firstWhereOrNull(
-              (type) => type.name == map['renderingQuality'],
-            )
-          : null,
-      videoFit: map['videoFit'] != null
-          ? UnityVideoFit.values.firstWhereOrNull(
-              (type) => type.name == map['videoFit'],
-            )
-          : null,
+      preferredStreamingType:
+          map['preferredStreamingType'] != null
+              ? StreamingType.values.firstWhereOrNull(
+                (type) => type.name == map['preferredStreamingType'],
+              )
+              : null,
+      rtspProtocol:
+          map['rtspProtocol'] != null
+              ? RTSPProtocol.values.firstWhereOrNull(
+                (type) => type.name == map['rtspProtocol'],
+              )
+              : null,
+      renderingQuality:
+          map['renderingQuality'] != null
+              ? RenderingQuality.values.firstWhereOrNull(
+                (type) => type.name == map['renderingQuality'],
+              )
+              : null,
+      videoFit:
+          map['videoFit'] != null
+              ? UnityVideoFit.values.firstWhereOrNull(
+                (type) => type.name == map['videoFit'],
+              )
+              : null,
     );
   }
 
@@ -301,21 +305,18 @@ class Server {
     );
   }
 
-  Map<String, dynamic> toJson({
-    bool devices = true,
-  }) =>
-      {
-        'name': name,
-        'ip': ip,
-        'port': port,
-        'rtspPort': rtspPort,
-        'login': login,
-        'password': password,
-        // 'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
-        'serverUUID': serverUUID,
-        'cookie': cookie,
-        'additionalSettings': additionalSettings.toMap(),
-      };
+  Map<String, dynamic> toJson({bool devices = true}) => {
+    'name': name,
+    'ip': ip,
+    'port': port,
+    'rtspPort': rtspPort,
+    'login': login,
+    'password': password,
+    // 'devices': !devices ? [] : this.devices.map((e) => e.toJson()).toList(),
+    'serverUUID': serverUUID,
+    'cookie': cookie,
+    'additionalSettings': additionalSettings.toMap(),
+  };
 
   factory Server.fromJson(Map<String, dynamic> json) {
     return Server(
@@ -336,9 +337,10 @@ class Server {
       rtspPort: json['rtspPort'],
       serverUUID: json['serverUUID'],
       cookie: json['cookie'],
-      additionalSettings: json['additionalSettings'] != null
-          ? AdditionalServerOptions.fromMap(json['additionalSettings'])
-          : const AdditionalServerOptions(),
+      additionalSettings:
+          json['additionalSettings'] != null
+              ? AdditionalServerOptions.fromMap(json['additionalSettings'])
+              : const AdditionalServerOptions(),
     );
   }
 }

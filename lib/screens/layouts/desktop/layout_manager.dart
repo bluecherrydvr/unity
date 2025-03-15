@@ -20,6 +20,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -32,7 +33,6 @@ import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 extension DesktopLayoutTypeExtension on DesktopLayoutType {
@@ -109,82 +109,89 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
 
     return SizedBox(
       height: height.clamp(minHeight, maxHeight),
-      child: Column(children: [
-        Material(
-          color: theme.appBarTheme.backgroundColor,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(
-                top: 2.0,
-                bottom: 2.0,
-                end: 12.0,
+      child: Column(
+        children: [
+          Material(
+            color: theme.appBarTheme.backgroundColor,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  top: 2.0,
+                  bottom: 2.0,
+                  end: 12.0,
+                ),
+                child: Row(
+                  children: [
+                    widget.collapseButton,
+                    const SizedBox(width: 5.0),
+                    Expanded(child: Text(loc.view, maxLines: 1)),
+                    SearchToggleButton(searchable: this, iconSize: 18.0),
+                    SquaredIconButton(
+                      icon: Icon(
+                        Icons.cyclone,
+                        color:
+                            settings.kLayoutCycleEnabled.value
+                                ? theme.colorScheme.primary
+                                : IconTheme.of(context).color,
+                      ),
+                      tooltip: loc.cycle,
+                      onPressed: settings.toggleCycling,
+                    ),
+                    SquaredIconButton(
+                      icon: const Icon(Icons.next_plan_outlined),
+                      tooltip: loc.switchToNext,
+                      onPressed:
+                          view.layouts.length > 1
+                              ? view.switchToNextLayout
+                              : null,
+                    ),
+                    SquaredIconButton(
+                      icon: const Icon(Icons.add),
+                      tooltip: loc.newLayout,
+                      onPressed: () => showNewLayoutDialog(context),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(children: [
-                widget.collapseButton,
-                const SizedBox(width: 5.0),
-                Expanded(child: Text(loc.view, maxLines: 1)),
-                SearchToggleButton(searchable: this, iconSize: 18.0),
-                SquaredIconButton(
-                  icon: Icon(
-                    Icons.cyclone,
-                    color: settings.kLayoutCycleEnabled.value
-                        ? theme.colorScheme.primary
-                        : IconTheme.of(context).color,
-                  ),
-                  tooltip: loc.cycle,
-                  onPressed: settings.toggleCycling,
-                ),
-                SquaredIconButton(
-                  icon: const Icon(Icons.next_plan_outlined),
-                  tooltip: loc.switchToNext,
-                  onPressed:
-                      view.layouts.length > 1 ? view.switchToNextLayout : null,
-                ),
-                SquaredIconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: loc.newLayout,
-                  onPressed: () => showNewLayoutDialog(context),
-                ),
-              ]),
             ),
           ),
-        ),
-        Expanded(
-          child: ReorderableListView.builder(
-            buildDefaultDragHandles: false,
-            onReorder: view.reorderLayout,
-            itemCount: view.layouts.length,
-            itemBuilder: (context, index) {
-              final layout = view.layouts[index];
-              return LayoutTile(
-                key: ValueKey(layout),
-                layout: layout,
-                selected: view.currentLayout == layout,
-                reorderableIndex: index,
-              );
-            },
-          ),
-        ),
-        ToggleSearchBar(searchable: this, showBottomDivider: false),
-        MouseRegion(
-          cursor: SystemMouseCursors.resizeUpDown,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onVerticalDragUpdate: (details) {
-              setState(() {
-                height = (height + details.primaryDelta!).clamp(
-                  minHeight,
-                  maxHeight,
+          Expanded(
+            child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              onReorder: view.reorderLayout,
+              itemCount: view.layouts.length,
+              itemBuilder: (context, index) {
+                final layout = view.layouts[index];
+                return LayoutTile(
+                  key: ValueKey(layout),
+                  layout: layout,
+                  selected: view.currentLayout == layout,
+                  reorderableIndex: index,
                 );
-              });
-            },
-            onVerticalDragEnd: (_) {
-              view.layoutManagerHeight = _height;
-            },
-            child: const Divider(height: 16.0),
+              },
+            ),
           ),
-        ),
-      ]),
+          ToggleSearchBar(searchable: this, showBottomDivider: false),
+          MouseRegion(
+            cursor: SystemMouseCursors.resizeUpDown,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onVerticalDragUpdate: (details) {
+                setState(() {
+                  height = (height + details.primaryDelta!).clamp(
+                    minHeight,
+                    maxHeight,
+                  );
+                });
+              },
+              onVerticalDragEnd: (_) {
+                view.layoutManagerHeight = _height;
+              },
+              child: const Divider(height: 16.0),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -234,46 +241,50 @@ class _LayoutTileState extends State<LayoutTile> {
         onLongPressEnd: (d) => longPressKind = null,
         onLongPressCancel: () => longPressKind = null,
         onLongPressUp: () => longPressKind = null,
-        builder: (context, states) => ListTile(
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          selected: widget.selected,
-          leading: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: ReorderableDragStartListener(
-              index: widget.reorderableIndex,
-              enabled: !widget.selected,
-              child: Icon(
-                widget.selected
-                    ? widget.layout.type.selectedIcon
-                    : widget.layout.type.icon,
-                key: ValueKey(widget.layout.type),
-                size: 20.0,
-              ),
-            ),
-          ),
-          minLeadingWidth: 24.0,
-          title: Text(widget.layout.name, maxLines: 1),
-          subtitle: Text(
-            loc.nDevices(widget.layout.devices.length),
-            maxLines: 1,
-          ),
-          trailing: states.isHovering
-              ? Tooltip(
-                  message: loc.cameraOptions,
-                  preferBelow: false,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(4.0),
-                    onTap: () => _displayOptions(context),
-                    child: Icon(moreIconData),
+        builder:
+            (context, states) => ListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              selected: widget.selected,
+              leading: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: ReorderableDragStartListener(
+                  index: widget.reorderableIndex,
+                  enabled: !widget.selected,
+                  child: Icon(
+                    widget.selected
+                        ? widget.layout.type.selectedIcon
+                        : widget.layout.type.icon,
+                    key: ValueKey(widget.layout.type),
+                    size: 20.0,
                   ),
-                )
-              : null,
-          onTap: !widget.selected
-              ? () =>
-                  view.updateCurrentLayout(view.layouts.indexOf(widget.layout))
-              : null,
-        ),
+                ),
+              ),
+              minLeadingWidth: 24.0,
+              title: Text(widget.layout.name, maxLines: 1),
+              subtitle: Text(
+                loc.nDevices(widget.layout.devices.length),
+                maxLines: 1,
+              ),
+              trailing:
+                  states.isHovering
+                      ? Tooltip(
+                        message: loc.cameraOptions,
+                        preferBelow: false,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(4.0),
+                          onTap: () => _displayOptions(context),
+                          child: Icon(moreIconData),
+                        ),
+                      )
+                      : null,
+              onTap:
+                  !widget.selected
+                      ? () => view.updateCurrentLayout(
+                        view.layouts.indexOf(widget.layout),
+                      )
+                      : null,
+            ),
       ),
     );
   }
@@ -284,10 +295,7 @@ class _LayoutTileState extends State<LayoutTile> {
     const padding = EdgeInsets.symmetric(horizontal: 16.0);
 
     final renderBox = context.findRenderObject() as RenderBox;
-    final offset = renderBox.localToGlobal(Offset(
-      padding.left,
-      padding.top,
-    ));
+    final offset = renderBox.localToGlobal(Offset(padding.left, padding.top));
     final size = Size(
       renderBox.size.width - padding.right * 2,
       renderBox.size.height - padding.bottom,
@@ -302,10 +310,7 @@ class _LayoutTileState extends State<LayoutTile> {
         offset.dx + size.width,
         offset.dy + size.height,
       ),
-      constraints: BoxConstraints(
-        maxWidth: size.width,
-        minWidth: size.width,
-      ),
+      constraints: BoxConstraints(maxWidth: size.width, minWidth: size.width),
       items: <PopupMenuEntry>[
         PopupMenuLabel(
           label: Padding(
@@ -361,25 +366,29 @@ class _LayoutTypeChooser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToggleButtons(
-      isSelected: DesktopLayoutType.values.map((type) {
-        return type.index == selected;
-      }).toList(),
+      isSelected:
+          DesktopLayoutType.values.map((type) {
+            return type.index == selected;
+          }).toList(),
       onPressed: onSelect,
-      children: DesktopLayoutType.values.map<Widget>((type) {
-        final isSelected = type.index == selected;
-        final icon = isSelected ? type.selectedIcon : type.icon;
+      children:
+          DesktopLayoutType.values.map<Widget>((type) {
+            final isSelected = type.index == selected;
+            final icon = isSelected ? type.selectedIcon : type.icon;
 
-        return Row(children: [
-          const SizedBox(width: 12.0),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: Icon(icon, key: ValueKey(icon), size: 22.0),
-          ),
-          const SizedBox(width: 8.0),
-          Text(type.text(context)),
-          const SizedBox(width: 16.0),
-        ]);
-      }).toList(),
+            return Row(
+              children: [
+                const SizedBox(width: 12.0),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(icon, key: ValueKey(icon), size: 22.0),
+                ),
+                const SizedBox(width: 8.0),
+                Text(type.text(context)),
+                const SizedBox(width: 16.0),
+              ],
+            );
+          }).toList(),
     );
   }
 }
@@ -462,10 +471,7 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
           return;
         } catch (error, stack) {
           if (context.mounted) {
-            showImportFailedMessage(
-              context,
-              loc.layoutImportFileCorrupted,
-            );
+            showImportFailedMessage(context, loc.layoutImportFileCorrupted);
           }
           handleError(error, stack, 'Failed to import layout');
           return;
@@ -487,19 +493,19 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
         ),
         content: Text(
           message,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         actions: [
-          Builder(builder: (context) {
-            return TextButton(
-              child: Text(loc.close),
-              onPressed: () {
-                ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
-              },
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return TextButton(
+                child: Text(loc.close),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+                },
+              );
+            },
+          ),
         ],
       ),
     );
@@ -513,47 +519,52 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
 
     return AlertDialog(
       title: Text(loc.createNewLayout),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(
-          controller: _nameController,
-          decoration: InputDecoration(
-            hintText: loc.layoutNameHint,
-            label: Text(loc.layoutName),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              hintText: loc.layoutNameHint,
+              label: Text(loc.layoutName),
+            ),
+            textInputAction: TextInputAction.none,
+            autofocus: true,
+            onEditingComplete: _onFinish,
           ),
-          textInputAction: TextInputAction.none,
-          autofocus: true,
-          onEditingComplete: _onFinish,
-        ),
-        SubHeader(loc.layoutTypeLabel, padding: EdgeInsetsDirectional.zero),
-        _LayoutTypeChooser(
-          selected: _typeIndex,
-          onSelect: (index) {
-            if (mounted) setState(() => _typeIndex = index);
-          },
-        ),
-      ]),
-      actions: [
-        Row(children: [
-          ElevatedButton(
-            onPressed: () async {
-              final layouts = await import(context, fallbackName)?.toList();
-              if (layouts != null) {
-                for (final layout in layouts) {
-                  view.addLayout(layout);
-                }
-              }
-              if (context.mounted) Navigator.of(context).pop();
+          SubHeader(loc.layoutTypeLabel, padding: EdgeInsetsDirectional.zero),
+          _LayoutTypeChooser(
+            selected: _typeIndex,
+            onSelect: (index) {
+              if (mounted) setState(() => _typeIndex = index);
             },
-            child: Text(loc.importLayout),
           ),
-          const Spacer(),
-          OutlinedButton(
-            onPressed: Navigator.of(context).pop,
-            child: Text(loc.cancel),
-          ),
-          const SizedBox(width: 12.0),
-          FilledButton(onPressed: _onFinish, child: Text(loc.finish)),
-        ]),
+        ],
+      ),
+      actions: [
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                final layouts = await import(context, fallbackName)?.toList();
+                if (layouts != null) {
+                  for (final layout in layouts) {
+                    view.addLayout(layout);
+                  }
+                }
+                if (context.mounted) Navigator.of(context).pop();
+              },
+              child: Text(loc.importLayout),
+            ),
+            const Spacer(),
+            OutlinedButton(
+              onPressed: Navigator.of(context).pop,
+              child: Text(loc.cancel),
+            ),
+            const SizedBox(width: 12.0),
+            FilledButton(onPressed: _onFinish, child: Text(loc.finish)),
+          ],
+        ),
       ],
     );
   }
@@ -563,12 +574,16 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
     final view = context.read<LayoutsProvider>();
     final fallbackName = loc.fallbackLayoutName(view.layouts.length + 1);
 
-    view.addLayout(Layout(
-      name:
-          _nameController.text.isNotEmpty ? _nameController.text : fallbackName,
-      type: DesktopLayoutType.values[_typeIndex],
-      devices: [],
-    ));
+    view.addLayout(
+      Layout(
+        name:
+            _nameController.text.isNotEmpty
+                ? _nameController.text
+                : fallbackName,
+        type: DesktopLayoutType.values[_typeIndex],
+        devices: [],
+      ),
+    );
     Navigator.of(context).pop();
   }
 }
@@ -601,60 +616,63 @@ class _EditLayoutDialogState extends State<EditLayoutDialog> {
     final view = context.watch<LayoutsProvider>();
 
     return AlertDialog(
-      title: Row(children: [
-        Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
-        if (view.layouts.length > 1)
-          SquaredIconButton(
-            icon: Icon(Icons.delete, color: theme.colorScheme.error),
-            tooltip: loc.delete,
-            onPressed: () {
-              view.removeLayout(widget.layout);
-              Navigator.of(context).pop();
+      title: Row(
+        children: [
+          Expanded(child: Text(loc.editSpecificLayout(widget.layout.name))),
+          if (view.layouts.length > 1)
+            SquaredIconButton(
+              icon: Icon(Icons.delete, color: theme.colorScheme.error),
+              tooltip: loc.delete,
+              onPressed: () {
+                view.removeLayout(widget.layout);
+                Navigator.of(context).pop();
+              },
+            ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: layoutNameController,
+            decoration: InputDecoration(
+              hintText: loc.layoutNameHint,
+              label: Text(loc.layoutName),
+            ),
+            textInputAction: TextInputAction.none,
+            autofocus: true,
+            onEditingComplete: _onUpdate,
+          ),
+          SubHeader(loc.layoutName, padding: EdgeInsetsDirectional.zero),
+          _LayoutTypeChooser(
+            selected: selected,
+            onSelect: (index) {
+              if (mounted) setState(() => selected = index);
             },
           ),
-      ]),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(
-          controller: layoutNameController,
-          decoration: InputDecoration(
-            hintText: loc.layoutNameHint,
-            label: Text(loc.layoutName),
-          ),
-          textInputAction: TextInputAction.none,
-          autofocus: true,
-          onEditingComplete: _onUpdate,
-        ),
-        SubHeader(loc.layoutName, padding: EdgeInsetsDirectional.zero),
-        _LayoutTypeChooser(
-          selected: selected,
-          onSelect: (index) {
-            if (mounted) setState(() => selected = index);
-          },
-        ),
-      ]),
+        ],
+      ),
       actions: [
         TextButton(
           onPressed: Navigator.of(context).pop,
           child: Text(loc.cancel),
         ),
-        ElevatedButton(
-          onPressed: _onUpdate,
-          child: Text(loc.finish),
-        ),
+        ElevatedButton(onPressed: _onUpdate, child: Text(loc.finish)),
       ],
     );
   }
 
   void _onUpdate() {
     context.read<LayoutsProvider>().updateLayout(
-          widget.layout,
-          widget.layout.copyWith(
-            name: layoutNameController.text.isEmpty
+      widget.layout,
+      widget.layout.copyWith(
+        name:
+            layoutNameController.text.isEmpty
                 ? null
                 : layoutNameController.text,
-            type: DesktopLayoutType.values[selected],
-          ),
-        );
+        type: DesktopLayoutType.values[selected],
+      ),
+    );
     Navigator.of(context).pop();
   }
 }

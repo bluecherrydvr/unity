@@ -46,9 +46,10 @@ class SquaredIconButton extends StatelessWidget {
           child: IconTheme.merge(
             data: IconThemeData(
               size: 18.0,
-              color: onPressed == null
-                  ? theme.disabledColor
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.9),
+              color:
+                  onPressed == null
+                      ? theme.disabledColor
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.9),
             ),
             child: icon,
           ),

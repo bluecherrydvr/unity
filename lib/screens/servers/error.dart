@@ -1,5 +1,5 @@
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> showServerNotAddedErrorDialog({
   required BuildContext context,
@@ -41,10 +41,7 @@ class ServerNotAddedErrorDialog extends StatelessWidget {
       title: Text(loc.serverNotAddedError(name)),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400.0),
-        child: Text(
-          description,
-          style: theme.textTheme.headlineMedium,
-        ),
+        child: Text(description, style: theme.textTheme.headlineMedium),
       ),
       actions: [
         if (onRetry != null)

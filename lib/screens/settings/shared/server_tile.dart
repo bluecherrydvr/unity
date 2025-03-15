@@ -37,98 +37,105 @@ class ServersList extends StatelessWidget {
         ..setTab(UnityTab.addServer, context);
     }
 
-    return LayoutBuilder(builder: (context, consts) {
-      if (consts.maxWidth >= kMobileBreakpoint.width) {
-        return Padding(
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
-          child: ReorderableWrap(
-            needsLongPressDraggable: isMobile,
-            onReorder: (oldIndex, newIndex) {
-              serversProvider.reorder(oldIndex, newIndex);
-            },
-            footer: SizedBox(
-              height: 180,
-              width: 180,
-              child: Card(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8.0),
-                  onTap: addServersScreen,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: theme.iconTheme.color,
-                          child: const Icon(Icons.add, size: 30.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          loc.addNewServer,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 15.0),
-                      ],
+    final canReorder = serversProvider.servers.length > 1;
+
+    return LayoutBuilder(
+      builder: (context, consts) {
+        if (consts.maxWidth >= kMobileBreakpoint.width) {
+          return Padding(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
+            child: ReorderableWrap(
+              enableReorder: canReorder,
+              needsLongPressDraggable: isMobile,
+              onReorder: (oldIndex, newIndex) {
+                serversProvider.reorder(oldIndex, newIndex);
+              },
+              footer: SizedBox(
+                height: 180,
+                width: 180,
+                child: Card(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8.0),
+                    onTap: addServersScreen,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: theme.iconTheme.color,
+                            child: const Icon(Icons.add, size: 30.0),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            loc.addNewServer,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 15.0),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
+              children: [
+                ...serversProvider.servers.map((server) {
+                  return ServerCard(
+                    key: ValueKey(server.id),
+                    server: server,
+                    onRemoveServer: onRemoveServer,
+                  );
+                }),
+              ],
             ),
+          );
+        } else {
+          return Column(
             children: [
-              ...serversProvider.servers.map((server) {
-                return ServerCard(
-                  key: ValueKey(server.id),
-                  server: server,
-                  onRemoveServer: onRemoveServer,
-                );
-              }),
-            ],
-          ),
-        );
-      } else {
-        return Column(children: [
-          ReorderableListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            onReorder: (oldIndex, newIndex) {
-              serversProvider.reorder(oldIndex, newIndex);
-            },
-            buildDefaultDragHandles: false,
-            itemCount: serversProvider.servers.length,
-            itemBuilder: (context, index) {
-              final server = serversProvider.servers[index];
-              return ServerTile(
-                key: ValueKey(server.id),
-                server: server,
-                onRemoveServer: onRemoveServer,
-                trailing: ReorderableDragStartListener(
-                  index: index,
-                  child: const Icon(Icons.drag_handle_outlined),
+              ReorderableListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                onReorder: (oldIndex, newIndex) {
+                  serversProvider.reorder(oldIndex, newIndex);
+                },
+                buildDefaultDragHandles: false,
+                itemCount: serversProvider.servers.length,
+                itemBuilder: (context, index) {
+                  final server = serversProvider.servers[index];
+                  return ServerTile(
+                    key: ValueKey(server.id),
+                    server: server,
+                    onRemoveServer: onRemoveServer,
+                    trailing:
+                        canReorder
+                            ? ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_handle_outlined),
+                            )
+                            : null,
+                  );
+                },
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: theme.iconTheme.color,
+                  child: const Icon(Icons.add),
                 ),
-              );
-            },
-          ),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: theme.iconTheme.color,
-              child: const Icon(Icons.add),
-            ),
-            title: Text(loc.addNewServer),
-            onTap: addServersScreen,
-          ),
-          const Padding(
-            padding: EdgeInsetsDirectional.only(top: 8.0),
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-            ),
-          ),
-        ]);
-      }
-    });
+                title: Text(loc.addNewServer),
+                onTap: addServersScreen,
+              ),
+              const Padding(
+                padding: EdgeInsetsDirectional.only(top: 8.0),
+                child: Divider(height: 1.0, thickness: 1.0),
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 
   Future<void> onRemoveServer(BuildContext context, Server server) {
@@ -141,9 +148,7 @@ class ServersList extends StatelessWidget {
         return AlertDialog(
           title: Text(loc.areYouSure),
           content: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 300.0,
-            ),
+            constraints: const BoxConstraints(maxWidth: 300.0),
             child: Text(
               loc.removeServerDescription(server.name),
               style: theme.textTheme.headlineMedium,
@@ -158,9 +163,7 @@ class ServersList extends StatelessWidget {
               },
               child: Text(
                 loc.yes.toUpperCase(),
-                style: TextStyle(
-                  color: theme.colorScheme.secondary,
-                ),
+                style: TextStyle(color: theme.colorScheme.secondary),
               ),
             ),
             ElevatedButton(
@@ -168,9 +171,7 @@ class ServersList extends StatelessWidget {
               autofocus: true,
               child: Text(
                 loc.no.toUpperCase(),
-                style: TextStyle(
-                  color: theme.colorScheme.secondary,
-                ),
+                style: TextStyle(color: theme.colorScheme.secondary),
               ),
             ),
           ],
@@ -218,35 +219,26 @@ class ServerTile extends StatelessWidget {
           backgroundColor: Colors.transparent,
           foregroundColor:
               server.online ? theme.iconTheme.color : theme.colorScheme.error,
-          child: ServerStatusIcon(
-            server: server,
-            isLoading: isLoading,
-          ),
+          child: ServerStatusIcon(server: server, isLoading: isLoading),
         ),
-        title: Text(
-          server.name,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: Text(server.name, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           !isLoading
               ? [
-                  if (server.name != server.ip) server.ip,
-                  if (server.online)
-                    loc.nDevices(server.devices.length)
-                  else
-                    loc.offline,
-                  if (!server.passedCertificates) loc.certificateNotPassed
-                ].join(' • ')
+                if (server.name != server.ip) server.ip,
+                if (server.online)
+                  loc.nDevices(server.devices.length)
+                else
+                  loc.offline,
+                if (!server.passedCertificates) loc.certificateNotPassed,
+              ].join(' • ')
               : loc.gettingDevices,
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             SquaredIconButton(
-              icon: Icon(
-                Icons.delete,
-                color: theme.colorScheme.error,
-              ),
+              icon: Icon(Icons.delete, color: theme.colorScheme.error),
               tooltip: loc.disconnectServer,
               // splashRadius: 24.0,
               onPressed: () => onRemoveServer(context, server),
@@ -308,101 +300,103 @@ class ServerCard extends StatelessWidget {
           maxWidth: 200.0,
         ),
         child: Card(
-          child: Stack(alignment: AlignmentDirectional.center, children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: theme.iconTheme.color,
-                    child: const Icon(Icons.dns, size: 30.0),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    server.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  Text(
-                    !isLoading
-                        ? [
-                            if (server.name != server.ip) server.ip,
-                          ].join()
-                        : loc.gettingDevices,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    () {
-                      if (!settings.checkServerCertificates(server)) {
-                        return loc.certificateNotPassed;
-                      } else if (!server.online) {
-                        return loc.offline;
-                      } else if (!isLoading) {
-                        return loc.nDevices(server.devices.length);
-                      }
-
-                      return '';
-                    }(),
-                    style: TextStyle(
-                      color: () {
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: theme.iconTheme.color,
+                      child: const Icon(Icons.dns, size: 30.0),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      server.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    Text(
+                      !isLoading
+                          ? [if (server.name != server.ip) server.ip].join()
+                          : loc.gettingDevices,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    Text(
+                      () {
                         if (!settings.checkServerCertificates(server)) {
-                          return theme.colorScheme.error;
+                          return loc.certificateNotPassed;
                         } else if (!server.online) {
-                          return theme.colorScheme.error;
+                          return loc.offline;
+                        } else if (!isLoading) {
+                          return loc.nDevices(server.devices.length);
                         }
 
-                        return null;
+                        return '';
                       }(),
-                      fontWeight: FontWeight.w600,
+                      style: TextStyle(
+                        color: () {
+                          if (!settings.checkServerCertificates(server)) {
+                            return theme.colorScheme.error;
+                          } else if (!server.online) {
+                            return theme.colorScheme.error;
+                          }
+
+                          return null;
+                        }(),
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12.0),
-                  Transform.scale(
-                    scale: 0.9,
-                    child: server.online
-                        ? OutlinedButton(
-                            child: Text(loc.disconnectServer),
-                            onPressed: () {
-                              servers.disconnectServer(server);
-                            },
-                          )
-                        : OutlinedButton(
-                            child: Text(loc.connect),
-                            onPressed: () {
-                              servers.refreshDevices(ids: [server.id]);
-                            },
-                          ),
-                  ),
-                ],
+                    const SizedBox(height: 12.0),
+                    Transform.scale(
+                      scale: 0.9,
+                      child:
+                          server.online
+                              ? OutlinedButton(
+                                child: Text(loc.disconnectServer),
+                                onPressed: () {
+                                  servers.disconnectServer(server);
+                                },
+                              )
+                              : OutlinedButton(
+                                child: Text(loc.connect),
+                                onPressed: () {
+                                  servers.refreshDevices(ids: [server.id]);
+                                },
+                              ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            PositionedDirectional(
-              top: 4,
-              start: 0,
-              end: 0,
-              child: Row(children: [
-                ServerStatusIcon(isLoading: isLoading, server: server),
-                Spacer(),
-                Tooltip(
-                  message: 'Reorder',
-                  child: Icon(
-                    Icons.drag_indicator_outlined,
-                    size: 18.0,
-                  ),
+              PositionedDirectional(
+                top: 4,
+                start: 0,
+                end: 0,
+                child: Row(
+                  children: [
+                    ServerStatusIcon(isLoading: isLoading, server: server),
+                    Spacer(),
+                    if (servers.servers.length > 1)
+                      Tooltip(
+                        message: 'Reorder',
+                        child: Icon(Icons.drag_indicator_outlined, size: 18.0),
+                      ),
+                    SquaredIconButton(
+                      tooltip: loc.serverOptions,
+                      icon: Icon(moreIconData, size: 20.0),
+                      onPressed: showMenu,
+                    ),
+                  ],
                 ),
-                SquaredIconButton(
-                  tooltip: loc.serverOptions,
-                  icon: Icon(moreIconData, size: 20.0),
-                  onPressed: showMenu,
-                ),
-              ]),
-            ),
-          ]),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -428,7 +422,7 @@ Future showServerMenu({
       pos.dx + 180.0,
       pos.dy + 200,
     ),
-    color: theme.dialogBackgroundColor,
+    color: theme.dialogTheme.backgroundColor,
     items: <PopupMenuEntry>[
       PopupMenuItem(
         child: Text(loc.editServerInfo),
@@ -449,9 +443,7 @@ Future showServerMenu({
       PopupMenuItem(
         child: Text(
           loc.disconnectServer,
-          style: TextStyle(
-            color: theme.colorScheme.error,
-          ),
+          style: TextStyle(color: theme.colorScheme.error),
         ),
         onTap: () {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

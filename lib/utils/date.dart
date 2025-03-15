@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -117,10 +117,7 @@ extension DateSettingsExtension on SettingsProvider {
     DateFormat? pattern,
     Duration offset = Duration.zero,
   }) {
-    return formatTime(
-      timezoneAwareDate(rawTime).add(offset),
-      pattern: pattern,
-    );
+    return formatTime(timezoneAwareDate(rawTime).add(offset), pattern: pattern);
   }
 
   String formatRawDateAndTime(String rawDateTime) {
@@ -141,7 +138,8 @@ extension DateTimeExtension on DateTime? {
     bool allowSameMoment = false,
   }) {
     assert(this != null);
-    final isBetween = this!.toLocal().isAfter(first.toLocal()) &&
+    final isBetween =
+        this!.toLocal().isAfter(first.toLocal()) &&
         this!.toLocal().isBefore(second.toLocal());
 
     if (allowSameMoment) return isBetween;
@@ -216,7 +214,8 @@ extension DateTimeExtension on DateTime? {
     final isoString = date.toIso8601String();
     if (offset == Duration.zero) return isoString;
 
-    final offsetString = '${offset.isNegative ? '-' : '+'}'
+    final offsetString =
+        '${offset.isNegative ? '-' : '+'}'
         '${offset.inHours.toString().replaceAll('-', '').replaceAll('+', '').padLeft(2, '0')}:'
         '${offset.inMinutes.remainder(60).toString().padLeft(2, '0')}';
 

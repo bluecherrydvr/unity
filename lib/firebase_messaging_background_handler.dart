@@ -52,8 +52,9 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   await configureStorage();
   await ServersProvider.ensureInitialized();
   await SettingsProvider.ensureInitialized();
-  if (SettingsProvider.instance.kSnoozeNotificationsUntil.value
-      .isAfter(DateTime.now())) {
+  if (SettingsProvider.instance.kSnoozeNotificationsUntil.value.isAfter(
+    DateTime.now(),
+  )) {
     debugPrint(
       'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
     );
@@ -61,18 +62,15 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
   }
   debugPrint(message.toMap().toString());
   try {
-    await AwesomeNotifications().initialize(
-      'resource://drawable/ic_stat_linked_camera',
-      [
-        NotificationChannel(
-          channelKey: 'com.bluecherrydvr',
-          channelName: 'Bluecherry DVR',
-          channelDescription: 'Bluecherry DVR Notifications',
-          ledColor: Colors.white,
-        )
-      ],
-      debug: true,
-    );
+    await AwesomeNotifications()
+        .initialize('resource://drawable/ic_stat_linked_camera', [
+          NotificationChannel(
+            channelKey: 'com.bluecherrydvr',
+            channelName: 'Bluecherry DVR',
+            channelDescription: 'Bluecherry DVR Notifications',
+            ledColor: Colors.white,
+          ),
+        ], debug: true);
     final eventType = message.data['eventType'];
     final name = message.data['deviceName'];
     final serverUUID = message.data['serverId'];
@@ -87,18 +85,13 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
         id: key,
         channelKey: 'com.bluecherrydvr',
         title: APIHelpers.getEventNameFromID(eventType),
-        body: [
-          name,
-          if (state != null) state,
-        ].join(' • '),
-        payload: message.data
-            .map<String, String>(
-              (key, value) => MapEntry(
-                key,
-                value.toString(),
-              ),
-            )
-            .cast(),
+        body: [name, if (state != null) state].join(' • '),
+        payload:
+            message.data
+                .map<String, String>(
+                  (key, value) => MapEntry(key, value.toString()),
+                )
+                .cast(),
       ),
       actionButtons: [
         NotificationActionButton(
@@ -122,10 +115,13 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
       ],
     );
     try {
-      final server = ServersProvider.instance.servers
-          .firstWhere((server) => server.serverUUID == serverUUID);
-      final thumbnail =
-          await APIHelpers.getLatestThumbnailForDeviceID(server, id);
+      final server = ServersProvider.instance.servers.firstWhere(
+        (server) => server.serverUUID == serverUUID,
+      );
+      final thumbnail = await APIHelpers.getLatestThumbnailForDeviceID(
+        server,
+        id,
+      );
       debugPrint(thumbnail);
       if (thumbnail != null) {
         await AwesomeNotifications().createNotification(
@@ -134,18 +130,13 @@ Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
             channelKey: 'com.bluecherrydvr',
             bigPicture: thumbnail,
             title: APIHelpers.getEventNameFromID(eventType),
-            body: [
-              name,
-              if (state != null) state,
-            ].join(' • '),
-            payload: message.data
-                .map<String, String>(
-                  (key, value) => MapEntry(
-                    key,
-                    value.toString(),
-                  ),
-                )
-                .cast(),
+            body: [name, if (state != null) state].join(' • '),
+            payload:
+                message.data
+                    .map<String, String>(
+                      (key, value) => MapEntry(key, value.toString()),
+                    )
+                    .cast(),
             notificationLayout: NotificationLayout.BigPicture,
           ),
           actionButtons: [
@@ -203,8 +194,9 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       if (_mutex == id || !APIHelpers.isValidEventType(eventType)) {
         return;
       }
-      final server = ServersProvider.instance.servers
-          .firstWhere((server) => server.serverUUID == serverUUID);
+      final server = ServersProvider.instance.servers.firstWhere(
+        (server) => server.serverUUID == serverUUID,
+      );
       final device = Device(
         name: name!,
         id: int.tryParse(id ?? '0') ?? 0,
@@ -216,9 +208,11 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       if (_mutex == null) {
         _mutex = id;
         await navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (context) {
-            return LivePlayer(device: device, player: player);
-          }),
+          MaterialPageRoute(
+            builder: (context) {
+              return LivePlayer(device: device, player: player);
+            },
+          ),
         );
         _mutex = null;
       }
@@ -229,9 +223,11 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
         await Future.delayed(const Duration(seconds: 1));
         _mutex = id;
         await navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (context) {
-            return LivePlayer(device: device, player: player);
-          }),
+          MaterialPageRoute(
+            builder: (context) {
+              return LivePlayer(device: device, player: player);
+            },
+          ),
         );
         _mutex = null;
       }
@@ -265,8 +261,8 @@ Future<void> _backgroundClickAction(ReceivedAction action) async {
       },
     );
     debugPrint(DateTime.now().add(duration).toString());
-    SettingsProvider.instance.kSnoozeNotificationsUntil.value =
-        DateTime.now().add(duration);
+    SettingsProvider.instance.kSnoozeNotificationsUntil.value = DateTime.now()
+        .add(duration);
     if (action.id != null) {
       AwesomeNotifications().dismiss(action.id!);
     }
@@ -284,8 +280,9 @@ abstract class FirebaseConfiguration {
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      if (SettingsProvider.instance.kSnoozeNotificationsUntil.value
-          .isAfter(DateTime.now())) {
+      if (SettingsProvider.instance.kSnoozeNotificationsUntil.value.isAfter(
+        DateTime.now(),
+      )) {
         debugPrint(
           'SettingsProvider.instance.snoozedUntil.isAfter(DateTime.now())',
         );
@@ -307,18 +304,13 @@ abstract class FirebaseConfiguration {
             id: key,
             channelKey: 'com.bluecherrydvr',
             title: APIHelpers.getEventNameFromID(eventType),
-            body: [
-              name,
-              if (state != null) state,
-            ].join(' • '),
-            payload: message.data
-                .map<String, String>(
-                  (key, value) => MapEntry(
-                    key,
-                    value.toString(),
-                  ),
-                )
-                .cast(),
+            body: [name, if (state != null) state].join(' • '),
+            payload:
+                message.data
+                    .map<String, String>(
+                      (key, value) => MapEntry(key, value.toString()),
+                    )
+                    .cast(),
           ),
           actionButtons: [
             NotificationActionButton(
@@ -342,10 +334,13 @@ abstract class FirebaseConfiguration {
           ],
         );
         try {
-          final server = ServersProvider.instance.servers
-              .firstWhere((server) => server.serverUUID == serverUUID);
-          final thumbnail =
-              await APIHelpers.getLatestThumbnailForDeviceID(server, id);
+          final server = ServersProvider.instance.servers.firstWhere(
+            (server) => server.serverUUID == serverUUID,
+          );
+          final thumbnail = await APIHelpers.getLatestThumbnailForDeviceID(
+            server,
+            id,
+          );
           debugPrint(thumbnail);
           if (thumbnail != null) {
             await AwesomeNotifications().createNotification(
@@ -354,18 +349,13 @@ abstract class FirebaseConfiguration {
                 channelKey: 'com.bluecherrydvr',
                 bigPicture: thumbnail,
                 title: APIHelpers.getEventNameFromID(eventType),
-                body: [
-                  name,
-                  if (state != null) state,
-                ].join(' • '),
-                payload: message.data
-                    .map<String, String>(
-                      (key, value) => MapEntry(
-                        key,
-                        value.toString(),
-                      ),
-                    )
-                    .cast(),
+                body: [name, if (state != null) state].join(' • '),
+                payload:
+                    message.data
+                        .map<String, String>(
+                          (key, value) => MapEntry(key, value.toString()),
+                        )
+                        .cast(),
                 notificationLayout: NotificationLayout.BigPicture,
               ),
               actionButtons: [
@@ -405,18 +395,15 @@ abstract class FirebaseConfiguration {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
-    await AwesomeNotifications().initialize(
-      'resource://drawable/ic_stat_linked_camera',
-      [
-        NotificationChannel(
-          channelKey: 'com.bluecherrydvr',
-          channelName: 'Bluecherry DVR',
-          channelDescription: 'Bluecherry DVR Notifications',
-          ledColor: Colors.white,
-        )
-      ],
-      debug: true,
-    );
+    await AwesomeNotifications()
+        .initialize('resource://drawable/ic_stat_linked_camera', [
+          NotificationChannel(
+            channelKey: 'com.bluecherrydvr',
+            channelName: 'Bluecherry DVR',
+            channelDescription: 'Bluecherry DVR Notifications',
+            ledColor: Colors.white,
+          ),
+        ], debug: true);
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
         AwesomeNotifications().requestPermissionToSendNotifications();
@@ -427,22 +414,20 @@ abstract class FirebaseConfiguration {
     );
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    FirebaseMessaging.instance.onTokenRefresh.listen(
-      (token) async {
-        debugPrint('[FirebaseMessaging.instance.onTokenRefresh]: $token');
-        secureStorage.write(key: kStorageNotificationToken, value: token);
-        for (final server in ServersProvider.instance.servers) {
-          API.instance.registerNotificationToken(
-            (await API.instance.checkServerCredentials(server)).$2,
-            token,
-          );
-        }
-      },
-    );
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+      debugPrint('[FirebaseMessaging.instance.onTokenRefresh]: $token');
+      secureStorage.write(key: kStorageNotificationToken, value: token);
+      for (final server in ServersProvider.instance.servers) {
+        API.instance.registerNotificationToken(
+          (await API.instance.checkServerCredentials(server)).$2,
+          token,
+        );
+      }
+    });
     // Sometimes [FirebaseMessaging.instance.onTokenRefresh] is not getting invoked.
     // Having this as a fallback.
     FirebaseMessaging.instance.getToken().then((token) async {

@@ -18,12 +18,12 @@
  */
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/security.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> showEditServer(BuildContext context, Server server) async {
   final authorized = await UnityAuth.ask();
@@ -39,10 +39,7 @@ Future<void> showEditServer(BuildContext context, Server server) async {
             constraints: BoxConstraints(
               minWidth: MediaQuery.sizeOf(context).width * 0.75,
             ),
-            child: EditServer(
-              serverIp: server.ip,
-              serverPort: server.port,
-            ),
+            child: EditServer(serverIp: server.ip, serverPort: server.port),
           ),
         );
       },
@@ -82,9 +79,7 @@ Future<void> updateServer(BuildContext context, Server serverCopy) async {
               textColor: theme.colorScheme.secondary,
               child: Padding(
                 padding: const EdgeInsetsDirectional.all(8.0),
-                child: Text(
-                  loc.ok,
-                ),
+                child: Text(loc.ok),
               ),
             ),
           ],
@@ -117,17 +112,15 @@ class _EditServerState extends State<EditServer> {
   Server get server {
     return ServersProvider.instance.servers.firstWhere(
       (s) => s.ip == widget.serverIp && s.port == widget.serverPort,
-      orElse: () => Server.dump(
-        ip: widget.serverIp,
-        port: widget.serverPort,
-      ),
+      orElse: () => Server.dump(ip: widget.serverIp, port: widget.serverPort),
     );
   }
 
   late final hostnameController = TextEditingController(text: server.ip);
   late final portController = TextEditingController(text: '${server.port}');
-  late final rtspPortController =
-      TextEditingController(text: '${server.rtspPort}');
+  late final rtspPortController = TextEditingController(
+    text: '${server.rtspPort}',
+  );
   late final nameController = TextEditingController(text: server.name);
   late final usernameController = TextEditingController(text: server.login);
   late final passwordController = TextEditingController(text: server.password);
@@ -152,188 +145,205 @@ class _EditServerState extends State<EditServer> {
       canPop: !disableFinishButton,
       child: Form(
         key: formKey,
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Row(children: [
-            Expanded(
-              flex: 5,
-              child: TextFormField(
-                enabled: !disableFinishButton,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return loc.errorTextField(loc.hostname);
-                  }
-                  return null;
-                },
-                controller: hostnameController,
-                autofocus: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                keyboardType: TextInputType.url,
-                textInputAction: TextInputAction.next,
-                style: theme.textTheme.headlineMedium,
-                decoration: InputDecoration(
-                  label: Text(loc.hostname),
-                  hintText: loc.hostnameExample,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                enabled: !disableFinishButton,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return loc.errorTextField(loc.port);
-                  }
-                  return null;
-                },
-                controller: portController,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                style: theme.textTheme.headlineMedium,
-                decoration: InputDecoration(
-                  label: Text(loc.port),
-                  hintText: '$kDefaultPort',
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                enabled: !disableFinishButton,
-                // https://github.com/bluecherrydvr/unity/issues/182
-                // validator: (value) {
-                //   if (value == null || value.isEmpty) {
-                //     return loc.errorTextField(loc.rtspPort);
-                //   }
-                //   return null;
-                // },
-                controller: rtspPortController,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                style: theme.textTheme.headlineMedium,
-                decoration: InputDecoration(
-                  label: Text(loc.rtspPort),
-                  hintText: '$kDefaultRTSPPort',
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            enabled: !disableFinishButton,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return loc.errorTextField(loc.serverName);
-              }
-              return null;
-            },
-            onTap: () => nameTextFieldEverFocused = true,
-            controller: nameController,
-            textCapitalization: TextCapitalization.words,
-            keyboardType: TextInputType.name,
-            textInputAction: TextInputAction.next,
-            style: theme.textTheme.headlineMedium,
-            decoration: InputDecoration(
-              label: Text(loc.serverName),
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Row(children: [
-            Expanded(
-              child: TextFormField(
-                enabled: !disableFinishButton,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return loc.errorTextField(loc.username);
-                  }
-                  return null;
-                },
-                textInputAction: TextInputAction.next,
-                controller: usernameController,
-                style: theme.textTheme.headlineMedium,
-                decoration: InputDecoration(
-                  label: Text(loc.username),
-                  hintText: loc.usernameHint,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 16.0),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-              child: TextFormField(
-                enabled: !disableFinishButton,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return loc.errorTextField(loc.password);
-                  }
-                  return null;
-                },
-                controller: passwordController,
-                obscureText: !showPassword,
-                style: theme.textTheme.headlineMedium,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  label: Text(loc.password),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 8.0),
-                    child: Tooltip(
-                      message:
-                          showPassword ? loc.hidePassword : loc.showPassword,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Icon(
-                          showPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          size: 22.0,
-                        ),
-                        onTap: () => setState(
-                          () => showPassword = !showPassword,
-                        ),
-                      ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: TextFormField(
+                    enabled: !disableFinishButton,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return loc.errorTextField(loc.hostname);
+                      }
+                      return null;
+                    },
+                    controller: hostnameController,
+                    autofocus: true,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    keyboardType: TextInputType.url,
+                    textInputAction: TextInputAction.next,
+                    style: theme.textTheme.headlineMedium,
+                    decoration: InputDecoration(
+                      label: Text(loc.hostname),
+                      hintText: loc.hostnameExample,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
-                onFieldSubmitted: (_) => update(),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    enabled: !disableFinishButton,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return loc.errorTextField(loc.port);
+                      }
+                      return null;
+                    },
+                    controller: portController,
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    style: theme.textTheme.headlineMedium,
+                    decoration: InputDecoration(
+                      label: Text(loc.port),
+                      hintText: '$kDefaultPort',
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    enabled: !disableFinishButton,
+                    // https://github.com/bluecherrydvr/unity/issues/182
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return loc.errorTextField(loc.rtspPort);
+                    //   }
+                    //   return null;
+                    // },
+                    controller: rtspPortController,
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    style: theme.textTheme.headlineMedium,
+                    decoration: InputDecoration(
+                      label: Text(loc.rtspPort),
+                      hintText: '$kDefaultRTSPPort',
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              enabled: !disableFinishButton,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return loc.errorTextField(loc.serverName);
+                }
+                return null;
+              },
+              onTap: () => nameTextFieldEverFocused = true,
+              controller: nameController,
+              textCapitalization: TextCapitalization.words,
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
+              style: theme.textTheme.headlineMedium,
+              decoration: InputDecoration(
+                label: Text(loc.serverName),
+                border: const OutlineInputBorder(),
               ),
             ),
-          ]),
-          const SizedBox(height: 16.0),
-          Align(
-            alignment: AlignmentDirectional.bottomEnd,
-            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              MaterialButton(
-                onPressed: !disableFinishButton
-                    ? () => Navigator.of(context).pop(context)
-                    : null,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(loc.cancel),
+            const SizedBox(height: 16.0),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    enabled: !disableFinishButton,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return loc.errorTextField(loc.username);
+                      }
+                      return null;
+                    },
+                    textInputAction: TextInputAction.next,
+                    controller: usernameController,
+                    style: theme.textTheme.headlineMedium,
+                    decoration: InputDecoration(
+                      label: Text(loc.username),
+                      hintText: loc.usernameHint,
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8.0),
-              FilledButton(
-                onPressed: disableFinishButton ? null : update,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(8.0),
-                  child: Text(loc.finish.toUpperCase()),
+              ],
+            ),
+            const SizedBox(height: 16.0),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    enabled: !disableFinishButton,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return loc.errorTextField(loc.password);
+                      }
+                      return null;
+                    },
+                    controller: passwordController,
+                    obscureText: !showPassword,
+                    style: theme.textTheme.headlineMedium,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      label: Text(loc.password),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8.0),
+                        child: Tooltip(
+                          message:
+                              showPassword
+                                  ? loc.hidePassword
+                                  : loc.showPassword,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Icon(
+                              showPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              size: 22.0,
+                            ),
+                            onTap:
+                                () => setState(
+                                  () => showPassword = !showPassword,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    onFieldSubmitted: (_) => update(),
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 16.0),
+            Align(
+              alignment: AlignmentDirectional.bottomEnd,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MaterialButton(
+                    onPressed:
+                        !disableFinishButton
+                            ? () => Navigator.of(context).pop(context)
+                            : null,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(loc.cancel),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  FilledButton(
+                    onPressed: disableFinishButton ? null : update,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.all(8.0),
+                      child: Text(loc.finish.toUpperCase()),
+                    ),
+                  ),
+                ],
               ),
-            ]),
-          ),
-        ]),
+            ),
+          ],
+        ),
       ),
     );
   }

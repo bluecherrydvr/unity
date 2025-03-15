@@ -63,9 +63,10 @@ ThemeData createTheme({required Brightness brightness}) {
         fontWeight: FontWeight.w600,
       ),
       displaySmall: TextStyle(
-        color: light
-            ? Colors.black.withValues(alpha: 0.70)
-            : Colors.white.withValues(alpha: 0.70),
+        color:
+            light
+                ? Colors.black.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -75,9 +76,10 @@ ThemeData createTheme({required Brightness brightness}) {
         fontWeight: FontWeight.normal,
       ),
       headlineSmall: TextStyle(
-        color: light
-            ? Colors.black.withValues(alpha: 0.70)
-            : Colors.white.withValues(alpha: 0.70),
+        color:
+            light
+                ? Colors.black.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.70),
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
       ),
@@ -87,16 +89,18 @@ ThemeData createTheme({required Brightness brightness}) {
         fontWeight: FontWeight.w600,
       ),
       bodyMedium: TextStyle(
-        color: light
-            ? Colors.black.withValues(alpha: 0.70)
-            : Colors.white.withValues(alpha: 0.70),
+        color:
+            light
+                ? Colors.black.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
       bodySmall: TextStyle(
-        color: light
-            ? Colors.black.withValues(alpha: 0.70)
-            : Colors.white.withValues(alpha: 0.70),
+        color:
+            light
+                ? Colors.black.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.70),
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
       ),
@@ -157,18 +161,16 @@ ThemeData createTheme({required Brightness brightness}) {
       alignedDropdown: true,
     ),
     splashFactory: InkSparkle.splashFactory,
-    highlightColor: defaultTargetPlatform == TargetPlatform.android
-        ? Colors.transparent
-        : null,
+    highlightColor:
+        defaultTargetPlatform == TargetPlatform.android
+            ? Colors.transparent
+            : null,
     inputDecorationTheme: InputDecorationTheme(
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: light ? Colors.black26 : Colors.white24),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(
-          color: primary,
-          width: 2.0,
-        ),
+        borderSide: BorderSide(color: primary, width: 2.0),
       ),
     ),
     splashColor: primary.withValues(alpha: 0.15),
@@ -198,7 +200,7 @@ ThemeData createTheme({required Brightness brightness}) {
       centerTitle: [
         TargetPlatform.iOS,
         TargetPlatform.macOS,
-        TargetPlatform.linux
+        TargetPlatform.linux,
       ].contains(defaultTargetPlatform),
     ),
     iconTheme: IconThemeData(
@@ -222,9 +224,7 @@ ThemeData createTheme({required Brightness brightness}) {
       collapsedShape: RoundedRectangleBorder(),
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder(),
-      },
+      builders: {TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder()},
     ),
     extensions: [
       UnityColors(
@@ -274,7 +274,9 @@ class UnityColors extends ThemeExtension<UnityColors> {
 
   @override
   ThemeExtension<UnityColors> lerp(
-      covariant ThemeExtension<UnityColors>? other, double t) {
+    covariant ThemeExtension<UnityColors>? other,
+    double t,
+  ) {
     if (other is! UnityColors) {
       return this;
     }

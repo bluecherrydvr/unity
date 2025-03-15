@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
@@ -27,7 +28,6 @@ import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class EventsScreenSidebar extends StatefulWidget {
@@ -54,39 +54,41 @@ class _EventsScreenSidebarState extends State<EventsScreenSidebar>
       constraints: kSidebarConstraints,
       child: SafeArea(
         child: DropdownButtonHideUnderline(
-          child: Column(children: [
-            SubHeader(
-              loc.servers,
-              height: 38.0,
-              trailing: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 6.0),
-                    child: SearchToggleButton(searchable: this),
-                  ),
-                  Text('${serversProvider.servers.length}'),
-                ],
+          child: Column(
+            children: [
+              SubHeader(
+                loc.servers,
+                height: 38.0,
+                trailing: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 6.0),
+                      child: SearchToggleButton(searchable: this),
+                    ),
+                    Text('${serversProvider.servers.length}'),
+                  ],
+                ),
               ),
-            ),
-            ToggleSearchBar(searchable: this),
-            Expanded(
-              child: SingleChildScrollView(
-                child: EventsDevicesPicker(searchQuery: searchQuery),
+              ToggleSearchBar(searchable: this),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: EventsDevicesPicker(searchQuery: searchQuery),
+                ),
               ),
-            ),
-            const Divider(),
-            const EventsDateTimeFilter(),
-            const EventTypeFilterTile(),
-            const SizedBox(height: 8.0),
-            FilledButton(
-              onPressed: isLoading ? null : widget.fetch,
-              child: Text(
-                loc.loadEvents(eventsProvider.selectedDevices.length),
+              const Divider(),
+              const EventsDateTimeFilter(),
+              const EventTypeFilterTile(),
+              const SizedBox(height: 8.0),
+              FilledButton(
+                onPressed: isLoading ? null : widget.fetch,
+                child: Text(
+                  loc.loadEvents(eventsProvider.selectedDevices.length),
+                ),
               ),
-            ),
-            const SizedBox(height: 12.0),
-          ]),
+              const SizedBox(height: 12.0),
+            ],
+          ),
         ),
       ),
     );

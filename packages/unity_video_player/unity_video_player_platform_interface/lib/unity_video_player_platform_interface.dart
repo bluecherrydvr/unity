@@ -5,8 +5,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'video_zoom.dart';
 
-export 'video_zoom.dart';
 export 'video_view.dart';
+export 'video_zoom.dart';
 
 typedef UnityVideoPaneBuilder = Widget Function(
   BuildContext context,

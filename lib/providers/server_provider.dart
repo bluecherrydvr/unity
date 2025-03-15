@@ -142,32 +142,35 @@ class ServersProvider extends UnityProvider {
     Iterable<String>? ids,
   }) async {
     final replaceHolders = <String, Server>{};
-    await Future.wait(servers.map((target) async {
-      if (ids != null && !ids.contains(target.id)) return;
-      if (startup && !target.additionalSettings.connectAutomaticallyAtStartup) {
-        target.devices.clear();
-        target.online = false;
-        return;
-      }
+    await Future.wait(
+      servers.map((target) async {
+        if (ids != null && !ids.contains(target.id)) return;
+        if (startup &&
+            !target.additionalSettings.connectAutomaticallyAtStartup) {
+          target.devices.clear();
+          target.online = false;
+          return;
+        }
 
-      if (!loadingServers.contains(target.id)) {
-        loadingServers.add(target.id);
-        notifyListeners();
-      }
+        if (!loadingServers.contains(target.id)) {
+          loadingServers.add(target.id);
+          notifyListeners();
+        }
 
-      var (_, server) = await API.instance.checkServerCredentials(target);
+        var (_, server) = await API.instance.checkServerCredentials(target);
 
-      final devices = await API.instance.getDevices(server);
-      if (devices != null) {
-        debugPrint(devices.length.toString());
-        replaceHolders[target.id] = server;
-      }
+        final devices = await API.instance.getDevices(server);
+        if (devices != null) {
+          debugPrint(devices.length.toString());
+          replaceHolders[target.id] = server;
+        }
 
-      if (loadingServers.contains(server.id)) {
-        loadingServers.remove(server.id);
-        notifyListeners();
-      }
-    }));
+        if (loadingServers.contains(server.id)) {
+          loadingServers.remove(server.id);
+          notifyListeners();
+        }
+      }),
+    );
 
     for (final entry in replaceHolders.entries) {
       final server = entry.value;
@@ -184,10 +187,7 @@ class ServersProvider extends UnityProvider {
     final index = servers.indexWhere((s) => s.id == server.id);
     if (index == -1) return;
 
-    final s = servers[index].copyWith(
-      devices: [],
-      online: false,
-    );
+    final s = servers[index].copyWith(devices: [], online: false);
     servers[index] = s;
 
     await save();
@@ -216,11 +216,12 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> restore({bool notifyListeners = true}) async {
     final data = await secureStorage.read(key: kStorageServers);
-    final serversData = data == null
-        ? <Map<String, dynamic>>[]
-        : List<Map<String, dynamic>>.from(
-            await compute(jsonDecode, data) as List,
-          );
+    final serversData =
+        data == null
+            ? <Map<String, dynamic>>[]
+            : List<Map<String, dynamic>>.from(
+              await compute(jsonDecode, data) as List,
+            );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
   }

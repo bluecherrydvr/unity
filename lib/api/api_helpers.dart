@@ -96,10 +96,7 @@ abstract class APIHelpers {
         final uri = Uri.https(
           '${server.login}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
           '/media/request.php',
-          {
-            'id': mediaID.toString(),
-            'mode': 'screenshot',
-          },
+          {'id': mediaID.toString(), 'mode': 'screenshot'},
         );
         debugPrint(uri.toString());
         final directory = await getExternalStorageDirectory();
@@ -112,7 +109,7 @@ abstract class APIHelpers {
         } else {
           final response = await API.client.get(uri);
           debugPrint(response.statusCode.toString());
-          if (response.statusCode ~/ 100 == 2 /* OK */) {
+          if (response.statusCode ~/ 100 == 2 /* OK */ ) {
             await file.create(recursive: true);
             await file.writeAsBytes(response.bodyBytes);
             return 'file://$filePath';
@@ -128,8 +125,9 @@ abstract class APIHelpers {
       return null;
     }
 
-    final list = events.toList()
-      ..removeWhere((element) => element.deviceID.toString() != deviceID);
+    final list =
+        events.toList()
+          ..removeWhere((element) => element.deviceID.toString() != deviceID);
     for (var i = 0; i < list.length; i++) {
       if (list[i].mediaID != null) {
         final thumbnail = await getThumbnailForMediaID(list[i].mediaID!);
@@ -154,8 +152,9 @@ class DevHttpOverrides extends HttpOverrides {
     bool? allowUntrustedCertificates,
   }) async {
     // SettingsProvider.ensureInitialized();
-    HttpOverrides.global = DevHttpOverrides()
-      ..allowUntrustedCertificates = allowUntrustedCertificates ?? true;
+    HttpOverrides.global =
+        DevHttpOverrides()
+          ..allowUntrustedCertificates = allowUntrustedCertificates ?? true;
   }
 
   bool allowUntrustedCertificates = true;
@@ -166,8 +165,9 @@ class DevHttpOverrides extends HttpOverrides {
       ..badCertificateCallback = (cert, host, port) {
         debugPrint('==== RECEIVED BAD CERTIFICATE FROM $host');
 
-        final servers = ServersProvider.instance.servers
-            .where((server) => server.ip == host);
+        final servers = ServersProvider.instance.servers.where(
+          (server) => server.ip == host,
+        );
         for (final server in servers) {
           server.passedCertificates = false;
 

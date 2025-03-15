@@ -18,9 +18,9 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ErrorWarning extends StatelessWidget {
   const ErrorWarning({super.key, required this.message});
@@ -84,18 +84,21 @@ class NoServerWarning extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Center(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(
-          Icons.dns,
-          size: 72.0,
-          color: theme.iconTheme.color?.withValues(alpha: 0.8),
-        ),
-        const SizedBox(height: 8.0),
-        Text(
-          loc.noServersAdded,
-          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
-        ),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.dns,
+            size: 72.0,
+            color: theme.iconTheme.color?.withValues(alpha: 0.8),
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            loc.noServersAdded,
+            style: theme.textTheme.headlineSmall?.copyWith(fontSize: 16.0),
+          ),
+        ],
+      ),
     );
   }
 }

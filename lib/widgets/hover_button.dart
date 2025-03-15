@@ -4,10 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-typedef ButtonStateWidgetBuilder = Widget Function(
-  BuildContext,
-  Set<ButtonStates> state,
-);
+typedef ButtonStateWidgetBuilder =
+    Widget Function(BuildContext, Set<ButtonStates> state);
 
 /// Base widget for any widget that requires input.
 class HoverButton extends StatefulWidget {
@@ -282,43 +280,48 @@ class HoverButtonState extends State<HoverButton> {
     Widget w = GestureDetector(
       behavior: widget.hitTestBehavior,
       onTap: enabled ? widget.onPressed : null,
-      onTapDown: !listenTo(ButtonStates.pressing)
-          ? null
-          : (_) {
-              if (!enabled) return;
-              if (mounted) setState(() => _pressing = true);
-              widget.onTapDown?.call();
-            },
-      onTapUp: !listenTo(ButtonStates.pressing)
-          ? null
-          : (_) async {
-              if (!enabled) return;
-              widget.onTapUp?.call();
-              await Future.delayed(const Duration(milliseconds: 100));
-              if (mounted) setState(() => _pressing = false);
-            },
-      onTapCancel: !listenTo(ButtonStates.pressing)
-          ? null
-          : () {
-              if (!enabled) return;
-              widget.onTapCancel?.call();
-              if (mounted) setState(() => _pressing = false);
-            },
+      onTapDown:
+          !listenTo(ButtonStates.pressing)
+              ? null
+              : (_) {
+                if (!enabled) return;
+                if (mounted) setState(() => _pressing = true);
+                widget.onTapDown?.call();
+              },
+      onTapUp:
+          !listenTo(ButtonStates.pressing)
+              ? null
+              : (_) async {
+                if (!enabled) return;
+                widget.onTapUp?.call();
+                await Future.delayed(const Duration(milliseconds: 100));
+                if (mounted) setState(() => _pressing = false);
+              },
+      onTapCancel:
+          !listenTo(ButtonStates.pressing)
+              ? null
+              : () {
+                if (!enabled) return;
+                widget.onTapCancel?.call();
+                if (mounted) setState(() => _pressing = false);
+              },
       onLongPress: enabled ? widget.onLongPress : null,
-      onLongPressStart: widget.onLongPressStart != null
-          ? (details) {
-              if (!enabled) return;
-              widget.onLongPressStart?.call(details);
-              if (mounted) setState(() => _pressing = true);
-            }
-          : null,
-      onLongPressEnd: widget.onLongPressEnd != null
-          ? (details) {
-              if (!enabled) return;
-              widget.onLongPressEnd?.call(details);
-              if (mounted) setState(() => _pressing = false);
-            }
-          : null,
+      onLongPressStart:
+          widget.onLongPressStart != null
+              ? (details) {
+                if (!enabled) return;
+                widget.onLongPressStart?.call(details);
+                if (mounted) setState(() => _pressing = true);
+              }
+              : null,
+      onLongPressEnd:
+          widget.onLongPressEnd != null
+              ? (details) {
+                if (!enabled) return;
+                widget.onLongPressEnd?.call(details);
+                if (mounted) setState(() => _pressing = false);
+              }
+              : null,
       onLongPressDown: widget.onLongPressDown,
       onLongPressCancel: widget.onLongPressCancel,
       onLongPressUp: widget.onLongPressUp,

@@ -33,10 +33,7 @@ class ExternalDeviceData {
   final String? rackName;
   final Uri? serverIp;
 
-  const ExternalDeviceData({
-    required this.rackName,
-    required this.serverIp,
-  });
+  const ExternalDeviceData({required this.rackName, required this.serverIp});
 
   @override
   String toString() =>
@@ -55,10 +52,7 @@ class ExternalDeviceData {
   int get hashCode => rackName.hashCode ^ serverIp.hashCode;
 
   Map<String, dynamic> toMap() {
-    return {
-      'rackName': rackName,
-      'serverIp': serverIp,
-    };
+    return {'rackName': rackName, 'serverIp': serverIp};
   }
 
   factory ExternalDeviceData.fromMap(Map<String, dynamic> map) {
@@ -164,8 +158,8 @@ class Device {
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
-  })  : server = Server.dump(),
-        matrixType = matrixType ?? SettingsProvider.instance.kMatrixSize.value;
+  }) : server = Server.dump(),
+       matrixType = matrixType ?? SettingsProvider.instance.kMatrixSize.value;
 
   String get uri => 'live/$id';
 
@@ -225,7 +219,8 @@ class Device {
 
     return Uri(
       scheme: 'rtsp',
-      userInfo: '${Uri.encodeComponent(server.login)}'
+      userInfo:
+          '${Uri.encodeComponent(server.login)}'
           ':'
           '${Uri.encodeComponent(server.password)}',
       host: server.ip,
@@ -239,16 +234,14 @@ class Device {
 
     return Uri(
       scheme: 'https',
-      userInfo: '${Uri.encodeComponent(server.login)}'
+      userInfo:
+          '${Uri.encodeComponent(server.login)}'
           ':'
           '${Uri.encodeComponent(server.password)}',
       host: server.ip,
       port: server.port,
       pathSegments: ['media', 'mjpeg'],
-      queryParameters: {
-        'multipart': 'true',
-        'id': '$id',
-      },
+      queryParameters: {'multipart': 'true', 'id': '$id'},
     ).toString();
   }
 
@@ -257,7 +250,8 @@ class Device {
 
     return Uri(
       scheme: 'https',
-      userInfo: '${Uri.encodeComponent(server.login)}'
+      userInfo:
+          '${Uri.encodeComponent(server.login)}'
           ':'
           '${Uri.encodeComponent(server.password)}',
       host: server.ip,
@@ -278,7 +272,8 @@ class Device {
 
     final uri = Uri(
       scheme: 'https',
-      userInfo: '${Uri.encodeComponent(device.server.login)}'
+      userInfo:
+          '${Uri.encodeComponent(device.server.login)}'
           ':'
           '${Uri.encodeComponent(device.server.password)}',
       host: device.server.ip,
@@ -288,10 +283,13 @@ class Device {
     );
 
     try {
-      var response = await API.client.get(uri, headers: {
-        if (device.server.cookie != null)
-          API.cookieHeader: device.server.cookie!,
-      });
+      var response = await API.client.get(
+        uri,
+        headers: {
+          if (device.server.cookie != null)
+            API.cookieHeader: device.server.cookie!,
+        },
+      );
 
       if (response.statusCode == 200) {
         var ret = json.decode(response.body) as Map;
@@ -413,34 +411,43 @@ class Device {
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
-      name: json['name'],
-      id: int.tryParse(json['id']?.toString() ??
-              json['uri']?.toString().replaceAll('live/', '') ??
-              '') ??
-          0,
-      status: json['status'] ?? false,
-      resolutionX: json['resolutionX'],
-      resolutionY: json['resolutionY'],
-      server: Server.fromJson(json['server'] as Map<String, dynamic>),
-      hasPTZ: json['hasPTZ'] ?? false,
-      url: json['url'],
-      matrixType: MatrixType.values[json['matrixType'] ?? 0],
-      overlays: json['overlays'] != null
-          ? List<VideoOverlay>.from((json['overlays'] as List).map((item) {
-              return VideoOverlay.fromMap(item as Map);
-            }))
-          : [],
-      preferredStreamingType: StreamingType.values.firstWhereOrNull(
-        (type) => type.name == json['preferredStreamingType'],
-      ),
-      externalData: json['externalData'] != null
-          ? ExternalDeviceData.fromMap(json['externalData'])
-          : null,
-    )..volume = json['volume'] is double
-        ? json['volume']
-        : json['volume'] is String
-            ? double.tryParse(json['volume']) ?? defaultVolume
-            : defaultVolume;
+        name: json['name'],
+        id:
+            int.tryParse(
+              json['id']?.toString() ??
+                  json['uri']?.toString().replaceAll('live/', '') ??
+                  '',
+            ) ??
+            0,
+        status: json['status'] ?? false,
+        resolutionX: json['resolutionX'],
+        resolutionY: json['resolutionY'],
+        server: Server.fromJson(json['server'] as Map<String, dynamic>),
+        hasPTZ: json['hasPTZ'] ?? false,
+        url: json['url'],
+        matrixType: MatrixType.values[json['matrixType'] ?? 0],
+        overlays:
+            json['overlays'] != null
+                ? List<VideoOverlay>.from(
+                  (json['overlays'] as List).map((item) {
+                    return VideoOverlay.fromMap(item as Map);
+                  }),
+                )
+                : [],
+        preferredStreamingType: StreamingType.values.firstWhereOrNull(
+          (type) => type.name == json['preferredStreamingType'],
+        ),
+        externalData:
+            json['externalData'] != null
+                ? ExternalDeviceData.fromMap(json['externalData'])
+                : null,
+      )
+      ..volume =
+          json['volume'] is double
+              ? json['volume']
+              : json['volume'] is String
+              ? double.tryParse(json['volume']) ?? defaultVolume
+              : defaultVolume;
   }
 
   Device merge(Device? other) {

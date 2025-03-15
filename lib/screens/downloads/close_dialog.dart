@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/screens/downloads/indicators.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 Future<bool?> showCloseDownloadsDialog(BuildContext context) async {
@@ -65,7 +65,7 @@ class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
               ),
               title: Text(entry.key.deviceName),
               subtitle: Text(entry.key.server.name),
-            )
+            ),
         ],
       ),
       actions: [
@@ -78,13 +78,14 @@ class _CloseDownloadsDialogState extends State<CloseDownloadsDialog> {
           child: Text(loc.closeAnyway),
         ),
         FilledButton(
-          onPressed: _closeWhenDone
-              ? null
-              : () async {
-                  setState(() => _closeWhenDone = true);
-                  await downloadsManager.downloadsCompleter?.future;
-                  navigator.pop<bool>(true);
-                },
+          onPressed:
+              _closeWhenDone
+                  ? null
+                  : () async {
+                    setState(() => _closeWhenDone = true);
+                    await downloadsManager.downloadsCompleter?.future;
+                    navigator.pop<bool>(true);
+                  },
           child: Text(loc.closeWhenDone),
         ),
       ],

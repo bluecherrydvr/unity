@@ -17,13 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> showDeviceInfoDialog(BuildContext context, Device device) async {
   await showDialog(
@@ -59,9 +59,10 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
             loc.status,
             widget.device.status ? loc.online : loc.offline,
             TextStyle(
-              color: widget.device.status
-                  ? theme.extension<UnityColors>()!.successColor
-                  : theme.colorScheme.error,
+              color:
+                  widget.device.status
+                      ? theme.extension<UnityColors>()!.successColor
+                      : theme.colorScheme.error,
             ),
           ),
           _buildInfoTile(loc.uri, widget.device.uri),
@@ -72,28 +73,32 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
             '${widget.device.resolutionY ?? ' ${loc.unknown}'}',
           ),
           _buildInfoTile(
-              loc.isPtzSupported, widget.device.hasPTZ ? loc.yes : loc.no),
+            loc.isPtzSupported,
+            widget.device.hasPTZ ? loc.yes : loc.no,
+          ),
           _buildInfoTileWidget(
             loc.streamURL,
-            Row(children: [
-              Text(
-                _showStreamUrl
-                    ? widget.device.streamURL
-                    : List.generate(
+            Row(
+              children: [
+                Text(
+                  _showStreamUrl
+                      ? widget.device.streamURL
+                      : List.generate(
                         widget.device.streamURL.length ~/ 2,
                         (index) => '•',
                       ).join(),
-              ),
-              const SizedBox(width: 6.0),
-              CopyDeviceUrlButton(device: widget.device),
-              SquaredIconButton(
-                onPressed: _onToggleStreamUrl,
-                tooltip: _showStreamUrl ? loc.hide : loc.show,
-                icon: Icon(
-                  _showStreamUrl ? Icons.visibility_off : Icons.visibility,
                 ),
-              ),
-            ]),
+                const SizedBox(width: 6.0),
+                CopyDeviceUrlButton(device: widget.device),
+                SquaredIconButton(
+                  onPressed: _onToggleStreamUrl,
+                  tooltip: _showStreamUrl ? loc.hide : loc.show,
+                  icon: Icon(
+                    _showStreamUrl ? Icons.visibility_off : Icons.visibility,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -105,23 +110,27 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
   }
 
   Widget _buildInfoTileWidget(String title, Widget value) {
-    return Builder(builder: (context) {
-      final theme = Theme.of(context);
-      return IntrinsicHeight(
-        child: Row(children: [
-          SizedBox(
-            width: 100.0,
-            child: Text(
-              title,
-              style: theme.textTheme.labelLarge,
-              textAlign: TextAlign.end,
-            ),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return IntrinsicHeight(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 100.0,
+                child: Text(
+                  title,
+                  style: theme.textTheme.labelLarge,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              const VerticalDivider(),
+              Flexible(child: value),
+            ],
           ),
-          const VerticalDivider(),
-          Flexible(child: value),
-        ]),
-      );
-    });
+        );
+      },
+    );
   }
 
   Future<void> _onToggleStreamUrl() async {
@@ -158,9 +167,7 @@ class CopyDeviceUrlButton extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     if (canCopy) {
-      Clipboard.setData(
-        ClipboardData(text: device.streamURL),
-      );
+      Clipboard.setData(ClipboardData(text: device.streamURL));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

@@ -18,6 +18,7 @@
  */
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/screens/servers/error.dart';
@@ -25,13 +26,8 @@ import 'package:bluecherry_client/screens/servers/wizard.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-enum _ServerAddState {
-  none,
-  checkingServerCredentials,
-  gettingDevices;
-}
+enum _ServerAddState { none, checkingServerCredentials, gettingDevices }
 
 class ConfigureDVRServerScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -110,9 +106,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       enabled: !disableFinishButton,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return loc.errorTextField(
-            loc.hostname,
-          );
+          return loc.errorTextField(loc.hostname);
         }
         return null;
       },
@@ -201,9 +195,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       enabled: !disableFinishButton,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return loc.errorTextField(
-            loc.username,
-          );
+          return loc.errorTextField(loc.username);
         }
         return null;
       },
@@ -242,9 +234,7 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
               showingPassword ? Icons.visibility : Icons.visibility_off,
               size: 22.0,
             ),
-            onTap: () => setState(
-              () => showingPassword = !showingPassword,
-            ),
+            onTap: () => setState(() => showingPassword = !showingPassword),
           ),
         ),
       ),
@@ -276,141 +266,149 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                     horizontal: 16.0,
                     vertical: 24.0,
                   ),
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    buildCardAppBar(
-                      title: loc.configure,
-                      description: loc.configureDescription,
-                      onBack: widget.onBack,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: FocusTraversalOrder(
-                            order: const NumericFocusOrder(0),
-                            child: hostnameField,
-                          ),
-                        ),
-                        const SizedBox(width: 16.0),
-                        Expanded(
-                          flex: 2,
-                          child: FocusTraversalOrder(
-                            order: const NumericFocusOrder(1),
-                            child: portField,
-                          ),
-                        ),
-                        const SizedBox(width: 16.0),
-                        Expanded(
-                          flex: 2,
-                          child: FocusTraversalOrder(
-                            order: const NumericFocusOrder(2),
-                            child: rtspPortField,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    FocusTraversalOrder(
-                      order: const NumericFocusOrder(3),
-                      child: nameField,
-                    ),
-                    const SizedBox(height: 16.0),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: FocusTraversalOrder(
-                            order: const NumericFocusOrder(5),
-                            child: usernameField,
-                          ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(top: 8.0),
-                          child: FocusTraversalOrder(
-                            order: NumericFocusOrder(isMobilePlatform ? -1 : 4),
-                            child: MaterialButton(
-                              onPressed: disableFinishButton
-                                  ? null
-                                  : () {
-                                      usernameController.text =
-                                          kDefaultUsername;
-                                      passwordController.text =
-                                          kDefaultPassword;
-                                      finishFocusNode.requestFocus();
-                                    },
-                              child: Text(loc.useDefault.toUpperCase()),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    FocusTraversalOrder(
-                      order: const NumericFocusOrder(6),
-                      child: passwordField,
-                    ),
-                    const SizedBox(height: 16.0),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        runAlignment: WrapAlignment.end,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildCardAppBar(
+                        title: loc.configure,
+                        description: loc.configureDescription,
+                        onBack: widget.onBack,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (disableFinishButton) ...[
-                            const SizedBox(
-                              height: 16.0,
-                              width: 16.0,
-                              child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 1.5,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Text(switch (state) {
-                                _ServerAddState.checkingServerCredentials =>
-                                  loc.checkingServerCredentials,
-                                _ServerAddState.gettingDevices =>
-                                  loc.gettingDevices,
-                                _ServerAddState.none => '',
-                              }),
-                            ),
-                          ],
-                          FocusTraversalOrder(
-                            order: const NumericFocusOrder(8),
-                            child: MaterialButton(
-                              onPressed: disableFinishButton
-                                  ? null
-                                  : () {
-                                      widget.onNext();
-                                    },
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.all(8.0),
-                                child: Text(loc.skip.toUpperCase()),
-                              ),
+                          Expanded(
+                            flex: 5,
+                            child: FocusTraversalOrder(
+                              order: const NumericFocusOrder(0),
+                              child: hostnameField,
                             ),
                           ),
-                          const SizedBox(width: 6.0),
-                          FocusTraversalOrder(
-                            order: const NumericFocusOrder(7),
-                            child: FilledButton(
-                              onPressed: disableFinishButton
-                                  ? null
-                                  : () => finish(context),
-                              focusNode: finishFocusNode,
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.all(8.0),
-                                child: Text(loc.next.toUpperCase()),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            flex: 2,
+                            child: FocusTraversalOrder(
+                              order: const NumericFocusOrder(1),
+                              child: portField,
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            flex: 2,
+                            child: FocusTraversalOrder(
+                              order: const NumericFocusOrder(2),
+                              child: rtspPortField,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0),
+                      FocusTraversalOrder(
+                        order: const NumericFocusOrder(3),
+                        child: nameField,
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: FocusTraversalOrder(
+                              order: const NumericFocusOrder(5),
+                              child: usernameField,
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(top: 8.0),
+                            child: FocusTraversalOrder(
+                              order: NumericFocusOrder(
+                                isMobilePlatform ? -1 : 4,
+                              ),
+                              child: MaterialButton(
+                                onPressed:
+                                    disableFinishButton
+                                        ? null
+                                        : () {
+                                          usernameController.text =
+                                              kDefaultUsername;
+                                          passwordController.text =
+                                              kDefaultPassword;
+                                          finishFocusNode.requestFocus();
+                                        },
+                                child: Text(loc.useDefault.toUpperCase()),
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ]),
+                      const SizedBox(height: 16.0),
+                      FocusTraversalOrder(
+                        order: const NumericFocusOrder(6),
+                        child: passwordField,
+                      ),
+                      const SizedBox(height: 16.0),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          runAlignment: WrapAlignment.end,
+                          children: [
+                            if (disableFinishButton) ...[
+                              const SizedBox(
+                                height: 16.0,
+                                width: 16.0,
+                                child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 1.5,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsetsDirectional.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: Text(switch (state) {
+                                  _ServerAddState.checkingServerCredentials =>
+                                    loc.checkingServerCredentials,
+                                  _ServerAddState.gettingDevices =>
+                                    loc.gettingDevices,
+                                  _ServerAddState.none => '',
+                                }),
+                              ),
+                            ],
+                            FocusTraversalOrder(
+                              order: const NumericFocusOrder(8),
+                              child: MaterialButton(
+                                onPressed:
+                                    disableFinishButton
+                                        ? null
+                                        : () {
+                                          widget.onNext();
+                                        },
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.all(8.0),
+                                  child: Text(loc.skip.toUpperCase()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6.0),
+                            FocusTraversalOrder(
+                              order: const NumericFocusOrder(7),
+                              child: FilledButton(
+                                onPressed:
+                                    disableFinishButton
+                                        ? null
+                                        : () => finish(context),
+                                focusNode: finishFocusNode,
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.all(8.0),
+                                  child: Text(loc.next.toUpperCase()),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -484,12 +482,11 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
                   loc.serverVersionMismatch,
                 ServerAdditionResponse.wrongCredentials =>
                   loc.serverWrongCredentials,
-                ServerAdditionResponse.unknown ||
-                _ =>
-                  loc.serverNotAddedErrorDescription(
-                    server.port.toString(),
-                    server.rtspPort.toString(),
-                  )
+                ServerAdditionResponse.unknown || _ => loc
+                    .serverNotAddedErrorDescription(
+                      server.port.toString(),
+                      server.rtspPort.toString(),
+                    ),
               },
               onRetry: () {
                 Navigator.of(context).maybePop();

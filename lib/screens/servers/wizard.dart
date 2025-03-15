@@ -33,40 +33,42 @@ Widget buildCardAppBar({
   required String description,
   VoidCallback? onBack,
 }) {
-  return Builder(builder: (context) {
-    final theme = Theme.of(context);
+  return Builder(
+    builder: (context) {
+      final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(children: [
-          if (onBack != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8.0),
-              child: SquaredIconButton(
-                icon: const BackButtonIcon(),
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                onPressed: () {
-                  onBack();
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-            ),
-          Text(
-            title,
-            style: theme.textTheme.displayMedium,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (onBack != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8.0),
+                  child: SquaredIconButton(
+                    icon: const BackButtonIcon(),
+                    tooltip:
+                        MaterialLocalizations.of(context).backButtonTooltip,
+                    onPressed: () {
+                      onBack();
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                ),
+              Text(title, style: theme.textTheme.displayMedium),
+            ],
           ),
-        ]),
-        const SizedBox(height: 12.0),
-        Text(
-          description,
-          style: theme.textTheme.headlineMedium,
-          softWrap: true,
-        ),
-        const SizedBox(height: 20.0),
-      ],
-    );
-  });
+          const SizedBox(height: 12.0),
+          Text(
+            description,
+            style: theme.textTheme.headlineMedium,
+            softWrap: true,
+          ),
+          const SizedBox(height: 20.0),
+        ],
+      );
+    },
+  );
 }
 
 class AddServerWizard extends StatefulWidget {
@@ -121,60 +123,62 @@ class _AddServerWizardState extends State<AddServerWizard> {
           ),
         ),
         child: SafeArea(
-          child: Stack(children: [
-            Padding(
-              padding: MediaQuery.viewInsetsOf(context),
-              child: PageView(
-                controller: controller,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  Center(child: AddServerInfoScreen(onNext: _onNext)),
-                  Center(
-                    child: ConfigureDVRServerScreen(
-                      onBack: _onBack,
-                      onNext: _onNext,
-                      server: server,
-                      onServerChange: (server) =>
-                          setState(() => this.server = server),
+          child: Stack(
+            children: [
+              Padding(
+                padding: MediaQuery.viewInsetsOf(context),
+                child: PageView(
+                  controller: controller,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    Center(child: AddServerInfoScreen(onNext: _onNext)),
+                    Center(
+                      child: ConfigureDVRServerScreen(
+                        onBack: _onBack,
+                        onNext: _onNext,
+                        server: server,
+                        onServerChange:
+                            (server) => setState(() => this.server = server),
+                      ),
                     ),
-                  ),
-                  Center(
-                    child: AdditionalServerSettings(
-                      onBack: _onBack,
-                      onNext: _onNext,
-                      server: server,
-                      onServerChanged: (server) async {
-                        if (this.server != null) {
-                          setState(() => this.server = server);
-                        }
-                      },
+                    Center(
+                      child: AdditionalServerSettings(
+                        onBack: _onBack,
+                        onNext: _onNext,
+                        server: server,
+                        onServerChanged: (server) async {
+                          if (this.server != null) {
+                            setState(() => this.server = server);
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                  Center(
-                    child: LetsGoScreen(
-                      server: server,
-                      onFinish: widget.onFinish,
-                      onBack: _onBack,
+                    Center(
+                      child: LetsGoScreen(
+                        server: server,
+                        onFinish: widget.onFinish,
+                        onBack: _onBack,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            if (Scaffold.hasDrawer(context))
-              PositionedDirectional(
-                top: MediaQuery.paddingOf(context).top,
-                start: 0,
-                child: const Material(
-                  type: MaterialType.transparency,
-                  color: Colors.amber,
-                  child: SizedBox(
-                    height: kToolbarHeight,
-                    width: kToolbarHeight,
-                    child: UnityDrawerButton(iconColor: Colors.white),
-                  ),
+                  ],
                 ),
               ),
-          ]),
+              if (Scaffold.hasDrawer(context))
+                PositionedDirectional(
+                  top: MediaQuery.paddingOf(context).top,
+                  start: 0,
+                  child: const Material(
+                    type: MaterialType.transparency,
+                    color: Colors.amber,
+                    child: SizedBox(
+                      height: kToolbarHeight,
+                      width: kToolbarHeight,
+                      child: UnityDrawerButton(iconColor: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

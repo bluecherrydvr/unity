@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
@@ -38,7 +39,6 @@ import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -89,8 +89,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
   }
 
   Device? get device => currentEvent.server.devices.firstWhereOrNull(
-        (d) => d.id == currentEvent.deviceID,
-      );
+    (d) => d.id == currentEvent.deviceID,
+  );
   String get title =>
       '${currentEvent.deviceName} (${currentEvent.server.name})';
 
@@ -104,10 +104,12 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     super.initState();
     currentEvent = widget.event;
     videoController = widget.player ?? UnityPlayers.forEvent(widget.event);
-    fit = device?.server.additionalSettings.videoFit ??
+    fit =
+        device?.server.additionalSettings.videoFit ??
         SettingsProvider.instance.kVideoFit.value;
-    playingSubscription =
-        videoController.onPlayingStateUpdate.listen((isPlaying) {
+    playingSubscription = videoController.onPlayingStateUpdate.listen((
+      isPlaying,
+    ) {
       if (!mounted) return;
       setState(() {});
     });
@@ -136,17 +138,18 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
     currentEvent = event;
 
     final downloads = context.read<DownloadsManager>();
-    final mediaUrl = downloads.isEventDownloaded(event.id)
-        ? await () async {
-            if (await downloads.doesEventFileExist(event.id)) {
-              return Uri.file(
-                downloads.getDownloadedPathForEvent(event.id),
-                windows: Platform.isWindows,
-              ).toString();
-            }
-            return event.mediaPath;
-          }()
-        : event.mediaPath;
+    final mediaUrl =
+        downloads.isEventDownloaded(event.id)
+            ? await () async {
+              if (await downloads.doesEventFileExist(event.id)) {
+                return Uri.file(
+                  downloads.getDownloadedPathForEvent(event.id),
+                  windows: Platform.isWindows,
+                ).toString();
+              }
+              return event.mediaPath;
+            }()
+            : event.mediaPath;
 
     if (mediaUrl != videoController.dataSource) {
       debugPrint(
@@ -184,279 +187,332 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
       child: SliderTheme(
         data: SliderThemeData(trackShape: _CustomTrackShape()),
         child: Material(
-          child: Column(children: [
-            WindowButtons(title: title, showNavigator: false),
-            Expanded(
-              child: Row(children: [
-                Expanded(
-                  child: Column(children: [
+          child: Column(
+            children: [
+              WindowButtons(title: title, showNavigator: false),
+              Expanded(
+                child: Row(
+                  children: [
                     Expanded(
-                      child: InteractiveViewer(
-                        child: UnityVideoView(
-                          heroTag: currentEvent.mediaPath,
-                          player: videoController,
-                          fit: fit,
-                          paneBuilder: (context, player) {
-                            final video = UnityVideoView.of(context);
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: InteractiveViewer(
+                              child: UnityVideoView(
+                                heroTag: currentEvent.mediaPath,
+                                player: videoController,
+                                fit: fit,
+                                paneBuilder: (context, player) {
+                                  final video = UnityVideoView.of(context);
 
-                            return Stack(clipBehavior: Clip.none, children: [
-                              if (video.error != null)
-                                Center(
-                                  child: ErrorWarning(message: video.error!),
-                                ),
-                              if (settings.kShowDebugInfo.value)
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'source: ${player.dataSource ?? loc.unknown}'
-                                    '\nposition: ${player.currentPos}'
-                                    '\nduration ${player.duration}'
-                                    '\nbuffer ${player.currentBuffer}',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      shadows: outlinedText(),
-                                    ),
-                                  ),
-                                ),
-                              const Positioned.fill(child: MulticastViewport()),
-                              PositionedDirectional(
-                                bottom: 8.0,
-                                end: 8.0,
-                                child: Row(children: [
-                                  CameraViewFitButton(
-                                    fit: fit,
-                                    onChanged: (value) =>
-                                        setState(() => fit = value),
-                                  ),
-                                  if (device != null)
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.only(
-                                        start: 8.0,
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      if (video.error != null)
+                                        Center(
+                                          child: ErrorWarning(
+                                            message: video.error!,
+                                          ),
+                                        ),
+                                      if (settings.kShowDebugInfo.value)
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'source: ${player.dataSource ?? loc.unknown}'
+                                            '\nposition: ${player.currentPos}'
+                                            '\nduration ${player.duration}'
+                                            '\nbuffer ${player.currentBuffer}',
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: Colors.white,
+                                                  shadows: outlinedText(),
+                                                ),
+                                          ),
+                                        ),
+                                      const Positioned.fill(
+                                        child: MulticastViewport(),
                                       ),
-                                      child: VideoStatusLabel(
-                                        device: device!,
-                                        video: video,
-                                        event: currentEvent,
+                                      PositionedDirectional(
+                                        bottom: 8.0,
+                                        end: 8.0,
+                                        child: Row(
+                                          children: [
+                                            CameraViewFitButton(
+                                              fit: fit,
+                                              onChanged:
+                                                  (value) => setState(
+                                                    () => fit = value,
+                                                  ),
+                                            ),
+                                            if (device != null)
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional.only(
+                                                      start: 8.0,
+                                                    ),
+                                                child: VideoStatusLabel(
+                                                  device: device!,
+                                                  video: video,
+                                                  event: currentEvent,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                ]),
+                                    ],
+                                  );
+                                },
                               ),
-                            ]);
-                          },
-                        ),
-                      ),
-                    ),
-                    Row(children: [
-                      padd,
-                      Expanded(
-                        child: StreamBuilder<Duration>(
-                          stream: videoController.onCurrentPosUpdate,
-                          builder: (context, snapshot) {
-                            final pos =
-                                snapshot.data ?? videoController.currentPos;
-                            return Row(children: [
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              padd,
+                              Expanded(
+                                child: StreamBuilder<Duration>(
+                                  stream: videoController.onCurrentPosUpdate,
+                                  builder: (context, snapshot) {
+                                    final pos =
+                                        snapshot.data ??
+                                        videoController.currentPos;
+                                    return Row(
+                                      children: [
+                                        Text(
+                                          settings.formatTimeRaw(
+                                            currentEvent.publishedRaw,
+                                            offset: pos,
+                                            pattern: DateFormat.Hms(),
+                                          ),
+                                        ),
+                                        padd,
+                                        Expanded(
+                                          child: Slider.adaptive(
+                                            value:
+                                                (_position ??
+                                                        pos.inMilliseconds)
+                                                    .clamp(
+                                                      0.0,
+                                                      duration.inMilliseconds,
+                                                    )
+                                                    .toDouble(),
+                                            max:
+                                                duration.inMilliseconds
+                                                    .toDouble(),
+                                            secondaryTrackValue:
+                                                videoController
+                                                    .currentBuffer
+                                                    .inMilliseconds
+                                                    .clamp(
+                                                      0.0,
+                                                      duration.inMilliseconds,
+                                                    )
+                                                    .toDouble(),
+                                            onChangeStart: (v) {
+                                              shouldAutoplay =
+                                                  videoController.isPlaying;
+                                              videoController.pause();
+                                            },
+                                            onChanged: (v) async {
+                                              /// Since it's just a preview, we don't need to show every
+                                              /// millisecond of the video on seek. This, in theory, should
+                                              /// improve performance by 50%
+                                              if (v.toInt().isEven) {
+                                                videoController.seekTo(
+                                                  Duration(
+                                                    milliseconds: v.toInt(),
+                                                  ),
+                                                );
+                                              }
+                                              setState(() => _position = v);
+                                            },
+                                            onChangeEnd: (v) async {
+                                              await videoController.seekTo(
+                                                Duration(
+                                                  milliseconds: v.toInt(),
+                                                ),
+                                              );
+
+                                              if (shouldAutoplay) {
+                                                await videoController.start();
+                                              }
+
+                                              if (mounted) {
+                                                setState(() {
+                                                  _position = null;
+                                                  shouldAutoplay = false;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              padd,
                               Text(
                                 settings.formatTimeRaw(
                                   currentEvent.publishedRaw,
-                                  offset: pos,
+                                  offset: duration,
                                   pattern: DateFormat.Hms(),
                                 ),
                               ),
                               padd,
-                              Expanded(
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              padd,
+                              SquaredIconButton(
+                                onPressed: _playPause,
+                                tooltip:
+                                    videoController.isPlaying
+                                        ? loc.pause
+                                        : loc.play,
+                                icon: PlayPauseIcon(
+                                  isPlaying: videoController.isPlaying,
+                                  size: 18.0,
+                                ),
+                              ),
+                              Consumer<DownloadsManager>(
+                                builder: (context, downloads, child) {
+                                  return DownloadIndicator(
+                                    event: currentEvent,
+                                    small: true,
+                                  );
+                                },
+                              ),
+                              padd,
+                              Text(loc.volume(volume.toStringAsFixed(1))),
+                              const SizedBox(width: 6.0),
+                              SizedBox(
+                                width: kSliderControlerWidth,
                                 child: Slider.adaptive(
-                                  value: (_position ?? pos.inMilliseconds)
-                                      .clamp(0.0, duration.inMilliseconds)
-                                      .toDouble(),
-                                  max: duration.inMilliseconds.toDouble(),
-                                  secondaryTrackValue: videoController
-                                      .currentBuffer.inMilliseconds
-                                      .clamp(0.0, duration.inMilliseconds)
-                                      .toDouble(),
-                                  onChangeStart: (v) {
-                                    shouldAutoplay = videoController.isPlaying;
-                                    videoController.pause();
+                                  value: volume,
+                                  onChanged: (v) {
+                                    setState(() => volume = v);
                                   },
-                                  onChanged: (v) async {
-                                    /// Since it's just a preview, we don't need to show every
-                                    /// millisecond of the video on seek. This, in theory, should
-                                    /// improve performance by 50%
-                                    if (v.toInt().isEven) {
-                                      videoController.seekTo(
-                                          Duration(milliseconds: v.toInt()));
-                                    }
-                                    setState(() => _position = v);
-                                  },
-                                  onChangeEnd: (v) async {
-                                    await videoController.seekTo(
-                                        Duration(milliseconds: v.toInt()));
-
-                                    if (shouldAutoplay) {
-                                      await videoController.start();
-                                    }
-
-                                    if (mounted) {
-                                      setState(() {
-                                        _position = null;
-                                        shouldAutoplay = false;
-                                      });
-                                    }
+                                  onChangeEnd: (v) {
+                                    videoController.setVolume(v);
+                                    setState(() => volume = v);
                                   },
                                 ),
                               ),
-                            ]);
-                          },
-                        ),
+                              padd,
+                              padd,
+                              padd,
+                              Text(loc.speed(speed.toStringAsFixed(1))),
+                              SizedBox(
+                                width: kSliderControlerWidth,
+                                child: Slider.adaptive(
+                                  value: speed.clamp(
+                                    settings.kEventsSpeed.min!,
+                                    settings.kEventsSpeed.max!,
+                                  ),
+                                  min: settings.kEventsSpeed.min!,
+                                  max: settings.kEventsSpeed.max!,
+                                  onChanged: (v) => setState(() => speed = v),
+                                  onChangeEnd: (v) async {
+                                    videoController.setSpeed(v);
+                                    setState(() => speed = v);
+                                  },
+                                ),
+                              ),
+                              padd,
+                              if (videoController.isBuffering ||
+                                  !videoController.isSeekable)
+                                const SizedBox(
+                                  height: 20.0,
+                                  width: 20.0,
+                                  child: CircularProgressIndicator.adaptive(
+                                    strokeWidth: 2.0,
+                                  ),
+                                ),
+                              padd,
+                            ],
+                          ),
+                        ],
                       ),
-                      padd,
-                      Text(
-                        settings.formatTimeRaw(
-                          currentEvent.publishedRaw,
-                          offset: duration,
-                          pattern: DateFormat.Hms(),
-                        ),
-                      ),
-                      padd,
-                    ]),
-                    Row(children: [
-                      padd,
-                      SquaredIconButton(
-                        onPressed: _playPause,
-                        tooltip:
-                            videoController.isPlaying ? loc.pause : loc.play,
-                        icon: PlayPauseIcon(
-                          isPlaying: videoController.isPlaying,
-                          size: 18.0,
-                        ),
-                      ),
-                      Consumer<DownloadsManager>(
-                        builder: (context, downloads, child) {
-                          return DownloadIndicator(
-                            event: currentEvent,
-                            small: true,
+                    ),
+                    if (upcomingEvents.isNotEmpty)
+                      CollapsableSidebar(
+                        left: false,
+                        builder: (context, collapsed, collapseButton) {
+                          if (collapsed) {
+                            return collapseButton;
+                          }
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const SizedBox(width: 16.0),
+                                  Expanded(
+                                    child: Text(
+                                      loc.nextEvents,
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: AlignmentDirectional.topEnd,
+                                    child: collapseButton,
+                                  ),
+                                ],
+                              ),
+                              Expanded(
+                                child: ListView(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    end: 16.0,
+                                    start: 16.0,
+                                    bottom: 12.0,
+                                  ),
+                                  children: [
+                                    // Text(
+                                    //   '${currentEvent.deviceName} (${currentEvent.server.name})',
+                                    //   style: const TextStyle(
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    //   maxLines: 1,
+                                    // ),
+                                    // Text(
+                                    //   settings.formatDate(currentEvent.published),
+                                    //   style: const TextStyle(fontSize: 12.0),
+                                    // ),
+                                    // Text(
+                                    //   '(${currentEvent.priority.locale(context)})'
+                                    //   ' ${currentEvent.type.locale(context)}',
+                                    // ),
+                                    EventTile(
+                                      key: ValueKey(currentEvent),
+                                      event: currentEvent,
+                                      highlight: true,
+                                    ),
+                                    ...upcomingEvents.map((event) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              top: 6.0,
+                                            ),
+                                        child: EventTile(
+                                          event: event,
+                                          highlight:
+                                              event.id == currentEvent.id,
+                                          onPlay: () => setEvent(event),
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),
-                      padd,
-                      Text(loc.volume(volume.toStringAsFixed(1))),
-                      const SizedBox(width: 6.0),
-                      SizedBox(
-                        width: kSliderControlerWidth,
-                        child: Slider.adaptive(
-                          value: volume,
-                          onChanged: (v) {
-                            setState(() => volume = v);
-                          },
-                          onChangeEnd: (v) {
-                            videoController.setVolume(v);
-                            setState(() => volume = v);
-                          },
-                        ),
-                      ),
-                      padd,
-                      padd,
-                      padd,
-                      Text(loc.speed(speed.toStringAsFixed(1))),
-                      SizedBox(
-                        width: kSliderControlerWidth,
-                        child: Slider.adaptive(
-                          value: speed.clamp(
-                            settings.kEventsSpeed.min!,
-                            settings.kEventsSpeed.max!,
-                          ),
-                          min: settings.kEventsSpeed.min!,
-                          max: settings.kEventsSpeed.max!,
-                          onChanged: (v) => setState(() => speed = v),
-                          onChangeEnd: (v) async {
-                            videoController.setSpeed(v);
-                            setState(() => speed = v);
-                          },
-                        ),
-                      ),
-                      padd,
-                      if (videoController.isBuffering ||
-                          !videoController.isSeekable)
-                        const SizedBox(
-                          height: 20.0,
-                          width: 20.0,
-                          child: CircularProgressIndicator.adaptive(
-                            strokeWidth: 2.0,
-                          ),
-                        ),
-                      padd,
-                    ]),
-                  ]),
+                  ],
                 ),
-                if (upcomingEvents.isNotEmpty)
-                  CollapsableSidebar(
-                    left: false,
-                    builder: (context, collapsed, collapseButton) {
-                      if (collapsed) {
-                        return collapseButton;
-                      }
-                      return Column(children: [
-                        Row(children: [
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: Text(
-                              loc.nextEvents,
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          ),
-                          Align(
-                            alignment: AlignmentDirectional.topEnd,
-                            child: collapseButton,
-                          ),
-                        ]),
-                        Expanded(
-                          child: ListView(
-                            padding: const EdgeInsetsDirectional.only(
-                              end: 16.0,
-                              start: 16.0,
-                              bottom: 12.0,
-                            ),
-                            children: [
-                              // Text(
-                              //   '${currentEvent.deviceName} (${currentEvent.server.name})',
-                              //   style: const TextStyle(
-                              //     fontWeight: FontWeight.bold,
-                              //   ),
-                              //   maxLines: 1,
-                              // ),
-                              // Text(
-                              //   settings.formatDate(currentEvent.published),
-                              //   style: const TextStyle(fontSize: 12.0),
-                              // ),
-                              // Text(
-                              //   '(${currentEvent.priority.locale(context)})'
-                              //   ' ${currentEvent.type.locale(context)}',
-                              // ),
-                              EventTile(
-                                key: ValueKey(currentEvent),
-                                event: currentEvent,
-                                highlight: true,
-                              ),
-                              ...upcomingEvents.map((event) {
-                                return Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                    top: 6.0,
-                                  ),
-                                  child: EventTile(
-                                    event: event,
-                                    highlight: event.id == currentEvent.id,
-                                    onPlay: () => setEvent(event),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ]);
-                    },
-                  ),
-              ]),
-            ),
-          ]),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -521,9 +577,7 @@ class EventTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DefaultTextStyle.merge(
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.fade,
             child: Column(
@@ -580,13 +634,11 @@ class EventTile extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         tilePadding: const EdgeInsetsDirectional.only(start: 12.0, end: 10.0),
         initiallyExpanded: key != null,
-        title: Row(children: [
-          Expanded(
-            child: Text(
-              '${event.deviceName} (${event.server.name})',
-            ),
-          ),
-        ]),
+        title: Row(
+          children: [
+            Expanded(child: Text('${event.deviceName} (${event.server.name})')),
+          ],
+        ),
         childrenPadding: const EdgeInsetsDirectional.symmetric(
           vertical: 12.0,
           horizontal: 16.0,
@@ -595,10 +647,7 @@ class EventTile extends StatelessWidget {
         children: [
           buildContent(context, event),
           if (onPlay != null)
-            TextButton(
-              onPressed: onPlay,
-              child: Text(loc.play),
-            ),
+            TextButton(onPressed: onPlay, child: Text(loc.play)),
         ],
       ),
     );

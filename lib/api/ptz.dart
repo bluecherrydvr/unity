@@ -20,9 +20,9 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum PTZCommand {
   move,
@@ -60,13 +60,7 @@ enum Movement {
   }
 }
 
-enum PresetCommand {
-  query,
-  save,
-  rename,
-  go,
-  clear;
-}
+enum PresetCommand { query, save, rename, go, clear }
 
 extension PtzApiExtension on API {
   /// * <https://bluecherry-apps.readthedocs.io/en/latest/development.html#controlling-ptz-cameras>
@@ -91,18 +85,22 @@ extension PtzApiExtension on API {
 
         // commands
         if (movement == Movement.moveNorth)
-          'tilt': 'u' //up
+          'tilt':
+              'u' //up
         else if (movement == Movement.moveSouth)
-          'tilt': 'd' //down
+          'tilt':
+              'd' //down
         else if (movement == Movement.moveWest)
-          'pan': 'l' //left
+          'pan':
+              'l' //left
         else if (movement == Movement.moveEast)
-          'pan': 'r' //right
+          'pan':
+              'r' //right
         else if (movement == Movement.moveWide)
-          'zoom': 'w' //wide
+          'zoom':
+              'w' //wide
         else if (movement == Movement.moveTele)
           'zoom': 't', //tight
-
         // speeds
         if (command == PTZCommand.move) ...{
           if (panSpeed > 0) 'panspeed': '$panSpeed',

@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// An [Event] received from the [Server].
 class Event {
@@ -64,14 +64,14 @@ class Event {
     this.category,
     this.mediaID,
     this.mediaURL,
-  })  : server = server ??
-            ServersProvider.instance.servers.elementAtOrNull(0) ??
-            Server.dump(),
-        publishedRaw =
-            publishedRaw ?? DateTimeExtension.now().toIso8601String(),
-        published = published ?? DateTimeExtension.now(),
-        updatedRaw = updatedRaw ?? DateTimeExtension.now().toIso8601String(),
-        updated = updated ?? DateTimeExtension.now();
+  }) : server =
+           server ??
+           ServersProvider.instance.servers.elementAtOrNull(0) ??
+           Server.dump(),
+       publishedRaw = publishedRaw ?? DateTimeExtension.now().toIso8601String(),
+       published = published ?? DateTimeExtension.now(),
+       updatedRaw = updatedRaw ?? DateTimeExtension.now().toIso8601String(),
+       updated = updated ?? DateTimeExtension.now();
 
   String get deviceName {
     return title
@@ -128,16 +128,16 @@ class Event {
   }
 
   Map<String, dynamic> toJson() => {
-        'server': server.toJson(devices: false),
-        'deviceID': deviceID,
-        'id': id,
-        'title': title,
-        'published': published.toIso8601String(),
-        'updated': updated.toIso8601String(),
-        'category': category,
-        'mediaID': mediaID,
-        'mediaURL': mediaURL.toString(),
-      };
+    'server': server.toJson(devices: false),
+    'deviceID': deviceID,
+    'id': id,
+    'title': title,
+    'published': published.toIso8601String(),
+    'updated': updated.toIso8601String(),
+    'category': category,
+    'mediaID': mediaID,
+    'mediaURL': mediaURL.toString(),
+  };
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -261,7 +261,7 @@ enum EventPriority {
       EventPriority.info => localizations.info,
       EventPriority.warning => localizations.warn,
       EventPriority.alarm => localizations.alarm,
-      EventPriority.critical => localizations.critical
+      EventPriority.critical => localizations.critical,
     };
   }
 }
@@ -294,7 +294,7 @@ enum EventType {
       EventType.systemShutdown => localizations.systemShutdown,
       EventType.systemReboot => localizations.systemReboot,
       EventType.systemPowerOutage => localizations.systemPowerOutage,
-      EventType.unknown => localizations.unknown
+      EventType.unknown => localizations.unknown,
     };
   }
 }

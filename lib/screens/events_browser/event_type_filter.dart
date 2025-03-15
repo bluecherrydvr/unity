@@ -18,11 +18,11 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class EventTypeFilterTile extends StatefulWidget {
@@ -48,23 +48,21 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
         loc.eventType,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      trailing: AutoSizeText(
-        () {
-          final type = eventsProvider.eventTypeFilter;
-          // For some reason I can not use a switch here
-          if (type == EventType.motion.index) {
-            return loc.motion;
-          } else if (type == EventType.continuous.index) {
-            return loc.continuous;
-          } else {
-            return 'All';
-          }
-        }(),
-        maxLines: 1,
-      ),
+      trailing: AutoSizeText(() {
+        final type = eventsProvider.eventTypeFilter;
+        // For some reason I can not use a switch here
+        if (type == EventType.motion.index) {
+          return loc.motion;
+        } else if (type == EventType.continuous.index) {
+          return loc.continuous;
+        } else {
+          return 'All';
+        }
+      }(), maxLines: 1),
       onTap: () async {
-        final box = _eventTypeFilterTileKey.currentContext!.findRenderObject()
-            as RenderBox;
+        final box =
+            _eventTypeFilterTileKey.currentContext!.findRenderObject()
+                as RenderBox;
 
         showMenu(
           context: context,
@@ -95,10 +93,7 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
               ),
             ),
             const PopupMenuDivider(),
-            _buildMenuItem(
-              value: -1,
-              child: const Text('All'),
-            ),
+            _buildMenuItem(value: -1, child: const Text('All')),
             _buildMenuItem(
               value: EventType.motion.index,
               child: Text(loc.motion),
@@ -125,10 +120,7 @@ class _EventTypeFilterTileState extends State<EventTypeFilterTile> {
       onTap: () {
         eventsProvider.eventTypeFilter = value;
       },
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: child,
-      ),
+      child: Align(alignment: AlignmentDirectional.centerEnd, child: child),
     );
   }
 }

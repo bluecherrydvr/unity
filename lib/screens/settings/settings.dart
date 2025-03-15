@@ -31,15 +31,17 @@ class Settings extends StatelessWidget {
 
     return Material(
       type: MaterialType.transparency,
-      child: LayoutBuilder(builder: (context, consts) {
-        final width = consts.biggest.width;
+      child: LayoutBuilder(
+        builder: (context, consts) {
+          final width = consts.biggest.width;
 
-        if (hasDrawer || width < kMobileBreakpoint.width) {
-          return const MobileSettings();
-        } else {
-          return const DesktopSettings();
-        }
-      }),
+          if (hasDrawer || width < kMobileBreakpoint.width) {
+            return const MobileSettings();
+          } else {
+            return const DesktopSettings();
+          }
+        },
+      ),
     );
   }
 }

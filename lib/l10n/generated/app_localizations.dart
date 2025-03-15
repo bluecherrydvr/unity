@@ -957,30 +957,30 @@ abstract class AppLocalizations {
   /// No description provided for @importLayout.
   ///
   /// In en, this message translates to:
-  /// **'import layout'**
+  /// **'Import layout'**
   String get importLayout;
 
-  /// No description provided for @failedToimportMessage.
+  /// No description provided for @failedToImportMessage.
   ///
   /// In en, this message translates to:
   /// **'While attempting to import {layoutName}, we found a device that is connected to a server you are not connected to. Please, connect to the server and try again.\nServer: {server_ip}:{server_port}'**
-  String failedToimportMessage(
+  String failedToImportMessage(
     String layoutName,
     String server_ip,
     int server_port,
   );
 
-  /// No description provided for @layoutimportFileCorrupted.
+  /// No description provided for @layoutImportFileCorrupted.
   ///
   /// In en, this message translates to:
   /// **'The file you attempted to import is corrupted or missing information.'**
-  String get layoutimportFileCorrupted;
+  String get layoutImportFileCorrupted;
 
-  /// No description provided for @layoutimportFileCorruptedWithMessage.
+  /// No description provided for @layoutImportFileCorruptedWithMessage.
   ///
   /// In en, this message translates to:
   /// **'The file you attempted to import is corrupted or missing information: \"{message}\"'**
-  String layoutimportFileCorruptedWithMessage(Object message);
+  String layoutImportFileCorruptedWithMessage(Object message);
 
   /// No description provided for @singleView.
   ///
@@ -2197,13 +2197,13 @@ abstract class AppLocalizations {
   /// No description provided for @importConfigFile.
   ///
   /// In en, this message translates to:
-  /// **'import configuration file'**
+  /// **'Import configuration file'**
   String get importConfigFile;
 
   /// No description provided for @importConfigFileDescription.
   ///
   /// In en, this message translates to:
-  /// **'import a .bluecherry configuration file that contains streaming information.'**
+  /// **'Import a .bluecherry configuration file that contains streaming information.'**
   String get importConfigFileDescription;
 
   /// No description provided for @debugInfo.

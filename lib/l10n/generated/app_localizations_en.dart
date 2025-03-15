@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -493,10 +492,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportLayout => 'Export layout';
 
   @override
-  String get importLayout => 'import layout';
+  String get importLayout => 'Import layout';
 
   @override
-  String failedToimportMessage(
+  String failedToImportMessage(
     String layoutName,
     String server_ip,
     int server_port,
@@ -505,11 +504,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get layoutimportFileCorrupted =>
+  String get layoutImportFileCorrupted =>
       'The file you attempted to import is corrupted or missing information.';
 
   @override
-  String layoutimportFileCorruptedWithMessage(Object message) {
+  String layoutImportFileCorruptedWithMessage(Object message) {
     return 'The file you attempted to import is corrupted or missing information: \"$message\"';
   }
 
@@ -1204,11 +1203,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openAppDataDirectory => 'Open app data directory';
 
   @override
-  String get importConfigFile => 'import configuration file';
+  String get importConfigFile => 'Import configuration file';
 
   @override
   String get importConfigFileDescription =>
-      'import a .bluecherry configuration file that contains streaming information.';
+      'Import a .bluecherry configuration file that contains streaming information.';
 
   @override
   String get debugInfo => 'Debug info';

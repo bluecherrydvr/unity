@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -495,10 +494,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get exportLayout => 'Exportar layout';
 
   @override
-  String get importLayout => 'importar layout';
+  String get importLayout => 'Importar layout';
 
   @override
-  String failedToimportMessage(
+  String failedToImportMessage(
     String layoutName,
     String server_ip,
     int server_port,
@@ -507,11 +506,11 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get layoutimportFileCorrupted =>
+  String get layoutImportFileCorrupted =>
       'O arquivo que você tentou importar está corrompido ou faltando informações.';
 
   @override
-  String layoutimportFileCorruptedWithMessage(Object message) {
+  String layoutImportFileCorruptedWithMessage(Object message) {
     return 'O arquivo que você tentou importar está corrompido ou faltando informações: \"$message\"';
   }
 
@@ -1206,11 +1205,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get openAppDataDirectory => 'Abrir Diretório de Dados do Aplicativo';
 
   @override
-  String get importConfigFile => 'importar arquivo de configuração';
+  String get importConfigFile => 'Importar arquivo de configuração';
 
   @override
   String get importConfigFileDescription =>
-      'importar um arquivo .bluecherry que contém informações de streaming.';
+      'Importar um arquivo .bluecherry que contém informações de streaming.';
 
   @override
   String get debugInfo => 'Informações de Depuração';

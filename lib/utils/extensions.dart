@@ -19,12 +19,12 @@
 
 import 'dart:io' show File;
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
 export 'package:collection/collection.dart' show IterableExtension;

@@ -18,12 +18,12 @@
  */
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:bluecherry_client/utils/security.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> showEditServer(BuildContext context, Server server) async {
   final authorized = await UnityAuth.ask();

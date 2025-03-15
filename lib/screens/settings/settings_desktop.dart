@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/settings/advanced_options.dart';
 import 'package:bluecherry_client/screens/settings/application.dart';
@@ -26,7 +27,6 @@ import 'package:bluecherry_client/screens/settings/server_and_devices.dart';
 import 'package:bluecherry_client/screens/settings/updates_and_help.dart';
 import 'package:bluecherry_client/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class DesktopSettings extends StatelessWidget {

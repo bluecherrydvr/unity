@@ -25,7 +25,6 @@ import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/material.dart';
-
 // Video Player Options
 import 'package:unity_video_player/unity_video_player.dart';
 // ignore: depend_on_referenced_packages

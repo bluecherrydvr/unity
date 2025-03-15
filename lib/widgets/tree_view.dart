@@ -1,7 +1,7 @@
 // ORIGINAL PACKAGE: https://pub.dev/packages/flutter_simple_treeview
 
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart'
     show TreeNode, TreeController;
 

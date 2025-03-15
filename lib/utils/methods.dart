@@ -18,6 +18,7 @@
  */
 
 import 'dart:io';
+
 import 'package:bluecherry_client/main.dart' show navigatorKey;
 import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';

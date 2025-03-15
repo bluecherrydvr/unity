@@ -12,15 +12,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get welcome => 'Bem vindo!';
 
   @override
-  String get welcomeDescription =>
-      'Seja bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!';
+  String get welcomeDescription => 'Seja bem vindo ao Bluecherry Surveillance DVR!\nVamos conectar ao seu servidor DVR em um instante!';
 
   @override
   String get configure => 'Configure um Servidor DVR';
 
   @override
-  String get configureDescription =>
-      'Configure uma conexão com seu servidor DVR remoto. Você pode se conectar a quantos servidores quiser de qualquer lugar do mundo.';
+  String get configureDescription => 'Configure uma conexão com seu servidor DVR remoto. Você pode se conectar a quantos servidores quiser de qualquer lugar do mundo.';
 
   @override
   String get hostname => 'Hostname';
@@ -68,12 +66,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get connect => 'Conectar';
 
   @override
-  String get connectAutomaticallyAtStartup =>
-      'Conectar automaticamente ao iniciar';
+  String get connectAutomaticallyAtStartup => 'Conectar automaticamente ao iniciar';
 
   @override
-  String get connectAutomaticallyAtStartupDescription =>
-      'Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado.';
+  String get connectAutomaticallyAtStartupDescription => 'Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado.';
 
   @override
   String get checkingServerCredentials => 'Verificando credenciais';
@@ -109,20 +105,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get purchase => 'Compras';
 
   @override
-  String get tip0 =>
-      'Câmeras são mostradas à esquerda. Você pode dar dois cliques ou arrastar a câmera até a visualização para vê-la.';
+  String get tip0 => 'Câmeras são mostradas à esquerda. Você pode dar dois cliques ou arrastar a câmera até a visualização para vê-la.';
 
   @override
-  String get tip1 =>
-      'Use os botões acima das câmeras para criar, salvar e alterar layouts - mesmo com câmeras de múltiplos servidores.';
+  String get tip1 => 'Use os botões acima das câmeras para criar, salvar e alterar layouts - mesmo com câmeras de múltiplos servidores.';
 
   @override
-  String get tip2 =>
-      'Dê dois cliques em um servidor para abrir sua página de configuração em uma nova janela, onde você pode configurar câmeras e gravações.';
+  String get tip2 => 'Dê dois cliques em um servidor para abrir sua página de configuração em uma nova janela, onde você pode configurar câmeras e gravações.';
 
   @override
-  String get tip3 =>
-      'Aperte o ícone de eventos para abrir o histórico e assistir ou baixar as gravações.';
+  String get tip3 => 'Aperte o ícone de eventos para abrir o histórico e assistir ou baixar as gravações.';
 
   @override
   String errorTextField(String field) {
@@ -148,19 +140,16 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get serverVersionMismatch =>
-      'O versão do servidor não é suportada. Por favor, atualize seu servidor e tente novamente!';
+  String get serverVersionMismatch => 'O versão do servidor não é suportada. Por favor, atualize seu servidor e tente novamente!';
 
   @override
   String get serverVersionMismatchShort => 'Versão do servidor não suportada.';
 
   @override
-  String get serverWrongCredentials =>
-      'As credenciais do servidor estão incorretas. Por favor, verifique o nome de usuário e a senha e tente novamente.';
+  String get serverWrongCredentials => 'As credenciais do servidor estão incorretas. Por favor, verifique o nome de usuário e a senha e tente novamente.';
 
   @override
-  String get serverWrongCredentialsShort =>
-      'Credenciais incorretas. Por favor, verifique o nome de usuário e a senha.';
+  String get serverWrongCredentialsShort => 'Credenciais incorretas. Por favor, verifique o nome de usuário e a senha.';
 
   @override
   String get noServersAvailable => 'Nenhum servidor disponível.';
@@ -189,8 +178,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get serverSettings => 'Configurações do servidor';
 
   @override
-  String get serverSettingsDescription =>
-      'Configurações que serão aplicadas apenas a este servidor. Se não forem selectionados, os valores de Configurações serão usados. Você pode alterar esses valores posteriormente.';
+  String get serverSettingsDescription => 'Configurações que serão aplicadas apenas a este servidor. Se não forem selectionados, os valores de Configurações serão usados. Você pode alterar esses valores posteriormente.';
 
   @override
   String get editServerSettingsInfo => 'Editar Configurações do servidor';
@@ -204,8 +192,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get removeCamera => 'Remover Câmera';
 
   @override
-  String get removePlayer =>
-      'Remover todos as câmeras atribuidas a esse player';
+  String get removePlayer => 'Remover todos as câmeras atribuidas a esse player';
 
   @override
   String get replaceCamera => 'Substituir Câmera';
@@ -336,8 +323,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noServersAdded => 'Você ainda não adicionou nenhum servidor :/';
 
   @override
-  String get howToAddServer =>
-      'Vá à \"Adicionar Servidor\" para adicionar um servidor.';
+  String get howToAddServer => 'Vá à \"Adicionar Servidor\" para adicionar um servidor.';
 
   @override
   String get editServerInfo => 'Editar informações do servidor';
@@ -392,8 +378,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get about => 'Sobre';
 
   @override
-  String get versionText =>
-      'Copyright © 2022, Bluecherry LLC.\nTodos os direitos reservados.';
+  String get versionText => 'Copyright © 2022, Bluecherry LLC.\nTodos os direitos reservados.';
 
   @override
   String get gettingDevices => 'Carregando dispositivos...';
@@ -405,12 +390,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noEventsLoaded => 'NENHUM EVENTO CARREGADO';
 
   @override
-  String get noEventsLoadedTips =>
-      '•  Selecione as câmeras cujas você quer ver os eventos\n•  Utilize o calendário para selecionar uma data específica ou intervalo de datas \n•  Use o botão \"Filtrar\" para pesquisar';
+  String get noEventsLoadedTips => '•  Selecione as câmeras cujas você quer ver os eventos\n•  Utilize o calendário para selecionar uma data específica ou intervalo de datas \n•  Use o botão \"Filtrar\" para pesquisar';
 
   @override
-  String get timelineKeyboardShortcutsTips =>
-      '•  Use a barra de espaço para reproduzir/pausar a linha do tempo\n•  Use as setas esquerda e direita para mover a linha do tempo\n•  Use a tecla M para silenciar/dessilenciar a linha do tempo\n •  Use o scroll do mouse para dar zoom na linha do tempo';
+  String get timelineKeyboardShortcutsTips => '•  Use a barra de espaço para reproduzir/pausar a linha do tempo\n•  Use as setas esquerda e direita para mover a linha do tempo\n•  Use a tecla M para silenciar/dessilenciar a linha do tempo\n •  Use o scroll do mouse para dar zoom na linha do tempo';
 
   @override
   String get invalidResponse => 'Resposta inválida recebida do servidor';
@@ -497,17 +480,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get importLayout => 'Importar layout';
 
   @override
-  String failedToImportMessage(
-    String layoutName,
-    String server_ip,
-    int server_port,
-  ) {
+  String failedToImportMessage(String layoutName, String server_ip, int server_port) {
     return 'Ao tentar importar $layoutName, achamos um dispositívo que está conectando a um servidor que você não está conectado. Por favor, conecte-se ao servidor e tente novamente.\nServer: $server_ip:$server_port';
   }
 
   @override
-  String get layoutImportFileCorrupted =>
-      'O arquivo que você tentou importar está corrompido ou faltando informações.';
+  String get layoutImportFileCorrupted => 'O arquivo que você tentou importar está corrompido ou faltando informações.';
 
   @override
   String layoutImportFileCorruptedWithMessage(Object message) {
@@ -604,16 +582,10 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get howToDownload =>
-      'Vá ao \"Histórico de Eventos\" para baixar eventos.';
+  String get howToDownload => 'Vá ao \"Histórico de Eventos\" para baixar eventos.';
 
   @override
-  String downloadTitle(
-    String event,
-    String device,
-    String server,
-    String date,
-  ) {
+  String downloadTitle(String event, String device, String server, String date) {
     return '$event de $device do servidor $server em $date';
   }
 
@@ -852,8 +824,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get setResolution => 'Definir resolução';
 
   @override
-  String get setResolutionDescription =>
-      'A resolução da renderização do vídeo pode impactar fortemente o desempenho do aplicativo. Defina a resolução para um valor mais baixo para melhorar o desempenho ou para um valor mais alto para melhorar a qualidade. Você pode definir a resolução padrão nas configurações';
+  String get setResolutionDescription => 'A resolução da renderização do vídeo pode impactar fortemente o desempenho do aplicativo. Defina a resolução para um valor mais baixo para melhorar o desempenho ou para um valor mais alto para melhorar a qualidade. Você pode definir a resolução padrão nas configurações';
 
   @override
   String get hd => 'Alta definição';
@@ -903,8 +874,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get automaticDownloadUpdates => 'Baixar atualizações automaticamente';
 
   @override
-  String get automaticDownloadUpdatesDescription =>
-      'Seja um dos primeiros a receber as atualizações, correções e melhorias mais recentes assim que lançadas.';
+  String get automaticDownloadUpdatesDescription => 'Seja um dos primeiros a receber as atualizações, correções e melhorias mais recentes assim que lançadas.';
 
   @override
   String get updateHistory => 'Histórico de atualizações';
@@ -913,8 +883,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get showReleaseNotes => 'Mostrar notas de atualização';
 
   @override
-  String get showReleaseNotesDescription =>
-      'Mostrar as notas de atualização quando uma versão for instalada.';
+  String get showReleaseNotesDescription => 'Mostrar as notas de atualização quando uma versão for instalada.';
 
   @override
   String get newVersionAvailable => 'Nova versão disponível!';
@@ -969,22 +938,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get general => 'Geral';
 
   @override
-  String get generalSettingsSuggestion =>
-      'Notificações, Layouts, Wakelock, etc';
+  String get generalSettingsSuggestion => 'Notificações, Layouts, Wakelock, etc';
 
   @override
   String get serverAndDevices => 'Servidores e Dispositivos';
 
   @override
-  String get serverAndDevicesSettingsSuggestion =>
-      'Servidores, Dispositivos, Streaming, etc';
+  String get serverAndDevicesSettingsSuggestion => 'Servidores, Dispositivos, Streaming, etc';
 
   @override
   String get eventsAndDownloads => 'Eventos e Downloads';
 
   @override
-  String get eventsAndDownloadsSettingsSuggestion =>
-      'Eventos, Histórico de Eventos, Downloads, etc';
+  String get eventsAndDownloadsSettingsSuggestion => 'Eventos, Histórico de Eventos, Downloads, etc';
 
   @override
   String get application => 'Aplicação';
@@ -996,29 +962,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacyAndSecurity => 'Privacidade e Segurança';
 
   @override
-  String get privacyAndSecuritySettingsSuggestion =>
-      'Coleta de dados, relatórios de erros, etc';
+  String get privacyAndSecuritySettingsSuggestion => 'Coleta de dados, relatórios de erros, etc';
 
   @override
   String get updatesHelpAndPrivacy => 'Atualizações, Ajuda e Privacidade';
 
   @override
-  String get updatesHelpAndPrivacySettingsSuggestion =>
-      'Procure por atualizações, histórico de mudanças, política de privacidade, etc';
+  String get updatesHelpAndPrivacySettingsSuggestion => 'Procure por atualizações, histórico de mudanças, política de privacidade, etc';
 
   @override
   String get advancedOptions => 'Opções Avançadas';
 
   @override
-  String get advancedOptionsSettingsSuggestion =>
-      'Funcionalidades em Beta, Opções de Desenvolvedor, etc';
+  String get advancedOptionsSettingsSuggestion => 'Funcionalidades em Beta, Opções de Desenvolvedor, etc';
 
   @override
   String get cycleTogglePeriod => 'Duração da alternância de layouts';
 
   @override
-  String get cycleTogglePeriodDescription =>
-      'O intervalo entre alterações de layout quando a alternância está ativada.';
+  String get cycleTogglePeriodDescription => 'O intervalo entre alterações de layout quando a alternância está ativada.';
 
   @override
   String get notifications => 'Notificações';
@@ -1030,8 +992,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notificationClickBehavior => 'Ação ao clicar na notificação';
 
   @override
-  String get notificationClickBehaviorDescription =>
-      'Escolha o que acontece quando você clica em uma notificação.';
+  String get notificationClickBehaviorDescription => 'Escolha o que acontece quando você clica em uma notificação.';
 
   @override
   String get showEventsScreen => 'Mostar histórico de eventos';
@@ -1043,8 +1004,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get streamsOnBackground => 'Manter transmissões em segundo plano';
 
   @override
-  String get streamsOnBackgroundDescription =>
-      'Quando manter as transmissões em segundo plano quando o aplicativo estiver em segundo plano';
+  String get streamsOnBackgroundDescription => 'Quando manter as transmissões em segundo plano quando o aplicativo estiver em segundo plano';
 
   @override
   String get automatic => 'Automatico';
@@ -1053,16 +1013,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get wifiOnly => 'Somente Wi-Fi';
 
   @override
-  String get chooseEveryDownloadsLocation =>
-      'Escolher a localização de cada download';
+  String get chooseEveryDownloadsLocation => 'Escolher a localização de cada download';
 
   @override
-  String get chooseEveryDownloadsLocationDescription =>
-      'Se você deseja escolher a localização de cada download ou usar a localização padrão. Quando ativado, você será solicitado a escolher a localização de cada download.';
+  String get chooseEveryDownloadsLocationDescription => 'Se você deseja escolher a localização de cada download ou usar a localização padrão. Quando ativado, você será solicitado a escolher a localização de cada download.';
 
   @override
-  String get allowCloseWhenDownloading =>
-      'Permitir fechar o aplicativo quando houver downloads em andamento';
+  String get allowCloseWhenDownloading => 'Permitir fechar o aplicativo quando houver downloads em andamento';
 
   @override
   String get events => 'Eventos';
@@ -1077,15 +1034,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get differentEventColors => 'Diferenciar eventos por cor';
 
   @override
-  String get differentEventColorsDescription =>
-      'Se deve mostrar cores diferentes para eventos na linha do tempo. Isso ajuda a diferenciar facilmente os eventos.';
+  String get differentEventColorsDescription => 'Se deve mostrar cores diferentes para eventos na linha do tempo. Isso ajuda a diferenciar facilmente os eventos.';
 
   @override
   String get initialTimelinePoint => 'Ponto inicial';
 
   @override
-  String get initialTimelinePointDescription =>
-      'O ponto em que a linha do tempo inicia.';
+  String get initialTimelinePointDescription => 'O ponto em que a linha do tempo inicia.';
 
   @override
   String get beginningInitialPoint => 'Início';
@@ -1097,8 +1052,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get hourAgoInitialPoint => '1 hora atrás';
 
   @override
-  String get automaticallySkipEmptyPeriods =>
-      'Pular períodos vazios automaticamente';
+  String get automaticallySkipEmptyPeriods => 'Pular períodos vazios automaticamente';
 
   @override
   String get appearance => 'Visualização';
@@ -1137,23 +1091,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get convertToLocalTime => 'Converter datas para o fuso-horário local';
 
   @override
-  String get convertToLocalTimeDescription =>
-      'Isso afetará a data e a hora exibidas no aplicativo. É útil quando você está em um fuso horário diferente do servidor. Quando desativado, o fuso horário do servidor será usado.';
+  String get convertToLocalTimeDescription => 'Isso afetará a data e a hora exibidas no aplicativo. É útil quando você está em um fuso horário diferente do servidor. Quando desativado, o fuso horário do servidor será usado.';
 
   @override
-  String get allowDataCollection =>
-      'Permitir que Bluecherry colete dados de uso';
+  String get allowDataCollection => 'Permitir que Bluecherry colete dados de uso';
 
   @override
-  String get allowDataCollectionDescription =>
-      'Permitir que Bluecherry colete dados para melhorar o aplicativo e fornecer serviços melhores. Os dados são coletados anonimamente e não contêm informações pessoais.';
+  String get allowDataCollectionDescription => 'Permitir que Bluecherry colete dados para melhorar o aplicativo e fornecer serviços melhores. Os dados são coletados anonimamente e não contêm informações pessoais.';
 
   @override
   String get automaticallyReportErrors => 'Relatar erros automaticamente';
 
   @override
-  String get automaticallyReportErrorsDescription =>
-      'Enviar automaticamente relatórios de erros para Bluecherry para ajudar a melhorar o aplicativo. Os relatórios de erros podem conter informações pessoais.';
+  String get automaticallyReportErrorsDescription => 'Enviar automaticamente relatórios de erros para Bluecherry para ajudar a melhorar o aplicativo. Os relatórios de erros podem conter informações pessoais.';
 
   @override
   String get privacyPolicy => 'Política de Privacidade';
@@ -1168,8 +1118,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get matrixedViewMagnification => 'Ampliação de Área ativada';
 
   @override
-  String get matrixedViewMagnificationDescription =>
-      'Ampliar a área da visualização da matriz quando selecionado. Isso é útil quando você tem muitas câmeras e deseja ver uma área específica com mais detalhes, ou quando uma stream multicast é usada.';
+  String get matrixedViewMagnificationDescription => 'Ampliar a área da visualização da matriz quando selecionado. Isso é útil quando você tem muitas câmeras e deseja ver uma área específica com mais detalhes, ou quando uma stream multicast é usada.';
 
   @override
   String get matrixType => 'Tipo de Matrix';
@@ -1181,19 +1130,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get softwareMagnification => 'Ampliação de Software';
 
   @override
-  String get softwareMagnificationDescription =>
-      'Quando ativado, a ampliação não ocorrerá na GPU. Isso é útil quando a ampliação no hardware não está funcionando corretamente.';
+  String get softwareMagnificationDescription => 'Quando ativado, a ampliação não ocorrerá na GPU. Isso é útil quando a ampliação no hardware não está funcionando corretamente.';
 
   @override
-  String get softwareMagnificationDescriptionMacOS =>
-      'Quando ativado, a ampliação não ocorrerá na GPU. Isso é útil quando a ampliação no hardware não está funcionando corretamente. No macOS, isso não pode ser desativado.';
+  String get softwareMagnificationDescriptionMacOS => 'Quando ativado, a ampliação não ocorrerá na GPU. Isso é útil quando a ampliação no hardware não está funcionando corretamente. No macOS, isso não pode ser desativado.';
 
   @override
   String get eventMagnification => 'Ampliar Evento';
 
   @override
-  String get eventMagnificationDescription =>
-      'Ampliar o vídeo do evento quando selecionado. Isso é útil quando você deseja ver o evento em mais detalhes.';
+  String get eventMagnificationDescription => 'Ampliar o vídeo do evento quando selecionado. Isso é útil quando você deseja ver o evento em mais detalhes.';
 
   @override
   String get developerOptions => 'Opções de Desenvolvedor';
@@ -1208,29 +1154,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get importConfigFile => 'Importar arquivo de configuração';
 
   @override
-  String get importConfigFileDescription =>
-      'Importar um arquivo .bluecherry que contém informações de streaming.';
+  String get importConfigFileDescription => 'Importar um arquivo .bluecherry que contém informações de streaming.';
 
   @override
   String get debugInfo => 'Informações de Depuração';
 
   @override
-  String get debugInfoDescription =>
-      'Exibir informações úteis para depuração, como metadados de vídeo e outras informações úteis para fins de depuração.';
+  String get debugInfoDescription => 'Exibir informações úteis para depuração, como metadados de vídeo e outras informações úteis para fins de depuração.';
 
   @override
   String get restoreDefaults => 'Restaurar Padrões';
 
   @override
-  String get restoreDefaultsDescription =>
-      'Restaurar todas as configurações para seus valores padrão. Isso não afetará os servidores que você adicionou.';
+  String get restoreDefaultsDescription => 'Restaurar todas as configurações para seus valores padrão. Isso não afetará os servidores que você adicionou.';
 
   @override
   String get areYouSure => 'Você tem certeza?';
 
   @override
-  String get areYouSureDescription =>
-      'Isso restaurará todas as configurações para seus valores padrão. Isso não afetará seus servidores ou quaisquer outros dados.';
+  String get areYouSureDescription => 'Isso restaurará todas as configurações para seus valores padrão. Isso não afetará seus servidores ou quaisquer outros dados.';
 
   @override
   String get miscellaneous => 'Outros';
@@ -1239,8 +1181,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get wakelock => 'Manter tela ativa';
 
   @override
-  String get wakelockDescription =>
-      'Mantenha a tela ativa enquanto estiver assistindo a transmissões ao vivo ou gravações';
+  String get wakelockDescription => 'Mantenha a tela ativa enquanto estiver assistindo a transmissões ao vivo ou gravações';
 
   @override
   String get snooze15 => '15 minutos';
@@ -1266,20 +1207,16 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get connectToServerAutomaticallyAtStartup =>
-      'Conectar automaticamente ao iniciar';
+  String get connectToServerAutomaticallyAtStartup => 'Conectar automaticamente ao iniciar';
 
   @override
-  String get connectToServerAutomaticallyAtStartupDescription =>
-      'Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado. Isso só se aplica aos novos servidores que você adicionar.';
+  String get connectToServerAutomaticallyAtStartupDescription => 'Se ativado, o servidor será conectado automaticamente quando o aplicativo for iniciado. Isso só se aplica aos novos servidores que você adicionar.';
 
   @override
-  String get allowUntrustedCertificates =>
-      'Permitir certificados não confiáveis';
+  String get allowUntrustedCertificates => 'Permitir certificados não confiáveis';
 
   @override
-  String get allowUntrustedCertificatesDescription =>
-      'Permitir a conexão a servidores com certificados não confiáveis. Isso é útil quando você está usando certificados autoassinados ou certificados de autoridades desconhecidas.';
+  String get allowUntrustedCertificatesDescription => 'Permitir a conexão a servidores com certificados não confiáveis. Isso é útil quando você está usando certificados autoassinados ou certificados de autoridades desconhecidas.';
 
   @override
   String get certificateNotPassed => 'Certificado não autorizado';
@@ -1288,8 +1225,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addServerTimeout => 'Tempo limite para adicionar servidor';
 
   @override
-  String get addServerTimeoutDescription =>
-      'O tempo para esperar a resposta do servidor ao adicionar um novo servidor.';
+  String get addServerTimeoutDescription => 'O tempo para esperar a resposta do servidor ao adicionar um novo servidor.';
 
   @override
   String get streamingSettings => 'Configurações de streaming';
@@ -1301,8 +1237,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get preferredStreamingProtocol => 'Protocolo de Streaming Padrão';
 
   @override
-  String get preferredStreamingProtocolDescription =>
-      'Qual protocolo de streaming de vídeo será usado. Se o servidor não suportar o protocolo selecionado, o próximo será usado. É possível selecionar um protocolo específico para cada dispositivo em suas configurações.';
+  String get preferredStreamingProtocolDescription => 'Qual protocolo de streaming de vídeo será usado. Se o servidor não suportar o protocolo selecionado, o próximo será usado. É possível selecionar um protocolo específico para cada dispositivo em suas configurações.';
 
   @override
   String get rtspProtocol => 'Protocolo RTSP';
@@ -1314,15 +1249,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get renderingQuality => 'Qualidade de renderização';
 
   @override
-  String get renderingQualityDescription =>
-      'A qualidade de renderização. Quanto maior a qualidade, mais recursos são usados.\nQuando automatico, a resolução é selecionada baseada na resolução da câmera.';
+  String get renderingQualityDescription => 'A qualidade de renderização. Quanto maior a qualidade, mais recursos são usados.\nQuando automatico, a resolução é selecionada baseada na resolução da câmera.';
 
   @override
   String get cameraViewFit => 'Ajuste de imagem da câmera';
 
   @override
-  String get cameraViewFitDescription =>
-      'Como o vídeo é renderizado na visualização.';
+  String get cameraViewFitDescription => 'Como o vídeo é renderizado na visualização.';
 
   @override
   String get contain => 'Limitar';
@@ -1337,22 +1270,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get streamRefreshPeriod => 'Intervalo de Atualização do Vídeo';
 
   @override
-  String get streamRefreshPeriodDescription =>
-      'O intervalo entre as atualizações das câmeras. Isso garante que o vídeo da câmera ainda seja válido de tempos em tempos.';
+  String get streamRefreshPeriodDescription => 'O intervalo entre as atualizações das câmeras. Isso garante que o vídeo da câmera ainda seja válido de tempos em tempos.';
 
   @override
   String get lateStreamBehavior => 'Transmissão atrasada';
 
   @override
-  String get lateStreamBehaviorDescription =>
-      'O que fazer quando a transmissão está atrasada.';
+  String get lateStreamBehaviorDescription => 'O que fazer quando a transmissão está atrasada.';
 
   @override
   String get automaticBehavior => 'Automático';
 
   @override
-  String get automaticBehaviorDescription =>
-      'A transmissão será reajustada automaticamente';
+  String get automaticBehaviorDescription => 'A transmissão será reajustada automaticamente';
 
   @override
   String get manualBehavior => 'Manual';
@@ -1372,8 +1302,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get listOfflineDevices => 'Listar Dispositivos Offline';
 
   @override
-  String get listOfflineDevicesDescriptions =>
-      'Se deve mostrar dispositivos offline na lista de dispositivos.';
+  String get listOfflineDevicesDescriptions => 'Se deve mostrar dispositivos offline na lista de dispositivos.';
 
   @override
   String get initialDeviceVolume => 'Volume Inicial da Câmera';
@@ -1382,8 +1311,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get runVideoTest => 'Testar Vídeo';
 
   @override
-  String get runVideoTestDescription =>
-      'Teste o vídeo para verificar o estado da reprodução de vídeo.';
+  String get runVideoTestDescription => 'Teste o vídeo para verificar o estado da reprodução de vídeo.';
 
   @override
   String get showCameraName => 'Show Camera Name';

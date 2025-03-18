@@ -84,9 +84,7 @@ class EventsProvider extends UnityProvider {
   }
 
   /// Returns `true` if the events can be fetched.
-  bool get canFetch =>
-      selectedDevices.isNotEmpty &&
-      (loadedEvents == null || loadedEvents!.events.isEmpty);
+  bool get canFetch => selectedDevices.isNotEmpty;
 
   DateTime? _startDate;
   DateTime? get startDate => _startDate;

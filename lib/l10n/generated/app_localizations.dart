@@ -1248,7 +1248,7 @@ abstract class AppLocalizations {
   /// No description provided for @fromToDate.
   ///
   /// In en, this message translates to:
-  /// **'From {from} to {to}'**
+  /// **'{from} - {to}'**
   String fromToDate(String from, String to);
 
   /// No description provided for @mostRecent.

@@ -373,7 +373,7 @@
   "today": "Today",
   "yesterday": "Yesterday",
   "never": "Never",
-  "fromToDate": "From {from} to {to}",
+  "fromToDate": "{from} - {to}",
   "@fromToDate": {
     "placeholders": {
       "from": {

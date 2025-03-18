@@ -61,6 +61,7 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
     final eventsProvider = context.watch<EventsProvider>();
 
     return ExpansionTile(
+      dense: true,
       title: Text(
         loc.dateTimeFilter,
         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -72,6 +73,17 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
         ),
       ),
       children: [
+        if (eventsProvider.oldestDate != null)
+          ListTile(
+            dense: true,
+            title: Text(
+              'Oldest Recording',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              eventsProvider.oldestDate!.formatDecoratedDateTime(context),
+            ),
+          ),
         _FilterTile(
           title: loc.fromDate,
           date: eventsProvider.startDate,

@@ -373,7 +373,7 @@
   "today": "Hoje",
   "yesterday": "Ontem",
   "never": "Nunca",
-  "fromToDate": "De {from} à {to}",
+  "fromToDate": "{from} - {to}",
   "@fromToDate": {
     "placeholders": {
       "from": {

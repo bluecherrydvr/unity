@@ -664,7 +664,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String fromToDate(String from, String to) {
-    return 'De $from à $to';
+    return '$from - $to';
   }
 
   @override

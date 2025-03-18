@@ -172,8 +172,9 @@ class API {
   }
 
   /// Gets [Device] devices present on the [server] after login.
+  /// The devices found are added to [Server.devices].
+  ///
   /// Returns `true` if it is a success or `false` if it failed.
-  /// The found [Device] devices are saved in [Server.devices].
   Future<Iterable<Device>?> getDevices(Server server) async {
     if (!server.online) {
       debugPrint('Can not get devices of an offline server: $server');

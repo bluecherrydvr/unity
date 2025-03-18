@@ -84,6 +84,9 @@ class Device {
   /// Whether this device has a PTZ protocol
   final bool hasPTZ;
 
+  /// The date of the oldest recording.
+  final DateTime? oldestRecording;
+
   /// Reference to the [Server], to which this camera [Device] belongs.
   ///
   /// May be [Server.dump] if this does not belong to any server.
@@ -136,6 +139,7 @@ class Device {
     this.status = true,
     this.resolutionX,
     this.resolutionY,
+    this.oldestRecording,
     required this.server,
     this.hasPTZ = false,
     this.url,
@@ -153,6 +157,7 @@ class Device {
     this.resolutionX = 640,
     this.resolutionY = 480,
     this.hasPTZ = true,
+    this.oldestRecording,
     this.url,
     MatrixType? matrixType,
     this.overlays = const [],
@@ -185,6 +190,20 @@ class Device {
     return server.devices.firstWhereOrNull((d) => d.id == deviceId);
   }
 
+  /// Creates a device from a server response.
+  ///
+  /// The [map] is the JSON response from the server.
+  ///
+  /// ```json
+  ///  {
+  ///      "id": "18",
+  ///      "device_name": "DVD Player",
+  ///      "protocol": "IP-RTSP",
+  ///      "resolutionX": "640",
+  ///      "resolutionY": "480",
+  ///      "oldest_recording": "2025-03-14T16:29:08+00:00"
+  ///  }
+  /// ```
   factory Device.fromServerJson(Map map, Server server) {
     return Device(
       name: map['device_name'] ?? map['device'] ?? 'Unkown Device',
@@ -194,6 +213,10 @@ class Device {
       resolutionY: int.tryParse('${map['resolutionY']}'),
       server: server,
       hasPTZ: map['ptz_control_protocol'] != null,
+      oldestRecording:
+          map['oldest_recording'] != null
+              ? DateTime.tryParse(map['oldest_recording'])
+              : null,
     );
   }
 
@@ -400,6 +423,8 @@ class Device {
       'resolutionY': resolutionY,
       'server': server.toJson(devices: false),
       'hasPTZ': hasPTZ,
+      if (oldestRecording != null)
+        'oldestRecording': oldestRecording!.toIso8601String(),
       'url': url,
       if (matrixType != null) 'matrixType': matrixType!.index,
       'overlays': overlays.map((e) => e.toMap()).toList(),
@@ -440,6 +465,10 @@ class Device {
         externalData:
             json['externalData'] != null
                 ? ExternalDeviceData.fromMap(json['externalData'])
+                : null,
+        oldestRecording:
+            json['oldestRecording'] != null
+                ? DateTime.tryParse(json['oldestRecording'])
                 : null,
       )
       ..volume =

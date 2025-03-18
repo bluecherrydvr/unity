@@ -83,6 +83,11 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
+  /// Returns `true` if the events can be fetched.
+  bool get canFetch =>
+      selectedDevices.isNotEmpty &&
+      (loadedEvents == null || loadedEvents!.events.isEmpty);
+
   DateTime? _startDate;
   DateTime? get startDate => _startDate;
   set startDate(DateTime? value) {

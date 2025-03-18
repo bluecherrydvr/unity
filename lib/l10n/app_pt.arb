@@ -125,6 +125,7 @@
   "streamURLRequired": "A URL da transmissão é obrigatória",
   "streamURLNotValid": "A url não é válida",
   "uri": "URI",
+  "oldestRecording": "Gravação mais antiga",
   "eventBrowser": "Histórico de eventos",
   "eventsTimeline": "Linha do tempo de eventos",
   "server": "Servidor",

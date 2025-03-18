@@ -106,7 +106,7 @@ class _TimelineSidebarState extends State<TimelineSidebar> with Searchable {
                   final result = await showDatePicker(
                     context: context,
                     initialDate: widget.date,
-                    firstDate: DateTime.utc(1970),
+                    firstDate: eventsProvider.oldestDate ?? DateTime.utc(1970),
                     lastDate: DateTimeExtension.now(),
                     initialEntryMode: DatePickerEntryMode.calendarOnly,
                     currentDate: widget.date,

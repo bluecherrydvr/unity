@@ -274,6 +274,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get uri => 'URI';
 
   @override
+  String get oldestRecording => 'Gravação mais antiga';
+
+  @override
   String get eventBrowser => 'Histórico de eventos';
 
   @override
@@ -689,7 +692,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String fromToDate(String from, String to) {
-    return 'De $from à $to';
+    return '$from - $to';
   }
 
   @override

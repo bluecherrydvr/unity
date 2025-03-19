@@ -125,6 +125,7 @@
   "streamURLRequired": "L'URL du Flux est requis",
   "streamURLNotValid": "L'URL du Flux est invalide",
   "uri": "URI",
+  "oldestRecording": "Oldest recording",
   "eventBrowser": "Navigateur d'événements",
   "eventsTimeline": "Ligne du temps",
   "server": "Serveur",

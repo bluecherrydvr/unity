@@ -76,12 +76,13 @@ class _EventsScreenSidebarState extends State<EventsScreenSidebar>
                   child: EventsDevicesPicker(searchQuery: searchQuery),
                 ),
               ),
-              const Divider(),
+              const Divider(height: 1.0),
               const EventsDateTimeFilter(),
               const EventTypeFilterTile(),
               const SizedBox(height: 8.0),
               FilledButton(
-                onPressed: isLoading ? null : widget.fetch,
+                onPressed:
+                    isLoading || !eventsProvider.canFetch ? null : widget.fetch,
                 child: Text(
                   loc.loadEvents(eventsProvider.selectedDevices.length),
                 ),

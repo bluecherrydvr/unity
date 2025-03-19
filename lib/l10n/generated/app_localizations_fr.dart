@@ -275,6 +275,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get uri => 'URI';
 
   @override
+  String get oldestRecording => 'Oldest recording';
+
+  @override
   String get eventBrowser => 'Navigateur d\'événements';
 
   @override

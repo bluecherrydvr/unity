@@ -19,11 +19,14 @@
 
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/providers/settings_provider.dart';
+import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/security.dart';
 import 'package:bluecherry_client/utils/theme.dart';
 import 'package:bluecherry_client/widgets/squared_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 Future<void> showDeviceInfoDialog(BuildContext context, Device device) async {
   await showDialog(
@@ -48,6 +51,7 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
     return AlertDialog(
       title: Text(widget.device.name),
       content: Column(
@@ -76,6 +80,11 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
             loc.isPtzSupported,
             widget.device.hasPTZ ? loc.yes : loc.no,
           ),
+          if (widget.device.oldestRecording != null)
+            _buildInfoTile(
+              loc.oldestRecording,
+              settings.formatDate(widget.device.oldestRecording!),
+            ),
           _buildInfoTileWidget(
             loc.streamURL,
             Row(
@@ -117,7 +126,7 @@ class _DeviceInfoDialogState extends State<DeviceInfoDialog> {
           child: Row(
             children: [
               SizedBox(
-                width: 100.0,
+                width: 120.0,
                 child: Text(
                   title,
                   style: theme.textTheme.labelLarge,

@@ -582,6 +582,12 @@ abstract class AppLocalizations {
   /// **'URI'**
   String get uri;
 
+  /// No description provided for @oldestRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest recording'**
+  String get oldestRecording;
+
   /// No description provided for @eventBrowser.
   ///
   /// In en, this message translates to:
@@ -1249,7 +1255,7 @@ abstract class AppLocalizations {
   /// No description provided for @fromToDate.
   ///
   /// In en, this message translates to:
-  /// **'From {from} to {to}'**
+  /// **'{from} - {to}'**
   String fromToDate(String from, String to);
 
   /// No description provided for @mostRecent.

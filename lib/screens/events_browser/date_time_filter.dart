@@ -61,6 +61,7 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
     final eventsProvider = context.watch<EventsProvider>();
 
     return ExpansionTile(
+      dense: true,
       title: Text(
         loc.dateTimeFilter,
         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -72,9 +73,21 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
         ),
       ),
       children: [
+        if (eventsProvider.oldestDate != null)
+          ListTile(
+            dense: true,
+            title: Text(
+              'Oldest Recording',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              eventsProvider.oldestDate!.formatDecoratedDateTime(context),
+            ),
+          ),
         _FilterTile(
           title: loc.fromDate,
           date: eventsProvider.startDate,
+          oldestDate: eventsProvider.oldestDate,
           isFrom: true,
           onDateChanged: (date) {
             eventsProvider.startDate = date;
@@ -84,6 +97,7 @@ class _EventsDateTimeFilterState extends State<EventsDateTimeFilter> {
         _FilterTile(
           title: loc.toDate,
           date: eventsProvider.endDate,
+          oldestDate: eventsProvider.startDate,
           onDateChanged: (date) {
             eventsProvider.endDate = date;
             widget.onSelect?.call();
@@ -98,15 +112,20 @@ class _FilterTile extends StatelessWidget {
   final String title;
 
   final DateTime? date;
+  final DateTime? oldestDate;
   final bool isFrom;
   final ValueChanged<DateTime> onDateChanged;
 
-  const _FilterTile({
+  _FilterTile({
     required this.onDateChanged,
     required this.date,
+    this.oldestDate,
     this.isFrom = false,
     required this.title,
-  });
+  }) : assert(
+         oldestDate == null || date == null || date.isAfter(oldestDate),
+         'Date must be after oldest date',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +192,7 @@ class _FilterTile extends StatelessWidget {
     final date = this.date ?? defaultDate;
     final selectedDate = await showDatePicker(
       context: context,
-      firstDate: DateTime(1970),
+      firstDate: oldestDate ?? DateTime(1970),
       lastDate: defaultDate,
       initialDate: date,
       initialEntryMode: DatePickerEntryMode.calendarOnly,

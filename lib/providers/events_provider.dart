@@ -83,6 +83,9 @@ class EventsProvider extends UnityProvider {
     save();
   }
 
+  /// Returns `true` if the events can be fetched.
+  bool get canFetch => selectedDevices.isNotEmpty;
+
   DateTime? _startDate;
   DateTime? get startDate => _startDate;
   set startDate(DateTime? value) {
@@ -98,6 +101,25 @@ class EventsProvider extends UnityProvider {
   }
 
   bool get isDateSet => _startDate != null && _endDate != null;
+
+  /// Returns the oldest date of the selected devices.
+  DateTime? get oldestDate {
+    final devices = ServersProvider.instance.servers
+        .expand((server) => server.devices)
+        .where((device) => selectedDevices.contains(device.streamURL));
+    if (devices.isEmpty) return null;
+
+    DateTime? oldest;
+    for (final device in devices) {
+      final deviceOldest = device.oldestRecording;
+      if (deviceOldest == null) continue;
+
+      if (oldest == null || deviceOldest.isBefore(oldest)) {
+        oldest = deviceOldest;
+      }
+    }
+    return oldest;
+  }
 
   EventsMinLevelFilter _levelFilter = EventsMinLevelFilter.any;
   EventsMinLevelFilter get levelFilter => _levelFilter;

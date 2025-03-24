@@ -31,7 +31,7 @@ Future<void> setupLogging() async {
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
-  supportDir = await getApplicationSupportDirectory();
+  if (!kIsWeb) supportDir = await getApplicationSupportDirectory();
 }
 
 void handleError(

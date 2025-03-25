@@ -77,7 +77,7 @@ extension PtzApiExtension on API {
     final server = device.server;
 
     final url = Uri.https(
-      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '${API.urlCredentials(server)}${server.ip}:${server.port}',
       '/media/ptz.php',
       {
         'id': '${device.id}',
@@ -107,6 +107,7 @@ extension PtzApiExtension on API {
           if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
           if (duration >= -1) 'duration': '$duration',
         },
+        ...API.credentialsHeaders(server),
       },
     );
 

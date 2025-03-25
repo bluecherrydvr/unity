@@ -82,6 +82,31 @@ class API {
 
   static String get cookieHeader => HttpHeaders.cookieHeader;
 
+  /// Returns the server credentials that go directly on the URL.
+  ///
+  /// On WEB, this is disabled in order to avoid exposing the credentials.
+  ///
+  /// "Failed to execute 'fetch' on 'Window': Request cannot be constructed from a URL that includes credentials:"
+  static String urlCredentials(Server server, [bool showAt = true]) {
+    if (kIsWeb) return '';
+    final at = showAt ? '@' : '';
+    return '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}$at';
+  }
+
+  /// Returns the headers that contain the credentials.
+  ///
+  /// On WEB, the credentials are encoded in the [HttpHeaders.authorizationHeader].
+  ///
+  /// On Native, this returns empty because the credentials are sent directly on the URL.
+  static Map<String, String> credentialsHeaders(Server server) {
+    if (!kIsWeb) return {};
+
+    return {
+      HttpHeaders.authorizationHeader:
+          'Basic ${base64Encode(utf8.encode('${server.login}:${server.password}'))}',
+    };
+  }
+
   /// Checks details of a [server] entered by the user.
   ///
   /// If the attributes provided are correct, then the returned object will have
@@ -199,11 +224,14 @@ class API {
       assert(server.serverUUID != null && server.hasCookies);
       final response = await client.get(
         Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '${urlCredentials(server)}${server.ip}:${server.port}',
           '/devices.php',
           {'XML': '1'},
         ),
-        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
+        headers: {
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
+          ...credentialsHeaders(server),
+        },
       );
       // debugPrint(response.body);
       final parser = Xml2Json()..parse(response.body);
@@ -266,10 +294,13 @@ class API {
       assert(server.serverUUID != null && server.hasCookies);
       final response = await client.get(
         Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+          '${urlCredentials(server)}${server.ip}:${server.port}',
           '/mobile-app-config.json',
         ),
-        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
+        headers: {
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
+          ...credentialsHeaders(server),
+        },
       );
       final body = jsonDecode(response.body);
       return body['notification_api_endpoint'];

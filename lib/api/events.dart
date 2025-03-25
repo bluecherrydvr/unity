@@ -80,7 +80,7 @@ extension EventsExtension on API {
 
     assert(server.serverUUID != null && server.hasCookies);
     final uri = Uri.https(
-      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '${API.urlCredentials(server)}${server.ip}:${server.port}',
       '/events/',
       {
         'XML': '1',
@@ -88,6 +88,7 @@ extension EventsExtension on API {
         if (startTime != null) 'startTime': startTime,
         if (endTime != null) 'endTime': endTime,
         if (deviceId != null) 'device_id': '$deviceId',
+        ...API.credentialsHeaders(server),
       },
     );
     final response = await API.client.get(
@@ -140,13 +141,7 @@ extension EventsExtension on API {
                     : null,
             mediaURL:
                 eventObject.containsKey('content')
-                    ? Uri.parse(
-                      eventObject['content']['content'] as String,
-                      // .replaceAll(
-                      //   'https://',
-                      //   'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                      // ),
-                    )
+                    ? Uri.parse(eventObject['content']['content'] as String)
                     : null,
           );
           return event;

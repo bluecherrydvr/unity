@@ -23,6 +23,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/main.dart' show navigatorKey;
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/screens/servers/error.dart';
@@ -33,6 +34,8 @@ import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class ServersProvider extends UnityProvider {
   ServersProvider._();
@@ -56,7 +59,9 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageServers);
-    await fetchWeb();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchWeb();
+    });
     refreshDevices(startup: true);
   }
 
@@ -268,15 +273,16 @@ class ServersProvider extends UnityProvider {
     debugPrint('Fetching server from web query parameters: $query');
 
     final host = query['host'];
-    final password = query['login'] ?? query['password'];
+    final username = query['username'] ?? 'Admin';
+    final password = query['password'] ?? 'bluecherry';
     final port = query['port'] ?? '$kDefaultPort';
     final rtspPort =
         query['rtsp_port'] ?? query['rtspPort'] ?? '$kDefaultRTSPPort';
 
-    if (host == null || password == null) {
+    if (host == null) {
       logging.writeLogToFile(
-        'Failed to connect to server because host or password is missing in the '
-        'query parameters',
+        'Failed to connect to server because host is missing in the query '
+        'parameters',
         print: true,
       );
       return;
@@ -294,18 +300,20 @@ class ServersProvider extends UnityProvider {
       name: 'Web Server',
       ip: host,
       port: int.parse(port),
-      login: 'admin',
+      login: username,
       password: password,
       rtspPort: int.parse(rtspPort),
     );
 
+    final context = navigatorKey.currentContext!;
     if (code != ServerAdditionResponse.validated) {
-      final context = navigatorKey.currentContext!;
       showServerNotAddedErrorDialog(
         context: context,
         name: server.name,
         description: code.description(context, server),
       );
+    } else {
+      context.read<HomeProvider>().setTab(UnityTab.deviceGrid);
     }
   }
 }

@@ -140,7 +140,7 @@ Future<void> main(List<String> args) async {
     // Request notifications permission for iOS, Android 13+ and Windows.
     //
     // permission_handler only supports these platforms
-    if (kIsWeb || isMobilePlatform || Platform.isWindows) {
+    if (isMobilePlatform || (isDesktopPlatform && Platform.isWindows)) {
       () async {
         if (await Permission.notification.isDenied) {
           final state = await Permission.notification.request();

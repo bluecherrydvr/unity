@@ -429,16 +429,10 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
       if (ServersProvider.instance.servers.any((s) {
         return s.ip == hostname && s.port == port;
       })) {
-        showDialog(
+        showServerNotAddedErrorDialog(
           context: context,
-          builder: (context) {
-            final loc = AppLocalizations.of(context);
-
-            return ServerNotAddedErrorDialog(
-              name: name,
-              description: loc.serverAlreadyAdded(name),
-            );
-          },
+          name: name,
+          description: AppLocalizations.of(context).serverAlreadyAdded(name),
         );
         return;
       }
@@ -449,16 +443,13 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           state = _ServerAddState.checkingServerCredentials;
         });
       }
-      final (code, server) = await API.instance.checkServerCredentials(
-        Server(
-          name: name,
-          ip: hostname,
-          port: port,
-          login: usernameController.text.trim(),
-          password: passwordController.text,
-          devices: [],
-          rtspPort: int.tryParse(rtspPortController.text.trim()) ?? port,
-        ),
+      final (code, server) = await ServersProvider.instance.addServer(
+        name: name,
+        ip: hostname,
+        port: port,
+        login: usernameController.text.trim(),
+        password: passwordController.text,
+        rtspPort: int.tryParse(rtspPortController.text.trim()) ?? port,
       );
       focusScope.unfocus();
 
@@ -467,27 +458,15 @@ class _ConfigureDVRServerScreenState extends State<ConfigureDVRServerScreen> {
           assert(server.serverUUID != null && server.hasCookies);
           widget.onServerChange(server);
           state = _ServerAddState.gettingDevices;
-          await ServersProvider.instance.add(server);
           widget.onNext();
           break;
         default:
           state = _ServerAddState.none;
           if (context.mounted) {
-            final loc = AppLocalizations.of(context);
             showServerNotAddedErrorDialog(
               context: context,
               name: server.name,
-              description: switch (code) {
-                ServerAdditionResponse.versionMismatch =>
-                  loc.serverVersionMismatch,
-                ServerAdditionResponse.wrongCredentials =>
-                  loc.serverWrongCredentials,
-                ServerAdditionResponse.unknown || _ => loc
-                    .serverNotAddedErrorDescription(
-                      server.port.toString(),
-                      server.rtspPort.toString(),
-                    ),
-              },
+              description: code.description(context, server),
               onRetry: () {
                 Navigator.of(context).maybePop();
                 if (this.context.mounted) finish(this.context);

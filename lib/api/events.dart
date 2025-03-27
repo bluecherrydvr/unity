@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/api/api_helpers.dart';
@@ -13,9 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:xml2json/xml2json.dart';
 
 extension EventsExtension on API {
-  /// Gets the [Event]s present on the [server].
-  ///
-  /// If server is offline, then it returns an empty list.
   Future<Iterable<Event>> getEvents(
     Server server, {
     DateTime? startTime,
@@ -32,16 +30,12 @@ extension EventsExtension on API {
       'The device must be present on the server',
     );
 
-    if (startTime != null && endTime != null) {
-      if (startTime == endTime) {
-        startTime = startTime.subtract(
-          const Duration(hours: 23, minutes: 59, seconds: 59),
-        );
-      }
+    if (startTime != null && endTime != null && startTime == endTime) {
+      startTime = startTime.subtract(const Duration(hours: 23, minutes: 59, seconds: 59));
     }
+
     final startTimeString = startTime?.toIso8601StringWithTimezoneOffset();
     final endTimeString = endTime?.toIso8601StringWithTimezoneOffset();
-
     final settings = SettingsProvider.instance;
 
     return compute(_getEvents, {
@@ -56,12 +50,9 @@ extension EventsExtension on API {
 
   static Future<Iterable<Event>> _getEvents(Map data) async {
     final server = data['server'] as Server;
-    if (!server.online) {
-      debugPrint('Can not get events of an offline server: $server');
-      return [];
-    }
+    if (!server.online) return [];
 
-    var startTime = data['startTime'] as String?;
+    final startTime = data['startTime'] as String?;
     final endTime = data['endTime'] as String?;
     final deviceId = data['device_id'] as int?;
     final limit = (data['limit'] as int?) ?? -1;
@@ -72,15 +63,19 @@ extension EventsExtension on API {
 
     writeLogToFile(
       'Getting events for server ${server.name} with limit $limit '
-      '${startTime != null ? 'from $startTime ' : ''} '
-      '${endTime != null ? 'to $endTime ' : ''} '
+      '${startTime != null ? 'from $startTime ' : ''}'
+      '${endTime != null ? 'to $endTime ' : ''}'
       '${deviceId != null ? 'for device $deviceId' : ''}',
       print: true,
     );
 
-    assert(server.serverUUID != null && server.hasCookies);
+    assert(server.serverUUID != null);
+
+    final basicAuth = 'Basic ' +
+        base64Encode(utf8.encode('${server.login}:${server.password}'));
+
     final uri = Uri.https(
-      '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
+      '${server.ip}:${server.port}',
       '/events/',
       {
         'XML': '1',
@@ -90,110 +85,74 @@ extension EventsExtension on API {
         if (deviceId != null) 'device_id': '$deviceId',
       },
     );
+
     final response = await API.client.get(
       uri,
-      headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
+      headers: {
+        HttpHeaders.authorizationHeader: basicAuth,
+        if (server.cookie != null) HttpHeaders.cookieHeader: server.cookie!,
+      },
     );
 
-    var events = const Iterable<Event>.empty();
+    var events = <Event>[];
 
     try {
       if (response.headers['content-type'] == 'application/json') {
-        debugPrint('Server returned a JSON response');
-        events = ((jsonDecode(response.body) as Map)['entry'] as Iterable).map((
-          item,
-        ) {
+        final json = jsonDecode(response.body) as Map;
+        final entries = json['entry'] as Iterable;
+        events = entries.map<Event>((item) {
           final eventObject = item as Map;
           final published = DateTime.parse(eventObject['published']);
-          final event = Event(
+          return Event(
             server: server,
             id: () {
               final idObject = eventObject['id'].toString();
-
-              if (int.tryParse(idObject) != null) {
-                return int.parse(idObject);
-              }
-
+              if (int.tryParse(idObject) != null) return int.parse(idObject);
               final parts = idObject.split('id=');
-              if (parts.isEmpty) {
-                return -1;
-              }
-
-              return int.parse(parts.last);
+              return parts.isNotEmpty ? int.parse(parts.last) : -1;
             }(),
             deviceID: int.parse(
-              (eventObject['category']['term'] as String?)?.split('/').first ??
-                  '-1',
+              (eventObject['category']['term'] as String?)?.split('/').first ?? '-1',
             ),
             title: eventObject['title'],
             publishedRaw: eventObject['published'],
             published: published,
             updatedRaw: eventObject['updated'] ?? eventObject['published'],
-            updated:
-                eventObject['updated'] == null
-                    ? published
-                    : DateTime.parse(eventObject['updated']),
+            updated: eventObject['updated'] == null
+                ? published
+                : DateTime.parse(eventObject['updated']),
             category: eventObject['category']['term'],
-            mediaID:
-                eventObject.containsKey('content')
-                    ? int.parse(eventObject['content']['media_id'])
-                    : null,
-            mediaURL:
-                eventObject.containsKey('content')
-                    ? Uri.parse(
-                      eventObject['content']['content'] as String,
-                      // .replaceAll(
-                      //   'https://',
-                      //   'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                      // ),
-                    )
-                    : null,
+            mediaID: eventObject.containsKey('content')
+                ? int.tryParse(eventObject['content']['media_id'].toString())
+                : null,
+            mediaURL: eventObject.containsKey('content')
+                ? Uri.tryParse(eventObject['content']['content'] as String)
+                : null,
           );
-          return event;
-        });
+        }).toList();
       } else {
-        debugPrint('Server returned a XML response');
         final parser = Xml2Json()..parse(response.body);
-        events = (jsonDecode(parser.toGData())['feed']['entry'] as Iterable).map<
-          Event
-        >((item) {
+        final entries = jsonDecode(parser.toGData())['feed']['entry'] as Iterable;
+        events = entries.map<Event>((item) {
           final e = item as Map;
-          if (!e.containsKey('content')) {
-            debugPrint('Event does not have a content: $e');
-          }
           return Event(
             server: server,
             id: int.parse(e['id']['raw']),
-            deviceID: int.parse(
-              (e['category']['term'] as String).split('/').first,
-            ),
+            deviceID: int.parse((e['category']['term'] as String).split('/').first),
             title: e['title']['\$t'],
             publishedRaw: e['published']['\$t'],
-            published:
-                e['published'] == null || e['published']['\$t'] == null
-                    ? DateTimeExtension.now()
-                    : DateTime.parse(e['published']['\$t']),
+            published: e['published'] == null || e['published']['\$t'] == null
+                ? DateTimeExtension.now()
+                : DateTime.parse(e['published']['\$t']),
             updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
-            updated:
-                e['updated'] == null || e['updated']['\$t'] == null
-                    ? DateTimeExtension.now()
-                    : DateTime.parse(e['updated']['\$t']),
+            updated: e['updated'] == null || e['updated']['\$t'] == null
+                ? DateTimeExtension.now()
+                : DateTime.parse(e['updated']['\$t']),
             category: e['category']['term'],
-            mediaID:
-                !e.containsKey('content')
-                    ? null
-                    : int.parse(e['content']['media_id']),
-            mediaURL:
-                !e.containsKey('content')
-                    ? null
-                    : Uri.parse(
-                      e['content'][r'$t'].replaceAll(
-                        'https://',
-                        'https://${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@',
-                      ),
-                    ),
+            mediaID: e.containsKey('content') ? int.tryParse(e['content']['media_id'].toString()) : null,
+            mediaURL: e.containsKey('content') ? Uri.tryParse(e['content'][r'$t']) : null,
           );
-        });
+        }).toList();
       }
     } catch (error, stack) {
       handleError(

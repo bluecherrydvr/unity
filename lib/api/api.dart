@@ -175,73 +175,79 @@ class API {
   /// The devices found are added to [Server.devices].
   ///
   /// Returns `true` if it is a success or `false` if it failed.
-  Future<Iterable<Device>?> getDevices(Server server) async {
-    if (!server.online) {
-      debugPrint('Can not get devices of an offline server: $server');
-      return [];
-    }
-
-    try {
-      assert(server.serverUUID != null && server.hasCookies);
-      final response = await client.get(
-        Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/devices.php',
-          {'XML': '1'},
-        ),
-        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
-      );
-      // debugPrint(response.body);
-      final parser = Xml2Json()..parse(response.body);
-      final devicesResult =
-          (await compute(jsonDecode, parser.toParker()))['devices']['device'];
-
-      Iterable<Device> devices;
-      if (devicesResult is Iterable) {
-        // This is reached in the case the server has multiple cameras
-        devices = List<Map>.from(devicesResult).map((device) {
-          return Device.fromServerJson(device, server);
-        });
-      } else if (devicesResult is Map) {
-        // This is reached in the case the server only has a single camera
-        devices = [Device.fromServerJson(devicesResult, server)];
-      } else {
-        throw UnsupportedError(
-          'The client could not parse the response from the server: $devicesResult',
-        );
-      }
-
-      for (final device in devices) {
-        // If the device is repeated, do noting.
-        if (server.devices.contains(device)) {
-          continue;
-        }
-        // If there is already a device with the same id, merge the two devices.
-        // Merging is made to ensure that some properties, such as volume and
-        // matrix type, for example, are restored properly for each device.
-        else if (server.devices.any((d) => d.id == device.id)) {
-          final index = server.devices.indexWhere((d) => d.id == device.id);
-          server.devices[index] = server.devices[index].merge(device);
-        }
-        // If the device has never been seen, add it
-        else {
-          server.devices.add(device);
-        }
-      }
-
-      // If a device which id is not in the devices list, remove it.
-      server.devices.removeWhere((device) {
-        return !devices.any((d) {
-          return d.id == device.id;
-        });
-      });
-
-      return devices;
-    } catch (error, stack) {
-      handleError(error, stack, 'Failed to get devices on server $server');
-    }
-    return null;
+ Future<Iterable<Device>?> getDevices(Server server) async {
+  if (!server.online) {
+    debugPrint('Cannot get devices from an offline server: $server');
+    return [];
   }
+
+  try {
+    assert(server.serverUUID != null);
+
+    final basicAuth = 'Basic ' +
+        base64Encode(utf8.encode('${server.login}:${server.password}'));
+
+    final uri = Uri.https(
+      '${server.ip}:${server.port}',
+      '/devices.php',
+      {'XML': '1'},
+    );
+
+    final response = await client.get(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: basicAuth,
+        if (server.cookie != null) API.cookieHeader: server.cookie!,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw HttpException(
+        'Failed to fetch devices: ${response.statusCode}',
+        uri: uri,
+      );
+    }
+
+    final parser = Xml2Json()..parse(response.body);
+    final devicesResult =
+        (await compute(jsonDecode, parser.toParker()))['devices']['device'];
+
+    Iterable<Device> devices;
+    if (devicesResult is Iterable) {
+      devices = List<Map>.from(devicesResult).map((device) {
+        return Device.fromServerJson(device, server);
+      });
+    } else if (devicesResult is Map) {
+      devices = [Device.fromServerJson(devicesResult, server)];
+    } else {
+      throw UnsupportedError(
+        'Could not parse server response: $devicesResult',
+      );
+    }
+
+    for (final device in devices) {
+      if (server.devices.contains(device)) continue;
+
+      if (server.devices.any((d) => d.id == device.id)) {
+        final index = server.devices.indexWhere((d) => d.id == device.id);
+        server.devices[index] =
+            server.devices[index].merge(device);
+      } else {
+        server.devices.add(device);
+      }
+    }
+
+    server.devices.removeWhere((device) =>
+        !devices.any((d) => d.id == device.id));
+
+    return devices;
+  } catch (error, stack) {
+    handleError(error, stack, 'Failed to get devices on server $server');
+  }
+
+  return null;
+}
+
 
   /// Returns the notification API endpoint.
   ///

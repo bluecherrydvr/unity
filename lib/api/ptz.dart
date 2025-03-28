@@ -76,40 +76,35 @@ extension PtzApiExtension on API {
 
     final server = device.server;
 
-    final url = Uri.https(
-      '${API.urlCredentials(server)}${server.ip}:${server.port}',
-      '/media/ptz.php',
-      {
-        'id': '${device.id}',
-        'command': command.name,
+    final url = Uri.https('${server.ip}:${server.port}', '/media/ptz.php', {
+      'id': '${device.id}',
+      'command': command.name,
 
-        // commands
-        if (movement == Movement.moveNorth)
-          'tilt':
-              'u' //up
-        else if (movement == Movement.moveSouth)
-          'tilt':
-              'd' //down
-        else if (movement == Movement.moveWest)
-          'pan':
-              'l' //left
-        else if (movement == Movement.moveEast)
-          'pan':
-              'r' //right
-        else if (movement == Movement.moveWide)
-          'zoom':
-              'w' //wide
-        else if (movement == Movement.moveTele)
-          'zoom': 't', //tight
-        // speeds
-        if (command == PTZCommand.move) ...{
-          if (panSpeed > 0) 'panspeed': '$panSpeed',
-          if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
-          if (duration >= -1) 'duration': '$duration',
-        },
-        ...API.credentialsHeaders(server),
+      // commands
+      if (movement == Movement.moveNorth)
+        'tilt':
+            'u' //up
+      else if (movement == Movement.moveSouth)
+        'tilt':
+            'd' //down
+      else if (movement == Movement.moveWest)
+        'pan':
+            'l' //left
+      else if (movement == Movement.moveEast)
+        'pan':
+            'r' //right
+      else if (movement == Movement.moveWide)
+        'zoom':
+            'w' //wide
+      else if (movement == Movement.moveTele)
+        'zoom': 't', //tight
+      // speeds
+      if (command == PTZCommand.move) ...{
+        if (panSpeed > 0) 'panspeed': '$panSpeed',
+        if (tiltSpeed > 0) 'tiltspeed': '$tiltSpeed',
+        if (duration >= -1) 'duration': '$duration',
       },
-    );
+    });
 
     debugPrint(url.toString());
 
@@ -118,6 +113,7 @@ extension PtzApiExtension on API {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         if (server.cookie != null) API.cookieHeader: server.cookie!,
+        ...server.headers,
       },
     );
 

@@ -18,6 +18,13 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
+
       # We need to enforce java 17 because newer Flutter packages are
       # requiring this Java Version.
       - name: Setup Java
@@ -48,8 +55,8 @@ jobs:
       # - run: cp "${{ steps.create_key_properties.outputs.filePath }}" android/key.properties
       - run: flutter gen-l10n
       - run: flutter pub get
-      - run: flutter build apk --verbose --split-per-abi
-      - run: flutter build appbundle --verbose
+      - run: flutter build apk --verbose --split-per-abi --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
+      - run: flutter build appbundle --verbose --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
       - run: cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk bluecherry-android-arm64-v8a-release.apk
       - run: cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk bluecherry-android-armeabi-v7a-release.apk
       - run: cp build/app/outputs/flutter-apk/app-x86_64-release.apk bluecherry-android-x86_64-release.apk
@@ -88,6 +95,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
@@ -96,8 +109,8 @@ jobs:
 
       - run: flutter gen-l10n
       - run: flutter pub get
-      - run: flutter build ios --verbose --no-codesign
-      - run: flutter build ipa --verbose --no-codesign
+      - run: flutter build ios --verbose --no-codesign --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
+      - run: flutter build ipa --verbose --no-codesign --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
       # App should be published with TestFlight
       # - name: Release
@@ -181,6 +194,14 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
+
       - uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
@@ -188,7 +209,9 @@ jobs:
       - run: git config --system core.longpaths true
       - run: flutter gen-l10n
       - run: flutter pub get
-      - run: flutter build windows --verbose
+      - name: Build Windows
+        run: |
+          flutter build windows --verbose --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
       - name: Copy VSCode redistribution libs over
         shell: powershell
@@ -243,6 +266,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
 
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
+
       - name: Install dependencies
         # https://docs.flutter.dev/platform-integration/linux/building#prepare-linux-apps-for-distribution
         # https://pub.dev/packages/flutter_secure_storage#configure-linux-version
@@ -263,7 +293,7 @@ jobs:
 
       - name: Build Flutter for RPM
         run: |
-          flutter build linux --verbose --dart-define-from-file=linux/env/rpm.json
+          flutter build linux --verbose --dart-define-from-file=linux/env/rpm.json --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
       - name: Build RPM Package
         continue-on-error: true
@@ -284,7 +314,7 @@ jobs:
           flutter clean
           flutter gen-l10n
           flutter pub get
-          flutter build linux --verbose --dart-define-from-file=linux/env/deb.json
+          flutter build linux --verbose --dart-define-from-file=linux/env/deb.json --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
           rm -r linux/debian/usr/bin
           mkdir -p linux/debian/usr/bin
@@ -302,7 +332,7 @@ jobs:
           flutter clean
           flutter gen-l10n
           flutter pub get
-          flutter build linux --verbose --dart-define-from-file=linux/env/tar.gz.json
+          flutter build linux --verbose --dart-define-from-file=linux/env/tar.gz.json --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
           rm -r linux/debian/usr/bin
           mkdir -p linux/debian/usr/bin
@@ -325,7 +355,7 @@ jobs:
           flutter clean
           flutter gen-l10n
           flutter pub get
-          flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json
+          flutter build linux --verbose --dart-define-from-file=linux/env/appimage.json --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
       - name: Build AppImage
         continue-on-error: true
@@ -380,6 +410,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
 
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
         with:
@@ -395,7 +432,7 @@ jobs:
 
       - name: Build
         run: |
-          flutterpi_tool build --release --cpu=pi4
+          flutterpi_tool build --release --cpu=pi4 --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
 
   build_web:
     name: Bluecherry Web
@@ -406,6 +443,13 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+
+      - name: Extract Build Info
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+          fi
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
@@ -420,4 +464,4 @@ jobs:
 
       - name: Build
         run: |
-          flutter build web --verbose --dart-define=FLUTTER_WEB_USE_SKIA=true --dart-define=FLUTTER_WEB_AUTO_DETECT=true
+          flutter build web --verbose --dart-define=FLUTTER_WEB_USE_SKIA=true --dart-define=FLUTTER_WEB_AUTO_DETECT=true --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}

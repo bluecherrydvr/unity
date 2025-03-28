@@ -111,6 +111,7 @@ class UnityPlayers with ChangeNotifier {
           headers: {
             if (device.server.cookie != null)
               API.cookieHeader: device.server.cookie!,
+            ...device.server.headers,
           },
         );
 

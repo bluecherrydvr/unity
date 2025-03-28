@@ -184,9 +184,6 @@ class API {
     try {
       assert(server.serverUUID != null);
 
-      final basicAuth =
-          'Basic ${base64Encode(utf8.encode('${server.login}:${server.password}'))}';
-
       final uri = Uri.https('${server.ip}:${server.port}', '/devices.php', {
         'XML': '1',
       });
@@ -194,7 +191,7 @@ class API {
       final response = await client.get(
         uri,
         headers: {
-          HttpHeaders.authorizationHeader: basicAuth,
+          ...server.headers,
           if (server.cookie != null) API.cookieHeader: server.cookie!,
         },
       );

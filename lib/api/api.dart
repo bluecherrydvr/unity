@@ -177,37 +177,49 @@ class API {
   /// Returns `true` if it is a success or `false` if it failed.
   Future<Iterable<Device>?> getDevices(Server server) async {
     if (!server.online) {
-      debugPrint('Can not get devices of an offline server: $server');
+      debugPrint('Cannot get devices from an offline server: $server');
       return [];
     }
 
     try {
-      assert(server.serverUUID != null && server.hasCookies);
+      assert(server.serverUUID != null);
+
+      final basicAuth =
+          'Basic ${base64Encode(utf8.encode('${server.login}:${server.password}'))}';
+
+      final uri = Uri.https('${server.ip}:${server.port}', '/devices.php', {
+        'XML': '1',
+      });
+
       final response = await client.get(
-        Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/devices.php',
-          {'XML': '1'},
-        ),
-        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: basicAuth,
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
+        },
       );
-      // debugPrint(response.body);
+
+      if (response.statusCode != 200) {
+        throw HttpException(
+          'Failed to fetch devices: ${response.statusCode}',
+          uri: uri,
+        );
+      }
+
       final parser = Xml2Json()..parse(response.body);
       final devicesResult =
           (await compute(jsonDecode, parser.toParker()))['devices']['device'];
 
       Iterable<Device> devices;
       if (devicesResult is Iterable) {
-        // This is reached in the case the server has multiple cameras
         devices = List<Map>.from(devicesResult).map((device) {
           return Device.fromServerJson(device, server);
         });
       } else if (devicesResult is Map) {
-        // This is reached in the case the server only has a single camera
         devices = [Device.fromServerJson(devicesResult, server)];
       } else {
         throw UnsupportedError(
-          'The client could not parse the response from the server: $devicesResult',
+          'Could not parse server response: $devicesResult',
         );
       }
 
@@ -229,7 +241,8 @@ class API {
         }
       }
 
-      // If a device which id is not in the devices list, remove it.
+      // If a device which id is not in the devices list, remove it to ensure
+      // that the devices list is up to date.
       server.devices.removeWhere((device) {
         return !devices.any((d) {
           return d.id == device.id;
@@ -240,6 +253,7 @@ class API {
     } catch (error, stack) {
       handleError(error, stack, 'Failed to get devices on server $server');
     }
+
     return null;
   }
 

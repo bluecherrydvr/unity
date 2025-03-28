@@ -185,8 +185,7 @@ class API {
       assert(server.serverUUID != null);
 
       final basicAuth =
-          'Basic ' +
-          base64Encode(utf8.encode('${server.login}:${server.password}'));
+          'Basic ${base64Encode(utf8.encode('${server.login}:${server.password}'))}';
 
       final uri = Uri.https('${server.ip}:${server.port}', '/devices.php', {
         'XML': '1',
@@ -225,19 +224,30 @@ class API {
       }
 
       for (final device in devices) {
-        if (server.devices.contains(device)) continue;
-
-        if (server.devices.any((d) => d.id == device.id)) {
+        // If the device is repeated, do noting.
+        if (server.devices.contains(device)) {
+          continue;
+        }
+        // If there is already a device with the same id, merge the two devices.
+        // Merging is made to ensure that some properties, such as volume and
+        // matrix type, for example, are restored properly for each device.
+        else if (server.devices.any((d) => d.id == device.id)) {
           final index = server.devices.indexWhere((d) => d.id == device.id);
           server.devices[index] = server.devices[index].merge(device);
-        } else {
+        }
+        // If the device has never been seen, add it
+        else {
           server.devices.add(device);
         }
       }
 
-      server.devices.removeWhere(
-        (device) => !devices.any((d) => d.id == device.id),
-      );
+      // If a device which id is not in the devices list, remove it to ensure
+      // that the devices list is up to date.
+      server.devices.removeWhere((device) {
+        return !devices.any((d) {
+          return d.id == device.id;
+        });
+      });
 
       return devices;
     } catch (error, stack) {

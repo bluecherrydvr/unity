@@ -31,7 +31,9 @@ extension EventsExtension on API {
     );
 
     if (startTime != null && endTime != null && startTime == endTime) {
-      startTime = startTime.subtract(const Duration(hours: 23, minutes: 59, seconds: 59));
+      startTime = startTime.subtract(
+        const Duration(hours: 23, minutes: 59, seconds: 59),
+      );
     }
 
     final startTimeString = startTime?.toIso8601StringWithTimezoneOffset();
@@ -71,20 +73,16 @@ extension EventsExtension on API {
 
     assert(server.serverUUID != null);
 
-    final basicAuth = 'Basic ' +
-        base64Encode(utf8.encode('${server.login}:${server.password}'));
+    final basicAuth =
+        'Basic ${base64Encode(utf8.encode('${server.login}:${server.password}'))}';
 
-    final uri = Uri.https(
-      '${server.ip}:${server.port}',
-      '/events/',
-      {
-        'XML': '1',
-        'limit': '$limit',
-        if (startTime != null) 'startTime': startTime,
-        if (endTime != null) 'endTime': endTime,
-        if (deviceId != null) 'device_id': '$deviceId',
-      },
-    );
+    final uri = Uri.https('${server.ip}:${server.port}', '/events/', {
+      'XML': '1',
+      'limit': '$limit',
+      if (startTime != null) 'startTime': startTime,
+      if (endTime != null) 'endTime': endTime,
+      if (deviceId != null) 'device_id': '$deviceId',
+    });
 
     final response = await API.client.get(
       uri,
@@ -100,59 +98,84 @@ extension EventsExtension on API {
       if (response.headers['content-type'] == 'application/json') {
         final json = jsonDecode(response.body) as Map;
         final entries = json['entry'] as Iterable;
-        events = entries.map<Event>((item) {
-          final eventObject = item as Map;
-          final published = DateTime.parse(eventObject['published']);
-          return Event(
-            server: server,
-            id: () {
-              final idObject = eventObject['id'].toString();
-              if (int.tryParse(idObject) != null) return int.parse(idObject);
-              final parts = idObject.split('id=');
-              return parts.isNotEmpty ? int.parse(parts.last) : -1;
-            }(),
-            deviceID: int.parse(
-              (eventObject['category']['term'] as String?)?.split('/').first ?? '-1',
-            ),
-            title: eventObject['title'],
-            publishedRaw: eventObject['published'],
-            published: published,
-            updatedRaw: eventObject['updated'] ?? eventObject['published'],
-            updated: eventObject['updated'] == null
-                ? published
-                : DateTime.parse(eventObject['updated']),
-            category: eventObject['category']['term'],
-            mediaID: eventObject.containsKey('content')
-                ? int.tryParse(eventObject['content']['media_id'].toString())
-                : null,
-            mediaURL: eventObject.containsKey('content')
-                ? Uri.tryParse(eventObject['content']['content'] as String)
-                : null,
-          );
-        }).toList();
+        events =
+            entries.map<Event>((item) {
+              final eventObject = item as Map;
+              final published = DateTime.parse(eventObject['published']);
+              return Event(
+                server: server,
+                id: () {
+                  final idObject = eventObject['id'].toString();
+                  if (int.tryParse(idObject) != null) {
+                    return int.parse(idObject);
+                  }
+                  final parts = idObject.split('id=');
+                  return parts.isNotEmpty ? int.parse(parts.last) : -1;
+                }(),
+                deviceID: int.parse(
+                  (eventObject['category']['term'] as String?)
+                          ?.split('/')
+                          .first ??
+                      '-1',
+                ),
+                title: eventObject['title'],
+                publishedRaw: eventObject['published'],
+                published: published,
+                updatedRaw: eventObject['updated'] ?? eventObject['published'],
+                updated:
+                    eventObject['updated'] == null
+                        ? published
+                        : DateTime.parse(eventObject['updated']),
+                category: eventObject['category']['term'],
+                mediaID:
+                    eventObject.containsKey('content')
+                        ? int.tryParse(
+                          eventObject['content']['media_id'].toString(),
+                        )
+                        : null,
+                mediaURL:
+                    eventObject.containsKey('content')
+                        ? Uri.tryParse(
+                          eventObject['content']['content'] as String,
+                        )
+                        : null,
+              );
+            }).toList();
       } else {
         final parser = Xml2Json()..parse(response.body);
-        final entries = jsonDecode(parser.toGData())['feed']['entry'] as Iterable;
-        events = entries.map<Event>((item) {
-          final e = item as Map;
-          return Event(
-            server: server,
-            id: int.parse(e['id']['raw']),
-            deviceID: int.parse((e['category']['term'] as String).split('/').first),
-            title: e['title']['\$t'],
-            publishedRaw: e['published']['\$t'],
-            published: e['published'] == null || e['published']['\$t'] == null
-                ? DateTimeExtension.now()
-                : DateTime.parse(e['published']['\$t']),
-            updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
-            updated: e['updated'] == null || e['updated']['\$t'] == null
-                ? DateTimeExtension.now()
-                : DateTime.parse(e['updated']['\$t']),
-            category: e['category']['term'],
-            mediaID: e.containsKey('content') ? int.tryParse(e['content']['media_id'].toString()) : null,
-            mediaURL: e.containsKey('content') ? Uri.tryParse(e['content'][r'$t']) : null,
-          );
-        }).toList();
+        final entries =
+            jsonDecode(parser.toGData())['feed']['entry'] as Iterable;
+        events =
+            entries.map<Event>((item) {
+              final e = item as Map;
+              return Event(
+                server: server,
+                id: int.parse(e['id']['raw']),
+                deviceID: int.parse(
+                  (e['category']['term'] as String).split('/').first,
+                ),
+                title: e['title']['\$t'],
+                publishedRaw: e['published']['\$t'],
+                published:
+                    e['published'] == null || e['published']['\$t'] == null
+                        ? DateTimeExtension.now()
+                        : DateTime.parse(e['published']['\$t']),
+                updatedRaw: e['updated']['\$t'] ?? e['published']['\$t'],
+                updated:
+                    e['updated'] == null || e['updated']['\$t'] == null
+                        ? DateTimeExtension.now()
+                        : DateTime.parse(e['updated']['\$t']),
+                category: e['category']['term'],
+                mediaID:
+                    e.containsKey('content')
+                        ? int.tryParse(e['content']['media_id'].toString())
+                        : null,
+                mediaURL:
+                    e.containsKey('content')
+                        ? Uri.tryParse(e['content'][r'$t'])
+                        : null,
+              );
+            }).toList();
       }
     } catch (error, stack) {
       handleError(

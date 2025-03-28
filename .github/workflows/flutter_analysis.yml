@@ -21,12 +21,13 @@ jobs:
         with:
           channel: stable
 
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
       - run: flutter upgrade
       - run: flutter pub get
       - run: flutter gen-l10n
 
-      - name: Check formatting
-        run: dart format --set-exit-if-changed .
 
       - name: Run analysis
         run: flutter analyze

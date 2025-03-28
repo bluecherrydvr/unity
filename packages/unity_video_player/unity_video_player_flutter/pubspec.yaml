@@ -18,7 +18,7 @@ dependencies:
     path: ../unity_video_player_main
   video_player: ^2.9.3
   flutterpi_gstreamer_video_player: ^0.1.1+1
-  fvp: ^0.30.0
+  fvp: ^0.31.0
 
 dev_dependencies:
   flutter_test:

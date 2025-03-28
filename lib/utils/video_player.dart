@@ -111,6 +111,7 @@ class UnityPlayers with ChangeNotifier {
           headers: {
             if (device.server.cookie != null)
               API.cookieHeader: device.server.cookie!,
+            ...device.server.headers,
           },
         );
 
@@ -148,9 +149,13 @@ class UnityPlayers with ChangeNotifier {
 
     setSource();
 
-    controller.onError.listen((event) {
+    controller.onError.listen((error) {
       writeLogToFile(
-        'An error ocurred when playing a video (${controller.dataSource}): $event\n',
+        'An error ocurred when playing a video (${controller.dataSource}): $error\n',
+      );
+      logStreamToFile(
+        device.url ?? '${device.name} (${device.server.ip})',
+        error,
       );
     });
 
@@ -187,9 +192,15 @@ class UnityPlayers with ChangeNotifier {
           ..setVolume(1.0)
           ..setSpeed(1.0);
 
-    controller.onError.listen((event) {
+    controller.onError.listen((error) {
       writeLogToFile(
-        'An error ocurred when playing a video (${controller.dataSource}): $event\n',
+        'An error ocurred when playing an event video (${controller.dataSource}): $error\n',
+      );
+      logStreamToFile(
+        event.mediaURL == null
+            ? 'Event ${event.title} (${event.id})'
+            : event.mediaPath,
+        error,
       );
     });
 

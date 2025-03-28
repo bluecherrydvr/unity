@@ -93,7 +93,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  bool get supportsFPS => false;
+  bool get supportsFPS => true;
 
   @override
   bool get supportsHardwareZoom => false;
@@ -114,6 +114,8 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     String? title,
   }) {
     if (title != null) this.title = title;
+    onLog?.call(
+        'Initialized player $title with width=$width and height=$height');
   }
 
   @override
@@ -244,9 +246,11 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Stream<double> get volumeStream => _videoStream.stream.map((_) => volume);
 
   @override
-  double get fps => 0.0;
+  double get fps =>
+      player?.getMediaInfo()?.video?.firstOrNull?.codec.frameRate.toDouble() ??
+      0.0;
   @override
-  Stream<double> get fpsStream => Stream.value(fps);
+  Stream<double> get fpsStream => _videoStream.stream.map((_) => fps);
 
   @override
   double get aspectRatio => player?.value.aspectRatio ?? 0;

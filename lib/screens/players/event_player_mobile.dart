@@ -96,7 +96,7 @@ class __EventPlayerMobileState extends State<_EventPlayerMobile> {
         'Setting data source from ${videoController.dataSource} to $mediaUrl',
       );
       videoController
-        ..setDataSource(mediaUrl)
+        ..setDataSource(mediaUrl, headers: widget.event.server.headers)
         ..setSpeed(1.0);
     } else {
       videoController.setSpeed(1.0);

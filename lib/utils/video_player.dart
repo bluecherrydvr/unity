@@ -181,6 +181,7 @@ class UnityPlayers with ChangeNotifier {
             headers: {
               if (event.server.cookie != null)
                 API.cookieHeader: event.server.cookie!,
+              ...event.server.headers,
             },
           )
           ..setVolume(1.0)

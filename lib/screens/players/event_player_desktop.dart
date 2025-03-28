@@ -155,7 +155,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
       debugPrint(
         'Setting data source from ${videoController.dataSource} to $mediaUrl',
       );
-      videoController.setDataSource(mediaUrl);
+      videoController.setDataSource(mediaUrl, headers: event.server.headers);
     } else {
       debugPrint(mediaUrl);
     }

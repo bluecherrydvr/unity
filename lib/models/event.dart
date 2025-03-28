@@ -208,10 +208,10 @@ class Event {
 
   String get mediaPath {
     return '${mediaURL!.scheme}://'
-        '${Uri.encodeComponent(server.login)}'
-        ':'
-        '${Uri.encodeComponent(server.password)}'
-        '@'
+        // '${Uri.encodeComponent(server.login)}'
+        // ':'
+        // '${Uri.encodeComponent(server.password)}'
+        // '@'
         '${mediaURL!.host}'
         ':'
         '${mediaURL!.port}'

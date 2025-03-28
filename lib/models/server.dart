@@ -17,6 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
@@ -342,5 +345,10 @@ class Server {
               ? AdditionalServerOptions.fromMap(json['additionalSettings'])
               : const AdditionalServerOptions(),
     );
+  }
+
+  Map<String, String> get headers {
+    final basicAuth = 'Basic ${base64Encode(utf8.encode('$login:$password'))}';
+    return {HttpHeaders.authorizationHeader: basicAuth};
   }
 }

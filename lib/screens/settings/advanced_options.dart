@@ -97,29 +97,30 @@ class _AdvancedOptionsSettingsState extends State<AdvancedOptionsSettings> {
               );
             },
           ),
-          FutureBuilder(
-            future: getApplicationSupportDirectory(),
-            builder: (context, snapshot) {
-              return ListTile(
-                contentPadding: DesktopSettings.horizontalPadding,
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: theme.iconTheme.color,
-                  child: const Icon(Icons.home),
-                ),
-                title: Text(loc.openAppDataDirectory),
-                subtitle: Text(snapshot.data?.path ?? loc.loading),
-                trailing: const Icon(Icons.navigate_next),
-                dense: false,
-                onTap:
-                    snapshot.data == null
-                        ? null
-                        : () {
-                          launchFileExplorer(snapshot.data!.path);
-                        },
-              );
-            },
-          ),
+          if (!kIsWeb)
+            FutureBuilder(
+              future: getApplicationSupportDirectory(),
+              builder: (context, snapshot) {
+                return ListTile(
+                  contentPadding: DesktopSettings.horizontalPadding,
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: theme.iconTheme.color,
+                    child: const Icon(Icons.home),
+                  ),
+                  title: Text(loc.openAppDataDirectory),
+                  subtitle: Text(snapshot.data?.path ?? loc.loading),
+                  trailing: const Icon(Icons.navigate_next),
+                  dense: false,
+                  onTap:
+                      snapshot.data == null
+                          ? null
+                          : () {
+                            launchFileExplorer(snapshot.data!.path);
+                          },
+                );
+              },
+            ),
         ],
         ListTile(
           contentPadding: DesktopSettings.horizontalPadding,

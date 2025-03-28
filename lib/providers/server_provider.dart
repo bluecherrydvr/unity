@@ -20,16 +20,22 @@
 import 'dart:convert';
 
 import 'package:bluecherry_client/api/api.dart';
+import 'package:bluecherry_client/main.dart' show navigatorKey;
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/app_provider_interface.dart';
+import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
+import 'package:bluecherry_client/screens/servers/error.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/utils/storage.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class ServersProvider extends UnityProvider {
   ServersProvider._();
@@ -53,6 +59,9 @@ class ServersProvider extends UnityProvider {
   @override
   Future<void> initialize() async {
     await initializeStorage(kStorageServers);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchWeb();
+    });
     refreshDevices(startup: true);
   }
 
@@ -224,5 +233,87 @@ class ServersProvider extends UnityProvider {
             );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
+  }
+
+  Future<(ServerAdditionResponse, Server)> addServer({
+    required String name,
+    required String ip,
+    required int port,
+    required String login,
+    required String password,
+    required int rtspPort,
+  }) async {
+    final (code, server) = await API.instance.checkServerCredentials(
+      Server(
+        name: name,
+        ip: ip,
+        port: port,
+        login: login,
+        password: password,
+        devices: [],
+        rtspPort: rtspPort,
+      ),
+    );
+
+    if (code == ServerAdditionResponse.validated) {
+      add(server);
+    }
+
+    return (code, server);
+  }
+
+  /// Fetches the server from the web query parameters.
+  ///
+  /// This does nothing if the app is not running on the web.
+  Future<void> fetchWeb() async {
+    if (!kIsWeb) return;
+
+    final base = Uri.base;
+    final query = base.queryParameters;
+    debugPrint('Fetching server from web query parameters: $query');
+
+    final host = query['host'];
+    final username = query['username'] ?? 'Admin';
+    final password = query['password'] ?? 'bluecherry';
+    final port = query['port'] ?? '$kDefaultPort';
+    final rtspPort =
+        query['rtsp_port'] ?? query['rtspPort'] ?? '$kDefaultRTSPPort';
+
+    if (host == null) {
+      logging.writeLogToFile(
+        'Failed to connect to server because host is missing in the query '
+        'parameters',
+        print: true,
+      );
+      return;
+    }
+
+    if (int.tryParse(port) == null || int.tryParse(rtspPort) == null) {
+      logging.writeLogToFile(
+        'Failed to connect to server because port or rtspPort is not a valid.',
+        print: true,
+      );
+      return;
+    }
+
+    final (code, server) = await addServer(
+      name: 'Web Server',
+      ip: host,
+      port: int.parse(port),
+      login: username,
+      password: password,
+      rtspPort: int.parse(rtspPort),
+    );
+
+    final context = navigatorKey.currentContext!;
+    if (code != ServerAdditionResponse.validated) {
+      showServerNotAddedErrorDialog(
+        context: context,
+        name: server.name,
+        description: code.description(context, server),
+      );
+    } else {
+      context.read<HomeProvider>().setTab(UnityTab.deviceGrid);
+    }
   }
 }

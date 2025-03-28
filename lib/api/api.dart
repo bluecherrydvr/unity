@@ -22,11 +22,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/api/api_helpers.dart';
+import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
 
@@ -47,7 +49,19 @@ enum ServerAdditionResponse {
   unknown,
 
   /// The server took too long to respond.
-  timeout,
+  timeout;
+
+  String description(BuildContext context, Server server) {
+    final loc = AppLocalizations.of(context);
+    return switch (this) {
+      ServerAdditionResponse.versionMismatch => loc.serverVersionMismatch,
+      ServerAdditionResponse.wrongCredentials => loc.serverWrongCredentials,
+      ServerAdditionResponse.unknown || _ => loc.serverNotAddedErrorDescription(
+        server.port.toString(),
+        server.rtspPort.toString(),
+      ),
+    };
+  }
 }
 
 class API {
@@ -262,11 +276,11 @@ class API {
     try {
       assert(server.serverUUID != null && server.hasCookies);
       final response = await client.get(
-        Uri.https(
-          '${Uri.encodeComponent(server.login)}:${Uri.encodeComponent(server.password)}@${server.ip}:${server.port}',
-          '/mobile-app-config.json',
-        ),
-        headers: {if (server.cookie != null) API.cookieHeader: server.cookie!},
+        Uri.https('${server.ip}:${server.port}', '/mobile-app-config.json'),
+        headers: {
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
+          ...server.headers,
+        },
       );
       final body = jsonDecode(response.body);
       return body['notification_api_endpoint'];

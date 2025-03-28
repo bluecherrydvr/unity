@@ -175,79 +175,77 @@ class API {
   /// The devices found are added to [Server.devices].
   ///
   /// Returns `true` if it is a success or `false` if it failed.
- Future<Iterable<Device>?> getDevices(Server server) async {
-  if (!server.online) {
-    debugPrint('Cannot get devices from an offline server: $server');
-    return [];
-  }
-
-  try {
-    assert(server.serverUUID != null);
-
-    final basicAuth = 'Basic ' +
-        base64Encode(utf8.encode('${server.login}:${server.password}'));
-
-    final uri = Uri.https(
-      '${server.ip}:${server.port}',
-      '/devices.php',
-      {'XML': '1'},
-    );
-
-    final response = await client.get(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: basicAuth,
-        if (server.cookie != null) API.cookieHeader: server.cookie!,
-      },
-    );
-
-    if (response.statusCode != 200) {
-      throw HttpException(
-        'Failed to fetch devices: ${response.statusCode}',
-        uri: uri,
-      );
+  Future<Iterable<Device>?> getDevices(Server server) async {
+    if (!server.online) {
+      debugPrint('Cannot get devices from an offline server: $server');
+      return [];
     }
 
-    final parser = Xml2Json()..parse(response.body);
-    final devicesResult =
-        (await compute(jsonDecode, parser.toParker()))['devices']['device'];
+    try {
+      assert(server.serverUUID != null);
 
-    Iterable<Device> devices;
-    if (devicesResult is Iterable) {
-      devices = List<Map>.from(devicesResult).map((device) {
-        return Device.fromServerJson(device, server);
+      final basicAuth =
+          'Basic ' +
+          base64Encode(utf8.encode('${server.login}:${server.password}'));
+
+      final uri = Uri.https('${server.ip}:${server.port}', '/devices.php', {
+        'XML': '1',
       });
-    } else if (devicesResult is Map) {
-      devices = [Device.fromServerJson(devicesResult, server)];
-    } else {
-      throw UnsupportedError(
-        'Could not parse server response: $devicesResult',
+
+      final response = await client.get(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: basicAuth,
+          if (server.cookie != null) API.cookieHeader: server.cookie!,
+        },
       );
-    }
 
-    for (final device in devices) {
-      if (server.devices.contains(device)) continue;
-
-      if (server.devices.any((d) => d.id == device.id)) {
-        final index = server.devices.indexWhere((d) => d.id == device.id);
-        server.devices[index] =
-            server.devices[index].merge(device);
-      } else {
-        server.devices.add(device);
+      if (response.statusCode != 200) {
+        throw HttpException(
+          'Failed to fetch devices: ${response.statusCode}',
+          uri: uri,
+        );
       }
+
+      final parser = Xml2Json()..parse(response.body);
+      final devicesResult =
+          (await compute(jsonDecode, parser.toParker()))['devices']['device'];
+
+      Iterable<Device> devices;
+      if (devicesResult is Iterable) {
+        devices = List<Map>.from(devicesResult).map((device) {
+          return Device.fromServerJson(device, server);
+        });
+      } else if (devicesResult is Map) {
+        devices = [Device.fromServerJson(devicesResult, server)];
+      } else {
+        throw UnsupportedError(
+          'Could not parse server response: $devicesResult',
+        );
+      }
+
+      for (final device in devices) {
+        if (server.devices.contains(device)) continue;
+
+        if (server.devices.any((d) => d.id == device.id)) {
+          final index = server.devices.indexWhere((d) => d.id == device.id);
+          server.devices[index] = server.devices[index].merge(device);
+        } else {
+          server.devices.add(device);
+        }
+      }
+
+      server.devices.removeWhere(
+        (device) => !devices.any((d) => d.id == device.id),
+      );
+
+      return devices;
+    } catch (error, stack) {
+      handleError(error, stack, 'Failed to get devices on server $server');
     }
 
-    server.devices.removeWhere((device) =>
-        !devices.any((d) => d.id == device.id));
-
-    return devices;
-  } catch (error, stack) {
-    handleError(error, stack, 'Failed to get devices on server $server');
+    return null;
   }
-
-  return null;
-}
-
 
   /// Returns the notification API endpoint.
   ///

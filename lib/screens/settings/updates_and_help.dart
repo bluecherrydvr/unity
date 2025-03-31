@@ -505,7 +505,10 @@ class About extends StatelessWidget {
         children: [
           const SizedBox(height: 8.0),
           if (update.packageInfo != null) ...[
-            Text(update.packageInfo!.version),
+            Text(
+              '${update.packageInfo!.version}'
+              '${update.packageInfo!.buildNumber.isNotEmpty ? '(${update.packageInfo!.buildNumber})' : ''}',
+            ),
             const SizedBox(height: 8.0),
             Text(loc.versionText, style: theme.textTheme.displayMedium),
           ],

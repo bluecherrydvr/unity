@@ -8,6 +8,9 @@ import 'package:fvp/fvp.dart' as fvp;
 import 'package:unity_video_player_platform_interface/unity_video_player_platform_interface.dart';
 import 'package:video_player/video_player.dart';
 
+/// Whether the current platform is a Raspberry Pi.
+bool get isPi => const String.fromEnvironment('linux_environment') == 'pi';
+
 class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   /// Registers this class as the default instance of [UnityVideoPlayerInterface].
   static void registerWith() {
@@ -20,7 +23,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
   @override
   Future<void> initialize() async {
-    if ('pi' case const String.fromEnvironment('linux_environment')) {
+    if (isPi) {
       FlutterpiVideoPlayer.registerWith();
     } else {
       fvp.registerWith(options: {
@@ -93,7 +96,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  bool get supportsFPS => true;
+  bool get supportsFPS => !isPi;
 
   @override
   bool get supportsHardwareZoom => false;
@@ -246,9 +249,19 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Stream<double> get volumeStream => _videoStream.stream.map((_) => volume);
 
   @override
-  double get fps =>
-      player?.getMediaInfo()?.video?.firstOrNull?.codec.frameRate.toDouble() ??
-      0.0;
+  double get fps {
+    if (!isPi || player == null) return 0.0;
+
+    return player
+            ?.getMediaInfo()
+            ?.video
+            ?.firstOrNull
+            ?.codec
+            .frameRate
+            .toDouble() ??
+        0.0;
+  }
+
   @override
   Stream<double> get fpsStream => _videoStream.stream.map((_) => fps);
 

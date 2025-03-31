@@ -95,6 +95,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
         debugPrint('Disposing player ${player.hashCode}');
         await player.dispose();
       }
+      UnityVideoPlayerInterface.players.clear();
     });
   }
 

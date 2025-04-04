@@ -91,6 +91,9 @@ class WindowButtons extends StatefulWidget {
     this.showNavigator = true,
     this.onBack,
     this.flexible,
+    this.forceImmersive = false,
+    this.forceShow = false,
+    this.backgroundColor,
   });
 
   /// The current window title.
@@ -111,6 +114,17 @@ class WindowButtons extends StatefulWidget {
 
   /// The widget displayed in the remaining space.
   final Widget? flexible;
+
+  /// Whether to force the immersive mode.
+  final bool forceImmersive;
+
+  /// Whether to force show the window buttons.
+  final bool forceShow;
+
+  /// The background color of the bar.
+  ///
+  /// If not provided, the default color is used.
+  final Color? backgroundColor;
 
   @override
   State<WindowButtons> createState() => _WindowButtonsState();
@@ -208,6 +222,7 @@ class _WindowButtonsState extends State<WindowButtons>
         );
 
         return Material(
+          color: widget.backgroundColor,
           child: SizedBox(
             height: 40.0,
             child: Stack(
@@ -219,30 +234,7 @@ class _WindowButtonsState extends State<WindowButtons>
                       if (isMacOSPlatform)
                         const SizedBox(width: 70.0, height: 40.0),
                       if (canPop)
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(start: 8.0),
-                          child: SquaredIconButton(
-                            onPressed: () async {
-                              await widget.onBack?.call();
-                              await navigatorKey.currentState?.maybePop();
-                            },
-                            tooltip:
-                                MaterialLocalizations.of(
-                                  context,
-                                ).backButtonTooltip,
-                            icon: Container(
-                              padding: const EdgeInsetsDirectional.all(4.0),
-                              // height: 40.0,
-                              // width: 40.0,
-                              alignment: AlignmentDirectional.center,
-                              child: Icon(
-                                Icons.adaptive.arrow_back,
-                                size: 20.0,
-                                color: theme.hintColor,
-                              ),
-                            ),
-                          ),
-                        )
+                        UnityBackButton(onBack: widget.onBack)
                       else if (isWindowsPlatform)
                         Padding(
                           padding: const EdgeInsetsDirectional.only(start: 8.0),
@@ -423,7 +415,7 @@ class _WindowButtonsState extends State<WindowButtons>
       },
     );
 
-    if (settings.isImmersiveMode) {
+    if (widget.forceImmersive || settings.isImmersiveMode) {
       return MouseRegion(
         onEnter: (_) {
           showOverlayEntry(context, bar);
@@ -498,6 +490,39 @@ class _WindowButtonsState extends State<WindowButtons>
     } catch (_) {}
     _overlayEntry?.remove();
     _overlayEntry = null;
+  }
+}
+
+class UnityBackButton extends StatelessWidget {
+  const UnityBackButton({super.key, this.onBack});
+
+  final Future<void> Function()? onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 8.0),
+      child: SquaredIconButton(
+        onPressed: () async {
+          await onBack?.call();
+          await navigatorKey.currentState?.maybePop();
+        },
+        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        icon: Container(
+          padding: const EdgeInsetsDirectional.all(4.0),
+          // height: 40.0,
+          // width: 40.0,
+          alignment: AlignmentDirectional.center,
+          child: Icon(
+            Icons.adaptive.arrow_back,
+            size: 20.0,
+            color: theme.hintColor,
+          ),
+        ),
+      ),
+    );
   }
 }
 

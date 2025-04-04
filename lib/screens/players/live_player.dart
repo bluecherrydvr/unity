@@ -387,6 +387,7 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
             fit: fit,
             paneBuilder: (context, player) {
               return Stack(
+                fit: StackFit.expand,
                 key: _videoViewKey,
                 children: [
                   if (commands.isNotEmpty) PTZData(commands: commands),
@@ -428,13 +429,17 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
                       forceShow: _isHovering,
                       backgroundColor: theme.colorScheme.surfaceContainer
                           .withValues(alpha: 0.6),
-                      flexible: DeviceOptions(
-                        device: widget.device,
-                        onPTZEnabledChanged:
-                            (enabled) => setState(() => ptzEnabled = enabled),
-                        onFitChanged: (newFit) {
-                          setState(() => fit = newFit);
-                        },
+                      flexible: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: DeviceOptions(
+                          device: widget.device,
+                          isFullScreen: true,
+                          onPTZEnabledChanged:
+                              (enabled) => setState(() => ptzEnabled = enabled),
+                          onFitChanged: (newFit) {
+                            setState(() => fit = newFit);
+                          },
+                        ),
                       ),
                     ),
                   ),

@@ -310,12 +310,14 @@ class DeviceOptions extends StatefulWidget {
   final Device device;
   final ValueChanged<bool> onPTZEnabledChanged;
   final ValueChanged<UnityVideoFit> onFitChanged;
+  final bool isFullScreen;
 
   const DeviceOptions({
     super.key,
     required this.device,
     required this.onPTZEnabledChanged,
     required this.onFitChanged,
+    this.isFullScreen = false,
   });
 
   @override
@@ -349,21 +351,23 @@ class _DeviceOptionsState extends State<DeviceOptions> {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (states.isHovering && video.error == null && !video.isLoading) ...[
-          const SizedBox(width: 12.0),
-          if (widget.device.hasPTZ)
-            PTZToggleButton(
-              ptzEnabled: ptzEnabled,
-              onChanged: (enabled) => widget.onPTZEnabledChanged(enabled),
-            ),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               reverse: true,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 6.0,
                 children: [
+                  if (widget.device.hasPTZ)
+                    PTZToggleButton(
+                      ptzEnabled: ptzEnabled,
+                      onChanged:
+                          (enabled) => widget.onPTZEnabledChanged(enabled),
+                    ),
                   if (!video.isLoading)
                     StreamBuilder<double>(
                       stream: controller.volumeStream,
@@ -402,7 +406,9 @@ class _DeviceOptionsState extends State<DeviceOptions> {
                       tooltip: loc.openInANewWindow,
                       onPressed: widget.device.openInANewWindow,
                     ),
-                  if (!isAlternativeWindow && !video.isLoading)
+                  if (!isAlternativeWindow &&
+                      !video.isLoading &&
+                      !widget.isFullScreen)
                     SquaredIconButton(
                       icon: Icon(
                         Icons.fullscreen_rounded,
@@ -420,10 +426,10 @@ class _DeviceOptionsState extends State<DeviceOptions> {
                       },
                     ),
                   reloadButton,
-                  CameraViewFitButton(
-                    fit: video.fit,
-                    onChanged: widget.onFitChanged,
-                  ),
+                  // CameraViewFitButton(
+                  //   fit: video.fit,
+                  //   onChanged: widget.onFitChanged,
+                  // ),
                 ],
               ),
             ),
@@ -439,7 +445,14 @@ class _DeviceOptionsState extends State<DeviceOptions> {
               end: 6.0,
               bottom: 6.0,
             ),
-            child: VideoStatusLabel(video: video, device: widget.device),
+            child: VideoStatusLabel(
+              video: video,
+              device: widget.device,
+              position:
+                  widget.isFullScreen || isAlternativeWindow
+                      ? VideoStatusLabelPosition.top
+                      : VideoStatusLabelPosition.bottom,
+            ),
           ),
           const SizedBox.shrink(),
           states,

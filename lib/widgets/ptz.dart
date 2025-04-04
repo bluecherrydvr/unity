@@ -258,9 +258,7 @@ class PTZToggleButton extends StatelessWidget {
                 ptzEnabled
                     ? enabledColor ?? Colors.white
                     : disabledColor ??
-                        theme.colorScheme.onInverseSurface.withValues(
-                          alpha: 0.86,
-                        ),
+                        theme.colorScheme.onSurface.withValues(alpha: 0.86),
           ),
           tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
           onPressed: () => onChanged(!ptzEnabled),

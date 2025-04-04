@@ -56,6 +56,10 @@ class PTZController extends StatefulWidget {
 
   @override
   State<PTZController> createState() => _PTZControllerState();
+
+  static PTZController of(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<PTZController>()!;
+  }
 }
 
 class _PTZControllerState extends State<PTZController> {

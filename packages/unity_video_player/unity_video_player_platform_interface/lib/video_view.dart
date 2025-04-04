@@ -12,6 +12,7 @@ class VideoViewInheritance extends InheritedWidget {
     required this.lastImageUpdate,
     required this.fps,
     required this.player,
+    required this.fit,
   });
 
   /// When the video is in an error state, this will be set with a description
@@ -32,6 +33,8 @@ class VideoViewInheritance extends InheritedWidget {
 
   /// The player that is currently being used by the video.
   final UnityVideoPlayer player;
+
+  final UnityVideoFit fit;
 
   bool get isLoading => !player.isSeekable && error == null;
 
@@ -143,6 +146,7 @@ class UnityVideoViewState extends State<UnityVideoView> {
       duration: widget.player.duration,
       fps: widget.player.fps.toInt(),
       lastImageUpdate: widget.player.lastImageUpdate,
+      fit: widget.fit,
       child: UnityVideoPlayerInterface.instance.createVideoView(
         player: widget.player,
         color: widget.color,
@@ -184,14 +188,12 @@ class UnityVideoViewState extends State<UnityVideoView> {
         paneBuilder: widget.paneBuilder == null
             ? null
             : (context, player) {
-                return Center(
-                  child: AspectRatio(
-                    aspectRatio: widget.player.aspectRatio == 0 ||
-                            widget.player.aspectRatio == double.infinity
-                        ? 16 / 9
-                        : widget.player.aspectRatio,
-                    child: widget.paneBuilder?.call(context, player),
-                  ),
+                return AspectRatio(
+                  aspectRatio: widget.player.aspectRatio == 0 ||
+                          widget.player.aspectRatio == double.infinity
+                      ? 16 / 9
+                      : widget.player.aspectRatio,
+                  child: widget.paneBuilder?.call(context, player),
                 );
               },
       ),

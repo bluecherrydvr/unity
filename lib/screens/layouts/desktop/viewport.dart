@@ -17,8 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
-
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
@@ -108,24 +106,6 @@ class DesktopTileViewport extends StatefulWidget {
 
 class _DesktopTileViewportState extends State<DesktopTileViewport> {
   bool ptzEnabled = false;
-  double get volume => widget.controller?.volume ?? 0.0;
-  StreamSubscription<double>? volumeSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.controller != null) {
-      volumeSubscription = widget.controller!.volumeStream.listen((_) {
-        if (mounted) setState(() {});
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    volumeSubscription?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +115,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final settings = context.watch<SettingsProvider>();
     var video = UnityVideoView.maybeOf(context);
     final isSubView = AlternativeWindow.maybeOf(context) != null;
-    final isMuted = volume == 0.0;
     final showDebugInfo = widget.showDebugInfo ?? settings.kShowDebugInfo.value;
 
     if (showDebugInfo && widget.controller != null) {
@@ -146,6 +125,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         lastImageUpdate: DateTime.now(),
         fps: 0,
         player: widget.controller!,
+        fit: UnityVideoFit.fill,
         child: const SizedBox.shrink(),
       );
     }
@@ -160,20 +140,6 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
             context.findAncestorWidgetOfExactType<UnityVideoView>()?.fit ??
             widget.device.server.additionalSettings.videoFit ??
             settings.kVideoFit.value;
-
-        final reloadButton = SquaredIconButton(
-          icon: Icon(
-            Icons.replay_outlined,
-            shadows: outlinedIcon(),
-            color: Colors.white,
-            size: 16.0,
-          ),
-          tooltip: loc.reloadCamera,
-          onPressed: () async {
-            await UnityPlayers.reloadDevice(widget.device);
-            if (mounted) setState(() {});
-          },
-        );
 
         return Stack(
           children: [
@@ -251,107 +217,12 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                 end: 0,
                 start: 0,
                 bottom: 4.0,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (states.isHovering &&
-                        video.error == null &&
-                        !video.isLoading) ...[
-                      const SizedBox(width: 12.0),
-                      if (widget.device.hasPTZ)
-                        PTZToggleButton(
-                          ptzEnabled: ptzEnabled,
-                          onChanged:
-                              (enabled) => setState(() => ptzEnabled = enabled),
-                        ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          reverse: true,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              if (!video.isLoading)
-                                SquaredIconButton(
-                                  icon: Icon(
-                                    isMuted
-                                        ? Icons.volume_mute_rounded
-                                        : Icons.volume_up_rounded,
-                                    shadows: outlinedIcon(),
-                                    color: Colors.white,
-                                    size: 16.0,
-                                  ),
-                                  tooltip:
-                                      isMuted
-                                          ? loc.enableAudio
-                                          : loc.disableAudio,
-                                  onPressed: () async {
-                                    if (!isMuted) {
-                                      await widget.controller!.setVolume(0.0);
-                                    } else {
-                                      await widget.controller!.setVolume(1.0);
-                                    }
-                                  },
-                                ),
-                              if (isDesktopPlatform &&
-                                  !isSubView &&
-                                  !video.isLoading)
-                                SquaredIconButton(
-                                  icon: Icon(
-                                    Icons.open_in_new_sharp,
-                                    shadows: outlinedIcon(),
-                                    color: Colors.white,
-                                    size: 16.0,
-                                  ),
-                                  tooltip: loc.openInANewWindow,
-                                  onPressed: widget.device.openInANewWindow,
-                                ),
-                              if (!isSubView && !video.isLoading)
-                                SquaredIconButton(
-                                  icon: Icon(
-                                    Icons.fullscreen_rounded,
-                                    shadows: outlinedIcon(),
-                                    color: Colors.white,
-                                    size: 16.0,
-                                  ),
-                                  tooltip: loc.showFullscreenCamera,
-                                  onPressed: () async {
-                                    UnityPlayers.openFullscreen(
-                                      context,
-                                      widget.device,
-                                      ptzEnabled: ptzEnabled,
-                                    );
-                                  },
-                                ),
-                              reloadButton,
-                              CameraViewFitButton(
-                                fit: fit,
-                                onChanged: widget.onFitChanged,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      const Spacer(),
-                      if (states.isHovering) reloadButton,
-                    ],
-                    settings.kShowVideoStatusLabelOn.value.build(
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 6.0,
-                          end: 6.0,
-                          bottom: 6.0,
-                        ),
-                        child: VideoStatusLabel(
-                          video: video,
-                          device: widget.device,
-                        ),
-                      ),
-                      const SizedBox.shrink(),
-                      states,
-                    ),
-                  ],
+                child: DeviceOptions(
+                  device: widget.device,
+                  onPTZEnabledChanged: (enabled) {
+                    setState(() => ptzEnabled = enabled);
+                  },
+                  onFitChanged: widget.onFitChanged,
                 ),
               ),
               if (!isSubView &&
@@ -431,6 +302,149 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
         ),
       ),
       child: foreground,
+    );
+  }
+}
+
+class DeviceOptions extends StatefulWidget {
+  final Device device;
+  final ValueChanged<bool> onPTZEnabledChanged;
+  final ValueChanged<UnityVideoFit> onFitChanged;
+
+  const DeviceOptions({
+    super.key,
+    required this.device,
+    required this.onPTZEnabledChanged,
+    required this.onFitChanged,
+  });
+
+  @override
+  State<DeviceOptions> createState() => _DeviceOptionsState();
+}
+
+class _DeviceOptionsState extends State<DeviceOptions> {
+  @override
+  Widget build(BuildContext context) {
+    final states = HoverButton.of(context).states;
+    final loc = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final video = UnityVideoView.of(context);
+    final controller = video.player;
+    final isAlternativeWindow = AlternativeWindow.maybeOf(context) != null;
+    final ptzEnabled = PTZController.of(context).enabled;
+
+    final reloadButton = SquaredIconButton(
+      icon: Icon(
+        Icons.replay_outlined,
+        shadows: outlinedIcon(),
+        color: Colors.white,
+        size: 16.0,
+      ),
+      tooltip: loc.reloadCamera,
+      onPressed: () async {
+        await UnityPlayers.reloadDevice(widget.device);
+        if (mounted) setState(() {});
+      },
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (states.isHovering && video.error == null && !video.isLoading) ...[
+          const SizedBox(width: 12.0),
+          if (widget.device.hasPTZ)
+            PTZToggleButton(
+              ptzEnabled: ptzEnabled,
+              onChanged: (enabled) => widget.onPTZEnabledChanged(enabled),
+            ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (!video.isLoading)
+                    StreamBuilder<double>(
+                      stream: controller.volumeStream,
+                      builder: (context, snapshot) {
+                        final isMuted = snapshot.data == 0.0;
+                        return SquaredIconButton(
+                          icon: Icon(
+                            isMuted
+                                ? Icons.volume_mute_rounded
+                                : Icons.volume_up_rounded,
+                            shadows: outlinedIcon(),
+                            color: Colors.white,
+                            size: 16.0,
+                          ),
+                          tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
+                          onPressed: () async {
+                            if (!isMuted) {
+                              await controller.setVolume(0.0);
+                            } else {
+                              await controller.setVolume(1.0);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  if (isDesktopPlatform &&
+                      !isAlternativeWindow &&
+                      !video.isLoading)
+                    SquaredIconButton(
+                      icon: Icon(
+                        Icons.open_in_new_sharp,
+                        shadows: outlinedIcon(),
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                      tooltip: loc.openInANewWindow,
+                      onPressed: widget.device.openInANewWindow,
+                    ),
+                  if (!isAlternativeWindow && !video.isLoading)
+                    SquaredIconButton(
+                      icon: Icon(
+                        Icons.fullscreen_rounded,
+                        shadows: outlinedIcon(),
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                      tooltip: loc.showFullscreenCamera,
+                      onPressed: () async {
+                        UnityPlayers.openFullscreen(
+                          context,
+                          widget.device,
+                          ptzEnabled: ptzEnabled,
+                        );
+                      },
+                    ),
+                  reloadButton,
+                  CameraViewFitButton(
+                    fit: video.fit,
+                    onChanged: widget.onFitChanged,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ] else ...[
+          const Spacer(),
+          if (states.isHovering) reloadButton,
+        ],
+        settings.kShowVideoStatusLabelOn.value.build(
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: 6.0,
+              end: 6.0,
+              bottom: 6.0,
+            ),
+            child: VideoStatusLabel(video: video, device: widget.device),
+          ),
+          const SizedBox.shrink(),
+          states,
+        ),
+      ],
     );
   }
 }

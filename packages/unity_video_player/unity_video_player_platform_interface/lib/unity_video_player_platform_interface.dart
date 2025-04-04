@@ -30,6 +30,14 @@ enum UnityVideoFit {
       UnityVideoFit.cover => UnityVideoFit.contain
     };
   }
+
+  BoxFit get boxFit {
+    return switch (this) {
+      UnityVideoFit.contain => BoxFit.contain,
+      UnityVideoFit.cover => BoxFit.cover,
+      UnityVideoFit.fill => BoxFit.fill,
+    };
+  }
 }
 
 enum RTSPProtocol {

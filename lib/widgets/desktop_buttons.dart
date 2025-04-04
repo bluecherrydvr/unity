@@ -275,7 +275,8 @@ class _WindowButtonsState extends State<WindowButtons>
                           icon: const Icon(Icons.refresh, size: 20.0),
                           tooltip: loc.refresh,
                         ),
-                      if (widget.flexible != null) widget.flexible!,
+                      if (widget.flexible != null)
+                        Flexible(child: widget.flexible!),
 
                       // Do not render the Window Buttons on web nor macOS nor when
                       // in fullscreen. macOS render the buttons natively.

@@ -24,10 +24,10 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/home_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/multicast_view.dart';
+import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/utils/methods.dart';
-import 'package:bluecherry_client/utils/window.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:bluecherry_client/widgets/error_warning.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
@@ -376,132 +376,75 @@ class __DesktopLivePlayerState extends State<_DesktopLivePlayer> {
           if (mounted) setState(() => _isHovering = false);
         });
       },
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: PTZController(
-              device: widget.device,
-              enabled: ptzEnabled,
-              builder: (context, commands, constraints) {
-                final states = HoverButton.of(context).states;
-                final view = UnityVideoView(
-                  heroTag: widget.device.streamURL,
-                  player: widget.player,
-                  fit: fit,
-                  paneBuilder: (context, player) {
-                    return Stack(
-                      key: _videoViewKey,
-                      children: [
-                        if (commands.isNotEmpty) PTZData(commands: commands),
-                        Positioned.fill(
-                          child: Center(
-                            child: AspectRatio(
-                              aspectRatio:
-                                  player.aspectRatio == 0 ||
-                                          player.aspectRatio == double.infinity
-                                      ? 16 / 9
-                                      : player.aspectRatio,
-                              child: MulticastViewport(device: widget.device),
-                            ),
-                          ),
-                        ),
-                        if (states.isHovering && settings.kShowDebugInfo.value)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'source: ${player.dataSource ?? loc.unknown}'
-                              '\nposition: ${player.currentPos}'
-                              '\nduration ${player.duration}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: Colors.white,
-                                shadows: outlinedText(),
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                );
-                if (ptzEnabled || !isAlternativeWindow) return view;
-                return DragToMoveArea(child: view);
-              },
-            ),
-          ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeInOut,
-            top: _isHovering ? 0.0 : -64.0,
-            left: 0.0,
-            right: 0.0,
-            child: WindowButtons(
-              title: widget.device.fullName,
-              showNavigator: false,
-              forceShow: _isHovering,
-              backgroundColor: theme.colorScheme.surfaceContainer.withValues(
-                alpha: 0.6,
-              ),
-              flexible: Row(
-                spacing: 8.0,
+      child: PTZController(
+        device: widget.device,
+        enabled: ptzEnabled,
+        builder: (context, commands, constraints) {
+          final states = HoverButton.of(context).states;
+          final view = UnityVideoView(
+            heroTag: widget.device.streamURL,
+            player: widget.player,
+            fit: fit,
+            paneBuilder: (context, player) {
+              return Stack(
+                key: _videoViewKey,
                 children: [
-                  if (widget.device.hasPTZ)
-                    SquaredIconButton(
-                      icon: Icon(
-                        Icons.videogame_asset,
-                        color: ptzEnabled ? Colors.white : null,
-                        shadows: outlinedText(),
+                  if (commands.isNotEmpty) PTZData(commands: commands),
+                  Positioned.fill(
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio:
+                            player.aspectRatio == 0 ||
+                                    player.aspectRatio == double.infinity
+                                ? 16 / 9
+                                : player.aspectRatio,
+                        child: MulticastViewport(device: widget.device),
                       ),
-                      tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
-                      onPressed: () => setState(() => ptzEnabled = !ptzEnabled),
                     ),
-                  () {
-                    final isMuted = widget.player.volume == 0.0;
-
-                    return SquaredIconButton(
-                      icon: Icon(
-                        isMuted
-                            ? Icons.volume_mute_rounded
-                            : Icons.volume_up_rounded,
-                        shadows: outlinedText(),
-                        color: Colors.white,
-                      ),
-                      tooltip: isMuted ? loc.enableAudio : loc.disableAudio,
-                      onPressed: () async {
-                        if (isMuted) {
-                          await widget.player.setVolume(1.0);
-                        } else {
-                          await widget.player.setVolume(0.0);
-                        }
-                        setState(() {});
-                      },
-                    );
-                  }(),
-                  if (isDesktopPlatform && !isAlternativeWindow)
-                    SquaredIconButton(
-                      icon: Icon(
-                        Icons.open_in_new,
-                        shadows: outlinedText(),
-                        color: Colors.white,
-                      ),
-                      tooltip: loc.openInANewWindow,
-                      onPressed: widget.device.openInANewWindow,
-                    ),
-                  CameraViewFitButton(
-                    fit: fit,
-                    onChanged: (newFit) => setState(() => fit = newFit),
                   ),
-                  const SizedBox(width: 8.0),
-                  if (_videoViewKey.currentContext != null)
-                    VideoStatusLabel(
-                      device: widget.device,
-                      video: UnityVideoView.of(_videoViewKey.currentContext!),
-                      position: VideoStatusLabelPosition.top,
+                  if (states.isHovering && settings.kShowDebugInfo.value)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'source: ${player.dataSource ?? loc.unknown}'
+                        '\nposition: ${player.currentPos}'
+                        '\nduration ${player.duration}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          shadows: outlinedText(),
+                        ),
+                      ),
                     ),
-                  const SizedBox(width: 8.0),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeInOut,
+                    top: _isHovering ? 0.0 : -64.0,
+                    left: 0.0,
+                    right: 0.0,
+                    height: 40.0,
+                    child: WindowButtons(
+                      title: widget.device.fullName,
+                      showNavigator: false,
+                      forceShow: _isHovering,
+                      backgroundColor: theme.colorScheme.surfaceContainer
+                          .withValues(alpha: 0.6),
+                      flexible: DeviceOptions(
+                        device: widget.device,
+                        onPTZEnabledChanged:
+                            (enabled) => setState(() => ptzEnabled = enabled),
+                        onFitChanged: (newFit) {
+                          setState(() => fit = newFit);
+                        },
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ),
-        ],
+              );
+            },
+          );
+          if (ptzEnabled || !isAlternativeWindow) return view;
+          return DragToMoveArea(child: view);
+        },
       ),
     );
   }

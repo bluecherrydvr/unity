@@ -67,13 +67,7 @@ class UnityVideoPlayerMediaKitInterface extends UnityVideoPlayerInterface {
               videoController: player.mkVideoController,
               mkPlayer: mkPlayer,
               color: color,
-              fit: () {
-                return switch (fit) {
-                  UnityVideoFit.contain => BoxFit.contain,
-                  UnityVideoFit.cover => BoxFit.cover,
-                  UnityVideoFit.fill => BoxFit.fill,
-                };
-              }(),
+              fit: fit.boxFit,
             ),
           ),
         ),

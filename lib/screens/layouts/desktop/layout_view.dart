@@ -432,6 +432,7 @@ class _LayoutOptionsState extends State<LayoutOptions> {
     final isAlternativeWindow = AlternativeWindow.maybeOf(context) != null;
 
     return Row(
+      spacing: 4.0,
       children: [
         if (widget.layout.devices.isNotEmpty)
           ...() {
@@ -492,6 +493,17 @@ class _LayoutOptionsState extends State<LayoutOptions> {
             icon: const Icon(Icons.open_in_new, color: Colors.white),
             tooltip: loc.openInANewWindow,
             onPressed: widget.layout.openInANewWindow,
+          ),
+        if (!isAlternativeWindow)
+          SquaredIconButton(
+            icon: Icon(Icons.fullscreen_rounded, color: Colors.white),
+            tooltip: loc.showFullscreenCamera,
+            onPressed: () async {
+              Navigator.of(context).pushNamed(
+                '/fullscreen-layout',
+                arguments: {'layout': widget.layout},
+              );
+            },
           ),
         // TODO(bdlukaa): "Add" button. Displays a popup with the current
         //                available cameras

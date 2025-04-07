@@ -72,7 +72,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
 
     return Builder(builder: (context) {
       return Stack(children: [
-        const SizedBox.expand(),
+        const Positioned.fill(child: SizedBox.expand()),
         Positioned.fill(
           child: videoBuilder!(
             context,
@@ -80,7 +80,13 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
               color: color,
               child: player.player == null
                   ? const SizedBox.expand()
-                  : VideoPlayer(player.player!),
+                  : FittedBox(
+                      fit: fit.boxFit,
+                      child: SizedBox.fromSize(
+                        size: player.player!.value.size,
+                        child: VideoPlayer(player.player!),
+                      ),
+                    ),
             ),
           ),
         ),

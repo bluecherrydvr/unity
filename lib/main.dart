@@ -26,6 +26,7 @@ import 'package:bluecherry_client/firebase_messaging_background_handler.dart';
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/downloads_provider.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
@@ -392,6 +393,21 @@ class _UnityAppState extends State<UnityApp>
                       device: device,
                       ptzEnabled: ptzEnabled,
                     );
+                  },
+                );
+              }
+
+              if (settings.name == '/fullscreen-layout') {
+                final data = settings.arguments! as Map;
+                final Layout layout = data['layout'];
+
+                return MaterialPageRoute(
+                  settings: RouteSettings(
+                    name: settings.name,
+                    arguments: layout,
+                  ),
+                  builder: (context) {
+                    return AlternativeLayoutView(layout: layout);
                   },
                 );
               }

@@ -56,6 +56,10 @@ class PTZController extends StatefulWidget {
 
   @override
   State<PTZController> createState() => _PTZControllerState();
+
+  static PTZController of(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<PTZController>()!;
+  }
 }
 
 class _PTZControllerState extends State<PTZController> {
@@ -69,7 +73,7 @@ class _PTZControllerState extends State<PTZController> {
     if (!widget.enabled) {
       return HoverButton(
         forceEnabled: true,
-        hitTestBehavior: HitTestBehavior.translucent,
+        hitTestBehavior: HitTestBehavior.deferToChild,
         listenTo: const {ButtonStates.hovering},
         builder:
             (context, _) => LayoutBuilder(
@@ -254,9 +258,7 @@ class PTZToggleButton extends StatelessWidget {
                 ptzEnabled
                     ? enabledColor ?? Colors.white
                     : disabledColor ??
-                        theme.colorScheme.onInverseSurface.withValues(
-                          alpha: 0.86,
-                        ),
+                        theme.colorScheme.onSurface.withValues(alpha: 0.86),
           ),
           tooltip: ptzEnabled ? loc.enabledPTZ : loc.disabledPTZ,
           onPressed: () => onChanged(!ptzEnabled),

@@ -19,9 +19,8 @@
 
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
-import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
+import 'package:bluecherry_client/screens/players/live_player.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
-import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:unity_video_player/unity_video_player.dart';
 
@@ -54,26 +53,6 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black,
-      child: Column(
-        children: [
-          WindowButtons(title: widget.device.name, showNavigator: false),
-          Expanded(
-            child: UnityVideoView(
-              player: _controller,
-              fit: fit,
-              paneBuilder: (context, controller) {
-                return DesktopTileViewport(
-                  controller: controller,
-                  device: widget.device,
-                  onFitChanged: (fit) => setState(() => this.fit = fit),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+    return LivePlayer(player: _controller, device: widget.device);
   }
 }

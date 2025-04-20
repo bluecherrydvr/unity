@@ -19,6 +19,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -96,6 +97,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -196,6 +198,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -267,6 +270,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -411,6 +415,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -445,6 +450,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then

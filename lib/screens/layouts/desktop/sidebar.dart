@@ -25,8 +25,13 @@ const kCompactSidebarConstraints = BoxConstraints(maxWidth: 80.0);
 
 class DesktopSidebar extends StatefulWidget {
   final Widget collapseButton;
+  final bool showLayoutManager;
 
-  const DesktopSidebar({super.key, required this.collapseButton});
+  const DesktopSidebar({
+    super.key,
+    required this.collapseButton,
+    this.showLayoutManager = true,
+  });
 
   @override
   State<DesktopSidebar> createState() => _DesktopSidebarState();
@@ -70,15 +75,16 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LayoutManager(
-              collapseButton: widget.collapseButton,
-              onSearchChanged: (text) {
-                setState(() {
-                  searchQuery = text;
-                  _updateServers();
-                });
-              },
-            ),
+            if (widget.showLayoutManager)
+              LayoutManager(
+                collapseButton: widget.collapseButton,
+                onSearchChanged: (text) {
+                  setState(() {
+                    searchQuery = text;
+                    _updateServers();
+                  });
+                },
+              ),
             if (servers.servers.isEmpty)
               const Expanded(child: NoServers())
             else

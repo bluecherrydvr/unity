@@ -63,6 +63,18 @@ class _AlternativeLayoutViewState extends State<AlternativeLayoutView> {
               Positioned.fill(
                 child: LayoutView(layout: widget.layout, showOptions: false),
               ),
+              /* AnimatedPositioned(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeInOut,
+                top: 40.0,
+                bottom: 0.0,
+                right: _isHovering ? 0.0 : -kSidebarConstraints.maxWidth,
+                width: kSidebarConstraints.maxWidth,
+                child: DesktopSidebar(
+                  collapseButton: SizedBox.shrink(),
+                  showLayoutManager: false,
+                ),
+              ), */
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 320),
                 curve: Curves.easeInOut,
@@ -73,6 +85,7 @@ class _AlternativeLayoutViewState extends State<AlternativeLayoutView> {
                 child: WindowButtons(
                   title: widget.layout.name,
                   showNavigator: false,
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
                   flexible: LayoutOptions(
                     layout: widget.layout,
                     isFullscreen: true,

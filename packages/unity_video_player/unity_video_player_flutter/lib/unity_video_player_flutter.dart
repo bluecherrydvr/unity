@@ -256,10 +256,9 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   double get fps {
-    if (!isPi || player == null) return 0.0;
+    if (!isPi || player == null || kIsWeb) return 0.0;
 
-    return player
-            ?.getMediaInfo()
+    return (player?.getMediaInfo() as dynamic) // Make it web safe
             ?.video
             ?.firstOrNull
             ?.codec

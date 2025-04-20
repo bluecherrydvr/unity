@@ -206,6 +206,7 @@ class LayoutView extends StatelessWidget {
     this.onAccept,
     this.onWillAccept,
     this.onReorder,
+    this.showOptions,
   });
 
   final Layout layout;
@@ -213,6 +214,7 @@ class LayoutView extends StatelessWidget {
   final ValueChanged<Device>? onAccept;
   final DragTargetWillAccept<Device>? onWillAccept;
   final ReorderCallback? onReorder;
+  final bool? showOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +380,7 @@ class LayoutView extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                if (!settings.isImmersiveMode && !isAlternativeWindow)
+                if (showOptions ?? !settings.isImmersiveMode)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: IntrinsicHeight(
@@ -414,8 +416,13 @@ class LayoutView extends StatelessWidget {
 
 class LayoutOptions extends StatefulWidget {
   final Layout layout;
+  final bool isFullscreen;
 
-  const LayoutOptions({super.key, required this.layout});
+  const LayoutOptions({
+    super.key,
+    required this.layout,
+    this.isFullscreen = false,
+  });
 
   @override
   State<LayoutOptions> createState() => _LayoutOptionsState();
@@ -432,6 +439,8 @@ class _LayoutOptionsState extends State<LayoutOptions> {
     final isAlternativeWindow = AlternativeWindow.maybeOf(context) != null;
 
     return Row(
+      spacing: 4.0,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         if (widget.layout.devices.isNotEmpty)
           ...() {
@@ -493,18 +502,30 @@ class _LayoutOptionsState extends State<LayoutOptions> {
             tooltip: loc.openInANewWindow,
             onPressed: widget.layout.openInANewWindow,
           ),
+        if (!isAlternativeWindow && !widget.isFullscreen)
+          SquaredIconButton(
+            icon: Icon(Icons.fullscreen_rounded, color: Colors.white),
+            tooltip: loc.showFullscreenCamera,
+            onPressed: () async {
+              Navigator.of(context).pushNamed(
+                '/fullscreen-layout',
+                arguments: {'layout': widget.layout},
+              );
+            },
+          ),
         // TODO(bdlukaa): "Add" button. Displays a popup with the current
         //                available cameras
-        SquaredIconButton(
-          icon: const Icon(Icons.edit, color: Colors.white),
-          tooltip: loc.editLayout,
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => EditLayoutDialog(layout: widget.layout),
-            );
-          },
-        ),
+        if (!isAlternativeWindow && !widget.isFullscreen)
+          SquaredIconButton(
+            icon: const Icon(Icons.edit, color: Colors.white),
+            tooltip: loc.editLayout,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => EditLayoutDialog(layout: widget.layout),
+              );
+            },
+          ),
         SquaredIconButton(
           icon: const Icon(Icons.import_export, color: Colors.white),
           tooltip: loc.exportLayout,

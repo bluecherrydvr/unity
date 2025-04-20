@@ -17,30 +17,83 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:bluecherry_client/models/layout.dart';
 import 'package:bluecherry_client/screens/layouts/device_grid.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
 import 'package:flutter/material.dart';
 
-class AlternativeLayoutView extends StatelessWidget {
+class AlternativeLayoutView extends StatefulWidget {
   const AlternativeLayoutView({super.key, required this.layout});
 
   final Layout layout;
 
   @override
+  State<AlternativeLayoutView> createState() => _AlternativeLayoutViewState();
+}
+
+class _AlternativeLayoutViewState extends State<AlternativeLayoutView> {
+  bool _isHovering = false;
+  Timer? _hoverTimer;
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black,
-      child: SafeArea(
-        child: Column(
-          children: [
-            WindowButtons(
-              title: layout.name,
-              showNavigator: false,
-              flexible: LayoutOptions(layout: layout),
-            ),
-            Expanded(child: LayoutView(layout: layout)),
-          ],
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.opaque,
+      onEnter: (_) {
+        if (mounted) setState(() => _isHovering = true);
+      },
+      onExit: (d) {
+        _hoverTimer?.cancel();
+        if (mounted) setState(() => _isHovering = false);
+      },
+      onHover: (event) {
+        if (mounted) setState(() => _isHovering = true);
+        _hoverTimer?.cancel();
+        _hoverTimer = Timer(const Duration(milliseconds: 2000), () {
+          if (mounted) setState(() => _isHovering = false);
+        });
+      },
+      child: Material(
+        color: Colors.black,
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: LayoutView(layout: widget.layout, showOptions: false),
+              ),
+              /* AnimatedPositioned(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeInOut,
+                top: 40.0,
+                bottom: 0.0,
+                right: _isHovering ? 0.0 : -kSidebarConstraints.maxWidth,
+                width: kSidebarConstraints.maxWidth,
+                child: DesktopSidebar(
+                  collapseButton: SizedBox.shrink(),
+                  showLayoutManager: false,
+                ),
+              ), */
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeInOut,
+                top: _isHovering ? 0.0 : -64.0,
+                left: 0.0,
+                right: 0.0,
+                height: 40.0,
+                child: WindowButtons(
+                  title: widget.layout.name,
+                  showNavigator: false,
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                  flexible: LayoutOptions(
+                    layout: widget.layout,
+                    isFullscreen: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

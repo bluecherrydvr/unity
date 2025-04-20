@@ -19,6 +19,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -96,6 +97,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -196,6 +198,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -267,6 +270,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
@@ -410,12 +414,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
 
-      - name: Extract Build Info
-        run: |
-          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
-          if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
-            echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
-          fi
+      # - name: Extract Build Info
+      #   shell: bash
+      #   run: |
+      #     echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+      #     if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then
+      #       echo "BUILD_NAME=3.0.0-bleeding_edge+${{ github.run_number }}" >> $GITHUB_ENV
+      #     fi
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
@@ -432,7 +437,7 @@ jobs:
 
       - name: Build
         run: |
-          flutterpi_tool build --release --cpu=pi4 --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
+          flutterpi_tool build --release --cpu=pi4
 
   build_web:
     name: Bluecherry Web
@@ -445,6 +450,7 @@ jobs:
           submodules: recursive
 
       - name: Extract Build Info
+        shell: bash
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/tags/bleeding_edge" ]]; then

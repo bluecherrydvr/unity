@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta23</title>
+            <description>Secondary screens, oldest event and crash fixes</description>
+            <pubDate>Mon, 28 Apr 2025</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta22</title>
             <description>Download Events in bulk and Layout Improvements</description>
             <pubDate>Sun, 19 Jan 2025</pubDate>

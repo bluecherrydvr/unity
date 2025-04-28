@@ -1,5 +1,5 @@
 Name:       bluecherrydvr
-Version:    3.0.0_beta22
+Version:    3.0.0_beta23
 Release:    1
 Summary:    Bluecherry client written in Flutter.
 License:    EULA

@@ -94,6 +94,10 @@ Future<void> main(List<String> args) async {
           runApp(const SplashScreen());
         }
 
+        if (kForceMobile) {
+          debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        }
+
         DevHttpOverrides.configureCertificates();
         API.initialize();
         await UnityVideoPlayerInterface.instance.initialize();

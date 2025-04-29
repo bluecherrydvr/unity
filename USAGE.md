@@ -10,7 +10,7 @@ This document explains how to use the Bluecherry Client and list all its feature
 - [Connecting to the server](#connecting-to-the-server)
 - [Viewing cameras](#viewing-cameras)
   - [PTZ](#ptz)
-  - [`beta` Matrix zoom](#beta-matrix-zoom)
+  - [Matrix zoom](#matrix-zoom)
 - [Layouts](#layouts)
   - [Multiple Layout](#multiple-layout)
   - [Compact layout](#compact-layout)
@@ -89,11 +89,9 @@ The PTZ movements are scheduled and will be executed after the previous movement
 > [!Important]
 > PTZ zoom is not supported on mobile devices. See [this issue](https://github.com/bluecherrydvr/unity/issues/107).
 
-## [beta] Matrix zoom
+## Matrix zoom
 
 The matrix view is a feature that allows you to zoom into a camera inside a pre defined grid.  This is useful in the event you have one stream that provides a grid of cameras (4x4 for example). This works better for cameras with larger resolutions
-
-To enable it, go to `Settings` -> `Updates` -> `Beta Features` -> `Matrix view zoom`.
 
 ![Matrix view](./screenshots/cameras/matrix-zoom.gif)
 

@@ -22,8 +22,12 @@ void main() async {
   print('Running pub upgrade in all packages:');
   await Future.wait(packagePaths.map(_runPubUpgrade));
 
+  print('Running dart format in all packages:');
+  await Future.wait(packagePaths.map(_runDartFormat));
+
   await _runPubGet('.');
   await _runPubUpgrade('.');
+  await _runDartFormat('.');
 
   print('All done');
 }
@@ -55,6 +59,25 @@ Future<void> _runPubUpgrade(String packagePath) async {
   final process = await Process.start(
     'flutter',
     ['pub', 'upgrade'],
+    workingDirectory: packagePath,
+    runInShell: true,
+  );
+  process.stdout.transform(utf8.decoder).listen(printLine);
+  process.stderr.transform(utf8.decoder).listen(printLine);
+  final exitCode = await process.exitCode;
+  if (exitCode != 0) {
+    throw Exception('Failed to run pub upgrade in $packagePath');
+  }
+}
+
+Future<void> _runDartFormat(String packagePath) async {
+  void printLine(String line) {
+    if (line.isNotEmpty) print('[$packagePath] $line');
+  }
+
+  final process = await Process.start(
+    'dart',
+    ['format', '.'],
     workingDirectory: packagePath,
     runInShell: true,
   );

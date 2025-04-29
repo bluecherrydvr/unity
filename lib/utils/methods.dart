@@ -74,6 +74,10 @@ Widget wrapExpandedIf(bool condition, {required Widget child}) {
   return child;
 }
 
+/// Whether the app should force mobile mode. This is useful for testing mobile
+/// specific UI elements on a desktop platform.
+const kForceMobile = bool.fromEnvironment('FORCE_MOBILE', defaultValue: false);
+
 /// Returns true if the app is running on a desktop platform. This is useful
 /// for determining whether to show desktop-specific UI elements.
 ///

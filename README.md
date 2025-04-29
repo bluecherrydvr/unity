@@ -45,7 +45,7 @@
 | [x86_64 `.apk`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta23/bluecherry-android-x86_64-release.apk)      |                                                                           | 🚧 **SOON** ~~Microsoft Store~~                                                                                      | [Raw Executable `.tar.gz`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta23/bluecherry-linux-x86_64.tar.gz) |                                                                           |
 | 🚧 **SOON** ~~Play Store~~                                                                                                         |                                                                           |                                                                                                                      | [Fedora/Red Hat Linux `.rpm`](https://github.com/bluecherrydvr/unity/releases/download/v3.0.0-beta23/bluecherry-linux-x86_64.rpm) |                                                                           |
 
-Or download the latest release [here](https://github.com/bluecherrydvr/unity/releases/tag/bleeding_edge)*.
+Or download the latest release [here](https://github.com/bluecherrydvr/unity/releases/tag/bleeding_edge)\*.
 
 ### Installation
 
@@ -174,13 +174,13 @@ We support multiple platforms and each platform uses its own rendering backend.
 | ------------ | ----------------- | --------------- |
 | Android      | MPV               | media_kit       |
 | iOS          | MPV               | media_kit       |
-| Windows      | MPV               | media_kit       |
-| MacOS        | MPV               | media_kit       |
-| Web          | HTML5             | fvp             |
+| Windows      | MDK               | fvp             |
+| MacOS        | MDK               | fvp             |
+| Web          | HTML5             | media_kit       |
 | Linux        | MDK               | fvp             |
 | Raspberry Pi | MDK               | fvp             |
 
-MDK is used for Linux and Raspberry Pi because MPV has shown to be unstable on these platforms, causing crashes. Additionally, `fvp` doesn't require the user to install any additional dependencies.
+MDK is used for Desktop platforms because MPV has shown to be unstable on these platforms, causing crashes. Additionally, `fvp` doesn't require the user to install any additional dependencies on Linux and Raspberry Pi.
 
 ### Build
 
@@ -220,4 +220,12 @@ When running on debug, you must disable the CORS policy in your browser. Note th
 
 ```bash
 flutter run -d chrome --web-browser-flag "--disable-web-security"
+```
+
+### Running and debugging
+
+If running on a desktop platform, it is possible to emulate a mobile platform by passing the `--dart-define="FORCE_MOBILE=true"` argument when running. This will force the app to adapt itself to the mobile layout. This will remove any desktop-specific features and will make the app look like a mobile app.
+
+```bash
+flutter run -d [windows|linux|macos] --dart-define="FORCE_MOBILE=true"
 ```

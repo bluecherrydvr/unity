@@ -21,6 +21,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
+import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/screens/layouts/desktop/viewport.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
@@ -143,7 +144,20 @@ class VideoInfoCard extends StatelessWidget {
                     .map<List<Device>>((l) => l.devices)
                     .reduce((a, b) => a + b)
                     .firstWhereOrNull((d) => d.uuid == uuid);
-                if (device != null) view.removeDevices([device]);
+                if (device != null) {
+                  debugPrint('Removing device: ${device.name}');
+                  view.removeDevices([device]);
+                } else {
+                  debugPrint(
+                    'Device with UUID $uuid not found in desktop layouts.',
+                  );
+
+                  final mobileView = context.read<MobileViewProvider>();
+                  final device = Device.fromUUID(uuid);
+                  if (device != null) {
+                    mobileView.removeDevice(device);
+                  }
+                }
               },
             ),
           ],

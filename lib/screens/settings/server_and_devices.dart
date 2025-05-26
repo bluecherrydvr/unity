@@ -295,7 +295,7 @@ class StreamingSettings extends StatelessWidget {
           ),
           title: const Text('Enable backwards compatibility'),
           subtitle: const Text(
-            'This option enables backwards compatibility for rendering streams. '
+            'Enable more compatible rendering for older camera encoders and codecs. '
             'Restart the app to apply the changes.',
           ),
           contentPadding: DesktopSettings.horizontalPadding,

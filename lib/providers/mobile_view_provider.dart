@@ -171,6 +171,23 @@ class MobileViewProvider extends UnityProvider {
     notifyListeners();
   }
 
+  Future<void> removeDevice(Device device) async {
+    // Find the tab & index of the device to remove.
+    final entries =
+        devices.entries.where((e) => e.value.contains(device)).toList();
+    if (entries.isEmpty) {
+      debugPrint('Device not found in any tab.');
+      return;
+    }
+    for (final entry in entries) {
+      final tab = entry.key;
+      final index = entry.value.indexOf(device);
+      if (index != -1) {
+        await remove(tab, index);
+      }
+    }
+  }
+
   /// Saves current layout/order of [Device]s to cache using `package:hive`.
   /// Pass [notifyListeners] as `false` to prevent redundant redraws.
   @override

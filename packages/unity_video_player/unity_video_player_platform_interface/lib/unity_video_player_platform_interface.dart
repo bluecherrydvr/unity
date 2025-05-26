@@ -65,7 +65,7 @@ abstract class UnityVideoPlayerInterface extends PlatformInterface {
   static bool wakelockEnabled = true;
 
   /// Called to initialize any resources before using it
-  Future<void> initialize();
+  Future<void> initialize([dynamic arguments]);
 
   /// Creates a player
   UnityVideoPlayer createPlayer({

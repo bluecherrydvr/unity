@@ -96,13 +96,22 @@ Future<void> main(List<String> args) async {
 
         DevHttpOverrides.configureCertificates();
         API.initialize();
-        await UnityVideoPlayerInterface.instance.initialize();
+        await UnityVideoPlayerInterface.instance.initialize({
+          if (SettingsProvider.instance.kBackwardsRenderingCompatibility.value)
+            'forceFFmpeg': true,
+        });
 
         logging.writeLogToFile('Opening app with $args', print: true);
         logging.writeLogToFile(
           'Running on ${UnityVideoPlayerInterface.instance.runtimeType} video playback',
           print: true,
         );
+        if (SettingsProvider.instance.kBackwardsRenderingCompatibility.value) {
+          logging.writeLogToFile(
+            'Using FFmpeg for video decoding',
+            print: true,
+          );
+        }
 
         // We use [Future.wait] to decrease startup time.
         //

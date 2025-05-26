@@ -310,6 +310,10 @@ class SettingsProvider extends UnityProvider {
     def: true,
     key: 'streaming.use_hardware_decoding',
   );
+  final kBackwardsRenderingCompatibility = _SettingsOption<bool>(
+    def: false,
+    key: 'streaming.backwards_rendering_compatibility',
+  );
 
   // Devices Settings
   final kListOfflineDevices = _SettingsOption<bool>(
@@ -645,6 +649,7 @@ class SettingsProvider extends UnityProvider {
     kLateStreamBehavior,
     kReloadTimedOutStreams,
     kUseHardwareDecoding,
+    kBackwardsRenderingCompatibility,
     kListOfflineDevices,
     kInitialDevicesVolume,
     kShowCameraNameOn,

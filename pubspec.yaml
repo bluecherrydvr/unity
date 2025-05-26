@@ -51,17 +51,17 @@ dependencies:
 
   path: ^1.9.0 # Pinned from flutter_test sdk
   path_provider: ^2.1.2
-  file_picker: ^9.0.2
+  file_picker: ^10.1.9
   safe_local_storage: ^1.0.2 # This is required because media_kit is still locked to this version. When bumped in the upstream package, this can be removed
   flutter_secure_storage: ^8.1.0 # Locked to this version because of https://github.com/juliansteenbakker/flutter_secure_storage/issues/634
   
-  permission_handler: ^11.4.0
+  permission_handler: ^12.0.0+1
   uuid: ^4.3.3
 
   # Desktop
   window_manager: ^0.4.2
   titlebar_buttons: ^1.0.0
-  launch_at_startup: ^0.4.0
+  launch_at_startup: ^0.5.1
   # tray_manager: ^0.2.4
   unity_multi_window:
     path: packages/unity_multi_window/

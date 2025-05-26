@@ -22,11 +22,13 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
   }
 
   @override
-  Future<void> initialize() async {
+  Future<void> initialize([dynamic arguments]) async {
     if (isPi) {
       FlutterpiVideoPlayer.registerWith();
     } else {
+      final forceFFmpeg = arguments is Map && arguments['forceFFmpeg'] == true;
       fvp.registerWith(options: {
+        if (forceFFmpeg) 'video.decoders': ['FFmpeg'],
         'player': {
           'avformat.analyzeduration': '10000',
           'avformat.probesize': '1000',

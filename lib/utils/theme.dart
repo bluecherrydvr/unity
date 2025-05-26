@@ -210,7 +210,7 @@ ThemeData createTheme({required Brightness brightness}) {
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     tooltipTheme: TooltipThemeData(
-      constraints: BoxConstraints(minHeight: isMobile ? 32.0 : 64.0),
+      constraints: BoxConstraints(minWidth: isMobile ? 32.0 : 64.0),
       verticalOffset: isDesktop ? 28.0 : null,
       preferBelow: isDesktop ? true : null,
     ),

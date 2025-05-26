@@ -287,6 +287,26 @@ class StreamingSettings extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8.0),
+        CheckboxListTile.adaptive(
+          secondary: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: theme.iconTheme.color,
+            child: const Icon(Icons.history),
+          ),
+          title: const Text('Enable backwards compatibility'),
+          subtitle: const Text(
+            'This option enables backwards compatibility for rendering streams. '
+            'Restart the app to apply the changes.',
+          ),
+          contentPadding: DesktopSettings.horizontalPadding,
+          value: settings.kBackwardsRenderingCompatibility.value,
+          onChanged: (v) {
+            if (v != null) {
+              settings.kBackwardsRenderingCompatibility.value = v;
+            }
+          },
+        ),
+        const SizedBox(height: 8.0),
         if (settings.kShowDebugInfo.value) ...[
           CheckboxListTile.adaptive(
             secondary: CircleAvatar(

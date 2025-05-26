@@ -524,6 +524,8 @@ class AreaMagnificationSettings extends StatelessWidget {
         ),
         OptionsChooserTile<MatrixType>(
           title: loc.defaultMatrixSize,
+          description:
+              'Double tap on the view to change the magnification area size',
           icon: Icons.view_quilt,
           value: settings.kMatrixSize.value,
           values: MatrixType.values.map((size) {

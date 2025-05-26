@@ -93,7 +93,7 @@ class DesktopSettings extends StatelessWidget {
                 child: DropdownButtonHideUnderline(
                   child: Theme(
                     data: theme.copyWith(
-                      cardTheme: CardTheme(
+                      cardTheme: CardThemeData(
                         color: ElevationOverlay.applySurfaceTint(
                           theme.colorScheme.surface,
                           theme.colorScheme.surfaceTint,

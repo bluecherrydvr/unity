@@ -75,7 +75,7 @@ Future<void> migrate(SafeLocalStorage from, FlutterSecureStorage to) async {
     }
 
     try {
-      await from.delete();
+      File(from.path).deleteSync();
     } catch (_) {}
   } catch (error, stackTrace) {
     handleError(

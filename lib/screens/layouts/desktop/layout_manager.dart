@@ -421,7 +421,6 @@ class _NewLayoutDialogState extends State<NewLayoutDialog> {
     final loc = AppLocalizations.of(context);
     final result = await FilePicker.platform.pickFiles(
       allowedExtensions: ['xml'],
-      allowCompression: false,
       allowMultiple: true,
       type: FileType.custom,
       dialogTitle: loc.importLayout,

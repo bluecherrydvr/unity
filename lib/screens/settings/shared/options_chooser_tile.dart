@@ -80,7 +80,9 @@ class OptionsChooserTile<T> extends StatelessWidget {
                 end: 16.0,
               ),
               value: option.value,
+              // ignore: deprecated_member_use
               groupValue: value,
+              // ignore: deprecated_member_use
               onChanged:
                   option.enabled && onChanged != null
                       ? (value) {

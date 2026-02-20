@@ -418,6 +418,7 @@ abstract class UnityVideoPlayer with ChangeNotifier {
   Future<void> setMultipleDataSource(
     Iterable<String> url, {
     bool autoPlay = true,
+    Map<String, String>? headers,
   });
   Future<void> jumpToIndex(int index);
 

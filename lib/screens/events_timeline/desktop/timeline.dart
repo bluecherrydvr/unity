@@ -63,6 +63,7 @@ class TimelineTile {
     videoController.setMultipleDataSource(
       _events.map((event) => event.videoUrl),
       autoPlay: false,
+      headers: device.server.headers,
     );
   }
 

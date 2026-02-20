@@ -327,10 +327,11 @@ class UnityVideoPlayerMediaKit extends UnityVideoPlayer {
   Future<void> setMultipleDataSource(
     Iterable<String> url, {
     bool autoPlay = true,
+    Map<String, String>? headers,
   }) {
     return ensureVideoControllerInitialized((controller) async {
       await mkPlayer.open(
-        Playlist(url.map(Media.new).toList()),
+        Playlist(url.map((u) => Media(u, httpHeaders: headers)).toList()),
         play: autoPlay,
       );
     });

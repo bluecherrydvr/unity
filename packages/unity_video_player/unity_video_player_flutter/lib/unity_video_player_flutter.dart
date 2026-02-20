@@ -225,15 +225,18 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   }
 
   var _multipleDataSources = <String>[];
+  Map<String, String>? _multipleDataSourceHeaders;
 
   @override
   Future<void> setMultipleDataSource(
     Iterable<String> url, {
     bool autoPlay = true,
     int startIndex = 0,
+    Map<String, String>? headers,
   }) {
     _multipleDataSources = url.toList();
-    return setDataSource(url.elementAt(startIndex), autoPlay: autoPlay);
+    _multipleDataSourceHeaders = headers;
+    return setDataSource(url.elementAt(startIndex), autoPlay: autoPlay, headers: headers);
   }
 
   @override
@@ -242,7 +245,7 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
       return Future.error('Index out of range');
     }
 
-    return setDataSource(_multipleDataSources[index]);
+    return setDataSource(_multipleDataSources[index], headers: _multipleDataSourceHeaders);
   }
 
   // Volume in media kit goes from 0 to 100

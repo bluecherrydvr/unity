@@ -3,6 +3,11 @@
     <channel>
         <title>Bluecherry - Appcast</title>
         <item>
+            <title>Version 3.0.0-beta24</title>
+            <description>Pi Build Fixes</description>
+            <pubDate>Sun, 22 Feb 2026</pubDate>
+        </item>
+        <item>
             <title>Version 3.0.0-beta23</title>
             <description>Secondary screens, oldest event and crash fixes</description>
             <pubDate>Mon, 28 Apr 2025</pubDate>

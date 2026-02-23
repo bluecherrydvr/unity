@@ -426,6 +426,7 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
+          flutter-version: 3.29.1
           cache: false
 
       - name: Initiate Flutter

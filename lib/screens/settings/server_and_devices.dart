@@ -293,9 +293,14 @@ class StreamingSettings extends StatelessWidget {
             foregroundColor: theme.iconTheme.color,
             child: const Icon(Icons.history),
           ),
-          title: const Text('Enable backwards compatibility'),
+          title: const Text(
+            'Enable backwards compatibility (software decoding)',
+          ),
           subtitle: const Text(
-            'Enable more compatible rendering for older camera encoders and codecs. '
+            'Use software decoding instead of hardware acceleration. '
+            'Enable this if the app crashes or freezes while playing video, '
+            'including on systems with certain GPU drivers. '
+            'It is enabled automatically when a previous run crashed. '
             'Restart the app to apply the changes.',
           ),
           contentPadding: DesktopSettings.horizontalPadding,

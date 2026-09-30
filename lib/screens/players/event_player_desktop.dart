@@ -219,8 +219,8 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Text(
-                                            'source: ${player.dataSource ?? loc.unknown}'
                                             'source: ${sanitizeSensitiveData(player.dataSource ?? loc.unknown)}'
+                                            '\nresolution: ${player.resolution == null ? loc.unknown : '${player.resolution!.width.toInt()}x${player.resolution!.height.toInt()}'}'
                                             '\nposition: ${player.currentPos}'
                                             '\nduration ${player.duration}'
                                             '\nbuffer ${player.currentBuffer}',

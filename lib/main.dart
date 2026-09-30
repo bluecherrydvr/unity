@@ -68,11 +68,44 @@ import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+/// Tracks whether the last run exited gracefully.
+///
+/// A native crash (e.g. an access violation from hardware-decoding texture
+/// sharing in `flutter_windows.dll`) kills the process without running any
+/// cleanup, so the flag stays `false` and the next start can fall back to
+/// software decoding instead of crashing again.
 const kCleanExitKey = 'app.clean_exit';
+
+/// Enables software decoding when the previous desktop run crashed.
+///
 /// See [kCleanExitKey]. This only runs on desktop, where the flag is
+/// maintained; mobile OS process kills are routine and must not flip the
+/// setting.
 Future<void> recoverFromAbnormalTermination() async {
+  if (kIsWeb || !isDesktopPlatform) return;
+  try {
     final previousExit = await secureStorage.read(key: kCleanExitKey);
+    final settings = SettingsProvider.instance;
+    if (previousExit == 'false' &&
+        !settings.kBackwardsRenderingCompatibility.value) {
+      settings.kBackwardsRenderingCompatibility.value = true;
+      logging.writeLogToFile(
+        'Previous run did not exit cleanly. Enabled backwards compatibility '
+        '(software decoding) to avoid repeated native crashes.',
+        print: true,
+      );
+    }
+    // Mark this run as unclean until it exits gracefully.
     await secureStorage.write(key: kCleanExitKey, value: 'false');
+  } catch (error, stackTrace) {
+    logging.handleError(
+      error,
+      stackTrace,
+      'Failed to check previous clean exit flag',
+    );
+  }
+}
+
 Future<void> main(List<String> args) async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -108,6 +141,8 @@ Future<void> main(List<String> args) async {
         await UnityVideoPlayerInterface.instance.initialize({
           if (SettingsProvider.instance.kBackwardsRenderingCompatibility.value)
             'forceFFmpeg': true,
+          'allowUntrustedCertificates':
+              SettingsProvider.instance.kAllowUntrustedCertificates.value,
         });
 
         logging.writeLogToFile('Opening app with $args', print: true);
@@ -320,8 +355,16 @@ class _UnityAppState extends State<UnityApp>
           }
         }
       });
+      try {
         // The run is ending gracefully; see [kCleanExitKey].
         await secureStorage.write(key: kCleanExitKey, value: 'true');
+      } catch (error, stackTrace) {
+        logging.handleError(
+          error,
+          stackTrace,
+          'Failed to mark clean exit flag',
+        );
+      }
       windowManager.destroy();
     }
   }

@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
+import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/sanitize.dart';
@@ -74,7 +75,23 @@ class UnityPlayers with ChangeNotifier {
   static bool isReloadable(String deviceUUID) =>
       _reloadable.contains(deviceUUID);
 
+  /// Propagates a substream choice to the canonical server copy of [device].
+  ///
+  /// Layout and view copies are replaced by the callers
+  /// ([LayoutsProvider.updateDevice], [MobileViewProvider.replace]); the
+  /// canonical copy in [Server.devices] would otherwise keep the old choice
+  /// and server refreshes (see [Device.merge]) would revert it.
   static void syncSubstreamChoice(Device device) {
+    final server = device.server;
+    final index = server.devices.indexWhere((d) => d.id == device.id);
+    if (index != -1) {
+      server.devices[index] = server.devices[index].copyWith(
+        substreamEnabled: device.substreamEnabled,
+        useSubstream: device.useSubstream,
+      );
+    }
+  }
+
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(
     Device device, [
@@ -85,7 +102,6 @@ class UnityPlayers with ChangeNotifier {
 
     Future<void> setSource() async {
       if (device.url != null) {
-        debugPrint('Initializing ${device.url}');
         debugPrint('Initializing ${sanitizeSensitiveData(device.url ?? '')}');
         await controller.setDataSource(device.url!);
       } else {
@@ -100,16 +116,13 @@ class UnityPlayers with ChangeNotifier {
           String source,
           Future<String> fallback,
         ) = switch (streamingType) {
-          StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
           StreamingType.rtsp => (device.liveRtspURL, device.getHLSUrl()),
           StreamingType.hls => (
             await device.getHLSUrl(),
-            Future.value(device.rtspURL),
             Future.value(device.liveRtspURL),
           ),
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };
-        debugPrint('Initializing $source');
         debugPrint('Initializing ${sanitizeSensitiveData(source)}');
         controller.fallbackUrl = fallback;
         await controller.setDataSource(

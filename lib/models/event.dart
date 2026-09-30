@@ -22,6 +22,7 @@ import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/widgets.dart';
 
 /// An [Event] received from the [Server].
@@ -206,18 +207,16 @@ class Event {
     }
   }
 
+  /// Media URL without embedded credentials.
+  ///
+  /// The server may return a `mediaURL` containing cleartext credentials in
+  /// its authority (`https://<login>:<password>@<host>/...`). Players
+  /// authenticate through [Server.headers] instead, so credentials are
+  /// stripped here to avoid leaking them into player errors and logs.
   String get mediaPath {
-    return '${mediaURL!.scheme}://'
-        // '${Uri.encodeComponent(server.login)}'
-        // ':'
-        // '${Uri.encodeComponent(server.password)}'
-        // '@'
-        '${mediaURL!.host}'
-        ':'
-        '${mediaURL!.port}'
-        '${mediaURL!.path}'
-        '?'
-        '${mediaURL!.query}';
+    final uri = mediaURL;
+    if (uri == null) return '';
+    return stripUrlCredentials(uri).toString();
   }
 
   Event copyWith({

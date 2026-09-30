@@ -19,6 +19,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -30,12 +31,15 @@ class ErrorWarning extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    // Player errors may contain the stream URL, which can embed cleartext
+    // credentials. Never display or copy the raw message.
+    final sanitizedMessage = sanitizeSensitiveData(message);
     return GestureDetector(
       onLongPress: () {
-        Clipboard.setData(ClipboardData(text: message));
+        Clipboard.setData(ClipboardData(text: sanitizedMessage));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(loc.copiedToClipboard(message)),
+            content: Text(loc.copiedToClipboard(sanitizedMessage)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -53,7 +57,7 @@ class ErrorWarning extends StatelessWidget {
               maxLines: 1,
               minFontSize: 6.0,
             ),
-            if (message.isNotEmpty) ...[
+            if (sanitizedMessage.isNotEmpty) ...[
               const FractionallySizedBox(
                 widthFactor: 0.5,
                 child: Divider(color: Colors.white),
@@ -61,7 +65,7 @@ class ErrorWarning extends StatelessWidget {
               const SizedBox(height: 8.0),
               Flexible(
                 child: Text(
-                  message,
+                  sanitizedMessage,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white, fontSize: 12.0),
                   overflow: TextOverflow.fade,

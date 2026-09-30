@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as path;
@@ -149,7 +150,7 @@ Future<File> errorLog(LogType type, String message) async {
 
   final now = DateTime.now();
   final timestamp = now.toIso8601String();
-  final log = '$timestamp: $message\n';
+  final log = '$timestamp: ${sanitizeSensitiveData(message)}\n';
 
   await file.writeAsString(log, mode: FileMode.append);
 

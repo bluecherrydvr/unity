@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:unity_video_player/unity_video_player.dart';
@@ -84,6 +85,7 @@ class UnityPlayers with ChangeNotifier {
     Future<void> setSource() async {
       if (device.url != null) {
         debugPrint('Initializing ${device.url}');
+        debugPrint('Initializing ${sanitizeSensitiveData(device.url ?? '')}');
         await controller.setDataSource(device.url!);
       } else {
         var streamingType =
@@ -105,6 +107,7 @@ class UnityPlayers with ChangeNotifier {
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };
         debugPrint('Initializing $source');
+        debugPrint('Initializing ${sanitizeSensitiveData(source)}');
         controller.fallbackUrl = fallback;
         await controller.setDataSource(
           source,

@@ -76,7 +76,6 @@ Future<void> main(List<String> args) async {
     await initializeDateFormatting();
     await configureStorage();
     await SettingsProvider.ensureInitialized();
-    await recoverFromAbnormalTermination();
     // Requires initialized settings (privacy opt-in) and never throws.
     await initCrashReporting();
 

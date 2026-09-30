@@ -110,6 +110,17 @@ class Device {
   /// If not provided, defaults to [Server.preferredStreamingType]
   final StreamingType? preferredStreamingType;
 
+  /// Whether the server exposed a substream rendition for live view of this
+  /// device (parsed from the server's `substream_enabled` field).
+  final bool substreamEnabled;
+
+  /// Whether to play the substream rendition instead of the main stream.
+  ///
+  /// This is a user choice, persisted with layouts and kept across server
+  /// refreshes (see [merge]). It only takes effect when [substreamEnabled]
+  /// is true; see [useSubstreamRendition].
+  final bool useSubstream;
+
   /// The external device data.
   final ExternalDeviceData? externalData;
 
@@ -147,6 +158,8 @@ class Device {
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
+    this.substreamEnabled = false,
+    this.useSubstream = false,
   });
 
   /// Creates a device with fake values.
@@ -163,6 +176,8 @@ class Device {
     this.overlays = const [],
     this.preferredStreamingType,
     this.externalData,
+    this.substreamEnabled = false,
+    this.useSubstream = false,
   }) : server = Server.dump(),
        matrixType = matrixType ?? SettingsProvider.instance.kMatrixSize.value;
 
@@ -217,7 +232,18 @@ class Device {
           map['oldest_recording'] != null
               ? DateTime.tryParse(map['oldest_recording'])
               : null,
+      substreamEnabled: parseSubstreamEnabled(map['substream_enabled']),
     );
+  }
+
+  /// Parses the server's `substream_enabled` field, which is reported as
+  /// `'1'`/`'0'` strings but is also accepted as numbers and booleans.
+  static bool parseSubstreamEnabled(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value == null) return false;
+    final text = '$value'.toLowerCase();
+    return text == '1' || text == 'true' || text == 'on';
   }
 
   /// Returns the stream URL for this device.
@@ -240,15 +266,78 @@ class Device {
   String get rtspURL {
     if (url != null) return url!;
 
+    return buildRtspUrl(
+      login: server.login,
+      password: server.password,
+      host: server.ip,
+      port: server.rtspPort,
+      deviceId: id,
+    );
+  }
+
+  /// RTSP URL for the main (full-size) rendition.
+  ///
+  /// See https://github.com/bluecherrydvr/bluecherry-apps/issues/428. Servers
+  /// without rendition support ignore the suffix and serve current behavior.
+  String get rtspMainURL {
+    if (url != null) return url!;
+
+    return buildRtspUrl(
+      login: server.login,
+      password: server.password,
+      host: server.ip,
+      port: server.rtspPort,
+      deviceId: id,
+      rendition: 'main',
+    );
+  }
+
+  /// RTSP URL for the substream (low-resolution) rendition.
+  ///
+  /// See https://github.com/bluecherrydvr/bluecherry-apps/issues/428. Servers
+  /// without rendition support ignore the suffix and serve current behavior.
+  String get rtspSubURL {
+    if (url != null) return url!;
+
+    return buildRtspUrl(
+      login: server.login,
+      password: server.password,
+      host: server.ip,
+      port: server.rtspPort,
+      deviceId: id,
+      rendition: 'sub',
+    );
+  }
+
+  /// Whether the substream rendition is in effect for live view.
+  bool get useSubstreamRendition => useSubstream && substreamEnabled;
+
+  /// RTSP URL for the currently selected rendition.
+  String get liveRtspURL => useSubstreamRendition ? rtspSubURL : rtspURL;
+
+  /// Builds a server-proxied RTSP URL for a device.
+  ///
+  /// When [rendition] is `'sub'` or `'main'`, the matching server rendition
+  /// is requested. Servers without rendition support ignore the suffix.
+  static String buildRtspUrl({
+    required String login,
+    required String password,
+    required String host,
+    required int port,
+    required int deviceId,
+    String? rendition,
+  }) {
+    final path =
+        rendition == null ? 'live/$deviceId' : 'live/$deviceId/$rendition';
     return Uri(
       scheme: 'rtsp',
       userInfo:
-          '${Uri.encodeComponent(server.login)}'
+          '${Uri.encodeComponent(login)}'
           ':'
-          '${Uri.encodeComponent(server.password)}',
-      host: server.ip,
-      port: server.rtspPort,
-      path: uri,
+          '${Uri.encodeComponent(password)}',
+      host: host,
+      port: port,
+      path: path,
     ).toString();
   }
 
@@ -291,6 +380,9 @@ class Device {
       'id': device.id.toString(),
       'hostname': device.server.ip,
       'port': device.server.port.toString(),
+      // Servers without rendition support ignore unknown parameters and
+      // return the standard playlist, so this degrades gracefully.
+      if (device.useSubstreamRendition) 'stream': 'sub',
     };
 
     final uri = Uri(
@@ -362,7 +454,9 @@ class Device {
         other.overlays == overlays &&
         other.preferredStreamingType == preferredStreamingType &&
         other.externalData == externalData &&
-        other.volume == volume;
+        other.volume == volume &&
+        other.substreamEnabled == substreamEnabled &&
+        other.useSubstream == useSubstream;
   }
 
   @override
@@ -379,7 +473,9 @@ class Device {
         overlays.hashCode ^
         preferredStreamingType.hashCode ^
         externalData.hashCode ^
-        volume.hashCode;
+        volume.hashCode ^
+        substreamEnabled.hashCode ^
+        useSubstream.hashCode;
   }
 
   Device copyWith({
@@ -396,6 +492,8 @@ class Device {
     StreamingType? preferredStreamingType,
     ExternalDeviceData? externalData,
     double? volume,
+    bool? substreamEnabled,
+    bool? useSubstream,
   }) {
     return Device(
       name: name ?? this.name,
@@ -411,6 +509,8 @@ class Device {
       preferredStreamingType:
           preferredStreamingType ?? this.preferredStreamingType,
       externalData: externalData ?? this.externalData,
+      substreamEnabled: substreamEnabled ?? this.substreamEnabled,
+      useSubstream: useSubstream ?? this.useSubstream,
     )..volume = volume ?? this.volume;
   }
 
@@ -431,6 +531,8 @@ class Device {
       'preferredStreamingType': preferredStreamingType?.name,
       'externalData': externalData?.toMap(),
       'volume': volume,
+      'substreamEnabled': substreamEnabled,
+      'useSubstream': useSubstream,
     };
   }
 
@@ -470,6 +572,8 @@ class Device {
             json['oldestRecording'] != null
                 ? DateTime.tryParse(json['oldestRecording'])
                 : null,
+        substreamEnabled: json['substreamEnabled'] ?? false,
+        useSubstream: json['useSubstream'] ?? false,
       )
       ..volume =
           json['volume'] is double
@@ -494,8 +598,11 @@ class Device {
       resolutionY: other.resolutionY,
       server: other.server,
       status: other.status,
+      substreamEnabled: other.substreamEnabled,
       url: other.url,
       volume: other.volume,
+      // The substream choice is a user preference: a server refresh must not
+      // reset it, so [useSubstream] is intentionally kept from `this`.
     );
   }
 }

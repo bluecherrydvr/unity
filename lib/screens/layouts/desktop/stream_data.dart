@@ -92,6 +92,7 @@ class _StreamDataState extends State<StreamData> {
   late var fit = widget.fit;
   late final overlays = List<VideoOverlay>.from(widget.device.overlays);
   late var streamingType = widget.device.preferredStreamingType;
+  late var useSubstream = widget.device.useSubstream;
 
   late final StreamSubscription<double> volumeSubscription;
   final _urlController = TextEditingController();
@@ -327,6 +328,20 @@ class _StreamDataState extends State<StreamData> {
                         },
                       ),
                     ],
+                    if (widget.device.substreamEnabled &&
+                        widget.device.url == null) ...[
+                      const SizedBox(height: 16.0),
+                      SwitchListTile.adaptive(
+                        title: const Text('Use substream for live view'),
+                        subtitle: const Text(
+                          'Play the low-resolution substream instead of the '
+                          'main stream.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                        value: useSubstream,
+                        onChanged: (v) => setState(() => useSubstream = v),
+                      ),
+                    ],
                     if (settings.kMatrixedZoomEnabled.value) ...[
                       const SizedBox(height: 16.0),
                       Text(
@@ -458,6 +473,7 @@ class _StreamDataState extends State<StreamData> {
                     overlays: overlays,
                     matrixType: matrixType,
                     preferredStreamingType: streamingType,
+                    useSubstream: useSubstream,
                   ),
                 );
               },

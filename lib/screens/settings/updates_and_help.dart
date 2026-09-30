@@ -25,6 +25,7 @@ import 'package:bluecherry_client/providers/update_provider.dart';
 import 'package:bluecherry_client/screens/settings/settings_desktop.dart';
 import 'package:bluecherry_client/screens/settings/shared/options_chooser_tile.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/crash_reporting.dart';
 import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,6 +66,7 @@ class UpdatesSettings extends StatelessWidget {
           onChanged: (value) {
             if (value != null) {
               settings.kAllowDataCollection.value = value;
+              applyCrashReportingSettings();
             }
           },
         ),
@@ -78,6 +80,7 @@ class UpdatesSettings extends StatelessWidget {
           ),
           onChanged: (v) {
             settings.kAllowCrashReports.value = v;
+            applyCrashReportingSettings();
           },
         ),
         if (settings.kShowDebugInfo.value) ...[

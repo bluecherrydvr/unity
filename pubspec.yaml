@@ -58,6 +58,11 @@ dependencies:
   permission_handler: ^12.0.0+1
   uuid: ^4.3.3
 
+  # Crash reporting (Sentry). Kept on a free-plan-safe configuration, see
+  # lib/utils/crash_reporting.dart. Supports Dart >=3.7 (repo floor) and
+  # Flutter >=3.24 (CI).
+  sentry_flutter: ^9.0.0
+
   # Desktop
   window_manager: ^0.4.2
   titlebar_buttons: ^1.0.0

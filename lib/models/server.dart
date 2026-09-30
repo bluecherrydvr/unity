@@ -241,7 +241,10 @@ class Server {
 
   @override
   String toString() =>
-      'Server($name, $ip, $port, $rtspPort, $login, $password, $devices, $serverUUID, $cookie, $online, $passedCertificates)';
+      // Never interpolate the password or cookie: this string reaches
+      // consoles, log files, and crash reports.
+      'Server($name, $ip, $port, $rtspPort, $login, ***, $devices, '
+      '$serverUUID, ***, $online, $passedCertificates)';
 
   @override
   bool operator ==(Object other) {

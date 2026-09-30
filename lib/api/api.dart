@@ -27,6 +27,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:http/http.dart' as http;
@@ -98,15 +99,12 @@ class API {
     debugPrint('Checking server credentials for server ${server.id}');
     try {
       final settings = SettingsProvider.instance;
-      final uri = Uri.https(
-        '${server.ip}:${server.port}',
-        '/ajax/loginapp.php',
-        {
-          'login': server.login,
-          'password': server.password,
-          'from_client': '${true}',
-        },
-      );
+      final uri =
+          Uri.https('${server.ip}:${server.port}', '/ajax/loginapp.php', {
+            'login': server.login,
+            'password': server.password,
+            'from_client': '${true}',
+          });
       final request =
           http.MultipartRequest('POST', uri)
             ..fields.addAll({
@@ -122,9 +120,11 @@ class API {
       );
       final body = await response.stream.bytesToString();
       debugPrint(
-        '${server.ip}:${server.port} with status code ${response.statusCode}'
-        '\nHeaders: ${response.headers}'
-        '\nBody: $body',
+        sanitizeSensitiveData(
+          '${server.ip}:${server.port} with status code ${response.statusCode}'
+          '\nHeaders: ${response.headers}'
+          '\nBody: $body',
+        ),
       );
 
       if (response.statusCode == 200) {

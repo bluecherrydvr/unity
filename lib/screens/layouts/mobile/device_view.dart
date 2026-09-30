@@ -136,8 +136,7 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                             child: Text(loc.reloadCamera),
                             onTap: () => view.reload(widget.tab, widget.index),
                           ),
-                          if (device.substreamEnabled &&
-                              device.url == null)
+                          if (device.substreamEnabled && device.url == null)
                             PopupMenuItem(
                               child: Text(
                                 device.useSubstream

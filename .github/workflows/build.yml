@@ -212,6 +212,43 @@ jobs:
       - run: git config --system core.longpaths true
       - run: flutter gen-l10n
       - run: flutter pub get
+      - name: Pre-seed fvp MDK SDK
+        shell: powershell
+        # fvp's CMake downloads mdk-sdk and extracts it with `cmake -E tar`
+        # inside its own plugin dir, which lives under
+        # windows/flutter/ephemeral/.plugin_symlinks (a symlink). Newer CMake
+        # refuses to extract through a symlink, so pre-extract the SDK into the
+        # real pub-cache location; fvp_setup_deps() then skips its own download.
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pkg = Get-Content .dart_tool/package_config.json | ConvertFrom-Json
+          $fvpUri = ($pkg.packages | Where-Object { $_.name -eq 'fvp' }).rootUri
+          $fvpPath = ([System.Uri]$fvpUri).LocalPath
+          $dest = Join-Path $fvpPath 'windows'
+          $marker = Join-Path $dest 'mdk-sdk/lib/cmake/FindMDK.cmake'
+          if (-not (Test-Path $marker)) {
+            # Same URL fvp's cmake/deps.cmake downloads by default.
+            # SourceForge rotates mirrors per request and occasionally serves
+            # an error page, so retry with an integrity check until 7z
+            # accepts the download.
+            $tmp = Join-Path $env:RUNNER_TEMP 'mdk-sdk-windows-x64.7z'
+            $ok = $false
+            for ($i = 1; $i -le 4 -and -not $ok; $i++) {
+              try {
+                # curl, not Invoke-WebRequest: SourceForge serves IWR's
+                # user-agent an error page instead of the archive.
+                & curl.exe -fSL --retry 2 --max-time 600 -o "$tmp" 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z'
+                if ($LASTEXITCODE -ne 0) { continue }
+                & 7z t $tmp > $null
+                if ($LASTEXITCODE -eq 0) { $ok = $true }
+              } catch {
+                Write-Host "mdk-sdk download attempt $i failed, retrying"
+              }
+            }
+            if (-not $ok) { throw 'mdk-sdk download failed integrity check' }
+            & 7z x $tmp "-o$dest" -y
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
       - name: Build Windows
         run: |
           flutter build windows --verbose --build-number=${{ env.BUILD_NUMBER }} ${{ env.BUILD_NAME && format('--build-name={0}', env.BUILD_NAME) }}
@@ -282,7 +319,7 @@ jobs:
         # https://pub.dev/packages/flutter_secure_storage#configure-linux-version
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar libsecret-1-dev libjsoncpp-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev mpv libmpv-dev dpkg-dev p7zip-full p7zip-rar libsecret-1-dev libjsoncpp-dev libcurl4-openssl-dev
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2.8.0
@@ -426,7 +463,9 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
-          flutter-version: 3.29.1
+          # Pinned: flutterpi_tool 0.12.0 targets Flutter 3.44.x and does not
+          # activate on latest stable; 3.44 already has onReorderItem.
+          flutter-version: "3.44.0"
           cache: false
 
       - name: Initiate Flutter

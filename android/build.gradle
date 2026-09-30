@@ -9,6 +9,17 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+// Align every module (including pinned plugins such as
+// flutter_secure_storage 8.x, authored against android-33) with the app's
+// compileSdk. Newer transitive androidx libraries require compiling
+// against 35+, otherwise each stale plugin fails checkReleaseAarMetadata.
+subprojects { project ->
+    afterEvaluate {
+        if (project.hasProperty('android')) {
+            project.android.compileSdkVersion 35
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(':app')
 }

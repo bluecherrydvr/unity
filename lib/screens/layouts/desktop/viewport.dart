@@ -228,11 +228,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                       useSubstream: useSubstream,
                     );
                     UnityPlayers.syncSubstreamChoice(updated);
-                    view.updateDevice(
-                      widget.device,
-                      updated,
-                      reload: true,
-                    );
+                    view.updateDevice(widget.device, updated, reload: true);
                   },
                 ),
               ),

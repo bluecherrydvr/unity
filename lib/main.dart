@@ -44,6 +44,7 @@ import 'package:bluecherry_client/screens/multi_window/single_layout_window.dart
 import 'package:bluecherry_client/screens/multi_window/window.dart';
 import 'package:bluecherry_client/screens/players/live_player.dart';
 import 'package:bluecherry_client/utils/app_links/app_links.dart' as app_links;
+import 'package:bluecherry_client/utils/crash_reporting.dart';
 import 'package:bluecherry_client/utils/keyboard.dart';
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/methods.dart';
@@ -75,6 +76,8 @@ Future<void> main(List<String> args) async {
     await initializeDateFormatting();
     await configureStorage();
     await SettingsProvider.ensureInitialized();
+    // Requires initialized settings (privacy opt-in) and never throws.
+    await initCrashReporting();
 
     await app_links.handleArgs(
       args,

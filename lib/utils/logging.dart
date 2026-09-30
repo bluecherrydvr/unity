@@ -20,6 +20,8 @@
 import 'dart:io';
 
 import 'package:bluecherry_client/providers/server_provider.dart';
+import 'package:bluecherry_client/utils/crash_reporting.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
@@ -39,11 +41,18 @@ void handleError(
   dynamic stackTrace, [
   String context = 'Uncaught error',
 ]) {
-  debugPrint('$context: $error');
-  debugPrintStack(stackTrace: stackTrace, label: context);
+  // Errors may embed stream URLs containing cleartext credentials.
+  final sanitizedContext = sanitizeSensitiveData(context);
+  final sanitizedError = sanitizeSensitiveData('$error');
+  debugPrint('$sanitizedContext: $sanitizedError');
+  debugPrintStack(stackTrace: stackTrace, label: sanitizedContext);
 
   // Write the error information to a log file.
-  writeErrorToFile(error, stackTrace, context);
+  writeErrorToFile(sanitizedError, stackTrace, sanitizedContext);
+
+  // Forward the raw error to crash reporting, which applies its own
+  // permission checks, quota budget, and redaction.
+  reportErrorToSentry(error, stackTrace is StackTrace ? stackTrace : null);
 }
 
 Future<File?> getLogFile() async {

@@ -228,9 +228,21 @@ jobs:
           $marker = Join-Path $dest 'mdk-sdk/lib/cmake/FindMDK.cmake'
           if (-not (Test-Path $marker)) {
             # Same URL fvp's cmake/deps.cmake downloads by default.
+            # SourceForge rotates mirrors per request and occasionally serves
+            # an error page, so retry with an integrity check until 7z
+            # accepts the download.
             $tmp = Join-Path $env:RUNNER_TEMP 'mdk-sdk-windows-x64.7z'
-            Invoke-WebRequest -Uri 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z' -OutFile $tmp
-            if ((Get-Item $tmp).Length -lt 1MB) { throw 'mdk-sdk download looks wrong' }
+            $ok = $false
+            for ($i = 1; $i -le 4 -and -not $ok; $i++) {
+              try {
+                Invoke-WebRequest -Uri 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z' -OutFile $tmp
+                & 7z t $tmp > $null
+                if ($LASTEXITCODE -eq 0) { $ok = $true }
+              } catch {
+                Write-Host "mdk-sdk download attempt $i failed, retrying"
+              }
+            }
+            if (-not $ok) { throw 'mdk-sdk download failed integrity check' }
             & 7z x $tmp "-o$dest" -y
             if ($LASTEXITCODE -ne 0) { exit 1 }
           }

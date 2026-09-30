@@ -227,8 +227,10 @@ jobs:
           $dest = Join-Path $fvpPath 'windows'
           $marker = Join-Path $dest 'mdk-sdk/lib/cmake/FindMDK.cmake'
           if (-not (Test-Path $marker)) {
+            # Same URL fvp's cmake/deps.cmake downloads by default.
             $tmp = Join-Path $env:RUNNER_TEMP 'mdk-sdk-windows-x64.7z'
-            Invoke-WebRequest -Uri 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z/download' -OutFile $tmp
+            Invoke-WebRequest -Uri 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z' -OutFile $tmp
+            if ((Get-Item $tmp).Length -lt 1MB) { throw 'mdk-sdk download looks wrong' }
             & 7z x $tmp "-o$dest" -y
             if ($LASTEXITCODE -ne 0) { exit 1 }
           }
@@ -446,6 +448,9 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: "stable"
+          # Pinned: flutterpi_tool 0.12.0 targets Flutter 3.44.x and does not
+          # activate on latest stable; 3.44 already has onReorderItem.
+          flutter-version: "3.44.0"
           cache: false
 
       - name: Initiate Flutter

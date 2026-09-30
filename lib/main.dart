@@ -68,6 +68,11 @@ import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+const kCleanExitKey = 'app.clean_exit';
+/// See [kCleanExitKey]. This only runs on desktop, where the flag is
+Future<void> recoverFromAbnormalTermination() async {
+    final previousExit = await secureStorage.read(key: kCleanExitKey);
+    await secureStorage.write(key: kCleanExitKey, value: 'false');
 Future<void> main(List<String> args) async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -76,6 +81,7 @@ Future<void> main(List<String> args) async {
     await initializeDateFormatting();
     await configureStorage();
     await SettingsProvider.ensureInitialized();
+    await recoverFromAbnormalTermination();
     // Requires initialized settings (privacy opt-in) and never throws.
     await initCrashReporting();
 
@@ -314,6 +320,8 @@ class _UnityAppState extends State<UnityApp>
           }
         }
       });
+        // The run is ending gracefully; see [kCleanExitKey].
+        await secureStorage.write(key: kCleanExitKey, value: 'true');
       windowManager.destroy();
     }
   }

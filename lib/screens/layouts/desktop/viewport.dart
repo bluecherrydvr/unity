@@ -223,6 +223,17 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                     setState(() => ptzEnabled = enabled);
                   },
                   onFitChanged: widget.onFitChanged,
+                  onSubstreamChanged: (useSubstream) {
+                    final updated = widget.device.copyWith(
+                      useSubstream: useSubstream,
+                    );
+                    UnityPlayers.syncSubstreamChoice(updated);
+                    view.updateDevice(
+                      widget.device,
+                      updated,
+                      reload: true,
+                    );
+                  },
                 ),
               ),
               if (!isSubView &&
@@ -257,13 +268,16 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
                               onFitChanged: widget.onFitChanged,
                             );
                             if (device != null && mounted) {
+                              UnityPlayers.syncSubstreamChoice(device);
                               view.updateDevice(
                                 widget.device,
                                 device,
                                 reload:
                                     device.url != widget.device.url ||
                                     device.preferredStreamingType !=
-                                        widget.device.preferredStreamingType,
+                                        widget.device.preferredStreamingType ||
+                                    device.useSubstream !=
+                                        widget.device.useSubstream,
                               );
                             }
                           },
@@ -310,6 +324,11 @@ class DeviceOptions extends StatefulWidget {
   final Device device;
   final ValueChanged<bool> onPTZEnabledChanged;
   final ValueChanged<UnityVideoFit> onFitChanged;
+
+  /// Called when the user toggles the main/substream rendition.
+  ///
+  /// When null, no rendition toggle is shown (e.g. in fullscreen).
+  final ValueChanged<bool>? onSubstreamChanged;
   final bool isFullScreen;
 
   const DeviceOptions({
@@ -317,6 +336,7 @@ class DeviceOptions extends StatefulWidget {
     required this.device,
     required this.onPTZEnabledChanged,
     required this.onFitChanged,
+    this.onSubstreamChanged,
     this.isFullScreen = false,
   });
 
@@ -424,6 +444,26 @@ class _DeviceOptionsState extends State<DeviceOptions> {
                           ptzEnabled: ptzEnabled,
                         );
                       },
+                    ),
+                  if (widget.onSubstreamChanged != null &&
+                      widget.device.substreamEnabled &&
+                      widget.device.url == null &&
+                      !video.isLoading)
+                    SquaredIconButton(
+                      icon: Icon(
+                        widget.device.useSubstream ? Icons.sd : Icons.hd,
+                        shadows: outlinedIcon(),
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                      tooltip:
+                          widget.device.useSubstream
+                              ? 'Switch to main stream'
+                              : 'Switch to substream',
+                      onPressed:
+                          () => widget.onSubstreamChanged!(
+                            !widget.device.useSubstream,
+                          ),
                     ),
                   reloadButton,
                   // CameraViewFitButton(

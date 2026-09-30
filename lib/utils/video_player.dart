@@ -74,6 +74,7 @@ class UnityPlayers with ChangeNotifier {
   static bool isReloadable(String deviceUUID) =>
       _reloadable.contains(deviceUUID);
 
+  static void syncSubstreamChoice(Device device) {
   /// Helper method to create a video player with required configuration for a [Device].
   static UnityVideoPlayer forDevice(
     Device device, [
@@ -100,9 +101,11 @@ class UnityPlayers with ChangeNotifier {
           Future<String> fallback,
         ) = switch (streamingType) {
           StreamingType.rtsp => (device.rtspURL, device.getHLSUrl()),
+          StreamingType.rtsp => (device.liveRtspURL, device.getHLSUrl()),
           StreamingType.hls => (
             await device.getHLSUrl(),
             Future.value(device.rtspURL),
+            Future.value(device.liveRtspURL),
           ),
           StreamingType.mjpeg => (device.mjpegURL, Future.value(device.hlsURL)),
         };

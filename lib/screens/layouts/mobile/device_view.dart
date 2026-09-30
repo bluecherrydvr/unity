@@ -136,6 +136,28 @@ class _MobileDeviceViewState extends State<MobileDeviceView> {
                             child: Text(loc.reloadCamera),
                             onTap: () => view.reload(widget.tab, widget.index),
                           ),
+                          if (device.substreamEnabled &&
+                              device.url == null)
+                            PopupMenuItem(
+                              child: Text(
+                                device.useSubstream
+                                    ? 'Switch to main stream'
+                                    : 'Switch to substream',
+                              ),
+                              onTap: () async {
+                                final updated = device.copyWith(
+                                  useSubstream: !device.useSubstream,
+                                );
+                                UnityPlayers.syncSubstreamChoice(updated);
+                                await view.replace(
+                                  widget.tab,
+                                  widget.index,
+                                  updated,
+                                );
+                                await UnityPlayers.reloadDevice(updated);
+                                if (mounted) setState(() {});
+                              },
+                            ),
                         ],
                       );
                     },

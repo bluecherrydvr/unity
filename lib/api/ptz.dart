@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/l10n/generated/app_localizations.dart';
 import 'package:bluecherry_client/models/device.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:flutter/widgets.dart';
 
 enum PTZCommand {
@@ -106,7 +107,7 @@ extension PtzApiExtension on API {
       },
     });
 
-    debugPrint(url.toString());
+    debugPrint(sanitizeSensitiveData(url.toString()));
 
     final response = await API.client.get(
       url,
@@ -150,7 +151,7 @@ extension PtzApiExtension on API {
       },
     );
 
-    debugPrint(url.toString());
+    debugPrint(sanitizeSensitiveData(url.toString()));
 
     final response = await API.client.get(
       url,

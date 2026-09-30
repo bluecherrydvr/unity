@@ -23,6 +23,7 @@ import 'package:bluecherry_client/api/api.dart';
 import 'package:bluecherry_client/models/server.dart';
 import 'package:bluecherry_client/providers/server_provider.dart';
 import 'package:bluecherry_client/utils/logging.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -98,7 +99,7 @@ abstract class APIHelpers {
           '/media/request.php',
           {'id': mediaID.toString(), 'mode': 'screenshot'},
         );
-        debugPrint(uri.toString());
+        debugPrint(sanitizeSensitiveData(uri.toString()));
         final directory = await getExternalStorageDirectory();
         final filePath = '${directory?.path}/$mediaID.png';
         final file = File(filePath);

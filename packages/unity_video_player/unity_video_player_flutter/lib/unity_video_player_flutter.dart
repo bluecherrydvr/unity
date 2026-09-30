@@ -27,6 +27,12 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
       FlutterpiVideoPlayer.registerWith();
     } else {
       final forceFFmpeg = arguments is Map && arguments['forceFFmpeg'] == true;
+      // Mirrors [DevHttpOverrides]/`kAllowUntrustedCertificates`: internal
+      // servers commonly use self-signed certificates which the default TLS
+      // verification would reject, breaking event playback over HTTPS.
+      final allowUntrustedCertificates =
+          arguments is! Map ||
+          (arguments['allowUntrustedCertificates'] as bool? ?? true);
       fvp.registerWith(options: {
         if (forceFFmpeg) 'video.decoders': ['FFmpeg'],
         'player': {
@@ -35,6 +41,10 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
           'avformat.fpsprobesize': '0',
           'avformat.fflags': '+nobuffer',
           'avformat.avioflags': 'direct',
+          if (allowUntrustedCertificates) ...{
+            'tls-verify': 'no',
+            'insecure': 'yes',
+          },
         }
       });
     }
@@ -232,6 +242,16 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
     try {
       await player!.initialize();
+      // Record the actual stream resolution. [width]/[height] otherwise only
+      // reflect the requested rendering quality (or null when automatic), so
+      // debug overlays and status labels could not show what the camera is
+      // really sending (main stream vs low-res sub-stream).
+      final size = player!.value.size;
+      if (size.width > 0 && size.height > 0) {
+        width = size.width.toInt();
+        height = size.height.toInt();
+        notifyListeners();
+      }
       player!.addListener(() {
         if (_videoStream.isClosed) return;
         _videoStream.add(player!.value);

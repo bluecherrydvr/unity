@@ -102,6 +102,7 @@ Future<void> main(List<String> args) async {
         await UnityVideoPlayerInterface.instance.initialize({
           if (SettingsProvider.instance.kBackwardsRenderingCompatibility.value)
             'forceFFmpeg': true,
+          'allowUntrustedCertificates':
         });
 
         logging.writeLogToFile('Opening app with $args', print: true);

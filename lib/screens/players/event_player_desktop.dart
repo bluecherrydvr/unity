@@ -31,6 +31,7 @@ import 'package:bluecherry_client/screens/layouts/desktop/multicast_view.dart';
 import 'package:bluecherry_client/screens/layouts/video_status_label.dart';
 import 'package:bluecherry_client/utils/date.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
+import 'package:bluecherry_client/utils/sanitize.dart';
 import 'package:bluecherry_client/utils/video_player.dart';
 import 'package:bluecherry_client/widgets/collapsable_sidebar.dart';
 import 'package:bluecherry_client/widgets/desktop_buttons.dart';
@@ -219,6 +220,7 @@ class _EventPlayerDesktopState extends State<EventPlayerDesktop> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Text(
                                             'source: ${player.dataSource ?? loc.unknown}'
+                                            '\nresolution: ${player.resolution == null ? loc.unknown : '${player.resolution!.width.toInt()}x${player.resolution!.height.toInt()}'}'
                                             '\nposition: ${player.currentPos}'
                                             '\nduration ${player.duration}'
                                             '\nbuffer ${player.currentBuffer}',

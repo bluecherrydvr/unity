@@ -97,7 +97,7 @@ class ServersList extends StatelessWidget {
               ReorderableListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                onReorder: (oldIndex, newIndex) {
+                onReorderItem: (oldIndex, newIndex) {
                   serversProvider.reorder(oldIndex, newIndex);
                 },
                 buildDefaultDragHandles: false,

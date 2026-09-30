@@ -237,11 +237,8 @@ class _TimelineTilesState extends State<TimelineTiles> {
                           scrollController: verticalScrollController,
                           itemCount: timeline.tiles.length,
                           buildDefaultDragHandles: false,
-                          onReorder: (oldIndex, newIndex) {
+                          onReorderItem: (oldIndex, newIndex) {
                             setState(() {
-                              if (oldIndex < newIndex) {
-                                newIndex -= 1;
-                              }
                               final item = timeline.tiles.removeAt(oldIndex);
                               timeline.tiles.insert(newIndex, item);
                               timeline.notify();

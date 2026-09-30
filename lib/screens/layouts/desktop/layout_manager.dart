@@ -158,7 +158,7 @@ class _LayoutManagerState extends State<LayoutManager> with Searchable {
           Expanded(
             child: ReorderableListView.builder(
               buildDefaultDragHandles: false,
-              onReorder: view.reorderLayout,
+              onReorderItem: view.reorderLayout,
               itemCount: view.layouts.length,
               itemBuilder: (context, index) {
                 final layout = view.layouts[index];

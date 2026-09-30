@@ -503,7 +503,7 @@ class SettingsProvider extends UnityProvider {
     getDefault: () async {
       if (!isDesktopPlatform) return false;
       try {
-        return windowManager.isFullScreen();
+        return await windowManager.isFullScreen();
       } catch (error) {
         return false;
       }

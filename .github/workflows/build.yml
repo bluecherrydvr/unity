@@ -4,8 +4,12 @@ on:
     branches:
       - main
   release:
+    # `created` covers drafts saved in advance; `published` covers
+    # publishing (a publish does not re-fire `created`, so without
+    # `published` the release binaries are never built).
     types:
       - created
+      - published
   pull_request:
   workflow_dispatch:
 

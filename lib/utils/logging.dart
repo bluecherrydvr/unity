@@ -72,9 +72,11 @@ Future<void> writeErrorToFile(
   if (kIsWeb) return;
 
   final time = DateTime.now().toIso8601String();
+  final sanitizedError = sanitizeSensitiveData('$error');
+  final sanitizedContext = sanitizeSensitiveData(context);
   final errorLog =
-      '\n[$time]$context'
-      '\n[$time]Error: $error\n'
+      '\n[$time]$sanitizedContext'
+      '\n[$time]Error: $sanitizedError\n'
       '[$time]Stack trace: $stackTrace';
 
   final file = await getLogFile();
@@ -84,6 +86,9 @@ Future<void> writeErrorToFile(
 }
 
 Future<void> writeLogToFile(String text, {bool print = false}) async {
+  // Redact credentials embedded in URLs (e.g. `user:password@host`) as well
+  // as known `login:password` pairs before persisting or printing anything.
+  text = sanitizeSensitiveData(text);
   if (!kIsWeb) {
     final time = DateTime.now().toIso8601String();
     final file = await getLogFile();
@@ -132,5 +137,8 @@ Future<void> logStreamToFile(String streamUrl, String log) async {
   final time = DateTime.now().toIso8601String();
   final file = await getLogFileForStream(streamUrl);
 
-  await file.writeAsString('\n[$time] $log', mode: FileMode.append);
+  await file.writeAsString(
+    '\n[$time] ${sanitizeSensitiveData(log)}',
+    mode: FileMode.append,
+  );
 }

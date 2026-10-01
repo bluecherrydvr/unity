@@ -27,11 +27,14 @@ void main() {
       expect(event.duration, const Duration(seconds: 90));
     });
 
-    test('falls back to updated - published when media duration is missing', () {
-      final event = buildEvent();
+    test(
+      'falls back to updated - published when media duration is missing',
+      () {
+        final event = buildEvent();
 
-      expect(event.duration, const Duration(seconds: 30));
-    });
+        expect(event.duration, const Duration(seconds: 30));
+      },
+    );
 
     test('falls back when the server reports a zero media duration', () {
       // The server reports 0 when the media length is unknown.
@@ -52,17 +55,11 @@ void main() {
 
   group('Event.tryParseMediaDuration', () {
     test('parses integer seconds', () {
-      expect(
-        Event.tryParseMediaDuration(90),
-        const Duration(seconds: 90),
-      );
+      expect(Event.tryParseMediaDuration(90), const Duration(seconds: 90));
     });
 
     test('parses numeric strings', () {
-      expect(
-        Event.tryParseMediaDuration('90'),
-        const Duration(seconds: 90),
-      );
+      expect(Event.tryParseMediaDuration('90'), const Duration(seconds: 90));
     });
 
     test('returns null for missing values', () {

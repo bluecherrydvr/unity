@@ -10,7 +10,9 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 /// Player backend stub. Settings read its capabilities at startup; playback
 /// itself is never exercised here.
-class _FakeVideoPlayerInterface with MockPlatformInterfaceMixin implements UnityVideoPlayerInterface {
+class _FakeVideoPlayerInterface
+    with MockPlatformInterfaceMixin
+    implements UnityVideoPlayerInterface {
   @override
   Future<void> initialize([dynamic arguments]) async {}
 

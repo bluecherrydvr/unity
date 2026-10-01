@@ -1,0 +1,713 @@
+{
+  "@@locale": "ru",
+  "welcome": "Добро пожаловать",
+  "welcomeDescription": "Добро пожаловать в Bluecherry Surveillance DVR!\nДавайте быстро подключимся к вашему DVR‑серверу.",
+  "configure": "Настроить DVR‑сервер",
+  "configureDescription": "Настройте подключение к удалённому DVR‑серверу. Вы можете подключить любое количество серверов из любой точки мира.",
+  "hostname": "Имя хоста",
+  "hostnameExample": "demo.bluecherry.app",
+  "port": "Порт",
+  "rtspPort": "Порт RTSP",
+  "serverName": "Имя сервера",
+  "username": "Имя пользователя",
+  "usernameHint": "Admin",
+  "password": "Пароль",
+  "savePassword": "Сохранить пароль",
+  "showPassword": "Показать пароль",
+  "hidePassword": "Скрыть пароль",
+  "hide": "Скрыть",
+  "show": "Показать",
+  "useDefault": "Использовать по умолчанию",
+  "connect": "Подключиться",
+  "connectAutomaticallyAtStartup": "Подключаться автоматически при запуске",
+  "connectAutomaticallyAtStartupDescription": "Если включено, сервер будет подключаться автоматически при запуске приложения.",
+  "checkingServerCredentials": "Проверка учетных данных сервера",
+  "skip": "Пропустить",
+  "cancel": "Отмена",
+  "disabled": "Отключено",
+  "letsGo": "Поехали!",
+  "finish": "Готово",
+  "letsGoDescription": "Несколько советов для начала:",
+  "projectName": "Bluecherry",
+  "projectDescription": "Мощное программное обеспечение для видеонаблюдения",
+  "website": "Веб‑сайт",
+  "purchase": "Купить",
+  "tip0": "Камеры отображаются слева. Дважды щёлкните или перетащите камеру в область просмотра, чтобы увидеть её.",
+  "tip1": "Используйте кнопки над окном просмотра, чтобы создавать, сохранять и переключать макеты — даже с камерами с нескольких серверов.",
+  "tip2": "Дважды щёлкните по серверу, чтобы открыть его страницу конфигурации в новом окне и настроить камеры и записи.",
+  "tip3": "Нажмите на значок событий, чтобы открыть историю и просмотреть или сохранить записи.",
+  "errorTextField": "{field} не должно быть пустым.",
+  "@errorTextField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "serverAdded": "Сервер добавлен",
+  "serverNotAddedError": "Не удалось добавить {serverName}.",
+  "@serverNotAddedError": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNotAddedErrorDescription": "Проверьте введённые данные и убедитесь, что сервер в сети.\n\nЕсли подключение удалённое, убедитесь, что порты {port} и {rtspPort} открыты для сервера Bluecherry!",
+  "@serverNotAddedErrorDescription": {
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "rtspPort": {
+        "type": "String"
+      }
+    }
+  },
+  "serverAlreadyAdded": "Сервер {serverName} уже добавлен.",
+  "@serverAlreadyAdded": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "serverVersionMismatch": "Попытка добавить сервер с неподдерживаемой версией. Обновите сервер и повторите попытку!",
+  "serverVersionMismatchShort": "Неподдерживаемая версия сервера",
+  "serverWrongCredentials": "Неверные учетные данные сервера. Проверьте имя пользователя и пароль, попробуйте снова.",
+  "serverWrongCredentialsShort": "Неверные учетные данные. Проверьте имя пользователя и пароль.",
+  "noServersAvailable": "Серверы отсутствуют",
+  "error": "Ошибка",
+  "videoError": "Произошла ошибка при попытке воспроизвести видео.",
+  "copiedToClipboard": "Сообщение {message} скопировано в буфер",
+  "@copiedToClipboard": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "ok": "ОК",
+  "retry": "Повторить",
+  "clear": "Очистить",
+  "serverSettings": "Настройки сервера",
+  "serverSettingsDescription": "Настройки, применяемые только к этому серверу. Если не указаны, то будут использованы значения из Общих настроек. Вы можете изменить эти значения позже.",
+  "editServerSettingsInfo": "Изменить настройки сервера",
+  "editServerSettings": "Изменить настройки сервера {serverName}",
+  "@editServerSettings": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "removeCamera": "Удалить камеру",
+  "removePlayer": "Удалить все устройства, подключенные к этому плееру",
+  "replaceCamera": "Заменить камеру",
+  "reloadCamera": "Перезагрузить камеру",
+  "selectACamera": "Выберите камеру",
+  "switchCamera": "Переключить камеру",
+  "status": "Статус",
+  "online": "В сети",
+  "offline": "Не в сети",
+  "live": "live",
+  "timedOut": "Time Out",
+  "loading": "ЗАГРУЗКА",
+  "recorded": "ЗАПИСЬ",
+  "late": "ЗАДЕРЖКА",
+  "removeFromView": "Убрать из просмотра",
+  "addToView": "Добавить в просмотр",
+  "addAllToView": "Добавить всё в просмотр",
+  "removeAllFromView": "Убрать всё из просмотра",
+  "streamName": "Имя потока",
+  "streamNameRequired": "Требуется имя потока",
+  "streamURL": "URL потока",
+  "streamURLRequired": "Требуется URL потока",
+  "streamURLNotValid": "Недействительный URL потока",
+  "uri": "URI",
+  "oldestRecording": "Самая старая запись",
+  "eventBrowser": "История событий",
+  "eventsTimeline": "Лента событий",
+  "server": "Сервер",
+  "device": "Устройство",
+  "viewDeviceDetails": "Просмотреть данные устройства",
+  "event": "Событие",
+  "duration": "Длительность",
+  "priority": "Приоритет",
+  "next": "Далее",
+  "previous": "Назад",
+  "lastImageUpdate": "Последнее обновление изображения",
+  "fps": "FPS",
+  "date": "Дата",
+  "time": "Время",
+  "lastUpdate": "Последнее обновление",
+  "screens": "Экраны • {layout}",
+  "@screens": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "directCamera": "прямое подключение к камере",
+  "addServer": "Добавить сервер",
+  "settings": "Настройки",
+  "noServersAdded": "Вы ещё не добавили ни одного сервера :/",
+  "howToAddServer": "Перейдите на вкладку «Добавить сервер», чтобы добавить сервер.",
+  "editServerInfo": "Изменить сведения о сервере",
+  "editServer": "Изменить сервер {serverName}",
+  "@editServer": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "servers": "Серверы",
+  "nServers": "{n, plural, =0{Нет серверов} =1{1 сервер} other{{n} серверов}}",
+  "@nServers": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "nDevices": "{n, plural, =0{Нет устройств} =1{1 устройство} other{{n} устройств}}",
+  "@nDevices": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "remove": "Удалить ?",
+  "removeServerDescription": "{serverName} будет удалён из приложения. Вы не сможете просматривать камеры с этого сервера и больше не будете получать уведомления.",
+  "@removeServerDescription": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+  "yes": "Да",
+  "no": "Нет",
+  "about": "О программе",
+  "versionText": "Copyright © 2022, Bluecherry LLC.\nВсе права защищены.",
+  "gettingDevices": "Получение устройств",
+  "noDevices": "Нет устройств",
+  "noEventsLoaded": "СОБЫТИЯ НЕ ЗАГРУЖЕНЫ",
+  "noEventsLoadedTips": "•  Выберите камеры, события которых хотите видеть\n•  Используйте календарь, чтобы выбрать дату или диапазон дат \n•  Нажмите кнопку «Фильтр» для выполнения поиска",
+  "timelineKeyboardShortcutsTips": "•  Пробел — воспроизведение/пауза ленты\n•  Стрелки влево/вправо — перемещение по ленте\n•  Клавиша M — включить/выключить звук\n•  Колёсико мыши — масштабировать ленту",
+  "invalidResponse": "Получен недопустимый ответ от сервера",
+  "cameraOptions": "Параметры",
+  "showFullscreenCamera": "Показать на весь экран",
+  "exitFullscreen": "Выйти из полноэкранного режима",
+  "openInANewWindow": "Открыть в новом окне",
+  "enableAudio": "Включить звук",
+  "disableAudio": "Выключить звук",
+  "addNewServer": "Добавить новый сервер",
+  "disconnectServer": "Отключить",
+  "serverOptions": "Параметры сервера",
+  "browseEvents": "Просмотр событий",
+  "eventType": "Тип события",
+  "configureServer": "Настроить сервер",
+  "refreshDevices": "Обновить устройства",
+  "refreshServer": "Обновить сервер",
+  "viewDevices": "Просмотреть устройства",
+  "serverDevices": "Устройства {server}",
+  "@serverDevices": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "refresh": "Обновить",
+  "view": "Просмотр",
+  "@Layouts": {},
+  "cycle": "Цикл",
+  "fallbackLayoutName": "Макет {layout}",
+  "@fallbackLayoutName": {
+    "placeholders": {
+      "layout": {
+        "type": "int"
+      }
+    }
+  },
+  "newLayout": "Новый макет",
+  "editLayout": "Изменить макет",
+  "editSpecificLayout": "Изменить {layoutName}",
+  "@editSpecificLayout": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      }
+    }
+  },
+  "exportLayout": "Экспорт макета",
+  "importLayout": "Импорт макета",
+  "failedToImportMessage": "При попытке импорта {layoutName} найдено устройство, подключённое к серверу, к которому вы не подключены. Подключитесь к серверу и попробуйте снова.\nСервер: {server_ip}:{server_port}",
+  "@failedToImportMessage": {
+    "placeholders": {
+      "layoutName": {
+        "type": "String"
+      },
+      "server_ip": {
+        "type": "String"
+      },
+      "server_port": {
+        "type": "int"
+      }
+    }
+  },
+  "layoutImportFileCorrupted": "Файл, который вы пытаетесь импортировать, повреждён или содержит неполные данные.",
+  "layoutImportFileCorruptedWithMessage": "Файл, который вы пытаетесь импортировать, повреждён или содержит неполные данные: \"{message}\"",
+  "singleView": "Один вид",
+  "multipleView": "Несколько видов",
+  "compactView": "Компактный вид",
+  "createNewLayout": "Создать новый макет",
+  "layoutName": "Имя макета",
+  "layoutNameHint": "Первый этаж",
+  "layoutTypeLabel": "Тип макета",
+  "clearLayout": "Удалить {amount} {amount, plural, =1{устройство} other{устройств}}",
+  "@clearLayout": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "switchToNext": "Переключить на следующий",
+  "unlockLayout": "Разблокировать макет",
+  "lockLayout": "Заблокировать макет",
+  "layoutVolume": "Громкость макета • {volume}%",
+  "@layoutVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
+  "@Downloads": {},
+  "downloads": "Загрузки",
+  "download": "Скачать",
+  "downloadN": "Скачать {n, plural, =1{1 событие} other{{n} событий}}",
+  "@downloadN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "downloaded": "Скачано",
+  "downloading": "Загрузка",
+  "seeInDownloads": "Показать в «Загрузках»",
+  "downloadPath": "Каталог загрузки",
+  "delete": "Удалить",
+  "showInFiles": "Показать в «Файлах»",
+  "noDownloads": "Вы ещё ничего не скачивали :/",
+  "nDownloadsProgress": "У вас {n} загрузок в процессе!",
+  "@nDownloadsProgress": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "howToDownload": "Перейдите на вкладку «История событий», чтобы скачать события.",
+  "downloadTitle": "{event} на {device} ({server}) в {date}",
+  "@downloadTitle": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "playbackOptions": "ПАРАМЕТРЫ ВОСПРОИЗВЕДЕНИЯ",
+  "play": "Воспроизвести",
+  "playing": "Воспроизведение",
+  "pause": "Пауза",
+  "paused": "На паузе",
+  "volume": "Громкость • {v}",
+  "@volume": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "speed": "Скорость • {s}",
+  "@speed": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecords": "У этой камеры нет записей за текущий период.",
+  "filter": "Фильтр",
+  "loadEvents": "{n, plural, =0{Загрузить} =1{Загрузить с 1 устройства} other{Загрузить с {n} устройств}}",
+  "@loadEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "period": "Период",
+  "dateTimeFilter": "Фильтр даты и времени",
+  "dateFilter": "Фильтр даты",
+  "timeFilter": "Фильтр времени",
+  "fromDate": "С",
+  "toDate": "По",
+  "today": "Сегодня",
+  "yesterday": "Вчера",
+  "never": "Никогда",
+  "fromToDate": "{from} - {to}",
+  "@fromToDate": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@fromToTime": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRecent": "Самые новые",
+  "allowAlarms": "Разрешить оповещения",
+  "nextEvents": "Следующие события",
+  "nEvents": "{n, plural, =0{Нет событий} =1{1 событие} other{{n} событий}}",
+  "@nEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@Event Priorities": {},
+  "info": "Информация",
+  "warn": "Предупреждение",
+  "alarm": "Тревога",
+  "critical": "Критично",
+  "@Event Types": {},
+  "motion": "Движение",
+  "continuous": "Непрерывный",
+  "notFound": "Не найдено",
+  "cameraVideoLost": "Видео потеряно",
+  "cameraAudioLost": "Аудио потеряно",
+  "systemDiskSpace": "Место на диске",
+  "systemCrash": "Сбой",
+  "systemBoot": "Запуск",
+  "systemShutdown": "Выключение",
+  "systemReboot": "Перезагрузка",
+  "systemPowerOutage": "Потеря питания",
+  "unknown": "Неизвестно",
+  "close": "Закрыть",
+  "closeAnyway": "Всё равно закрыть",
+  "closeWhenDone": "Закрыть по завершении",
+  "open": "Открыть",
+  "collapse": "Свернуть",
+  "expand": "Развернуть",
+  "more": "Ещё",
+  "@PTZ": {},
+  "isPtzSupported": "Поддерживается PTZ?",
+  "ptzSupported": "PTZ поддерживается",
+  "enabledPTZ": "PTZ включён",
+  "disabledPTZ": "PTZ отключён",
+  "move": "Движение",
+  "stop": "Стоп",
+  "noMovement": "Нет движения",
+  "moveNorth": "Двигать вверх",
+  "moveSouth": "Двигать вниз",
+  "moveWest": "Двигать влево",
+  "moveEast": "Двигать вправо",
+  "moveWide": "Уменьшить масштаб",
+  "moveTele": "Увеличить масштаб",
+  "presets": "Пресеты",
+  "noPresets": "Пресеты не найдены",
+  "newPreset": "Новый пресет",
+  "goToPreset": "Перейти к пресету",
+  "renamePreset": "Переименовать пресет",
+  "deletePreset": "Удалить пресет",
+  "refreshPresets": "Обновить пресеты",
+  "@Resolution": {},
+  "resolution": "Разрешение",
+  "selectResolution": "Выбрать разрешение",
+  "setResolution": "Установить разрешение",
+  "setResolutionDescription": "Разрешение видеопотока значительно влияет на производительность приложения. Установите более низкое разрешение для повышения производительности или более высокое для улучшения качества. Значение по умолчанию можно задать для каждой камеры в настройках.",
+  "hd": "Высокая чёткость",
+  "defaultResolution": "Разрешение по умолчанию",
+  "automaticResolution": "Автоматически",
+  "p4k": "4K",
+  "p1080": "1080p",
+  "p720": "720p",
+  "p480": "480p",
+  "p360": "360p",
+  "p240": "240p",
+  "@updates": {},
+  "updates": "Обновления",
+  "upToDate": "У вас установлена последняя версия.",
+  "lastChecked": "Последняя проверка: {date}",
+  "@lastChecked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForUpdates": "Проверить обновления",
+  "checkingForUpdates": "Проверка обновлений",
+  "automaticDownloadUpdates": "Автоматическая загрузка обновлений",
+  "automaticDownloadUpdatesDescription": "Получайте самые свежие обновления, исправления и улучшения одними из первых.",
+  "updateHistory": "История обновлений",
+  "showReleaseNotes": "Показывать примечания к выпуску",
+  "showReleaseNotesDescription": "Показывать примечания к выпуску при установке новой версии",
+  "newVersionAvailable": "Доступна новая версия",
+  "installVersion": "Установить",
+  "downloadVersion": "Скачать",
+  "learnMore": "Подробнее",
+  "failedToUpdate": "Не удалось обновить",
+  "executableNotFound": "Исполняемый файл не найден",
+  "runningOn": "Запуск на {platform}",
+  "@runningOn": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "windows": "Windows",
+  "linux": "Linux {env}",
+  "@linux": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
+  "@CURRENT TASKS": {},
+  "currentTasks": "Текущие задания",
+  "noCurrentTasks": "Нет задач",
+  "taskFetchingEvent": "Получение событий",
+  "taskFetchingEventsPlayback": "Получение воспроизведения событий",
+  "taskDownloadingEvent": "Загрузка события",
+  "@@@SETTINGS": {},
+  "defaultField": "По умолчанию",
+  "general": "Общее",
+  "generalSettingsSuggestion": "Уведомления, использование данных, не давать гаснуть экрану и т. п.",
+  "serverAndDevices": "Серверы и устройства",
+  "serverAndDevicesSettingsSuggestion": "Подключение к серверам, управление устройствами и т. п.",
+  "eventsAndDownloads": "События и загрузки",
+  "eventsAndDownloadsSettingsSuggestion": "История событий, загрузки и т. п.",
+  "application": "Приложение",
+  "applicationSettingsSuggestion": "Внешний вид, тема, дата и время и т. п.",
+  "privacyAndSecurity": "Конфиденциальность и безопасность",
+  "privacyAndSecuritySettingsSuggestion": "Сбор данных, отчёты об ошибках и т. п.",
+  "updatesHelpAndPrivacy": "Обновления, помощь и конфиденциальность",
+  "updatesHelpAndPrivacySettingsSuggestion": "Проверка обновлений, история обновлений, политика конфиденциальности и т. п.",
+  "advancedOptions": "Дополнительные параметры",
+  "advancedOptionsSettingsSuggestion": "Бета‑возможности, параметры разработчика и т. п.",
+  "@@GENERAL": {},
+  "cycleTogglePeriod": "Период переключения циклического показа макетов",
+  "cycleTogglePeriodDescription": "Интервал между сменой макетов при включённом режиме цикла.",
+  "notifications": "Уведомления",
+  "notificationsEnabled": "Уведомления включены",
+  "notificationClickBehavior": "Действие при клике на уведомление",
+  "notificationClickBehaviorDescription": "Выберите, что происходит при клике на уведомление.",
+  "showEventsScreen": "Показывать историю событий",
+  "@@@DATA_USAGE": {},
+  "dataUsage": "Использование данных",
+  "streamsOnBackground": "Сохранять воспроизведение потоков в фоновом режиме",
+  "streamsOnBackgroundDescription": "Когда продолжать воспроизведение потоков при свёрнутом приложении",
+  "automatic": "Автоматически",
+  "wifiOnly": "Только Wi‑Fi",
+  "@@EVENTS_AND_DOWNLOADS": {},
+  "chooseEveryDownloadsLocation": "Выбирать место для каждой загрузки",
+  "chooseEveryDownloadsLocationDescription": "Выбирать ли место для каждой загрузки или использовать место по умолчанию. Если включено, для каждой загрузки будет предложено выбрать каталог.",
+  "allowCloseWhenDownloading": "Разрешить закрывать приложение во время загрузки",
+  "events": "События",
+  "initialEventSpeed": "Начальная скорость событий",
+  "initialEventVolume": "Начальная громкость событий",
+  "differentEventColors": "Разные цвета для событий",
+  "differentEventColorsDescription": "Показывать ли разные цвета событий на ленте. Это помогает легче различать события.",
+  "initialTimelinePoint": "Начальная точка",
+  "initialTimelinePointDescription": "Начальная точка ленты времени.",
+  "beginningInitialPoint": "Начало",
+  "firstEventInitialPoint": "Первое событие",
+  "hourAgoInitialPoint": "1 час назад",
+  "automaticallySkipEmptyPeriods": "Автоматически пропускать пустые периоды",
+  "@@APPLICATION": {},
+  "appearance": "Внешний вид",
+  "theme": "Тема",
+  "themeDescription": "Изменить внешний вид приложения",
+  "system": "Системная",
+  "light": "Светлая",
+  "dark": "Тёмная",
+  "dateAndTime": "Дата и время",
+  "dateFormat": "Формат даты",
+  "dateFormatDescription": "Какой формат использовать для отображения дат",
+  "timeFormat": "Формат времени",
+  "timeFormatDescription": "Какой формат использовать для отображения времени",
+  "convertToLocalTime": "Преобразовывать даты в локальный часовой пояс",
+  "convertToLocalTimeDescription": "Это повлияет на отображение даты и времени в приложении. Полезно, если вы находитесь в другом часовом поясе, чем сервер. Если отключено, будет использоваться часовой пояс сервера.",
+  "@@PRIVACY_AND_SECURITY": {},
+  "allowDataCollection": "Разрешить Bluecherry собирать данные об использовании",
+  "allowDataCollectionDescription": "Разрешить Bluecherry собирать данные для улучшения приложения и предоставления лучших сервисов. Данные собираются анонимно и не содержат личную информацию.",
+  "automaticallyReportErrors": "Автоматически отправлять отчёты об ошибках",
+  "automaticallyReportErrorsDescription": "Автоматически отправлять отчёты об ошибках в Bluecherry для улучшения приложения. Отчёты могут содержать личную информацию.",
+  "privacyPolicy": "Политика конфиденциальности",
+  "termsOfService": "Условия использования",
+  "@@ADVANCED_OPTIONS": {},
+  "matrixMagnification": "Увеличение области",
+  "matrixedViewMagnification": "Увеличение области включено",
+  "matrixedViewMagnificationDescription": "Увеличивать область матричного вида при выборе. Полезно при большом количестве камер для подробного просмотра конкретной зоны или при использовании многоадресного потока.",
+  "matrixType": "Тип матрицы",
+  "defaultMatrixSize": "Пропорция увеличения по умолчанию",
+  "softwareMagnification": "Программное увеличение",
+  "softwareMagnificationDescription": "Если включено, увеличение не будет выполняться на GPU. Полезно, когда аппаратное увеличение работает некорректно.",
+  "softwareMagnificationDescriptionMacOS": "Если включено, увеличение не будет выполняться на GPU. Полезно, когда аппаратное увеличение работает некорректно. На macOS отключить нельзя.",
+  "eventMagnification": "Увеличение события",
+  "eventMagnificationDescription": "Увеличивать видео события при выборе. Полезно для более детального просмотра события.",
+  "developerOptions": "Параметры разработчика",
+  "openLogFile": "Открыть файл журнала",
+  "openAppDataDirectory": "Открыть каталог данных приложения",
+  "importConfigFile": "Импорт файла конфигурации",
+  "importConfigFileDescription": "Импорт файла конфигурации .bluecherry, содержащего информацию о потоках.",
+  "debugInfo": "Отладочная информация",
+  "debugInfoDescription": "Показывать полезную для отладки информацию, такую как метаданные видео и прочее.",
+  "restoreDefaults": "Восстановить значения по умолчанию",
+  "restoreDefaultsDescription": "Восстановить все настройки по умолчанию. Это не затронет добавленные серверы.",
+  "areYouSure": "Вы уверены?",
+  "areYouSureDescription": "Это восстановит все настройки по умолчанию. Это не повлияет на ваши серверы и прочие данные.",
+  "miscellaneous": "Разное",
+  "wakelock": "Не давать экрану гаснуть",
+  "wakelockDescription": "Не давать экрану выключаться при просмотре трансляций или записей.",
+  "@Snoozing": {},
+  "snooze15": "15 минут",
+  "snooze30": "30 минут",
+  "snooze60": "1 час",
+  "snoozeNotifications": "Откладывать уведомления",
+  "notSnoozed": "Без откладывания",
+  "snoozeNotificationsUntil": "Откладывать уведомления до",
+  "snoozedUntil": "Отложено до {time}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@@SERVERS": {},
+  "connectToServerAutomaticallyAtStartup": "Подключаться автоматически при запуске",
+  "connectToServerAutomaticallyAtStartupDescription": "Если включено, сервер будет подключаться автоматически при запуске приложения. Применяется только к новым добавленным серверам.",
+  "allowUntrustedCertificates": "Разрешить недоверенные сертификаты",
+  "allowUntrustedCertificatesDescription": "Разрешить подключение к серверам с недоверенными сертификатами. Полезно при использовании самоподписанных сертификатов или сертификатов от неизвестных центров.",
+  "certificateNotPassed": "Сертификат не пройден",
+  "addServerTimeout": "Таймаут добавления сервера",
+  "addServerTimeoutDescription": "Время ожидания ответа сервера при добавлении нового сервера.",
+  "@@STREAMING": {},
+  "streamingSettings": "Настройки потоковой передачи",
+  "streamingProtocol": "Протокол потоковой передачи",
+  "preferredStreamingProtocol": "Предпочитаемый протокол потоковой передачи",
+  "preferredStreamingProtocolDescription": "Какой протокол видеопотока будет использоваться. Если сервер не поддерживает выбранный протокол, приложение попробует следующий. Можно выбрать конкретный протокол для каждого устройства в его настройках.",
+  "rtspProtocol": "Протокол RTSP",
+  "camerasSettings": "Настройки камер",
+  "renderingQuality": "Качество рендеринга",
+  "renderingQualityDescription": "Качество отображения видео. Чем выше качество, тем больше ресурсов рендеринга требуется. Рекомендуется высокое качество при наличии GPU. При автоматическом режиме качество выбирается исходя из разрешения камеры.",
+  "cameraViewFit": "Подгонка изображения камеры",
+  "cameraViewFitDescription": "Способ отображения видео в окне.",
+  "contain": "Уместить",
+  "fill": "Заполнить",
+  "cover": "Обрезать по краям",
+  "streamRefreshPeriod": "Период обновления потока",
+  "streamRefreshPeriodDescription": "Интервал между обновлениями устройства. Обеспечивает периодическую проверку актуальности видеопотока.",
+  "@@Late stream behavior": {},
+  "lateStreamBehavior": "Поведение при задержке потока",
+  "lateStreamBehaviorDescription": "Что делать, когда поток задерживается",
+  "automaticBehavior": "Автоматически",
+  "automaticBehaviorDescription": "Приложение попытается автоматически перепозиционировать поток",
+  "manualBehavior": "Вручную",
+  "manualBehaviorDescription": "Нажмите {label}, чтобы перепозиционировать поток",
+  "@manualBehaviorDescription": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverBehaviorDescription": "Приложение не будет пытаться перепозиционировать поток",
+  "@@DEVICES": {},
+  "devicesSettings": "Настройки устройств",
+  "listOfflineDevices": "Показывать офлайн‑устройства",
+  "listOfflineDevicesDescriptions": "Отображать ли офлайн‑устройства в списке.",
+  "initialDeviceVolume": "Начальная громкость камеры",
+  "runVideoTest": "Запустить видеотест",
+  "runVideoTestDescription": "Запустить тест видео для проверки состояния воспроизведения.",
+  "showCameraName": "Показывать имя камеры",
+  "always": "Всегда",
+  "onHover": "При наведении",
+  "@@LOCALIZATION": {},
+  "dateLanguage": "Дата и язык",
+  "language": "Язык",
+  "@Overlays": {},
+  "overlays": "Наложения",
+  "visible": "Видимый",
+  "nOverlay": "Наложение {n}",
+  "@nOverlay": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "overlayPosition": "Положение (x: {x}, y: {y})",
+  "@overlayPosition": {
+    "placeholders": {
+      "x": {
+        "type": "double",
+        "example": "0.0"
+      },
+      "y": {
+        "type": "double",
+        "example": "0.0"
+      }
+    }
+  },
+  "@EXTERNAL STREAM": {},
+  "externalStream": "Внешний поток",
+  "addExternalStream": "Добавить внешний поток",
+  "showMore": "Показать больше",
+  "showLess": "Показать меньше",
+  "serverHostname": "Имя хоста сервера",
+  "serverHostnameExample": "https://my-server.bluecherry.app:7001",
+  "rackName": "Имя стойки",
+  "rackNameExample": "Lab 1",
+  "openServer": "Открыть сервер",
+  "@SEARCH": {},
+  "disableSearch": "Отключить поиск",
+  "@@@Updates and Help": {},
+  "help": "Помощь",
+  "licenses": "Лицензии"
+}

@@ -218,7 +218,15 @@ class LayoutsProvider extends UnityProvider {
     if (initial == end) return;
     if (isLayoutLocked(currentLayout)) return;
 
-    currentLayout.devices.insert(end, currentLayout.devices.removeAt(initial));
+    final devices = currentLayout.devices;
+    // The drag widget can report stale or out-of-range indexes (dropping
+    // past the last tile, or the device list changing mid-drag). Ignore
+    // drags with no valid source and clamp drops past the end to the last
+    // position instead of throwing.
+    if (initial < 0 || initial >= devices.length) return;
+    if (end < 0) return;
+    final removed = devices.removeAt(initial);
+    devices.insert(end.clamp(0, devices.length), removed);
     await save();
   }
 

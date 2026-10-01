@@ -25,6 +25,7 @@ import 'package:bluecherry_client/models/event.dart';
 import 'package:bluecherry_client/providers/events_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/date.dart';
+import 'package:bluecherry_client/utils/debouncer.dart';
 import 'package:bluecherry_client/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -369,6 +370,10 @@ class Timeline extends ChangeNotifier {
 
   DateTime get currentDate => date.add(currentPosition);
 
+  /// Coalesces the expensive player re-opens triggered by [seekTo] while
+  /// scrubbing, so rapid movements only re-open once the position settles.
+  final _seekDebouncer = Debouncer(const Duration(milliseconds: 350));
+
   void seekTo(Duration position) {
     if (position < Duration.zero) {
       currentPosition = Duration.zero;
@@ -379,6 +384,15 @@ class Timeline extends ChangeNotifier {
     }
     notifyListeners();
 
+    // Re-opening the tile players is expensive: each jumpToIndex disposes and
+    // re-creates the underlying player. Wait until scrubbing settles instead
+    // of re-opening on every movement. currentDate is read when the debounced
+    // action runs, so it always uses the latest position.
+    _seekDebouncer.run(_applySeekToPlayers);
+  }
+
+  /// Re-opens the tile players at [currentDate], after scrubbing settles.
+  void _applySeekToPlayers() {
     forEachEvent((tile, event) async {
       if (!event.isPlaying(currentDate)) return;
       final eventIndex = tile.events.indexOf(event);
@@ -626,6 +640,7 @@ class Timeline extends ChangeNotifier {
 
   @override
   void dispose() {
+    _seekDebouncer.cancel();
     stop();
     for (final tile in tiles) {
       tile.videoController.dispose();

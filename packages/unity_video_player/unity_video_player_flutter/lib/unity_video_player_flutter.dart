@@ -180,8 +180,31 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
   Stream<bool> get onPlayingStateUpdate =>
       _videoStream.stream.map((value) => value.isPlaying);
 
+  /// Serializes [setDataSource] calls.
+  ///
+  /// Opening a source disposes and re-creates the underlying controller,
+  /// which must not overlap: a new call starting while the previous one is
+  /// still initializing would dispose a controller mid-initialization and
+  /// then operate on the wrong controller. Each call waits for the previous
+  /// one to finish first.
+  Future<void> _setDataSourceChain = Future.value();
+
   @override
   Future<void> setDataSource(
+    String url, {
+    bool autoPlay = true,
+    Map<String, String>? headers,
+  }) {
+    final pending = _setDataSourceChain.then(
+      (_) => _setDataSource(url, autoPlay: autoPlay, headers: headers),
+    );
+    // Keep the chain usable when an operation fails. Errors still propagate
+    // to this caller through [pending].
+    _setDataSourceChain = pending.then((_) {}, onError: (_) {});
+    return pending;
+  }
+
+  Future<void> _setDataSource(
     String url, {
     bool autoPlay = true,
     Map<String, String>? headers,
@@ -263,7 +286,10 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
 
   @override
   double get fps {
-    if (!isPi || player == null || kIsWeb) return 0.0;
+    // Media info (and its frame rate) is only available through the fvp
+    // backend on desktop and mobile. The Pi uses a different backend where
+    // the fvp extension throws, and web has no media info at all.
+    if (isPi || player == null || kIsWeb) return 0.0;
 
     return (player?.getMediaInfo() as dynamic) // Make it web safe
             ?.video

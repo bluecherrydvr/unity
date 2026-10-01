@@ -101,7 +101,7 @@ class _LivePlayerState extends State<LivePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (isMobilePlatform) {
+    if (isMobile) {
       return _MobileLivePlayer(
         player: widget.player,
         device: widget.device,
@@ -133,12 +133,14 @@ class _MobileLivePlayer extends StatefulWidget {
 }
 
 class __MobileLivePlayerState extends State<_MobileLivePlayer> {
-  bool overlay = true;
+  var overlay = true;
   late UnityVideoFit fit =
       widget.device.server.additionalSettings.videoFit ??
       SettingsProvider.instance.kVideoFit.value;
 
   late bool ptzEnabled = widget.ptzEnabled;
+  var showMagnificationGrid =
+      SettingsProvider.instance.kMatrixedZoomEnabled.value;
 
   @override
   void initState() {
@@ -197,8 +199,26 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                             strokeWidth: 3.45,
                           ),
                         )
-                      else if (commands.isNotEmpty)
-                        PTZData(commands: commands),
+                      else ...[
+                        if (showMagnificationGrid)
+                          Positioned.fill(
+                            child: Center(
+                              child: AspectRatio(
+                                aspectRatio:
+                                    controller.aspectRatio == 0 ||
+                                            controller.aspectRatio ==
+                                                double.infinity
+                                        ? 16 / 9
+                                        : controller.aspectRatio,
+                                child: MulticastViewport(
+                                  device: widget.device,
+                                  showMobileGrid: showMagnificationGrid,
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (commands.isNotEmpty) PTZData(commands: commands),
+                      ],
                       PositionedDirectional(
                         top: 0.0,
                         start: 0.0,
@@ -235,12 +255,29 @@ class __MobileLivePlayerState extends State<_MobileLivePlayer> {
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  CameraViewFitButton(
-                                    fit: fit,
-                                    onChanged: (newFit) {
-                                      setState(() => fit = newFit);
-                                    },
+                                  SquaredIconButton(
+                                    icon: Icon(
+                                      showMagnificationGrid
+                                          ? Icons.grid_on_rounded
+                                          : Icons.grid_off_rounded,
+                                    ),
+                                    tooltip:
+                                        showMagnificationGrid
+                                            ? 'Disable magnification grid'
+                                            : 'Enable magnification grid',
+                                    onPressed:
+                                        () => setState(
+                                          () =>
+                                              showMagnificationGrid =
+                                                  !showMagnificationGrid,
+                                        ),
                                   ),
+                                  // CameraViewFitButton(
+                                  //   fit: fit,
+                                  //   onChanged: (newFit) {
+                                  //     setState(() => fit = newFit);
+                                  //   },
+                                  // ),
                                   if (widget.device.hasPTZ)
                                     PTZToggleButton(
                                       ptzEnabled: ptzEnabled,

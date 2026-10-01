@@ -24,6 +24,7 @@ import 'package:bluecherry_client/models/device.dart';
 import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/settings_provider.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/methods.dart';
 import 'package:bluecherry_client/widgets/hover_button.dart';
 import 'package:bluecherry_client/widgets/misc.dart';
 import 'package:flutter/gestures.dart';
@@ -33,8 +34,9 @@ import 'package:unity_video_player/unity_video_player.dart';
 
 class MulticastViewport extends StatefulWidget {
   final Device? device;
+  final bool showMobileGrid;
 
-  const MulticastViewport({super.key, this.device});
+  const MulticastViewport({super.key, this.device, this.showMobileGrid = true});
 
   @override
   State<MulticastViewport> createState() => _MulticastViewportState();
@@ -187,13 +189,14 @@ class _MulticastViewportState extends State<MulticastViewport> {
                               (context, states) => SizedBox.expand(
                                 child: IgnorePointer(
                                   child:
-                                      states.isHovering
+                                      (isMobile && widget.showMobileGrid) ||
+                                              states.isHovering
                                           ? Container(
                                             decoration: BoxDecoration(
                                               border: Border.all(
                                                 color:
                                                     theme.colorScheme.secondary,
-                                                width: 2.25,
+                                                width: isMobile ? 0.5 : 2.25,
                                               ),
                                             ),
                                           )

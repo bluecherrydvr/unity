@@ -114,6 +114,10 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
     final view = context.watch<LayoutsProvider>();
     final settings = context.watch<SettingsProvider>();
     var video = UnityVideoView.maybeOf(context);
+    // Whether the tile is inside a real video view. Captured before the
+    // debug fabrication below: the fabricated object must not unlock widgets
+    // that look up the ancestor, such as DeviceOptions.
+    final hasVideoAncestor = video != null;
     final isSubView = AlternativeWindow.maybeOf(context) != null;
     final showDebugInfo = widget.showDebugInfo ?? settings.kShowDebugInfo.value;
 
@@ -212,7 +216,7 @@ class _DesktopTileViewportState extends State<DesktopTileViewport> {
               top: 50.0,
               child: PTZData(commands: commands),
             ),
-            if (video != null) ...[
+            if (hasVideoAncestor) ...[
               PositionedDirectional(
                 end: 0,
                 start: 0,

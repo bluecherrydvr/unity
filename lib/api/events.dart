@@ -139,6 +139,12 @@ extension EventsExtension on API {
                           eventObject['content']['content'] as String,
                         )
                         : null,
+                mediaDuration:
+                    eventObject.containsKey('content')
+                        ? Event.tryParseMediaDuration(
+                          eventObject['content']['media_duration'],
+                        )
+                        : null,
               );
             }).toList();
       } else {

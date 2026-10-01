@@ -39,6 +39,10 @@ class Event {
   final int? mediaID;
   final Uri? mediaURL;
 
+  /// The recording length reported by the server (`media_duration`, in
+  /// seconds), or `null` when the server did not provide one.
+  final Duration? mediaDuration;
+
   const Event({
     required this.server,
     required this.id,
@@ -51,6 +55,7 @@ class Event {
     required this.category,
     required this.mediaID,
     required this.mediaURL,
+    this.mediaDuration,
   });
 
   Event.dump({
@@ -65,6 +70,7 @@ class Event {
     this.category,
     this.mediaID,
     this.mediaURL,
+    this.mediaDuration,
   }) : server =
            server ??
            ServersProvider.instance.servers.elementAtOrNull(0) ??
@@ -85,9 +91,30 @@ class Event {
   }
 
   Duration get duration {
+    // The server-provided media duration is the actual recording length,
+    // while updated - published is only an approximation. A zero value
+    // means the server does not know the length, so keep the approximation
+    // in that case.
+    final media = mediaDuration;
+    if (media != null && media > Duration.zero) return media;
+
     final dur = updated.difference(published);
     if (dur < Duration.zero) return published.difference(updated);
     return dur;
+  }
+
+  /// Parses a server `media_duration` value (whole seconds) into a [Duration].
+  ///
+  /// Returns `null` when the value is missing or not a plausible whole
+  /// number of seconds.
+  static Duration? tryParseMediaDuration(dynamic value) {
+    final seconds = switch (value) {
+      final int s => s,
+      final String s => int.tryParse(s),
+      _ => null,
+    };
+    if (seconds == null || seconds < 0) return null;
+    return Duration(seconds: seconds);
   }
 
   @override
@@ -105,7 +132,8 @@ class Event {
         other.updated == updated &&
         other.category == category &&
         other.mediaID == mediaID &&
-        other.mediaURL == mediaURL;
+        other.mediaURL == mediaURL &&
+        other.mediaDuration == mediaDuration;
   }
 
   @override
@@ -120,12 +148,13 @@ class Event {
         updated.hashCode ^
         category.hashCode ^
         mediaID.hashCode ^
-        mediaURL.hashCode;
+        mediaURL.hashCode ^
+        mediaDuration.hashCode;
   }
 
   @override
   String toString() {
-    return 'Event(server: ${server.ip}, id: $id, deviceID: $deviceID, title: $title, publishedRaw: $publishedRaw, published: $published, updatedRaw: $updatedRaw, updated: $updated, category: $category, mediaID: $mediaID, mediaURL: $mediaURL)';
+    return 'Event(server: ${server.ip}, id: $id, deviceID: $deviceID, title: $title, publishedRaw: $publishedRaw, published: $published, updatedRaw: $updatedRaw, updated: $updated, category: $category, mediaID: $mediaID, mediaURL: $mediaURL, mediaDuration: $mediaDuration)';
   }
 
   Map<String, dynamic> toJson() => {
@@ -138,6 +167,7 @@ class Event {
     'category': category,
     'mediaID': mediaID,
     'mediaURL': mediaURL.toString(),
+    'mediaDuration': mediaDuration?.inSeconds,
   };
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -153,6 +183,7 @@ class Event {
       category: json['category'],
       mediaID: json['mediaID'],
       mediaURL: Uri.parse(json['mediaURL']),
+      mediaDuration: tryParseMediaDuration(json['mediaDuration']),
     );
   }
 
@@ -231,6 +262,7 @@ class Event {
     String? category,
     int? mediaID,
     Uri? mediaURL,
+    Duration? mediaDuration,
   }) {
     return Event(
       server: server ?? this.server,
@@ -244,6 +276,7 @@ class Event {
       category: category ?? this.category,
       mediaID: mediaID ?? this.mediaID,
       mediaURL: mediaURL ?? this.mediaURL,
+      mediaDuration: mediaDuration ?? this.mediaDuration,
     );
   }
 }

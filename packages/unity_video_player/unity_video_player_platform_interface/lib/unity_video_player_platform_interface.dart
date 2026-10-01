@@ -252,6 +252,15 @@ abstract class UnityVideoPlayer with ChangeNotifier {
 
   UnityVideoPlayer({this.width, this.height}) {
     onReady = () {
+      if (_isReady) {
+        // Implementations call this every time a new source is opened. Drop
+        // the previous subscriptions first, so repeated re-opens do not
+        // accumulate duplicate listeners.
+        _onErrorSubscription.cancel();
+        _onDurationUpdateSubscription.cancel();
+        _onPositionUpdateSubscription.cancel();
+        _fpsSubscription.cancel();
+      }
       _isReady = true;
       _onErrorSubscription = onError.listen(_onError);
       _onDurationUpdateSubscription =

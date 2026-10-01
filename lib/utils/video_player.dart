@@ -231,6 +231,11 @@ class UnityPlayers with ChangeNotifier {
       for (final device in devices) {
         if (players.containsKey(device.uuid)) continue;
         players[device.uuid] = forDevice(device);
+        // Players are created progressively (see the delay below) and some
+        // callers do not await this method, so notify as each player becomes
+        // available. Otherwise tiles built before their player exists never
+        // rebuild and stay empty until a manual reload.
+        instance.notifyListeners();
         await Future.delayed(const Duration(milliseconds: 350));
       }
     });

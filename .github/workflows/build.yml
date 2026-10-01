@@ -17,6 +17,10 @@ jobs:
   build_android:
     name: Bluecherry Client Android
     runs-on: ubuntu-latest
+    env:
+      # MDK SDK for fvp, pinned to a GitHub release. The default
+      # SourceForge nightly breaks CI with mirror roulette and outages.
+      FVP_DEPS_URL: https://github.com/wang-bin/mdk-sdk/releases/download/v0.36.0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -194,6 +198,10 @@ jobs:
   build_windows:
     name: Bluecherry Client Windows
     runs-on: windows-latest
+    env:
+      # MDK SDK for fvp, pinned to a GitHub release. The default
+      # SourceForge nightly breaks CI with mirror roulette and outages.
+      FVP_DEPS_URL: https://github.com/wang-bin/mdk-sdk/releases/download/v0.36.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -231,17 +239,15 @@ jobs:
           $dest = Join-Path $fvpPath 'windows'
           $marker = Join-Path $dest 'mdk-sdk/lib/cmake/FindMDK.cmake'
           if (-not (Test-Path $marker)) {
-            # Same URL fvp's cmake/deps.cmake downloads by default.
-            # SourceForge rotates mirrors per request and occasionally serves
-            # an error page, so retry with an integrity check until 7z
-            # accepts the download.
+            # Same base URL fvp's cmake/deps.cmake uses via $FVP_DEPS_URL.
+            # Retry with an integrity check until 7z accepts the download.
             $tmp = Join-Path $env:RUNNER_TEMP 'mdk-sdk-windows-x64.7z'
             $ok = $false
             for ($i = 1; $i -le 4 -and -not $ok; $i++) {
               try {
-                # curl, not Invoke-WebRequest: SourceForge serves IWR's
+                # curl, not Invoke-WebRequest: some hosts serve IWR's
                 # user-agent an error page instead of the archive.
-                & curl.exe -fSL --retry 2 --max-time 600 -o "$tmp" 'https://sourceforge.net/projects/mdk-sdk/files/nightly/mdk-sdk-windows-x64.7z'
+                & curl.exe -fSL --retry 2 --max-time 600 -o "$tmp" "$env:FVP_DEPS_URL/mdk-sdk-windows-x64.7z"
                 if ($LASTEXITCODE -ne 0) { continue }
                 & 7z t $tmp > $null
                 if ($LASTEXITCODE -eq 0) { $ok = $true }
@@ -303,6 +309,10 @@ jobs:
   build_linux:
     name: Bluecherry Client Linux
     runs-on: ubuntu-latest
+    env:
+      # MDK SDK for fvp, pinned to a GitHub release. The default
+      # SourceForge nightly breaks CI with mirror roulette and outages.
+      FVP_DEPS_URL: https://github.com/wang-bin/mdk-sdk/releases/download/v0.36.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -448,6 +458,10 @@ jobs:
   build_pi:
     name: Bluecherry Raspberry Pi
     runs-on: ubuntu-latest
+    env:
+      # MDK SDK for fvp, pinned to a GitHub release. The default
+      # SourceForge nightly breaks CI with mirror roulette and outages.
+      FVP_DEPS_URL: https://github.com/wang-bin/mdk-sdk/releases/download/v0.36.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4

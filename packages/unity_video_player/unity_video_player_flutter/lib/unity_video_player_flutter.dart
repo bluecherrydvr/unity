@@ -30,8 +30,7 @@ class UnityVideoPlayerFlutterInterface extends UnityVideoPlayerInterface {
       // Mirrors [DevHttpOverrides]/`kAllowUntrustedCertificates`: internal
       // servers commonly use self-signed certificates which the default TLS
       // verification would reject, breaking event playback over HTTPS.
-      final allowUntrustedCertificates =
-          arguments is! Map ||
+      final allowUntrustedCertificates = arguments is! Map ||
           (arguments['allowUntrustedCertificates'] as bool? ?? true);
       fvp.registerWith(options: {
         if (forceFFmpeg) 'video.decoders': ['FFmpeg'],

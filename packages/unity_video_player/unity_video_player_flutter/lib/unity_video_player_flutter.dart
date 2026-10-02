@@ -310,12 +310,21 @@ class UnityVideoPlayerFlutter extends UnityVideoPlayer {
     // the fvp extension throws, and web has no media info at all.
     if (isPi || player == null || kIsWeb) return 0.0;
 
-    return (player?.getMediaInfo() as dynamic) // Make it web safe
-            ?.video
-            ?.firstOrNull
-            ?.codec
-            .frameRate
-            .toDouble() ??
+    // `getMediaInfo` is resolved dynamically to make it web safe.
+    return fpsFromMediaInfo(player?.getMediaInfo() as dynamic);
+  }
+
+  /// Extracts the frame rate of the first video stream from fvp media info.
+  ///
+  /// [mediaInfo] is dynamic because fvp's media info types aren't available
+  /// on every platform, so only real instance members may be used here:
+  /// extension members such as `firstOrNull` cannot be invoked on a dynamic
+  /// receiver. Returns 0.0 when no frame rate is available.
+  static double fpsFromMediaInfo(dynamic mediaInfo) {
+    final video = mediaInfo?.video as List?;
+    if (video == null || video.isEmpty) return 0.0;
+
+    return ((video.first as dynamic).codec?.frameRate as num?)?.toDouble() ??
         0.0;
   }
 

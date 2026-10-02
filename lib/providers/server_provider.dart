@@ -28,6 +28,7 @@ import 'package:bluecherry_client/providers/layouts_provider.dart';
 import 'package:bluecherry_client/providers/mobile_view_provider.dart';
 import 'package:bluecherry_client/screens/servers/error.dart';
 import 'package:bluecherry_client/utils/constants.dart';
+import 'package:bluecherry_client/utils/crash_reporting.dart';
 import 'package:bluecherry_client/utils/logging.dart' as logging;
 import 'package:bluecherry_client/utils/logging.dart';
 import 'package:bluecherry_client/utils/methods.dart';
@@ -220,6 +221,7 @@ class ServersProvider extends UnityProvider {
       ),
     });
     super.save(notifyListeners: notifyListeners);
+    pushServerInventoryToSentry();
   }
 
   @override
@@ -233,6 +235,23 @@ class ServersProvider extends UnityProvider {
             );
     servers = serversData.map<Server>(Server.fromJson).toList();
     super.restore(notifyListeners: notifyListeners);
+    pushServerInventoryToSentry();
+  }
+
+  /// Reports the current server inventory to Sentry for crash correlation.
+  ///
+  /// Only the count and truncated hashes are sent: the stable server UUID
+  /// when the server reported one, else `ip:port`. Names, logins, and
+  /// addresses never leave the device. No-op unless crash reporting is on.
+  void pushServerInventoryToSentry() {
+    updateSentryServerContext(
+      serverCount: servers.length,
+      serverFingerprints: servers.map(
+        (server) => sentryServerFingerprint(
+          server.serverUUID ?? '${server.ip}:${server.port}',
+        ),
+      ),
+    );
   }
 
   Future<(ServerAdditionResponse, Server)> addServer({
